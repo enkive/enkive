@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<page>
+   <id>browse</id>
+   <title>Browse</title>
+   <template-instance>landing</template-instance>
+   <authentication>user</authentication>
+   <order-id>1</order-id>
+   <components>
+      <component>
+         <region-id>main</region-id>
+         <url>/browse/main</url>
+      </component>   
+   </components>
+</page>

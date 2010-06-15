@@ -1,0 +1,1 @@
+model.headerTitle = "E-Discovery Interface";

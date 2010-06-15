@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE urlrewrite PUBLIC "-//tuckey.org//DTD UrlRewrite 3.0//EN" "http://tuckey.org/res/dtds/urlrewrite3.0.dtd">
+<urlrewrite default-match-type="wildcard">
+
+	<!-- Spring Surf -->
+	<rule>
+		<from>/proxy**</from>
+		<to>/service/proxy/$1</to>
+	</rule>
+	<rule>
+		<from>/res/**</from>
+		<to>/service/resource/$1</to>
+	</rule>		
+	<rule>
+		<from>/service/**</from>
+		<to>/service/$1</to>
+	</rule>			
+	<rule>
+		<from>/**</from>
+		<to>/service/$1</to>
+	</rule>
+	<outbound-rule>
+		<from>/service/**</from>
+		<to>/$1</to>
+	</outbound-rule>
+		
+</urlrewrite>

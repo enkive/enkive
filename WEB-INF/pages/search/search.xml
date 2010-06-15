@@ -1,0 +1,20 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<page>
+   <id>search</id>
+   <title>Search</title>
+   <template-instance>landing</template-instance>
+   <authentication>user</authentication>
+   <order-id>1</order-id>
+   <components>
+      <component>
+         <region-id>main</region-id>
+         <url>/search/main</url>
+      </component>   
+   </components>
+   <associations>
+      <page-association>
+         <dest-id>search/advanced</dest-id>
+         <assoc-type>child</assoc-type>
+      </page-association>
+   </associations>
+</page>

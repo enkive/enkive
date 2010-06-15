@@ -1,0 +1,1 @@
+model.message = "Enkive is an email archiving solution made by The LinuxBox";

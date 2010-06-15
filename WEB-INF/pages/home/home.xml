@@ -1,0 +1,36 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<page>
+   <id>home</id>
+   <title>Home Page</title>
+   <template-instance>home</template-instance>
+   <authentication>user</authentication>
+   <order-id>0</order-id>
+   <components>
+      <component>
+         <region-id>side</region-id>
+         <url>/home/side</url>
+      </component>   
+      <component>
+         <region-id>main</region-id>
+         <url>/home/main</url>
+      </component>
+   </components>
+   <associations>
+      <page-association>
+         <dest-id>search</dest-id>
+         <assoc-type>child</assoc-type>
+      </page-association>
+      <page-association>
+         <dest-id>browse</dest-id>
+         <assoc-type>child</assoc-type>
+      </page-association>
+      <page-association>
+         <dest-id>statistics</dest-id>
+         <assoc-type>child</assoc-type>
+      </page-association>
+      <page-association>
+         <dest-id>admin</dest-id>
+         <assoc-type>child</assoc-type>
+      </page-association>
+   </associations>
+</page>
