@@ -1,27 +1,23 @@
-<html>
-<head>
-  <title>Enkive Login</title>
-</head>
-<body>
-
-		<center>
-			<form accept-charset="UTF-8" method="post" action="${url.context}/dologin">
-			<table>
-				<tr>
-					<td>User Name:</td>
-					<td><input name="username" type="text" /></td>
-				</tr>
-				<tr>
-					<td>Password:</td>
-					<td><input name="password" type="password" /></td>
-				</tr>
-			</table>
-
-			<input type="submit" value="Log In" />
-			<input name="success" type="hidden" value="${url.url}" />
-			<input name="failure" type="hidden" value="${url.url}" />
-
-			</form>
-		</center>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd" >
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+		<title>Enkive E-Discovery Interface</title>
+		<link type="text/css" rel="stylesheet" href="${url.context}/res/css/enkive.css" />
+		${head}
+	</head>
+	<body>
+		<table width=100% height=90% align=center>
+			<tr width=100% align="center">
+				<td valign="middle" align="center" width=100%>
+					<img src="${url.context}/res/images/Enkive_logo.gif" />
+				</td>
+			</tr>
+			<tr width=100% align="center">
+				<td valign="middle" align="center" width=100%>
+					<#include "login_box.ftl" />
+				</td>
+			</tr>
+		</table>
 	</body>
 </html>
