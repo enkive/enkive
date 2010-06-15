@@ -24,7 +24,6 @@
 		<zip destfile="${package.file.zip}" update="true">
 			<zipfileset dir="./css" prefix="css" />
 			<zipfileset dir="./images" prefix="images" />
-			<zipfileset dir="./META-INF" prefix="META-INF" />
 			<zipfileset dir="./WEB-INF" prefix="WEB-INF" />
 		</zip>
 	</target>
