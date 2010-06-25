@@ -3,7 +3,7 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 	<title>${page.title}</title>
-	<link type="text/css" rel="stylesheet" href="${url.context}/res/css/enkive.css" />
+	<link type="text/css" rel="stylesheet" href="${url.context}/resource/css/enkive.css" />
 	${head}
 </head>
 <body>

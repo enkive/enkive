@@ -22,12 +22,12 @@
 				</page-type>
 				<!-- User factory for Alfresco 3.2 -->
 
-				<user-factory>webframework.factory.user.alfresco32</user-factory>
+				<!-- <user-factory>webframework.factory.user.alfresco32</user-factory> -->
 
 				<!-- User factory for Alfresco 3.3 -->
-				<!--
+
 				<user-factory>webframework.factory.user.alfresco</user-factory>
-				-->
+
 			</defaults>
 		</web-framework>
 	</config>

@@ -3,14 +3,14 @@
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 		<title>Enkive E-Discovery Interface</title>
-		<link type="text/css" rel="stylesheet" href="${url.context}/res/css/enkive.css" />
+		<link type="text/css" rel="stylesheet" href="${url.context}/resource/css/enkive.css" />
 		${head}
 	</head>
 	<body>
 		<table width=100% height=90% align=center>
 			<tr width=100% align="center">
 				<td valign="middle" align="center" width=100%>
-					<img src="${url.context}/res/images/Enkive_logo.gif" />
+					<img src="${url.context}/resource/images/Enkive_logo.gif" />
 				</td>
 			</tr>
 			<tr width=100% align="center">
