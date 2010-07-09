@@ -1,0 +1,24 @@
+<!ELEMENT urlrewrite ((rule|class-rule)*, outbound-rule*, catch*)>
+<!ATTLIST urlrewrite
+use-query-string (true|false) "false"
+use-context  (true|false) "false"
+decode-using CDATA  #IMPLIED
+default-match-type (regex|wildcard) #IMPLIED>
+ 
+<!ELEMENT rule (name?, note?, condition*, from, set*, run*, to?)>
+<!ATTLIST rule
+enabled  (true|false) "true"
+match-type  (regex|wildcard) #IMPLIED>
+ 
+<!ELEMENT class-rule EMPTY>
+<!ATTLIST class-rule
+class  CDATA #IMPLIED
+method CDATA "matches"
+last (true|false) "true">
+ 
+<!ELEMENT outbound-rule (name?, note?, condition*, from, set*, run*, to?)>
+<!ATTLIST outbound-rule
+enabled  (true|false) "true"
+encodefirst  (true|false) "false"
+match-type  (regex|wildcard) #IMPLIED>
+
