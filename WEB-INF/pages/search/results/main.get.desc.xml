@@ -2,4 +2,5 @@
   <shortname>Results Page - Main Section</shortname>
   <description>Results Page - Main Section</description>
   <url>/search/results/main</url>
+  <format default="html">any</format>
 </webscript>
