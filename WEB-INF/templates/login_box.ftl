@@ -11,7 +11,7 @@
 	</table>
 	
 	<input type="submit" value="Log In" />
-	<input name="success" type="hidden" value="${url.context}" />
-	<input name="failure" type="hidden" value="${url.context}" />
+	<input name="success" type="hidden" value="${url.url}" />
+	<input name="failure" type="hidden" value="${url.url}" />
 
 </form>
