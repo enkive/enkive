@@ -9,9 +9,9 @@
 
 <table cellpadding="0" cellspacing="0">
    <tr>
-      <td><h2 class="tt">LinuxBox Software</h2></td>
+      <td><h2 class="tt">Linux Box Software</h2></td>
    </tr>
 </table>
 <ul>
-   <li><a href="http://www.linuxbox.com" target="_blank">LinuxBox Home Page</a></li>
+   <li><a href="http://www.linuxbox.com" target="_blank">Linux Box Home Page</a></li>
 </ul>

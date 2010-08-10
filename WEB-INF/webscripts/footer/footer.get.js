@@ -1,1 +1,1 @@
-model.message = "Enkive is an email archiving solution made by The LinuxBox";
+model.message = '<a href="http://linuxbox.com">Enkive</a> is the email archiving solution made by <a href="http://linuxbox.com">The Linux Box</a>.';
