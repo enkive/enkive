@@ -1,11 +1,10 @@
 body 
 {
-	margin: 25px;
 	padding: 0px;
 	font-family: Helvetica;
 	font-size: 14px;
 	color: #333;
-	background-image: url('../images/background1.gif');
+	background-image: url('../images/background.jpg');
 	background-repeat: repeat-x;
 }
 

@@ -1,14 +1,19 @@
-<table width="100%"> 
+<table width="100%" >
+<tr height="35px">
+	<td>
+		&nbsp;
+	</td>
+</tr>
 <tr>
-	<td valign="middle" nowrap>${message}</td>
+	<td valign="top" nowrap>${message}</td>
 	<td width="100%"></td>
-	<td valign="middle">
-		<img src="${url.context}/resource/images/BoxFooter.gif" />
+	<td valign="top">
+		<img src="${url.context}/resource/images/lb_logo.png" height="51px" />
 	</td>
-	<td valign="middle">
-		<img src="${url.context}/resource/images/powered-by-spring.jpg" />
+	<td valign="top">
+		<img src="${url.context}/resource/images/powered-by-spring.jpg" height="51px" />
 	</td>
-	<td valign="middle">
+	<td valign="top">
 		<img src="${url.context}/resource/images/PoweredBySurf.jpg" height="51px" />
 	</td>
 </tr>

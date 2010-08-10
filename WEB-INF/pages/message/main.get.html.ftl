@@ -1,3 +1,3 @@
 <pre>
-${text}
+${text?html}
 </pre>

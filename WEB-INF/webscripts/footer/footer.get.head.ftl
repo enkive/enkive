@@ -1,8 +1,9 @@
 <style>
 #footer
 {
-	padding: 10px;
-    	height: 60px;
-    	margin-top: 10px;
+	padding-top:5px;
+	background-image: url('/ediscovery/resource/images/footer.jpg');
+    bottom:0;
+	
 }
 </style>
