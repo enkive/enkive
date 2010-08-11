@@ -8,5 +8,8 @@
 	</table>
 </div>
 <div class="right">
+	<#if user.id != "guest">
+	Hello, ${user.fullName}!<br />
 	<a href="${url.context}/dologout">Logout</a>
+	</#if>
 </div>
