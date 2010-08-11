@@ -7,17 +7,16 @@
 		${head}
 	</head>
 	<body>
-		<table width=100% height=90% align=center>
-			<tr width=100% align="center">
-				<td valign="middle" align="center" width=100%>
-					<img src="${url.context}/resource/images/Enkive_logo.gif" />
-				</td>
-			</tr>
-			<tr width=100% align="center">
-				<td valign="middle" align="center" width=100%>
-					<#include "login_box.ftl" />
-				</td>
-			</tr>
-		</table>
+		<div id="page">
+			<div id="header" class="clearfix">
+				<@region id="header" scope="template" />
+			</div>
+			<div id="main">
+				<@region id="main" scope="page" />
+			</div>
+			<div id="footer" class="clearfix">
+				<@region id="footer" scope="template" />
+			</div>
+		</div>
 	</body>
 </html>

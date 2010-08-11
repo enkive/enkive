@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<page>
+   <id>login</id>
+   <title>Login Page</title>
+   <template-instance>login</template-instance>
+   <authentication>none</authentication>
+   <order-id>0</order-id>
+   <components>
+      <component>
+         <region-id>main</region-id>
+         <url>/login/main</url>
+      </component>
+   </components>
+</page>
