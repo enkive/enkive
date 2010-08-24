@@ -1,0 +1,6 @@
+<webscript>
+  <shortname>Recent Searches Page - Main Section</shortname>
+  <description>Recent Searches Page - Main Section</description>
+  <url>/search/recent/main</url>
+  <format default="html">any</format>
+</webscript>

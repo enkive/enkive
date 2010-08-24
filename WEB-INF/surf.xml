@@ -14,7 +14,7 @@
 
 				<page-type>
 					<id>login</id>
-					<page-instance-id>/login</page-instance-id>
+					<page-instance-id>login</page-instance-id>
 				</page-type>
 				<page-type>
 					<id>logout</id>

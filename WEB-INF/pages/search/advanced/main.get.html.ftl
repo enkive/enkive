@@ -44,7 +44,10 @@
 				<input type="text" name="dateFrom" />
 			</td>
 			<td>
-				to <input type="text" name="dateTo" />
+				to
+			</td>
+			<td>
+				<input type="text" name="dateTo" />
 			</td>
 		</tr>
 		<tr>
