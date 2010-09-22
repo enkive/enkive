@@ -20,7 +20,6 @@ var messagelist = connector.get("/enkive/search" +
 	"&dateTo=" + dateTo +
 	"&messageId=" + messageId
 	);
-var rawdata = messagelist;
 var messageJSON = jsonUtils.toObject(messagelist);
 
 model.messageList = eval("(" + messageJSON.messages + ")");
