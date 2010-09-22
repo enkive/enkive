@@ -1,9 +1,9 @@
-
 <table>
   <tr>
-    <th width="20%">Date</th>
-    <th width="80%">Subject</th>
+    <td width="20%">Date</td>
+    <td width="80%">Subject</td>
   </tr>
+  
 <#list messageList?sort_by("datenumber") as message>
   <tr>
     <td>
@@ -18,4 +18,5 @@
     </td>
   </tr>
 </#list>
+
 </table>
