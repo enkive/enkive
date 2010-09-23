@@ -1,7 +1,7 @@
 <table>
   <tr>
-    <td width="20%">Date</td>
-    <td width="80%">Subject</td>
+    <td width="25%">Date</td>
+    <td width="75%">Subject</td>
   </tr>
   
 <#list messageList?sort_by("datenumber") as message>
