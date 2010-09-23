@@ -20,6 +20,9 @@ var messagelist = connector.get("/enkive/search" +
 	"&dateTo=" + dateTo +
 	"&messageId=" + messageId
 	);
-var messageJSON = jsonUtils.toObject(messagelist);
 
-model.messageList = eval("(" + messageJSON.messages + ")");
+// this is broken; cannot handle when subelements are arrays
+// var messageJSON = jsonUtils.toObject(messagelist);
+var messageJSON = eval("(" + messagelist + ")");
+
+model.messageList = messageJSON.messages;
