@@ -31,13 +31,13 @@ Found ${result.results.count} messages matching the query.
 
 <table>
   <tr>
-    <td width="25%">Date</td>
-    <td width="75%">Subject</td>
+    <td><b>Date</b></td>
+    <td><b>Subject</b></td>
   </tr>
   
 <#list result.results.messages?sort_by("datenumber") as message>
   <tr>
-    <td>
+    <td style="white-space: nowrap">
       <a href="${url.context}/message?messageid=${message.id}">
         ${message.date}
       </a>

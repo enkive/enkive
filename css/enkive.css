@@ -5,8 +5,9 @@ body
 	font-family: Helvetica;
 	font-size: 14px;
 	color: #333;
-	background-image: url('../images/background.jpg');
-	background-repeat: repeat;
+	background-image: url('../images/background.png');
+	background-repeat: no-repeat;
+	background-color: #ece6ed;
 }
 
 li
