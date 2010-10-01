@@ -21,10 +21,6 @@
          <assoc-type>child</assoc-type>
       </page-association>
       <page-association>
-         <dest-id>browse</dest-id>
-         <assoc-type>child</assoc-type>
-      </page-association>
-      <page-association>
          <dest-id>statistics</dest-id>
          <assoc-type>child</assoc-type>
       </page-association>

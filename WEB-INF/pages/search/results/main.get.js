@@ -8,8 +8,10 @@ var dateTo = context.properties["dateTo"];
 var messageId = context.properties["messageId"];
 
 // get a connector to the Alfresco repository endpoint
-var connector = remote.connect("alfresco");
-// retrieve the web script index page 
+var connector = remote.connect("alfresco"); 
+
+// TODO this will likely choke if the user enters anything with a reserved character
+// (e.g., &). Needs escaping.
 var messagelist = connector.get("/enkive/search" + 
 	"?keyword=" + keyword +
 	"&from=" + from +
@@ -21,8 +23,9 @@ var messagelist = connector.get("/enkive/search" +
 	"&messageId=" + messageId
 	);
 
-// this is broken; cannot handle when subelements are arrays
+// this is broken; cannot handle arrays as subelements
 // var messageJSON = jsonUtils.toObject(messagelist);
+
 var messageJSON = eval("(" + messagelist + ")");
 
-model.messageList = messageJSON.messages;
+model.result = messageJSON
