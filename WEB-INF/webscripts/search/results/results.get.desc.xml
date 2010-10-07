@@ -1,0 +1,6 @@
+<webscript>
+  <shortname>Search Results</shortname>
+  <description>Search Results</description>
+  <url>/search/results</url>
+  <format default="html">any</format>
+</webscript>
