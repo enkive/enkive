@@ -24,6 +24,7 @@
 		<zip destfile="${package.file.zip}" update="true">
 			<zipfileset dir="./css" prefix="css" />
 			<zipfileset dir="./images" prefix="images" />
+			<zipfileset dir="./javascript" prefix="javascript" />
 			<zipfileset dir="./resources" prefix="resources" />
 			<zipfileset dir="./WEB-INF" prefix="WEB-INF" />
 		</zip>
@@ -43,6 +44,7 @@
 	
 	<target name="deploy-war" depends="package-war" description="Copies the ${package.file.war} into ${ediscovery.war}">
 		<copy file="${package.file.war}" tofile="${ediscovery.war}" />
+		<delete dir="${ediscovery.web.dir}" />
 	</target>
 	
 </project>
