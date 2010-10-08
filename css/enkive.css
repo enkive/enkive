@@ -182,3 +182,11 @@ UL.spaced LI
 {
 	padding-bottom: 3px;
 }
+tr.result_even
+{ 
+	background-color:#C0C0C0;
+}
+tr.result_odd
+{ 
+	background-color:#ffffff;
+}

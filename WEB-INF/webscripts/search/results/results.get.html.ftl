@@ -36,7 +36,11 @@ Found ${result.results.count} messages matching the query.
   </tr>
   
 <#list result.results.messages?sort_by("datenumber") as message>
-  <tr>
+  	<#if (message_index % 2) == 0>
+    	<tr class="result_even">
+    <#else>
+    	<tr class="result_odd">
+    </#if>
     <td style="white-space: nowrap">
       <a href="${url.context}/message?messageid=${message.id}">
         ${message.date}

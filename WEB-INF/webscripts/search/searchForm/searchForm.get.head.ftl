@@ -9,12 +9,16 @@
 		$( "#dateEarliestField" ).datepicker({
 			showOn: "button",
 			buttonImage: "${url.context}/resource/images/cal.gif",
-			buttonImageOnly: true
+			buttonImageOnly: true,
+			changeMonth: true,
+			changeYear: true
 		});
 		$( "#dateLatestField" ).datepicker({
 			showOn: "button",
 			buttonImage: "${url.context}/resource/images/cal.gif",
-			buttonImageOnly: true
+			buttonImageOnly: true,
+			changeMonth: true,
+			changeYear: true
 		});
 	});
 </script>
@@ -27,5 +31,4 @@ input.searchField
 {
 	width:180px;
 }
-
 </style>
