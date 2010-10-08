@@ -5,7 +5,7 @@
 				Content:
 			</td>
 			<td>
-				<input type="text" id="contentField" />
+				<input type="text" id="contentField" class="searchField"/>
 			</td>
 		</tr>
 		<tr>
@@ -13,7 +13,7 @@
 				Sender:
 			</td>
 			<td>
-				<input type="text" id="senderField" />
+				<input type="text" id="senderField" class="searchField"/>
 			</td>
 		</tr>
 		<tr>
@@ -21,7 +21,7 @@
 				Recipient:
 			</td>
 			<td>
-				<input type="text" id="recipientField" />
+				<input type="text" id="recipientField" class="searchField"/>
 			</td>
 		</tr>
 		<tr>
@@ -29,7 +29,7 @@
 				Subject:
 			</td>
 			<td>
-				<input type="text" id="subjectField" />
+				<input type="text" id="subjectField" class="searchField"/>
 			</td>
 		</tr>
 		<tr>
@@ -37,7 +37,7 @@
 				Earliest Date:
 			</td>
 			<td>
-				<input type="text" id="dateEarliestField" />
+				<input type="text" id="dateEarliestField" disabled="disabled" class="searchField"/>
 			</td>
 		</tr>
 		<tr>
@@ -45,7 +45,7 @@
 				Latest Date:
 			</td>
 			<td>
-				<input type="text" id="dateLatestField" />
+				<input type="text" id="dateLatestField" disabled="disabled" class="searchField"/>
 			</td>
 		</tr>
 		<tr>
@@ -53,7 +53,7 @@
 				Message ID:
 			</td>
 			<td>
-				<input type="text" id="messageIdField" />
+				<input type="text" id="messageIdField" class="searchField"/>
 			</td>
 		</tr>
 		<tr>
@@ -61,7 +61,8 @@
 				&nbsp;
 			</td>
 			<td>
-				<input type="submit" value="Search" onClick="get_results()"/>
+				<input type="button" value="Search" onClick="get_results()"/>
+				<input type="button" value="Clear" onClick="clearForm()"/>
 			</td>
 		</tr>
 	</table>

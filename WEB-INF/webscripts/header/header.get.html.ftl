@@ -1,15 +1,11 @@
-<div class="left">
-	<table width="100%">
-	   <tr>
-	      <td nowrap><img src="${url.context}/resource/images/enkive_logo.png" alt="Enkive" height="70px" /></td>
-	      <td style="padding-top: 10px; font-size: 28px; font-family: Helvetica; color: #AAAAAA;" nowrap>&nbsp;&nbsp;${headerTitle}</td>
-	      <td width="100%"></td>
-	   </tr>
-	</table>
-</div>
-<div class="right">
-	<#if user.id != "guest">
-	Hello, ${user.fullName}!<br />
-	<a href="${url.context}/dologout">Logout</a>
-	</#if>
-</div>
+<table cellpadding="5">
+	<tr>
+	    <td id="headerImage"><img src="${url.context}/resource/images/enkive_logo.png" alt="Enkive" /></td>
+	    <td><p id="headerTitle">${headerTitle}</p></td>
+		<td id="headerUser" align="right" valign="top">
+			<#if user.id != "guest">
+				Hello, ${user.fullName} | <a href="${url.context}/dologout">Logout</a>
+			</#if>
+		</td>
+	</tr>
+</table>

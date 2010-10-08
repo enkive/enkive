@@ -21,3 +21,11 @@ function get_results(){
 	
 	$('#results').load('/ediscovery/search/results' + queryString);
 }
+
+function clearForm(){
+	$(".searchField").each(
+		function(){
+			$(this).val("");
+		}
+	);
+}

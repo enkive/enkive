@@ -1,1 +1,1 @@
-model.headerTitle = "E-Discovery Interface";
+model.headerTitle = "CE";
