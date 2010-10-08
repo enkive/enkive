@@ -11,14 +11,16 @@
 			buttonImage: "${url.context}/resource/images/cal.gif",
 			buttonImageOnly: true,
 			changeMonth: true,
-			changeYear: true
+			changeYear: true,
+			dateFormat: 'yy-mm-dd'
 		});
 		$( "#dateLatestField" ).datepicker({
 			showOn: "button",
 			buttonImage: "${url.context}/resource/images/cal.gif",
 			buttonImageOnly: true,
 			changeMonth: true,
-			changeYear: true
+			changeYear: true,
+			dateFormat: 'yy-mm-dd'
 		});
 	});
 </script>
