@@ -1,23 +1,20 @@
 function get_results(){
 	
-	var keyword = $("#contentField").val();
-	var from = $("#senderField").val();
-	var to = $("#recipientField").val();
-	var cc = "";
+	var content = $("#contentField").val();
+	var sender = $("#senderField").val();
+	var recipient = $("#recipientField").val();
 	var subject = $("#subjectField").val();;
-	var dateFrom = $("#dateEarliestField").val();
-	var dateTo = $("#dateLatestField").val();
+	var dateEarliest = $("#dateEarliestField").val();
+	var dateLatest = $("#dateLatestField").val();
 	var messageId = $("#messageIdField").val();
 	
-	var queryString = '?keyword=' + keyword +
-						'&from=' + from +
-						'&to=' + to +
-						'&cc=' + cc +
+	var queryString = '?content=' + content +
+						'&sender=' + sender +
+						'&recipient=' + recipient +
 						'&subject=' + subject +
-						'&dateFrom=' + dateFrom +
-						'&dateTo=' + dateTo +
+						'&dateEarliest=' + dateEarliest +
+						'&dateLatest=' + dateLatest +
 						'&messageId=' + messageId;
-	
 	
 	$('#results').load('/ediscovery/search/results' + queryString);
 }
