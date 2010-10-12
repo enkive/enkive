@@ -1,6 +1,6 @@
 var content = context.properties["content"];
 var sender = context.properties["sender"];
-var receiver = context.properties["receiver"];
+var recipient = context.properties["recipient"];
 var subject = context.properties["subject"];
 var dateEarliest = context.properties["dateEarliest"];
 var dateLatest = context.properties["dateLatest"];
@@ -14,7 +14,7 @@ var connector = remote.connect("alfresco");
 var messagelist = connector.get("/enkive/search" + 
 	"?content=" + content +
 	"&sender=" + sender +
-	"&receiver=" + receiver +
+	"&recipient=" + recipient +
 	"&subject=" + subject +
 	"&dateEarliest=" + dateEarliest +
 	"&dateLatest=" + dateLatest +
