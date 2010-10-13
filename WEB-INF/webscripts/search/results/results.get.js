@@ -9,16 +9,14 @@ var messageId = context.properties["messageId"];
 // get a connector to the Alfresco repository endpoint
 var connector = remote.connect("alfresco"); 
 
-// TODO this will likely choke if the user enters anything with a reserved character
-// (e.g., &). Needs escaping.
 var messagelist = connector.get("/enkive/search" + 
-	"?content=" + content +
-	"&sender=" + sender +
-	"&recipient=" + recipient +
-	"&subject=" + subject +
-	"&dateEarliest=" + dateEarliest +
-	"&dateLatest=" + dateLatest +
-	"&messageId=" + messageId
+	"?content=" + encodeURIComponent(content) +
+	"&sender=" + encodeURIComponent(sender) +
+	"&recipient=" + encodeURIComponent(recipient) +
+	"&subject=" + encodeURIComponent(subject) +
+	"&dateEarliest=" + encodeURIComponent(dateEarliest) +
+	"&dateLatest=" + encodeURIComponent(dateLatest) +
+	"&messageId=" + encodeURIComponent(messageId)
 	);
 
 // this is broken; cannot handle arrays as subelements
