@@ -8,13 +8,13 @@ function get_results(){
 	var dateLatest = $("#dateLatestField").val();
 	var messageId = $("#messageIdField").val();
 	
-	var queryString = '?content=' + content +
-						'&sender=' + sender +
-						'&recipient=' + recipient +
-						'&subject=' + subject +
-						'&dateEarliest=' + dateEarliest +
-						'&dateLatest=' + dateLatest +
-						'&messageId=' + messageId;
+	var queryString = '?content=' + encodeURIComponent(content) +
+						'&sender=' + encodeURIComponent(sender) +
+						'&recipient=' + encodeURIComponent(recipient) +
+						'&subject=' + encodeURIComponent(subject) +
+						'&dateEarliest=' + encodeURIComponent(dateEarliest) +
+						'&dateLatest=' + encodeURIComponent(dateLatest) +
+						'&messageId=' + encodeURIComponent(messageId);
 	
 	$('#results').load('/ediscovery/search/results' + queryString);
 }
