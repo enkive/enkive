@@ -14,7 +14,7 @@
          <region-id>vertnav</region-id>
          <url>/navigation/vertical</url>
          <chrome>box</chrome>
-         <title>Navigation</title>
+         <title>Search</title>
       </component>
       <component>
          <region-id>searchForm</region-id>

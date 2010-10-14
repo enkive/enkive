@@ -26,40 +26,28 @@
 	}
 %>
 <style type="text/css">
-<!--
-#chrome-content-<%=htmlBindingId%>
-{
-	background-color: #ffffff;
-	border: solid 1px #cccccc;
-}
 
 #chrome-header-<%=htmlBindingId%>
 {
-	background-color: #ffffff;
-	border: solid 1px #cccccc;
-	color: #014a67;
-	font-weight: bold;
-	padding: 3px;
-	padding-left: 5px;
-	background-image: url(<%=servletPath%>/res/images/chrome/box/box_chrome_header_bg.gif);
-	background-repeat: repeat-x;
-	background-position: bottom;
-	border-bottom: 0px;
+	background-color: #a9b4d5;
+	color: white;
+	font-family: Helvetica;
+	font-size: 22px;
+	padding: 5px;
+	padding-left: 15px;
 }
--->
+
 </style>
 
 <table width="100%" cellpadding="0" cellspacing="0"> 
 	<tr>
 		<td id="chrome-header-<%=htmlBindingId%>" align="left" valign="top">
-			<%=title%>
+			<b><%=title%></b>
 		</td>
 	</tr>
 	<tr>
-		<td id="chrome-content-<%=htmlBindingId%>" style="padding: 5px;" align="left" valign="top">
-			
+		<td id="chrome-content-<%=htmlBindingId%>" align="left" valign="top">
 			<surf:componentInclude/>
-			
 		</td>
 	</tr>
 </table>
