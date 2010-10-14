@@ -5,7 +5,7 @@
 	    <td><p id="slogan">${slogan}</p></td>
 		<td id="headerUser" align="right" valign="top">
 			<#if user.id != "guest">
-				Hello, ${user.fullName} | <a href="${url.context}/dologout">Logout</a>
+				Hello, ${user.fullName} | <a class="logout" href="${url.context}/dologout">Logout</a>
 			</#if>
 		</td>
 	</tr>

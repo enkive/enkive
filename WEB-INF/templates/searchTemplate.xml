@@ -19,7 +19,7 @@
       <component>
          <region-id>searchForm</region-id>
          <url>/search/input</url>
-         <chrome>box</chrome>
+         <chrome>searchBox</chrome>
          <title>Search</title>
       </component>      
       <component>

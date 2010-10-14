@@ -28,6 +28,16 @@
 #headerUser
 {
 	width:100%;
+	color: #a3b4d8;
+}
+a.logout
+{
+	color: #cccccc;
+}
+a.logout:hover
+{
+	color: #a3b4d8;
+	background-color: #485a8b;
 }
 
 </style>

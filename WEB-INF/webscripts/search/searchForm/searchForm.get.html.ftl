@@ -1,5 +1,10 @@
 <table>
 	<tr>
+		<td colspan="2" align="center" >
+				<input type="image" src="${url.context}/resource/images/clear_search_btn.png" alt="Clear Search" onClick="clearForm()"/>
+		</td>
+	</tr>
+	<tr>
 		<td>
 			Content:
 		</td>
@@ -56,12 +61,8 @@
 		</td>
 	</tr>
 	<tr>
-		<td>
-			&nbsp;
-		</td>
-		<td>
-			<input type="button" value="Search" onClick="get_results()"/>
-			<input type="button" value="Clear" onClick="clearForm()"/>
+		<td colspan="2" align="center">
+			<input type="image" src="${url.context}/resource/images/search_btn.png" alt="Search" onClick="get_results()"/>
 		</td>
 	</tr>
 </table>
