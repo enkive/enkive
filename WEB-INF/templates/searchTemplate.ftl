@@ -41,8 +41,7 @@
 						</table>
 					</td>
 					<td valign="top" width="100%">
-						<div id="results">
-						</div>
+						<div id="results"></div>
 					</td>
 				</tr>
 			</table>

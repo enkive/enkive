@@ -132,6 +132,12 @@ a:hover
 	margin-left: 5px;
 }
 
+.scrollable
+{
+	height: 350px;
+	overflow: auto;
+}
+
 #tree
 {
 	padding-bottom: 5px;
