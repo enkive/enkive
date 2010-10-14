@@ -1,1 +1,1 @@
-model.message = '<a href="http://linuxbox.com">Enkive</a> is the email archiving solution made by <a href="http://linuxbox.com">The Linux Box</a>.';
+model.message = '<a class="footer_link" href="http://www.enkive.org">Enkive</a> is the email archiving solution made by <a class="footer_link" href="http://www.linuxbox.com">The Linux Box</a>.';

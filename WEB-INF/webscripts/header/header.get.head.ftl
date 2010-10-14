@@ -9,12 +9,21 @@
 	height:65px;
 	white-space:nowrap;
 }
-#headerTitle
+#edition
 {
 	font-family:"Arial", Arial, Sans-serif;
 	font-size:40px;
 	position:relative;
 	top:25px;
+}
+#slogan
+{
+	font-family:"Helvetica Neue", Helvetica, Sans-serif;
+	font-size:20px;
+	position:relative;
+	top:30px;
+	white-space:nowrap;
+	color: #faa735;
 }
 #headerUser
 {

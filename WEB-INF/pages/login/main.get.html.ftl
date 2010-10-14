@@ -1,5 +1,9 @@
+<div id="emails_tile"></div>
 <form accept-charset="UTF-8" method="post" action="${url.context}/dologin">
-	<table align="center">
+	<table id="login_table" align="center">
+		<tr>
+			<td align="center" colspan="2"><h1>Welcome To Enkive</h1></td>
+		</tr>
 		<tr>
 			<td>User Name:</td>
 			<td><input name="username" type="text" /></td>
@@ -9,7 +13,9 @@
 			<td><input name="password" type="password" /></td>
 		</tr>
 		<tr>
-			<td><input type="submit" value="Log In" /></td>
+			<td align="center" colspan="2">
+				<input id="login_btn" type="image" src="${url.context}/resource/images/login_btn.png" alt="Log In" />
+			</td>
 		</tr>
 	</table>	
 	<input name="success" type="hidden" value="${page.url.url}" />

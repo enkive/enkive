@@ -5,9 +5,7 @@ body
 	font-family: Helvetica;
 	font-size: 14px;
 	color: #333;
-	background-image: url('../images/background.png');
-	background-repeat: no-repeat;
-	background-color: #ece6ed;
+	background-color: #476098;
 }
 
 li
@@ -27,12 +25,7 @@ p
 h1 
 {
 	font-family: Helvetica;
-	font-size: 28px;
-	margin: 0px 0px 15px 0px;
-	padding: 0px;
-	line-height: 28px;
-	font-weight: 900;
-	color: #ccc;
+	font-size: 30px;
 }
 
 h2
@@ -79,6 +72,10 @@ a:hover
 
 #content
 {
+	background-image: url('../images/background.png');
+	background-repeat: no-repeat;
+	background-color: #ece6ed;
+	min-height: 500px;
 	margin: 0px;
 	padding: 0px;
 }
@@ -100,6 +97,12 @@ a:hover
 	padding-right: 5px;
 	padding-bottom: 100px;
 	width: 210px;
+}
+
+#horznav
+{
+	background-color: #8b9ec6;
+	min-height: 30px;
 }
 
 #main

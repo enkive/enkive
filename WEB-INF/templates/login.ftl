@@ -11,7 +11,9 @@
 			<div id="header" class="clearfix">
 				<@region id="header" scope="template" />
 			</div>
-			<div id="main">
+			<div id="horznav" class="clearfix">
+			</div>
+			<div id="content">
 				<@region id="main" scope="page" />
 			</div>
 			<div id="footer" class="clearfix">
