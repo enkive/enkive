@@ -16,7 +16,7 @@ function get_results(){
 						'&dateLatest=' + encodeURIComponent(dateLatest) +
 						'&messageId=' + encodeURIComponent(messageId);
 	
-	$('#results').load('/ediscovery/search/results' + queryString);
+	$('#content').load('/ediscovery/search/results' + queryString);
 }
 
 function clearForm(){

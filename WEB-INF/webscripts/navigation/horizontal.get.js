@@ -4,6 +4,9 @@ var pages = new Array();
 // add in all children from root page
 pages = pages.concat(sitedata.findChildPages(sitedata.rootPage.id));
 
+// sort pages alphabetically
+pages = pages.sort();
+
 // push root page to front
 pages.unshift(sitedata.rootPage);
 

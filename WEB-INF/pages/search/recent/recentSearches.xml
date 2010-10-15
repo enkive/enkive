@@ -2,10 +2,16 @@
 <page>
    <id>search/recent</id>
    <title>Recent Searches</title>
-   <template-instance>landing</template-instance>
+   <template-instance>basicTemplate</template-instance>
    <authentication>user</authentication>
-   <order-id>1</order-id>
+   <order-id>0</order-id>
    <components>
+      <component>
+         <region-id>vertnav</region-id>
+         <url>/navigation/vertical</url>
+         <chrome>navBox</chrome>
+         <title>Search</title>
+      </component>
       <component>
          <region-id>main</region-id>
          <url>/search/recent/main</url>
@@ -14,10 +20,6 @@
    <associations>
       <page-association>
          <dest-id>search</dest-id>
-         <assoc-type>child</assoc-type>
-      </page-association>
-      <page-association>
-         <dest-id>search/advanced</dest-id>
          <assoc-type>child</assoc-type>
       </page-association>
       <page-association>

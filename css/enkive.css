@@ -67,14 +67,11 @@ a:visited
 
 a:hover 
 {
-	background-color: #eee;
+	
 }
 
 #content
 {
-	background-image: url('../images/background.png');
-	background-repeat: no-repeat;
-	background-color: #ece6ed;
 	min-height: 500px;
 	margin: 0px;
 	padding: 0px;
@@ -131,50 +128,17 @@ a:hover
 	border: 1px #bbb solid;
 	margin-left: 5px;
 }
+#page
+{
+	background-image: url('../images/background.png');
+	background-repeat: no-repeat;
+	background-color: #ece6ed;
+}
 
 .scrollable
 {
 	height: 350px;
 	overflow: auto;
-}
-
-#tree
-{
-	padding-bottom: 5px;
-}
-
-#viewer
-{
-	padding-bottom: 5px;
-}
-
-.clearfix:after
-{
-	clear: both;
-	content: ".";
-	display: block;
-	height: 0;
-	visibility: hidden;
-}
-
-.clearfix
-{
-	display: inline-block;
-}
-
-.clearfix
-{
-	display: block;
-}
-
-.stretch, .clear
-{
-	clear: both;
-	font-size: 15px;
-	height: 1px;
-	line-height: 1px;
-	margin: 0;
-	padding: 0;
 }
 
 .left
@@ -190,12 +154,4 @@ a:hover
 UL.spaced LI
 {
 	padding-bottom: 3px;
-}
-tr.result_even
-{ 
-	background-color:#C0C0C0;
-}
-tr.result_odd
-{ 
-	background-color:#ffffff;
 }

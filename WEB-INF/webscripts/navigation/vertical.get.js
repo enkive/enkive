@@ -6,5 +6,6 @@ if (model.pages.length == 0)
 	if (parentPages.length > 0)
 	{
 		model.pages = sitedata.findChildPages(parentPages[0].id);
+		model.pages = model.pages.sort();
 	}
 }

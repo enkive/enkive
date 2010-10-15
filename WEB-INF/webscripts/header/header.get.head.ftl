@@ -37,7 +37,6 @@ a.logout
 a.logout:hover
 {
 	color: #a3b4d8;
-	background-color: #485a8b;
 }
 
 </style>

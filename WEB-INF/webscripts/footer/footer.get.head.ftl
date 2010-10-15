@@ -2,11 +2,19 @@
 #footer
 {
 	width: 100%;
-	padding-top: 5px;
-	background-image: url('/ediscovery/resource/images/footer.jpg');
 	background-color: #476098;
 	
 }
+
+#footer_top
+{
+	width: 100%;
+	height: 40px;
+	background-image: url('/ediscovery/resource/images/footer.jpg');
+	background-repeat: repeat-x;
+	
+}
+
 #footer_content
 {
 	padding-left: 15px;

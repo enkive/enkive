@@ -2,10 +2,16 @@
 <page>
    <id>statistics</id>
    <title>System Statistics</title>
-   <template-instance>landing</template-instance>
+   <template-instance>basicTemplate</template-instance>
    <authentication>user</authentication>
    <order-id>1</order-id>
    <components>
+      <component>
+         <region-id>vertnav</region-id>
+         <url>/navigation/vertical</url>
+         <chrome>navBox</chrome>
+         <title>Statistics</title>
+      </component>
       <component>
          <region-id>main</region-id>
          <url>/statistics/main</url>

@@ -25,7 +25,6 @@
 
 #horznav li a:hover
 {
-	background-color: #8b9ec6;
 	color: #faa735;
 }
 

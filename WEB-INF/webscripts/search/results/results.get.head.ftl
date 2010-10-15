@@ -1,0 +1,10 @@
+<style>
+tr.result_even
+{ 
+	background-color:#C0C0C0;
+}
+tr.result_odd
+{ 
+	background-color:#ffffff;
+}
+</style>

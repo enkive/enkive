@@ -2,10 +2,16 @@
 <page>
    <id>search/saved</id>
    <title>Saved Searches</title>
-   <template-instance>landing</template-instance>
+   <template-instance>basicTemplate</template-instance>
    <authentication>user</authentication>
    <order-id>1</order-id>
    <components>
+      <component>
+         <region-id>vertnav</region-id>
+         <url>/navigation/vertical</url>
+         <chrome>navBox</chrome>
+         <title>Search</title>
+      </component>
       <component>
          <region-id>main</region-id>
          <url>/search/saved/main</url>

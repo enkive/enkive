@@ -7,18 +7,15 @@
 	${head}
 </head>
 <body>
-
-	<div id="page">
-	
-		<div id="header" class="clearfix">
+		<div id="header">
 			<@region id="header" scope="template" />
 		</div>	
 		
-		<div id="horznav" class="clearfix">
+		<div id="horznav">
 			<@region id="horznav" scope="template" />
 		</div>
 		
-		<div id="content" class="clearfix">
+		<div id="page">
 		
 			<table width="100%">			
 				<tr>
@@ -27,31 +24,30 @@
 							<tr>
 								<td>
 									<div id="vertnav">
-										<@region id="vertnav" scope="template" />
+										<@region id="vertnav" scope="page" />
 									</div>
 								</td>
 							</tr>
 							<tr>
 								<td>
 									<div id="searchForm">
-										<@region id="searchForm" scope="template" />
+										<@region id="searchForm" scope="page" />
 									</div>
 								</td>
 							</tr>
 						</table>
 					</td>
 					<td valign="top" width="100%">
-						<div id="results"></div>
+						<div id="content">
+							<@region id="main" scope="page" />
+						</div>
 					</td>
 				</tr>
 			</table>
 		</div>
-
-		<div id="footer" class="clearfix">
+	
+		<div id="footer">
 			<@region id="footer" scope="template" />
 		</div>
-
-	</div>
-
 </body>
 </html>

@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <template-instance>
-   <template-type>searchTemplate</template-type>
+   <template-type>basicTemplate</template-type>
    <components>
       <component>
          <region-id>header</region-id>
@@ -9,18 +9,6 @@
       <component>
          <region-id>horznav</region-id>
          <url>/navigation/horizontal</url>
-      </component>      
-      <component>
-         <region-id>vertnav</region-id>
-         <url>/navigation/vertical</url>
-         <chrome>box</chrome>
-         <title>Search</title>
-      </component>
-      <component>
-         <region-id>searchForm</region-id>
-         <url>/search/input</url>
-         <chrome>searchBox</chrome>
-         <title>Search</title>
       </component>      
       <component>
          <region-id>footer</region-id>
