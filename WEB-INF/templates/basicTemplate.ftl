@@ -7,15 +7,15 @@
 	${head}
 </head>
 <body>
-		<div id="header">
+		<div id="header" class="clearfix">
 			<@region id="header" scope="template" />
 		</div>	
 		
-		<div id="horznav">
+		<div id="horznav" class="clearfix">
 			<@region id="horznav" scope="template" />
 		</div>
 		
-		<div id="page">
+		<div id="page" class="clearfix">
 		
 			<table width="100%">			
 				<tr>
@@ -46,7 +46,7 @@
 			</table>
 		</div>
 	
-		<div id="footer">
+		<div id="footer" class="clearfix">
 			<@region id="footer" scope="template" />
 		</div>
 </body>
