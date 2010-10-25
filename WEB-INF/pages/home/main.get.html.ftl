@@ -1,1 +1,1 @@
-test
+This is where some homepage text can go.
