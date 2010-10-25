@@ -20,16 +20,23 @@
 		
 		<div id="content" class="clearfix">
 		
-			<table width="100%">			
+			<table>			
 				<tr>
-					<td valign="top" width="75%">
-						<div id="main">
-							<@region id="main" scope="page" />
+					<td valign="top">
+						<div id="picture">
+							<@region id="picture" scope="page" />
 						</div>
 					</td>
-					<td valign="top" width="25%" nowrap>
+					<td valign="top" nowrap>
 						<div id="side">
 							<@region id="side" scope="page" />
+						</div>
+					</td>
+				</tr>
+				<tr>
+					<td colspan="2">
+						<div id="main">
+							<@region id="main" scope="page" />
 						</div>
 					</td>
 				</tr>

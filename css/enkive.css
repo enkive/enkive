@@ -104,11 +104,7 @@ a:hover
 
 #main
 {
-	border: 1px #bbb solid;
-	padding-left: 10px;
-	padding-right: 5px;
-	padding-top: 5px;
-	padding-bottom: 5px;
+
 }
 
 #left
@@ -120,13 +116,7 @@ a:hover
 
 #side
 {
-	padding-top: 10px;
-	padding-right: 10px;
-	padding-left: 10px;
-	padding-right: 30px;
-	background-color: white;
-	border: 1px #bbb solid;
-	margin-left: 5px;
+
 }
 #page
 {

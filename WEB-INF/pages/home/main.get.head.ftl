@@ -10,4 +10,10 @@ h1.title
 	text-align: center;
 }
 
+#content table
+{
+	margin-left: auto;
+	margin-right: auto;
+}
+
 </style>

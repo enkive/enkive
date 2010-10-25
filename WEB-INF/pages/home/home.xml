@@ -11,6 +11,10 @@
          <url>/home/side</url>
       </component>   
       <component>
+         <region-id>picture</region-id>
+         <url>/home/picture</url>
+      </component>
+      <component>
          <region-id>main</region-id>
          <url>/home/main</url>
       </component>
