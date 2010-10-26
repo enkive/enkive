@@ -1,4 +1,5 @@
 .project
 .classpath
+.settings
 build.properties
 build/
