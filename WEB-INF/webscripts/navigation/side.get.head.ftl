@@ -1,5 +1,5 @@
 <style>
-#vertnav
+#sidenav
 {
 	background-color: #8b9ec8;
 	padding: 0px;
@@ -8,23 +8,23 @@
 	min-width: 300px;
 }
 
-#vertnav ul
+#sidenav ul
 {
 	list-style-image: url('/ediscovery/resource/images/arrow.gif');
 }
 
-#vertnav li
+#sidenav li
 {
 	padding: 4px;
 }
 
-#vertnav li a
+#sidenav li a
 {
 	color: white;
 	text-decoration:none;
 }
 
-#vertnav li a:hover
+#sidenav li a:hover
 {
 	background: #8b9ec8;
 }

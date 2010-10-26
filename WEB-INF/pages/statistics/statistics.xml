@@ -7,8 +7,8 @@
    <order-id>1</order-id>
    <components>
       <component>
-         <region-id>vertnav</region-id>
-         <url>/navigation/vertical</url>
+         <region-id>sidenav</region-id>
+         <url>/navigation/sidenav</url>
          <chrome>navBox</chrome>
          <title>Statistics</title>
       </component>

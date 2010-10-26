@@ -7,8 +7,8 @@
          <url>/header</url>
       </component>      
       <component>
-         <region-id>horznav</region-id>
-         <url>/navigation/horizontal</url>
+         <region-id>topnav</region-id>
+         <url>/navigation/topnav</url>
       </component>      
       <component>
          <region-id>footer</region-id>

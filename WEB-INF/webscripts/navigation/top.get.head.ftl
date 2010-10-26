@@ -1,5 +1,11 @@
 <style>
-#horznav ul
+#topnav
+{
+	background-color: #8b9ec6;
+	min-height: 30px;
+}
+
+#topnav ul
 {
 	padding:0px;
 	margin:0px;
@@ -9,12 +15,12 @@
 	list-style-type:none;
 }
 
-#horznav li 
+#topnav li 
 {
 	display:inline;
 }
 
-#horznav li a.normal
+#topnav li a.normal
 {
 	margin-left: 1px;
 	margin-top: 1px;
@@ -23,12 +29,12 @@
 	float:left;
 }
 
-#horznav li a:hover
+#topnav li a:hover
 {
 	color: #faa735;
 }
 
-#horznav li a.current
+#topnav li a.current
 {
 	margin-left: 1px;
 	margin-top: 1px;

@@ -7,6 +7,12 @@
    <order-id>0</order-id>
    <components>
       <component>
+         <region-id>sidenav</region-id>
+         <url>/navigation/sidenav</url>
+         <chrome>navBox</chrome>
+         <title>Administration</title>
+      </component>
+      <component>
          <region-id>main</region-id>
          <url>/admin/main</url>
       </component>   

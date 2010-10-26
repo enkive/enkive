@@ -13,8 +13,8 @@
 			<@region id="header" scope="template" />
 		</div>	
 		
-		<div id="horznav">
-			<@region id="horznav" scope="template" />
+		<div id="topnav">
+			<@region id="topnav" scope="template" />
 		</div>
 		
 		<div id="content">

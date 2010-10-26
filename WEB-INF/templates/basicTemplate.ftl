@@ -10,14 +10,14 @@
 	<div id="header">
 		<@region id="header" scope="template" />
 	</div>	
-	<div id="horznav">
-		<@region id="horznav" scope="template" />
+	<div id="topnav">
+		<@region id="topnav" scope="template" />
 	</div>
 	<div id="page">
 		<div id="content">
 			<div id="left">
-				<div id="vertnav">
-					<@region id="vertnav" scope="page" />
+				<div id="sidenav">
+					<@region id="sidenav" scope="page" />
 				</div>
 				<div id="searchForm">
 					<@region id="searchForm" scope="page" />
