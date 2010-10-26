@@ -1,3 +1,5 @@
-<pre>
+<div class="scrollable">
+	<pre>
 ${text?html}
-</pre>
+	</pre>
+</div>

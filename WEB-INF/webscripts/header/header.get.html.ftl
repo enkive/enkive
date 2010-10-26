@@ -1,7 +1,11 @@
 <div id="headerLogo" class="column">
 	<table cellpadding="5">
 		<tr>
-		    <td id="headerImage"><img src="${url.context}/resource/images/enkive_logo.png" alt="Enkive" /></td>
+		    <td id="headerImage">
+		    	<a href="http://www.enkive.org">
+		    		<img src="${url.context}/resource/images/enkive_logo.png" alt="Enkive" />
+		    	</a>
+		    </td>
 		    <td><p id="edition">${edition}</p></td>
 		    <td><p id="slogan">${slogan}</p></td>
 		 </tr>

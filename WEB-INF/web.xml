@@ -35,4 +35,8 @@
         <session-timeout>30</session-timeout>
     </session-config>	
 
+    <mime-mapping>
+        <extension>ico</extension>
+        <mime-type>image/x-icon</mime-type>
+    </mime-mapping>
 </web-app>

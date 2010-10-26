@@ -47,6 +47,5 @@ Errors:
 			</table>
 		</#if>
 	</div>
-
 </#if>
 
