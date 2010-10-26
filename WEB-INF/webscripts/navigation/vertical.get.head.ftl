@@ -3,7 +3,7 @@
 {
 	background-color: #8b9ec8;
 	padding: 0px;
-	margin: 0px;
+	margin: 0px 0px 15px 0px;
 	width: 100%;
 	min-width: 300px;
 }

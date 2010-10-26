@@ -27,10 +27,10 @@
 <style>
 input.searchField
 { 
-	width:200px;
+	width:210px;
 }
 #dateEarliestField, #dateLatestField
 {
-	width:180px;
+	width:185px;
 }
 </style>

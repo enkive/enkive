@@ -7,48 +7,29 @@
 	${head}
 </head>
 <body>
-		<div id="header">
-			<@region id="header" scope="template" />
-		</div>	
-		
-		<div id="horznav">
-			<@region id="horznav" scope="template" />
-		</div>
-		
-		<div id="page">
-			<div id="content">
-			<table width="100%">			
-				<tr>
-					<td valign="top" nowrap>
-						<table>
-							<tr>
-								<td>
-									<div id="vertnav">
-										<@region id="vertnav" scope="page" />
-									</div>
-								</td>
-							</tr>
-							<tr>
-								<td>
-									<div id="searchForm">
-										<@region id="searchForm" scope="page" />
-									</div>
-								</td>
-							</tr>
-						</table>
-					</td>
-					<td valign="top" width="100%">
-						<div id="content">
-							<@region id="main" scope="page" />
-						</div>
-					</td>
-				</tr>
-			</table>
+	<div id="header">
+		<@region id="header" scope="template" />
+	</div>	
+	<div id="horznav">
+		<@region id="horznav" scope="template" />
+	</div>
+	<div id="page">
+		<div id="content">
+			<div id="left">
+				<div id="vertnav">
+					<@region id="vertnav" scope="page" />
+				</div>
+				<div id="searchForm">
+					<@region id="searchForm" scope="page" />
+				</div>
+			</div>
+			<div id="main">
+				<@region id="main" scope="page" />
 			</div>
 		</div>
-	
-		<div id="footer" class="clearfix">
-			<@region id="footer" scope="template" />
-		</div>
+	</div>
+	<div id="footer">
+		<@region id="footer" scope="template" />
+	</div>
 </body>
 </html>

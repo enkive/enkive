@@ -28,11 +28,16 @@
 	padding-left: 5px;
 }
 
-a.footer_link
+#footer a
+{
+	color: #476098;
+}
+
+#footer a.footer_link
 {
 	color: #cccccc;
 }
-a.footer_link:hover
+#footer a.footer_link:hover
 {
 	color: #a3b4d8;
 	background-color: #476098;
