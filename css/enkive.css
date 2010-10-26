@@ -6,7 +6,7 @@ body
 	font-size: 14px;
 	color: #333;
 	background-color: #476098;
-	min-width: 768px;
+	min-width: 900px;
 }
 
 li
@@ -73,21 +73,22 @@ a:hover
 
 #content
 {
+	clear: both;
 	min-height: 500px;
-	margin: 0px;
 	padding: 0px;
+	margin: 0px;
 }
 
-#local
+#center
 {
-	margin-top: 5px;
-	padding-left: 5px;
-	padding-top: 5px;
-	padding-right: 5px;
-	padding-bottom: 100px;
-	width: 200px;
+	width: 900px;
+	padding: 0px;
+	margin: 0px auto 0px auto;
 }
-    
+#center .column {
+  float: left;
+}
+
 #vertnav
 {
 	padding-left: 5px;
@@ -103,64 +104,21 @@ a:hover
 	min-height: 30px;
 }
 
-#main
-{
-
-}
-
-#left
-{
-	padding-top: 5px;
-	padding-left: 5px;
-	padding-bottom: 5px;
-}
-
-#side
-{
-
-}
 #page
 {
 	background-image: url('../images/background.png');
 	background-repeat: no-repeat;
 	background-color: #ece6ed;
 }
-
-.clearfix:after
+#footer
 {
-       clear: both;
-       content: ".";
-       display: block;
-       height: 0;
-       visibility: hidden;
+	clear: both;
 }
-
-
-.clearfix
-{
-       display: inline-block;
-}
-
-.clearfix
-{
-       display: block;
-}
-
 
 .scrollable
 {
 	height: 350px;
 	overflow: auto;
-}
-
-.left
-{
-	float: left;
-}
-
-.right
-{
-	float:right;
 }
 
 UL.spaced LI

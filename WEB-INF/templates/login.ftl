@@ -8,15 +8,15 @@
 	</head>
 	<body>
 		<div id="page">
-			<div id="header" class="clearfix">
+			<div id="header">
 				<@region id="header" scope="template" />
 			</div>
-			<div id="horznav" class="clearfix">
+			<div id="horznav">
 			</div>
 			<div id="content">
 				<@region id="main" scope="page" />
 			</div>
-			<div id="footer" class="clearfix">
+			<div id="footer">
 				<@region id="footer" scope="template" />
 			</div>
 		</div>

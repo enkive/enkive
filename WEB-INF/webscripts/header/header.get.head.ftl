@@ -9,12 +9,17 @@
 	height:65px;
 	white-space:nowrap;
 }
+#headerLogo
+{
+	float:left;
+}
 #edition
 {
 	font-family:"Arial", Arial, Sans-serif;
 	font-size:40px;
 	position:relative;
 	top:25px;
+	color: #aaaaaa;
 }
 #slogan
 {
@@ -27,8 +32,9 @@
 }
 #headerUser
 {
-	width:100%;
+	float: right;
 	color: #a3b4d8;
+	padding: 5px;
 }
 a.logout
 {

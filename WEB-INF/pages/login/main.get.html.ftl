@@ -2,7 +2,7 @@
 <form accept-charset="UTF-8" method="post" action="${url.context}/dologin">
 	<table id="login_table" align="center">
 		<tr>
-			<td align="center" colspan="2"><h1>Welcome To Enkive</h1></td>
+			<td align="center" colspan="2"><h1>${welcome}</h1></td>
 		</tr>
 		<tr>
 			<td>User Name:</td>

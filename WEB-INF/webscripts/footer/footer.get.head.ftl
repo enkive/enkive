@@ -3,7 +3,6 @@
 {
 	width: 100%;
 	background-color: #476098;
-	
 }
 
 #footer_top
@@ -17,10 +16,18 @@
 
 #footer_content
 {
-	padding-left: 15px;
-	padding-right: 15px;
+	text-align: left;
+	padding: 5px;
 	color: #a3b4d8;
 }
+
+#footer_content img
+{
+	position: relative;
+	float: right;
+	padding-left: 5px;
+}
+
 a.footer_link
 {
 	color: #cccccc;

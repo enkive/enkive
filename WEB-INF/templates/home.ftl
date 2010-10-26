@@ -9,45 +9,30 @@
 <body>
 
 	<div id="page">
-	
-		<div id="header" class="clearfix">
+		<div id="header">
 			<@region id="header" scope="template" />
 		</div>	
 		
-		<div id="horznav" class="clearfix">
+		<div id="horznav">
 			<@region id="horznav" scope="template" />
 		</div>
 		
-		<div id="content" class="clearfix">
-		
-			<table>			
-				<tr>
-					<td valign="top">
-						<div id="picture">
-							<@region id="picture" scope="page" />
-						</div>
-					</td>
-					<td valign="top" nowrap>
-						<div id="side">
-							<@region id="side" scope="page" />
-						</div>
-					</td>
-				</tr>
-				<tr>
-					<td colspan="2">
-						<div id="main">
-							<@region id="main" scope="page" />
-						</div>
-					</td>
-				</tr>
-			</table>
-			
+		<div id="content">
+			<div id="center">
+				<div id="picture" class="column">
+					<@region id="picture" scope="page" />
+				</div>
+				<div id="side" class="column">
+					<@region id="side" scope="page" />
+				</div>
+				<div id="main" class="column">
+					<@region id="main" scope="page" />
+				</div>
+			</div>
 		</div>
-		
-		<div id="footer" class="clearfix">
+		<div id="footer">
 			<@region id="footer" scope="template" />
 		</div>
-		
 	</div>
 
 </body>

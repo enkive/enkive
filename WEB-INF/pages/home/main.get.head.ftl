@@ -10,10 +10,17 @@ h1.title
 	text-align: center;
 }
 
-#content table
+#picture
 {
-	margin-left: auto;
-	margin-right: auto;
+
+}
+#side
+{
+
+}
+#main
+{
+	clear: both;
 }
 
 </style>
