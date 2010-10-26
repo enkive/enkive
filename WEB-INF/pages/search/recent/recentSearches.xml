@@ -8,7 +8,7 @@
    <components>
       <component>
          <region-id>sidenav</region-id>
-         <url>/navigation/vertical</url>
+         <url>/navigation/sidenav</url>
          <chrome>navBox</chrome>
          <title>Search</title>
       </component>
