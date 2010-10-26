@@ -7,16 +7,16 @@
 	${head}
 </head>
 <body>
-		<div id="header" class="clearfix">
+		<div id="header">
 			<@region id="header" scope="template" />
 		</div>	
 		
-		<div id="horznav" class="clearfix">
+		<div id="horznav">
 			<@region id="horznav" scope="template" />
 		</div>
 		
-		<div id="page" class="clearfix">
-		
+		<div id="page">
+			<div id="content">
 			<table width="100%">			
 				<tr>
 					<td valign="top" nowrap>
@@ -44,6 +44,7 @@
 					</td>
 				</tr>
 			</table>
+			</div>
 		</div>
 	
 		<div id="footer" class="clearfix">
