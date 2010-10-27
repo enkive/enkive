@@ -9,14 +9,7 @@ Errors:
 </p>
 </#if>
 
-<#--
-<p>
-  <b>Found ${result.results.count} messages matching the query:</b>
-  <#list result.query?keys as key>
-    ${key} : ${result.query[key]} &nbsp;
-  </#list>
-</p>
--->
+<#-- if there is a search on the audit log, include query info here? -->
 
 <#if result.results??>
 	<#if (result.results.audit_entries?size > 0) >
@@ -24,14 +17,19 @@ Errors:
 			<p>
 				<#if (pagination.page > 1) >
 					<a href="admin?page=${pagination.page - 1}&perPage=${pagination.perPage}">Previous</a>
+				<#else>
+					Previous <#-- use non-clickable label to minimize "jumping" of pagination line -->
 				</#if>
 				Page ${pagination.page}
 				<#if (pagination.page < pagination.lastPage) >
 					<a href="admin?page=${pagination.page + 1}&perPage=${pagination.perPage}">Next</a>
+				<#else>
+					Next <#-- use non-clickable label to minimize "jumping" of pagination line -->
 				</#if>
 			</p>
 			<table>
 			  <thead>
+			    <th><b>ID</b></th>
 			    <th><b>Timestamp</b></th>
 			    <th><b>Event Code</b></th>
 			    <th><b>User Name</b></th>
@@ -45,7 +43,10 @@ Errors:
 				    <#else>
 				    	<tr class="result_odd">
 				    </#if>
-				    <td style="white-space: nowrap">
+				    <td style="text-align: right;">
+				        ${entry.id}
+				    </td>
+				    <td style="white-space:nowrap; text-align: right;">
 				        ${entry.timestamp}
 				    </td>
 				    <td>
