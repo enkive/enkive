@@ -15,7 +15,7 @@
 			    <td>${criteria.value}</td>
 			    <td>ID:</td>
 			    <td>${search.id}</td>
-			    <td><a href="${url.context}/results/${search.lastQueryId}">Last Resultset</a></td>
+			    <td><a href="${url.context}/search/saved/results?searchid=${search.lastQueryId}">Last Resultset</a></td>
 			  </tr>
         </#list>
         </table>
