@@ -47,4 +47,7 @@ Errors:
 			</table>
 		</#if>
 	</div>
+	<div class="save-search">
+		<input type="button" onClick='save_search_form("${result.searchId}")' value="Save This Search" />
+	</div>
 </#if>

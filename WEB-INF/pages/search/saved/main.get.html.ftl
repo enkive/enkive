@@ -1,26 +1,32 @@
 <table>
-  <tr>
-    <th>Criteria</th>
-  </tr>
-  
-<#list searchList as search>
-  <tr>
-    <td>
-    	<table>
-        <#list search.criteria as criteria>
-			  <tr>
-			  	<td>Name:</td>
-			  	<td>${search.name}:</td>
-			    <td>${criteria.parameter}:</td>
-			    <td>${criteria.value}</td>
-			    <td>ID:</td>
-			    <td>${search.id}</td>
-			    <td><a href="${url.context}/search/saved/results?searchid=${search.lastQueryId}">Last Resultset</a></td>
-			  </tr>
-        </#list>
-        </table>
-    </td>
-  </tr>
-</#list>
-
+	<tr>
+		<th>Name</th>
+		<th>Criteria</th>
+	</tr>
+	<#list searchList as search>
+		<tr>
+		  	<td>${search.name}</td>
+		  	<td>
+		  		<table>
+			        <#list search.criteria as criteria>
+				  		<tr>
+						    <td><b>${criteria.parameter}:</b></td>
+						    <td>${criteria.value}</td>
+						</tr>
+		        	</#list>
+		        </table>
+		    </td>
+		    <td>
+			    <table>
+			    	<tr>
+					    <td>Details</td>
+					</tr>
+					<tr>
+					    <td><input type="button" onClick='delete_saved_search("${search.id}")' value="Delete" /></td>
+					</tr>
+				</table>
+			</td>
+		</tr>
+	</#list>
 </table>
+
