@@ -1,4 +1,4 @@
-model.pages = sitedata.findChildPages(context.pageId);
+model.pages = sitedata.findChildPages(context.pageId).sort();
 if (model.pages.length == 0)
 {
 	// find the parent page

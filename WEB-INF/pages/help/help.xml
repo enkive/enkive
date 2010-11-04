@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <page>
-   <id>statistics</id>
-   <title>System Statistics</title>
+   <id>help</id>
+   <title>Help</title>
    <template-instance>basicTemplate</template-instance>
    <authentication>user</authentication>
    <order-id>1</order-id>
@@ -10,11 +10,11 @@
          <region-id>sidenav</region-id>
          <url>/navigation/sidenav</url>
          <chrome>navBox</chrome>
-         <title>Statistics</title>
+         <title>Help</title>
       </component>
       <component>
          <region-id>main</region-id>
-         <url>/statistics/main</url>
+         <url>/help/main</url>
       </component>   
    </components>
 </page>

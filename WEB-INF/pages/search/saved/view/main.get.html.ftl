@@ -4,6 +4,8 @@
 			<table >
 			  <thead>
 			    <th><b>Date</b></th>
+			    <th><b>Sender</b></th>
+			    <th><b>Recipients</b></th>
 			    <th><b>Subject</b></th>
 			  </thead>
 			  <tbody>
@@ -16,6 +18,18 @@
 				    <td style="white-space: nowrap">
 				      <a href="${url.context}/message?messageid=${message.id}">
 				        ${message.date}
+				      </a>
+				    </td>
+				    <td style="white-space: nowrap">
+				      <a href="${url.context}/message?messageid=${message.id}">
+				        ${message.sender}
+				      </a>
+				    </td>
+				    <td style="white-space: nowrap">
+				      <a href="${url.context}/message?messageid=${message.id}">
+				      	<#list message.recipients as recipient>
+				        	${recipient}<br />
+				        </#list>
 				      </a>
 				    </td>
 				    <td>

@@ -19,21 +19,20 @@ public class ExportMbox extends AbstractWebScript {
 		res.setContentType("text/plain");
 		res.setHeader("Content-disposition", "attachment; filename=export.mbox");
 
-		String format = req.getFormat();
-		Map<String, Object> model = new HashMap<String, Object>(8, 1.0f);
+		Map<String, Object> model = new HashMap<String, Object>();
 		
 		ScriptDetails script = getExecuteScript(req.getContentType());
         Map<String, Object> scriptModel = createScriptParameters(req, res, script, model);
 
         // add return model allowing script to add items to template model
-        Map<String, Object> returnModel = new HashMap<String, Object>(8, 1.0f);
+        Map<String, Object> returnModel = new HashMap<String, Object>();
         scriptModel.put("model", returnModel);
         executeScript(script.getContent(), scriptModel);
         mergeScriptModelIntoTemplateModel(script.getContent(), returnModel, model);
 		
 		Map<String, Object> templateModel = createTemplateParameters(req, res, model);
 		
-		String templatePath = getDescription().getId() + "." + format;
+		String templatePath = getDescription().getId() + "." + req.getFormat();
         // render response according to requested format
         renderTemplate(templatePath, templateModel, res.getWriter());
 		
@@ -46,7 +45,7 @@ public class ExportMbox extends AbstractWebScript {
      * @param scriptModel      script model
      * @param templateModel    template model
      */
-    final private void mergeScriptModelIntoTemplateModel(ScriptContent scriptContent, Map<String, Object> scriptModel, Map<String, Object> templateModel)
+    private void mergeScriptModelIntoTemplateModel(ScriptContent scriptContent, Map<String, Object> scriptModel, Map<String, Object> templateModel)
     {
         // determine script processor
         ScriptProcessor scriptProcessor = getContainer().getScriptProcessorRegistry().getScriptProcessor(scriptContent);

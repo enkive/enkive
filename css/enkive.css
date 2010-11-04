@@ -6,7 +6,12 @@ body
 	font-size: 14px;
 	color: #333;
 	background-color: #476098;
-	min-width: 1024px;
+	min-width: 1000px;
+}
+
+img
+{
+	border: none;
 }
 
 li
@@ -114,10 +119,29 @@ a:hover
 	clear: both;
 }
 
+.left
+{
+	float: left;
+}
+
+.right
+{
+	float: right;
+}
+
 .scrollable
 {
 	height: 350px;
 	overflow: auto;
+}
+
+.scrollable tr.result_even
+{ 
+	background-color:#C0C0C0;
+}
+.scrollable tr.result_odd
+{ 
+	background-color:#ffffff;
 }
 
 UL.spaced LI
