@@ -6,11 +6,25 @@
 	<property name="label" value="Enkive EDiscovery" />
 	<property name="project.dir" value="." />
 	<property name="build.dir" value="${project.dir}/build" />
+	<property name="source.dir" value="${project.dir}/src" />
 	<property name="bin.dir" value="${project.dir}/bin" />
 	<property name="project.name" value="ediscovery" />
 	<property name="package.file.zip" value="${build.dir}/${project.name}.zip" />
+	<property name="package.file.jar" value="${build.dir}/${project.name}.jar" />
 	<property name="package.file.war" value="${build.dir}/${project.name}.war" />
 
+	<path id="classpath.server">
+		<fileset dir="${alfresco.sdk.dir}/server" includes="**/*.jar" />
+	</path>
+
+	<path id="classpath.remote">
+		<fileset dir="${alfresco.sdk.dir}/remote" includes="**/*.jar" />
+	</path>
+
+	<path id="classpath.build">
+		<fileset dir="${build.dir}" includes="**/*.jar" />
+	</path>
+	
 	<target name="clean" description="Removes all generated files">
 		<delete dir="${build.dir}" />
 	</target>
@@ -19,9 +33,10 @@
 		<mkdir dir="${build.dir}" />
 	</target>
 
-	<target name="package" depends="setup" description="Creates a zip called ${package.file.zip} which can be unzipped on top of an exploded web app">
+	<target name="package" depends="setup, package-jar" description="Creates a zip called ${package.file.zip} which can be unzipped on top of an exploded web app">
 		<delete file="${package.file.zip}" />
 		<zip destfile="${package.file.zip}" update="true">
+			<zipfileset file="${package.file.jar}" prefix="WEB-INF/lib" />
 			<zipfileset dir="./css" prefix="css" />
 			<zipfileset dir="./images" prefix="images" />
 			<zipfileset dir="./javascript" prefix="javascript" />
@@ -30,6 +45,22 @@
 		</zip>
 	</target>
 
+	<target name="compile" description="Compiles src to ${bin.dir}">
+		<mkdir dir="${bin.dir}" />
+		<javac srcdir="${source.dir}/java" destdir="${bin.dir}" source="1.5" target="1.5" debug="on" fork="yes" deprecation="on">
+			<classpath refid="classpath.server" />
+			<classpath refid="classpath.remote" />
+		</javac>
+	</target>
+	
+	<target name="package-jar" depends="compile" description="Jars up the compiled classes and ${web.dir}/META-INF into ${package.file.jar}">
+		<delete file="${package.file.jar}" />
+		<jar destfile="${package.file.jar}">
+			<fileset dir="${bin.dir}" includes="com/**" />
+			<fileset dir="${bin.dir}" includes="org/**" />
+		</jar>
+	</target>
+	
 	<target name="deploy" depends="package" description="Unzips the ${package.file.zip} into ${ediscovery.web.dir}">
 		<unzip src="${package.file.zip}" dest="${ediscovery.web.dir}" />
 	</target>

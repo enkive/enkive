@@ -12,6 +12,8 @@
 	<!-- SURF: required infrastructure imports -->
 	<import resource="surf-config.xml"/>
 	
+	<import resource="ediscovery-webscripts-context.xml" />
+	
 	<!-- Maps requests to @Controllers based on @RequestMapping("path") annotation values
 		 If no annotation-based path mapping is found, Spring MVC sends a 404 response and logs a pageNotFound warning. -->
 	<bean class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping">

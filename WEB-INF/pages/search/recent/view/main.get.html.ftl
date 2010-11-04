@@ -1,21 +1,3 @@
-<#if result.errors??>
-<p>
-Errors:
-<ul>
-  <#list result.errors as error>
-    <li>${error}</li>
-  </#list>
-</ul>
-</p>
-</#if>
-
-<p>
-  <b>Found ${result.results.count} messages matching the query:</b>
-  <#list result.query?keys as key>
-    ${key} : ${result.query[key]} &nbsp;
-  </#list>
-</p>
-
 <#if result.results??>
 	<div class="scrollable">
 		<#if (result.results.count > 0)>
@@ -46,13 +28,5 @@ Errors:
 				</tbody>
 			</table>
 		</#if>
-	</div>
-	<div class="search-actions">
-		<form action="${url.context}/search/saved" method="get" onSubmit='save_search("${result.searchId}")'>
-			<input type="submit" value="Save Search" />
-		</form>
-		<form action="${url.context}/search/export?searchid=${result.searchId}" method="get">
-			<input type="submit" value="Export Search" />
-		</form>
 	</div>
 </#if>

@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <page>
    <id>home</id>
-   <title>Home Page</title>
+   <title>Home</title>
    <template-instance>home</template-instance>
    <authentication>user</authentication>
    <order-id>0</order-id>

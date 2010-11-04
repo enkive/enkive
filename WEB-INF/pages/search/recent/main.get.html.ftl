@@ -1,11 +1,12 @@
 <table>
 	<tr>
-		<th>Date</th>
+		<th>Execution Date</th>
 		<th>Criteria</th>
 	</tr>
 	<#list searchList as search>
 		<tr>
-		  	<td>${search.name}</td>
+			<#assign searchDate = search.date?datetime("yyyy-MM-dd_HH-mm-ss-SSS")>
+		  	<td>${searchDate}</td>
 		  	<td>
 		  		<table>
 			        <#list search.criteria as criteria>
@@ -19,7 +20,7 @@
 		    <td>
 			    <table>
 			    	<tr>
-					    <td>Details</td>
+					    <td><a href="${url.context}/search/recent/view?searchid=${search.id}">Details</a></td>
 					</tr>
 					<tr>
 					    <td><input type="button" onClick='save_recent_search("${search.id}")' value="Save" /></td>
