@@ -1,0 +1,7 @@
+<webscript>
+  <shortname>Save Search</shortname>
+  <description>Mark a search as saved</description>
+  <url>/search/save</url>
+  <format default="text">any</format>
+  <authentication>user</authentication>
+</webscript>

@@ -1,0 +1,7 @@
+<webscript>
+  <shortname>Delete Search</shortname>
+  <description>Delete a saved or recent search</description>
+  <url>/search/delete</url>
+  <format default="text">any</format>
+  <authentication>user</authentication>
+</webscript>
