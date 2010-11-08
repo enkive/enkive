@@ -24,7 +24,7 @@
 	<path id="classpath.build">
 		<fileset dir="${build.dir}" includes="**/*.jar" />
 	</path>
-	
+
 	<target name="clean" description="Removes all generated files">
 		<delete dir="${build.dir}" />
 	</target>
@@ -49,10 +49,9 @@
 		<mkdir dir="${bin.dir}" />
 		<javac srcdir="${source.dir}/java" destdir="${bin.dir}" source="1.5" target="1.5" debug="on" fork="yes" deprecation="on">
 			<classpath refid="classpath.server" />
-			<classpath refid="classpath.remote" />
 		</javac>
 	</target>
-	
+
 	<target name="package-jar" depends="compile" description="Jars up the compiled classes and ${web.dir}/META-INF into ${package.file.jar}">
 		<delete file="${package.file.jar}" />
 		<jar destfile="${package.file.jar}">
@@ -60,22 +59,21 @@
 			<fileset dir="${bin.dir}" includes="org/**" />
 		</jar>
 	</target>
-	
+
 	<target name="deploy" depends="package" description="Unzips the ${package.file.zip} into ${ediscovery.web.dir}">
 		<unzip src="${package.file.zip}" dest="${ediscovery.web.dir}" />
 	</target>
-	
+
 	<target name="package-war" depends="package" description="Packages the project into a WAR file">
 		<unzip src="${package.file.zip}" dest="${build.dir}/ediscovery" />
-		<war file="${package.file.war}"
-			webxml="${build.dir}/ediscovery/WEB-INF/web.xml">
+		<war file="${package.file.war}" webxml="${build.dir}/ediscovery/WEB-INF/web.xml">
 			<fileset dir="${build.dir}/ediscovery/" />
 		</war>
 	</target>
-	
+
 	<target name="deploy-war" depends="package-war" description="Copies the ${package.file.war} into ${ediscovery.war}">
 		<copy file="${package.file.war}" tofile="${ediscovery.war}" />
 		<delete dir="${ediscovery.web.dir}" />
 	</target>
-	
+
 </project>
