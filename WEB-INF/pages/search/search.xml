@@ -4,7 +4,7 @@
    <title>Search</title>
    <template-instance>basicTemplate</template-instance>
    <authentication>user</authentication>
-   <order-id>0</order-id>
+   <order-id>20</order-id>
    <components>
       <component>
          <region-id>sidenav</region-id>
