@@ -40,7 +40,6 @@
 			<zipfileset dir="./css" prefix="css" />
 			<zipfileset dir="./images" prefix="images" />
 			<zipfileset dir="./javascript" prefix="javascript" />
-			<zipfileset dir="./resources" prefix="resources" />
 			<zipfileset dir="./WEB-INF" prefix="WEB-INF" />
 		</zip>
 	</target>
