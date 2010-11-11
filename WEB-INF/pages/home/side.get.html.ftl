@@ -4,14 +4,15 @@
    </tr>
 </table>
 <ul>
-   <li><a href="http://www.linuxbox.com" target="_blank">Enkive Project page</a></li>
+   <li><a href="http://www.enkive.org">Enkive Project page</a></li>
 </ul>
 
 <table cellpadding="0" cellspacing="0">
    <tr>
-      <td><h2 class="tt">Linux Box Software</h2></td>
+      <td><h2 class="tt">Help Make Enkive Better</h2></td>
    </tr>
 </table>
 <ul>
-   <li><a href="http://www.linuxbox.com" target="_blank">Linux Box Home Page</a></li>
+   <li><a href="http://bugs.enkive.org">Report a Bug</a></li>
 </ul>
+

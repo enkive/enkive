@@ -1,1 +1,1 @@
-This is where some homepage text can go.
+Welcome to Enkive!
