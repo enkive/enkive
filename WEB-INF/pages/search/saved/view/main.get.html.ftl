@@ -47,7 +47,6 @@
 	</#if>
 <#else>
 	<p>
-		<b>There was an error retrieving search results</b><br />
-		Search results may have just taken too long to return, you can check your recent searches for results later.
+		<b>There was an error retrieving search results</b>
 	</p>
 </#if>
