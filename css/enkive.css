@@ -106,6 +106,7 @@ a:hover
 	padding-top: 5px;
 	margin-top: 5px;
 	margin-left: 305px;
+	min-height: 300px;
 }
 
 #page

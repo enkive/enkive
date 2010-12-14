@@ -16,6 +16,10 @@ function get_results(){
 						'&dateLatest=' + encodeURIComponent(dateLatest) +
 						'&messageId=' + encodeURIComponent(messageId);
 	
+	$('#main').html('<center>' +
+			'<p><b>Search is in progress...</b></p><br />' + 
+			'<img src=/ediscovery/resource/images/spinner.gif alt="Waiting for results" />' +
+			'</center>');
 	$('#main').load('/ediscovery/search/results' + queryString);
 }
 
