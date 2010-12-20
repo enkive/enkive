@@ -1,4 +1,4 @@
-<#if result??>
+<#if result?? && !firstRun??>
 	<#if result.errors??>
 	<p>
 	Errors:
@@ -12,9 +12,11 @@
 	
 	<p>
 	  <b>Found ${result.results.count} messages matching the query:</b>
-	  <#list result.query?keys as key>
-	    ${key} : ${result.query[key]} &nbsp;
-	  </#list>
+	  <#if result.query??>
+		  <#list result.query?keys as key>
+		    ${key} : ${result.query[key]} &nbsp;
+		  </#list>
+	  </#if>
 	</p>
 	
 	<#if result.results??>
@@ -35,7 +37,7 @@
 					    	<tr class="result_odd">
 					    </#if>
 					    <td style="white-space: nowrap">
-					      <a href="${url.context}/message?messageid=${message.id}">
+					      <a class="message" href="${url.context}/message?messageid=${message.id}">
 					        ${message.date}
 					      </a>
 					    </td>
@@ -72,11 +74,9 @@
 			</form>
 		</div>
 	</#if>
-<#else>
+<#elseif !firstRun??>
 	<p>
 		<b>There was an error retrieving search results</b><br />
 		Search results may have just taken too long to return, you can check your recent searches for results later.
 	</p>
 </#if>
-
-	

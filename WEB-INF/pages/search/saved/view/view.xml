@@ -14,7 +14,7 @@
       </component>
       <component>
          <region-id>main</region-id>
-         <url>/search/saved/view/main</url>
+         <url>/search/results</url>
       </component>
       <component>
          <region-id>searchForm</region-id>

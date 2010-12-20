@@ -1,6 +1,0 @@
-<webscript>
-  <shortname>Recent Search Results View Page - Main Section</shortname>
-  <description>Recent Search Results View Page - Main Section</description>
-  <url>/search/recent/view/main</url>
-  <format default="html">any</format>
-</webscript>

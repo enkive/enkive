@@ -1,6 +1,0 @@
-<webscript>
-  <shortname>Saved Search Results View Page - Main Section</shortname>
-  <description>Saved Search Results View Page - Main Section</description>
-  <url>/search/saved/view/main</url>
-  <format default="html">any</format>
-</webscript>

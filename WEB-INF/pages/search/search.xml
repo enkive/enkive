@@ -12,6 +12,10 @@
          <chrome>navBox</chrome>
          <title>Search</title>
       </component>
+      <component>
+         <region-id>main</region-id>
+         <url>/search/results</url>
+      </component>
 	   <component>
 	      <region-id>searchForm</region-id>
 	      <url>/search/input</url>

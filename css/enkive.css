@@ -138,11 +138,15 @@ a:hover
 
 .scrollable tr.result_even
 { 
-	background-color:#C0C0C0;
+	background-color:#afbce1;
 }
 .scrollable tr.result_odd
 { 
-	background-color:#ffffff;
+	background-color:#d0d8ec;
+}
+.scrollable a
+{ 
+	color:#333;
 }
 
 UL.spaced LI
