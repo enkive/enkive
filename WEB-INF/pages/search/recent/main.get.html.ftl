@@ -22,7 +22,7 @@
 			        	</#list>
 			        </table>
 			    </td>
-			    <td>
+			    <td width="50px">
 				    <table>
 				    	<tr>
 						    <td><input type="button" onClick='save_recent_search("${search.id}")' value="Save" /></td>

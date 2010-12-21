@@ -14,10 +14,6 @@
          <region-id>main</region-id>
          <url>/search/results</url>
       </component>
-      <component>
-         <region-id>searchForm</region-id>
-         <url>/search/recent/view/side</url>
-      </component>
    </components>
    <associations>
       <page-association>

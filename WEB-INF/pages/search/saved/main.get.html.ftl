@@ -24,7 +24,7 @@
 			        	</#list>
 			        </table>
 			    </td>
-			    <td>
+			    <td width="25px">
 				    <table>
 				    	<tr>
 						    <td><input type="button" onClick='delete_saved_search("${search.id}")' value="Delete" /></td>

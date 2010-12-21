@@ -11,7 +11,7 @@
 	</#if>
 	
 	<p>
-	  <b>Found ${result.results.count} messages matching the query:</b>
+	  <h3>Found ${result.results.count} messages </h3> <b>matching the query:</b>
 	  <#if result.query??>
 		  <#list result.query?keys as key>
 		    ${key} : ${result.query[key]} &nbsp;

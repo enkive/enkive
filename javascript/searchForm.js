@@ -21,13 +21,18 @@ function get_results(){
 			'<img src=/ediscovery/resource/images/spinner.gif alt="Waiting for results" />' +
 			'</center>');
 	$('#main').load('/ediscovery/search/results' + queryString, function() {
-		$('a.message').fancybox({
-			'width'				: '75%',
-			'height'			: '75%',
-			'autoScale'			: false,
-			'transitionIn'		: 'none',
-			'transitionOut'		: 'none',
-			'type'				: 'iframe'
+		$('#search_results tr').each(function(){
+			var currentId = $(this).attr('id');
+			$(this).fancybox({
+					'width'				: '75%',
+					'height'			: '75%',
+					'autoScale'			: true,
+					'transitionIn'		: 'none',
+					'transitionOut'		: 'none',
+					'type'				: 'iframe',
+					'showCloseButton'	: 'true',
+					'href'				: '/ediscovery/message?messageid=' + currentId
+			});
 		});
 	});
 }
