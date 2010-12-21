@@ -146,9 +146,15 @@ a:hover
 { 
 	background-color:#d0d8ec;
 }
-.scrollable a
+
+.scrollable tr.result_odd:hover
 { 
-	color:#333;
+	background-color:#476098;
+}
+
+.scrollable tr.result_even:hover
+{ 
+	background-color:#476098;
 }
 
 UL.spaced LI

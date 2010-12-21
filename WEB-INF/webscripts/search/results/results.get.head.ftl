@@ -2,13 +2,19 @@
 <script src="${url.context}/resource/javascript/jquery.fancybox-1.3.4.js"></script>
 <script type="text/javascript">
 $(function() {
-	$('a.message').fancybox({
+	
+	$('#search_results tr').each(function(){
+		var currentId = $(this).attr('id');
+		$(this).fancybox({
 				'width'				: '75%',
 				'height'			: '75%',
-				'autoScale'			: false,
+				'autoScale'			: true,
 				'transitionIn'		: 'none',
 				'transitionOut'		: 'none',
-				'type'				: 'iframe'
+				'type'				: 'iframe',
+				'showCloseButton'	: 'true',
+				'href'				: '${url.context}/message?messageid=' + currentId
 		});
+	});
 });
 </script>

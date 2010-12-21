@@ -9,8 +9,6 @@
       <component>
          <region-id>subnav</region-id>
          <url>/navigation/subnav</url>
-         <chrome>navBox</chrome>
-         <title>Administration</title>
       </component>
       <component>
          <region-id>main</region-id>

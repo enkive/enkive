@@ -1,5 +1,5 @@
 <div class="scrollable">
-	<table>
+	<table id="saved_searches">
 		<tr>
 			<th>Name</th>
 			<th>Saved Date</th>
@@ -7,9 +7,9 @@
 		</tr>
 		<#list searchList?sort_by("date")?reverse as search>
 			<#if (search_index % 2) == 0>
-			    	<tr class="result_even">
+			    	<tr class="result_even"  id="${search.id}">
 			    <#else>
-			    	<tr class="result_odd">
+			    	<tr class="result_odd"  id="${search.id}">
 			</#if>
 			  	<td>${search.name}</td>
 			  	<#assign searchDate = search.date?datetime("yyyy-MM-dd_HH-mm-ss-SSS")>
@@ -27,12 +27,6 @@
 			    <td>
 				    <table>
 				    	<tr>
-						    <td>
-						    	<form method="get" action="${url.context}/search/saved/view">
-						    		<input type="hidden" name="searchid" value="${search.id}">
-									<input type="submit" value="Details">
-								</form>
-							</td>
 						    <td><input type="button" onClick='delete_saved_search("${search.id}")' value="Delete" /></td>
 						</tr>
 					</table>

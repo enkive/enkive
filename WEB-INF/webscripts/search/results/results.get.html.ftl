@@ -22,7 +22,7 @@
 	<#if result.results??>
 		<div class="scrollable">
 			<#if (result.results.count > 0)>
-				<table>
+				<table id="search_results">
 				  <thead>
 				    <th><b>Date</b></th>
 				    <th><b>Sender</b></th>
@@ -32,31 +32,23 @@
 				  <tbody>
 					<#list result.results.messages?sort_by("datenumber") as message>
 					  	<#if (message_index % 2) == 0>
-					    	<tr class="result_even">
+					    	<tr class="result_even" id="${message.id}">
 					    <#else>
-					    	<tr class="result_odd">
+					    	<tr class="result_odd" id="${message.id}">
 					    </#if>
 					    <td style="white-space: nowrap">
-					      <a class="message" href="${url.context}/message?messageid=${message.id}">
 					        ${message.date}
-					      </a>
 					    </td>
 					    <td style="white-space: nowrap">
-					      <a href="${url.context}/message?messageid=${message.id}">
 					        ${message.sender}
-					      </a>
 					    </td>
 					    <td style="white-space: nowrap">
-					      <a href="${url.context}/message?messageid=${message.id}">
 					      	<#list message.recipients as recipient>
 					        	${recipient}<br />
 					        </#list>
-					      </a>
 					    </td>
 					    <td>
-					      <a href="${url.context}/message?messageid=${message.id}">
 					        ${message.subject}
-					      </a>
 					    </td>
 					  </tr>
 					</#list>
