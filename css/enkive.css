@@ -98,14 +98,11 @@ a:hover
 	padding: 5px;
 	margin: 5px;
 	float: left;
-	width: 300px;
 }
 
 #main
 {
 	padding-top: 5px;
-	margin-top: 5px;
-	margin-left: 305px;
 	min-height: 300px;
 }
 
@@ -134,6 +131,11 @@ a:hover
 {
 	height: 350px;
 	overflow: auto;
+}
+
+.scrollable table
+{ 
+	width: 100%;
 }
 
 .scrollable tr.result_even
