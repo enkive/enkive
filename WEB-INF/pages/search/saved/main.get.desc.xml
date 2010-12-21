@@ -1,6 +1,0 @@
-<webscript>
-  <shortname>Saved Search Page - Main Section</shortname>
-  <description>Saved Search Page - Main Section</description>
-  <url>/search/saved/main</url>
-  <format default="html">any</format>
-</webscript>

@@ -15,12 +15,12 @@
 	<div id="topnav">
 		<@region id="topnav" scope="template" />
 	</div>
+	<div id="subnav">
+		<@region id="subnav" scope="page" />
+	</div>
 	<div id="page">
 		<div id="content">
 			<div id="left">
-				<div id="sidenav">
-					<@region id="sidenav" scope="page" />
-				</div>
 				<div id="searchForm">
 					<@region id="searchForm" scope="page" />
 				</div>

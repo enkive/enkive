@@ -7,10 +7,8 @@
    <order-id>1</order-id>
    <components>
       <component>
-         <region-id>sidenav</region-id>
-         <url>/navigation/sidenav</url>
-         <chrome>navBox</chrome>
-         <title>Search</title>
+         <region-id>subnav</region-id>
+         <url>/navigation/subnav</url>
       </component>
       <component>
          <region-id>main</region-id>

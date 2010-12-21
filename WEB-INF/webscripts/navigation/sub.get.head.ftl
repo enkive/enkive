@@ -1,13 +1,12 @@
 <style>
-#topnav
+#subnav
 {
-	background-color: #8b9ec6;
 	padding:5px;
 	margin:0px;
 	clear: both;
 }
 
-#topnav ul
+#subnav ul
 {
 	padding:0px;
 	margin:0px;
@@ -17,12 +16,12 @@
 	list-style-type:none;
 }
 
-#topnav li 
+#subnav li 
 {
 	display:inline;
 }
 
-#topnav li a.normal
+#subnav li a.normal
 {
 	margin-left: 1px;
 	margin-top: 1px;
@@ -30,12 +29,12 @@
 	color: white;
 }
 
-#topnav li a:hover
+#subnav li a:hover
 {
 	color: #faa735;
 }
 
-#topnav li a.current
+#subnav li a.current
 {
 	margin-left: 1px;
 	margin-top: 1px;
