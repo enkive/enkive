@@ -22,7 +22,7 @@
 	<#if result.results??>
 		<div class="scrollable">
 			<#if (result.results.count > 0)>
-				<table>
+				<table >
 				  <thead>
 				    <th><b>Date</b></th>
 				    <th><b>Sender</b></th>

@@ -2,9 +2,7 @@
 #topnav
 {
 	background-color: #8b9ec6;
-	padding:5px;
-	margin:0px;
-	clear: both;
+	min-height: 30px;
 }
 
 #topnav ul
@@ -28,6 +26,7 @@
 	margin-top: 1px;
 	padding: 7px 7px 7px 7px;
 	color: white;
+	float:left;
 }
 
 #topnav li a:hover
@@ -41,5 +40,6 @@
 	margin-top: 1px;
 	padding: 7px 7px 7px 7px;
 	color:black;
+	float:left;
 }
 </style>
