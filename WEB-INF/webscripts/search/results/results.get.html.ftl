@@ -57,9 +57,7 @@
 			</#if>
 		</div>
 		<div class="search-actions">
-			<form action="${url.context}/search/saved" method="get" onSubmit='save_search("${result.searchId}")'>
-				<input type="submit" value="Save Search" />
-			</form>
+			<input type="button" onClick='save_recent_search("${result.searchId}")' value="Save Search">
 			<form action="${url.context}/search/export/mbox" method="get">
 				<input type="hidden" name="searchid" value="${result.searchId}" />
 				<input type="submit" value="Export Search" />
