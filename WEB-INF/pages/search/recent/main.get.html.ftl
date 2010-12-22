@@ -13,14 +13,9 @@
 				<#assign searchDate = search.date?datetime("yyyy-MM-dd_HH-mm-ss-SSS")>
 			  	<td class="search_result" id="${search.id}">${searchDate}</td>
 			  	<td class="search_result" id="${search.id}">
-			  		<table id="criteria">
-				        <#list search.criteria as criteria>
-					  		<tr>
-							    <td><b>${criteria.parameter}:</b></td>
-							    <td>${criteria.value}</td>
-							</tr>
-			        	</#list>
-			        </table>
+				    <#list search.criteria as criteria>
+					  	<b>${criteria.parameter}:</b>${criteria.value}<br />
+			        </#list>
 			    </td>
 			    <td width="50px">
 				    <table>
