@@ -7,10 +7,6 @@
    <order-id>30</order-id>
    <components>
       <component>
-         <region-id>subnav</region-id>
-         <url>/navigation/subnav</url>
-      </component>
-      <component>
          <region-id>main</region-id>
          <url>/help/main</url>
       </component>   

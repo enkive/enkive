@@ -1,4 +1,4 @@
-This is Enkive version 0.6.0 <br />
+This is Enkive version 0.6.1 <br />
 <br />
 For help please consult<br />
 <ul>
