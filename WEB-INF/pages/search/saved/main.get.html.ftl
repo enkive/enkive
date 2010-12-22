@@ -11,11 +11,11 @@
 			    <#else>
 			    	<tr class="result_odd"  id="${search.id}">
 			</#if>
-			  	<td>${search.name}</td>
+			  	<td class="search_result" id="${search.id}">${search.name}</td>
 			  	<#assign searchDate = search.date?datetime("yyyy-MM-dd_HH-mm-ss-SSS")>
-			  	<td>${searchDate}</td>
-			  	<td>
-			  		<table>
+			  	<td class="search_result" id="${search.id}">${searchDate}</td>
+			  	<td class="search_result" id="${search.id}">
+			  		<table id="criteria">
 				        <#list search.criteria as criteria>
 					  		<tr>
 							    <td><b>${criteria.parameter}:</b></td>

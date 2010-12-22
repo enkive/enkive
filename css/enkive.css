@@ -157,6 +157,11 @@ a:hover
 	background-color:#476098;
 }
 
+.criteria
+{ 
+	align: left;
+}
+
 UL.spaced LI
 {
 	padding-bottom: 3px;
