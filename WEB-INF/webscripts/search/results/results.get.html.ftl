@@ -1,4 +1,5 @@
 <#if result?? && !firstRun??>
+	<b>Note that this demo limits searches to 500 results</b><br />
 	<#if result.errors??>
 	<p>
 	Errors:
@@ -30,7 +31,7 @@
 				    <th><b>Subject</b></th>
 				  </thead>
 				  <tbody>
-					<#list result.results.messages?sort_by("datenumber") as message>
+					<#list result.results.messages as message>
 					  	<#if (message_index % 2) == 0>
 					    	<tr class="result_even" id="${message.id}">
 					    <#else>
@@ -57,9 +58,7 @@
 			</#if>
 		</div>
 		<div class="search-actions">
-			<form action="${url.context}/search/saved" method="get" onSubmit='save_search("${result.searchId}")'>
-				<input type="submit" value="Save Search" />
-			</form>
+			<input type="button" onClick='save_recent_search("${result.searchId}")' value="Save Search">
 			<form action="${url.context}/search/export/mbox" method="get">
 				<input type="hidden" name="searchid" value="${result.searchId}" />
 				<input type="submit" value="Export Search" />
@@ -68,7 +67,7 @@
 	</#if>
 <#elseif !firstRun??>
 	<p>
-		<b>There was an error retrieving search results</b><br />
-		Search results may have just taken too long to return, you can check your recent searches for results later.
+		<b>Your search has not yet returned results</b><br />
+		When the search is complete, it will appear in the recent search list.
 	</p>
 </#if>
