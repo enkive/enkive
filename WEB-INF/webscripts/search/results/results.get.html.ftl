@@ -1,5 +1,4 @@
 <#if result?? && !firstRun??>
-	<b>Note that this demo limits searches to 500 results</b><br />
 	<#if result.errors??>
 	<p>
 	Errors:
