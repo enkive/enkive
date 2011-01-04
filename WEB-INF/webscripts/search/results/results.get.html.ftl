@@ -11,17 +11,17 @@
 	</#if>
 	
 	<p>
-	  <h3>Found ${result.results.count} messages </h3> <b>matching the query:</b>
-	  <#if result.query??>
-		  <#list result.query?keys as key>
-		    ${key} : ${result.query[key]} &nbsp;
+	  <h3>Found ${result.paging.total} messages </h3> <b>matching the query:</b>
+	  <#if result.data.query??>
+		  <#list result.data.query?keys as key>
+		    ${key} : ${result.data.query[key]} &nbsp;
 		  </#list>
 	  </#if>
 	</p>
 	
-	<#if result.results??>
+	<#if result.data.results??>
 		<div class="scrollable">
-			<#if (result.results.count > 0)>
+			<#if (result.paging.total > 0)>
 				<table id="search_results">
 				  <thead>
 				    <th><b>Date</b></th>
@@ -30,7 +30,7 @@
 				    <th><b>Subject</b></th>
 				  </thead>
 				  <tbody>
-					<#list result.results.messages as message>
+					<#list result.data.results.messages as message>
 					  	<#if (message_index % 2) == 0>
 					    	<tr class="result_even" id="${message.id}">
 					    <#else>
@@ -56,10 +56,17 @@
 				</table>
 			</#if>
 		</div>
+		<div class="navigation">
+			<a href="${uri}&${result.paging.firstPage}">FIRST</a>
+			<a href="${uri}&${result.paging.previousPage}">PREVIOUS</a>
+			${result.paging.pagePos}
+			<a href="${uri}&${result.paging.nextPage}">NEXT</a>
+			<a href="${uri}&${result.paging.lastPage}">LAST</a>
+		</div>
 		<div class="search-actions">
-			<input type="button" onClick='save_recent_search("${result.searchId}")' value="Save Search">
+			<input type="button" onClick='save_recent_search("${result.data.searchId}")' value="Save Search">
 			<form action="${url.context}/search/export/mbox" method="get">
-				<input type="hidden" name="searchid" value="${result.searchId}" />
+				<input type="hidden" name="searchid" value="${result.data.searchId}" />
 				<input type="submit" value="Export Search" />
 			</form>
 		</div>
