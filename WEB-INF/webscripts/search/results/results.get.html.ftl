@@ -56,6 +56,7 @@
 				</table>
 			</#if>
 		</div>
+		<#assign uri = uri>
 		<#assign paging = result.paging>
 		<#include "*/templates/paging.ftl"> 
 		<div class="search-actions">

@@ -15,10 +15,11 @@ var dateEarliest = context.properties["dateEarliest"];
 var dateLatest = context.properties["dateLatest"];
 var messageId = context.properties["messageId"];
 
+var uri = url.uri;
+
 if (searchid != null){
 	// retrieve the web script index page 
 	messagelist = connector.get("/enkive/search/saved/view/" + searchid + "?pos=" + pos + "&size=" + size);
-	model.uri = url.uri + "?searchid=" + searchid;
 	
 } else if(
 		content != null || 
@@ -39,6 +40,7 @@ if (searchid != null){
 		"&dateLatest=" + encodeURIComponent(dateLatest) +
 		"&messageId=" + encodeURIComponent(messageId)
 		);
+	
 } else {
 	model.firstRun = true;
 }
@@ -49,4 +51,10 @@ if (searchid != null){
 
 var messageJSON = eval("(" + messagelist + ")");
 
+if(searchid == null && !model.firstRun){
+	uri = url.context + "/search/recent/view";
+	searchid = messageJSON.data.searchId;
+}
+
+model.uri = uri + "?searchid=" + searchid;
 model.result = messageJSON

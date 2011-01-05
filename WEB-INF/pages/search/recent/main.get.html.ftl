@@ -29,3 +29,6 @@
 		</#list>
 	</table>
 </div>
+<#assign uri = uri>
+<#assign paging = paging>
+<#include "*/templates/paging.ftl">

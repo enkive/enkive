@@ -5,6 +5,8 @@ var size = context.properties["size"];
 var connector = remote.connect("alfresco");
 // retrieve the web script index page 
 var searchlist = connector.get("/enkive/search/saved" + "?pos=" + pos + "&size=" + size);
-var searchJSON = jsonUtils.toObject(searchlist);
 
-model.searchList = eval("(" + searchJSON.data + ")");
+var resultJSON = eval("(" + searchlist + ")");
+model.searchList = resultJSON.data;
+model.uri = url.uri + "?";
+model.paging = resultJSON.paging;
