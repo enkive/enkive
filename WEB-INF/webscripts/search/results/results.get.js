@@ -50,5 +50,3 @@ if (searchid != null){
 var messageJSON = eval("(" + messagelist + ")");
 
 model.result = messageJSON
-
-

@@ -56,13 +56,8 @@
 				</table>
 			</#if>
 		</div>
-		<div class="navigation">
-			<a href="${uri}&${result.paging.firstPage}">FIRST</a>
-			<a href="${uri}&${result.paging.previousPage}">PREVIOUS</a>
-			${result.paging.pagePos}
-			<a href="${uri}&${result.paging.nextPage}">NEXT</a>
-			<a href="${uri}&${result.paging.lastPage}">LAST</a>
-		</div>
+		<#assign paging = result.paging>
+		<#include "*/templates/paging.ftl"> 
 		<div class="search-actions">
 			<input type="button" onClick='save_recent_search("${result.data.searchId}")' value="Save Search">
 			<form action="${url.context}/search/export/mbox" method="get">

@@ -5,7 +5,7 @@
 			<th>Saved Date</th>
 			<th>Criteria</th>
 		</tr>
-		<#list searchList?sort_by("date")?reverse as search>
+		<#list searchList as search>
 			<#if (search_index % 2) == 0>
 			    	<tr class="result_even"  id="${search.id}">
 			    <#else>
