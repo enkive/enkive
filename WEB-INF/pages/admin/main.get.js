@@ -1,23 +1,14 @@
-var page = Number(context.properties["page"])
-if (page <= 0)
-	page = 1
+var pos = context.properties["pos"];
+var size = context.properties["size"];
 
-var perPage = Number(context.properties["perPage"])
-if (perPage < 1)
-	perPage = 25
-
-	// get a connector to the Alfresco repository endpoint
+// get a connector to the Alfresco repository endpoint
 var connector = remote.connect("alfresco");
 
 // retrieve the web script index page
-var auditEntryListJSON = connector.get("/enkive/audit/recent?page=" + page
-		+ "&perPage=" + perPage);
+var auditEntryListJSON = connector.get("/enkive/audit/recent?pos=" + pos
+		+ "&size=" + size);
 var auditEntryList = eval("(" + auditEntryListJSON + ")");
 model.result = auditEntryList
 
-var auditTrailSize = auditEntryList.results.audit_trail_size
-
-model.pagination = {}
-model.pagination.page = page
-model.pagination.perPage = perPage
-model.pagination.lastPage = Math.ceil(auditTrailSize / perPage)
+model.paging = auditEntryList.paging
+model.uri = url.uri + "?";

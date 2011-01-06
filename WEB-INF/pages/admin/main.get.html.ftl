@@ -15,19 +15,6 @@
 	<#if result.results??>
 		<#if (result.results.audit_entries?size > 0) >
 			<div class="scrollable">
-				<p>
-					<#if (pagination.page > 1) >
-						<a href="admin?page=${pagination.page - 1}&perPage=${pagination.perPage}">Previous</a>
-					<#else>
-						Previous <#-- use non-clickable label to minimize "jumping" of pagination line -->
-					</#if>
-					Page ${pagination.page}
-					<#if (pagination.page < pagination.lastPage) >
-						<a href="admin?page=${pagination.page + 1}&perPage=${pagination.perPage}">Next</a>
-					<#else>
-						Next <#-- use non-clickable label to minimize "jumping" of pagination line -->
-					</#if>
-				</p>
 				<table>
 				  <thead>
 				    <th><b>ID</b></th>
@@ -64,6 +51,9 @@
 					</tbody>
 				</table>
 			</div>
+			<#assign uri = uri>
+			<#assign paging = paging>
+			<#include "*/templates/paging.ftl">
 		<#else>
 			<p>No audit entries on this page.</p>
 		</#if>

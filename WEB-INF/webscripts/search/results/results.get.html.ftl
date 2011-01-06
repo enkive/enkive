@@ -30,11 +30,11 @@
 				    <th><b>Subject</b></th>
 				  </thead>
 				  <tbody>
-					<#list result.data.results.messages as message>
+					<#list result.data.results as message>
 					  	<#if (message_index % 2) == 0>
-					    	<tr class="result_even" id="${message.id}">
+					    	<tr class="result_even" id="${message.messageId}">
 					    <#else>
-					    	<tr class="result_odd" id="${message.id}">
+					    	<tr class="result_odd" id="${message.messageId}">
 					    </#if>
 					    <td style="white-space: nowrap">
 					        ${message.date}
