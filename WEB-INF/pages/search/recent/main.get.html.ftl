@@ -1,6 +1,3 @@
-<#assign uri = uri>
-<#assign paging = paging>
-<#include "*/templates/paging.ftl">
 <div class="scrollable">
 	<table id="saved_searches">
 		<tr>
@@ -36,3 +33,6 @@
 		</#list>
 	</table>
 </div>
+<#assign uri = uri>
+<#assign paging = paging>
+<#include "*/templates/paging.ftl">
