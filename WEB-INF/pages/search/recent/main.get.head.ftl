@@ -5,7 +5,6 @@
             window.location = "${url.context}/search/recent/view?searchid=" + id;
         }
     });	
-
 	$('.pagingLink').live('click', function() {
 	    var link = $(this).attr("href");
 	    $('#main').load(link + " #main");

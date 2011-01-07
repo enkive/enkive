@@ -1,3 +1,6 @@
+<#assign uri = uri>
+<#assign paging = paging>
+<#include "*/templates/paging.ftl">
 <div class="scrollable">
 	<table id="saved_searches">
 		<tr>
@@ -22,6 +25,9 @@
 			    <td width="25px">
 				    <table>
 				    	<tr>
+				    		<noscript>
+				    			<td><a class="view_search" href="${url.context}/search/saved/view?searchid=${search.id}">VIEW</a></td>
+						    </noscript>
 						    <td><input type="button" onClick='delete_saved_search("${search.id}")' value="Delete" /></td>
 						</tr>
 					</table>
@@ -30,6 +36,3 @@
 		</#list>
 	</table>
 </div>
-<#assign uri = uri>
-<#assign paging = paging>
-<#include "*/templates/paging.ftl">

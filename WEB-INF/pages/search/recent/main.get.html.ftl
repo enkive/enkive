@@ -1,3 +1,6 @@
+<#assign uri = uri>
+<#assign paging = paging>
+<#include "*/templates/paging.ftl">
 <div class="scrollable">
 	<table id="saved_searches">
 		<tr>
@@ -17,9 +20,13 @@
 					  	<b>${criteria.parameter}:</b>${criteria.value}<br />
 			        </#list>
 			    </td>
+			    	
 			    <td width="50px">
 				    <table>
 				    	<tr>
+				    		<noscript>
+				    			<td><a class="view_search" href="${url.context}/search/saved/view?searchid=${search.id}">VIEW</a></td>
+						    </noscript>
 						    <td><input type="button" onClick='save_recent_search("${search.id}")' value="Save" /></td>
 						    <td><input type="button" onClick='delete_recent_search("${search.id}")' value="Delete" /></td>
 						</tr>
@@ -29,6 +36,3 @@
 		</#list>
 	</table>
 </div>
-<#assign uri = uri>
-<#assign paging = paging>
-<#include "*/templates/paging.ftl">
