@@ -35,6 +35,7 @@ function get_results(){
 			});
 		});
 	});
+	return false;
 }
 
 function clearForm(){

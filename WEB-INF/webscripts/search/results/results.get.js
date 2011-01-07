@@ -22,13 +22,13 @@ if (searchid != null){
 	messagelist = connector.get("/enkive/search/saved/view/" + searchid + "?pos=" + pos + "&size=" + size);
 	
 } else if(
-		content != null || 
-		sender != null || 
-		recipient != null || 
-		subject != null || 
-		dateEarliest != null || 
-		dateLatest != null || 
-		messageId != null
+		(content != null && content != "")|| 
+		(sender != null && sender != "")|| 
+		(recipient != null && recipient != "")|| 
+		(subject != null && subject != "")|| 
+		(dateEarliest != null && dateEarliest != "")|| 
+		(dateLatest != null && dateLatest != "")|| 
+		(messageId != null && messageId != "")
 	){
 	
 	messagelist = connector.get("/enkive/search" + 

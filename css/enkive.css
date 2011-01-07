@@ -116,7 +116,10 @@ a:hover
 {
 	clear: both;
 }
-
+.paging
+{
+	clear: both;
+}
 .left
 {
 	float: left;

@@ -11,8 +11,9 @@
 	</#if>
 	
 	<p>
-	  <h3>Found ${result.paging.total} messages </h3> <b>matching the query:</b>
+	  <h3>Found ${result.data.itemTotal} messages </h3> 
 	  <#if result.data.query??>
+	  <b>matching the query:</b>
 		  <#list result.data.query?keys as key>
 		    ${key} : ${result.data.query[key]} &nbsp;
 		  </#list>
