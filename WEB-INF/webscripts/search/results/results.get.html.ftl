@@ -74,3 +74,4 @@
 		When the search is complete, it will appear in the recent search list.
 	</p>
 </#if>
+

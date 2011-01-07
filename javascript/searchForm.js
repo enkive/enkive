@@ -20,21 +20,7 @@ function get_results(){
 			'<p><b>Search is in progress...</b></p><br />' + 
 			'<img src=/ediscovery/resource/images/spinner.gif alt="Waiting for results" />' +
 			'</center>');
-	$('#main').load('/ediscovery/search/results' + queryString, function() {
-		$('#search_results tr').each(function(){
-			var currentId = $(this).attr('id');
-			$(this).fancybox({
-					'width'				: '75%',
-					'height'			: '75%',
-					'autoScale'			: true,
-					'transitionIn'		: 'none',
-					'transitionOut'		: 'none',
-					'type'				: 'iframe',
-					'showCloseButton'	: 'true',
-					'href'				: '/ediscovery/message?messageid=' + currentId
-			});
-		});
-	});
+	$('#main').load('/ediscovery/search/results' + queryString);
 	return false;
 }
 
