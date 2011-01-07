@@ -37,11 +37,9 @@
 					    <#else>
 					    	<tr class="result_odd" id="${message.messageId}">
 					    </#if>
-					    <noscript>
-					    	<td>
-					    		<a class="view_message" href="${url.context}/message?messageid=${message.messageId}" target="_blank">VIEW</a>
-					    	</td>
-					    </noscript>
+				    	<td class="noscript">
+				    		<a href="${url.context}/message?messageid=${message.messageId}" target="_blank">VIEW</a>
+				    	</td>
 					    <td style="white-space: nowrap">
 					        ${message.date}
 					    </td>

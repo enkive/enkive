@@ -24,9 +24,9 @@
 			    <td width="50px">
 				    <table>
 				    	<tr>
-				    		<noscript>
-				    			<td><a class="view_search" href="${url.context}/search/saved/view?searchid=${search.id}">VIEW</a></td>
-						    </noscript>
+			    			<td class="noscript">
+			    				<a class="view_search" href="${url.context}/search/saved/view?searchid=${search.id}">VIEW</a>
+			    			</td>
 						    <td><input type="button" onClick='save_recent_search("${search.id}")' value="Save" /></td>
 						    <td><input type="button" onClick='delete_recent_search("${search.id}")' value="Delete" /></td>
 						</tr>

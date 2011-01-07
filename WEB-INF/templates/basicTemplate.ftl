@@ -6,6 +6,9 @@
 	<link type="text/css" rel="stylesheet" href="${url.context}/resource/css/enkive.css" />
 	<script src="${url.context}/resource/javascript/jquery.js"></script>
 	<script src="${url.context}/resource/javascript/searchActions.js"></script>
+	<script>
+		document.write('<style>.noscript{ display: none }</style>');
+	</script>
 	${head}
 </head>
 <body>
