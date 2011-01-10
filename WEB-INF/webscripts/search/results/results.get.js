@@ -51,7 +51,7 @@ if (searchid != null){
 
 var messageJSON = eval("(" + messagelist + ")");
 
-if(searchid == null && !model.firstRun){
+if(searchid == null && !model.firstRun && messageJSON != null){
 	uri = url.context + "/search/recent/view";
 	searchid = messageJSON.data.searchId;
 }

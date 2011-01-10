@@ -1,4 +1,4 @@
-<#if result?? && !firstRun??>
+<#if result?? && !firstRun?? && result.data??>
 	<#if result.errors??>
 	<p>
 	Errors:
@@ -22,7 +22,7 @@
 	
 	<#if result.data.results??>
 		<div class="scrollable">
-			<#if (result.paging.total > 0)>
+			<#if (result.data.itemTotal > 0)>
 				<table id="search_results">
 				  <thead>
 				    <th><b>Date</b></th>
