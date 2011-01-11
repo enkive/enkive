@@ -6,13 +6,13 @@
 		</tr>
 		<#list searchList as search>
 			<#if (search_index % 2) == 0>
-			   	<tr class="result_even" id="${search.id}">
+			   	<tr class="result_even" id="${search.searchId}">
 			<#else>
-				<tr class="result_odd" id="${search.id}">
+				<tr class="result_odd" id="${search.searchId}">
 			</#if>
-				<#assign searchDate = search.date?datetime("yyyy-MM-dd_HH-mm-ss-SSS")>
-			  	<td class="search_result" id="${search.id}">${searchDate}</td>
-			  	<td class="search_result" id="${search.id}">
+				<#assign searchDate = search.searchDate?datetime("yyyy-MM-dd_HH-mm-ss-SSS")>
+			  	<td class="search_result" id="${search.searchId}">${searchDate}</td>
+			  	<td class="search_result" id="${search.searchId}">
 				    <#list search.criteria as criteria>
 					  	<b>${criteria.parameter}:</b>${criteria.value}<br />
 			        </#list>
@@ -22,10 +22,10 @@
 				    <table>
 				    	<tr>
 			    			<td class="noscript">
-			    				<a class="view_search" href="${url.context}/search/saved/view?searchid=${search.id}">VIEW</a>
+			    				<a class="view_search" href="${url.context}/search/saved/view?searchid=${search.searchId}">VIEW</a>
 			    			</td>
-						    <td><input type="button" onClick='save_recent_search("${search.id}")' value="Save" /></td>
-						    <td><input type="button" onClick='delete_recent_search("${search.id}")' value="Delete" /></td>
+						    <td><input type="button" onClick='save_recent_search("${search.searchId}")' value="Save" /></td>
+						    <td><input type="button" onClick='delete_recent_search("${search.searchId}")' value="Delete" /></td>
 						</tr>
 					</table>
 				</td>
