@@ -1,8 +1,12 @@
-<form accept-charset="UTF-8" method="post" action="/alfresco/service/enkive/permissions/add">
+<form accept-charset="UTF-8" method="post" action="${url.context}/admin/addUser3">
 	<table id="create_enkive_access_table" align="center">
 		<tr>
 			<td>Is this user an Admin?:</td>
 			<td><input name="admin" type="checkbox" /></td>
+		</tr>
+		<tr>
+			<td>Can this user read all messages?:</td>
+			<td><input name="can_read_all" type="checkbox" /></td>
 		</tr>
 		<tr>
 			<td>List of email addresses this user can access:</td>
