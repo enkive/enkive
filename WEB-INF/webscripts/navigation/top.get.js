@@ -14,3 +14,9 @@ pages.unshift(sitedata.rootPage);
 // assign to model
 model.pages = pages;
 
+//get a connector to the Alfresco repository endpoint
+var connector = remote.connect("alfresco");
+
+//Get user privilige information
+var userData = connector.get("/api/people/" + user.id);
+model.userData = eval("(" + userData + ")");
