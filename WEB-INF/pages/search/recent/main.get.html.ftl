@@ -3,6 +3,7 @@
 		<tr>
 			<th>Execution Date</th>
 			<th>Criteria</th>
+			<th>Status</th>
 		</tr>
 		<#list searchList as search>
 			<#if (search_index % 2) == 0>
@@ -17,17 +18,29 @@
 					  	<b>${criteria.parameter}:</b>${criteria.value}<br />
 			        </#list>
 			    </td>
-			    	
-			    <td width="50px">
-				    <table>
-				    	<tr>
-			    			<td class="noscript">
-			    				<a class="view_search" href="${url.context}/search/saved/view?searchid=${search.searchId}">VIEW</a>
-			    			</td>
-						    <td><input type="button" onClick='save_recent_search("${search.searchId}")' value="Save" /></td>
-						    <td><input type="button" onClick='delete_recent_search("${search.searchId}")' value="Delete" /></td>
-						</tr>
-					</table>
+			    <td class="search_status" id="${search.searchId}">${search.status}</td>	
+				<td width="50px">
+				    <#if search.status == "COMPLETE">
+					    <table>
+					    	<tr>
+				    			<td class="noscript">
+				    				<a class="view_search" href="${url.context}/search/saved/view?searchid=${search.searchId}">VIEW</a>
+				    			</td>
+							    <td><input type="button" onClick='save_recent_search("${search.searchId}")' value="Save" /></td>
+							    <td><input type="button" onClick='delete_recent_search("${search.searchId}")' value="Delete" /></td>
+							</tr>
+						</table>
+					</#if>
+					<#if search.status == "RUNNING">
+					    <table>
+					    	<tr>
+				    			<td class="noscript">
+				    				<a class="stop_search" href="">STOP</a>
+				    			</td>
+							    <td><input type="button" onClick='stop_search("${search.searchId}")' value="Stop" /></td>
+							</tr>
+						</table>
+					</#if>
 				</td>
 			</tr>
 		</#list>

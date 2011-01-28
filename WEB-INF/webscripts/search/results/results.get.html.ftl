@@ -1,4 +1,4 @@
-<#if result?? && !firstRun?? && result.data??>
+<#if result?? && (result.data.status?upper_case == "COMPLETE" || result.data.status?upper_case == "UNKNOWN")>
 	<#if result.errors??>
 	<p>
 	Errors:
