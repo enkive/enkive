@@ -1,10 +1,10 @@
 <script type="text/javascript">
-	$('.search_result').live('click', function() {
-	    var id = $(this).attr("id");
-	    if(id) {
-	        window.location = "${url.context}/search/saved/view?searchid=" + id;
-	    }
-	});
+    $('tr.search_result td').live('click', function() {
+        var id = $(this).parent().attr("id");
+        if(id && !$(this).hasClass('search_action')) {
+            window.location = "${url.context}/search/saved/view?searchid=" + id;
+        }
+    });	
 	$('.pagingLink').live('click', function() {
 	    var link = $(this).attr("href");
 	    $('#main').load(link + " #main");

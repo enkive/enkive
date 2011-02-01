@@ -8,5 +8,5 @@ var searchlist = connector.get("/enkive/search/recent" + "?pos=" + pos + "&size=
 
 var resultJSON = eval("(" + searchlist + ")");
 model.searchList = resultJSON.data;
-model.uri = url.uri + "?";
+model.uri = "/ediscovery/search/recent" + "?";
 model.paging = resultJSON.paging;

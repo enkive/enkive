@@ -7,19 +7,23 @@
 		</tr>
 		<#list searchList as search>
 			<#if (search_index % 2) == 0>
-			   	<tr class="result_even" id="${search.searchId}">
+			   	<tr class="result_even 
 			<#else>
-				<tr class="result_odd" id="${search.searchId}">
+				<tr class="result_odd 
 			</#if>
+			<#if search.status == "COMPLETE">
+				search_result
+			</#if>
+			" id="${search.searchId}">
 				<#assign searchDate = search.searchDate?datetime("yyyy-MM-dd_HH-mm-ss-SSS")>
-			  	<td class="search_result" id="${search.searchId}">${searchDate}</td>
-			  	<td class="search_result" id="${search.searchId}">
+			  	<td>${searchDate}</td>
+			  	<td>
 				    <#list search.criteria as criteria>
 					  	<b>${criteria.parameter}:</b>${criteria.value}<br />
 			        </#list>
 			    </td>
-			    <td class="search_status" id="${search.searchId}">${search.status}</td>	
-				<td width="50px">
+			    <td>${search.status}</td>	
+				<td width="50px" class="search_action">
 				    <#if search.status == "COMPLETE">
 					    <table>
 					    	<tr>
@@ -30,14 +34,16 @@
 							    <td><input type="button" onClick='delete_recent_search("${search.searchId}")' value="Delete" /></td>
 							</tr>
 						</table>
-					</#if>
-					<#if search.status == "RUNNING">
+					<#elseif search.status == "RUNNING">
 					    <table>
 					    	<tr>
-				    			<td class="noscript">
-				    				<a class="stop_search" href="">STOP</a>
-				    			</td>
-							    <td><input type="button" onClick='stop_search("${search.searchId}")' value="Stop" /></td>
+							    <td><input type="button" onClick='stop_search("${search.searchId}")' value="Request Stop" /></td>
+							</tr>
+						</table>
+					<#else>
+						<table>
+					    	<tr>
+							    <td><input type="button" onClick='delete_recent_search("${search.searchId}")' value="Delete" /></td>
 							</tr>
 						</table>
 					</#if>

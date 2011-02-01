@@ -1,7 +1,7 @@
 <script type="text/javascript">
-    $('.search_result').live('click', function() {
-        var id = $(this).attr("id");
-        if(id) {
+    $('tr.search_result td').live('click', function() {
+        var id = $(this).parent().attr("id");
+        if(id && !$(this).hasClass('search_action')) {
             window.location = "${url.context}/search/recent/view?searchid=" + id;
         }
     });	

@@ -33,3 +33,7 @@ function delete_saved_search(id){
 		});
 	 });
 }
+function stop_search(id){
+	$.get("/ediscovery/search/cancel?searchid=" + id);
+    $('#' + id + ' td.search_action').text("Stop requested");	
+}

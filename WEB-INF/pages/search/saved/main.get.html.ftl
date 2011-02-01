@@ -7,14 +7,14 @@
 		</tr>
 		<#list searchList as search>
 			<#if (search_index % 2) == 0>
-			    	<tr class="result_even"  id="${search.searchId}">
+			    	<tr class="result_even search_result"  id="${search.searchId}">
 			    <#else>
-			    	<tr class="result_odd"  id="${search.searchId}">
+			    	<tr class="result_odd search_result"  id="${search.searchId}">
 			</#if>
-			  	<td class="search_result" id="${search.searchId}">${search.searchName}</td>
+			  	<td>${search.searchName}</td>
 			  	<#assign searchDate = search.searchDate?datetime("yyyy-MM-dd_HH-mm-ss-SSS")>
-			  	<td class="search_result" id="${search.searchId}">${searchDate}</td>
-			  	<td class="search_result" id="${search.searchId}">
+			  	<td>${searchDate}</td>
+			  	<td>
 				    <#list search.criteria as criteria>
 					  	<b>${criteria.parameter}:</b>${criteria.value}<br />
 			        </#list>
