@@ -34,6 +34,16 @@ function delete_saved_search(id){
 	 });
 }
 function stop_search(id){
-	$.get("/ediscovery/search/cancel?searchid=" + id);
-    $('#' + id + ' td.search_action').text("Stop requested");	
+	$.get("/ediscovery/search/cancel?searchid=" + id, function(data){
+		$('#main').load('/ediscovery/search/recent/main', function() {
+			
+		    $('.search_result').click(function() {
+		        var id = $(this).attr("id");
+		        if(id) {
+		            window.location = "/ediscovery/search/recent/view?searchid=" + id;
+		        }
+		    });
+		
+		});
+	 });
 }
