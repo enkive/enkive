@@ -19,7 +19,9 @@
 		  </#list>
 	  </#if>
 	</p>
-	
+	<#if (result.data.itemTotal == 0) && result.data.query['content']?? >
+		Note: extremely common words (e.g., "the", "a") are not indexed and therefore do not affect searches.
+	</#if>
 	<#if result.data.results??>
 		<div class="scrollable">
 			<#if (result.data.itemTotal > 0)>
