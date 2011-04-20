@@ -3,6 +3,8 @@ package com.linuxbox.enkive.docstore;
 import java.io.InputStream;
 
 public interface Document {
+	String getIdentifier();
+	
 	String getMimeType();
 	String getSuffix();
 	

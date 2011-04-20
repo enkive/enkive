@@ -48,4 +48,9 @@ public class ContentDataDocument implements Document {
 	public String getSuffix() {
 		return fileSuffix;
 	}
+
+	@Override
+	public String getIdentifier() {
+		return contentData.getSha1String();
+	}
 }
