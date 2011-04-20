@@ -18,7 +18,9 @@
  *  <http://www.gnu.org/licenses/>.
  */
 
-package com.linuxbox.enkive.exception;
+package com.linuxbox.enkive.archiver.exceptions;
+
+import com.linuxbox.enkive.exception.EnkiveException;
 
 public class CannotArchiveException extends EnkiveException {
 
