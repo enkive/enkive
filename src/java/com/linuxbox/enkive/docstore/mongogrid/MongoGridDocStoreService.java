@@ -121,7 +121,7 @@ public class MongoGridDocStoreService implements DocStoreService {
 		if (document instanceof EncodedDocument) {
 			// store the encoding as meta-data for EncodedDocuments
 			EncodedDocument eDoc = (EncodedDocument) document;
-			metaData.put(BINARY_ENCODING_KEY, eDoc.getBinaryEncoding());
+			metaData.put(BINARY_ENCODING_KEY, eDoc.getEncodedContentString());
 		}
 
 		newFile.setMetaData(metaData);

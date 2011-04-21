@@ -15,6 +15,7 @@ public interface Document {
 	/**
 	 * Provides an input stream that will produce the content byte by byte.
 	 * @return content of document as an input stream
+	 * @throws DocStoreException 
 	 */
-	InputStream getContentStream();
+	InputStream getContentStream() throws DocStoreException;
 }
