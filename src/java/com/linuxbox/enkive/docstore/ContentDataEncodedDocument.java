@@ -5,7 +5,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.Charset;
 
-import com.linuxbox.enkive.docstore.exceptions.UnimplementedMethodException;
+import com.linuxbox.enkive.exception.UnimplementedMethodException;
 import com.linuxbox.enkive.message.AbstractBaseContentData;
 
 public class ContentDataEncodedDocument extends ContentDataDocument implements
