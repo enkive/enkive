@@ -1,13 +1,14 @@
-package com.linuxbox.enkive.docstore;
+package com.linuxbox.enkive.message.docstore;
 
 import java.io.InputStream;
 
+import com.linuxbox.enkive.docstore.Document;
 import com.linuxbox.enkive.message.AbstractBaseContentData;
 
 /**
  * This class acts as a bridge between the ContentData data type used by the
- * archiver and the more generic Document type used by out back-end storage
- * facility.
+ * archiver and the more generic Document type used by out back-end,
+ * document storage service.
  * 
  * @author ivancich
  * 
