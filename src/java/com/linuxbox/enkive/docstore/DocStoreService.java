@@ -1,5 +1,6 @@
 package com.linuxbox.enkive.docstore;
 
+import com.linuxbox.enkive.docstore.exceptions.DocStoreException;
 import com.linuxbox.enkive.docstore.exceptions.DocumentNotFoundException;
 import com.linuxbox.enkive.docstore.exceptions.NoEncodingAvailableException;
 import com.linuxbox.enkive.docstore.exceptions.StorageException;
@@ -15,7 +16,7 @@ public interface DocStoreService {
 	 * @return unique identifier for document
 	 * @throws StorageException
 	 */
-	String store(Document document) throws StorageException;
+	String store(Document document) throws DocStoreException;
 
 	/**
 	 * Retrieves a document given its unique identifier.
@@ -34,5 +35,5 @@ public interface DocStoreService {
 	 * @throws NoEncodingAvailableException
 	 */
 	EncodedDocument retrieveEncoded(String identifier)
-			throws NoEncodingAvailableException;
+			throws DocumentNotFoundException, NoEncodingAvailableException;
 }
