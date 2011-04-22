@@ -43,6 +43,11 @@ public class EncodedChainedDocument extends InMemoryDocument implements
 	}
 
 	@Override
+	public InputStream getEncodedContentStream() throws DocStoreException {
+		return new ByteArrayInputStream(super.getContentBytes());
+	}
+
+	@Override
 	public byte[] getContentBytes() throws DocStoreException {
 		if (decodedData == null) {
 			decodedData = decodeContent();
@@ -79,5 +84,10 @@ public class EncodedChainedDocument extends InMemoryDocument implements
 			throw new DocStoreException(
 					"could not decode encoded binary stream", e);
 		}
+	}
+
+	@Override
+	public String getBinaryEncoding() {
+		return binaryEncoding;
 	}
 }

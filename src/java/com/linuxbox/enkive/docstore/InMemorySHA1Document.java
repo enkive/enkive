@@ -21,9 +21,8 @@ public class InMemorySHA1Document extends InMemoryDocument {
 		calculateHash();
 	}
 
-	public InMemorySHA1Document(String identifier, String mimeType,
-			String suffix, InputStream dataStream) throws IOException,
-			DocStoreException {
+	public InMemorySHA1Document(String mimeType, String suffix,
+			InputStream dataStream) throws IOException, DocStoreException {
 		super(null, mimeType, suffix, dataStream);
 		calculateHash();
 	}

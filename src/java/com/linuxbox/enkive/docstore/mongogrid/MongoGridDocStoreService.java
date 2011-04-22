@@ -4,14 +4,15 @@ import static com.linuxbox.enkive.docstore.mongogrid.Constants.BINARY_ENCODING_K
 import static com.linuxbox.enkive.docstore.mongogrid.Constants.FILE_SUFFIX_KEY;
 import static com.linuxbox.enkive.docstore.mongogrid.Constants.INDEX_STATUS_KEY;
 
+import java.io.IOException;
 import java.net.UnknownHostException;
 
 import com.linuxbox.enkive.docstore.DocStoreService;
 import com.linuxbox.enkive.docstore.Document;
+import com.linuxbox.enkive.docstore.EncodedChainedDocument;
 import com.linuxbox.enkive.docstore.EncodedDocument;
 import com.linuxbox.enkive.docstore.exceptions.DocStoreException;
 import com.linuxbox.enkive.docstore.exceptions.DocumentNotFoundException;
-import com.linuxbox.enkive.docstore.exceptions.NoEncodingAvailableException;
 import com.linuxbox.enkive.docstore.exceptions.StorageException;
 import com.linuxbox.enkive.exception.UnimplementedMethodException;
 import com.mongodb.BasicDBObject;
@@ -63,21 +64,30 @@ public class MongoGridDocStoreService implements DocStoreService {
 	}
 
 	@Override
-	public Document retrieve(String identifier)
-			throws DocumentNotFoundException {
+	public Document retrieve(String identifier) throws DocStoreException {
 		GridFSDBFile file = gridFS.findOne(identifier);
 		if (file == null) {
 			throw new DocumentNotFoundException(identifier);
 		}
-		
-		return new MongoGridDocument(file);
-	}
 
-	@Override
-	public EncodedDocument retrieveEncoded(String identifier)
-			throws NoEncodingAvailableException {
-		// TODO Auto-generated method stub
-		throw new UnimplementedMethodException();
+		Document regularDocument = new MongoGridDocument(file);
+
+		final DBObject metaData = file.getMetaData();
+
+		// if the document is encoded, return an encoded document
+		if (metaData.containsField(BINARY_ENCODING_KEY)) {
+			try {
+				final String binaryEncoding = (String) metaData
+						.get(BINARY_ENCODING_KEY);
+				return new EncodedChainedDocument(binaryEncoding,
+						regularDocument);
+			} catch (IOException e) {
+				throw new DocStoreException(
+						"could not access encoded document", e);
+			}
+		} else {
+			return regularDocument;
+		}
 	}
 
 	/**
@@ -105,11 +115,23 @@ public class MongoGridDocStoreService implements DocStoreService {
 	 */
 	private void doStore(String identifier, Document document)
 			throws DocStoreException {
-		GridFSInputFile newFile = gridFS.createFile(document.getContentBytes());
+		GridFSInputFile newFile;
+		String binaryEncoding = null;
+
+		if (document instanceof EncodedDocument) {
+			System.out.println("storing encoded document");
+			EncodedDocument eDoc = (EncodedDocument) document;
+			newFile = gridFS.createFile(eDoc.getEncodedContentStream());
+			binaryEncoding = eDoc.getBinaryEncoding();
+		} else {
+			System.out.println("storing decoded document");
+			newFile = gridFS.createFile(document.getContentStream());
+		}
 
 		newFile.setFilename(identifier);
 		newFile.setContentType(document.getMimeType());
 
+		// store the encoding as meta-data for EncodedDocuments
 		DBObject metaData = newFile.getMetaData();
 		if (metaData == null) {
 			metaData = new BasicDBObject();
@@ -119,12 +141,22 @@ public class MongoGridDocStoreService implements DocStoreService {
 		metaData.put(FILE_SUFFIX_KEY, document.getSuffix());
 
 		if (document instanceof EncodedDocument) {
-			// store the encoding as meta-data for EncodedDocuments
-			EncodedDocument eDoc = (EncodedDocument) document;
-			metaData.put(BINARY_ENCODING_KEY, eDoc.getEncodedContentString());
+			metaData.put(BINARY_ENCODING_KEY, binaryEncoding);
 		}
 
 		newFile.setMetaData(metaData);
 		newFile.save();
+	}
+
+	@Override
+	public void markAsIndexed(String identifier) {
+		// TODO Auto-generated method stub
+		throw new UnimplementedMethodException();
+	}
+
+	@Override
+	public Document retrieveUnindexed() {
+		// TODO Auto-generated method stub
+		throw new UnimplementedMethodException();
 	}
 }
