@@ -10,6 +10,6 @@
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/commons-logging-1.1.1.jar"/>
 	<classpathentry kind="lib" path="lib/commons-codec-1.4.jar"/>
-	<classpathentry kind="lib" path="lib/tika-bundle-0.9.jar"/>
+	<classpathentry kind="lib" path="lib/tika-app-0.9.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
