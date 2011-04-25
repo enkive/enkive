@@ -1,4 +1,4 @@
-package com.linuxbox.enkive.docstore.exceptions;
+package com.linuxbox.enkive.docstore.exception;
 
 public class UnknownEncodingFormatException extends DocStoreException {
 	private static final long serialVersionUID = -7337622835342485854L;

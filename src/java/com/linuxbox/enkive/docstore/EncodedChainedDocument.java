@@ -11,8 +11,8 @@ import org.apache.james.mime4j.codec.Base64InputStream;
 import org.apache.james.mime4j.codec.QuotedPrintableInputStream;
 import org.apache.james.mime4j.util.MimeUtil;
 
-import com.linuxbox.enkive.docstore.exceptions.DocStoreException;
-import com.linuxbox.enkive.docstore.exceptions.UnknownEncodingFormatException;
+import com.linuxbox.enkive.docstore.exception.DocStoreException;
+import com.linuxbox.enkive.docstore.exception.UnknownEncodingFormatException;
 import com.linuxbox.util.StreamConnector;
 
 public class EncodedChainedDocument extends InMemoryDocument implements

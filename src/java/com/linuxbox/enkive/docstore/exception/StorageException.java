@@ -1,4 +1,4 @@
-package com.linuxbox.enkive.docstore.exceptions;
+package com.linuxbox.enkive.docstore.exception;
 
 import java.io.IOException;
 

@@ -1,4 +1,4 @@
-package com.linuxbox.enkive.docstore.exceptions;
+package com.linuxbox.enkive.docstore.exception;
 
 public class DocumentTooLargeException extends DocStoreException {
 	private static final long serialVersionUID = -2447730635027956586L;

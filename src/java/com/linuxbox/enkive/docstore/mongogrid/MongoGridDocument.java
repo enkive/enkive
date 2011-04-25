@@ -6,8 +6,8 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import com.linuxbox.enkive.docstore.Document;
-import com.linuxbox.enkive.docstore.exceptions.DocStoreException;
-import com.linuxbox.enkive.docstore.exceptions.DocumentTooLargeException;
+import com.linuxbox.enkive.docstore.exception.DocStoreException;
+import com.linuxbox.enkive.docstore.exception.DocumentTooLargeException;
 import com.mongodb.gridfs.GridFSDBFile;
 
 public class MongoGridDocument implements Document {
@@ -57,5 +57,10 @@ public class MongoGridDocument implements Document {
 		} catch (ClassCastException e) {
 			return null;
 		}
+	}
+
+	@Override
+	public long getSize() {
+		return gridFile.getLength();
 	}
 }

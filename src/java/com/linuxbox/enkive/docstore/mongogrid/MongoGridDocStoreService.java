@@ -11,9 +11,11 @@ import com.linuxbox.enkive.docstore.DocStoreService;
 import com.linuxbox.enkive.docstore.Document;
 import com.linuxbox.enkive.docstore.EncodedChainedDocument;
 import com.linuxbox.enkive.docstore.EncodedDocument;
-import com.linuxbox.enkive.docstore.exceptions.DocStoreException;
-import com.linuxbox.enkive.docstore.exceptions.DocumentNotFoundException;
-import com.linuxbox.enkive.docstore.exceptions.StorageException;
+import com.linuxbox.enkive.docstore.StoreRequestResult;
+import com.linuxbox.enkive.docstore.StoreRequestResultImpl;
+import com.linuxbox.enkive.docstore.exception.DocStoreException;
+import com.linuxbox.enkive.docstore.exception.DocumentNotFoundException;
+import com.linuxbox.enkive.docstore.exception.StorageException;
 import com.linuxbox.enkive.exception.UnimplementedMethodException;
 import com.mongodb.BasicDBObject;
 import com.mongodb.BasicDBObjectBuilder;
@@ -26,8 +28,6 @@ import com.mongodb.gridfs.GridFSDBFile;
 import com.mongodb.gridfs.GridFSInputFile;
 
 public class MongoGridDocStoreService implements DocStoreService {
-	private Mongo mongo;
-	private DB db;
 	private GridFS gridFS;
 
 	public MongoGridDocStoreService(String host, int port, String dbName,
@@ -47,8 +47,7 @@ public class MongoGridDocStoreService implements DocStoreService {
 
 	public MongoGridDocStoreService(Mongo mongo, String dbName,
 			String bucketName) {
-		this.mongo = mongo;
-		db = this.mongo.getDB(dbName);
+		DB db = mongo.getDB(dbName);
 		gridFS = new GridFS(db, bucketName);
 
 		DBCollection fileCollection = gridFS.getDB().getCollection(
@@ -94,16 +93,17 @@ public class MongoGridDocStoreService implements DocStoreService {
 	 * Test whether document is already stored.
 	 */
 	@Override
-	public String store(Document document) throws DocStoreException {
+	public StoreRequestResult store(Document document) throws DocStoreException {
 		final String identifier = document.getIdentifier();
 
 		GridFSDBFile oldFile = gridFS.findOne(identifier);
 
 		if (oldFile == null) {
 			doStore(identifier, document);
+			return new StoreRequestResultImpl(identifier, false);
+		} else {
+			return new StoreRequestResultImpl(identifier, true);
 		}
-
-		return identifier;
 	}
 
 	/**
@@ -158,5 +158,18 @@ public class MongoGridDocStoreService implements DocStoreService {
 	public Document retrieveUnindexed() {
 		// TODO Auto-generated method stub
 		throw new UnimplementedMethodException();
+	}
+
+	@Override
+	public void shutdown() {
+		getMongo().close();
+	}
+	
+	private DB getDb() {
+		return gridFS.getDB();
+	}
+	
+	private Mongo getMongo() {
+		return getDb().getMongo();
 	}
 }

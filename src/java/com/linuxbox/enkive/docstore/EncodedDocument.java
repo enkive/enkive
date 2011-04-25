@@ -3,7 +3,7 @@ package com.linuxbox.enkive.docstore;
 import java.io.InputStream;
 import java.io.Reader;
 
-import com.linuxbox.enkive.docstore.exceptions.DocStoreException;
+import com.linuxbox.enkive.docstore.exception.DocStoreException;
 
 public interface EncodedDocument extends Document {
 	String getBinaryEncoding();

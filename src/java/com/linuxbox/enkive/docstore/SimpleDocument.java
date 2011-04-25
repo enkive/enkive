@@ -1,6 +1,6 @@
 package com.linuxbox.enkive.docstore;
 
-import com.linuxbox.enkive.docstore.exceptions.DocStoreException;
+import com.linuxbox.enkive.docstore.exception.DocStoreException;
 
 
 public class SimpleDocument extends InMemorySHA1Document {

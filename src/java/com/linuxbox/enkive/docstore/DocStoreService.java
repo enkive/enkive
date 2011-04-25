@@ -1,10 +1,15 @@
 package com.linuxbox.enkive.docstore;
 
-import com.linuxbox.enkive.docstore.exceptions.DocStoreException;
-import com.linuxbox.enkive.docstore.exceptions.DocumentNotFoundException;
-import com.linuxbox.enkive.docstore.exceptions.StorageException;
+import com.linuxbox.enkive.docstore.exception.DocStoreException;
+import com.linuxbox.enkive.docstore.exception.DocumentNotFoundException;
+import com.linuxbox.enkive.docstore.exception.StorageException;
 
 public interface DocStoreService {
+	/**
+	 * Shut down the service and release any resources used by the service.
+	 */
+	void shutdown();
+
 	/**
 	 * Stores the given document and generates a unique identifier for the
 	 * document, which is returned. If the document is already stored, it is not
@@ -15,7 +20,7 @@ public interface DocStoreService {
 	 * @return unique identifier for document
 	 * @throws StorageException
 	 */
-	String store(Document document) throws DocStoreException;
+	StoreRequestResult store(Document document) throws DocStoreException;
 
 	/**
 	 * Retrieves a document given its unique identifier.

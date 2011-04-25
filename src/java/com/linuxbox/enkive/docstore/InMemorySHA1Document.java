@@ -7,7 +7,7 @@ import java.security.NoSuchAlgorithmException;
 
 import org.apache.commons.codec.binary.Hex;
 
-import com.linuxbox.enkive.docstore.exceptions.DocStoreException;
+import com.linuxbox.enkive.docstore.exception.DocStoreException;
 import com.linuxbox.enkive.exception.EnkiveRuntimeException;
 
 public class InMemorySHA1Document extends InMemoryDocument {
