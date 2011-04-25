@@ -6,7 +6,9 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.Reader;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import lemurproject.indri.IndexEnvironment;
 import lemurproject.indri.IndexStatus;
@@ -117,7 +119,7 @@ public class IndriSearchService extends AbstractSearchService {
 						"could not open the INDRI repository", e2);
 			}
 		}
-		
+
 		try {
 			indexEnvironment.setStoreDocs(STORE_DOCUMENTS);
 			if (MEMORY_TO_USE > 0) {
@@ -132,26 +134,21 @@ public class IndriSearchService extends AbstractSearchService {
 			} finally {
 				indexEnvironment = null;
 			}
-			
+
 			throw new DocSearchException(
 					"could not initialize INDRI index environment", e);
 		}
 
-		try {
-			queryEnvironment = new QueryEnvironment();
-			queryEnvironment.addIndex(repositoryPath);
-		} catch (Exception e1) {
-			try {
-				indexEnvironment.close();
-			} catch (Exception e2) {
-				// empty
-			} finally {
-				indexEnvironment = null;
-			}
-
-			throw new DocSearchException(
-					"could not create an INDRI query environment", e1);
-		}
+		/*
+		 * 
+		 * try { queryEnvironment = new QueryEnvironment();
+		 * queryEnvironment.addIndex(repositoryPath); } catch (Exception e1) {
+		 * try { indexEnvironment.close(); } catch (Exception e2) { // empty }
+		 * finally { indexEnvironment = null; }
+		 * 
+		 * throw new DocSearchException(
+		 * "could not create an INDRI query environment", e1); }
+		 */
 	}
 
 	private void initializeTemporaryStorage(String temporaryStoragePath)
@@ -189,16 +186,35 @@ public class IndriSearchService extends AbstractSearchService {
 		}
 	}
 
-	@Override
-	public void doIndexDocument(String identifier) throws DocSearchException,
-			DocStoreException {
-		Document doc = docStoreService.retrieve(identifier);
-		if (doc.getSize() > DOC_SIZE_IN_MEMORY_LIMIT) {
-			System.err.println("implement size differentiator");
-			// do nothing ; eventually will try to keep document in memory if
-			// it's small enough
-		}
+	private void indexDocumentAsString(IndexEnvironment indexEnvironment,
+			Document doc) throws DocStoreException, DocSearchException {
+		try {
+			StringBuilder docString = new StringBuilder();
+			Reader input = contentAnalyzer.parseIntoText(doc);
+			char buffer[] = new char[4096];
 
+			int charsRead;
+
+			while ((charsRead = input.read(buffer)) > 0) {
+				docString.append(buffer, 0, charsRead);
+			}
+
+			Map<String, String> metaData = new HashMap<String, String>();
+
+			metaData.put("DOCNO", doc.getIdentifier());
+			System.out.println(docString.toString());
+			indexEnvironment.addString(docString.toString(), "text", metaData);
+		} catch (DocStoreException e) {
+			throw e;
+		} catch (Exception e) {
+			throw new DocSearchException("could not index \""
+					+ doc.getIdentifier() + "\"", e);
+		}
+	}
+
+	private void indexDocumentAsFile(IndexEnvironment indexEnvironment,
+			Document doc) throws DocSearchException, DocStoreException {
+		final String identifier = doc.getIdentifier();
 		Reader input = null;
 		try {
 			input = contentAnalyzer.parseIntoText(doc);
@@ -215,8 +231,9 @@ public class IndriSearchService extends AbstractSearchService {
 				output.println("</TEXT>");
 				output.println("</DOC>");
 				output.close();
-				
-				System.out.println("Try to access " + tempFile.getAbsolutePath());
+
+				System.out.println("Try to access "
+						+ tempFile.getAbsolutePath());
 
 				indexEnvironment.addFile(tempFile.getAbsolutePath(), TRECTEXT);
 			} finally {
@@ -235,6 +252,44 @@ public class IndriSearchService extends AbstractSearchService {
 				} catch (IOException e) {
 					// ignore
 				}
+			}
+		}
+	}
+
+	@Override
+	public void doIndexDocument(String identifier) throws DocSearchException,
+			DocStoreException {
+		IndexEnvironment ie = null;
+		try {
+			Document doc = docStoreService.retrieve(identifier);
+			ie = new IndexEnvironment();
+			ie.open(repositoryPath);
+			if (false) {
+				if (false) {
+					System.err.println("Warning: forcing indexing document as string");
+					indexDocumentAsString(ie, doc);
+				} else {
+					System.err.println("Warning: forcing indexing document as file");
+					indexDocumentAsFile(ie, doc);
+				}
+			} else if (doc.getSize() > DOC_SIZE_IN_MEMORY_LIMIT) {
+				indexDocumentAsFile(ie, doc);
+			} else {
+				indexDocumentAsString(ie, doc);
+			}
+		} catch (DocStoreException e) {
+			throw e;
+		} catch (DocSearchException e) {
+			throw e;
+		} catch (Exception e) {
+			throw new DocSearchException("errors managing INDRI index", e);
+		} finally {
+			try {
+				if (ie != null) {
+					ie.close();
+				}
+			} catch (Exception e) {
+				// empty
 			}
 		}
 	}
