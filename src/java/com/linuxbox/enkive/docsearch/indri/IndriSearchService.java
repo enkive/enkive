@@ -24,6 +24,8 @@ import com.linuxbox.util.StreamConnector;
 public class IndriSearchService extends AbstractSearchService {
 	private static final boolean STORE_DOCUMENTS = false;
 	private static final long MEMORY_TO_USE = 200 * 1024 * 1024; // 200 MB
+	private static final String STEMMER = "krovetz";
+
 	private static final String TRECTEXT = "trectext";
 	private static final long DOC_SIZE_IN_MEMORY_LIMIT = 8 * 1024; // 8 KB
 	private static final boolean DISPLAY_STATS = true;
@@ -95,16 +97,7 @@ public class IndriSearchService extends AbstractSearchService {
 		// currently not used
 		RecordedIndexStatus indexStatus = new RecordedIndexStatus();
 
-		try {
-			indexEnvironment = new IndexEnvironment();
-			indexEnvironment.setStoreDocs(STORE_DOCUMENTS);
-			if (MEMORY_TO_USE > 0) {
-				indexEnvironment.setMemory(MEMORY_TO_USE);
-			}
-		} catch (Exception e) {
-			throw new DocSearchException(
-					"could not initialize INDRI index environment", e);
-		}
+		indexEnvironment = new IndexEnvironment();
 
 		// try to open existing repository; if that fails try to create one
 		try {
@@ -124,8 +117,26 @@ public class IndriSearchService extends AbstractSearchService {
 						"could not open the INDRI repository", e2);
 			}
 		}
+		
+		try {
+			indexEnvironment.setStoreDocs(STORE_DOCUMENTS);
+			if (MEMORY_TO_USE > 0) {
+				indexEnvironment.setMemory(MEMORY_TO_USE);
+			}
+			indexEnvironment.setStemmer(STEMMER);
+		} catch (Exception e) {
+			try {
+				indexEnvironment.close();
+			} catch (Exception e2) {
+				// empty
+			} finally {
+				indexEnvironment = null;
+			}
+			
+			throw new DocSearchException(
+					"could not initialize INDRI index environment", e);
+		}
 
-		// try to open existing repository; if that fails try to create one
 		try {
 			queryEnvironment = new QueryEnvironment();
 			queryEnvironment.addIndex(repositoryPath);
