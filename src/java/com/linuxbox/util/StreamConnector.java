@@ -1,6 +1,7 @@
 package com.linuxbox.util;
+
 /*
- *  Copyright 2010 The Linux Box Corporation.
+ *  Copyright 2011 The Linux Box Corporation.
  *
  *  This file is part of Enkive CE (Community Edition).
  *
@@ -19,11 +20,11 @@ package com.linuxbox.util;
  *  <http://www.gnu.org/licenses/>.
  */
 
-
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Reader;
+import java.io.Writer;
 
 public class StreamConnector {
 	private final static int BUFFER_SIZE_DEFAULT = 4096;
@@ -67,6 +68,25 @@ public class StreamConnector {
 		int bytesRead;
 		while ((bytesRead = input.read(buffer)) != -1) {
 			output.write(buffer, 0, bytesRead);
+		}
+		input.close();
+	}
+
+	/**
+	 * Transfers characters from a Reader to a Writer until the end of the
+	 * character stream is reached. The Reader is closed when its end is
+	 * reached.
+	 * 
+	 * @param input
+	 * @param output
+	 * @throws IOException
+	 */
+	public static void transferForeground(Reader input, Writer output)
+			throws IOException {
+		char[] buffer = new char[BUFFER_SIZE_DEFAULT];
+		int charsRead;
+		while ((charsRead = input.read(buffer)) != -1) {
+			output.write(buffer, 0, charsRead);
 		}
 		input.close();
 	}
