@@ -1,13 +1,13 @@
-package com.linuxbox.enkive.search.contentanalyzer.tika;
+package com.linuxbox.enkive.docsearch.contentanalyzer.tika;
 
 import java.io.IOException;
 import java.io.Reader;
 
 import org.apache.tika.Tika;
 
+import com.linuxbox.enkive.docsearch.contentanalyzer.ContentAnalyzer;
 import com.linuxbox.enkive.docstore.Document;
-import com.linuxbox.enkive.docstore.exceptions.DocStoreException;
-import com.linuxbox.enkive.search.contentanalyzer.ContentAnalyzer;
+import com.linuxbox.enkive.docstore.exception.DocStoreException;
 
 public class TikaContentAnalyzer implements ContentAnalyzer {
 	Tika tika;

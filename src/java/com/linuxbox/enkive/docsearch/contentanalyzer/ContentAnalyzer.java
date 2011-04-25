@@ -1,10 +1,10 @@
-package com.linuxbox.enkive.search.contentanalyzer;
+package com.linuxbox.enkive.docsearch.contentanalyzer;
 
 import java.io.IOException;
 import java.io.Reader;
 
 import com.linuxbox.enkive.docstore.Document;
-import com.linuxbox.enkive.docstore.exceptions.DocStoreException;
+import com.linuxbox.enkive.docstore.exception.DocStoreException;
 
 /**
  * Interface for a generalized content analzyer that turns documents from the

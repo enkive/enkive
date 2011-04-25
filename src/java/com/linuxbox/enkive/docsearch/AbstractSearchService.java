@@ -1,9 +1,11 @@
-package com.linuxbox.enkive.search;
+package com.linuxbox.enkive.docsearch;
 
 import java.util.Collection;
 
+import com.linuxbox.enkive.docsearch.contentanalyzer.ContentAnalyzer;
+import com.linuxbox.enkive.docsearch.exception.DocSearchException;
 import com.linuxbox.enkive.docstore.DocStoreService;
-import com.linuxbox.enkive.search.contentanalyzer.ContentAnalyzer;
+import com.linuxbox.enkive.docstore.exception.DocStoreException;
 
 public abstract class AbstractSearchService implements SearchService {
 	/**
@@ -31,10 +33,21 @@ public abstract class AbstractSearchService implements SearchService {
 		setUnindexedDocSearchInterval(unindexedDocSearchInterval);
 	}
 
+	public abstract void doIndexDocument(String identifier)
+			throws DocStoreException, DocSearchException;
+
 	@Override
-	public void indexDocuments(Collection<String> identifers) {
-		for (String identifer : identifers) {
-			indexDocument(identifer);
+	public final void indexDocument(String identifier)
+			throws DocStoreException, DocSearchException {
+		doIndexDocument(identifier);
+		docStoreService.markAsIndexed(identifier);
+	}
+
+	@Override
+	public void indexDocuments(Collection<String> identifiers)
+			throws DocStoreException, DocSearchException {
+		for (String identifier : identifiers) {
+			indexDocument(identifier);
 		}
 	}
 
