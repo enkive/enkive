@@ -36,7 +36,7 @@ import com.linuxbox.enkive.exception.BadMessageException;
  */
 public interface MessageSummary {
 	/**
-	 * Returns some sort of identifer -- a record identifier/primary key on the
+	 * Returns some sort of identifier -- a record identifier/primary key on the
 	 * back-end, most likely.
 	 * 
 	 * @return

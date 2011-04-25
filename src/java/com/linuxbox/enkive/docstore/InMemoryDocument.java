@@ -5,7 +5,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import com.linuxbox.enkive.docstore.exceptions.DocStoreException;
+import com.linuxbox.enkive.docstore.exception.DocStoreException;
 import com.linuxbox.util.StreamConnector;
 
 public class InMemoryDocument implements Document {
@@ -25,6 +25,7 @@ public class InMemoryDocument implements Document {
 		this(identifier, mimeType, suffix);
 		ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
 		StreamConnector.transferForeground(dataStream, byteStream);
+		byteStream.close();
 		data = byteStream.toByteArray();
 	}
 
@@ -61,5 +62,10 @@ public class InMemoryDocument implements Document {
 	@Override
 	public String getSuffix() {
 		return suffix;
+	}
+
+	@Override
+	public long getSize() {
+		return data.length;
 	}
 }

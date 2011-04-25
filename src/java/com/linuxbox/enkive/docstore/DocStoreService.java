@@ -1,11 +1,15 @@
 package com.linuxbox.enkive.docstore;
 
-import com.linuxbox.enkive.docstore.exceptions.DocStoreException;
-import com.linuxbox.enkive.docstore.exceptions.DocumentNotFoundException;
-import com.linuxbox.enkive.docstore.exceptions.NoEncodingAvailableException;
-import com.linuxbox.enkive.docstore.exceptions.StorageException;
+import com.linuxbox.enkive.docstore.exception.DocStoreException;
+import com.linuxbox.enkive.docstore.exception.DocumentNotFoundException;
+import com.linuxbox.enkive.docstore.exception.StorageException;
 
 public interface DocStoreService {
+	/**
+	 * Shut down the service and release any resources used by the service.
+	 */
+	void shutdown();
+
 	/**
 	 * Stores the given document and generates a unique identifier for the
 	 * document, which is returned. If the document is already stored, it is not
@@ -16,7 +20,7 @@ public interface DocStoreService {
 	 * @return unique identifier for document
 	 * @throws StorageException
 	 */
-	String store(Document document) throws DocStoreException;
+	StoreRequestResult store(Document document) throws DocStoreException;
 
 	/**
 	 * Retrieves a document given its unique identifier.
@@ -24,16 +28,24 @@ public interface DocStoreService {
 	 * @param identifier
 	 * @return
 	 * @throws DocumentNotFoundException
+	 * @throws DocStoreException
 	 */
-	Document retrieve(String identifier) throws DocumentNotFoundException;
+	Document retrieve(String identifier) throws DocStoreException;
 
 	/**
-	 * Retrieves the encoded version of a document given its unique identifier.
+	 * Retrieve the (earliest) un-indexed document. May mark the document as
+	 * being in the process of being indexed, which is different than having
+	 * been indexed.
+	 * 
+	 * @return A document that has not been indexed.
+	 */
+	Document retrieveUnindexed();
+
+	/**
+	 * Marks the given document as having been indexed, so it will not be
+	 * retrieved as un-indexed again.
 	 * 
 	 * @param identifier
-	 * @return
-	 * @throws NoEncodingAvailableException
 	 */
-	EncodedDocument retrieveEncoded(String identifier)
-			throws DocumentNotFoundException, NoEncodingAvailableException;
+	void markAsIndexed(String identifier);
 }
