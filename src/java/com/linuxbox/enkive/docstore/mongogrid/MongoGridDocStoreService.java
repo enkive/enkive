@@ -147,11 +147,16 @@ public class MongoGridDocStoreService implements DocStoreService {
 		newFile.setMetaData(metaData);
 		newFile.save();
 	}
+	
+	boolean markAsIndexedWarningGiven = false;
 
 	@Override
 	public void markAsIndexed(String identifier) {
+		if (markAsIndexedWarningGiven) return;
 		// TODO Auto-generated method stub
-		throw new UnimplementedMethodException();
+		// throw new UnimplementedMethodException();
+		System.err.println("MongoGridDocStoreService::markAsIndexed not implemented");
+		markAsIndexedWarningGiven = true;
 	}
 
 	@Override
