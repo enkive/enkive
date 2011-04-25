@@ -3,33 +3,84 @@ package com.linuxbox.enkive.testing;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.PrintStream;
 import java.net.UnknownHostException;
 import java.util.HashSet;
 import java.util.Set;
 
+import lemurproject.indri.IndexStatus;
+
 import org.apache.james.mime4j.util.MimeUtil;
 
+import com.linuxbox.enkive.docsearch.SearchService;
+import com.linuxbox.enkive.docsearch.contentanalyzer.tika.TikaContentAnalyzer;
+import com.linuxbox.enkive.docsearch.exception.DocSearchException;
+import com.linuxbox.enkive.docsearch.indri.IndriSearchService;
 import com.linuxbox.enkive.docstore.DocStoreService;
 import com.linuxbox.enkive.docstore.Document;
 import com.linuxbox.enkive.docstore.EncodedChainedDocument;
 import com.linuxbox.enkive.docstore.EncodedDocument;
 import com.linuxbox.enkive.docstore.InMemorySHA1Document;
 import com.linuxbox.enkive.docstore.SimpleDocument;
-import com.linuxbox.enkive.docstore.exceptions.DocStoreException;
-import com.linuxbox.enkive.docstore.exceptions.DocumentNotFoundException;
+import com.linuxbox.enkive.docstore.StoreRequestResult;
+import com.linuxbox.enkive.docstore.exception.DocStoreException;
+import com.linuxbox.enkive.docstore.exception.DocumentNotFoundException;
 import com.linuxbox.enkive.docstore.mongogrid.MongoGridDocStoreService;
 import com.linuxbox.util.StreamConnector;
 import com.mongodb.DB;
 import com.mongodb.Mongo;
 
 public class TestMongoGridDocStore {
-	static DocStoreService docService;
+	private static final String INDRI_REPOSITORY_PATH = "/tmp/enkive-indri";
+	private static final String INDRI_TEMP_STORAGE_PATH = "/tmp/enkive-indri-tmp";
+	private static final boolean DO_INDEXING = true;
+
+	static DocStoreService docStoreService;
+	static SearchService docSearchService;
 	static Set<String> indexSet = new HashSet<String>();
 
-	private static void archive(String content) throws DocStoreException {
-		String index = docService.store(new SimpleDocument(content,
+	static class RecordedIndexStatus extends IndexStatus {
+		public int code;
+		public String documentPath;
+		public String error;
+		public int documentsIndexed;
+		public int documentsSeen;
+
+		public void status(int code, String docPath, String error,
+				int docsIndexed, int docsSeen) {
+			this.code = code;
+			this.documentPath = docPath;
+			this.error = error;
+			this.documentsIndexed = docsIndexed;
+			this.documentsSeen = docsSeen;
+		}
+
+		public void display(PrintStream out) {
+			System.out.println("code: " + code);
+			System.out.println("document path: " + documentPath);
+			System.out.println("error: " + error);
+			System.out.println("documents indexed: " + documentsIndexed);
+			System.out.println("documents seen: " + documentsSeen);
+		}
+	}
+	
+	private static void index(StoreRequestResult storageResult) throws DocSearchException, DocStoreException {
+		if (DO_INDEXING) {
+			final String identifier = storageResult.getIdentifier();
+			
+			if (!storageResult.getAlreadyStored()) {
+				System.out.println("START indexing " + identifier);
+				docSearchService.indexDocument(identifier);
+				System.out.println("END indexing " + identifier);
+			}
+		}
+	}
+
+	private static void archive(String content) throws DocStoreException, DocSearchException {
+		StoreRequestResult result  = docStoreService.store(new SimpleDocument(content,
 				"text/plain", "txt"));
-		indexSet.add(index);
+		index(result);
+		indexSet.add(result.getIdentifier());
 	}
 
 	private static void archiveAll() {
@@ -40,8 +91,9 @@ public class TestMongoGridDocStore {
 		for (String doc : documents) {
 			try {
 				archive(doc);
-			} catch (DocStoreException e) {
+			} catch (Exception e) {
 				System.err.println(e);
+				e.printStackTrace();
 			}
 		}
 	}
@@ -50,7 +102,7 @@ public class TestMongoGridDocStore {
 		for (String index : indexSet) {
 			System.out.print("retrieving " + index + ": ");
 			try {
-				Document d = docService.retrieve(index);
+				Document d = docStoreService.retrieve(index);
 				String s = new String(d.getContentBytes());
 				System.out.println(s);
 			} catch (DocumentNotFoundException e) {
@@ -77,7 +129,7 @@ public class TestMongoGridDocStore {
 			this.encoding = d;
 			this.characterSet = e;
 		}
-		
+
 		FileRecord(String a, String b, String c, String d) {
 			this(a, b, c, d, null);
 		}
@@ -91,23 +143,24 @@ public class TestMongoGridDocStore {
 			new FileRecord("3-qp.txt", "text/plain", "txt",
 					MimeUtil.ENC_QUOTED_PRINTABLE, "windows-1252") };
 
-	private final static Set<String> encodedIndexSet = new HashSet<String>();
+	private final static Set<String> encodedIdentifierSet = new HashSet<String>();
 
 	private static void archiveEncoded() {
 		for (FileRecord fileRec : encodedFiles) {
 			try {
 				File f = new File(inputDir + "/" + fileRec.name);
 				FileInputStream fileStream = new FileInputStream(f);
-				
+
 				Document d = new InMemorySHA1Document(fileRec.mimeType,
 						fileRec.suffix, fileStream);
+				fileStream.close();
+
 				EncodedDocument ed = new EncodedChainedDocument(
 						fileRec.encoding, d);
-				encodedIndexSet.add(ed.getIdentifier());
-				docService.store(ed);
+				encodedIdentifierSet.add(ed.getIdentifier());
+				StoreRequestResult result = docStoreService.store(ed);
+				index(result);
 
-				fileStream.close();
-				
 				System.out.println("archived encoded " + ed.getIdentifier());
 			} catch (Throwable e) {
 				e.printStackTrace();
@@ -117,18 +170,19 @@ public class TestMongoGridDocStore {
 
 	private static void retrieveEncoded() {
 		int counter = 0;
-		for (String identifier : encodedIndexSet) {
+		for (String identifier : encodedIdentifierSet) {
 			FileOutputStream fileStream = null;
 			++counter;
 			try {
-				Document d = docService.retrieve(identifier);
+				Document d = docStoreService.retrieve(identifier);
 				File f = new File(inputDir + "/" + counter + "."
 						+ d.getSuffix());
 				fileStream = new FileOutputStream(f);
 				StreamConnector.transferForeground(d.getContentStream(),
 						fileStream);
 				fileStream.close();
-				System.out.println("wrote " + d.getIdentifier() + " to " + f.getCanonicalPath());
+				System.out.println("wrote " + d.getIdentifier() + " to "
+						+ f.getCanonicalPath());
 			} catch (Throwable e) {
 				e.printStackTrace();
 			} finally {
@@ -139,6 +193,16 @@ public class TestMongoGridDocStore {
 				} catch (Exception e) {
 					// empty
 				}
+			}
+		}
+	}
+
+	private static void searchEncoded() {
+		for (String identifier : encodedIdentifierSet) {
+			try {
+				docSearchService.indexDocument(identifier);
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
 		}
 	}
@@ -161,7 +225,15 @@ public class TestMongoGridDocStore {
 
 		try {
 			dropGridFSCollections("enkive", "fs");
-			docService = new MongoGridDocStoreService("enkive", "fs");
+			docStoreService = new MongoGridDocStoreService("enkive", "fs");
+
+			docSearchService = new IndriSearchService(docStoreService,
+					new TikaContentAnalyzer(), INDRI_REPOSITORY_PATH,
+					INDRI_TEMP_STORAGE_PATH);
+			/*
+			 * searchService = new TestDisplaySearchService(docService, new
+			 * TikaContentAnalyzer());
+			 */
 
 			archiveAll();
 			retrieveAll();
@@ -169,6 +241,8 @@ public class TestMongoGridDocStore {
 			archiveEncoded();
 			retrieveEncoded();
 		} catch (UnknownHostException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
