@@ -3,7 +3,7 @@ package com.linuxbox.enkive.message.docstore;
 import java.io.IOException;
 
 import com.linuxbox.enkive.docstore.EncodedChainedDocument;
-import com.linuxbox.enkive.docstore.exceptions.DocStoreException;
+import com.linuxbox.enkive.docstore.exception.DocStoreException;
 import com.linuxbox.enkive.message.AbstractBaseContentData;
 
 /**

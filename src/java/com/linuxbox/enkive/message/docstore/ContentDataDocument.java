@@ -54,4 +54,12 @@ public class ContentDataDocument implements Document {
 	public String getIdentifier() {
 		return contentData.getSha1String();
 	}
+
+	/**
+	 * Do not know the size, so return negative value.
+	 */
+	@Override
+	public long getSize() {
+		return -1;
+	}
 }
