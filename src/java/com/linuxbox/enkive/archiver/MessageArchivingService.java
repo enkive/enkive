@@ -1,7 +1,6 @@
 package com.linuxbox.enkive.archiver;
 
 import com.linuxbox.enkive.archiver.exceptions.CannotArchiveException;
-import com.linuxbox.enkive.docstore.exceptions.StorageException;
 import com.linuxbox.enkive.message.Message;
 
 public interface MessageArchivingService {

@@ -197,6 +197,7 @@ public class TestMongoGridDocStore {
 		}
 	}
 
+	@SuppressWarnings("unused")
 	private static void searchEncoded() {
 		for (String identifier : encodedIdentifierSet) {
 			try {
