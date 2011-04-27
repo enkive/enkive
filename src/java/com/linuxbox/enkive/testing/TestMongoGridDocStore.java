@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.net.UnknownHostException;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import lemurproject.indri.IndexStatus;
@@ -63,11 +64,12 @@ public class TestMongoGridDocStore {
 			System.out.println("documents seen: " + documentsSeen);
 		}
 	}
-	
-	private static void index(StoreRequestResult storageResult) throws DocSearchException, DocStoreException {
+
+	private static void index(StoreRequestResult storageResult)
+			throws DocSearchException, DocStoreException {
 		if (DO_INDEXING) {
 			final String identifier = storageResult.getIdentifier();
-			
+
 			if (!storageResult.getAlreadyStored()) {
 				System.out.println("START indexing " + identifier);
 				docSearchService.indexDocument(identifier);
@@ -76,9 +78,10 @@ public class TestMongoGridDocStore {
 		}
 	}
 
-	private static void archive(String content) throws DocStoreException, DocSearchException {
-		StoreRequestResult result  = docStoreService.store(new SimpleDocument(content,
-				"text/plain", "txt"));
+	private static void archive(String content) throws DocStoreException,
+			DocSearchException {
+		StoreRequestResult result = docStoreService.store(new SimpleDocument(
+				content, "text/plain", "txt"));
 		index(result);
 		indexSet.add(result.getIdentifier());
 	}
@@ -198,12 +201,13 @@ public class TestMongoGridDocStore {
 	}
 
 	@SuppressWarnings("unused")
-	private static void searchEncoded() {
-		for (String identifier : encodedIdentifierSet) {
-			try {
-				docSearchService.indexDocument(identifier);
-			} catch (Exception e) {
-				e.printStackTrace();
+	private static void searchFor(String query) throws DocSearchException {
+		List<String> theSearch = docSearchService.search(query);
+		if (theSearch.isEmpty()) {
+			System.out.println("no search results");
+		} else {
+			for (String docIdentifier : theSearch) {
+				System.out.println(docIdentifier);
 			}
 		}
 	}
@@ -231,16 +235,17 @@ public class TestMongoGridDocStore {
 			docSearchService = new IndriSearchService(docStoreService,
 					new TikaContentAnalyzer(), INDRI_REPOSITORY_PATH,
 					INDRI_TEMP_STORAGE_PATH);
-			/*
-			 * searchService = new TestDisplaySearchService(docService, new
-			 * TikaContentAnalyzer());
-			 */
 
 			archiveAll();
 			retrieveAll();
 
 			archiveEncoded();
 			retrieveEncoded();
+			
+			searchFor("that");
+
+			docSearchService.shutdown();
+			docStoreService.shutdown();
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		} catch (Exception e) {
