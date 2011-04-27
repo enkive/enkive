@@ -4,6 +4,7 @@ import java.io.InputStream;
 
 import com.linuxbox.enkive.docstore.Document;
 import com.linuxbox.enkive.message.AbstractBaseContentData;
+import com.linuxbox.enkive.message.EncodedContentData;
 
 /**
  * This class acts as a bridge between the ContentData data type used by the
@@ -14,20 +15,20 @@ import com.linuxbox.enkive.message.AbstractBaseContentData;
  * 
  */
 public class ContentDataDocument implements Document {
-	private AbstractBaseContentData contentData;
+	private EncodedContentData contentData;
 	private String mimeType;
 	private String fileSuffix;
 
-	public ContentDataDocument(AbstractBaseContentData contentData,
+	public ContentDataDocument(EncodedContentData contentData,
 			String mimeType, String fileSuffix) {
 		this.contentData = contentData;
 		this.mimeType = mimeType;
 		this.fileSuffix = fileSuffix;
 	}
 
-	public ContentDataDocument(AbstractBaseContentData contentData,
+	public ContentDataDocument(EncodedContentData encodedContentData,
 			String mimeType) {
-		this(contentData, mimeType, null);
+		this(encodedContentData, mimeType, null);
 	}
 
 	@Override
