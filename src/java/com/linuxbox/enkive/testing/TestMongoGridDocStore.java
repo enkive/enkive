@@ -71,9 +71,7 @@ public class TestMongoGridDocStore {
 			final String identifier = storageResult.getIdentifier();
 
 			if (!storageResult.getAlreadyStored()) {
-				System.out.println("START indexing " + identifier);
 				docSearchService.indexDocument(identifier);
-				System.out.println("END indexing " + identifier);
 			}
 		}
 	}
@@ -200,8 +198,8 @@ public class TestMongoGridDocStore {
 		}
 	}
 
-	@SuppressWarnings("unused")
 	private static void searchFor(String query) throws DocSearchException {
+		System.out.println("SEARCHING FOR: " + query);
 		List<String> theSearch = docSearchService.search(query);
 		if (theSearch.isEmpty()) {
 			System.out.println("no search results");
@@ -242,7 +240,11 @@ public class TestMongoGridDocStore {
 			archiveEncoded();
 			retrieveEncoded();
 			
-			searchFor("that");
+			// searchFor("frack");
+			searchFor("#1(the question)");
+			searchFor("#1(BE THAT)");
+			searchFor("#1(question the)");
+			searchFor("test");
 
 			docSearchService.shutdown();
 			docStoreService.shutdown();
