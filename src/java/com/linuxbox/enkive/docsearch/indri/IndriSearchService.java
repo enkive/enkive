@@ -5,7 +5,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Reader;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +29,7 @@ import com.linuxbox.enkive.docstore.Document;
 import com.linuxbox.enkive.docstore.exception.DocStoreException;
 import com.linuxbox.util.CollectionUtils;
 import com.linuxbox.util.StreamConnector;
+import com.linuxbox.util.TypeConverter;
 
 public class IndriSearchService extends AbstractSearchService {
 	/**
@@ -60,6 +60,20 @@ public class IndriSearchService extends AbstractSearchService {
 		STRING, FILE, PARSED_DOCUMENT, BY_SIZE
 	}
 
+	/**
+	 * Converts a QueryResult into the docno.
+	 * 
+	 * @author ivancich
+	 * 
+	 */
+	static class QueryResultToDocNameConverter implements
+			TypeConverter<QueryResult, String> {
+		@Override
+		public String convert(QueryResult value) throws Exception {
+			return (String) value.metadata.get(NAME_FIELD);
+		}
+	}
+
 	private final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.docsearch.indri");
 
@@ -75,8 +89,10 @@ public class IndriSearchService extends AbstractSearchService {
 	private static final String TRECTEXT_FORMAT = "trectext";
 	private static final long DOC_SIZE_IN_MEMORY_LIMIT = 8 * 1024; // 8 KB
 	// private static final IndexStorage INDEX_STORAGE = IndexStorage.BY_SIZE;
-	// private static final IndexStorage INDEX_STORAGE = IndexStorage.PARSED_DOCUMENT;
+	// private static final IndexStorage INDEX_STORAGE =
+	// IndexStorage.PARSED_DOCUMENT;
 	private static final IndexStorage INDEX_STORAGE = IndexStorage.FILE;
+	private static final QueryResultToDocNameConverter QUERY_RESULT_CONVERTER = new QueryResultToDocNameConverter();
 
 	private String repositoryPath;
 	private File tempStorageDir;
@@ -267,29 +283,29 @@ public class IndriSearchService extends AbstractSearchService {
 		}
 	}
 
-	@SuppressWarnings({ "unchecked", "unused" })
+	@SuppressWarnings( { "unchecked", "unused" })
 	private int indexDocumentAsParsedDocument(Document doc)
 			throws DocSearchException, DocStoreException {
 		ParsedDocument parsedDoc = new ParsedDocument();
-		
+
 		parsedDoc.metadata = new HashMap<Object, Object>();
 		parsedDoc.metadata.put(NAME_FIELD, doc.getIdentifier());
 
 		parsedDoc.terms = new String[] { "to", "be", "or", "not", "to", "be",
 				"that", "is", "the", "question" };
-		
+
 		parsedDoc.content = "to be or not to be, that is the question";
 		parsedDoc.text = "to be or not to be, that is the question";
-		
+
 		parsedDoc.content = "REDACTED";
 		parsedDoc.text = "REDACTED";
-		
+
 		parsedDoc.positions = new ParsedDocument.TermExtent[] {
 				new ParsedDocument.TermExtent(0, 2), // to
 				new ParsedDocument.TermExtent(3, 5), // be
 				new ParsedDocument.TermExtent(6, 8), // or
 				new ParsedDocument.TermExtent(9, 12), // not
-				new ParsedDocument.TermExtent(13, 15), // to 
+				new ParsedDocument.TermExtent(13, 15), // to
 				new ParsedDocument.TermExtent(16, 18), // be
 				new ParsedDocument.TermExtent(20, 24), // that
 				new ParsedDocument.TermExtent(25, 27), // is
@@ -310,25 +326,25 @@ public class IndriSearchService extends AbstractSearchService {
 	private int indexDocumentAsParsedDocument2(Document doc)
 			throws DocSearchException, DocStoreException {
 		ParsedDocument parsedDoc = new ParsedDocument();
-		
+
 		parsedDoc.metadata = new HashMap<Object, Object>();
 		parsedDoc.metadata.put(NAME_FIELD, doc.getIdentifier());
 
 		parsedDoc.terms = new String[] { "TO", "BE", "OR", "NOT", "TO", "BE",
 				"THAT", "IS", "THE", "QUESTION" };
-		
+
 		parsedDoc.content = "to be or not to be, that is the question";
 		parsedDoc.text = "to be or not to be, that is the question";
-		
+
 		parsedDoc.content = "REDACTED";
 		parsedDoc.text = "REDACTED";
-		
+
 		parsedDoc.positions = new ParsedDocument.TermExtent[] {
 				new ParsedDocument.TermExtent(0, 2), // to
 				new ParsedDocument.TermExtent(3, 5), // be
 				new ParsedDocument.TermExtent(6, 8), // or
 				new ParsedDocument.TermExtent(9, 12), // not
-				new ParsedDocument.TermExtent(13, 15), // to 
+				new ParsedDocument.TermExtent(13, 15), // to
 				new ParsedDocument.TermExtent(16, 18), // be
 				new ParsedDocument.TermExtent(20, 24), // that
 				new ParsedDocument.TermExtent(25, 27), // is
@@ -345,7 +361,6 @@ public class IndriSearchService extends AbstractSearchService {
 		}
 	}
 
-	
 	@Override
 	public void doIndexDocument(String identifier) throws DocSearchException,
 			DocStoreException {
@@ -386,70 +401,43 @@ public class IndriSearchService extends AbstractSearchService {
 	}
 
 	@Override
-	public List<String> search(String query, int maxResults) throws DocSearchException {
+	public List<String> search(String query, int maxResults)
+			throws DocSearchException {
 		try {
-			final ScoredExtentResult[] results = queryEnvironment.runQuery(query, maxResults);
-			String[] resultDocNumbers = queryEnvironment.documentMetadata(results, NAME_FIELD);
+			final ScoredExtentResult[] results = queryEnvironment.runQuery(
+					query, maxResults);
+			String[] resultDocNumbers = queryEnvironment.documentMetadata(
+					results, NAME_FIELD);
 			return CollectionUtils.listFromArray(resultDocNumbers);
 		} catch (Exception e) {
 			throw new DocSearchException("could not perform INDRI query", e);
 		}
 	}
-	
-	public List<String> searchAlt(String query, int maxResults) throws DocSearchException {
+
+	/**
+	 * This is an alternate implementation of search. It fails when the document
+	 * is not stored in the INDRI database.
+	 * 
+	 * @param query
+	 * @param maxResults
+	 * @return
+	 * @throws DocSearchException
+	 */
+	public List<String> searchAlt(String query, int maxResults)
+			throws DocSearchException {
 		try {
 			QueryRequest request = new QueryRequest();
 			request.query = query;
 			request.startNum = 0;
 			request.resultsRequested = maxResults;
 			request.metadata = METADATA_FIELDS;
-			
-			QueryResults results = queryEnvironment.runQuery(request);
 
-			final int resultCount = results.results.length;
-			ArrayList<String> myResult = new ArrayList<String>(resultCount);
+			// NB: this call will result in an exception if INDRI does not store
+			// a compressed version of the documents
+			QueryResults queryResults = queryEnvironment.runQuery(request);
 
-			int[] documentIds = new int[resultCount];
-			int docIndex = -1;
-
-			for (QueryResult result : results.results) {
-				documentIds[++docIndex] = result.docid;
-
-				System.out.println("a: " + result.docid);
-				System.out.println("b: " + result.documentName);
-				for (Object o : result.metadata.keySet()) {
-					System.out.println("c: " + o + " -> "
-							+ result.metadata.get(o));
-				}
-				String documentIdentifier = (String) result.metadata
-						.get(NAME_FIELD);
-				myResult.add(documentIdentifier);
-			}
-
-			ParsedDocument[] parsedDocs = queryEnvironment
-					.documents(documentIds);
-			for (ParsedDocument parsedDoc : parsedDocs) {
-				final Map<Object,Object> metadata = parsedDoc.metadata;
-				System.out
-						.println(new String((byte[]) metadata.get(NAME_FIELD)));
-				/*
-				 * for (Object key : metadata.keySet()) { final Object valueObj
-				 * = metadata.get(key); if (valueObj instanceof byte[]) { String
-				 * valueStr = new String((byte[]) valueObj);
-				 * System.out.println("    B: " + key + " -> " + valueStr); }
-				 * else { System.out.println("    B: " + key + " -> " +
-				 * valueObj.getClass().getCanonicalName() + "/" + valueObj); } }
-				 */
-				
-				/*
-				for (ParsedDocument.TermExtent term : parsedDoc.positions) {
-					System.out.println("    C: "
-							+ parsedDoc.text.substring(term.begin, term.end));
-				}
-				*/
-			}
-
-			return myResult;
+			return CollectionUtils.listFromConvertedArray(queryResults.results,
+					QUERY_RESULT_CONVERTER);
 		} catch (ClassCastException e) {
 			throw new DocSearchException(
 					"could not retrieve document identifer from INDRI query");
@@ -457,7 +445,6 @@ public class IndriSearchService extends AbstractSearchService {
 			throw new DocSearchException("could not perform INDRI query", e);
 		}
 	}
-
 
 	@Override
 	public void shutdown() throws DocSearchException {
