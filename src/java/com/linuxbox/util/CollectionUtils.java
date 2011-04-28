@@ -11,4 +11,13 @@ public class CollectionUtils {
 		}
 		return result;
 	}
+
+	public static <F, T> List<T> listFromConvertedArray(F[] array,
+			TypeConverter<F, T> converter) throws Exception {
+		ArrayList<T> result = new ArrayList<T>(array.length);
+		for (F element : array) {
+			result.add(converter.convert(element));
+		}
+		return result;
+	}
 }
