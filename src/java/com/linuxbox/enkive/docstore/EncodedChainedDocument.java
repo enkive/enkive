@@ -23,7 +23,7 @@ public class EncodedChainedDocument extends InMemoryDocument implements
 	public EncodedChainedDocument(String binaryEncoding, Document document)
 			throws IOException, DocStoreException {
 		super(document.getIdentifier(), document.getMimeType(), document
-				.getSuffix(), document.getContentStream());
+				.getExtension(), document.getContentStream());
 		this.binaryEncoding = binaryEncoding;
 	}
 

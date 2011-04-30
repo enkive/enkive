@@ -46,7 +46,7 @@ public class ContentDataDocument implements Document {
 	}
 
 	@Override
-	public String getSuffix() {
+	public String getExtension() {
 		return fileSuffix;
 	}
 

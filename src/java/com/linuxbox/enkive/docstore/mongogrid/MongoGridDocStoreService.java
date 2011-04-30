@@ -1,11 +1,17 @@
 package com.linuxbox.enkive.docstore.mongogrid;
 
 import static com.linuxbox.enkive.docstore.mongogrid.Constants.BINARY_ENCODING_KEY;
-import static com.linuxbox.enkive.docstore.mongogrid.Constants.FILE_SUFFIX_KEY;
+import static com.linuxbox.enkive.docstore.mongogrid.Constants.FILENAME_KEY;
+import static com.linuxbox.enkive.docstore.mongogrid.Constants.FILE_EXTENSION_KEY;
 import static com.linuxbox.enkive.docstore.mongogrid.Constants.INDEX_STATUS_KEY;
+import static com.linuxbox.enkive.docstore.mongogrid.Constants.INDEX_STATUS_QUERY;
+import static com.linuxbox.enkive.docstore.mongogrid.Constants.INDEX_TIMESTAMP_KEY;
+import static com.linuxbox.enkive.docstore.mongogrid.Constants.INDEX_TIMESTAMP_QUERY;
+import static com.linuxbox.enkive.docstore.mongogrid.Constants.OBJECT_ID_KEY;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
+import java.util.Date;
 
 import com.linuxbox.enkive.docstore.DocStoreService;
 import com.linuxbox.enkive.docstore.Document;
@@ -16,19 +22,30 @@ import com.linuxbox.enkive.docstore.StoreRequestResultImpl;
 import com.linuxbox.enkive.docstore.exception.DocStoreException;
 import com.linuxbox.enkive.docstore.exception.DocumentNotFoundException;
 import com.linuxbox.enkive.docstore.exception.StorageException;
-import com.linuxbox.enkive.exception.UnimplementedMethodException;
+import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import com.mongodb.Mongo;
+import com.mongodb.QueryBuilder;
 import com.mongodb.gridfs.GridFS;
 import com.mongodb.gridfs.GridFSDBFile;
 import com.mongodb.gridfs.GridFSInputFile;
 
 public class MongoGridDocStoreService implements DocStoreService {
+	/*
+	 * The various status value a document can have to indicate its state of
+	 * indexing.
+	 */
+	private static final int STATUS_UNINDEXED = 0;
+	private static final int STATUS_INDEXING = 1;
+	private static final int STATUS_INDEXED = 2;
+	private static final int STATUS_STALE = 3;
+
 	private GridFS gridFS;
+	private DBCollection filesCollection;
 
 	public MongoGridDocStoreService(String host, int port, String dbName,
 			String bucketName) throws UnknownHostException {
@@ -50,16 +67,15 @@ public class MongoGridDocStoreService implements DocStoreService {
 		DB db = mongo.getDB(dbName);
 		gridFS = new GridFS(db, bucketName);
 
-		DBCollection fileCollection = gridFS.getDB().getCollection(
-				bucketName + ".files");
+		filesCollection = gridFS.getDB().getCollection(bucketName + ".files");
 
 		DBObject filenameIndex = BasicDBObjectBuilder.start()
 				.add("filename", 1).get();
-		fileCollection.createIndex(filenameIndex);
+		filesCollection.createIndex(filenameIndex);
 
 		DBObject searchIndexingIndex = BasicDBObjectBuilder.start().add(
-				"uploadDate", 1).add("metadata." + INDEX_STATUS_KEY, 1).get();
-		fileCollection.createIndex(searchIndexingIndex);
+				INDEX_STATUS_KEY, 1).add(INDEX_TIMESTAMP_KEY, 1).get();
+		filesCollection.createIndex(searchIndexingIndex);
 	}
 
 	@Override
@@ -137,8 +153,8 @@ public class MongoGridDocStoreService implements DocStoreService {
 			metaData = new BasicDBObject();
 		}
 
-		metaData.put(INDEX_STATUS_KEY, Boolean.FALSE);
-		metaData.put(FILE_SUFFIX_KEY, document.getSuffix());
+		metaData.put(INDEX_STATUS_KEY, STATUS_UNINDEXED);
+		metaData.put(FILE_EXTENSION_KEY, document.getExtension());
 
 		if (document instanceof EncodedDocument) {
 			metaData.put(BINARY_ENCODING_KEY, binaryEncoding);
@@ -147,33 +163,89 @@ public class MongoGridDocStoreService implements DocStoreService {
 		newFile.setMetaData(metaData);
 		newFile.save();
 	}
-	
-	boolean markAsIndexedWarningGiven = false;
 
 	@Override
-	public void markAsIndexed(String identifier) {
-		if (markAsIndexedWarningGiven) return;
-		// TODO Auto-generated method stub
-		// throw new UnimplementedMethodException();
-		System.err.println("MongoGridDocStoreService::markAsIndexed not implemented");
-		markAsIndexedWarningGiven = true;
+	public void markAsIndexed(String identifier)
+			throws DocumentNotFoundException {
+		GridFSDBFile file = gridFS.findOne(identifier);
+		if (file == null) {
+			throw new DocumentNotFoundException(identifier);
+		}
+
+		final DBObject metaData = file.getMetaData();
+		metaData.put(INDEX_STATUS_KEY, STATUS_INDEXED);
+		metaData.put(INDEX_TIMESTAMP_KEY, new Date());
+		file.setMetaData(metaData);
+		// file.save();
 	}
 
+	final static DBObject SORT_BY_INDEX_TIMESTAMP = new BasicDBObject(
+			INDEX_TIMESTAMP_QUERY, 1);
+	final static DBObject UNINDEXED_QUERY = new QueryBuilder().and(
+			INDEX_STATUS_QUERY).is(STATUS_UNINDEXED).get();
+	final static DBObject RETRIEVE_OBJECT_ID_AND_FILENAME = BasicDBObjectBuilder
+			.start().add(OBJECT_ID_KEY, 1).add(FILENAME_KEY, 1).get();
+
 	@Override
-	public Document retrieveUnindexed() {
-		// TODO Auto-generated method stub
-		throw new UnimplementedMethodException();
+	public String nextUnindexed() {
+		final DBObject updateToIndexingOld = BasicDBObjectBuilder.start().add(
+				INDEX_STATUS_QUERY, STATUS_INDEXING).add(INDEX_TIMESTAMP_QUERY,
+				new Date()).get();
+
+		final BasicDBList updateToIndexing = new BasicDBList();
+		updateToIndexing.add(new BasicDBObject("$set", new BasicDBObject(
+				INDEX_STATUS_QUERY, STATUS_INDEXING)));
+		updateToIndexing.add(new BasicDBObject("$set", new BasicDBObject(
+				INDEX_TIMESTAMP_QUERY, new Date())));
+
+		/*
+		 * Constants.METADATA_KEY, BasicDBObjectBuilder.start().add(
+		 * INDEX_STATUS_KEY, STATUS_INDEXING).add( INDEX_TIMESTAMP_KEY, new
+		 * Date()).get());
+		 */
+
+		System.out.println(updateToIndexing);
+
+		DBObject result = filesCollection.findAndModify(UNINDEXED_QUERY,
+				RETRIEVE_OBJECT_ID_AND_FILENAME, SORT_BY_INDEX_TIMESTAMP,
+				false, updateToIndexing, true, false);
+
+		if (result != null) {
+			return (String) result.get(FILENAME_KEY);
+		} else {
+			return null;
+		}
 	}
+
+	/*
+	 * incorrect way of doing it
+	 * 
+	 * DBCursor cursor = filesCollection.find(UNINDEXED_QUERY, new
+	 * BasicDBObject(Constants.FILENAME_KEY, 1)).sort( new
+	 * BasicDBObject(Constants.METADATA_KEY, new BasicDBObject(
+	 * Constants.INDEX_TIMESTAMP_KEY, 1))).limit(1); if (!cursor.hasNext()) {
+	 * return null; }
+	 * 
+	 * DBObject result = cursor.next(); String identifier = (String)
+	 * result.get(Constants.FILENAME_KEY); cursor.close(); if (identifier ==
+	 * null) { return null; }
+	 * 
+	 * GridFSDBFile file = gridFS.findOne(identifier); if (file == null) {
+	 * return null; } else { final DBObject metaData = file.getMetaData();
+	 * metaData.put(INDEX_STATUS_KEY, STATUS_INDEXING);
+	 * metaData.put(INDEX_TIMESTAMP_KEY, new Date());
+	 * file.setMetaData(metaData); file.save(); return file.getFilename(); } }
+	 */
 
 	@Override
 	public void shutdown() {
 		getMongo().close();
 	}
-	
+
 	private DB getDb() {
 		return gridFS.getDB();
 	}
-	
+
 	private Mongo getMongo() {
 		return getDb().getMongo();
 	}

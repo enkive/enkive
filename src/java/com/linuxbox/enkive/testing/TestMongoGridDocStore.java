@@ -177,7 +177,7 @@ public class TestMongoGridDocStore {
 			try {
 				Document d = docStoreService.retrieve(identifier);
 				File f = new File(inputDir + "/" + counter + "."
-						+ d.getSuffix());
+						+ d.getExtension());
 				fileStream = new FileOutputStream(f);
 				StreamConnector.transferForeground(d.getContentStream(),
 						fileStream);
@@ -245,6 +245,10 @@ public class TestMongoGridDocStore {
 			searchFor("#1(BE THAT)");
 			searchFor("#1(question the)");
 			searchFor("test");
+
+			System.out.println("next unindexed: " + docStoreService.nextUnindexed());
+			System.out.println("next unindexed: " + docStoreService.nextUnindexed());
+			System.out.println("next unindexed: " + docStoreService.nextUnindexed());
 
 			docSearchService.shutdown();
 			docStoreService.shutdown();

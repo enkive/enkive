@@ -60,7 +60,7 @@ public class InMemoryDocument implements Document {
 	}
 
 	@Override
-	public String getSuffix() {
+	public String getExtension() {
 		return suffix;
 	}
 

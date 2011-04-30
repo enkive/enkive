@@ -18,7 +18,7 @@ public interface Document {
 
 	String getMimeType();
 
-	String getSuffix();
+	String getExtension();
 
 	byte[] getContentBytes() throws DocStoreException;
 

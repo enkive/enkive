@@ -37,15 +37,16 @@ public interface DocStoreService {
 	 * being in the process of being indexed, which is different than having
 	 * been indexed.
 	 * 
-	 * @return A document that has not been indexed.
+	 * @return The identifier of a document that's not been indexed.
 	 */
-	Document retrieveUnindexed();
+	String nextUnindexed();
 
 	/**
 	 * Marks the given document as having been indexed, so it will not be
 	 * retrieved as un-indexed again.
 	 * 
 	 * @param identifier
+	 * @throws DocumentNotFoundException 
 	 */
-	void markAsIndexed(String identifier);
+	void markAsIndexed(String identifier) throws DocumentNotFoundException;
 }

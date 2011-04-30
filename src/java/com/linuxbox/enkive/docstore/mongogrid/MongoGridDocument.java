@@ -1,6 +1,6 @@
 package com.linuxbox.enkive.docstore.mongogrid;
 
-import static com.linuxbox.enkive.docstore.mongogrid.Constants.FILE_SUFFIX_KEY;
+import static com.linuxbox.enkive.docstore.mongogrid.Constants.FILE_EXTENSION_KEY;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -51,9 +51,9 @@ public class MongoGridDocument implements Document {
 	}
 
 	@Override
-	public String getSuffix() {
+	public String getExtension() {
 		try {
-			return (String) gridFile.getMetaData().get(FILE_SUFFIX_KEY);
+			return (String) gridFile.getMetaData().get(FILE_EXTENSION_KEY);
 		} catch (ClassCastException e) {
 			return null;
 		}
