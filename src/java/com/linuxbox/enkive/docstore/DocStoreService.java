@@ -1,5 +1,6 @@
 package com.linuxbox.enkive.docstore;
 
+import com.linuxbox.enkive.docsearch.exception.DocSearchException;
 import com.linuxbox.enkive.docstore.exception.DocStoreException;
 import com.linuxbox.enkive.docstore.exception.DocumentNotFoundException;
 import com.linuxbox.enkive.docstore.exception.StorageException;
@@ -46,7 +47,7 @@ public interface DocStoreService {
 	 * retrieved as un-indexed again.
 	 * 
 	 * @param identifier
-	 * @throws DocumentNotFoundException 
+	 * @throws DocSearchException
 	 */
-	void markAsIndexed(String identifier) throws DocumentNotFoundException;
+	void markAsIndexed(String identifier) throws DocSearchException;
 }

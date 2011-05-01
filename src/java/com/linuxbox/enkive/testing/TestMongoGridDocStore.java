@@ -34,7 +34,7 @@ import com.mongodb.Mongo;
 public class TestMongoGridDocStore {
 	private static final String INDRI_REPOSITORY_PATH = "/tmp/enkive-indri";
 	private static final String INDRI_TEMP_STORAGE_PATH = "/tmp/enkive-indri-tmp";
-	private static final boolean DO_INDEXING = true;
+	private static final boolean DO_PUSH_INDEXING = false;
 
 	static DocStoreService docStoreService;
 	static SearchService docSearchService;
@@ -67,7 +67,7 @@ public class TestMongoGridDocStore {
 
 	private static void index(StoreRequestResult storageResult)
 			throws DocSearchException, DocStoreException {
-		if (DO_INDEXING) {
+		if (DO_PUSH_INDEXING) {
 			final String identifier = storageResult.getIdentifier();
 
 			if (!storageResult.getAlreadyStored()) {
@@ -216,6 +216,20 @@ public class TestMongoGridDocStore {
 		}
 	}
 
+	private static void pullIndexingAndMarkAsIndexed() {
+		String identifier = docStoreService.nextUnindexed();
+		if (identifier != null) {
+			System.out.println("indexing: " + identifier);
+			try {
+				docStoreService.markAsIndexed(identifier);
+			} catch (DocSearchException e) {
+				System.err.println(e);
+			}
+		} else {
+			System.out.println("no documents need indexing");
+		}
+	}
+
 	private static void dropGridFSCollections(String dbName, String bucket)
 			throws UnknownHostException {
 		DB db = new Mongo().getDB(dbName);
@@ -239,16 +253,17 @@ public class TestMongoGridDocStore {
 
 			archiveEncoded();
 			retrieveEncoded();
-			
+
 			// searchFor("frack");
 			searchFor("#1(the question)");
 			searchFor("#1(BE THAT)");
 			searchFor("#1(question the)");
 			searchFor("test");
 
-			System.out.println("next unindexed: " + docStoreService.nextUnindexed());
-			System.out.println("next unindexed: " + docStoreService.nextUnindexed());
-			System.out.println("next unindexed: " + docStoreService.nextUnindexed());
+			pullIndexingAndMarkAsIndexed();
+			pullIndexingAndMarkAsIndexed();
+			pullIndexingAndMarkAsIndexed();
+			pullIndexingAndMarkAsIndexed();
 
 			docSearchService.shutdown();
 			docStoreService.shutdown();
