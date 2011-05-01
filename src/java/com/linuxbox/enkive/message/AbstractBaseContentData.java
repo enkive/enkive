@@ -37,7 +37,6 @@ import com.linuxbox.enkive.exception.EnkiveRuntimeException;
 import com.linuxbox.util.StreamConnector;
 
 public abstract class AbstractBaseContentData implements BaseContentData {
-
 	private static final String HASH_ALGORITHM = "SHA-1";
 
 	protected byte[] data;

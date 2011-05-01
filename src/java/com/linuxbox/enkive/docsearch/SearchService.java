@@ -36,8 +36,9 @@ public interface SearchService {
 	 * @param query
 	 * 
 	 * @return
+	 * @throws DocSearchException 
 	 */
-	List<String> search(String query);
+	List<String> search(String query) throws DocSearchException;
 
 	/**
 	 * Perform a search and return a list of document identifiers that match, at
@@ -48,7 +49,7 @@ public interface SearchService {
 	 * @return
 	 */
 
-	List<String> search(String query, int maxResults);
+	List<String> search(String query, int maxResults) throws DocSearchException;
 
 	// PUSH INDEXING
 

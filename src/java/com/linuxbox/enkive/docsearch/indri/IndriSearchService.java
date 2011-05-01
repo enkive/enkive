@@ -3,16 +3,24 @@ package com.linuxbox.enkive.docsearch.indri;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.Reader;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import lemurproject.indri.IndexEnvironment;
 import lemurproject.indri.IndexStatus;
+import lemurproject.indri.ParsedDocument;
 import lemurproject.indri.QueryEnvironment;
+import lemurproject.indri.QueryRequest;
+import lemurproject.indri.QueryResult;
+import lemurproject.indri.QueryResults;
+import lemurproject.indri.ScoredExtentResult;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import com.linuxbox.enkive.docsearch.AbstractSearchService;
 import com.linuxbox.enkive.docsearch.contentanalyzer.ContentAnalyzer;
@@ -20,48 +28,61 @@ import com.linuxbox.enkive.docsearch.exception.DocSearchException;
 import com.linuxbox.enkive.docstore.DocStoreService;
 import com.linuxbox.enkive.docstore.Document;
 import com.linuxbox.enkive.docstore.exception.DocStoreException;
-import com.linuxbox.enkive.exception.UnimplementedMethodException;
+import com.linuxbox.util.CollectionUtils;
 import com.linuxbox.util.StreamConnector;
 
 public class IndriSearchService extends AbstractSearchService {
-	private static final boolean STORE_DOCUMENTS = false;
-	private static final long MEMORY_TO_USE = 200 * 1024 * 1024; // 200 MB
-	private static final String STEMMER = "krovetz";
-
-	private static final String TRECTEXT = "trectext";
-	private static final long DOC_SIZE_IN_MEMORY_LIMIT = 8 * 1024; // 8 KB
-	private static final boolean DISPLAY_STATS = true;
-
-	private String repositoryPath;
-	private File tempStorageDir;
-
-	private IndexEnvironment indexEnvironment;
-	private QueryEnvironment queryEnvironment;
-
+	/**
+	 * This is supposed to be a callback that gets status updates. But as of
+	 * April 25, 2011, delete would be called for reasons unknown and using it
+	 * in the call to IndexEnvironment::open resulted in runtime errors. So for
+	 * now it's not used.
+	 * 
+	 * @author ivancich
+	 * 
+	 */
 	static class RecordedIndexStatus extends IndexStatus {
-		public int code;
-		public String documentPath;
-		public String error;
-		public int documentsIndexed;
-		public int documentsSeen;
-
-		public void status(int code, String docPath, String error,
-				int docsIndexed, int docsSeen) {
-			this.code = code;
-			this.documentPath = docPath;
-			this.error = error;
-			this.documentsIndexed = docsIndexed;
-			this.documentsSeen = docsSeen;
-		}
-
-		public void display(PrintStream out) {
+		public void status(int code, String documentPath, String error,
+				int documentsIndexed, int documentsSeen) {
 			System.out.println("code: " + code);
 			System.out.println("document path: " + documentPath);
 			System.out.println("error: " + error);
 			System.out.println("documents indexed: " + documentsIndexed);
 			System.out.println("documents seen: " + documentsSeen);
 		}
+
+		public void delete() {
+			System.err.println("IndexStatus::delete called\n");
+		}
 	}
+
+	static enum IndexStorage {
+		STRING, FILE, PARSED_DOCUMENT, BY_SIZE
+	}
+
+	private final static Log LOGGER = LogFactory
+			.getLog("com.linuxbox.enkive.docsearch.indri");
+
+	private static final boolean STORE_DOCUMENTS = false;
+	private static final String NAME_FIELD = "docno";
+	// private static final String[] INDEX_FIELDS = { NAME_FIELD };
+	private static final String[] METADATA_FIELDS = { NAME_FIELD };
+
+	private static final long MEMORY_TO_USE = 200 * 1024 * 1024; // 200 MB
+	private static final String STEMMER = "krovetz";
+
+	private static final String TEXT_FORMAT = "txt";
+	private static final String TRECTEXT_FORMAT = "trectext";
+	private static final long DOC_SIZE_IN_MEMORY_LIMIT = 8 * 1024; // 8 KB
+	// private static final IndexStorage INDEX_STORAGE = IndexStorage.BY_SIZE;
+	// private static final IndexStorage INDEX_STORAGE = IndexStorage.PARSED_DOCUMENT;
+	private static final IndexStorage INDEX_STORAGE = IndexStorage.FILE;
+
+	private String repositoryPath;
+	private File tempStorageDir;
+
+	private IndexEnvironment indexEnvironment;
+	private QueryEnvironment queryEnvironment;
 
 	public IndriSearchService(DocStoreService docStoreService,
 			ContentAnalyzer analyzer, String repositoryPath,
@@ -78,10 +99,10 @@ public class IndriSearchService extends AbstractSearchService {
 		finishConstruction(repositoryPath, temporaryStoragePath);
 	}
 
-	private void createIndriRepository(String repositoryPath)
+	private static void createIndriRepository(
+			IndexEnvironment indexEnvironment, String repositoryPath)
 			throws DocSearchException {
 		try {
-			IndexEnvironment indexEnvironment = new IndexEnvironment();
 			indexEnvironment.create(repositoryPath);
 			indexEnvironment.close();
 		} catch (Exception e) {
@@ -90,30 +111,41 @@ public class IndriSearchService extends AbstractSearchService {
 		}
 	}
 
+	private static void initializeIndexEnvironment(
+			IndexEnvironment indexEnvironment) throws DocSearchException {
+		try {
+			indexEnvironment.setStoreDocs(STORE_DOCUMENTS);
+			indexEnvironment.setStemmer(STEMMER);
+			indexEnvironment.setIndexedFields(METADATA_FIELDS);
+			indexEnvironment.setMetadataIndexedFields(METADATA_FIELDS,
+					METADATA_FIELDS);
+			indexEnvironment.setNormalization(true);
+
+			if (MEMORY_TO_USE > 0) {
+				indexEnvironment.setMemory(MEMORY_TO_USE);
+			}
+		} catch (Exception e) {
+			throw new DocSearchException(
+					"could not initialize INDRI index environment", e);
+		}
+	}
+
 	private void finishConstruction(String repositoryPath,
 			String temporaryStoragePath) throws DocSearchException {
 		initializeTemporaryStorage(temporaryStoragePath);
 
 		this.repositoryPath = repositoryPath;
-
-		// currently not used
-		RecordedIndexStatus indexStatus = new RecordedIndexStatus();
-
 		indexEnvironment = new IndexEnvironment();
+		initializeIndexEnvironment(indexEnvironment);
 
-		// try to open existing repository; if that fails try to create one
+		// try to open existing repository; if that fails try to create one and
+		// open it
 		try {
-			indexEnvironment.open(repositoryPath, indexStatus);
-			if (DISPLAY_STATS) {
-				indexStatus.display(System.out);
-			}
+			indexEnvironment.open(repositoryPath);
 		} catch (Exception e1) {
-			createIndriRepository(repositoryPath);
+			createIndriRepository(indexEnvironment, repositoryPath);
 			try {
-				indexEnvironment.open(repositoryPath, indexStatus);
-				if (DISPLAY_STATS) {
-					indexStatus.display(System.out);
-				}
+				indexEnvironment.open(repositoryPath);
 			} catch (Exception e2) {
 				throw new DocSearchException(
 						"could not open the INDRI repository", e2);
@@ -121,34 +153,12 @@ public class IndriSearchService extends AbstractSearchService {
 		}
 
 		try {
-			indexEnvironment.setStoreDocs(STORE_DOCUMENTS);
-			if (MEMORY_TO_USE > 0) {
-				indexEnvironment.setMemory(MEMORY_TO_USE);
-			}
-			indexEnvironment.setStemmer(STEMMER);
-		} catch (Exception e) {
-			try {
-				indexEnvironment.close();
-			} catch (Exception e2) {
-				// empty
-			} finally {
-				indexEnvironment = null;
-			}
-
+			queryEnvironment = new QueryEnvironment();
+			queryEnvironment.addIndex(repositoryPath);
+		} catch (Exception e1) {
 			throw new DocSearchException(
-					"could not initialize INDRI index environment", e);
+					"could not create an INDRI query environment", e1);
 		}
-
-		/*
-		 * 
-		 * try { queryEnvironment = new QueryEnvironment();
-		 * queryEnvironment.addIndex(repositoryPath); } catch (Exception e1) {
-		 * try { indexEnvironment.close(); } catch (Exception e2) { // empty }
-		 * finally { indexEnvironment = null; }
-		 * 
-		 * throw new DocSearchException(
-		 * "could not create an INDRI query environment", e1); }
-		 */
 	}
 
 	private void initializeTemporaryStorage(String temporaryStoragePath)
@@ -186,8 +196,8 @@ public class IndriSearchService extends AbstractSearchService {
 		}
 	}
 
-	private void indexDocumentAsString(IndexEnvironment indexEnvironment,
-			Document doc) throws DocStoreException, DocSearchException {
+	private int indexDocumentAsString(Document doc) throws DocStoreException,
+			DocSearchException {
 		try {
 			StringBuilder docString = new StringBuilder();
 			Reader input = contentAnalyzer.parseIntoText(doc);
@@ -201,9 +211,11 @@ public class IndriSearchService extends AbstractSearchService {
 
 			Map<String, String> metaData = new HashMap<String, String>();
 
-			metaData.put("DOCNO", doc.getIdentifier());
+			metaData.put(NAME_FIELD, doc.getIdentifier());
 			System.out.println(docString.toString());
-			indexEnvironment.addString(docString.toString(), "text", metaData);
+			final int documentId = indexEnvironment.addString(docString
+					.toString(), TEXT_FORMAT, metaData);
+			return documentId;
 		} catch (DocStoreException e) {
 			throw e;
 		} catch (Exception e) {
@@ -212,8 +224,8 @@ public class IndriSearchService extends AbstractSearchService {
 		}
 	}
 
-	private void indexDocumentAsFile(IndexEnvironment indexEnvironment,
-			Document doc) throws DocSearchException, DocStoreException {
+	private void indexDocumentAsFile(Document doc) throws DocSearchException,
+			DocStoreException {
 		final String identifier = doc.getIdentifier();
 		Reader input = null;
 		try {
@@ -225,17 +237,16 @@ public class IndriSearchService extends AbstractSearchService {
 			try {
 				output = new PrintWriter(new FileWriter(tempFile));
 				output.println("<DOC>");
-				output.println("<DOCNO>" + identifier + "</DOCNO>");
+				output.println("<" + NAME_FIELD + ">" + identifier + "</"
+						+ NAME_FIELD + ">");
 				output.println("<TEXT>");
 				StreamConnector.transferForeground(input, output);
 				output.println("</TEXT>");
 				output.println("</DOC>");
 				output.close();
 
-				System.out.println("Try to access "
-						+ tempFile.getAbsolutePath());
-
-				indexEnvironment.addFile(tempFile.getAbsolutePath(), TRECTEXT);
+				indexEnvironment.addFile(tempFile.getAbsolutePath(),
+						TRECTEXT_FORMAT);
 			} finally {
 				tempFile.delete();
 			}
@@ -256,26 +267,114 @@ public class IndriSearchService extends AbstractSearchService {
 		}
 	}
 
+	@SuppressWarnings({ "unchecked", "unused" })
+	private int indexDocumentAsParsedDocument(Document doc)
+			throws DocSearchException, DocStoreException {
+		ParsedDocument parsedDoc = new ParsedDocument();
+		
+		parsedDoc.metadata = new HashMap<Object, Object>();
+		parsedDoc.metadata.put(NAME_FIELD, doc.getIdentifier());
+
+		parsedDoc.terms = new String[] { "to", "be", "or", "not", "to", "be",
+				"that", "is", "the", "question" };
+		
+		parsedDoc.content = "to be or not to be, that is the question";
+		parsedDoc.text = "to be or not to be, that is the question";
+		
+		parsedDoc.content = "REDACTED";
+		parsedDoc.text = "REDACTED";
+		
+		parsedDoc.positions = new ParsedDocument.TermExtent[] {
+				new ParsedDocument.TermExtent(0, 2), // to
+				new ParsedDocument.TermExtent(3, 5), // be
+				new ParsedDocument.TermExtent(6, 8), // or
+				new ParsedDocument.TermExtent(9, 12), // not
+				new ParsedDocument.TermExtent(13, 15), // to 
+				new ParsedDocument.TermExtent(16, 18), // be
+				new ParsedDocument.TermExtent(20, 24), // that
+				new ParsedDocument.TermExtent(25, 27), // is
+				new ParsedDocument.TermExtent(28, 31), // the
+				new ParsedDocument.TermExtent(32, 40), // question
+		};
+
+		try {
+			final int docId = indexEnvironment.addParsedDocument(parsedDoc);
+			return docId;
+		} catch (Exception e) {
+			throw new DocSearchException("could not indexed ParsedDocument "
+					+ doc.getIdentifier());
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private int indexDocumentAsParsedDocument2(Document doc)
+			throws DocSearchException, DocStoreException {
+		ParsedDocument parsedDoc = new ParsedDocument();
+		
+		parsedDoc.metadata = new HashMap<Object, Object>();
+		parsedDoc.metadata.put(NAME_FIELD, doc.getIdentifier());
+
+		parsedDoc.terms = new String[] { "TO", "BE", "OR", "NOT", "TO", "BE",
+				"THAT", "IS", "THE", "QUESTION" };
+		
+		parsedDoc.content = "to be or not to be, that is the question";
+		parsedDoc.text = "to be or not to be, that is the question";
+		
+		parsedDoc.content = "REDACTED";
+		parsedDoc.text = "REDACTED";
+		
+		parsedDoc.positions = new ParsedDocument.TermExtent[] {
+				new ParsedDocument.TermExtent(0, 2), // to
+				new ParsedDocument.TermExtent(3, 5), // be
+				new ParsedDocument.TermExtent(6, 8), // or
+				new ParsedDocument.TermExtent(9, 12), // not
+				new ParsedDocument.TermExtent(13, 15), // to 
+				new ParsedDocument.TermExtent(16, 18), // be
+				new ParsedDocument.TermExtent(20, 24), // that
+				new ParsedDocument.TermExtent(25, 27), // is
+				new ParsedDocument.TermExtent(28, 31), // the
+				new ParsedDocument.TermExtent(32, 40), // question
+		};
+
+		try {
+			final int docId = indexEnvironment.addParsedDocument(parsedDoc);
+			return docId;
+		} catch (Exception e) {
+			throw new DocSearchException("could not indexed ParsedDocument "
+					+ doc.getIdentifier());
+		}
+	}
+
+	
 	@Override
 	public void doIndexDocument(String identifier) throws DocSearchException,
 			DocStoreException {
-		IndexEnvironment ie = null;
+		@SuppressWarnings("unused")
+		int docId = -1;
 		try {
 			Document doc = docStoreService.retrieve(identifier);
-			ie = new IndexEnvironment();
-			ie.open(repositoryPath);
-			if (false) {
-				if (false) {
-					System.err.println("Warning: forcing indexing document as string");
-					indexDocumentAsString(ie, doc);
+			switch (INDEX_STORAGE) {
+			case STRING:
+				docId = indexDocumentAsString(doc);
+				break;
+			case FILE:
+				indexDocumentAsFile(doc);
+				break;
+			case PARSED_DOCUMENT:
+				docId = indexDocumentAsParsedDocument2(doc);
+				break;
+			default:
+				LOGGER
+						.warn("IndriSearchService::INDEX_STORAGE storage strategy has unexpected "
+								+ "value; using size as determiner");
+				// falling through
+			case BY_SIZE:
+				if (doc.getSize() > DOC_SIZE_IN_MEMORY_LIMIT) {
+					indexDocumentAsFile(doc);
 				} else {
-					System.err.println("Warning: forcing indexing document as file");
-					indexDocumentAsFile(ie, doc);
+					docId = indexDocumentAsString(doc);
 				}
-			} else if (doc.getSize() > DOC_SIZE_IN_MEMORY_LIMIT) {
-				indexDocumentAsFile(ie, doc);
-			} else {
-				indexDocumentAsString(ie, doc);
+				break;
 			}
 		} catch (DocStoreException e) {
 			throw e;
@@ -283,28 +382,82 @@ public class IndriSearchService extends AbstractSearchService {
 			throw e;
 		} catch (Exception e) {
 			throw new DocSearchException("errors managing INDRI index", e);
-		} finally {
-			try {
-				if (ie != null) {
-					ie.close();
-				}
-			} catch (Exception e) {
-				// empty
-			}
 		}
 	}
 
 	@Override
-	public List<String> search(String query) {
-		// TODO Auto-generated method stub
-		throw new UnimplementedMethodException();
+	public List<String> search(String query, int maxResults) throws DocSearchException {
+		try {
+			final ScoredExtentResult[] results = queryEnvironment.runQuery(query, maxResults);
+			String[] resultDocNumbers = queryEnvironment.documentMetadata(results, NAME_FIELD);
+			return CollectionUtils.listFromArray(resultDocNumbers);
+		} catch (Exception e) {
+			throw new DocSearchException("could not perform INDRI query", e);
+		}
+	}
+	
+	public List<String> searchAlt(String query, int maxResults) throws DocSearchException {
+		try {
+			QueryRequest request = new QueryRequest();
+			request.query = query;
+			request.startNum = 0;
+			request.resultsRequested = maxResults;
+			request.metadata = METADATA_FIELDS;
+			
+			QueryResults results = queryEnvironment.runQuery(request);
+
+			final int resultCount = results.results.length;
+			ArrayList<String> myResult = new ArrayList<String>(resultCount);
+
+			int[] documentIds = new int[resultCount];
+			int docIndex = -1;
+
+			for (QueryResult result : results.results) {
+				documentIds[++docIndex] = result.docid;
+
+				System.out.println("a: " + result.docid);
+				System.out.println("b: " + result.documentName);
+				for (Object o : result.metadata.keySet()) {
+					System.out.println("c: " + o + " -> "
+							+ result.metadata.get(o));
+				}
+				String documentIdentifier = (String) result.metadata
+						.get(NAME_FIELD);
+				myResult.add(documentIdentifier);
+			}
+
+			ParsedDocument[] parsedDocs = queryEnvironment
+					.documents(documentIds);
+			for (ParsedDocument parsedDoc : parsedDocs) {
+				final Map<Object,Object> metadata = parsedDoc.metadata;
+				System.out
+						.println(new String((byte[]) metadata.get(NAME_FIELD)));
+				/*
+				 * for (Object key : metadata.keySet()) { final Object valueObj
+				 * = metadata.get(key); if (valueObj instanceof byte[]) { String
+				 * valueStr = new String((byte[]) valueObj);
+				 * System.out.println("    B: " + key + " -> " + valueStr); }
+				 * else { System.out.println("    B: " + key + " -> " +
+				 * valueObj.getClass().getCanonicalName() + "/" + valueObj); } }
+				 */
+				
+				/*
+				for (ParsedDocument.TermExtent term : parsedDoc.positions) {
+					System.out.println("    C: "
+							+ parsedDoc.text.substring(term.begin, term.end));
+				}
+				*/
+			}
+
+			return myResult;
+		} catch (ClassCastException e) {
+			throw new DocSearchException(
+					"could not retrieve document identifer from INDRI query");
+		} catch (Exception e) {
+			throw new DocSearchException("could not perform INDRI query", e);
+		}
 	}
 
-	@Override
-	public List<String> search(String query, int maxResults) {
-		// TODO Auto-generated method stub
-		throw new UnimplementedMethodException();
-	}
 
 	@Override
 	public void shutdown() throws DocSearchException {

@@ -1,6 +1,7 @@
 package com.linuxbox.enkive.docsearch;
 
 import java.util.Collection;
+import java.util.List;
 
 import com.linuxbox.enkive.docsearch.contentanalyzer.ContentAnalyzer;
 import com.linuxbox.enkive.docsearch.exception.DocSearchException;
@@ -8,6 +9,11 @@ import com.linuxbox.enkive.docstore.DocStoreService;
 import com.linuxbox.enkive.docstore.exception.DocStoreException;
 
 public abstract class AbstractSearchService implements SearchService {
+	/**
+	 * The maximum search results to return by default.
+	 */
+	private static final int DEFAULT_MAX_SEARCH_RESULTS = 25;
+
 	/**
 	 * The document storage service we're feeding off of.
 	 */
@@ -20,6 +26,11 @@ public abstract class AbstractSearchService implements SearchService {
 	 * query for un-indexed documents
 	 */
 	protected int unindexedDocSearchInterval = -1;
+
+	@Override
+	public List<String> search(String query) throws DocSearchException {
+		return search(query, DEFAULT_MAX_SEARCH_RESULTS);
+	}
 
 	public AbstractSearchService(DocStoreService service,
 			ContentAnalyzer analyzer) {
