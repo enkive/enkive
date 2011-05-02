@@ -21,15 +21,12 @@
 package com.linuxbox.enkive.message;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.james.mime4j.codec.Base64OutputStream;
-import org.apache.james.mime4j.codec.QuotedPrintableOutputStream;
 import org.apache.james.mime4j.parser.MimeEntityConfig;
 
 public class SinglePartHeaderImpl extends AbstractSinglePartHeader implements
@@ -72,60 +69,10 @@ public class SinglePartHeaderImpl extends AbstractSinglePartHeader implements
 	}
 
 	public String printSinglePartHeader() throws IOException {
-
 		StringBuilder part = new StringBuilder();
 		part.append(getOriginalHeaders());
 		part.append(getLineEnding());
-
-		if (getContentTransferEncoding() == null) {
-			part.append(new String(getContentData().getByteContent()));
-			logger.warn("Reconstituting attachment without content transfer encoding specified.  Using Binary Data.");
-		} else if (getContentTransferEncoding().equals(
-				MimeTransferEncoding.BASE64)) {
-
-			if (getContentData().getMetaDataField("lineLength") != null)
-				setMaxLineLength(Integer.parseInt(getContentData()
-						.getMetaDataField("lineLength")));
-
-			ByteArrayOutputStream content = new ByteArrayOutputStream();
-
-			Base64OutputStream out = new Base64OutputStream(content,
-					getMaxLineLength(), getLineEnding().getBytes());
-			out.write(getContentData().getByteContent());
-			out.flush();
-			out.close();
-
-			part.append(content.toString());
-
-		} else if (getContentTransferEncoding().equals(
-				MimeTransferEncoding.SEVEN_BIT)) {
-			part.append(new String(getContentData().getByteContent(),
-					"US-ASCII"));
-		} else if (getContentTransferEncoding().equals(
-				MimeTransferEncoding.EIGHT_BIT)) {
-			part.append(new String(getContentData().getByteContent(), "UTF-8"));
-
-		} else if (getContentTransferEncoding().equals(
-				MimeTransferEncoding.QUOTED_PRINTABLE)) {
-			if (!getContentData().getEncodedContentData().isEmpty()) {
-				part.append(new String(getContentData().getEncodedContentData()
-						.getByteContent()));
-			} else {
-				ByteArrayOutputStream content = new ByteArrayOutputStream();
-				QuotedPrintableOutputStream out = new QuotedPrintableOutputStream(
-						content, false);
-				out.write(getContentData().getByteContent(), 0,
-						getContentData().getByteContent().length);
-				out.flush();
-				out.close();
-				part.append(content.toString());
-			}
-		} else {
-			part.append(new String(getContentData().getByteContent()));
-			logger.warn("Reconstituting attachment without content transfer encoding."
-					+ " Transfer encoding specified is unsupported."
-					+ getContentTransferEncoding().toString());
-		}
+		part.append(new String(getEncodedContentData().getByteContent()));
 		part.append(getLineEnding());
 		return part.toString();
 	}

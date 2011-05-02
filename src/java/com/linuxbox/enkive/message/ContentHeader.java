@@ -145,7 +145,7 @@ public interface ContentHeader {
 	 * 
 	 * @return a reference to the ContentData
 	 */
-	public ContentData getContentData();
+	public EncodedContentData getEncodedContentData();
 
 	/**
 	 * 
@@ -153,7 +153,7 @@ public interface ContentHeader {
 	 *            the content data reference that holds the content that goes
 	 *            with the message or message-part.
 	 */
-	public void setContentData(ContentData contentData);
+	public void setEncodedContentData(EncodedContentData encodedContentData);
 
 	/**
 	 * Reconstitutes the sequence of characters in the original message

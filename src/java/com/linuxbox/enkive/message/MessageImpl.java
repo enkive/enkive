@@ -177,15 +177,14 @@ public class MessageImpl extends AbstractMessage implements Message {
 				case MimeTokenStream.T_BODY:
 					SinglePartHeader single = new SinglePartHeaderImpl();
 
-					ContentDataImpl cd = new ContentDataImpl();
-					cd.decodeAndSetContent(stream.getInputStream(), stream
-							.getBodyDescriptor().getTransferEncoding());
+					EncodedContentDataImpl cd = new EncodedContentDataImpl();
+					cd.setBinaryContent(stream.getInputStream());
 					single.setContentTransferEncoding(stream
 							.getBodyDescriptor().getTransferEncoding());
 
 					single.setOriginalHeaders(headers.toString());
 					single.parseHeaders(headers.toString(), config);
-					single.setContentData(cd);
+					single.setEncodedContentData(cd);
 					single.setLineEnding(lineEnding);
 					// If we're working with a multipart message,
 					// pop, add the singlepartheader, and push.
