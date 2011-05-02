@@ -1,13 +1,14 @@
 package com.linuxbox.enkive.archiver.mongodb;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.*;
 
 import com.linuxbox.enkive.archiver.AbstractMessageArchivingService;
 import com.linuxbox.enkive.archiver.exceptions.CannotArchiveException;
 import com.linuxbox.enkive.docstore.Document;
+import com.linuxbox.enkive.docstore.StoreRequestResult;
 import com.linuxbox.enkive.docstore.exception.DocStoreException;
 import com.linuxbox.enkive.message.ContentHeader;
 import com.linuxbox.enkive.message.Message;
@@ -20,12 +21,16 @@ import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.Mongo;
 import com.mongodb.MongoException;
+import com.mongodb.WriteResult;
 
 public class MongoArchivingService extends AbstractMessageArchivingService {
 
+	public static String ATTACHMENT_ID = "attachment_id";
+	public static String ATTACHMENT_ID_LIST = "attachment_ids";
 	protected Mongo m = null;
 	protected DB messageDb;
 	protected DBCollection messageColl;
+	protected List<String> attachment_ids;
 	
 	public MongoArchivingService(Mongo m, String dbName, String collName) {
 		this.m = m;
@@ -41,8 +46,10 @@ public class MongoArchivingService extends AbstractMessageArchivingService {
 	@Override
 	public String storeMessage(Message message) throws CannotArchiveException {
 		String messageUUID = null;
+		attachment_ids = new ArrayList<String>();
 		try {
 			BasicDBObject messageObject = new BasicDBObject();
+			messageObject.put("_id", calculateMessageId(message));
 			messageObject.put(ORIGINAL_HEADERS, message.getOriginalHeaders());
 			messageObject.put(MAIL_FROM, message.getMailFrom());
 			messageObject.put(RCPT_TO, message.getRcptTo());
@@ -57,6 +64,7 @@ public class MongoArchivingService extends AbstractMessageArchivingService {
 			ContentHeader contentHeader = message.getContentHeader();
 			
 			messageObject.put("ContentHeader", archiveContentHeader(contentHeader));
+			messageObject.put(ATTACHMENT_ID_LIST, attachment_ids);
 			//TODO store list of all attached file UUIDs
 			messageColl.insert(messageObject);
 			messageUUID = messageObject.getString("_id");
@@ -91,9 +99,11 @@ public class MongoArchivingService extends AbstractMessageArchivingService {
 			headerObject.put(ORIGINAL_HEADERS, multiPartHeader.getOriginalHeaders());
 			List<ContentHeader> partHeaders = ((MultiPartHeader) contentHeader)
 					.getPartHeaders();
+			ArrayList<BasicDBObject> partHeadersList= new ArrayList<BasicDBObject>(); 
 			for (ContentHeader partHeader : partHeaders) {
-				headerObject.put("partHeader", archiveContentHeader(partHeader));
+				partHeadersList.add(archiveContentHeader(partHeader));
 			}
+			headerObject.put("partHeaders", partHeadersList);
 
 		} else {
 			SinglePartHeader singlePartHeader = (SinglePartHeader)contentHeader;
@@ -114,19 +124,20 @@ public class MongoArchivingService extends AbstractMessageArchivingService {
 						mtf.toString());
 			}
 			
-			// Set metadata related to content
-			Map<String, String> metaData = singlePartHeader.getContentData()
-					.getMetaData();
-			headerObject.putAll(metaData);
 			headerObject.put(ORIGINAL_HEADERS,
 					singlePartHeader.getOriginalHeaders());
 			
 			//Store the attachment
-			Document document = new ContentDataDocument(singlePartHeader.getContentData().getEncodedContentData(), singlePartHeader.getContentType());
-			docStoreService.store(document);
-			//archiveContentData(headerNode, contentHeader, messageMetaData);
+			Document document = new ContentDataDocument(singlePartHeader.getEncodedContentData(), singlePartHeader.getContentType());
+			StoreRequestResult docResult = docStoreService.store(document);
+			headerObject.put(ATTACHMENT_ID, docResult.getIdentifier());
+			attachment_ids.add(docResult.getIdentifier());
 		}
 
 		return headerObject;
-	}		
+	}
+	
+	private String calculateMessageId(Message message){
+		return message.getCleanMessageId();
+	}
 }

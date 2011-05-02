@@ -1,10 +1,7 @@
 package com.linuxbox.enkive.archiver.mongodb;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -12,10 +9,9 @@ import java.util.concurrent.TimeUnit;
 import org.apache.james.mime4j.MimeException;
 
 import com.linuxbox.enkive.archiver.exceptions.CannotArchiveException;
+import com.linuxbox.enkive.docstore.mongogrid.MongoGridDocStoreService;
 import com.linuxbox.enkive.exception.BadMessageException;
 import com.linuxbox.enkive.exception.CannotTransferMessageContentException;
-import com.linuxbox.enkive.message.Message;
-import com.linuxbox.enkive.message.MessageImpl;
 import com.mongodb.Mongo;
 
 public class MongoArchiverTest {
@@ -26,7 +22,7 @@ public class MongoArchiverTest {
 	
 	
 	public static void sendAllFiles(File dir) throws CannotTransferMessageContentException, BadMessageException, IOException, MimeException, CannotArchiveException{
-		if (dir.isDirectory()) {
+		if (dir.isDirectory() && count < 5) {
 			for (File file : dir.listFiles()) {
 				if (file.isFile()) {
 					MongoArchiverThreadTest archiver = new MongoArchiverThreadTest(m, file);
