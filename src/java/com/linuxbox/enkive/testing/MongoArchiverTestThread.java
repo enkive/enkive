@@ -1,4 +1,4 @@
-package com.linuxbox.enkive.archiver.mongodb;
+package com.linuxbox.enkive.testing;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -10,6 +10,7 @@ import java.io.OutputStreamWriter;
 import org.apache.james.mime4j.MimeException;
 
 import com.linuxbox.enkive.archiver.exceptions.CannotArchiveException;
+import com.linuxbox.enkive.archiver.mongodb.MongoArchivingService;
 import com.linuxbox.enkive.docstore.mongogrid.MongoGridDocStoreService;
 import com.linuxbox.enkive.exception.BadMessageException;
 import com.linuxbox.enkive.exception.CannotRetrieveException;
@@ -19,13 +20,13 @@ import com.linuxbox.enkive.message.MessageImpl;
 import com.linuxbox.enkive.retriever.mongodb.MongoRetriever;
 import com.mongodb.Mongo;
 
-public class MongoArchiverThreadTest implements Runnable {
+public class MongoArchiverTestThread implements Runnable {
 
 	protected MongoArchivingService archiver;
 	protected MongoRetriever retriever;
 	protected File file;
 	
-	public MongoArchiverThreadTest(Mongo m, File file){
+	public MongoArchiverTestThread(Mongo m, File file){
 		archiver = new MongoArchivingService(m, "enkive", "messages");
 		MongoGridDocStoreService docStoreService = new MongoGridDocStoreService(m, "enkive", "documents");
 		archiver.setDocStoreService(docStoreService);

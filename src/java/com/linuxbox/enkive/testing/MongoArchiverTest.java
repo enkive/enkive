@@ -1,4 +1,4 @@
-package com.linuxbox.enkive.archiver.mongodb;
+package com.linuxbox.enkive.testing;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,7 +25,7 @@ public class MongoArchiverTest {
 		if (dir.isDirectory()) {
 			for (File file : dir.listFiles()) {
 				if (file.isFile()) {
-					MongoArchiverThreadTest archiver = new MongoArchiverThreadTest(m, file);
+					MongoArchiverTestThread archiver = new MongoArchiverTestThread(m, file);
 					threadPool.execute(archiver);
 					count++;
 				} else {
