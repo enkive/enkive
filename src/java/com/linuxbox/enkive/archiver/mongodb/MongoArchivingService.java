@@ -1,9 +1,27 @@
 package com.linuxbox.enkive.archiver.mongodb;
 
+import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.*;
+import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.BOUNDARY_ID;
+import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.CC;
+import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.CONTENT_DISPOSITION;
+import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.CONTENT_ID;
+import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.CONTENT_TRANSFER_ENCODING;
+import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.CONTENT_TYPE;
+import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.DATE;
+import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.EPILOGUE;
+import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.FILENAME;
+import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.FROM;
+import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.MAIL_FROM;
+import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.MESSAGE_ID;
+import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.MIME_VERSION;
+import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.ORIGINAL_HEADERS;
+import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.PREAMBLE;
+import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.RCPT_TO;
+import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.SUBJECT;
+import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.TO;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.*;
 
 import com.linuxbox.enkive.archiver.AbstractMessageArchivingService;
 import com.linuxbox.enkive.archiver.exceptions.CannotArchiveException;
@@ -19,14 +37,12 @@ import com.linuxbox.enkive.message.docstore.ContentDataDocument;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
+import com.mongodb.DBObject;
 import com.mongodb.Mongo;
 import com.mongodb.MongoException;
-import com.mongodb.WriteResult;
 
 public class MongoArchivingService extends AbstractMessageArchivingService {
 
-	public static String ATTACHMENT_ID = "attachment_id";
-	public static String ATTACHMENT_ID_LIST = "attachment_ids";
 	protected Mongo m = null;
 	protected DB messageDb;
 	protected DBCollection messageColl;
@@ -49,7 +65,7 @@ public class MongoArchivingService extends AbstractMessageArchivingService {
 		attachment_ids = new ArrayList<String>();
 		try {
 			BasicDBObject messageObject = new BasicDBObject();
-			messageObject.put("_id", calculateMessageId(message));
+			messageObject.put(MESSAGE_UUID, calculateMessageId(message));
 			messageObject.put(ORIGINAL_HEADERS, message.getOriginalHeaders());
 			messageObject.put(MAIL_FROM, message.getMailFrom());
 			messageObject.put(RCPT_TO, message.getRcptTo());
@@ -63,11 +79,11 @@ public class MongoArchivingService extends AbstractMessageArchivingService {
 			
 			ContentHeader contentHeader = message.getContentHeader();
 			
-			messageObject.put("ContentHeader", archiveContentHeader(contentHeader));
+			messageObject.put(CONTENT_HEADER, archiveContentHeader(contentHeader));
 			messageObject.put(ATTACHMENT_ID_LIST, attachment_ids);
 			//TODO store list of all attached file UUIDs
 			messageColl.insert(messageObject);
-			messageUUID = messageObject.getString("_id");
+			messageUUID = messageObject.getString(MESSAGE_UUID);
 		} catch (MongoException e) {
 			throw new CannotArchiveException(e);
 		} catch (DocStoreException e) {
@@ -78,8 +94,11 @@ public class MongoArchivingService extends AbstractMessageArchivingService {
 
 	@Override
 	public String findMessage(Message message) {
-		//TODO How do we want to determine duplicate messages?
-		return null;
+		DBObject messageObject = messageColl.findOne(calculateMessageId(message));
+		if(messageObject != null)
+			return (String) messageObject.get("_id");
+		else
+			return null;
 	}
 
 	private BasicDBObject archiveContentHeader(ContentHeader contentHeader) throws DocStoreException{
@@ -89,7 +108,7 @@ public class MongoArchivingService extends AbstractMessageArchivingService {
 		// still save the order in which things have been archived
 		if (contentHeader.isMultipart()) {
 			MultiPartHeader multiPartHeader = (MultiPartHeader)contentHeader;
-			headerObject.put("type", "MultiPartHeader");
+			headerObject.put(CONTENT_HEADER_TYPE, MULTIPART_HEADER_TYPE);
 			headerObject.put(BOUNDARY_ID,
 					multiPartHeader.getBoundary());
 			headerObject.put(PREAMBLE,
@@ -103,11 +122,11 @@ public class MongoArchivingService extends AbstractMessageArchivingService {
 			for (ContentHeader partHeader : partHeaders) {
 				partHeadersList.add(archiveContentHeader(partHeader));
 			}
-			headerObject.put("partHeaders", partHeadersList);
+			headerObject.put(PART_HEADERS, partHeadersList);
 
 		} else {
 			SinglePartHeader singlePartHeader = (SinglePartHeader)contentHeader;
-			headerObject.put("type", "SinglePartHeader");
+			headerObject.put(CONTENT_HEADER_TYPE, SINGLE_PART_HEADER_TYPE);
 			headerObject.put(CONTENT_ID,
 					singlePartHeader.getContentID());
 			headerObject.put(CONTENT_TYPE,

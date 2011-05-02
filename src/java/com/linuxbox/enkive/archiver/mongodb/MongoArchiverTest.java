@@ -22,7 +22,7 @@ public class MongoArchiverTest {
 	
 	
 	public static void sendAllFiles(File dir) throws CannotTransferMessageContentException, BadMessageException, IOException, MimeException, CannotArchiveException{
-		if (dir.isDirectory() && count < 5) {
+		if (dir.isDirectory()) {
 			for (File file : dir.listFiles()) {
 				if (file.isFile()) {
 					MongoArchiverThreadTest archiver = new MongoArchiverThreadTest(m, file);

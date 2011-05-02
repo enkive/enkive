@@ -36,6 +36,12 @@ import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.PREAMBLE;
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.RCPT_TO;
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.SUBJECT;
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.TO;
+import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.ATTACHMENT_ID;
+import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.CONTENT_HEADER;
+import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.CONTENT_HEADER_TYPE;
+import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.MULTIPART_HEADER_TYPE;
+import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.PART_HEADERS;
+import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.SINGLE_PART_HEADER_TYPE;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -69,26 +75,7 @@ import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import com.mongodb.Mongo;
 import com.mongodb.MongoException;
-import com.mongodb.MongoOptions;
 
-/**
- * Currently this class needs to be instantiated with enough information for it
- * to create a session that will provide access to the JCR API when a Core API
- * NodeRef come in (specifically the call to session.getNodeByUUID). This might
- * be better written to stick with the Core API.
- * 
- * TODO : will we want to remove the credentials that get passed in when this
- * bean is created along with the code for creating of a session using those
- * credentials? Instead we would strictly use the already existing session.
- * 
- * TODO : Perhaps we need an interface that represents a repository. It could
- * have whatever credentials/pools necessary depending on the implementation. An
- * AlfrescoRepository would contain a session to use.
- * 
- * 
- * @author eric
- * 
- */
 public class MongoRetriever extends AbstractArchiveService {
 	
 	protected Mongo m = null;
@@ -118,7 +105,7 @@ public class MongoRetriever extends AbstractArchiveService {
 			message.setContentHeader(makeContentHeader(messageObject));
 
 			logger
-					.info("Message " + message.getCleanMessageId()
+					.info("Message " + messageUUID
 							+ " retrieved");
 
 			return message;
@@ -162,7 +149,7 @@ public class MongoRetriever extends AbstractArchiveService {
 	private ContentHeader makeContentHeader(DBObject messageObject)
 			throws CannotRetrieveException, IOException {
 		ContentHeader result = null;
-		DBObject contentHeaderObject = (DBObject) messageObject.get("ContentHeader");
+		DBObject contentHeaderObject = (DBObject) messageObject.get(CONTENT_HEADER);
 		result = makeContentHeaderHelper(contentHeaderObject);
 		return result;
 	}
@@ -171,15 +158,15 @@ public class MongoRetriever extends AbstractArchiveService {
 			throws CannotRetrieveException, IOException {
 		ContentHeader result = null;
 
-		String nodeTypeName = (String) contentHeaderObject.get("type");
-		if (nodeTypeName.equals("SinglePartHeader")) {
+		String nodeTypeName = (String) contentHeaderObject.get(CONTENT_HEADER_TYPE);
+		if (nodeTypeName.equals(SINGLE_PART_HEADER_TYPE)) {
 			try {
 				result = buildContentHeader(contentHeaderObject);
 			} catch (DocStoreException e) {
 				throw new CannotRetrieveException(
 						"Could not retrieve message attachment");
 			}
-		} else if (nodeTypeName.equals("MultiPartHeader")) {
+		} else if (nodeTypeName.equals(MULTIPART_HEADER_TYPE)) {
 			result = buildMultiPartHeader(contentHeaderObject);
 		} else {
 			throw new CannotRetrieveException(
@@ -196,7 +183,7 @@ public class MongoRetriever extends AbstractArchiveService {
 		setSinglePartHeaderProperties(header, contentHeaderObject);
 		
 		EncodedContentData encodedContentData = null;
-		encodedContentData = buildEncodedContentData((String) contentHeaderObject.get("attachment_id"));
+		encodedContentData = buildEncodedContentData((String) contentHeaderObject.get(ATTACHMENT_ID));
 		header.setEncodedContentData(encodedContentData);
 
 		return header;
@@ -207,7 +194,7 @@ public class MongoRetriever extends AbstractArchiveService {
 		MultiPartHeader multiPartHeader = new MultiPartHeaderImpl();
 		setMultiPartHeaderProperties(multiPartHeader, contentHeaderObject);
 
-		ArrayList<BasicDBObject> partHeadersList = (ArrayList<BasicDBObject>) contentHeaderObject.get("partHeaders");
+		ArrayList<BasicDBObject> partHeadersList = (ArrayList<BasicDBObject>) contentHeaderObject.get(PART_HEADERS);
 		for(BasicDBObject partHeaderObject : partHeadersList) {
 			ContentHeader partHeader = makeContentHeaderHelper(partHeaderObject);
 			multiPartHeader.addPartHeader(partHeader);
