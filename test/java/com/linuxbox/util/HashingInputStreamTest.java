@@ -1,6 +1,7 @@
 package com.linuxbox.util;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -53,7 +54,6 @@ public class HashingInputStreamTest {
 		while (input.read() >= 0) {
 			// do nothing
 		}
-		input.close();
 		String digest = input.getDigest();
 		assertEquals("testing equality of digests", digestReference, digest);
 	}
