@@ -7,6 +7,20 @@ import java.security.NoSuchAlgorithmException;
 
 import org.apache.commons.codec.binary.Hex;
 
+/**
+ * This is a stream that calculates a hash/message digest on the data that
+ * passes through it. It can use either an existing message digest (say if it's
+ * primed with other data) or create one if provided with a String describing
+ * the algorithm to use.
+ * 
+ * Once getDigest() is called, further data will not affect the hash/message
+ * digest. So the use case is to call that once EOF is reached. Perhaps a better
+ * version could clone the message digest and return the hash/message digest on
+ * it. But message digests are not guaranteed to support the clone operation.
+ * 
+ * @author ivancich
+ * 
+ */
 public class HashingInputStream extends InputStream {
 	private final static int BUFFER_SIZE = 4 * 1024;
 
@@ -15,17 +29,18 @@ public class HashingInputStream extends InputStream {
 	private byte[] digestBytes;
 	private String digestString;
 
-	public HashingInputStream(MessageDigest digest, InputStream actualInputStream) {
+	public HashingInputStream(MessageDigest digest,
+			InputStream actualInputStream) {
 		this.digest = digest;
 		this.actualInputStream = actualInputStream;
 	}
 
-	public HashingInputStream(String hashAlgorithm, InputStream actualInputStream)
-			throws NoSuchAlgorithmException {
+	public HashingInputStream(String hashAlgorithm,
+			InputStream actualInputStream) throws NoSuchAlgorithmException {
 		this.digest = MessageDigest.getInstance(hashAlgorithm);
 		this.actualInputStream = actualInputStream;
 	}
-	
+
 	public String getDigest() {
 		if (digestBytes == null) {
 			digestBytes = digest.digest();
