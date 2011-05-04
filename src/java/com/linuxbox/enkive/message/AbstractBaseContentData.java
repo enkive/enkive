@@ -1,5 +1,5 @@
 /*
- *  Copyright 2010 The Linux Box Corporation.
+ *  Copyright 2011 The Linux Box Corporation.
  *
  *  This file is part of Enkive CE (Community Edition).
  *
@@ -35,6 +35,16 @@ import org.apache.commons.codec.binary.Hex;
 import com.linuxbox.enkive.exception.CannotTransferMessageContentException;
 import com.linuxbox.enkive.exception.EnkiveRuntimeException;
 import com.linuxbox.util.StreamConnector;
+
+/*
+ * TO DO
+ * 
+ * This class no longer needs to do any hash calculation. The back-end is now responsible for figuring out
+ * the unique name for the document. Also, this class reads everything into a byte array, likely only to
+ * calculate the hash. If possible, if this can keep track of an InputStream for the document and possibly
+ * the MIME type, file extension, and encoding type (base64, quoted printable, 7bit, 8bit, binary) that
+ * would be sufficient.   
+ */
 
 public abstract class AbstractBaseContentData implements BaseContentData {
 	private static final String HASH_ALGORITHM = "SHA-1";

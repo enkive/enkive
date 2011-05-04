@@ -2,7 +2,8 @@ package com.linuxbox.enkive.message.docstore;
 
 import java.io.InputStream;
 
-import com.linuxbox.enkive.docstore.Document;
+import com.linuxbox.enkive.docstore.AbstractDocument;
+import com.linuxbox.enkive.docstore.exception.DocStoreException;
 import com.linuxbox.enkive.message.AbstractBaseContentData;
 
 /**
@@ -13,53 +14,31 @@ import com.linuxbox.enkive.message.AbstractBaseContentData;
  * @author ivancich
  * 
  */
-public class ContentDataDocument implements Document {
+public class ContentDataDocument extends AbstractDocument {
 	private AbstractBaseContentData contentData;
-	private String mimeType;
-	private String fileSuffix;
 
 	public ContentDataDocument(AbstractBaseContentData contentData,
-			String mimeType, String fileSuffix) {
+			String mimeType, String fileSuffix, String binaryEncoding) {
+		super(mimeType, fileSuffix, binaryEncoding);
 		this.contentData = contentData;
-		this.mimeType = mimeType;
-		this.fileSuffix = fileSuffix;
 	}
-
-	public ContentDataDocument(AbstractBaseContentData contentData,
-			String mimeType) {
-		this(contentData, mimeType, null);
-	}
-
-	@Override
-	public byte[] getContentBytes() {
-		return contentData.getByteContent();
-	}
-
-	@Override
-	public InputStream getContentStream() {
-		return contentData.getBinaryContent();
-	}
-
-	@Override
-	public String getMimeType() {
-		return mimeType;
-	}
-
-	@Override
-	public String getExtension() {
-		return fileSuffix;
-	}
-
-	@Override
-	public String getIdentifier() {
-		return contentData.getSha1String();
-	}
-
+	
 	/**
 	 * Do not know the size, so return negative value.
 	 */
 	@Override
-	public long getSize() {
+	public long getEncodedSize() {
 		return -1;
+	}
+
+	@Override
+	public InputStream getEncodedContentStream() {
+		return contentData.getBinaryContent();
+	}
+	
+
+	@Override
+	public InputStream getDecodedContentStream() throws DocStoreException {
+		throw new DocStoreException("decoded version of ContentData not available");
 	}
 }

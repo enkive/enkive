@@ -1,8 +1,9 @@
 package com.linuxbox.enkive.testing;
 
+import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.UnknownHostException;
 import java.util.HashSet;
@@ -19,11 +20,9 @@ import com.linuxbox.enkive.docsearch.exception.DocSearchException;
 import com.linuxbox.enkive.docsearch.indri.IndriSearchService;
 import com.linuxbox.enkive.docstore.DocStoreService;
 import com.linuxbox.enkive.docstore.Document;
-import com.linuxbox.enkive.docstore.EncodedChainedDocument;
-import com.linuxbox.enkive.docstore.EncodedDocument;
-import com.linuxbox.enkive.docstore.InMemorySHA1Document;
-import com.linuxbox.enkive.docstore.SimpleDocument;
+import com.linuxbox.enkive.docstore.FileSystemDocument;
 import com.linuxbox.enkive.docstore.StoreRequestResult;
+import com.linuxbox.enkive.docstore.StringDocument;
 import com.linuxbox.enkive.docstore.exception.DocStoreException;
 import com.linuxbox.enkive.docstore.exception.DocumentNotFoundException;
 import com.linuxbox.enkive.docstore.mongogrid.MongoGridDocStoreService;
@@ -78,8 +77,8 @@ public class TestMongoGridDocStore {
 
 	private static void archive(String content) throws DocStoreException,
 			DocSearchException {
-		StoreRequestResult result = docStoreService.store(new SimpleDocument(
-				content, "text/plain", "txt"));
+		StoreRequestResult result = docStoreService.store(new StringDocument(
+				content, "text/plain", "txt", "7 bit"));
 		index(result);
 		indexSet.add(result.getIdentifier());
 	}
@@ -104,8 +103,13 @@ public class TestMongoGridDocStore {
 			System.out.print("retrieving " + index + ": ");
 			try {
 				Document d = docStoreService.retrieve(index);
-				String s = new String(d.getContentBytes());
-				System.out.println(s);
+				BufferedReader r = new BufferedReader(new InputStreamReader(
+						d.getDecodedContentStream()));
+				String line;
+				while ((line = r.readLine()) != null) {
+					System.out.println(line);
+				}
+				r.close();
 			} catch (DocumentNotFoundException e) {
 				System.out.println(e);
 			} catch (Exception e) {
@@ -149,20 +153,15 @@ public class TestMongoGridDocStore {
 	private static void archiveEncoded() {
 		for (FileRecord fileRec : encodedFiles) {
 			try {
-				File f = new File(inputDir + "/" + fileRec.name);
-				FileInputStream fileStream = new FileInputStream(f);
-
-				Document d = new InMemorySHA1Document(fileRec.mimeType,
-						fileRec.suffix, fileStream);
-				fileStream.close();
-
-				EncodedDocument ed = new EncodedChainedDocument(
-						fileRec.encoding, d);
-				encodedIdentifierSet.add(ed.getIdentifier());
-				StoreRequestResult result = docStoreService.store(ed);
+				FileSystemDocument d = new FileSystemDocument(inputDir + "/"
+						+ fileRec.name, fileRec.mimeType, fileRec.suffix,
+						fileRec.encoding);
+				StoreRequestResult result = docStoreService.store(d);
 				index(result);
 
-				System.out.println("archived encoded " + ed.getIdentifier());
+				final String identifier = result.getIdentifier();
+				encodedIdentifierSet.add(identifier);
+				System.out.println("archived encoded " + identifier);
 			} catch (Throwable e) {
 				e.printStackTrace();
 			}
@@ -177,12 +176,12 @@ public class TestMongoGridDocStore {
 			try {
 				Document d = docStoreService.retrieve(identifier);
 				File f = new File(inputDir + "/" + counter + "."
-						+ d.getExtension());
+						+ d.getFileExtension());
 				fileStream = new FileOutputStream(f);
-				StreamConnector.transferForeground(d.getContentStream(),
+				StreamConnector.transferForeground(d.getEncodedContentStream(),
 						fileStream);
 				fileStream.close();
-				System.out.println("wrote " + d.getIdentifier() + " to "
+				System.out.println("wrote " + identifier + " to "
 						+ f.getCanonicalPath());
 			} catch (Throwable e) {
 				e.printStackTrace();

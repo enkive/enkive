@@ -1,10 +1,17 @@
 package com.linuxbox.enkive.docstore.mongogrid;
 
 public interface Constants {
+	// file control
+	String CONT_FILE_COLLECTION = "fileControl";
+	String CONT_FILE_IDENTIFIER_KEY = "identifier";
+	String CONT_FILE_COUNT_KEY = "counter";
+	String CONT_FILE_TIMESTAMP_KEY = "timestamp";
+	
 	// used by GridFS
 	String OBJECT_ID_KEY = "_id";
 	String FILENAME_KEY = "filename";
 	String METADATA_KEY = "metadata";
+	String MIME_TYPE_KEY = "contentType";
 
 	// our metadata fields
 	String BINARY_ENCODING_KEY = "binaryEncoding";

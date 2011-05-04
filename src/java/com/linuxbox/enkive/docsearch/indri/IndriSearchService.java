@@ -79,7 +79,6 @@ public class IndriSearchService extends AbstractSearchService {
 
 	private static final boolean STORE_DOCUMENTS = false;
 	private static final String NAME_FIELD = "docno";
-	// private static final String[] INDEX_FIELDS = { NAME_FIELD };
 	private static final String[] METADATA_FIELDS = { NAME_FIELD };
 
 	private static final long MEMORY_TO_USE = 200 * 1024 * 1024; // 200 MB
@@ -212,8 +211,8 @@ public class IndriSearchService extends AbstractSearchService {
 		}
 	}
 
-	private int indexDocumentAsString(Document doc) throws DocStoreException,
-			DocSearchException {
+	private int indexDocumentAsString(Document doc, String identifier)
+			throws DocStoreException, DocSearchException {
 		try {
 			StringBuilder docString = new StringBuilder();
 			Reader input = contentAnalyzer.parseIntoText(doc);
@@ -227,22 +226,21 @@ public class IndriSearchService extends AbstractSearchService {
 
 			Map<String, String> metaData = new HashMap<String, String>();
 
-			metaData.put(NAME_FIELD, doc.getIdentifier());
+			metaData.put(NAME_FIELD, identifier);
 			System.out.println(docString.toString());
-			final int documentId = indexEnvironment.addString(docString
-					.toString(), TEXT_FORMAT, metaData);
+			final int documentId = indexEnvironment.addString(
+					docString.toString(), TEXT_FORMAT, metaData);
 			return documentId;
 		} catch (DocStoreException e) {
 			throw e;
 		} catch (Exception e) {
-			throw new DocSearchException("could not index \""
-					+ doc.getIdentifier() + "\"", e);
+			throw new DocSearchException("could not index \"" + identifier
+					+ "\"", e);
 		}
 	}
 
-	private void indexDocumentAsFile(Document doc) throws DocSearchException,
-			DocStoreException {
-		final String identifier = doc.getIdentifier();
+	private void indexDocumentAsFile(Document doc, String identifier)
+			throws DocSearchException, DocStoreException {
 		Reader input = null;
 		try {
 			input = contentAnalyzer.parseIntoText(doc);
@@ -283,13 +281,13 @@ public class IndriSearchService extends AbstractSearchService {
 		}
 	}
 
-	@SuppressWarnings( { "unchecked", "unused" })
-	private int indexDocumentAsParsedDocument(Document doc)
+	@SuppressWarnings({ "unchecked", "unused" })
+	private int indexDocumentAsParsedDocument(Document doc, String identifier)
 			throws DocSearchException, DocStoreException {
 		ParsedDocument parsedDoc = new ParsedDocument();
 
 		parsedDoc.metadata = new HashMap<Object, Object>();
-		parsedDoc.metadata.put(NAME_FIELD, doc.getIdentifier());
+		parsedDoc.metadata.put(NAME_FIELD, identifier);
 
 		parsedDoc.terms = new String[] { "to", "be", "or", "not", "to", "be",
 				"that", "is", "the", "question" };
@@ -317,18 +315,18 @@ public class IndriSearchService extends AbstractSearchService {
 			final int docId = indexEnvironment.addParsedDocument(parsedDoc);
 			return docId;
 		} catch (Exception e) {
-			throw new DocSearchException("could not indexed ParsedDocument "
-					+ doc.getIdentifier());
+			throw new DocSearchException("could not indexed ParsedDocument \""
+					+ identifier + "\"");
 		}
 	}
 
 	@SuppressWarnings("unchecked")
-	private int indexDocumentAsParsedDocument2(Document doc)
+	private int indexDocumentAsParsedDocument2(Document doc, String identifier)
 			throws DocSearchException, DocStoreException {
 		ParsedDocument parsedDoc = new ParsedDocument();
 
 		parsedDoc.metadata = new HashMap<Object, Object>();
-		parsedDoc.metadata.put(NAME_FIELD, doc.getIdentifier());
+		parsedDoc.metadata.put(NAME_FIELD, identifier);
 
 		parsedDoc.terms = new String[] { "TO", "BE", "OR", "NOT", "TO", "BE",
 				"THAT", "IS", "THE", "QUESTION" };
@@ -357,7 +355,7 @@ public class IndriSearchService extends AbstractSearchService {
 			return docId;
 		} catch (Exception e) {
 			throw new DocSearchException("could not indexed ParsedDocument "
-					+ doc.getIdentifier());
+					+ identifier);
 		}
 	}
 
@@ -370,24 +368,23 @@ public class IndriSearchService extends AbstractSearchService {
 			Document doc = docStoreService.retrieve(identifier);
 			switch (INDEX_STORAGE) {
 			case STRING:
-				docId = indexDocumentAsString(doc);
+				docId = indexDocumentAsString(doc, identifier);
 				break;
 			case FILE:
-				indexDocumentAsFile(doc);
+				indexDocumentAsFile(doc, identifier);
 				break;
 			case PARSED_DOCUMENT:
-				docId = indexDocumentAsParsedDocument2(doc);
+				docId = indexDocumentAsParsedDocument2(doc, identifier);
 				break;
 			default:
-				LOGGER
-						.warn("IndriSearchService::INDEX_STORAGE storage strategy has unexpected "
-								+ "value; using size as determiner");
+				LOGGER.warn("IndriSearchService::INDEX_STORAGE storage strategy has unexpected "
+						+ "value; using size as determiner");
 				// falling through
 			case BY_SIZE:
-				if (doc.getSize() > DOC_SIZE_IN_MEMORY_LIMIT) {
-					indexDocumentAsFile(doc);
+				if (doc.getEncodedSize() > DOC_SIZE_IN_MEMORY_LIMIT) {
+					indexDocumentAsFile(doc, identifier);
 				} else {
-					docId = indexDocumentAsString(doc);
+					docId = indexDocumentAsString(doc, identifier);
 				}
 				break;
 			}
@@ -423,7 +420,8 @@ public class IndriSearchService extends AbstractSearchService {
 	 * @return
 	 * @throws DocSearchException
 	 */
-	public List<String> searchAlt(String query, int maxResults)
+	@SuppressWarnings("unused")
+	private List<String> searchAlt(String query, int maxResults)
 			throws DocSearchException {
 		try {
 			QueryRequest request = new QueryRequest();
