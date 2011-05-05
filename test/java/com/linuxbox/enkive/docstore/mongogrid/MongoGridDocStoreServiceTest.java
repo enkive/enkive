@@ -9,15 +9,18 @@ import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.UnknownHostException;
+import java.nio.charset.Charset;
+import java.security.MessageDigest;
 import java.util.UUID;
 
+import org.apache.commons.codec.binary.Hex;
 import org.apache.james.mime4j.util.MimeUtil;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.linuxbox.enkive.docstore.AbstractDocStoreService;
 import com.linuxbox.enkive.docstore.Document;
 import com.linuxbox.enkive.docstore.StoreRequestResult;
 import com.linuxbox.enkive.docstore.StringDocument;
@@ -25,13 +28,24 @@ import com.linuxbox.util.HashingInputStream;
 import com.mongodb.gridfs.GridFSFile;
 
 public class MongoGridDocStoreServiceTest {
+	static final Charset enkiveCharSet = Charset.forName("UTF-8");
+	static final String testString = "to be or not to be; that is the \u20AC 1 question";
+	static final byte[] testData = testString.getBytes(enkiveCharSet);
+	static Document testDocument;
+	static String testDocumentName;
+
 	static MongoGridDocStoreService service;
-	final String testString = "to be or not to be; that is the \u20AC question";
-	final byte[] testData = testString.getBytes();
 
 	@BeforeClass
-	public static void setUpClass() throws UnknownHostException {
+	public static void setUpClass() throws Exception {
 		service = new MongoGridDocStoreService("enkive-test", "fs-test");
+		testDocument = new StringDocument(testString, "text/plain", "txt",
+				MimeUtil.ENC_7BIT);
+
+		MessageDigest messageDigest = getPrimedMessageDigest(testDocument);
+		messageDigest.update(testData);
+		final byte[] hashBytes = messageDigest.digest();
+		testDocumentName = new String((new Hex()).encode(hashBytes));
 	}
 
 	@AfterClass
@@ -69,16 +83,16 @@ public class MongoGridDocStoreServiceTest {
 
 	@Test
 	public void testStoreKnownNameFullLength() throws Exception {
-		Document inDoc = new StringDocument(testString, "text/plain", "txt",
-				MimeUtil.ENC_7BIT);
 		String id = UUID.randomUUID().toString();
 
-		service.storeKnownName(inDoc, id, testData, testData.length);
+		boolean alreadyStored = service.storeKnownName(testDocument, id,
+				testData, testData.length);
+		assertFalse(alreadyStored);
 
 		Document outDoc = service.retrieve(id);
 
 		BufferedReader r = new BufferedReader(new InputStreamReader(
-				outDoc.getEncodedContentStream()));
+				outDoc.getEncodedContentStream(), enkiveCharSet));
 
 		assertEquals(testString, r.readLine());
 		assertNull(r.readLine());
@@ -91,11 +105,11 @@ public class MongoGridDocStoreServiceTest {
 	@Test
 	public void testStoreKnownNamePartialLength() throws Exception {
 		final int length = testString.length() / 2;
-		Document inDoc = new StringDocument(testString, "text/plain", "txt",
-				MimeUtil.ENC_7BIT);
 		String id = UUID.randomUUID().toString();
 
-		service.storeKnownName(inDoc, id, testData, length);
+		boolean alreadyStored = service.storeKnownName(testDocument, id,
+				testData, length);
+		assertFalse(alreadyStored);
 
 		Document outDoc = service.retrieve(id);
 
@@ -121,11 +135,9 @@ public class MongoGridDocStoreServiceTest {
 
 	@Test
 	public void testIndexing() throws Exception {
-		Document inDoc = new StringDocument(testString, "text/plain", "txt",
-				MimeUtil.ENC_7BIT);
 		String id = UUID.randomUUID().toString();
 
-		service.storeKnownName(inDoc, id, testData, testData.length);
+		service.storeKnownName(testDocument, id, testData, testData.length);
 
 		GridFSFile gFile1 = service.gridFS.findOne(id);
 		assertEquals("a new file is initially UNINDEXED",
@@ -156,19 +168,19 @@ public class MongoGridDocStoreServiceTest {
 
 	@Test
 	public void testStoreAndDetermineName() throws Exception {
-		Document inDoc = new StringDocument(testString, "text/plain", "txt",
-				MimeUtil.ENC_7BIT);
-
 		HashingInputStream in = new HashingInputStream(
-				HashingInputStream.DEFAULT_ALGORITHM, new ByteArrayInputStream(
+				getPrimedMessageDigest(testDocument), new ByteArrayInputStream(
 						testData));
 
-		StoreRequestResult result = service.storeAndDetermineName(inDoc, in);
+		StoreRequestResult result = service.storeAndDetermineName(testDocument,
+				in);
+
+		assertFalse(result.getAlreadyStored());
 
 		Document outDoc = service.retrieve(result.getIdentifier());
 
 		BufferedReader r = new BufferedReader(new InputStreamReader(
-				outDoc.getEncodedContentStream()));
+				outDoc.getEncodedContentStream(), enkiveCharSet));
 
 		assertEquals(testString, r.readLine());
 		assertNull(r.readLine());
@@ -176,5 +188,67 @@ public class MongoGridDocStoreServiceTest {
 		r.close();
 
 		service.gridFS.remove(result.getIdentifier());
+	}
+
+	@Test
+	public void testStoreKnownNameWithExistingDocument() throws Exception {
+		boolean already1 = service.storeKnownName(testDocument,
+				testDocumentName, testData, testData.length);
+
+		assertFalse(already1);
+
+		HashingInputStream doc1Input = new HashingInputStream(
+				getPrimedMessageDigest(testDocument), new ByteArrayInputStream(
+						testData));
+
+		StoreRequestResult result2 = service.storeAndDetermineName(
+				testDocument, doc1Input);
+
+		assertTrue(result2.getAlreadyStored());
+
+		assertEquals("names should be the same", testDocumentName,
+				result2.getIdentifier());
+
+		service.gridFS.remove(testDocumentName);
+	}
+
+	@Test
+	public void testStoreAndDetermineNameWithExistingDocument()
+			throws Exception {
+		HashingInputStream doc1Input = new HashingInputStream(
+				getPrimedMessageDigest(testDocument), new ByteArrayInputStream(
+						testData));
+
+		StoreRequestResult result1 = service.storeAndDetermineName(
+				testDocument, doc1Input);
+
+		assertFalse(result1.getAlreadyStored());
+
+		boolean already2 = service.storeKnownName(testDocument,
+				testDocumentName, testData, testData.length);
+
+		assertTrue(already2);
+
+		assertEquals("names should be the same", testDocumentName,
+				result1.getIdentifier());
+
+		service.gridFS.remove(result1.getIdentifier());
+	}
+
+	/**
+	 * Returns a MessageDigest that is primed with the data for the type of
+	 * document.
+	 * 
+	 * @param doc
+	 * @return
+	 * @throws Exception
+	 */
+	private static MessageDigest getPrimedMessageDigest(Document doc)
+			throws Exception {
+		MessageDigest messageDigest = MessageDigest
+				.getInstance(AbstractDocStoreService.HASH_ALGORITHM);
+		messageDigest.update(AbstractDocStoreService
+				.getFileTypeEncodingDigestPrime(doc));
+		return messageDigest;
 	}
 }
