@@ -9,7 +9,6 @@ import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.util.UUID;
 
@@ -28,9 +27,9 @@ import com.linuxbox.util.HashingInputStream;
 import com.mongodb.gridfs.GridFSFile;
 
 public class MongoGridDocStoreServiceTest {
-	static final Charset enkiveCharSet = Charset.forName("UTF-8");
 	static final String testString = "to be or not to be; that is the \u20AC 1 question";
-	static final byte[] testData = testString.getBytes(enkiveCharSet);
+	static final byte[] testData = testString
+			.getBytes(Constants.PREFERRED_CHARSET);
 	static Document testDocument;
 	static String testDocumentName;
 
@@ -92,7 +91,7 @@ public class MongoGridDocStoreServiceTest {
 		Document outDoc = service.retrieve(id);
 
 		BufferedReader r = new BufferedReader(new InputStreamReader(
-				outDoc.getEncodedContentStream(), enkiveCharSet));
+				outDoc.getEncodedContentStream(), Constants.PREFERRED_CHARSET));
 
 		assertEquals(testString, r.readLine());
 		assertNull(r.readLine());
@@ -180,7 +179,7 @@ public class MongoGridDocStoreServiceTest {
 		Document outDoc = service.retrieve(result.getIdentifier());
 
 		BufferedReader r = new BufferedReader(new InputStreamReader(
-				outDoc.getEncodedContentStream(), enkiveCharSet));
+				outDoc.getEncodedContentStream(), Constants.PREFERRED_CHARSET));
 
 		assertEquals(testString, r.readLine());
 		assertNull(r.readLine());
