@@ -124,53 +124,6 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 		return new MongoGridDocument(file);
 	}
 
-	private boolean controlFile(String identifier) {
-		final DBObject controlRecord = BasicDBObjectBuilder.start(
-				CONT_FILE_IDENTIFIER_KEY, identifier).get();
-		final WriteResult wResult = fileControlCollection.insert(controlRecord);
-		final CommandResult cResult = wResult.getCachedLastError();
-		if (cResult.ok()) {
-			return true;
-		} else {
-			System.err.println(cResult.getException());
-			return false;
-		}
-	}
-
-	private void releaseControlOfFile(String identifier) {
-		final DBObject identifierQuery = new QueryBuilder()
-				.and(CONT_FILE_IDENTIFIER_KEY).is(identifier).get();
-
-		final WriteResult wResult = fileControlCollection
-				.remove(identifierQuery);
-		final CommandResult cResult = wResult.getCachedLastError();
-		if (!cResult.ok()) {
-			System.err.println(cResult.getException());
-		}
-	}
-
-	private boolean fileExists(String identifier) {
-		DBObject query = new BasicDBObject(Constants.FILENAME_KEY, identifier);
-		DBObject result = filesCollection.findOne(query, RETRIEVE_OBJECT_ID);
-		return result != null;
-	}
-
-	private void setFileMetaData(GridFSInputFile newFile, Document document) {
-		newFile.setContentType(document.getMimeType());
-
-		// store the encoding as meta-data for EncodedDocuments
-		DBObject metaData = newFile.getMetaData();
-		if (metaData == null) {
-			metaData = new BasicDBObject();
-		}
-
-		metaData.put(INDEX_STATUS_KEY, STATUS_UNINDEXED);
-		metaData.put(FILE_EXTENSION_KEY, document.getFileExtension());
-		metaData.put(BINARY_ENCODING_KEY, document.getBinaryEncoding());
-
-		newFile.setMetaData(metaData);
-	}
-
 	@Override
 	protected boolean storeKnownName(Document document, String identifier,
 			byte[] data, int length) {
@@ -192,23 +145,6 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 			return false;
 		} finally {
 			releaseControlOfFile(identifier);
-		}
-	}
-
-	private boolean setFileName(Object id, String newName) {
-		DBObject query = new BasicDBObject("_id", id);
-		DBObject update = new BasicDBObject("$set", new BasicDBObject(
-				Constants.FILENAME_KEY, newName));
-		DBObject fields = new BasicDBObject(Constants.FILENAME_KEY, 1);
-		DBObject result = filesCollection.findAndModify(query, fields, null,
-				false, update, false, false);
-		if (result == null) {
-			return false;
-		} else {
-			// TODO remove after initial debugging
-			System.err.println((String) result.get(FILENAME_KEY)
-					+ " renamed to " + newName);
-			return true;
 		}
 	}
 
@@ -298,11 +234,79 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 		getMongo().close();
 	}
 
+	/*
+	 * SUPPORT METHODS
+	 */
+	
 	private DB getDb() {
 		return gridFS.getDB();
 	}
 
 	private Mongo getMongo() {
 		return getDb().getMongo();
+	}
+	
+	private boolean controlFile(String identifier) {
+		final DBObject controlRecord = BasicDBObjectBuilder.start(
+				CONT_FILE_IDENTIFIER_KEY, identifier).get();
+		final WriteResult wResult = fileControlCollection.insert(controlRecord);
+		final CommandResult cResult = wResult.getCachedLastError();
+		if (cResult.ok()) {
+			return true;
+		} else {
+			System.err.println(cResult.getException());
+			return false;
+		}
+	}
+
+	private void releaseControlOfFile(String identifier) {
+		final DBObject identifierQuery = new QueryBuilder()
+				.and(CONT_FILE_IDENTIFIER_KEY).is(identifier).get();
+
+		final WriteResult wResult = fileControlCollection
+				.remove(identifierQuery);
+		final CommandResult cResult = wResult.getCachedLastError();
+		if (!cResult.ok()) {
+			System.err.println(cResult.getException());
+		}
+	}
+
+	private boolean fileExists(String identifier) {
+		DBObject query = new BasicDBObject(Constants.FILENAME_KEY, identifier);
+		DBObject result = filesCollection.findOne(query, RETRIEVE_OBJECT_ID);
+		return result != null;
+	}
+
+	private void setFileMetaData(GridFSInputFile newFile, Document document) {
+		newFile.setContentType(document.getMimeType());
+
+		// store the encoding as meta-data for EncodedDocuments
+		DBObject metaData = newFile.getMetaData();
+		if (metaData == null) {
+			metaData = new BasicDBObject();
+		}
+
+		metaData.put(INDEX_STATUS_KEY, STATUS_UNINDEXED);
+		metaData.put(FILE_EXTENSION_KEY, document.getFileExtension());
+		metaData.put(BINARY_ENCODING_KEY, document.getBinaryEncoding());
+
+		newFile.setMetaData(metaData);
+	}
+	
+	private boolean setFileName(Object id, String newName) {
+		DBObject query = new BasicDBObject("_id", id);
+		DBObject update = new BasicDBObject("$set", new BasicDBObject(
+				Constants.FILENAME_KEY, newName));
+		DBObject fields = new BasicDBObject(Constants.FILENAME_KEY, 1);
+		DBObject result = filesCollection.findAndModify(query, fields, null,
+				false, update, false, false);
+		if (result == null) {
+			return false;
+		} else {
+			// TODO remove after initial debugging
+			System.err.println((String) result.get(FILENAME_KEY)
+					+ " renamed to " + newName);
+			return true;
+		}
 	}
 }

@@ -10,8 +10,8 @@ public class MongoGridDocument extends AbstractDocument {
 
 	public MongoGridDocument(GridFSDBFile gridFile) {
 		super(gridFile.getContentType(), (String) gridFile.getMetaData().get(
-				"FILE_EXTENSION_KEY"), (String) gridFile.getMetaData().get(
-				"BINARY_ENCODING_KEY"));
+				Constants.FILE_EXTENSION_KEY), (String) gridFile.getMetaData()
+				.get(Constants.BINARY_ENCODING_KEY));
 		this.gridFile = gridFile;
 	}
 

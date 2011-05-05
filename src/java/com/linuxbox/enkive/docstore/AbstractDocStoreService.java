@@ -14,14 +14,6 @@ public abstract class AbstractDocStoreService implements DocStoreService {
 	private static final String HASH_ALGORITHM = "SHA-1";
 	private final static int BUFFER_SIZE = 16 * 1024;
 
-	private String cleanStringComponent(String s) {
-		if (s == null) {
-			return "";
-		} else {
-			return s.trim();
-		}
-	}
-
 	/**
 	 * Stores the document in the back-end if the name is known and the data is
 	 * in a byte array
@@ -123,6 +115,14 @@ public abstract class AbstractDocStoreService implements DocStoreService {
 			}
 		} catch (IOException e) {
 			throw new DocStoreException(e);
+		}
+	}
+	
+	private String cleanStringComponent(String s) {
+		if (s == null) {
+			return "";
+		} else {
+			return s.trim();
 		}
 	}
 }

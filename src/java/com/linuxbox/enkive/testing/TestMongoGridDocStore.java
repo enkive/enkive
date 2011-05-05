@@ -178,7 +178,7 @@ public class TestMongoGridDocStore {
 				File f = new File(inputDir + "/" + counter + "."
 						+ d.getFileExtension());
 				fileStream = new FileOutputStream(f);
-				StreamConnector.transferForeground(d.getEncodedContentStream(),
+				StreamConnector.transferForeground(d.getDecodedContentStream(),
 						fileStream);
 				fileStream.close();
 				System.out.println("wrote " + identifier + " to "
@@ -218,10 +218,11 @@ public class TestMongoGridDocStore {
 	private static void pullIndexingAndMarkAsIndexed() {
 		String identifier = docStoreService.nextUnindexed();
 		if (identifier != null) {
-			System.out.println("indexing: " + identifier);
 			try {
-				docStoreService.markAsIndexed(identifier);
-			} catch (DocSearchException e) {
+				System.out.println("indexing: " + identifier);
+				docSearchService.indexDocument(identifier);
+				// docStoreService.markAsIndexed(identifier);
+			} catch (Exception e) {
 				System.err.println(e);
 			}
 		} else {
@@ -253,16 +254,18 @@ public class TestMongoGridDocStore {
 			archiveEncoded();
 			retrieveEncoded();
 
+			pullIndexingAndMarkAsIndexed();
+			pullIndexingAndMarkAsIndexed();
+			pullIndexingAndMarkAsIndexed();
+			pullIndexingAndMarkAsIndexed();
+			pullIndexingAndMarkAsIndexed();
+			pullIndexingAndMarkAsIndexed();
+
 			// searchFor("frack");
 			searchFor("#1(the question)");
 			searchFor("#1(BE THAT)");
 			searchFor("#1(question the)");
 			searchFor("test");
-
-			pullIndexingAndMarkAsIndexed();
-			pullIndexingAndMarkAsIndexed();
-			pullIndexingAndMarkAsIndexed();
-			pullIndexingAndMarkAsIndexed();
 
 			docSearchService.shutdown();
 			docStoreService.shutdown();

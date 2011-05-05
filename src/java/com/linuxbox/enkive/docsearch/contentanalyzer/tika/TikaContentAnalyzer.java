@@ -19,6 +19,6 @@ public class TikaContentAnalyzer implements ContentAnalyzer {
 	@Override
 	public Reader parseIntoText(Document document) throws IOException,
 			DocStoreException {
-		return tika.parse(document.getEncodedContentStream());
+		return tika.parse(document.getDecodedContentStream());
 	}
 }
