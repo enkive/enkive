@@ -3,6 +3,7 @@ package com.linuxbox.enkive.docstore.mongogrid;
 import static com.linuxbox.enkive.docstore.mongogrid.Constants.BINARY_ENCODING_KEY;
 import static com.linuxbox.enkive.docstore.mongogrid.Constants.CONT_FILE_COLLECTION;
 import static com.linuxbox.enkive.docstore.mongogrid.Constants.CONT_FILE_IDENTIFIER_KEY;
+import static com.linuxbox.enkive.docstore.mongogrid.Constants.DUPLICATE_KEY_ERROR_CODE;
 import static com.linuxbox.enkive.docstore.mongogrid.Constants.FILENAME_KEY;
 import static com.linuxbox.enkive.docstore.mongogrid.Constants.FILE_EXTENSION_KEY;
 import static com.linuxbox.enkive.docstore.mongogrid.Constants.INDEX_STATUS_KEY;
@@ -25,11 +26,11 @@ import com.linuxbox.enkive.docstore.exception.DocumentNotFoundException;
 import com.linuxbox.util.HashingInputStream;
 import com.mongodb.BasicDBObject;
 import com.mongodb.BasicDBObjectBuilder;
-import com.mongodb.CommandResult;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import com.mongodb.Mongo;
+import com.mongodb.MongoException;
 import com.mongodb.QueryBuilder;
 import com.mongodb.WriteConcern;
 import com.mongodb.WriteResult;
@@ -48,11 +49,11 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 	 * The various status value a document can have to indicate its state of
 	 * indexing.
 	 */
-	private static final int STATUS_UNINDEXED = 0;
-	private static final int STATUS_INDEXING = 1;
-	private static final int STATUS_INDEXED = 2;
+	static final int STATUS_UNINDEXED = 0;
+	static final int STATUS_INDEXING = 1;
+	static final int STATUS_INDEXED = 2;
 	@SuppressWarnings("unused")
-	private static final int STATUS_STALE = 3;
+	static final int STATUS_STALE = 3;
 
 	final static DBObject SORT_BY_INDEX_TIMESTAMP = new BasicDBObject(
 			INDEX_TIMESTAMP_QUERY, 1);
@@ -63,7 +64,7 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 	final static DBObject RETRIEVE_OBJECT_ID_AND_FILENAME = BasicDBObjectBuilder
 			.start().add(OBJECT_ID_KEY, 1).add(FILENAME_KEY, 1).get();
 
-	private GridFS gridFS;
+	GridFS gridFS; // keep visible to tests
 	private DBCollection filesCollection;
 	private DBCollection fileControlCollection;
 
@@ -126,7 +127,7 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 
 	@Override
 	protected boolean storeKnownName(Document document, String identifier,
-			byte[] data, int length) {
+			byte[] data, int length) throws ControlReleaseException {
 		if (!controlFile(identifier)) {
 			return true;
 		}
@@ -153,10 +154,12 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 	 * determine the name. So save it under a random UUID, calculate the name,
 	 * and if the name is not already in the file system then rename it.
 	 * Otherwise delete it.
+	 * 
+	 * @throws DocSearchException
 	 */
 	@Override
 	protected StoreRequestResult storeAndDetermineName(Document document,
-			HashingInputStream inputStream) {
+			HashingInputStream inputStream) throws ControlReleaseException {
 		final String temporaryName = java.util.UUID.randomUUID().toString();
 		GridFSInputFile newFile = gridFS.createFile(inputStream);
 		newFile.setFilename(temporaryName);
@@ -237,47 +240,48 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 	/*
 	 * SUPPORT METHODS
 	 */
-	
-	private DB getDb() {
+
+	DB getDb() {
 		return gridFS.getDB();
 	}
 
 	private Mongo getMongo() {
 		return getDb().getMongo();
 	}
-	
-	private boolean controlFile(String identifier) {
-		final DBObject controlRecord = BasicDBObjectBuilder.start(
-				CONT_FILE_IDENTIFIER_KEY, identifier).get();
-		final WriteResult wResult = fileControlCollection.insert(controlRecord);
-		final CommandResult cResult = wResult.getCachedLastError();
-		if (cResult.ok()) {
+
+	boolean controlFile(String identifier) {
+		try {
+			final DBObject controlRecord = BasicDBObjectBuilder.start(
+					CONT_FILE_IDENTIFIER_KEY, identifier).get();
+			final WriteResult wResult = fileControlCollection
+					.insert(controlRecord);
 			return true;
-		} else {
-			System.err.println(cResult.getException());
-			return false;
+		} catch (MongoException e) {
+			if (e.getCode() == DUPLICATE_KEY_ERROR_CODE) {
+				return false;
+			} else {
+				throw e;
+			}
 		}
 	}
 
-	private void releaseControlOfFile(String identifier) {
+	void releaseControlOfFile(String identifier) throws ControlReleaseException {
 		final DBObject identifierQuery = new QueryBuilder()
 				.and(CONT_FILE_IDENTIFIER_KEY).is(identifier).get();
-
-		final WriteResult wResult = fileControlCollection
-				.remove(identifierQuery);
-		final CommandResult cResult = wResult.getCachedLastError();
-		if (!cResult.ok()) {
-			System.err.println(cResult.getException());
+		final DBObject removedDoc = fileControlCollection
+				.findAndRemove(identifierQuery);
+		if (removedDoc == null) {
+			throw new ControlReleaseException(identifier);
 		}
 	}
 
-	private boolean fileExists(String identifier) {
+	boolean fileExists(String identifier) {
 		DBObject query = new BasicDBObject(Constants.FILENAME_KEY, identifier);
 		DBObject result = filesCollection.findOne(query, RETRIEVE_OBJECT_ID);
 		return result != null;
 	}
 
-	private void setFileMetaData(GridFSInputFile newFile, Document document) {
+	void setFileMetaData(GridFSInputFile newFile, Document document) {
 		newFile.setContentType(document.getMimeType());
 
 		// store the encoding as meta-data for EncodedDocuments
@@ -292,8 +296,8 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 
 		newFile.setMetaData(metaData);
 	}
-	
-	private boolean setFileName(Object id, String newName) {
+
+	boolean setFileName(Object id, String newName) {
 		DBObject query = new BasicDBObject("_id", id);
 		DBObject update = new BasicDBObject("$set", new BasicDBObject(
 				Constants.FILENAME_KEY, newName));

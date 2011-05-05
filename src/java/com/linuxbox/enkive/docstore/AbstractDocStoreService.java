@@ -31,7 +31,8 @@ public abstract class AbstractDocStoreService implements DocStoreService {
 	 * @return true if the file was already stored, false if it was just created
 	 */
 	protected abstract boolean storeKnownName(Document document,
-			String identifier, byte[] data, int length);
+			String identifier, byte[] data, int length)
+			throws DocStoreException;
 
 	/**
 	 * Stores the document in the back-end if the name is unknown and we just
@@ -49,7 +50,8 @@ public abstract class AbstractDocStoreService implements DocStoreService {
 	 *         file was already found in the back-end
 	 */
 	protected abstract StoreRequestResult storeAndDetermineName(
-			Document document, HashingInputStream inputStream);
+			Document document, HashingInputStream inputStream)
+			throws DocStoreException;
 
 	@Override
 	public StoreRequestResult store(Document document) throws DocStoreException {
@@ -117,7 +119,7 @@ public abstract class AbstractDocStoreService implements DocStoreService {
 			throw new DocStoreException(e);
 		}
 	}
-	
+
 	private String cleanStringComponent(String s) {
 		if (s == null) {
 			return "";

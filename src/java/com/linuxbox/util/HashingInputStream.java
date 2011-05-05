@@ -22,6 +22,7 @@ import org.apache.commons.codec.binary.Hex;
  * 
  */
 public class HashingInputStream extends InputStream {
+	public final static String DEFAULT_ALGORITHM = "SHA-1";
 	private final static int BUFFER_SIZE = 4 * 1024;
 
 	private MessageDigest digest;

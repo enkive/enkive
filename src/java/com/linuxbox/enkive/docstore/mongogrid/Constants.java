@@ -1,6 +1,9 @@
 package com.linuxbox.enkive.docstore.mongogrid;
 
 public interface Constants {
+	// Mongo internals
+	int DUPLICATE_KEY_ERROR_CODE = 11000;
+	
 	// file control
 	String CONT_FILE_COLLECTION = "fileControl";
 	String CONT_FILE_IDENTIFIER_KEY = "identifier";
