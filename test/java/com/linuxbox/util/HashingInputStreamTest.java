@@ -15,7 +15,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class HashingInputStreamTest {
-	static String HASH_ALGORITHM = "SHA-1";
+	static String HASH_ALGORITHM = HashingInputStream.DEFAULT_ALGORITHM;
 	static byte[] message;
 	static String digestReference;
 
