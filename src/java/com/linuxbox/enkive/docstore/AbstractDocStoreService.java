@@ -10,9 +10,38 @@ import org.apache.commons.codec.binary.Hex;
 import com.linuxbox.enkive.docstore.exception.DocStoreException;
 import com.linuxbox.util.HashingInputStream;
 
+/**
+ * In trying to find the right balance between efficiency and memory usage,
+ * small documents will be fully loaded into memory and the hash/digest will be
+ * calculated in-place. But for larger documents, we will take another strategy
+ * that likely involves storing them on the back end and calculating the
+ * hash/digest as the data is being transferred. If the file is already found on
+ * the back-end, it is removed.
+ * 
+ * @author ivancich
+ * 
+ */
 public abstract class AbstractDocStoreService implements DocStoreService {
-	private static final String HASH_ALGORITHM = "SHA-1";
-	private final static int BUFFER_SIZE = 16 * 1024;
+	private static final int DEFAULT_IN_MEMORY_LIMIT = 16 * 1024; // 16 KB
+	public static final String HASH_ALGORITHM = "SHA-1";
+
+	/**
+	 * The limit as to whether a document will be processed in memory.
+	 */
+	private int inMemoryLimit;
+
+	/**
+	 * The in-memory buffer to use.
+	 */
+	private byte[] inMemoryBuffer;
+
+	public AbstractDocStoreService() {
+		this(DEFAULT_IN_MEMORY_LIMIT);
+	}
+
+	public AbstractDocStoreService(int inMemoryLimit) {
+		setInMemoryLimit(inMemoryLimit);
+	}
 
 	/**
 	 * Stores the document in the back-end if the name is known and the data is
@@ -67,42 +96,34 @@ public abstract class AbstractDocStoreService implements DocStoreService {
 		// different in any of those aspects, it will be stored separately; we
 		// don't expect this to happen often if at all, but doing so makes
 		// everything else easier
-
-		StringBuffer headerBuffer = new StringBuffer();
-		headerBuffer.append(cleanStringComponent(document.getMimeType()));
-		headerBuffer.append(";");
-		headerBuffer.append(cleanStringComponent(document.getFileExtension()));
-		headerBuffer.append(";");
-		headerBuffer.append(cleanStringComponent(document.getBinaryEncoding()));
-		headerBuffer.append(";");
-		messageDigest.update(headerBuffer.toString().getBytes());
+		messageDigest.update(getFileTypeEncodingDigestPrime(document));
 
 		try {
 			// create a fix-sized buffer to see if the data will fit within it
 
 			BufferedInputStream inputStream = new BufferedInputStream(
-					document.getEncodedContentStream(), BUFFER_SIZE);
-			inputStream.mark(BUFFER_SIZE);
+					document.getEncodedContentStream(), inMemoryLimit);
+			inputStream.mark(inMemoryLimit);
 
 			// try to read all of the data into a fix-sized buffer
 
-			byte[] buffer = new byte[BUFFER_SIZE];
 			int offset = 0;
 			int result;
 			do {
-				result = inputStream.read(buffer, offset, BUFFER_SIZE - offset);
+				result = inputStream.read(inMemoryBuffer, offset, inMemoryLimit
+						- offset);
 				if (result > 0) {
 					offset += result;
 				}
-			} while (result >= 0 && offset < BUFFER_SIZE);
+			} while (result >= 0 && offset < inMemoryLimit);
 
 			if (result < 0) {
 				// was able to read whole thing in and offset indicates length
-				messageDigest.update(buffer, 0, offset);
+				messageDigest.update(inMemoryBuffer, 0, offset);
 				final byte[] hashBytes = messageDigest.digest();
 				String identifier = new String((new Hex()).encode(hashBytes));
 				boolean alreadyStored = storeKnownName(document, identifier,
-						buffer, offset);
+						inMemoryBuffer, offset);
 				return new StoreRequestResultImpl(identifier, alreadyStored);
 			} else {
 				// could not read whole thing into fix-sized buffer, so store
@@ -120,11 +141,67 @@ public abstract class AbstractDocStoreService implements DocStoreService {
 		}
 	}
 
-	private String cleanStringComponent(String s) {
+	@Override
+	public boolean removeWithRetries(String identifier, int numberOfAttempts,
+			int millisecondsBetweenRetries) throws DocStoreException {
+		DocStoreException lastException = null;
+
+		for (int i = 0; i < numberOfAttempts; i++) {
+			try {
+				return remove(identifier);
+			} catch (DocStoreException e) {
+				lastException = e;
+				try {
+					Thread.sleep(millisecondsBetweenRetries);
+				} catch (InterruptedException e2) {
+					// empty
+				}
+			}
+		}
+
+		if (lastException != null) {
+			throw lastException;
+		} else if (numberOfAttempts < 1) {
+			throw new DocStoreException(
+					"called removeWithRetries with illegal value for number of attempts");
+		} else {
+			throw new DocStoreException("unknown error with removeWithRetries");
+		}
+	}
+
+	public int getInMemoryLimit() {
+		return inMemoryLimit;
+	}
+
+	public void setInMemoryLimit(int inMemoryLimit) {
+		this.inMemoryLimit = inMemoryLimit;
+		this.inMemoryBuffer = new byte[inMemoryLimit];
+	}
+
+	public static byte[] getFileTypeEncodingDigestPrime(Document document) {
+		StringBuffer primingBuffer = new StringBuffer();
+		primingBuffer.append(cleanStringComponent(document.getMimeType()));
+		primingBuffer.append(";");
+		primingBuffer.append(cleanStringComponent(document.getFileExtension()));
+		primingBuffer.append(";");
+		primingBuffer
+				.append(cleanStringComponent(document.getBinaryEncoding()));
+		primingBuffer.append(";");
+		return primingBuffer.toString().getBytes();
+	}
+
+	/**
+	 * Clean up strings so differences in spaces and case don't matter (e.g.,
+	 * "HTML" and "html" and " html " will all be considered to be the same.
+	 * 
+	 * @param s
+	 * @return
+	 */
+	private static String cleanStringComponent(String s) {
 		if (s == null) {
 			return "";
 		} else {
-			return s.trim();
+			return s.trim().toLowerCase();
 		}
 	}
 }

@@ -7,7 +7,6 @@ public interface Constants {
 	// file control
 	String CONT_FILE_COLLECTION = "fileControl";
 	String CONT_FILE_IDENTIFIER_KEY = "identifier";
-	String CONT_FILE_COUNT_KEY = "counter";
 	String CONT_FILE_TIMESTAMP_KEY = "timestamp";
 	
 	// used by GridFS
@@ -15,7 +14,9 @@ public interface Constants {
 	String FILENAME_KEY = "filename";
 	String METADATA_KEY = "metadata";
 	String MIME_TYPE_KEY = "contentType";
-
+	String GRID_FS_FILES_COLLECTION_SUFFIX = ".files";
+	String GRID_FS_CHUNKS_COLLECTION_SUFFIX = ".chunks";
+	
 	// our metadata fields
 	String BINARY_ENCODING_KEY = "binaryEncoding";
 	String FILE_EXTENSION_KEY = "fileExtension";

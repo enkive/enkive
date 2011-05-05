@@ -6,6 +6,7 @@ import static com.linuxbox.enkive.docstore.mongogrid.Constants.CONT_FILE_IDENTIF
 import static com.linuxbox.enkive.docstore.mongogrid.Constants.DUPLICATE_KEY_ERROR_CODE;
 import static com.linuxbox.enkive.docstore.mongogrid.Constants.FILENAME_KEY;
 import static com.linuxbox.enkive.docstore.mongogrid.Constants.FILE_EXTENSION_KEY;
+import static com.linuxbox.enkive.docstore.mongogrid.Constants.GRID_FS_FILES_COLLECTION_SUFFIX;
 import static com.linuxbox.enkive.docstore.mongogrid.Constants.INDEX_STATUS_KEY;
 import static com.linuxbox.enkive.docstore.mongogrid.Constants.INDEX_STATUS_QUERY;
 import static com.linuxbox.enkive.docstore.mongogrid.Constants.INDEX_TIMESTAMP_KEY;
@@ -33,7 +34,6 @@ import com.mongodb.Mongo;
 import com.mongodb.MongoException;
 import com.mongodb.QueryBuilder;
 import com.mongodb.WriteConcern;
-import com.mongodb.WriteResult;
 import com.mongodb.gridfs.GridFS;
 import com.mongodb.gridfs.GridFSDBFile;
 import com.mongodb.gridfs.GridFSInputFile;
@@ -52,7 +52,6 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 	static final int STATUS_UNINDEXED = 0;
 	static final int STATUS_INDEXING = 1;
 	static final int STATUS_INDEXED = 2;
-	@SuppressWarnings("unused")
 	static final int STATUS_STALE = 3;
 
 	final static DBObject SORT_BY_INDEX_TIMESTAMP = new BasicDBObject(
@@ -90,13 +89,22 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 
 		// files collection
 
-		filesCollection = gridFS.getDB().getCollection(bucketName + ".files");
+		filesCollection = gridFS.getDB().getCollection(
+				bucketName + GRID_FS_FILES_COLLECTION_SUFFIX);
 
-		// TODO: does this index already exist? Should it be made unique?
-		DBObject filenameIndex = BasicDBObjectBuilder.start()
-				.add(FILENAME_KEY, 1).get();
-		filesCollection.ensureIndex(filenameIndex);
+		/*
+		 * NOTE: we DO NOT NEED a filename index, because by default GridFS will
+		 * create an index on filename and upload date. You can efficiently
+		 * query on compound indexes if the key searched for come before those
+		 * that are not, which is true in this case.
+		 * 
+		 * DBObject filenameIndex = BasicDBObjectBuilder.start()
+		 * .add(FILENAME_KEY, 1).get();
+		 * filesCollection.ensureIndex(filenameIndex);
+		 */
 
+		// be sure to put status before timestamp, because it's more likely
+		// we'll search on just status rather than on just timestamp
 		DBObject searchIndexingIndex = BasicDBObjectBuilder.start()
 				.add(INDEX_STATUS_KEY, 1).add(INDEX_TIMESTAMP_KEY, 1).get();
 		filesCollection.ensureIndex(searchIndexingIndex, "indexingStatusIndex",
@@ -109,12 +117,19 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 
 		fileControlCollection.setWriteConcern(WriteConcern.FSYNC_SAFE);
 
+		// We want the identifier index to be unique, as that's how we
+		// atomically detect when someone tries to create an already-existing
+		// file control record
+		final boolean mustBeUnique = true;
 		DBObject fileControlIndex = BasicDBObjectBuilder.start()
 				.add(CONT_FILE_IDENTIFIER_KEY, 1).get();
 		fileControlCollection.ensureIndex(fileControlIndex, "fileControlIndex",
-				true);
+				mustBeUnique);
 	}
 
+	/**
+	 * Retrieves a document from the document store.
+	 */
 	@Override
 	public Document retrieve(String identifier) throws DocStoreException {
 		GridFSDBFile file = gridFS.findOne(identifier);
@@ -143,6 +158,9 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 			setFileMetaData(newFile, document);
 			newFile.save();
 
+			// TODO: is there anything we should do at this point to insure that
+			// it's actually stored?
+
 			return false;
 		} finally {
 			releaseControlOfFile(identifier);
@@ -159,25 +177,44 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 	 */
 	@Override
 	protected StoreRequestResult storeAndDetermineName(Document document,
-			HashingInputStream inputStream) throws ControlReleaseException {
+			HashingInputStream inputStream) throws DocStoreException {
 		final String temporaryName = java.util.UUID.randomUUID().toString();
 		GridFSInputFile newFile = gridFS.createFile(inputStream);
 		newFile.setFilename(temporaryName);
 		setFileMetaData(newFile, document);
 		newFile.save();
 
+		// TODO: is there anything we should do at this point to insure that
+		// it's actually stored?
+
 		final String actualName = inputStream.getDigest();
 
 		if (!controlFile(actualName)) {
 			gridFS.remove(temporaryName);
+
+			// TODO: is there anything we should do at this point to insure that
+			// it's actually been removed?
+
 			return new StoreRequestResultImpl(actualName, true);
 		}
+
+		// so now we're in "control" of that file
+
 		try {
+			// so now we're in "control" of that file
+
 			if (fileExists(actualName)) {
 				gridFS.remove(temporaryName);
 				return new StoreRequestResultImpl(actualName, true);
 			} else {
-				setFileName(newFile.getId(), actualName);
+				final boolean wasRenamed = setFileName(newFile.getId(),
+						actualName);
+				if (!wasRenamed) {
+					throw new DocStoreException(
+							"expected to find and rename a GridFS file with id \""
+									+ newFile.getId()
+									+ "\" but could not find it");
+				}
 				return new StoreRequestResultImpl(actualName, false);
 			}
 		} finally {
@@ -249,15 +286,29 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 		return getDb().getMongo();
 	}
 
+	/**
+	 * Request sole access to a file by creating a record/document with the
+	 * file's name. If no such record already exists, this will create it and
+	 * return true (in which case the caller should call releaseControlOfFile
+	 * subsequently). If such a record already exists, this should return false.
+	 * This relies on the fact that our collection has an index that insures the
+	 * 'identifier' is unique.
+	 * 
+	 * @param identifier
+	 * @return
+	 */
 	boolean controlFile(String identifier) {
 		try {
-			final DBObject controlRecord = BasicDBObjectBuilder.start(
-					CONT_FILE_IDENTIFIER_KEY, identifier).get();
-			final WriteResult wResult = fileControlCollection
-					.insert(controlRecord);
+			final DBObject controlRecord = BasicDBObjectBuilder
+					.start(CONT_FILE_IDENTIFIER_KEY, identifier)
+					.add(Constants.CONT_FILE_TIMESTAMP_KEY, new Date()).get();
+			fileControlCollection.insert(controlRecord);
 			return true;
 		} catch (MongoException e) {
 			if (e.getCode() == DUPLICATE_KEY_ERROR_CODE) {
+				// because the index for identifier is unique, trying to create
+				// another record for the same file will generate an exception
+				// that we catch here
 				return false;
 			} else {
 				throw e;
@@ -265,6 +316,13 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 		}
 	}
 
+	/**
+	 * Releases control of the identifier by removing the record. If the record
+	 * does not exist then throw a ControlReleaseException.
+	 * 
+	 * @param identifier
+	 * @throws ControlReleaseException
+	 */
 	void releaseControlOfFile(String identifier) throws ControlReleaseException {
 		final DBObject identifierQuery = new QueryBuilder()
 				.and(CONT_FILE_IDENTIFIER_KEY).is(identifier).get();
@@ -275,6 +333,13 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 		}
 	}
 
+	/**
+	 * Simple test as to whether a file exists. There better bean index on the
+	 * filename!
+	 * 
+	 * @param identifier
+	 * @return
+	 */
 	boolean fileExists(String identifier) {
 		DBObject query = new BasicDBObject(Constants.FILENAME_KEY, identifier);
 		DBObject result = filesCollection.findOne(query, RETRIEVE_OBJECT_ID);
@@ -297,6 +362,13 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 		newFile.setMetaData(metaData);
 	}
 
+	/**
+	 * Change the file name of GridFS file with a given id to newName.
+	 * 
+	 * @param id
+	 * @param newName
+	 * @return true if a file was modified, false otherwise
+	 */
 	boolean setFileName(Object id, String newName) {
 		DBObject query = new BasicDBObject("_id", id);
 		DBObject update = new BasicDBObject("$set", new BasicDBObject(
@@ -304,13 +376,28 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 		DBObject fields = new BasicDBObject(Constants.FILENAME_KEY, 1);
 		DBObject result = filesCollection.findAndModify(query, fields, null,
 				false, update, false, false);
-		if (result == null) {
-			return false;
-		} else {
-			// TODO remove after initial debugging
-			System.err.println((String) result.get(FILENAME_KEY)
-					+ " renamed to " + newName);
-			return true;
+		return result != null;
+	}
+
+	@Override
+	public boolean remove(String identifier) throws DocStoreException {
+		if (!controlFile(identifier)) {
+			throw new ControlAcquisitionException(identifier);
+		}
+
+		// in control of file
+
+		try {
+			// in control of file
+
+			if (fileExists(identifier)) {
+				gridFS.remove(identifier);
+				return true;
+			} else {
+				return false;
+			}
+		} finally {
+			releaseControlOfFile(identifier);
 		}
 	}
 }
