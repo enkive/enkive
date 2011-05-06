@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+import org.apache.commons.codec.binary.Hex;
+
 import com.linuxbox.enkive.docstore.exception.DocStoreException;
 import com.linuxbox.util.HashingInputStream;
 
@@ -22,6 +24,7 @@ import com.linuxbox.util.HashingInputStream;
 public abstract class AbstractDocStoreService implements DocStoreService {
 	private static final int DEFAULT_IN_MEMORY_LIMIT = 16 * 1024; // 16 KB
 	public static final String HASH_ALGORITHM = "SHA-1";
+	public static final int INDEX_SHARD_KEY_COUNT = 256;
 
 	/**
 	 * The limit as to whether a document will be processed in memory.
@@ -201,5 +204,55 @@ public abstract class AbstractDocStoreService implements DocStoreService {
 		} else {
 			return s.trim().toLowerCase();
 		}
+	}
+
+	/**
+	 * Assume only one server, index 0 of 1.
+	 */
+	@Override
+	public String nextUnindexed() {
+		return nextUnindexed(0, 1);
+	}
+
+	/**
+	 * Returns a document identifier based on a range of shard keys. The shard
+	 * key must be >= shardKeyLow, but < (not <=) shardKeyHigh. Or in other
+	 * words the range is: shardKeyLow ... shardKeyHigh-1 .
+	 * 
+	 * @param shardKeyLow
+	 * @param shardKeyHigh
+	 * @return
+	 */
+	protected abstract String nextUnindexedByShardKey(int shardKeyLow,
+			int shardKeyHigh);
+
+	@Override
+	public String nextUnindexed(int serverNumber, int serverCount) {
+		final float perServer = (float) INDEX_SHARD_KEY_COUNT / serverCount;
+		final int startRange = Math.round(serverNumber * perServer);
+		final int endRange = Math.round((serverNumber + 1) * perServer);
+		return nextUnindexedByShardKey(startRange, endRange);
+	}
+	
+
+	/**
+	 * Returns a shard key in the range of 0-255 (unsigned byte). It converts
+	 * the first byte of the hash into an unsigned byte value.
+	 * 
+	 * @param hash
+	 * @return
+	 */
+	protected static int getShardIndexFromHash(byte[] hash) {
+		return hash[0] < 0 ? 256 + hash[0] : hash[0];
+	}
+
+	/**
+	 * Returns a string representation of an array of bytes.
+	 * 
+	 * @param hash
+	 * @return
+	 */
+	protected static String getFileNameFromHash(byte[] hash) {
+		return new String((new Hex()).encode(hash));
 	}
 }

@@ -221,7 +221,7 @@ public class TestMongoGridDocStore {
 	 * 
 	 * @return true if a document was pulled, false if no documents to pull
 	 */
-	private static boolean pullIndexingAndMarkAsIndexed() {
+	private static boolean indexAnUnindexedDocument() {
 		String identifier = docStoreService.nextUnindexed();
 		if (identifier != null) {
 			try {
@@ -262,7 +262,7 @@ public class TestMongoGridDocStore {
 			archiveEncoded();
 			retrieveEncoded();
 
-			while (pullIndexingAndMarkAsIndexed()) {
+			while (indexAnUnindexedDocument()) {
 				// empty
 			}
 

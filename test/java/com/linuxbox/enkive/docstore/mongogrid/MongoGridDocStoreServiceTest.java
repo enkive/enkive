@@ -234,6 +234,11 @@ public class MongoGridDocStoreServiceTest {
 		service.gridFS.remove(result1.getIdentifier());
 	}
 
+	@Test
+	public void testIndexingUsingShardKeys() throws Exception {
+		Assert.fail("unimplemented");
+	}
+
 	/**
 	 * Returns a MessageDigest that is primed with the data for the type of
 	 * document.

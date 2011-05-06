@@ -1,6 +1,6 @@
 package com.linuxbox.util;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertFalse;
 
 import java.io.ByteArrayInputStream;
@@ -16,7 +16,7 @@ import org.junit.Test;
 public class HashingInputStreamTest {
 	static String HASH_ALGORITHM = HashingInputStream.DEFAULT_ALGORITHM;
 	static byte[] message;
-	static byte[] digest;
+	static byte[] digestReference;
 
 	HashingInputStream input;
 
@@ -33,7 +33,7 @@ public class HashingInputStreamTest {
 
 		MessageDigest md = MessageDigest.getInstance(HASH_ALGORITHM);
 		md.update(message);
-		digest = md.digest();
+		digestReference = md.digest();
 	}
 
 	@Before
@@ -52,7 +52,8 @@ public class HashingInputStreamTest {
 		while (input.read() >= 0) {
 			// do nothing
 		}
-		assertEquals("testing equality of digests", digest, input.getDigest());
+		assertArrayEquals("testing equality of digests", digestReference,
+				input.getDigest());
 	}
 
 	@Test
@@ -61,8 +62,8 @@ public class HashingInputStreamTest {
 		while (input.read(buffer) > 0) {
 			// do nothing
 		}
-		String digest = input.getDigestString();
-		assertEquals("testing equality of digests", digest, input.getDigest());
+		assertArrayEquals("testing equality of digests", digestReference,
+				input.getDigest());
 	}
 
 	@Test
@@ -73,8 +74,8 @@ public class HashingInputStreamTest {
 		while (input.read(buffer, start, len) > 0) {
 			// do nothing
 		}
-		String digest = input.getDigestString();
-		assertEquals("testing equality of digests", digest, input.getDigest());
+		assertArrayEquals("testing equality of digests", digestReference,
+				input.getDigest());
 	}
 
 	@Test
@@ -85,8 +86,8 @@ public class HashingInputStreamTest {
 		while (input.read(buffer) > 0) {
 			// do nothing
 		}
-		String digest = input.getDigestString();
-		assertEquals("testing equality of digests", digest, input.getDigest());
+		assertArrayEquals("testing equality of digests", digestReference,
+				input.getDigest());
 	}
 
 	@Test

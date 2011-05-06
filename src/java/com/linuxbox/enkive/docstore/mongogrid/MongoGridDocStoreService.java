@@ -8,6 +8,7 @@ import static com.linuxbox.enkive.docstore.mongogrid.Constants.FILENAME_KEY;
 import static com.linuxbox.enkive.docstore.mongogrid.Constants.FILE_EXTENSION_KEY;
 import static com.linuxbox.enkive.docstore.mongogrid.Constants.GRID_FS_FILES_COLLECTION_SUFFIX;
 import static com.linuxbox.enkive.docstore.mongogrid.Constants.INDEX_SHARD_KEY;
+import static com.linuxbox.enkive.docstore.mongogrid.Constants.INDEX_SHARD_QUERY;
 import static com.linuxbox.enkive.docstore.mongogrid.Constants.INDEX_STATUS_KEY;
 import static com.linuxbox.enkive.docstore.mongogrid.Constants.INDEX_STATUS_QUERY;
 import static com.linuxbox.enkive.docstore.mongogrid.Constants.INDEX_TIMESTAMP_KEY;
@@ -17,8 +18,6 @@ import static com.linuxbox.enkive.docstore.mongogrid.Constants.OBJECT_ID_KEY;
 import java.io.ByteArrayInputStream;
 import java.net.UnknownHostException;
 import java.util.Date;
-
-import org.apache.commons.codec.binary.Hex;
 
 import com.linuxbox.enkive.docsearch.exception.DocSearchException;
 import com.linuxbox.enkive.docstore.AbstractDocStoreService;
@@ -258,17 +257,20 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 	}
 
 	@Override
-	public String nextUnindexed() {
+	protected String nextUnindexedByShardKey(int shardKeyLow, int shardKeyHigh) {
+		final DBObject query = createUnindexedQuery(shardKeyLow, shardKeyHigh);
 		final DBObject updateSet = BasicDBObjectBuilder.start()
 				.add(INDEX_STATUS_QUERY, STATUS_INDEXING)
 				.add(INDEX_TIMESTAMP_QUERY, new Date()).get();
 		final BasicDBObject update = new BasicDBObject("$set", updateSet);
 
+		// some constants to make the call to findAndModify more readable;
+		// please Ms. Compiler, optimize them away!
 		final boolean doNotRemove = false;
 		final boolean returnNewVersion = true;
 		final boolean doNotUpsert = false;
 
-		DBObject result = filesCollection.findAndModify(UNINDEXED_QUERY,
+		DBObject result = filesCollection.findAndModify(query,
 				RETRIEVE_OBJECT_ID_AND_FILENAME, SORT_BY_INDEX_TIMESTAMP,
 				doNotRemove, update, returnNewVersion, doNotUpsert);
 
@@ -416,24 +418,19 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 		}
 	}
 
-	/**
-	 * Returns a shard key in the range of 0-255 (unsigned byte). It converts
-	 * the first byte of the hash into an unsigned byte value.
-	 * 
-	 * @param hash
-	 * @return
-	 */
-	private static int getShardIndexFromHash(byte[] hash) {
-		return hash[0] < 0 ? 256 + hash[0] : hash[0];
-	}
+	private DBObject createUnindexedQuery(int shardKeyLow, int shardKeyHigh) {
+		QueryBuilder protoQuery = new QueryBuilder();
 
-	/**
-	 * Returns a string representation of an array of bytes.
-	 * 
-	 * @param hash
-	 * @return
-	 */
-	private static String getFileNameFromHash(byte[] hash) {
-		return new String((new Hex()).encode(hash));
+		protoQuery.and(INDEX_STATUS_QUERY).is(STATUS_UNINDEXED);
+
+		if (shardKeyLow > 0) {
+			protoQuery.and(INDEX_SHARD_QUERY).greaterThanEquals(shardKeyLow);
+		}
+
+		if (shardKeyHigh < INDEX_SHARD_KEY_COUNT) {
+			protoQuery.and(INDEX_SHARD_QUERY).lessThan(shardKeyHigh);
+		}
+
+		return protoQuery.get();
 	}
 }

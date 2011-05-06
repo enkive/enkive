@@ -67,6 +67,15 @@ public interface DocStoreService {
 	String nextUnindexed();
 
 	/**
+	 * Retrieve the (earliest) un-indexed document for the specific index server
+	 * (assuming the indexing is hsarded). Each server will have an index (0 to
+	 * n-1) if there are n indexing servers.
+	 * 
+	 * @return The identifier of a document that's not been indexed.
+	 */
+	String nextUnindexed(int serverNumber, int serverCount);
+
+	/**
 	 * Marks the given document as having been indexed, so it will not be
 	 * retrieved as un-indexed again.
 	 * 
