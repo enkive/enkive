@@ -23,31 +23,34 @@ import org.apache.commons.codec.binary.Hex;
  */
 public class HashingInputStream extends InputStream {
 	public final static String DEFAULT_ALGORITHM = "SHA-1";
-	private final static int BUFFER_SIZE = 4 * 1024;
+	private final static int DEFAULT_SKIP_BUFFER_SIZE = 4 * 1024;
 
 	private MessageDigest digest;
 	private InputStream actualInputStream;
 	private byte[] digestBytes;
-	private String digestString;
+	private int skipBufferSize;
 
 	public HashingInputStream(MessageDigest digest,
 			InputStream actualInputStream) {
 		this.digest = digest;
 		this.actualInputStream = actualInputStream;
+		this.skipBufferSize = DEFAULT_SKIP_BUFFER_SIZE;
 	}
 
 	public HashingInputStream(String hashAlgorithm,
 			InputStream actualInputStream) throws NoSuchAlgorithmException {
-		this.digest = MessageDigest.getInstance(hashAlgorithm);
-		this.actualInputStream = actualInputStream;
+		this(MessageDigest.getInstance(hashAlgorithm), actualInputStream);
 	}
 
-	public String getDigest() {
+	public byte[] getDigest() {
 		if (digestBytes == null) {
 			digestBytes = digest.digest();
-			digestString = new String((new Hex()).encode(digestBytes));
 		}
-		return digestString;
+		return digestBytes;
+	}
+
+	public String getDigestString() {
+		return new String((new Hex()).encode(getDigest()));
 	}
 
 	@Override
@@ -90,12 +93,12 @@ public class HashingInputStream extends InputStream {
 
 	@Override
 	public long skip(long toSkip) throws IOException {
-		byte[] buffer = new byte[BUFFER_SIZE];
+		byte[] buffer = new byte[skipBufferSize];
 
 		long totalRead = 0;
 		int result;
 		do {
-			int toRead = (toSkip - totalRead > BUFFER_SIZE) ? BUFFER_SIZE
+			int toRead = (toSkip - totalRead > skipBufferSize) ? skipBufferSize
 					: (int) (toSkip - totalRead);
 			result = read(buffer, 0, toRead); // computes digest on its own
 			if (result > 0) {
@@ -104,5 +107,13 @@ public class HashingInputStream extends InputStream {
 		} while (totalRead < toSkip && result >= 0);
 
 		return totalRead;
+	}
+
+	public int getSkipBufferSize() {
+		return skipBufferSize;
+	}
+
+	public void setSkipBufferSize(int skipBufferSize) {
+		this.skipBufferSize = skipBufferSize;
 	}
 }

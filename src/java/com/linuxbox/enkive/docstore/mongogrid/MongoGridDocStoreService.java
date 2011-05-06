@@ -7,6 +7,7 @@ import static com.linuxbox.enkive.docstore.mongogrid.Constants.DUPLICATE_KEY_ERR
 import static com.linuxbox.enkive.docstore.mongogrid.Constants.FILENAME_KEY;
 import static com.linuxbox.enkive.docstore.mongogrid.Constants.FILE_EXTENSION_KEY;
 import static com.linuxbox.enkive.docstore.mongogrid.Constants.GRID_FS_FILES_COLLECTION_SUFFIX;
+import static com.linuxbox.enkive.docstore.mongogrid.Constants.INDEX_SHARD_KEY;
 import static com.linuxbox.enkive.docstore.mongogrid.Constants.INDEX_STATUS_KEY;
 import static com.linuxbox.enkive.docstore.mongogrid.Constants.INDEX_STATUS_QUERY;
 import static com.linuxbox.enkive.docstore.mongogrid.Constants.INDEX_TIMESTAMP_KEY;
@@ -16,6 +17,8 @@ import static com.linuxbox.enkive.docstore.mongogrid.Constants.OBJECT_ID_KEY;
 import java.io.ByteArrayInputStream;
 import java.net.UnknownHostException;
 import java.util.Date;
+
+import org.apache.commons.codec.binary.Hex;
 
 import com.linuxbox.enkive.docsearch.exception.DocSearchException;
 import com.linuxbox.enkive.docstore.AbstractDocStoreService;
@@ -141,27 +144,32 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 	}
 
 	@Override
-	protected boolean storeKnownName(Document document, String identifier,
+	protected StoreRequestResult storeKnownHash(Document document, byte[] hash,
 			byte[] data, int length) throws ControlReleaseException {
+		final String identifier = getFileNameFromHash(hash);
+		final int shardKey = getShardIndexFromHash(hash);
+
 		if (!controlFile(identifier)) {
-			return true;
+			// TODO we should note whether the controller is creating or
+			// removing; if creating we're done; if removing we should re-create
+			return new StoreRequestResultImpl(identifier, true);
 		}
 
 		try {
 			if (fileExists(identifier)) {
-				return true;
+				return new StoreRequestResultImpl(identifier, true);
 			}
 
 			GridFSInputFile newFile = gridFS
 					.createFile(new ByteArrayInputStream(data, 0, length));
 			newFile.setFilename(identifier);
-			setFileMetaData(newFile, document);
+			setFileMetaData(newFile, document, shardKey);
 			newFile.save();
 
 			// TODO: is there anything we should do at this point to insure that
 			// it's actually stored?
 
-			return false;
+			return new StoreRequestResultImpl(identifier, false);
 		} finally {
 			releaseControlOfFile(identifier);
 		}
@@ -176,18 +184,20 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 	 * @throws DocSearchException
 	 */
 	@Override
-	protected StoreRequestResult storeAndDetermineName(Document document,
+	protected StoreRequestResult storeAndDetermineHash(Document document,
 			HashingInputStream inputStream) throws DocStoreException {
 		final String temporaryName = java.util.UUID.randomUUID().toString();
 		GridFSInputFile newFile = gridFS.createFile(inputStream);
 		newFile.setFilename(temporaryName);
-		setFileMetaData(newFile, document);
+		setFileMetaData(newFile, document, -1);
 		newFile.save();
 
 		// TODO: is there anything we should do at this point to insure that
 		// it's actually stored?
 
-		final String actualName = inputStream.getDigest();
+		final byte[] actualHash = inputStream.getDigest();
+		final String actualName = getFileNameFromHash(actualHash);
+		final int shardKey = getShardIndexFromHash(actualHash);
 
 		if (!controlFile(actualName)) {
 			gridFS.remove(temporaryName);
@@ -207,8 +217,8 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 				gridFS.remove(temporaryName);
 				return new StoreRequestResultImpl(actualName, true);
 			} else {
-				final boolean wasRenamed = setFileName(newFile.getId(),
-						actualName);
+				final boolean wasRenamed = setFileNameAndShardKey(
+						newFile.getId(), actualName, shardKey);
 				if (!wasRenamed) {
 					throw new DocStoreException(
 							"expected to find and rename a GridFS file with id \""
@@ -346,7 +356,8 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 		return result != null;
 	}
 
-	void setFileMetaData(GridFSInputFile newFile, Document document) {
+	void setFileMetaData(GridFSInputFile newFile, Document document,
+			int shardKey) {
 		newFile.setContentType(document.getMimeType());
 
 		// store the encoding as meta-data for EncodedDocuments
@@ -358,6 +369,7 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 		metaData.put(INDEX_STATUS_KEY, STATUS_UNINDEXED);
 		metaData.put(FILE_EXTENSION_KEY, document.getFileExtension());
 		metaData.put(BINARY_ENCODING_KEY, document.getBinaryEncoding());
+		metaData.put(INDEX_SHARD_KEY, shardKey);
 
 		newFile.setMetaData(metaData);
 	}
@@ -369,13 +381,16 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 	 * @param newName
 	 * @return true if a file was modified, false otherwise
 	 */
-	boolean setFileName(Object id, String newName) {
-		DBObject query = new BasicDBObject("_id", id);
-		DBObject update = new BasicDBObject("$set", new BasicDBObject(
-				Constants.FILENAME_KEY, newName));
+	boolean setFileNameAndShardKey(Object id, String newName, int shardKey) {
+		DBObject query = new BasicDBObject(OBJECT_ID_KEY, id);
+		DBObject updateItems = BasicDBObjectBuilder.start()
+				.add(Constants.FILENAME_KEY, newName)
+				.add(Constants.INDEX_SHARD_QUERY, shardKey).get();
+		DBObject update = new BasicDBObject("$set", updateItems);
 		DBObject fields = new BasicDBObject(Constants.FILENAME_KEY, 1);
+		final boolean returnOld = false;
 		DBObject result = filesCollection.findAndModify(query, fields, null,
-				false, update, false, false);
+				false, update, returnOld, false);
 		return result != null;
 	}
 
@@ -399,5 +414,26 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 		} finally {
 			releaseControlOfFile(identifier);
 		}
+	}
+
+	/**
+	 * Returns a shard key in the range of 0-255 (unsigned byte). It converts
+	 * the first byte of the hash into an unsigned byte value.
+	 * 
+	 * @param hash
+	 * @return
+	 */
+	private static int getShardIndexFromHash(byte[] hash) {
+		return hash[0] < 0 ? 256 + hash[0] : hash[0];
+	}
+
+	/**
+	 * Returns a string representation of an array of bytes.
+	 * 
+	 * @param hash
+	 * @return
+	 */
+	private static String getFileNameFromHash(byte[] hash) {
+		return new String((new Hex()).encode(hash));
 	}
 }

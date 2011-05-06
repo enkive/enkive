@@ -215,7 +215,13 @@ public class TestMongoGridDocStore {
 		}
 	}
 
-	private static void pullIndexingAndMarkAsIndexed() {
+	/**
+	 * Pull an unindexed document, mark as needing indexing, and then go ahead
+	 * and index it
+	 * 
+	 * @return true if a document was pulled, false if no documents to pull
+	 */
+	private static boolean pullIndexingAndMarkAsIndexed() {
 		String identifier = docStoreService.nextUnindexed();
 		if (identifier != null) {
 			try {
@@ -225,8 +231,10 @@ public class TestMongoGridDocStore {
 			} catch (Exception e) {
 				System.err.println(e);
 			}
+			return true;
 		} else {
 			System.out.println("no documents need indexing");
+			return false;
 		}
 	}
 
@@ -254,12 +262,9 @@ public class TestMongoGridDocStore {
 			archiveEncoded();
 			retrieveEncoded();
 
-			pullIndexingAndMarkAsIndexed();
-			pullIndexingAndMarkAsIndexed();
-			pullIndexingAndMarkAsIndexed();
-			pullIndexingAndMarkAsIndexed();
-			pullIndexingAndMarkAsIndexed();
-			pullIndexingAndMarkAsIndexed();
+			while (pullIndexingAndMarkAsIndexed()) {
+				// empty
+			}
 
 			// searchFor("frack");
 			searchFor("#1(the question)");

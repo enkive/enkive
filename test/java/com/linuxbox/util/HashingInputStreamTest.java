@@ -8,7 +8,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.security.MessageDigest;
 
-import org.apache.commons.codec.binary.Hex;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -17,7 +16,7 @@ import org.junit.Test;
 public class HashingInputStreamTest {
 	static String HASH_ALGORITHM = HashingInputStream.DEFAULT_ALGORITHM;
 	static byte[] message;
-	static String digestReference;
+	static byte[] digest;
 
 	HashingInputStream input;
 
@@ -34,8 +33,7 @@ public class HashingInputStreamTest {
 
 		MessageDigest md = MessageDigest.getInstance(HASH_ALGORITHM);
 		md.update(message);
-		byte[] digestBytes = md.digest();
-		digestReference = new String((new Hex()).encode(digestBytes));
+		digest = md.digest();
 	}
 
 	@Before
@@ -54,8 +52,7 @@ public class HashingInputStreamTest {
 		while (input.read() >= 0) {
 			// do nothing
 		}
-		String digest = input.getDigest();
-		assertEquals("testing equality of digests", digestReference, digest);
+		assertEquals("testing equality of digests", digest, input.getDigest());
 	}
 
 	@Test
@@ -64,8 +61,8 @@ public class HashingInputStreamTest {
 		while (input.read(buffer) > 0) {
 			// do nothing
 		}
-		String digest = input.getDigest();
-		assertEquals("testing equality of digests", digestReference, digest);
+		String digest = input.getDigestString();
+		assertEquals("testing equality of digests", digest, input.getDigest());
 	}
 
 	@Test
@@ -76,8 +73,8 @@ public class HashingInputStreamTest {
 		while (input.read(buffer, start, len) > 0) {
 			// do nothing
 		}
-		String digest = input.getDigest();
-		assertEquals("testing equality of digests", digestReference, digest);
+		String digest = input.getDigestString();
+		assertEquals("testing equality of digests", digest, input.getDigest());
 	}
 
 	@Test
@@ -88,8 +85,8 @@ public class HashingInputStreamTest {
 		while (input.read(buffer) > 0) {
 			// do nothing
 		}
-		String digest = input.getDigest();
-		assertEquals("testing equality of digests", digestReference, digest);
+		String digest = input.getDigestString();
+		assertEquals("testing equality of digests", digest, input.getDigest());
 	}
 
 	@Test

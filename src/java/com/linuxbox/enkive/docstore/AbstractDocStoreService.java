@@ -5,8 +5,6 @@ import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-import org.apache.commons.codec.binary.Hex;
-
 import com.linuxbox.enkive.docstore.exception.DocStoreException;
 import com.linuxbox.util.HashingInputStream;
 
@@ -50,18 +48,19 @@ public abstract class AbstractDocStoreService implements DocStoreService {
 	 * @param the
 	 *            Document, so mime type, file extension, and binary encoding
 	 *            can be determined
-	 * @param identifier
-	 *            the known name of the identifier
+	 * @param hash
+	 *            the hash of the data used to determine a unique identifier
+	 *            (instrumental to the de-duplication process)
 	 * @param data
 	 *            the actual data for the file
 	 * @param length
 	 *            the length of the used portion of data; everything after is
 	 *            junk
-	 * @return true if the file was already stored, false if it was just created
+	 * @return a StoreRequestResult that contains both the name and whether the
+	 *         file was already found in the back-end
 	 */
-	protected abstract boolean storeKnownName(Document document,
-			String identifier, byte[] data, int length)
-			throws DocStoreException;
+	protected abstract StoreRequestResult storeKnownHash(Document document,
+			byte[] hash, byte[] data, int length) throws DocStoreException;
 
 	/**
 	 * Stores the document in the back-end if the name is unknown and we just
@@ -78,7 +77,7 @@ public abstract class AbstractDocStoreService implements DocStoreService {
 	 * @return a StoreRequestResult that contains both the name and whether the
 	 *         file was already found in the back-end
 	 */
-	protected abstract StoreRequestResult storeAndDetermineName(
+	protected abstract StoreRequestResult storeAndDetermineHash(
 			Document document, HashingInputStream inputStream)
 			throws DocStoreException;
 
@@ -121,10 +120,9 @@ public abstract class AbstractDocStoreService implements DocStoreService {
 				// was able to read whole thing in and offset indicates length
 				messageDigest.update(inMemoryBuffer, 0, offset);
 				final byte[] hashBytes = messageDigest.digest();
-				String identifier = new String((new Hex()).encode(hashBytes));
-				boolean alreadyStored = storeKnownName(document, identifier,
-						inMemoryBuffer, offset);
-				return new StoreRequestResultImpl(identifier, alreadyStored);
+				StoreRequestResult storeResult = storeKnownHash(document,
+						hashBytes, inMemoryBuffer, offset);
+				return storeResult;
 			} else {
 				// could not read whole thing into fix-sized buffer, so store
 				// the document, determine its name after-the fact, and rename
@@ -132,7 +130,7 @@ public abstract class AbstractDocStoreService implements DocStoreService {
 				inputStream.reset();
 				HashingInputStream hashedInputStream = new HashingInputStream(
 						messageDigest, inputStream);
-				StoreRequestResult storeResult = storeAndDetermineName(
+				StoreRequestResult storeResult = storeAndDetermineHash(
 						document, hashedInputStream);
 				return storeResult;
 			}
