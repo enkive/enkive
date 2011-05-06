@@ -146,7 +146,11 @@ public class TestMongoGridDocStore {
 			new FileRecord("2-b64.pdf", "application/pdf", "pdf",
 					MimeUtil.ENC_BASE64),
 			new FileRecord("3-qp.txt", "text/plain", "txt",
-					MimeUtil.ENC_QUOTED_PRINTABLE, "windows-1252") };
+					MimeUtil.ENC_QUOTED_PRINTABLE, "windows-1252"),
+			new FileRecord(
+					"4-b64.docx",
+					"application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+					"docx", MimeUtil.ENC_BASE64) };
 
 	private final static Set<String> encodedIdentifierSet = new HashSet<String>();
 
@@ -284,6 +288,8 @@ public class TestMongoGridDocStore {
 			searchFor("#1(BE THAT)");
 			searchFor("#1(question the)");
 			searchFor("test");
+			searchFor("#2(civil test)");
+			searchFor("#1(shall not perish)");
 
 			docSearchService.shutdown();
 			docStoreService.shutdown();
