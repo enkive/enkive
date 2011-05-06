@@ -221,11 +221,14 @@ public class TestMongoGridDocStore {
 	 * 
 	 * @return true if a document was pulled, false if no documents to pull
 	 */
-	private static boolean indexAnUnindexedDocument() {
-		String identifier = docStoreService.nextUnindexed();
+	private static boolean indexAnUnindexedDocument(int serverIndex,
+			int serverCount) {
+		String identifier = docStoreService.nextUnindexed(serverIndex,
+				serverCount);
 		if (identifier != null) {
 			try {
-				System.out.println("indexing: " + identifier);
+				System.out.println("indexing: " + identifier + " (from server "
+						+ serverIndex + ")");
 				docSearchService.indexDocument(identifier);
 				// docStoreService.markAsIndexed(identifier);
 			} catch (Exception e) {
@@ -233,9 +236,19 @@ public class TestMongoGridDocStore {
 			}
 			return true;
 		} else {
-			System.out.println("no documents need indexing");
 			return false;
 		}
+	}
+
+	private static boolean indexAnUnindexedDocument() {
+		int serverCount = 5;
+		for (int i = 0; i < serverCount; i++) {
+			boolean result = indexAnUnindexedDocument(i, serverCount);
+			if (result) {
+				return result;
+			}
+		}
+		return false;
 	}
 
 	private static void dropGridFSCollections(String dbName, String bucket)

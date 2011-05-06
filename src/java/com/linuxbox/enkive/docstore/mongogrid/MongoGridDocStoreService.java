@@ -430,7 +430,8 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 		if (shardKeyHigh < INDEX_SHARD_KEY_COUNT) {
 			protoQuery.and(INDEX_SHARD_QUERY).lessThan(shardKeyHigh);
 		}
-
-		return protoQuery.get();
+		
+		final DBObject finalQuery = protoQuery.get();
+		return  finalQuery;
 	}
 }
