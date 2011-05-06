@@ -8,6 +8,7 @@ import org.junit.runners.Suite;
 
 import com.linuxbox.enkive.docstore.mongogrid.MongoGridDocStoreServiceTest;
 import com.linuxbox.util.HashingInputStreamTest;
+import com.linuxbox.util.mongodb.MongoLockingServiceTest;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
@@ -15,6 +16,7 @@ import com.linuxbox.util.HashingInputStreamTest;
   // CalculatorSuite.class,
   // JUnit 4 style tests
   HashingInputStreamTest.class,
+  MongoLockingServiceTest.class,
   MongoGridDocStoreServiceTest.class
 })
 public class AllTests {

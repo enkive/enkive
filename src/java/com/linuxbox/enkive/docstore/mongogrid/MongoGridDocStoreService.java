@@ -2,8 +2,6 @@ package com.linuxbox.enkive.docstore.mongogrid;
 
 import static com.linuxbox.enkive.docstore.mongogrid.Constants.BINARY_ENCODING_KEY;
 import static com.linuxbox.enkive.docstore.mongogrid.Constants.CONT_FILE_COLLECTION;
-import static com.linuxbox.enkive.docstore.mongogrid.Constants.CONT_FILE_IDENTIFIER_KEY;
-import static com.linuxbox.enkive.docstore.mongogrid.Constants.DUPLICATE_KEY_ERROR_CODE;
 import static com.linuxbox.enkive.docstore.mongogrid.Constants.FILENAME_KEY;
 import static com.linuxbox.enkive.docstore.mongogrid.Constants.FILE_EXTENSION_KEY;
 import static com.linuxbox.enkive.docstore.mongogrid.Constants.GRID_FS_FILES_COLLECTION_SUFFIX;
@@ -27,15 +25,15 @@ import com.linuxbox.enkive.docstore.StoreRequestResultImpl;
 import com.linuxbox.enkive.docstore.exception.DocStoreException;
 import com.linuxbox.enkive.docstore.exception.DocumentNotFoundException;
 import com.linuxbox.util.HashingInputStream;
+import com.linuxbox.util.mongodb.MongoLockingService;
+import com.linuxbox.util.mongodb.MongoLockingServiceException;
 import com.mongodb.BasicDBObject;
 import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import com.mongodb.Mongo;
-import com.mongodb.MongoException;
 import com.mongodb.QueryBuilder;
-import com.mongodb.WriteConcern;
 import com.mongodb.gridfs.GridFS;
 import com.mongodb.gridfs.GridFSDBFile;
 import com.mongodb.gridfs.GridFSInputFile;
@@ -56,6 +54,12 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 	static final int STATUS_INDEXED = 2;
 	static final int STATUS_STALE = 3;
 
+	/*
+	 * Notations for lock records.
+	 */
+	private static final String LOCK_CREATE_NOTE = "create";
+	private static final String LOCK_REMOVE_NOTE = "remove";
+
 	final static DBObject SORT_BY_INDEX_TIMESTAMP = new BasicDBObject(
 			INDEX_TIMESTAMP_QUERY, 1);
 	final static DBObject UNINDEXED_QUERY = new QueryBuilder()
@@ -67,7 +71,7 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 
 	GridFS gridFS; // keep visible to tests
 	private DBCollection filesCollection;
-	private DBCollection fileControlCollection;
+	private MongoLockingService lockService;
 
 	public MongoGridDocStoreService(String host, int port, String dbName,
 			String bucketName) throws UnknownHostException {
@@ -112,21 +116,11 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 		filesCollection.ensureIndex(searchIndexingIndex, "indexingStatusIndex",
 				false);
 
-		// file control collection
+		// file locking service
 
-		fileControlCollection = gridFS.getDB().getCollection(
+		final DBCollection fileLockCollection = gridFS.getDB().getCollection(
 				CONT_FILE_COLLECTION);
-
-		fileControlCollection.setWriteConcern(WriteConcern.FSYNC_SAFE);
-
-		// We want the identifier index to be unique, as that's how we
-		// atomically detect when someone tries to create an already-existing
-		// file control record
-		final boolean mustBeUnique = true;
-		DBObject fileControlIndex = BasicDBObjectBuilder.start()
-				.add(CONT_FILE_IDENTIFIER_KEY, 1).get();
-		fileControlCollection.ensureIndex(fileControlIndex, "fileControlIndex",
-				mustBeUnique);
+		lockService = new MongoLockingService(fileLockCollection);
 	}
 
 	/**
@@ -144,33 +138,39 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 
 	@Override
 	protected StoreRequestResult storeKnownHash(Document document, byte[] hash,
-			byte[] data, int length) throws ControlReleaseException {
-		final String identifier = getFileNameFromHash(hash);
-		final int shardKey = getShardIndexFromHash(hash);
-
-		if (!controlFile(identifier)) {
-			// TODO we should note whether the controller is creating or
-			// removing; if creating we're done; if removing we should re-create
-			return new StoreRequestResultImpl(identifier, true);
-		}
-
+			byte[] data, int length) throws DocStoreException {
 		try {
-			if (fileExists(identifier)) {
+			final String identifier = getFileNameFromHash(hash);
+			final int shardKey = getShardIndexFromHash(hash);
+
+			if (!lockService.lock(identifier, LOCK_CREATE_NOTE)) {
+				// TODO we should note whether the controller is creating or
+				// removing; if creating we're done; if removing we should
+				// re-create
 				return new StoreRequestResultImpl(identifier, true);
 			}
 
-			GridFSInputFile newFile = gridFS
-					.createFile(new ByteArrayInputStream(data, 0, length));
-			newFile.setFilename(identifier);
-			setFileMetaData(newFile, document, shardKey);
-			newFile.save();
+			try {
+				if (fileExists(identifier)) {
+					return new StoreRequestResultImpl(identifier, true);
+				}
 
-			// TODO: is there anything we should do at this point to insure that
-			// it's actually stored?
+				GridFSInputFile newFile = gridFS
+						.createFile(new ByteArrayInputStream(data, 0, length));
+				newFile.setFilename(identifier);
+				setFileMetaData(newFile, document, shardKey);
+				newFile.save();
 
-			return new StoreRequestResultImpl(identifier, false);
-		} finally {
-			releaseControlOfFile(identifier);
+				// TODO: is there anything we should do at this point to insure
+				// that
+				// it's actually stored?
+
+				return new StoreRequestResultImpl(identifier, false);
+			} finally {
+				lockService.releaseLock(identifier);
+			}
+		} catch (Exception e) {
+			throw new DocStoreException(e);
 		}
 	}
 
@@ -198,36 +198,42 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 		final String actualName = getFileNameFromHash(actualHash);
 		final int shardKey = getShardIndexFromHash(actualHash);
 
-		if (!controlFile(actualName)) {
-			gridFS.remove(temporaryName);
-
-			// TODO: is there anything we should do at this point to insure that
-			// it's actually been removed?
-
-			return new StoreRequestResultImpl(actualName, true);
-		}
-
-		// so now we're in "control" of that file
-
 		try {
+
+			if (!lockService.lock(actualName, LOCK_CREATE_NOTE)) {
+				gridFS.remove(temporaryName);
+
+				// TODO: is there anything we should do at this point to insure
+				// that
+				// it's actually been removed?
+
+				return new StoreRequestResultImpl(actualName, true);
+			}
+
 			// so now we're in "control" of that file
 
-			if (fileExists(actualName)) {
-				gridFS.remove(temporaryName);
-				return new StoreRequestResultImpl(actualName, true);
-			} else {
-				final boolean wasRenamed = setFileNameAndShardKey(
-						newFile.getId(), actualName, shardKey);
-				if (!wasRenamed) {
-					throw new DocStoreException(
-							"expected to find and rename a GridFS file with id \""
-									+ newFile.getId()
-									+ "\" but could not find it");
+			try {
+				// so now we're in "control" of that file
+
+				if (fileExists(actualName)) {
+					gridFS.remove(temporaryName);
+					return new StoreRequestResultImpl(actualName, true);
+				} else {
+					final boolean wasRenamed = setFileNameAndShardKey(
+							newFile.getId(), actualName, shardKey);
+					if (!wasRenamed) {
+						throw new DocStoreException(
+								"expected to find and rename a GridFS file with id \""
+										+ newFile.getId()
+										+ "\" but could not find it");
+					}
+					return new StoreRequestResultImpl(actualName, false);
 				}
-				return new StoreRequestResultImpl(actualName, false);
+			} finally {
+				lockService.releaseLock(actualName);
 			}
-		} finally {
-			releaseControlOfFile(actualName);
+		} catch (MongoLockingServiceException e) {
+			throw new DocStoreException(e);
 		}
 	}
 
@@ -299,53 +305,6 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 	}
 
 	/**
-	 * Request sole access to a file by creating a record/document with the
-	 * file's name. If no such record already exists, this will create it and
-	 * return true (in which case the caller should call releaseControlOfFile
-	 * subsequently). If such a record already exists, this should return false.
-	 * This relies on the fact that our collection has an index that insures the
-	 * 'identifier' is unique.
-	 * 
-	 * @param identifier
-	 * @return
-	 */
-	boolean controlFile(String identifier) {
-		try {
-			final DBObject controlRecord = BasicDBObjectBuilder
-					.start(CONT_FILE_IDENTIFIER_KEY, identifier)
-					.add(Constants.CONT_FILE_TIMESTAMP_KEY, new Date()).get();
-			fileControlCollection.insert(controlRecord);
-			return true;
-		} catch (MongoException e) {
-			if (e.getCode() == DUPLICATE_KEY_ERROR_CODE) {
-				// because the index for identifier is unique, trying to create
-				// another record for the same file will generate an exception
-				// that we catch here
-				return false;
-			} else {
-				throw e;
-			}
-		}
-	}
-
-	/**
-	 * Releases control of the identifier by removing the record. If the record
-	 * does not exist then throw a ControlReleaseException.
-	 * 
-	 * @param identifier
-	 * @throws ControlReleaseException
-	 */
-	void releaseControlOfFile(String identifier) throws ControlReleaseException {
-		final DBObject identifierQuery = new QueryBuilder()
-				.and(CONT_FILE_IDENTIFIER_KEY).is(identifier).get();
-		final DBObject removedDoc = fileControlCollection
-				.findAndRemove(identifierQuery);
-		if (removedDoc == null) {
-			throw new ControlReleaseException(identifier);
-		}
-	}
-
-	/**
 	 * Simple test as to whether a file exists. There better bean index on the
 	 * filename!
 	 * 
@@ -398,23 +357,32 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 
 	@Override
 	public boolean remove(String identifier) throws DocStoreException {
-		if (!controlFile(identifier)) {
-			throw new ControlAcquisitionException(identifier);
-		}
-
-		// in control of file
-
 		try {
+			if (!lockService.lock(identifier, LOCK_REMOVE_NOTE)) {
+				// TODO if we're here and someone else was trying to delete or
+				// create this, then we should do nothing; the file either
+				// needed to
+				// be recreated, or it was already removed; let's lie and say we
+				// succeeded!
+				return true;
+			}
+
 			// in control of file
 
-			if (fileExists(identifier)) {
-				gridFS.remove(identifier);
-				return true;
-			} else {
-				return false;
+			try {
+				// in control of file
+
+				if (fileExists(identifier)) {
+					gridFS.remove(identifier);
+					return true;
+				} else {
+					return false;
+				}
+			} finally {
+				lockService.releaseLock(identifier);
 			}
-		} finally {
-			releaseControlOfFile(identifier);
+		} catch (MongoLockingServiceException e) {
+			throw new DocStoreException(e);
 		}
 	}
 
@@ -430,8 +398,8 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 		if (shardKeyHigh < INDEX_SHARD_KEY_COUNT) {
 			protoQuery.and(INDEX_SHARD_QUERY).lessThan(shardKeyHigh);
 		}
-		
+
 		final DBObject finalQuery = protoQuery.get();
-		return  finalQuery;
+		return finalQuery;
 	}
 }

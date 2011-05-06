@@ -58,27 +58,6 @@ public class MongoGridDocStoreServiceTest {
 	 */
 
 	@Test
-	public void testFileControlBasic() throws Exception {
-		String id = UUID.randomUUID().toString();
-		assertTrue(service.controlFile(id));
-		service.releaseControlOfFile(id);
-	}
-
-	@Test
-	public void testFileControlDoubleControl() throws Exception {
-		String id = UUID.randomUUID().toString();
-		assertTrue(service.controlFile(id));
-		assertFalse(service.controlFile(id));
-		service.releaseControlOfFile(id);
-	}
-
-	@Test(expected = ControlReleaseException.class)
-	public void testFileControlNoControl() throws Exception {
-		String id = UUID.randomUUID().toString();
-		service.releaseControlOfFile(id);
-	}
-
-	@Test
 	public void testStoreKnownNameFullLength() throws Exception {
 		byte[] hash = generateFakeRandomHash();
 
