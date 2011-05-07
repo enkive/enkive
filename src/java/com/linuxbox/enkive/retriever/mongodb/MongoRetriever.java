@@ -74,7 +74,6 @@ import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import com.mongodb.Mongo;
-import com.mongodb.MongoException;
 
 public class MongoRetriever extends AbstractArchiveService {
 	
@@ -86,13 +85,8 @@ public class MongoRetriever extends AbstractArchiveService {
 
 	public MongoRetriever(Mongo m, String dbName, String collName) {
 		this.m = m;
-		try {
-			messageDb = m.getDB(dbName);
-			messageColl = messageDb.getCollection(collName);
-		} catch (MongoException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		messageDb = m.getDB(dbName);
+		messageColl = messageDb.getCollection(collName);
 	}
 
 
@@ -116,6 +110,7 @@ public class MongoRetriever extends AbstractArchiveService {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public MessageSummary retrieveSummary(String messageUUID){
 
@@ -158,20 +153,20 @@ public class MongoRetriever extends AbstractArchiveService {
 			throws CannotRetrieveException, IOException {
 		ContentHeader result = null;
 
-		String nodeTypeName = (String) contentHeaderObject.get(CONTENT_HEADER_TYPE);
-		if (nodeTypeName.equals(SINGLE_PART_HEADER_TYPE)) {
+		String headerTypeName = (String) contentHeaderObject.get(CONTENT_HEADER_TYPE);
+		if (headerTypeName.equals(SINGLE_PART_HEADER_TYPE)) {
 			try {
 				result = buildContentHeader(contentHeaderObject);
 			} catch (DocStoreException e) {
 				throw new CannotRetrieveException(
 						"Could not retrieve message attachment");
 			}
-		} else if (nodeTypeName.equals(MULTIPART_HEADER_TYPE)) {
+		} else if (headerTypeName.equals(MULTIPART_HEADER_TYPE)) {
 			result = buildMultiPartHeader(contentHeaderObject);
 		} else {
 			throw new CannotRetrieveException(
 					"expecting a content_header or multipart_header, but got "
-							+ nodeTypeName + " instead");
+							+ headerTypeName + " instead");
 		}
 
 		return result;
@@ -189,6 +184,7 @@ public class MongoRetriever extends AbstractArchiveService {
 		return header;
 	}
 
+	@SuppressWarnings("unchecked")
 	private MultiPartHeader buildMultiPartHeader(DBObject contentHeaderObject)
 			throws CannotRetrieveException, IOException {
 		MultiPartHeader multiPartHeader = new MultiPartHeaderImpl();
@@ -218,7 +214,6 @@ public class MongoRetriever extends AbstractArchiveService {
 
 	private void setMessageProperties(Message message, DBObject messageObject)
 			throws IOException, BadMessageException {
-		BasicDBObject obj = new BasicDBObject();
 		message.setOriginalHeaders((String) messageObject.get(ORIGINAL_HEADERS));
 	}
 
