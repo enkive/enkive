@@ -23,7 +23,11 @@ import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.TO;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import com.linuxbox.enkive.archiver.AbstractMessageArchivingService;
+import com.linuxbox.enkive.archiver.MessageLoggingText;
 import com.linuxbox.enkive.archiver.exceptions.CannotArchiveException;
 import com.linuxbox.enkive.docstore.Document;
 import com.linuxbox.enkive.docstore.StoreRequestResult;
@@ -42,6 +46,9 @@ import com.mongodb.Mongo;
 import com.mongodb.MongoException;
 
 public class MongoArchivingService extends AbstractMessageArchivingService {
+	
+	private final static Log logger = LogFactory
+		.getLog("com.linuxbox.enkive.archiveService.mongodb");
 
 	protected Mongo m = null;
 	protected DB messageDb;
@@ -50,13 +57,8 @@ public class MongoArchivingService extends AbstractMessageArchivingService {
 	
 	public MongoArchivingService(Mongo m, String dbName, String collName) {
 		this.m = m;
-		try {
-			messageDb = m.getDB(dbName);
-			messageColl = messageDb.getCollection(collName);
-		} catch (MongoException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		messageDb = m.getDB(dbName);
+		messageColl = messageDb.getCollection(collName);
 	}
 	
 	@Override
@@ -81,7 +83,6 @@ public class MongoArchivingService extends AbstractMessageArchivingService {
 			
 			messageObject.put(CONTENT_HEADER, archiveContentHeader(contentHeader));
 			messageObject.put(ATTACHMENT_ID_LIST, attachment_ids);
-			//TODO store list of all attached file UUIDs
 			messageColl.insert(messageObject);
 			messageUUID = messageObject.getString(MESSAGE_UUID);
 		} catch (MongoException e) {
@@ -89,23 +90,23 @@ public class MongoArchivingService extends AbstractMessageArchivingService {
 		} catch (DocStoreException e) {
 			throw new CannotArchiveException(e);
 		}
+		logger.info(MessageLoggingText.MESSAGE_STORED_TEXT + messageUUID);
 		return messageUUID;
 	}
 
 	@Override
 	public String findMessage(Message message) {
+		String messageUUID = null;
 		DBObject messageObject = messageColl.findOne(calculateMessageId(message));
-		if(messageObject != null)
-			return (String) messageObject.get("_id");
-		else
-			return null;
+		if(messageObject != null){
+			messageUUID = (String) messageObject.get("_id");
+			logger.info(MessageLoggingText.DUPLICATE_FOUND_TEXT + messageUUID);
+		}
+		return messageUUID;
 	}
 
 	private BasicDBObject archiveContentHeader(ContentHeader contentHeader) throws DocStoreException{
 		BasicDBObject headerObject = new BasicDBObject();
-		// If we've got a multipartheader, add all of the single content_headers
-		// If there's a nested multipartheader we can call this recursively and
-		// still save the order in which things have been archived
 		if (contentHeader.isMultipart()) {
 			MultiPartHeader multiPartHeader = (MultiPartHeader)contentHeader;
 			headerObject.put(CONTENT_HEADER_TYPE, MULTIPART_HEADER_TYPE);
