@@ -22,6 +22,8 @@ package com.linuxbox.enkive;
 
 public interface Copyright {
 	String PRODUCT = "Enkive CE";
-	String COPYRIGHT = "Copyright 2011 The Linux Box Corporation; all rights reserved except those granted under license.";
-	String LICENSE = "GNU Affero General Public License version 3 or later";
+	String COPYRIGHT = "Copyright 2011 The Linux Box Corporation; all rights "
+			+ "reserved except those granted under license.";
+	String LICENSE = "Licensed under the GNU Affero General Public License "
+			+ "version 3 or later";
 }

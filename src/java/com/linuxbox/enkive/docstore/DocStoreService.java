@@ -7,6 +7,12 @@ import com.linuxbox.enkive.docstore.exception.StorageException;
 
 public interface DocStoreService {
 	/**
+	 * Starts up the service after it has been instantiated and all properties
+	 * have been set by the container (e.g., Spring).
+	 */
+	void startup();
+
+	/**
 	 * Shut down the service and release any resources used by the service.
 	 */
 	void shutdown();

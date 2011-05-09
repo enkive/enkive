@@ -123,6 +123,16 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 		lockService = new MongoLockingService(fileLockCollection);
 	}
 
+	@Override
+	public void startup() {
+		// empty
+	}
+
+	@Override
+	public void shutdown() {
+		getMongo().close();
+	}
+
 	/**
 	 * Retrieves a document from the document store.
 	 */
@@ -285,11 +295,6 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 		} else {
 			return null;
 		}
-	}
-
-	@Override
-	public void shutdown() {
-		getMongo().close();
 	}
 
 	/*

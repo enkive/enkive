@@ -25,6 +25,7 @@ import com.linuxbox.enkive.docstore.StoreRequestResult;
 import com.linuxbox.enkive.docstore.StringDocument;
 import com.linuxbox.enkive.docstore.exception.DocStoreException;
 import com.linuxbox.enkive.docstore.exception.DocumentNotFoundException;
+import com.linuxbox.enkive.docstore.mongogrid.Constants;
 import com.linuxbox.enkive.docstore.mongogrid.MongoGridDocStoreService;
 import com.linuxbox.util.StreamConnector;
 import com.mongodb.DB;
@@ -104,7 +105,8 @@ public class TestMongoGridDocStore {
 			try {
 				Document d = docStoreService.retrieve(index);
 				BufferedReader r = new BufferedReader(new InputStreamReader(
-						d.getDecodedContentStream()));
+						d.getDecodedContentStream(),
+						Constants.PREFERRED_CHARSET));
 				String line;
 				while ((line = r.readLine()) != null) {
 					System.out.println(line);

@@ -46,6 +46,11 @@ public class TestDisplaySearchService extends AbstractSearchService {
 	}
 
 	@Override
+	public void startup() throws DocSearchException {
+		// empty
+	}
+
+	@Override
 	public void shutdown() {
 		// nothing to do
 	}

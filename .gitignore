@@ -2,3 +2,6 @@ bin
 build
 build.properties
 *~
+log/*
+*.log
+indri/*
