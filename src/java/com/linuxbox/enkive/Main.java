@@ -7,6 +7,8 @@ import static com.linuxbox.enkive.Copyright.PRODUCT;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -26,6 +28,12 @@ public class Main {
 		context.registerShutdownHook();
 
 		String shutdownReason = "UNKNOWN";
+		Set<String> stopCommandSet = new HashSet<String>();
+		stopCommandSet.add("shutdown");
+		stopCommandSet.add("stop");
+		stopCommandSet.add("exit");
+		stopCommandSet.add("quit");
+		stopCommandSet.add("end");
 
 		try {
 			BufferedReader in = new BufferedReader(new InputStreamReader(
@@ -34,8 +42,8 @@ public class Main {
 
 			System.out.print(CONSOLE_PROMPT);
 			while ((input = in.readLine().trim()) != null) {
-				if (input.equalsIgnoreCase("shutdown")) {
-					shutdownReason = "\"shutdown\" entered in console";
+				if (stopCommandSet.contains(input.toLowerCase())) {
+					shutdownReason = "\"" + input + "\" entered in console";
 					break;
 				}
 				if (!input.isEmpty()) {
