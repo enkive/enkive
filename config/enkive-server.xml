@@ -6,8 +6,8 @@ http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
 
 	<bean id="DocStoreService"
 		class="com.linuxbox.enkive.docstore.mongogrid.MongoGridDocStoreService">
-		<constructor-arg value="enkive" />
-		<constructor-arg value="fs" />
+		<constructor-arg type="java.lang.String" value="enkive" />
+		<constructor-arg type="java.lang.String" value="fs" />
 	</bean>
 
 </beans>
