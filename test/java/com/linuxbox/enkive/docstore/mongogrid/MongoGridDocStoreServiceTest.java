@@ -37,6 +37,8 @@ public class MongoGridDocStoreServiceTest {
 	@BeforeClass
 	public static void setUpClass() throws Exception {
 		service = new MongoGridDocStoreService("enkive-test", "fs-test");
+		service.startup();
+		
 		testDocument = new StringDocument(testString, "text/plain", "txt",
 				MimeUtil.ENC_7BIT);
 
