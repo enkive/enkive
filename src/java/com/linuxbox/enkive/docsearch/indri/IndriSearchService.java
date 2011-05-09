@@ -114,6 +114,37 @@ public class IndriSearchService extends AbstractSearchService {
 		finishConstruction(repositoryPath, temporaryStoragePath);
 	}
 
+	@Override
+	public void startup() {
+		// empty
+	}
+
+	@Override
+	public void shutdown() throws DocSearchException {
+		Exception e = null;
+
+		if (queryEnvironment != null) {
+			try {
+				queryEnvironment.close();
+			} catch (Exception e1) {
+				e = e1;
+			}
+		}
+
+		if (indexEnvironment != null) {
+			try {
+				indexEnvironment.close();
+			} catch (Exception e1) {
+				e = e1;
+			}
+		}
+
+		if (e != null) {
+			throw new DocSearchException(
+					"could not shut down INDRI search service", e);
+		}
+	}
+
 	private static void createIndriRepository(
 			IndexEnvironment indexEnvironment, String repositoryPath)
 			throws DocSearchException {
@@ -441,32 +472,6 @@ public class IndriSearchService extends AbstractSearchService {
 					"could not retrieve document identifer from INDRI query");
 		} catch (Exception e) {
 			throw new DocSearchException("could not perform INDRI query", e);
-		}
-	}
-
-	@Override
-	public void shutdown() throws DocSearchException {
-		Exception e = null;
-
-		if (queryEnvironment != null) {
-			try {
-				queryEnvironment.close();
-			} catch (Exception e1) {
-				e = e1;
-			}
-		}
-
-		if (indexEnvironment != null) {
-			try {
-				indexEnvironment.close();
-			} catch (Exception e1) {
-				e = e1;
-			}
-		}
-
-		if (e != null) {
-			throw new DocSearchException(
-					"could not shut down INDRI search service", e);
 		}
 	}
 

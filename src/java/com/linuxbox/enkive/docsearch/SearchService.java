@@ -14,6 +14,13 @@ public interface SearchService {
 	 * Shut down the service and release any resources used by the service.
 	 * @throws DocSearchException 
 	 */
+	void startup() throws DocSearchException;
+	
+	
+	/**
+	 * Shut down the service and release any resources used by the service.
+	 * @throws DocSearchException 
+	 */
 	void shutdown() throws DocSearchException;
 
 	// INITIALIZATION

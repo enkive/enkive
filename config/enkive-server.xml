@@ -12,4 +12,14 @@
 		<constructor-arg type="java.lang.String" value="fs" />
 	</bean>
 
+	<bean id="DocSearchService" class="com.linuxbox.enkive.docsearch.indri.IndriSearchService">
+		<constructor-arg ref="DocStoreService" />
+		<constructor-arg ref="ContentAnalyzer" />
+		<constructor-arg value="${enkive.docsearch.indri.index}" />
+		<constructor-arg value="${enkive.docsearch.indri.tmp}" />
+	</bean>
+
+	<bean id="ContentAnalyzer"
+		class="com.linuxbox.enkive.docsearch.contentanalyzer.tika.TikaContentAnalyzer" />
+
 </beans>
