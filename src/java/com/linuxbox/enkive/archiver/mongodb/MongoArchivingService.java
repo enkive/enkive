@@ -1,6 +1,5 @@
 package com.linuxbox.enkive.archiver.mongodb;
 
-import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.*;
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.BOUNDARY_ID;
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.CC;
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.CONTENT_DISPOSITION;
@@ -19,6 +18,14 @@ import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.PREAMBLE;
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.RCPT_TO;
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.SUBJECT;
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.TO;
+import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.ATTACHMENT_ID;
+import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.ATTACHMENT_ID_LIST;
+import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.CONTENT_HEADER;
+import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.CONTENT_HEADER_TYPE;
+import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.MESSAGE_UUID;
+import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.MULTIPART_HEADER_TYPE;
+import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.PART_HEADERS;
+import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.SINGLE_PART_HEADER_TYPE;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,21 +53,21 @@ import com.mongodb.Mongo;
 import com.mongodb.MongoException;
 
 public class MongoArchivingService extends AbstractMessageArchivingService {
-	
+
 	private final static Log logger = LogFactory
-		.getLog("com.linuxbox.enkive.archiveService.mongodb");
+			.getLog("com.linuxbox.enkive.archiveService.mongodb");
 
 	protected Mongo m = null;
 	protected DB messageDb;
 	protected DBCollection messageColl;
 	protected List<String> attachment_ids;
-	
+
 	public MongoArchivingService(Mongo m, String dbName, String collName) {
 		this.m = m;
 		messageDb = m.getDB(dbName);
 		messageColl = messageDb.getCollection(collName);
 	}
-	
+
 	@Override
 	public String storeMessage(Message message) throws CannotArchiveException {
 		String messageUUID = null;
@@ -78,10 +85,11 @@ public class MongoArchivingService extends AbstractMessageArchivingService {
 			messageObject.put(SUBJECT, message.getSubject());
 			messageObject.put(MESSAGE_ID, message.getMessageId());
 			messageObject.put(MIME_VERSION, message.getMimeVersion());
-			
+
 			ContentHeader contentHeader = message.getContentHeader();
-			
-			messageObject.put(CONTENT_HEADER, archiveContentHeader(contentHeader));
+
+			messageObject.put(CONTENT_HEADER,
+					archiveContentHeader(contentHeader));
 			messageObject.put(ATTACHMENT_ID_LIST, attachment_ids);
 			messageColl.insert(messageObject);
 			messageUUID = messageObject.getString(MESSAGE_UUID);
@@ -97,58 +105,62 @@ public class MongoArchivingService extends AbstractMessageArchivingService {
 	@Override
 	public String findMessage(Message message) {
 		String messageUUID = null;
-		DBObject messageObject = messageColl.findOne(calculateMessageId(message));
-		if(messageObject != null){
+		DBObject messageObject = messageColl
+				.findOne(calculateMessageId(message));
+		if (messageObject != null) {
 			messageUUID = (String) messageObject.get("_id");
 			logger.info(MessageLoggingText.DUPLICATE_FOUND_TEXT + messageUUID);
 		}
 		return messageUUID;
 	}
 
-	private BasicDBObject archiveContentHeader(ContentHeader contentHeader) throws DocStoreException{
+	private BasicDBObject archiveContentHeader(ContentHeader contentHeader)
+			throws DocStoreException {
 		BasicDBObject headerObject = new BasicDBObject();
 		if (contentHeader.isMultipart()) {
-			MultiPartHeader multiPartHeader = (MultiPartHeader)contentHeader;
+			MultiPartHeader multiPartHeader = (MultiPartHeader) contentHeader;
 			headerObject.put(CONTENT_HEADER_TYPE, MULTIPART_HEADER_TYPE);
-			headerObject.put(BOUNDARY_ID,
-					multiPartHeader.getBoundary());
-			headerObject.put(PREAMBLE,
-					multiPartHeader.getPreamble());
-			headerObject.put(EPILOGUE,
-					multiPartHeader.getEpilogue());
-			headerObject.put(ORIGINAL_HEADERS, multiPartHeader.getOriginalHeaders());
+			headerObject.put(BOUNDARY_ID, multiPartHeader.getBoundary());
+			headerObject.put(PREAMBLE, multiPartHeader.getPreamble());
+			headerObject.put(EPILOGUE, multiPartHeader.getEpilogue());
+			headerObject.put(ORIGINAL_HEADERS,
+					multiPartHeader.getOriginalHeaders());
 			List<ContentHeader> partHeaders = ((MultiPartHeader) contentHeader)
 					.getPartHeaders();
-			ArrayList<BasicDBObject> partHeadersList= new ArrayList<BasicDBObject>(); 
+			ArrayList<BasicDBObject> partHeadersList = new ArrayList<BasicDBObject>();
 			for (ContentHeader partHeader : partHeaders) {
 				partHeadersList.add(archiveContentHeader(partHeader));
 			}
 			headerObject.put(PART_HEADERS, partHeadersList);
 
 		} else {
-			SinglePartHeader singlePartHeader = (SinglePartHeader)contentHeader;
+			SinglePartHeader singlePartHeader = (SinglePartHeader) contentHeader;
 			headerObject.put(CONTENT_HEADER_TYPE, SINGLE_PART_HEADER_TYPE);
-			headerObject.put(CONTENT_ID,
-					singlePartHeader.getContentID());
-			headerObject.put(CONTENT_TYPE,
-					singlePartHeader.getContentType());
+			headerObject.put(CONTENT_ID, singlePartHeader.getContentID());
+			headerObject.put(CONTENT_TYPE, singlePartHeader.getContentType());
 			headerObject.put(CONTENT_DISPOSITION,
 					singlePartHeader.getContentDisposition());
 			if (singlePartHeader.getFilename() != null)
-				headerObject.put(FILENAME,
-						singlePartHeader.getFilename());
+				headerObject.put(FILENAME, singlePartHeader.getFilename());
 
-			MimeTransferEncoding mtf = singlePartHeader.getContentTransferEncoding();
+			MimeTransferEncoding mtf = singlePartHeader
+					.getContentTransferEncoding();
 			if (mtf != null) {
-				headerObject.put(CONTENT_TRANSFER_ENCODING,
-						mtf.toString());
+				headerObject.put(CONTENT_TRANSFER_ENCODING, mtf.toString());
 			}
-			
+
 			headerObject.put(ORIGINAL_HEADERS,
 					singlePartHeader.getOriginalHeaders());
-			
-			//Store the attachment
-			Document document = new ContentDataDocument(singlePartHeader.getEncodedContentData(), singlePartHeader.getContentType());
+
+			String fileExtension = "";
+			if (singlePartHeader.getFilename() != null)
+				fileExtension = singlePartHeader.getFilename().substring(
+						singlePartHeader.getFilename().lastIndexOf('.') + 1);
+			// Store the attachment
+			Document document = new ContentDataDocument(
+					singlePartHeader.getEncodedContentData(),
+					singlePartHeader.getContentType(), fileExtension,
+					singlePartHeader.getContentTransferEncoding().toString());
 			StoreRequestResult docResult = docStoreService.store(document);
 			headerObject.put(ATTACHMENT_ID, docResult.getIdentifier());
 			attachment_ids.add(docResult.getIdentifier());
@@ -156,8 +168,8 @@ public class MongoArchivingService extends AbstractMessageArchivingService {
 
 		return headerObject;
 	}
-	
-	private String calculateMessageId(Message message){
+
+	private String calculateMessageId(Message message) {
 		return message.getCleanMessageId();
 	}
 }

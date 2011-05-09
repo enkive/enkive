@@ -5,8 +5,6 @@ import java.io.InputStream;
 import com.linuxbox.enkive.docstore.exception.DocStoreException;
 
 public interface Document {
-	String getIdentifier();
-
 	/**
 	 * If known will return the size of the document. If not known will return a
 	 * negative value. This value should not be trusted to be exact; it's useful
@@ -14,19 +12,29 @@ public interface Document {
 	 * 
 	 * @return
 	 */
-	long getSize();
+	long getEncodedSize();
 
 	String getMimeType();
 
-	String getSuffix();
+	String getFileExtension();
 
-	byte[] getContentBytes() throws DocStoreException;
+	String getBinaryEncoding();
 
 	/**
-	 * Provides an input stream that will produce the content byte by byte.
+	 * Provides an input stream that will produce the encoded content byte by
+	 * byte.
 	 * 
-	 * @return content of document as an input stream
+	 * @return encoded content of document as an input stream
 	 * @throws DocStoreException
 	 */
-	InputStream getContentStream() throws DocStoreException;
+	InputStream getEncodedContentStream() throws DocStoreException;
+
+	/**
+	 * Provides an input stream that will produce the decoded content byte by
+	 * byte.
+	 * 
+	 * @return decoded content of document as an input stream
+	 * @throws DocStoreException
+	 */
+	InputStream getDecodedContentStream() throws DocStoreException;
 }

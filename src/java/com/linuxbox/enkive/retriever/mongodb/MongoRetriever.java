@@ -204,7 +204,7 @@ public class MongoRetriever extends AbstractArchiveService {
 		EncodedContentData encodedContentData = new EncodedContentDataImpl();
 		try {
 			Document document = docStoreService.retrieve(attachmentUUID);
-			encodedContentData.setBinaryContent(document.getContentStream());
+			encodedContentData.setBinaryContent(document.getEncodedContentStream());
 		} catch (CannotTransferMessageContentException e) {
 			throw new CannotRetrieveException(
 					"could not extract data from datastore", e);

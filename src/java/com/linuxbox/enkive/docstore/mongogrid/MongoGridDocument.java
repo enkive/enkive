@@ -1,66 +1,27 @@
 package com.linuxbox.enkive.docstore.mongogrid;
 
-import static com.linuxbox.enkive.docstore.mongogrid.Constants.FILE_SUFFIX_KEY;
-
-import java.io.IOException;
 import java.io.InputStream;
 
-import com.linuxbox.enkive.docstore.Document;
-import com.linuxbox.enkive.docstore.exception.DocStoreException;
-import com.linuxbox.enkive.docstore.exception.DocumentTooLargeException;
+import com.linuxbox.enkive.docstore.AbstractDocument;
 import com.mongodb.gridfs.GridFSDBFile;
 
-public class MongoGridDocument implements Document {
+public class MongoGridDocument extends AbstractDocument {
 	private GridFSDBFile gridFile;
-	private byte[] data;
 
 	public MongoGridDocument(GridFSDBFile gridFile) {
+		super(gridFile.getContentType(), (String) gridFile.getMetaData().get(
+				Constants.FILE_EXTENSION_KEY), (String) gridFile.getMetaData()
+				.get(Constants.BINARY_ENCODING_KEY));
 		this.gridFile = gridFile;
 	}
 
 	@Override
-	public byte[] getContentBytes() throws DocStoreException {
-		final long lengthL = gridFile.getLength();
-		final int length = lengthL <= Integer.MAX_VALUE ? (int) lengthL : -1;
-		if (length < 0) {
-			throw new DocumentTooLargeException(lengthL, Integer.MAX_VALUE);
-		}
-
-		try {
-			data = new byte[length];
-			gridFile.getInputStream().read(data);
-			return data;
-		} catch (IOException e) {
-			throw new DocStoreException(e);
-		}
-	}
-
-	@Override
-	public InputStream getContentStream() {
+	public InputStream getEncodedContentStream() {
 		return gridFile.getInputStream();
 	}
 
 	@Override
-	public String getIdentifier() {
-		return gridFile.getFilename();
-	}
-
-	@Override
-	public String getMimeType() {
-		return gridFile.getContentType();
-	}
-
-	@Override
-	public String getSuffix() {
-		try {
-			return (String) gridFile.getMetaData().get(FILE_SUFFIX_KEY);
-		} catch (ClassCastException e) {
-			return null;
-		}
-	}
-
-	@Override
-	public long getSize() {
+	public long getEncodedSize() {
 		return gridFile.getLength();
 	}
 }

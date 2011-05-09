@@ -1,34 +1,77 @@
 package com.linuxbox.enkive.docstore.mongogrid;
 
 import static com.linuxbox.enkive.docstore.mongogrid.Constants.BINARY_ENCODING_KEY;
-import static com.linuxbox.enkive.docstore.mongogrid.Constants.FILE_SUFFIX_KEY;
+import static com.linuxbox.enkive.docstore.mongogrid.Constants.CONT_FILE_COLLECTION;
+import static com.linuxbox.enkive.docstore.mongogrid.Constants.FILENAME_KEY;
+import static com.linuxbox.enkive.docstore.mongogrid.Constants.FILE_EXTENSION_KEY;
+import static com.linuxbox.enkive.docstore.mongogrid.Constants.GRID_FS_FILES_COLLECTION_SUFFIX;
+import static com.linuxbox.enkive.docstore.mongogrid.Constants.INDEX_SHARD_KEY;
+import static com.linuxbox.enkive.docstore.mongogrid.Constants.INDEX_SHARD_QUERY;
 import static com.linuxbox.enkive.docstore.mongogrid.Constants.INDEX_STATUS_KEY;
+import static com.linuxbox.enkive.docstore.mongogrid.Constants.INDEX_STATUS_QUERY;
+import static com.linuxbox.enkive.docstore.mongogrid.Constants.INDEX_TIMESTAMP_KEY;
+import static com.linuxbox.enkive.docstore.mongogrid.Constants.INDEX_TIMESTAMP_QUERY;
+import static com.linuxbox.enkive.docstore.mongogrid.Constants.OBJECT_ID_KEY;
 
-import java.io.IOException;
+import java.io.ByteArrayInputStream;
 import java.net.UnknownHostException;
+import java.util.Date;
 
-import com.linuxbox.enkive.docstore.DocStoreService;
+import com.linuxbox.enkive.docsearch.exception.DocSearchException;
+import com.linuxbox.enkive.docstore.AbstractDocStoreService;
 import com.linuxbox.enkive.docstore.Document;
-import com.linuxbox.enkive.docstore.EncodedChainedDocument;
-import com.linuxbox.enkive.docstore.EncodedDocument;
 import com.linuxbox.enkive.docstore.StoreRequestResult;
 import com.linuxbox.enkive.docstore.StoreRequestResultImpl;
 import com.linuxbox.enkive.docstore.exception.DocStoreException;
 import com.linuxbox.enkive.docstore.exception.DocumentNotFoundException;
-import com.linuxbox.enkive.docstore.exception.StorageException;
-import com.linuxbox.enkive.exception.UnimplementedMethodException;
+import com.linuxbox.util.HashingInputStream;
+import com.linuxbox.util.mongodb.MongoLockingService;
+import com.linuxbox.util.mongodb.MongoLockingServiceException;
 import com.mongodb.BasicDBObject;
 import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import com.mongodb.Mongo;
+import com.mongodb.QueryBuilder;
 import com.mongodb.gridfs.GridFS;
 import com.mongodb.gridfs.GridFSDBFile;
 import com.mongodb.gridfs.GridFSInputFile;
 
-public class MongoGridDocStoreService implements DocStoreService {
-	private GridFS gridFS;
+/*
+ * NOTE: we may have some challenges w.r.t. atomicity using MongoDB for a filestore.
+ * Please see:
+ * http://groups.google.com/group/mongodb-user/browse_thread/thread/4a7419e07c73537/2931a3163836d6ba
+ */
+
+public class MongoGridDocStoreService extends AbstractDocStoreService {
+	/*
+	 * The various status value a document can have to indicate its state of
+	 * indexing.
+	 */
+	static final int STATUS_UNINDEXED = 0;
+	static final int STATUS_INDEXING = 1;
+	static final int STATUS_INDEXED = 2;
+	static final int STATUS_STALE = 3;
+
+	/*
+	 * Notations for lock records.
+	 */
+	private static final String LOCK_CREATE_NOTE = "create";
+	private static final String LOCK_REMOVE_NOTE = "remove";
+
+	final static DBObject SORT_BY_INDEX_TIMESTAMP = new BasicDBObject(
+			INDEX_TIMESTAMP_QUERY, 1);
+	final static DBObject UNINDEXED_QUERY = new QueryBuilder()
+			.and(INDEX_STATUS_QUERY).is(STATUS_UNINDEXED).get();
+	final static DBObject RETRIEVE_OBJECT_ID = BasicDBObjectBuilder.start()
+			.add(OBJECT_ID_KEY, 1).get();
+	final static DBObject RETRIEVE_OBJECT_ID_AND_FILENAME = BasicDBObjectBuilder
+			.start().add(OBJECT_ID_KEY, 1).add(FILENAME_KEY, 1).get();
+
+	GridFS gridFS; // keep visible to tests
+	private DBCollection filesCollection;
+	private MongoLockingService lockService;
 
 	public MongoGridDocStoreService(String host, int port, String dbName,
 			String bucketName) throws UnknownHostException {
@@ -50,18 +93,39 @@ public class MongoGridDocStoreService implements DocStoreService {
 		DB db = mongo.getDB(dbName);
 		gridFS = new GridFS(db, bucketName);
 
-		DBCollection fileCollection = gridFS.getDB().getCollection(
-				bucketName + ".files");
+		// files collection
 
-		DBObject filenameIndex = BasicDBObjectBuilder.start()
-				.add("filename", 1).get();
-		fileCollection.createIndex(filenameIndex);
+		filesCollection = gridFS.getDB().getCollection(
+				bucketName + GRID_FS_FILES_COLLECTION_SUFFIX);
 
-		DBObject searchIndexingIndex = BasicDBObjectBuilder.start().add(
-				"uploadDate", 1).add("metadata." + INDEX_STATUS_KEY, 1).get();
-		fileCollection.createIndex(searchIndexingIndex);
+		/*
+		 * NOTE: we DO NOT NEED a filename index, because by default GridFS will
+		 * create an index on filename and upload date. You can efficiently
+		 * query on compound indexes if the key searched for come before those
+		 * that are not, which is true in this case.
+		 * 
+		 * DBObject filenameIndex = BasicDBObjectBuilder.start()
+		 * .add(FILENAME_KEY, 1).get();
+		 * filesCollection.ensureIndex(filenameIndex);
+		 */
+
+		// be sure to put status before timestamp, because it's more likely
+		// we'll search on just status rather than on just timestamp
+		DBObject searchIndexingIndex = BasicDBObjectBuilder.start()
+				.add(INDEX_STATUS_KEY, 1).add(INDEX_TIMESTAMP_KEY, 1).get();
+		filesCollection.ensureIndex(searchIndexingIndex, "indexingStatusIndex",
+				false);
+
+		// file locking service
+
+		final DBCollection fileLockCollection = gridFS.getDB().getCollection(
+				CONT_FILE_COLLECTION);
+		lockService = new MongoLockingService(fileLockCollection);
 	}
 
+	/**
+	 * Retrieves a document from the document store.
+	 */
 	@Override
 	public Document retrieve(String identifier) throws DocStoreException {
 		GridFSDBFile file = gridFS.findOne(identifier);
@@ -69,66 +133,192 @@ public class MongoGridDocStoreService implements DocStoreService {
 			throw new DocumentNotFoundException(identifier);
 		}
 
-		Document regularDocument = new MongoGridDocument(file);
+		return new MongoGridDocument(file);
+	}
 
-		final DBObject metaData = file.getMetaData();
+	@Override
+	protected StoreRequestResult storeKnownHash(Document document, byte[] hash,
+			byte[] data, int length) throws DocStoreException {
+		try {
+			final String identifier = getFileNameFromHash(hash);
+			final int shardKey = getShardIndexFromHash(hash);
 
-		// if the document is encoded, return an encoded document
-		if (metaData.containsField(BINARY_ENCODING_KEY)) {
-			try {
-				final String binaryEncoding = (String) metaData
-						.get(BINARY_ENCODING_KEY);
-				return new EncodedChainedDocument(binaryEncoding,
-						regularDocument);
-			} catch (IOException e) {
-				throw new DocStoreException(
-						"could not access encoded document", e);
+			if (!lockService.lock(identifier, LOCK_CREATE_NOTE)) {
+				// TODO we should note whether the controller is creating or
+				// removing; if creating we're done; if removing we should
+				// re-create
+				return new StoreRequestResultImpl(identifier, true);
 			}
-		} else {
-			return regularDocument;
+
+			try {
+				if (fileExists(identifier)) {
+					return new StoreRequestResultImpl(identifier, true);
+				}
+
+				GridFSInputFile newFile = gridFS
+						.createFile(new ByteArrayInputStream(data, 0, length));
+				newFile.setFilename(identifier);
+				setFileMetaData(newFile, document, shardKey);
+				newFile.save();
+
+				// TODO: is there anything we should do at this point to insure
+				// that
+				// it's actually stored?
+
+				return new StoreRequestResultImpl(identifier, false);
+			} finally {
+				lockService.releaseLock(identifier);
+			}
+		} catch (Exception e) {
+			throw new DocStoreException(e);
 		}
 	}
 
 	/**
-	 * Test whether document is already stored.
+	 * Since we don't know the name, we'll have to save the data before we can
+	 * determine the name. So save it under a random UUID, calculate the name,
+	 * and if the name is not already in the file system then rename it.
+	 * Otherwise delete it.
+	 * 
+	 * @throws DocSearchException
 	 */
 	@Override
-	public StoreRequestResult store(Document document) throws DocStoreException {
-		final String identifier = document.getIdentifier();
+	protected StoreRequestResult storeAndDetermineHash(Document document,
+			HashingInputStream inputStream) throws DocStoreException {
+		final String temporaryName = java.util.UUID.randomUUID().toString();
+		GridFSInputFile newFile = gridFS.createFile(inputStream);
+		newFile.setFilename(temporaryName);
+		setFileMetaData(newFile, document, -1);
+		newFile.save();
 
-		GridFSDBFile oldFile = gridFS.findOne(identifier);
+		// TODO: is there anything we should do at this point to insure that
+		// it's actually stored?
 
-		if (oldFile == null) {
-			doStore(identifier, document);
-			return new StoreRequestResultImpl(identifier, false);
-		} else {
-			return new StoreRequestResultImpl(identifier, true);
+		final byte[] actualHash = inputStream.getDigest();
+		final String actualName = getFileNameFromHash(actualHash);
+		final int shardKey = getShardIndexFromHash(actualHash);
+
+		try {
+
+			if (!lockService.lock(actualName, LOCK_CREATE_NOTE)) {
+				gridFS.remove(temporaryName);
+
+				// TODO: is there anything we should do at this point to insure
+				// that
+				// it's actually been removed?
+
+				return new StoreRequestResultImpl(actualName, true);
+			}
+
+			// so now we're in "control" of that file
+
+			try {
+				// so now we're in "control" of that file
+
+				if (fileExists(actualName)) {
+					gridFS.remove(temporaryName);
+					return new StoreRequestResultImpl(actualName, true);
+				} else {
+					final boolean wasRenamed = setFileNameAndShardKey(
+							newFile.getId(), actualName, shardKey);
+					if (!wasRenamed) {
+						throw new DocStoreException(
+								"expected to find and rename a GridFS file with id \""
+										+ newFile.getId()
+										+ "\" but could not find it");
+					}
+					return new StoreRequestResultImpl(actualName, false);
+				}
+			} finally {
+				lockService.releaseLock(actualName);
+			}
+		} catch (MongoLockingServiceException e) {
+			throw new DocStoreException(e);
 		}
 	}
 
+	@Override
+	public void markAsIndexed(String identifier) throws DocSearchException {
+		final DBObject identifierQuery = new QueryBuilder().and(FILENAME_KEY)
+				.is(identifier).get();
+
+		final DBObject updateSet = BasicDBObjectBuilder.start()
+				.add(INDEX_STATUS_QUERY, STATUS_INDEXED)
+				.add(INDEX_TIMESTAMP_QUERY, new Date()).get();
+		final BasicDBObject update = new BasicDBObject("$set", updateSet);
+
+		final boolean doNotRemove = false;
+		final boolean returnNewVersion = true;
+		final boolean doNotUpsert = false;
+		final DBObject doNotSort = null;
+
+		DBObject result = filesCollection.findAndModify(identifierQuery,
+				RETRIEVE_OBJECT_ID, doNotSort, doNotRemove, update,
+				returnNewVersion, doNotUpsert);
+
+		if (result == null) {
+			throw new DocSearchException("could not mark document '"
+					+ identifier + "' as indexed");
+		}
+	}
+
+	@Override
+	protected String nextUnindexedByShardKey(int shardKeyLow, int shardKeyHigh) {
+		final DBObject query = createUnindexedQuery(shardKeyLow, shardKeyHigh);
+		final DBObject updateSet = BasicDBObjectBuilder.start()
+				.add(INDEX_STATUS_QUERY, STATUS_INDEXING)
+				.add(INDEX_TIMESTAMP_QUERY, new Date()).get();
+		final BasicDBObject update = new BasicDBObject("$set", updateSet);
+
+		// some constants to make the call to findAndModify more readable;
+		// please Ms. Compiler, optimize them away!
+		final boolean doNotRemove = false;
+		final boolean returnNewVersion = true;
+		final boolean doNotUpsert = false;
+
+		DBObject result = filesCollection.findAndModify(query,
+				RETRIEVE_OBJECT_ID_AND_FILENAME, SORT_BY_INDEX_TIMESTAMP,
+				doNotRemove, update, returnNewVersion, doNotUpsert);
+
+		if (result != null) {
+			return (String) result.get(FILENAME_KEY);
+		} else {
+			return null;
+		}
+	}
+
+	@Override
+	public void shutdown() {
+		getMongo().close();
+	}
+
+	/*
+	 * SUPPORT METHODS
+	 */
+
+	DB getDb() {
+		return gridFS.getDB();
+	}
+
+	private Mongo getMongo() {
+		return getDb().getMongo();
+	}
+
 	/**
-	 * Actually store the document using the given identifier in the grid FS.
+	 * Simple test as to whether a file exists. There better bean index on the
+	 * filename!
 	 * 
 	 * @param identifier
-	 * @param document
-	 * @throws StorageException
+	 * @return
 	 */
-	private void doStore(String identifier, Document document)
-			throws DocStoreException {
-		GridFSInputFile newFile;
-		String binaryEncoding = null;
+	boolean fileExists(String identifier) {
+		DBObject query = new BasicDBObject(Constants.FILENAME_KEY, identifier);
+		DBObject result = filesCollection.findOne(query, RETRIEVE_OBJECT_ID);
+		return result != null;
+	}
 
-		if (document instanceof EncodedDocument) {
-			System.out.println("storing encoded document");
-			EncodedDocument eDoc = (EncodedDocument) document;
-			newFile = gridFS.createFile(eDoc.getEncodedContentStream());
-			binaryEncoding = eDoc.getBinaryEncoding();
-		} else {
-			System.out.println("storing decoded document");
-			newFile = gridFS.createFile(document.getContentStream());
-		}
-
-		newFile.setFilename(identifier);
+	void setFileMetaData(GridFSInputFile newFile, Document document,
+			int shardKey) {
 		newFile.setContentType(document.getMimeType());
 
 		// store the encoding as meta-data for EncodedDocuments
@@ -137,44 +327,79 @@ public class MongoGridDocStoreService implements DocStoreService {
 			metaData = new BasicDBObject();
 		}
 
-		metaData.put(INDEX_STATUS_KEY, Boolean.FALSE);
-		metaData.put(FILE_SUFFIX_KEY, document.getSuffix());
-
-		if (document instanceof EncodedDocument) {
-			metaData.put(BINARY_ENCODING_KEY, binaryEncoding);
-		}
+		metaData.put(INDEX_STATUS_KEY, STATUS_UNINDEXED);
+		metaData.put(FILE_EXTENSION_KEY, document.getFileExtension());
+		metaData.put(BINARY_ENCODING_KEY, document.getBinaryEncoding());
+		metaData.put(INDEX_SHARD_KEY, shardKey);
 
 		newFile.setMetaData(metaData);
-		newFile.save();
-	}
-	
-	boolean markAsIndexedWarningGiven = false;
-
-	@Override
-	public void markAsIndexed(String identifier) {
-		if (markAsIndexedWarningGiven) return;
-		// TODO Auto-generated method stub
-		// throw new UnimplementedMethodException();
-		System.err.println("MongoGridDocStoreService::markAsIndexed not implemented");
-		markAsIndexedWarningGiven = true;
 	}
 
-	@Override
-	public Document retrieveUnindexed() {
-		// TODO Auto-generated method stub
-		throw new UnimplementedMethodException();
+	/**
+	 * Change the file name of GridFS file with a given id to newName.
+	 * 
+	 * @param id
+	 * @param newName
+	 * @return true if a file was modified, false otherwise
+	 */
+	boolean setFileNameAndShardKey(Object id, String newName, int shardKey) {
+		DBObject query = new BasicDBObject(OBJECT_ID_KEY, id);
+		DBObject updateItems = BasicDBObjectBuilder.start()
+				.add(Constants.FILENAME_KEY, newName)
+				.add(Constants.INDEX_SHARD_QUERY, shardKey).get();
+		DBObject update = new BasicDBObject("$set", updateItems);
+		DBObject fields = new BasicDBObject(Constants.FILENAME_KEY, 1);
+		final boolean returnOld = false;
+		DBObject result = filesCollection.findAndModify(query, fields, null,
+				false, update, returnOld, false);
+		return result != null;
 	}
 
 	@Override
-	public void shutdown() {
-		getMongo().close();
+	public boolean remove(String identifier) throws DocStoreException {
+		try {
+			if (!lockService.lock(identifier, LOCK_REMOVE_NOTE)) {
+				// TODO if we're here and someone else was trying to delete or
+				// create this, then we should do nothing; the file either
+				// needed to
+				// be recreated, or it was already removed; let's lie and say we
+				// succeeded!
+				return true;
+			}
+
+			// in control of file
+
+			try {
+				// in control of file
+
+				if (fileExists(identifier)) {
+					gridFS.remove(identifier);
+					return true;
+				} else {
+					return false;
+				}
+			} finally {
+				lockService.releaseLock(identifier);
+			}
+		} catch (MongoLockingServiceException e) {
+			throw new DocStoreException(e);
+		}
 	}
-	
-	private DB getDb() {
-		return gridFS.getDB();
-	}
-	
-	private Mongo getMongo() {
-		return getDb().getMongo();
+
+	private DBObject createUnindexedQuery(int shardKeyLow, int shardKeyHigh) {
+		QueryBuilder protoQuery = new QueryBuilder();
+
+		protoQuery.and(INDEX_STATUS_QUERY).is(STATUS_UNINDEXED);
+
+		if (shardKeyLow > 0) {
+			protoQuery.and(INDEX_SHARD_QUERY).greaterThanEquals(shardKeyLow);
+		}
+
+		if (shardKeyHigh < INDEX_SHARD_KEY_COUNT) {
+			protoQuery.and(INDEX_SHARD_QUERY).lessThan(shardKeyHigh);
+		}
+
+		final DBObject finalQuery = protoQuery.get();
+		return finalQuery;
 	}
 }
