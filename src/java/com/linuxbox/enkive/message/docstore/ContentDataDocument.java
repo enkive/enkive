@@ -36,7 +36,6 @@ public class ContentDataDocument extends AbstractDocument {
 		return contentData.getBinaryContent();
 	}
 	
-
 	@Override
 	public InputStream getDecodedContentStream() throws DocStoreException {
 		throw new DocStoreException("decoded version of ContentData not available");

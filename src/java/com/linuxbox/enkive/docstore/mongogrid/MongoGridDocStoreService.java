@@ -209,7 +209,6 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 		final int shardKey = getShardIndexFromHash(actualHash);
 
 		try {
-
 			if (!lockService.lock(actualName, LOCK_CREATE_NOTE)) {
 				gridFS.remove(temporaryName);
 
