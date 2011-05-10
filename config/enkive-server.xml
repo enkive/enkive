@@ -10,6 +10,7 @@
 		class="com.linuxbox.enkive.docstore.mongogrid.MongoGridDocStoreService">
 		<constructor-arg type="java.lang.String" value="${enkive.docstore.db.name}" />
 		<constructor-arg type="java.lang.String" value="fs" />
+		<property name="inMemoryLimit" value="${enkive.docstore.buffersize}" />
 	</bean>
 
 	<bean id="DocSearchService" class="com.linuxbox.enkive.docsearch.indri.IndriSearchService">

@@ -22,7 +22,7 @@ import com.linuxbox.util.HashingInputStream;
  * 
  */
 public abstract class AbstractDocStoreService implements DocStoreService {
-	static final int DEFAULT_IN_MEMORY_LIMIT = 16 * 1024; // 16 KB
+	static final int DEFAULT_IN_MEMORY_LIMIT = 64 * 1024; // 64 KB
 	public static final String HASH_ALGORITHM = "SHA-1";
 	public static final int INDEX_SHARD_KEY_BYTES = 2;
 	public static final int INDEX_SHARD_KEY_COUNT = 1 << (INDEX_SHARD_KEY_BYTES * 8);
