@@ -32,11 +32,6 @@ public abstract class AbstractDocStoreService implements DocStoreService {
 	 */
 	private int inMemoryLimit;
 
-	/**
-	 * The in-memory buffer to use.
-	 */
-	// private byte[] inMemoryBuffer;
-
 	public AbstractDocStoreService() {
 		this(DEFAULT_IN_MEMORY_LIMIT);
 	}
@@ -104,6 +99,11 @@ public abstract class AbstractDocStoreService implements DocStoreService {
 		byte[] inMemoryBuffer = new byte[inMemoryLimit];
 		try {
 			// create a fix-sized buffer to see if the data will fit within it
+
+			// TODO change strategy : rather than using a buffered input stream
+			// with mark/reset, which has its own buffer, use a sequence input
+			// stream to combine our buffer with the remainder of the original
+			// stream, so we only have a single buffer
 
 			BufferedInputStream inputStream = new BufferedInputStream(
 					document.getEncodedContentStream(), inMemoryLimit);
