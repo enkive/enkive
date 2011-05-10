@@ -22,9 +22,10 @@ import com.linuxbox.util.HashingInputStream;
  * 
  */
 public abstract class AbstractDocStoreService implements DocStoreService {
-	private static final int DEFAULT_IN_MEMORY_LIMIT = 16 * 1024; // 16 KB
+	static final int DEFAULT_IN_MEMORY_LIMIT = 16 * 1024; // 16 KB
 	public static final String HASH_ALGORITHM = "SHA-1";
-	public static final int INDEX_SHARD_KEY_COUNT = 256;
+	public static final int INDEX_SHARD_KEY_BYTES = 2;
+	public static final int INDEX_SHARD_KEY_COUNT = 1 << (INDEX_SHARD_KEY_BYTES * 8);
 
 	/**
 	 * The limit as to whether a document will be processed in memory.
@@ -233,7 +234,6 @@ public abstract class AbstractDocStoreService implements DocStoreService {
 		final int endRange = Math.round((serverNumber + 1) * perServer);
 		return nextUnindexedByShardKey(startRange, endRange);
 	}
-	
 
 	/**
 	 * Returns a shard key in the range of 0-255 (unsigned byte). It converts
@@ -243,7 +243,8 @@ public abstract class AbstractDocStoreService implements DocStoreService {
 	 * @return
 	 */
 	protected static int getShardIndexFromHash(byte[] hash) {
-		return hash[0] < 0 ? 256 + hash[0] : hash[0];
+		int key = hash[0] << 8 | (0xff & hash[1]);
+		return key < 0 ? INDEX_SHARD_KEY_COUNT + key : key;
 	}
 
 	/**
