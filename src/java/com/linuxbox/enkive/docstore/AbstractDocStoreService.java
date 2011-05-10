@@ -34,7 +34,7 @@ public abstract class AbstractDocStoreService implements DocStoreService {
 	/**
 	 * The in-memory buffer to use.
 	 */
-	private byte[] inMemoryBuffer;
+	// private byte[] inMemoryBuffer;
 
 	public AbstractDocStoreService() {
 		this(DEFAULT_IN_MEMORY_LIMIT);
@@ -100,6 +100,7 @@ public abstract class AbstractDocStoreService implements DocStoreService {
 		// everything else easier
 		messageDigest.update(getFileTypeEncodingDigestPrime(document));
 
+		byte[] inMemoryBuffer = new byte[inMemoryLimit];
 		try {
 			// create a fix-sized buffer to see if the data will fit within it
 
@@ -176,7 +177,6 @@ public abstract class AbstractDocStoreService implements DocStoreService {
 
 	public void setInMemoryLimit(int inMemoryLimit) {
 		this.inMemoryLimit = inMemoryLimit;
-		this.inMemoryBuffer = new byte[inMemoryLimit];
 	}
 
 	public static byte[] getFileTypeEncodingDigestPrime(Document document) {
