@@ -50,7 +50,7 @@ public class MongoArchiverTest {
 		ArrayBlockingQueue<Runnable> queue = new ArrayBlockingQueue(500000);
 		threadPool = new ThreadPoolExecutor(5, 5, 100, TimeUnit.SECONDS, queue);
 		long startTime = System.currentTimeMillis();
-		File rootDir = new File("/home/lee/Storage/Work/Projects/Enkive/TestData/enron/maildir");
+		File rootDir = new File("/home/lee/Storage/Work/Projects/enkive-2.0/workspace/enkive2/test/data/mime4jTestData");
 		sendAllFiles(rootDir);
 		threadPool.awaitTermination(100, TimeUnit.MINUTES);
 		long endTime = System.currentTimeMillis();

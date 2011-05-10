@@ -28,7 +28,7 @@ import com.linuxbox.enkive.docstore.DocStoreService;
 import com.linuxbox.enkive.exception.CannotRetrieveException;
 import com.linuxbox.enkive.message.MessageSummary;
 
-public abstract class AbstractArchiveService implements Retriever {
+public abstract class AbstractRetrieverService implements Retriever {
 	
 	protected DocStoreService docStoreService;
 

@@ -27,6 +27,9 @@ import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.MU
 import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.PART_HEADERS;
 import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.SINGLE_PART_HEADER_TYPE;
 
+import java.io.IOException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -103,7 +106,7 @@ public class MongoArchivingService extends AbstractMessageArchivingService {
 	}
 
 	@Override
-	public String findMessage(Message message) {
+	public String findMessage(Message message) throws MongoException, CannotArchiveException {
 		String messageUUID = null;
 		DBObject messageObject = messageColl
 				.findOne(calculateMessageId(message));
@@ -167,9 +170,5 @@ public class MongoArchivingService extends AbstractMessageArchivingService {
 		}
 
 		return headerObject;
-	}
-
-	private String calculateMessageId(Message message) {
-		return message.getCleanMessageId();
 	}
 }

@@ -2,6 +2,7 @@ package com.linuxbox.enkive.archiver;
 
 import com.linuxbox.enkive.archiver.exceptions.CannotArchiveException;
 import com.linuxbox.enkive.message.Message;
+import com.mongodb.MongoException;
 
 public interface MessageArchivingService {
 	/**
@@ -33,7 +34,9 @@ public interface MessageArchivingService {
 	 * 
 	 * @param message
 	 * @return unique identifier for message
+	 * @throws CannotArchiveException 
+	 * @throws MongoException 
 	 */
-	public String findMessage(Message message);
+	public String findMessage(Message message) throws MongoException, CannotArchiveException;
 	
 }

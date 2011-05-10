@@ -68,14 +68,14 @@ import com.linuxbox.enkive.message.MultiPartHeaderImpl;
 import com.linuxbox.enkive.message.SinglePartHeader;
 import com.linuxbox.enkive.message.SinglePartHeaderImpl;
 import com.linuxbox.enkive.message.Utility;
-import com.linuxbox.enkive.retriever.AbstractArchiveService;
+import com.linuxbox.enkive.retriever.AbstractRetrieverService;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import com.mongodb.Mongo;
 
-public class MongoRetriever extends AbstractArchiveService {
+public class MongoRetrieverService extends AbstractRetrieverService {
 	
 	protected Mongo m = null;
 	protected DB messageDb;
@@ -83,7 +83,7 @@ public class MongoRetriever extends AbstractArchiveService {
 	private final static Log logger = LogFactory
 			.getLog("com.linuxbox.enkive.retriever");
 
-	public MongoRetriever(Mongo m, String dbName, String collName) {
+	public MongoRetrieverService(Mongo m, String dbName, String collName) {
 		this.m = m;
 		messageDb = m.getDB(dbName);
 		messageColl = messageDb.getCollection(collName);

@@ -17,13 +17,13 @@ import com.linuxbox.enkive.exception.CannotRetrieveException;
 import com.linuxbox.enkive.exception.CannotTransferMessageContentException;
 import com.linuxbox.enkive.message.Message;
 import com.linuxbox.enkive.message.MessageImpl;
-import com.linuxbox.enkive.retriever.mongodb.MongoRetriever;
+import com.linuxbox.enkive.retriever.mongodb.MongoRetrieverService;
 import com.mongodb.Mongo;
 
 public class MongoArchiverTestThread implements Runnable {
 
 	protected MongoArchivingService archiver;
-	protected MongoRetriever retriever;
+	protected MongoRetrieverService retriever;
 	protected File file;
 	
 	public MongoArchiverTestThread(Mongo m, File file){
@@ -31,7 +31,7 @@ public class MongoArchiverTestThread implements Runnable {
 		MongoGridDocStoreService docStoreService = new MongoGridDocStoreService(m, "enkive", "documents");
 		archiver.setDocStoreService(docStoreService);
 		
-		retriever = new MongoRetriever(m, "enkive", "messages");
+		retriever = new MongoRetrieverService(m, "enkive", "messages");
 		retriever.setDocStoreService(docStoreService);
 		this.file = file;
 	}

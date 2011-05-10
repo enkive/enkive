@@ -1,7 +1,8 @@
 package com.linuxbox.enkive.archiver;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import java.io.IOException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 import com.linuxbox.enkive.archiver.exceptions.CannotArchiveException;
 import com.linuxbox.enkive.docstore.DocStoreService;
@@ -29,4 +30,18 @@ public abstract class AbstractMessageArchivingService implements MessageArchivin
 		this.docStoreService = docStoreService;
 	}
 	
+	public static String calculateMessageId(Message message) throws CannotArchiveException {
+		String messageUUID = null;
+		try {
+			MessageDigest sha1calc = MessageDigest.getInstance("SHA-1");
+			sha1calc.reset();
+			messageUUID = new String(sha1calc.digest(message
+					.getReconstitutedEmail().getBytes()));
+		} catch (NoSuchAlgorithmException e) {
+			throw new CannotArchiveException("Could not calculate UUID for message", e);
+		} catch (IOException e) {
+			throw new CannotArchiveException("Could not calculate UUID for message", e);
+		}
+		return messageUUID;
+	}
 }
