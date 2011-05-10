@@ -52,7 +52,8 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 	static final int STATUS_UNINDEXED = 0;
 	static final int STATUS_INDEXING = 1;
 	static final int STATUS_INDEXED = 2;
-	static final int STATUS_STALE = 3;
+	static final int STATUS_ERROR = 3;
+	static final int STATUS_STALE = 4;
 
 	/*
 	 * Notations for lock records.
@@ -247,28 +248,13 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 	}
 
 	@Override
-	public void markAsIndexed(String identifier) throws DocSearchException {
-		final DBObject identifierQuery = new QueryBuilder().and(FILENAME_KEY)
-				.is(identifier).get();
+	public void markAsIndexed(String identifier) throws DocStoreException {
+		markAsIndexedHelper(identifier, STATUS_INDEXED);
+	}
 
-		final DBObject updateSet = BasicDBObjectBuilder.start()
-				.add(INDEX_STATUS_QUERY, STATUS_INDEXED)
-				.add(INDEX_TIMESTAMP_QUERY, new Date()).get();
-		final BasicDBObject update = new BasicDBObject("$set", updateSet);
-
-		final boolean doNotRemove = false;
-		final boolean returnNewVersion = true;
-		final boolean doNotUpsert = false;
-		final DBObject doNotSort = null;
-
-		DBObject result = filesCollection.findAndModify(identifierQuery,
-				RETRIEVE_OBJECT_ID, doNotSort, doNotRemove, update,
-				returnNewVersion, doNotUpsert);
-
-		if (result == null) {
-			throw new DocSearchException("could not mark document '"
-					+ identifier + "' as indexed");
-		}
+	@Override
+	public void markAsErrorIndexing(String identifier) throws DocStoreException {
+		markAsIndexedHelper(identifier, STATUS_ERROR);
 	}
 
 	@Override
@@ -293,6 +279,37 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 			return (String) result.get(FILENAME_KEY);
 		} else {
 			return null;
+		}
+	}
+
+	@Override
+	public boolean remove(String identifier) throws DocStoreException {
+		try {
+			if (!lockService.lock(identifier, LOCK_REMOVE_NOTE)) {
+				// TODO if we're here and someone else was trying to delete or
+				// create this, then we should do nothing; the file either
+				// needed to
+				// be recreated, or it was already removed; let's lie and say we
+				// succeeded!
+				return true;
+			}
+
+			// in control of file
+
+			try {
+				// in control of file
+
+				if (fileExists(identifier)) {
+					gridFS.remove(identifier);
+					return true;
+				} else {
+					return false;
+				}
+			} finally {
+				lockService.releaseLock(identifier);
+			}
+		} catch (MongoLockingServiceException e) {
+			throw new DocStoreException(e);
 		}
 	}
 
@@ -359,34 +376,28 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 		return result != null;
 	}
 
-	@Override
-	public boolean remove(String identifier) throws DocStoreException {
-		try {
-			if (!lockService.lock(identifier, LOCK_REMOVE_NOTE)) {
-				// TODO if we're here and someone else was trying to delete or
-				// create this, then we should do nothing; the file either
-				// needed to
-				// be recreated, or it was already removed; let's lie and say we
-				// succeeded!
-				return true;
-			}
+	void markAsIndexedHelper(String identifier, int status)
+			throws DocStoreException {
+		final DBObject identifierQuery = new QueryBuilder().and(FILENAME_KEY)
+				.is(identifier).get();
 
-			// in control of file
+		final DBObject updateSet = BasicDBObjectBuilder.start()
+				.add(INDEX_STATUS_QUERY, status)
+				.add(INDEX_TIMESTAMP_QUERY, new Date()).get();
+		final BasicDBObject update = new BasicDBObject("$set", updateSet);
 
-			try {
-				// in control of file
+		final boolean doNotRemove = false;
+		final boolean returnNewVersion = true;
+		final boolean doNotUpsert = false;
+		final DBObject doNotSort = null;
 
-				if (fileExists(identifier)) {
-					gridFS.remove(identifier);
-					return true;
-				} else {
-					return false;
-				}
-			} finally {
-				lockService.releaseLock(identifier);
-			}
-		} catch (MongoLockingServiceException e) {
-			throw new DocStoreException(e);
+		DBObject result = filesCollection.findAndModify(identifierQuery,
+				RETRIEVE_OBJECT_ID, doNotSort, doNotRemove, update,
+				returnNewVersion, doNotUpsert);
+
+		if (result == null) {
+			throw new DocStoreException("could not mark document '"
+					+ identifier + "' with indexing status of " + status);
 		}
 	}
 
