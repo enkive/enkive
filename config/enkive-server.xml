@@ -10,6 +10,7 @@
 		class="com.linuxbox.enkive.docstore.mongogrid.MongoGridDocStoreService">
 		<constructor-arg type="java.lang.String" value="${enkive.docstore.db.name}" />
 		<constructor-arg type="java.lang.String" value="fs" />
+
 		<property name="inMemoryLimit" value="${enkive.docstore.buffersize}" />
 	</bean>
 
@@ -18,6 +19,13 @@
 		<constructor-arg ref="ContentAnalyzer" />
 		<constructor-arg value="${enkive.docsearch.indri.index}" />
 		<constructor-arg value="${enkive.docsearch.indri.tmp}" />
+		<constructor-arg value="15000" />
+
+		<property name="indexEnvironmentDocLimit" value="25" />
+		<property name="indexEnvironmentTimeLimitSeconds" value="60" />
+
+		<!-- tell INDRI to use 200MB to index documents -->
+		<property name="indexEnvironmentMemory" value="209715200" />
 	</bean>
 
 	<bean id="ContentAnalyzer"
