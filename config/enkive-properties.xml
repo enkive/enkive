@@ -4,8 +4,33 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd"
 	default-init-method="startup" default-destroy-method="shutdown">
 
-	<context:property-placeholder location="classpath:enkive.properties" />
+	<bean id="enkiveProperties"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="locations">
+			<list>
+				<value>classpath:default/enkive.properties
+				</value>
+				<value>classpath:enkive.properties</value>
+			</list>
+		</property>
+		<property name="ignoreUnresolvablePlaceholders">
+			<value>true</value>
+		</property>
+		<property name="ignoreResourceNotFound">
+			<value>true</value>
+		</property>
+	</bean>
 
-	<!-- <bean id="..." class="..."> </bean> -->
-
+	<!-- here is a data source + connection pool in case it's ever needed -->
+	<!-- <bean id="enkiveDataSource" class="org.apache.commons.dbcp.BasicDataSource" 
+		destroy-method="close"> <property name="driverClassName"> <value>${enkive.db.driver}</value> 
+		</property> <property name="url"> <value>${enkive.db.url}</value> </property> 
+		<property name="username"> <value>${enkive.db.username}</value> </property> 
+		<property name="password"> <value>${enkive.db.password}</value> </property> 
+		<property name="initialSize"> <value>${enkive.db.pool.initialSize}</value> 
+		</property> <property name="maxActive"> <value>${enkive.db.pool.maxActive}</value> 
+		</property> <property name="maxIdle"> <value>${enkive.db.pool.maxIdle}</value> 
+		</property> <property name="validationQuery"> <value>select id from events 
+		limit 1;</value> </property> consider setting testOnBorrow to false, testWhileIdle 
+		to true, and timeBetweenEvictionRunsMillis to some positive value </bean> -->
 </beans>
