@@ -1,7 +1,9 @@
 package com.linuxbox.enkive.docstore;
 
-import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.SequenceInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -105,17 +107,16 @@ public abstract class AbstractDocStoreService implements DocStoreService {
 			// stream to combine our buffer with the remainder of the original
 			// stream, so we only have a single buffer
 
-			BufferedInputStream inputStream = new BufferedInputStream(
-					document.getEncodedContentStream(), inMemoryLimit);
-			inputStream.mark(inMemoryLimit);
+			InputStream originalInputStream = document
+					.getEncodedContentStream();
 
-			// try to read all of the data into a fix-sized buffer
-
+			// keep calling read until we either fill out in-memory buffer or we
+			// hit EOF
 			int offset = 0;
 			int result;
 			do {
-				result = inputStream.read(inMemoryBuffer, offset, inMemoryLimit
-						- offset);
+				result = originalInputStream.read(inMemoryBuffer, offset,
+						inMemoryLimit - offset);
 				if (result > 0) {
 					offset += result;
 				}
@@ -132,11 +133,21 @@ public abstract class AbstractDocStoreService implements DocStoreService {
 				// could not read whole thing into fix-sized buffer, so store
 				// the document, determine its name after-the fact, and rename
 				// it
-				inputStream.reset();
-				HashingInputStream hashedInputStream = new HashingInputStream(
-						messageDigest, inputStream);
+
+				// we first need to do some input stream magic; we've already
+				// read some of the data into our buffer, so convert it into an
+				// input stream and then combine it and the original input
+				// stream as a sequence input stream to then create a hashing
+				// input stream
+				ByteArrayInputStream alreadyReadStream = new ByteArrayInputStream(
+						inMemoryBuffer, 0, offset);
+				SequenceInputStream combinedStream = new SequenceInputStream(
+						alreadyReadStream, originalInputStream);
+
+				HashingInputStream hashingInputStream = new HashingInputStream(
+						messageDigest, combinedStream);
 				StoreRequestResult storeResult = storeAndDetermineHash(
-						document, hashedInputStream);
+						document, hashingInputStream);
 				return storeResult;
 			}
 		} catch (IOException e) {
