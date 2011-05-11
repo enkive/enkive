@@ -1,22 +1,20 @@
 package com.linuxbox.enkive.docsearch;
 
 import java.io.Reader;
-import java.util.List;
 
 import com.linuxbox.enkive.docsearch.contentanalyzer.ContentAnalyzer;
 import com.linuxbox.enkive.docsearch.exception.DocSearchException;
 import com.linuxbox.enkive.docstore.DocStoreService;
 import com.linuxbox.enkive.docstore.Document;
-import com.linuxbox.enkive.exception.UnimplementedMethodException;
 
-public class TestDisplaySearchService extends AbstractSearchService {
+public class TestDisplaySearchIndexService extends AbstractDocSearchIndexService {
 
-	public TestDisplaySearchService(DocStoreService service,
+	public TestDisplaySearchIndexService(DocStoreService service,
 			ContentAnalyzer analyzer) {
 		super(service, analyzer);
 	}
 
-	public TestDisplaySearchService(DocStoreService service,
+	public TestDisplaySearchIndexService(DocStoreService service,
 			ContentAnalyzer analyzer, int unindexedDocSearchInterval) {
 		super(service, analyzer, unindexedDocSearchInterval);
 	}
@@ -33,16 +31,6 @@ public class TestDisplaySearchService extends AbstractSearchService {
 		} catch (Exception e) {
 			throw new DocSearchException(e);
 		}
-	}
-
-	@Override
-	public List<String> search(String query) {
-		throw new UnimplementedMethodException();
-	}
-
-	@Override
-	public List<String> search(String query, int maxResults) {
-		throw new UnimplementedMethodException();
 	}
 
 	@Override

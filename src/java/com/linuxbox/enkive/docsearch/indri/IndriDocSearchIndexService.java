@@ -16,12 +16,11 @@ import lemurproject.indri.QueryEnvironment;
 import lemurproject.indri.QueryRequest;
 import lemurproject.indri.QueryResult;
 import lemurproject.indri.QueryResults;
-import lemurproject.indri.ScoredExtentResult;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.linuxbox.enkive.docsearch.AbstractSearchService;
+import com.linuxbox.enkive.docsearch.AbstractDocSearchIndexService;
 import com.linuxbox.enkive.docsearch.contentanalyzer.ContentAnalyzer;
 import com.linuxbox.enkive.docsearch.exception.DocSearchException;
 import com.linuxbox.enkive.docstore.DocStoreService;
@@ -31,7 +30,7 @@ import com.linuxbox.util.CollectionUtils;
 import com.linuxbox.util.StreamConnector;
 import com.linuxbox.util.TypeConverter;
 
-public class IndriSearchService extends AbstractSearchService {
+public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 	/**
 	 * This is supposed to be a call-back that gets status updates. But as of
 	 * April 25, 2011, delete would be called for reasons unknown and using it
@@ -135,7 +134,7 @@ public class IndriSearchService extends AbstractSearchService {
 
 	private QueryEnvironment queryEnvironment;
 
-	public IndriSearchService(DocStoreService docStoreService,
+	public IndriDocSearchIndexService(DocStoreService docStoreService,
 			ContentAnalyzer analyzer, String repositoryPath,
 			String temporaryStoragePath) throws DocSearchException {
 		super(docStoreService, analyzer);
@@ -143,7 +142,7 @@ public class IndriSearchService extends AbstractSearchService {
 		this.tempStoragePath = temporaryStoragePath;
 	}
 
-	public IndriSearchService(DocStoreService docStoreService,
+	public IndriDocSearchIndexService(DocStoreService docStoreService,
 			ContentAnalyzer analyzer, String repositoryPath,
 			String temporaryStoragePath, int unindexedDocSearchInterval)
 			throws DocSearchException {
@@ -463,19 +462,6 @@ public class IndriSearchService extends AbstractSearchService {
 		}
 	}
 
-	@Override
-	public List<String> search(String query, int maxResults)
-			throws DocSearchException {
-		try {
-			final ScoredExtentResult[] results = queryEnvironment.runQuery(
-					query, maxResults);
-			String[] resultDocNumbers = queryEnvironment.documentMetadata(
-					results, NAME_FIELD);
-			return CollectionUtils.listFromArray(resultDocNumbers);
-		} catch (Exception e) {
-			throw new DocSearchException("could not perform INDRI query", e);
-		}
-	}
 
 	/**
 	 * This is an alternate implementation of search. It fails when the document

@@ -14,10 +14,12 @@ import lemurproject.indri.IndexStatus;
 
 import org.apache.james.mime4j.util.MimeUtil;
 
-import com.linuxbox.enkive.docsearch.SearchService;
+import com.linuxbox.enkive.docsearch.DocSearchIndexService;
+import com.linuxbox.enkive.docsearch.DocSearchQueryService;
 import com.linuxbox.enkive.docsearch.contentanalyzer.tika.TikaContentAnalyzer;
 import com.linuxbox.enkive.docsearch.exception.DocSearchException;
-import com.linuxbox.enkive.docsearch.indri.IndriSearchService;
+import com.linuxbox.enkive.docsearch.indri.IndriDocSearchIndexService;
+import com.linuxbox.enkive.docsearch.indri.IndriDocSearchQueryService;
 import com.linuxbox.enkive.docstore.DocStoreService;
 import com.linuxbox.enkive.docstore.Document;
 import com.linuxbox.enkive.docstore.FileSystemDocument;
@@ -32,12 +34,20 @@ import com.mongodb.DB;
 import com.mongodb.Mongo;
 
 public class TestMongoGridDocStore {
+	enum Indexing {
+		PUSH, MANUAL_PULL, AUTO_PULL
+	};
+
+	private static final boolean DROP_DOCS_ON_STARTUP = false;
+	private static final Indexing INDEXING_METHOD = Indexing.MANUAL_PULL;
+	private static final int INDEXING_POLL_TIME = 1000;
+
 	private static final String INDRI_REPOSITORY_PATH = "/tmp/enkive-indri";
 	private static final String INDRI_TEMP_STORAGE_PATH = "/tmp/enkive-indri-tmp";
-	private static final boolean DO_PUSH_INDEXING = false;
 
 	static DocStoreService docStoreService;
-	static SearchService docSearchService;
+	static DocSearchIndexService docIndexService;
+	static DocSearchQueryService docQueryService;
 	static Set<String> indexSet = new HashSet<String>();
 
 	static class RecordedIndexStatus extends IndexStatus {
@@ -67,12 +77,10 @@ public class TestMongoGridDocStore {
 
 	private static void index(StoreRequestResult storageResult)
 			throws DocSearchException, DocStoreException {
-		if (DO_PUSH_INDEXING) {
-			final String identifier = storageResult.getIdentifier();
+		final String identifier = storageResult.getIdentifier();
 
-			if (!storageResult.getAlreadyStored()) {
-				docSearchService.indexDocument(identifier);
-			}
+		if (!storageResult.getAlreadyStored()) {
+			docIndexService.indexDocument(identifier);
 		}
 	}
 
@@ -80,8 +88,11 @@ public class TestMongoGridDocStore {
 			DocSearchException {
 		StoreRequestResult result = docStoreService.store(new StringDocument(
 				content, "text/plain", "txt", "7 bit"));
-		index(result);
-		indexSet.add(result.getIdentifier());
+		if (INDEXING_METHOD == Indexing.PUSH) {
+			index(result);
+		} else {
+			indexSet.add(result.getIdentifier());
+		}
 	}
 
 	private static void archiveAll() {
@@ -205,7 +216,7 @@ public class TestMongoGridDocStore {
 
 	private static void searchFor(String query) throws DocSearchException {
 		System.out.println("SEARCHING FOR: " + query);
-		List<String> theSearch = docSearchService.search(query);
+		List<String> theSearch = docQueryService.search(query);
 		if (theSearch.isEmpty()) {
 			System.out.println("no search results");
 		} else {
@@ -222,7 +233,7 @@ public class TestMongoGridDocStore {
 	}
 
 	/**
-	 * Pull an unindexed document, mark as needing indexing, and then go ahead
+	 * Pull an un-indexed document, mark as needing indexing, and then go ahead
 	 * and index it
 	 * 
 	 * @return true if a document was pulled, false if no documents to pull
@@ -235,7 +246,7 @@ public class TestMongoGridDocStore {
 			try {
 				System.out.println("indexing: " + identifier + " (from server "
 						+ serverIndex + ")");
-				docSearchService.indexDocument(identifier);
+				docIndexService.indexDocument(identifier);
 				// docStoreService.markAsIndexed(identifier);
 			} catch (Exception e) {
 				System.err.println(e);
@@ -268,12 +279,24 @@ public class TestMongoGridDocStore {
 		System.out.println("Starting");
 
 		try {
-			dropGridFSCollections("enkive", "fs");
+			if (DROP_DOCS_ON_STARTUP) {
+				dropGridFSCollections("enkive", "fs");
+			}
 			docStoreService = new MongoGridDocStoreService("enkive", "fs");
+			docStoreService.startup();
 
-			docSearchService = new IndriSearchService(docStoreService,
+			docIndexService = new IndriDocSearchIndexService(docStoreService,
 					new TikaContentAnalyzer(), INDRI_REPOSITORY_PATH,
 					INDRI_TEMP_STORAGE_PATH);
+			if (INDEXING_METHOD == Indexing.AUTO_PULL) {
+				docIndexService
+						.setUnindexedDocSearchInterval(INDEXING_POLL_TIME);
+			}
+			docIndexService.startup();
+
+			docQueryService = new IndriDocSearchQueryService(
+					INDRI_REPOSITORY_PATH);
+			docQueryService.startup();
 
 			archiveAll();
 			retrieveAll();
@@ -281,8 +304,12 @@ public class TestMongoGridDocStore {
 			archiveEncoded();
 			retrieveEncoded();
 
-			while (indexAnUnindexedDocument()) {
-				// empty
+			if (INDEXING_METHOD == Indexing.MANUAL_PULL) {
+				while (indexAnUnindexedDocument()) {
+					// empty
+				}
+			} else {
+				Thread.sleep(2 * INDEXING_POLL_TIME);
 			}
 
 			// searchFor("frack");
@@ -293,7 +320,8 @@ public class TestMongoGridDocStore {
 			searchFor("#2(civil test)");
 			searchFor("#1(shall not perish)");
 
-			docSearchService.shutdown();
+			docQueryService.shutdown();
+			docIndexService.shutdown();
 			docStoreService.shutdown();
 		} catch (UnknownHostException e) {
 			e.printStackTrace();

@@ -1,7 +1,6 @@
 package com.linuxbox.enkive.docsearch;
 
 import java.util.Collection;
-import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -11,7 +10,8 @@ import com.linuxbox.enkive.docsearch.exception.DocSearchException;
 import com.linuxbox.enkive.docstore.DocStoreService;
 import com.linuxbox.enkive.docstore.exception.DocStoreException;
 
-public abstract class AbstractSearchService implements SearchService {
+public abstract class AbstractDocSearchIndexService implements
+		DocSearchIndexService {
 	/**
 	 * This is a thread that will try to pull documents from the document store
 	 * that are unindexed and index them. If it finds there are currently no
@@ -69,11 +69,6 @@ public abstract class AbstractSearchService implements SearchService {
 			.getLog("com.linuxbox.enkive.docsearch");
 
 	/**
-	 * The maximum search results to return by default.
-	 */
-	private static final int DEFAULT_MAX_SEARCH_RESULTS = 100;
-
-	/**
 	 * The document storage service we're feeding off of.
 	 */
 	protected DocStoreService docStoreService;
@@ -97,12 +92,7 @@ public abstract class AbstractSearchService implements SearchService {
 	 */
 	private IndexPullingThread indexPullingThread;
 
-	@Override
-	public List<String> search(String query) throws DocSearchException {
-		return search(query, DEFAULT_MAX_SEARCH_RESULTS);
-	}
-
-	public AbstractSearchService(DocStoreService service,
+	public AbstractDocSearchIndexService(DocStoreService service,
 			ContentAnalyzer analyzer) {
 		setDocStoreService(service);
 		setContentAnalyzer(analyzer);
@@ -110,7 +100,7 @@ public abstract class AbstractSearchService implements SearchService {
 		this.unindexedDocSearchInterval = -1;
 	}
 
-	public AbstractSearchService(DocStoreService service,
+	public AbstractDocSearchIndexService(DocStoreService service,
 			ContentAnalyzer analyzer, int unindexedDocSearchInterval) {
 		this(service, analyzer);
 		this.unindexedDocSearchInterval = unindexedDocSearchInterval;
