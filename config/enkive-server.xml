@@ -12,7 +12,7 @@
 		<property name="inMemoryLimit" value="${enkive.docstore.buffersize}" />
 	</bean>
 
-	<bean id="DocSearchService" class="com.linuxbox.enkive.docsearch.indri.IndriSearchService">
+	<bean id="DocSearchIndexService" class="com.linuxbox.enkive.docsearch.indri.IndriDocSearchIndexService">
 		<constructor-arg ref="DocStoreService" />
 		<constructor-arg ref="ContentAnalyzer" />
 		<constructor-arg value="${enkive.docsearch.indri.index}" />
@@ -24,6 +24,10 @@
 
 		<!-- tell INDRI to use 200MB to index documents -->
 		<property name="indexEnvironmentMemory" value="209715200" />
+	</bean>
+
+	<bean id="DocSearchQueryService" class="com.linuxbox.enkive.docsearch.indri.IndriDocSearchQueryService">
+		<property name="indexPaths" value="${enkive.docsearch.indri.index}" />
 	</bean>
 
 	<bean id="ContentAnalyzer"
