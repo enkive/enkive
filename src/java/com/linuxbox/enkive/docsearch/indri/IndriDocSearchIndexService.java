@@ -6,16 +6,12 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import lemurproject.indri.IndexEnvironment;
 import lemurproject.indri.IndexStatus;
 import lemurproject.indri.ParsedDocument;
 import lemurproject.indri.QueryEnvironment;
-import lemurproject.indri.QueryRequest;
-import lemurproject.indri.QueryResult;
-import lemurproject.indri.QueryResults;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -26,9 +22,7 @@ import com.linuxbox.enkive.docsearch.exception.DocSearchException;
 import com.linuxbox.enkive.docstore.DocStoreService;
 import com.linuxbox.enkive.docstore.Document;
 import com.linuxbox.enkive.docstore.exception.DocStoreException;
-import com.linuxbox.util.CollectionUtils;
 import com.linuxbox.util.StreamConnector;
-import com.linuxbox.util.TypeConverter;
 
 public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 	/**
@@ -57,20 +51,6 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 
 	static enum IndexStorage {
 		STRING, FILE, PARSED_DOCUMENT, BY_SIZE
-	}
-
-	/**
-	 * Converts a QueryResult into the docno.
-	 * 
-	 * @author ivancich
-	 * 
-	 */
-	static class QueryResultToDocNameConverter implements
-			TypeConverter<QueryResult, String> {
-		@Override
-		public String convert(QueryResult value) throws Exception {
-			return (String) value.metadata.get(NAME_FIELD);
-		}
 	}
 
 	private final static Log LOGGER = LogFactory
@@ -105,7 +85,6 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 	// private static final IndexStorage INDEX_STORAGE =
 	// IndexStorage.PARSED_DOCUMENT;
 	private static final IndexStorage INDEX_STORAGE = IndexStorage.FILE;
-	private static final QueryResultToDocNameConverter QUERY_RESULT_CONVERTER = new QueryResultToDocNameConverter();
 
 	private String repositoryPath;
 	private String tempStoragePath;
@@ -132,6 +111,11 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 	private long indexEnvironmentCreated;
 	private int indexEnvironmentCount;
 
+	/**
+	 * We need a query environment for removal of documents from the index,
+	 * since we're given the document name and must convert it to a document
+	 * number.
+	 */
 	private QueryEnvironment queryEnvironment;
 
 	/**
@@ -449,8 +433,8 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 	}
 
 	@Override
-	protected void doIndexDocument(String identifier) throws DocSearchException,
-			DocStoreException {
+	protected void doIndexDocument(String identifier)
+			throws DocSearchException, DocStoreException {
 		@SuppressWarnings("unused")
 		int docId = -1;
 		try {
@@ -490,36 +474,45 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 		}
 	}
 
-	/**
-	 * This is an alternate implementation of search. It fails when the document
-	 * is not stored in the INDRI database.
-	 * 
-	 * @param query
-	 * @param maxResults
-	 * @return
-	 * @throws DocSearchException
-	 */
-	@SuppressWarnings("unused")
-	private List<String> searchAlt(String query, int maxResults)
-			throws DocSearchException {
+	@Override
+	public void removeDocument(String identifier) throws DocSearchException {
 		try {
-			QueryRequest request = new QueryRequest();
-			request.query = query;
-			request.startNum = 0;
-			request.resultsRequested = maxResults;
-			request.metadata = METADATA_FIELDS;
+			queryEnvironment.addIndex(repositoryPath);
 
-			// NB: this call will result in an exception if INDRI does not store
-			// a compressed version of the documents
-			QueryResults queryResults = queryEnvironment.runQuery(request);
+			final String[] idListOfOne = { identifier };
+			int documentNumbers[] = queryEnvironment.documentIDsFromMetadata(
+					NAME_FIELD, idListOfOne);
 
-			return CollectionUtils.listFromConvertedArray(queryResults.results,
-					QUERY_RESULT_CONVERTER);
-		} catch (ClassCastException e) {
-			throw new DocSearchException(
-					"could not retrieve document identifer from INDRI query");
+			if (documentNumbers.length == 0) {
+				throw new DocSearchException(
+						"unable to find a document in the index to remove named \""
+								+ identifier + "\"");
+			} else if (documentNumbers.length > 1) {
+				LOGGER.warn("removing multiple (" + documentNumbers.length
+						+ ") documents in the index with name \"" + identifier
+						+ "\"");
+			}
+
+			// Save the last exception of possibly many to throw when finished
+			// with best effort.
+			Exception savedException = null;
+
+			for (int documentNumber : documentNumbers) {
+				try {
+					indexEnvironment.deleteDocument(documentNumber);
+				} catch (Exception e) {
+					savedException = e;
+				}
+			}
+
+			if (savedException != null) {
+				throw savedException;
+			}
+		} catch (DocSearchException e) {
+			throw e;
 		} catch (Exception e) {
-			throw new DocSearchException("could not perform INDRI query", e);
+			throw new DocSearchException("could not remove document \""
+					+ identifier + "\" from index", e);
 		}
 	}
 
