@@ -36,5 +36,5 @@ public interface DocSearchIndexService {
 
 	// PULL INDEXING
 
-	void setUnindexedDocSearchInterval(int milliseconds);
+	void setUnindexedDocRePollInterval(int milliseconds);
 }

@@ -134,6 +134,19 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 
 	private QueryEnvironment queryEnvironment;
 
+	/**
+	 * Construct an Indri indexing service that does not do polling of the doc
+	 * store.
+	 * 
+	 * @param docStoreService
+	 * @param analyzer
+	 * @param repositoryPath
+	 * @param temporaryStoragePath
+	 *            the path to a directory that indri can use for temporary
+	 *            storage; the indexing service should clean up after itself
+	 *            unless it crashes
+	 * @throws DocSearchException
+	 */
 	public IndriDocSearchIndexService(DocStoreService docStoreService,
 			ContentAnalyzer analyzer, String repositoryPath,
 			String temporaryStoragePath) throws DocSearchException {
@@ -142,6 +155,21 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 		this.tempStoragePath = temporaryStoragePath;
 	}
 
+	/**
+	 * Construct an Indri indexing service that will poll the doc store.
+	 * 
+	 * @param docStoreService
+	 * @param analyzer
+	 * @param repositoryPath
+	 * @param temporaryStoragePath
+	 *            the path to a directory that indri can use for temporary
+	 *            storage; the indexing service should clean up after itself
+	 *            unless it crashes
+	 * @param unindexedDocSearchInterval
+	 *            number of seconds to wait when the last poll resulted in no
+	 *            unindexed documents
+	 * @throws DocSearchException
+	 */
 	public IndriDocSearchIndexService(DocStoreService docStoreService,
 			ContentAnalyzer analyzer, String repositoryPath,
 			String temporaryStoragePath, int unindexedDocSearchInterval)
@@ -421,7 +449,7 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 	}
 
 	@Override
-	public void doIndexDocument(String identifier) throws DocSearchException,
+	protected void doIndexDocument(String identifier) throws DocSearchException,
 			DocStoreException {
 		@SuppressWarnings("unused")
 		int docId = -1;
@@ -461,7 +489,6 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 			throw new DocSearchException("errors managing INDRI index", e);
 		}
 	}
-
 
 	/**
 	 * This is an alternate implementation of search. It fails when the document

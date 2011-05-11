@@ -14,8 +14,9 @@ public abstract class AbstractDocSearchIndexService implements
 		DocSearchIndexService {
 	/**
 	 * This is a thread that will try to pull documents from the document store
-	 * that are unindexed and index them. If it finds there are currently no
-	 * unindexed documents, it will go to sleep for a little and then try again.
+	 * that are un-indexed and index them. If it finds there are currently no
+	 * un-indexed documents, it will go to sleep for a little and then try
+	 * again.
 	 * 
 	 * @author ivancich
 	 * 
@@ -56,10 +57,12 @@ public abstract class AbstractDocSearchIndexService implements
 					}
 				}
 
-				try {
-					Thread.sleep(unindexedDocSearchInterval);
-				} catch (InterruptedException e) {
-					// do nothing
+				if (!shouldStop) {
+					try {
+						Thread.sleep(unindexedDocRePollInterval);
+					} catch (InterruptedException e) {
+						// do nothing
+					}
 				}
 			}
 		}
@@ -76,10 +79,11 @@ public abstract class AbstractDocSearchIndexService implements
 	protected ContentAnalyzer contentAnalyzer;
 
 	/**
-	 * In milliseconds; non-positive values indicate that there is no automated
+	 * In MILLISECONDS, although the API exposes it as SECONDS for convenience
+	 * from the outside; non-positive values indicate that there is no automated
 	 * query for un-indexed documents
 	 */
-	protected int unindexedDocSearchInterval;
+	int unindexedDocRePollInterval;
 
 	/**
 	 * True if trying to shut down; this flag will prevent a new thread from
@@ -97,13 +101,13 @@ public abstract class AbstractDocSearchIndexService implements
 		setDocStoreService(service);
 		setContentAnalyzer(analyzer);
 		this.shuttingDown = false;
-		this.unindexedDocSearchInterval = -1;
+		this.unindexedDocRePollInterval = -1;
 	}
 
 	public AbstractDocSearchIndexService(DocStoreService service,
 			ContentAnalyzer analyzer, int unindexedDocSearchInterval) {
 		this(service, analyzer);
-		this.unindexedDocSearchInterval = unindexedDocSearchInterval;
+		this.unindexedDocRePollInterval = unindexedDocSearchInterval;
 	}
 
 	/*
@@ -129,7 +133,7 @@ public abstract class AbstractDocSearchIndexService implements
 
 		// start the thread after they're up and running since we're calling
 		// down into them
-		managePullThread(unindexedDocSearchInterval);
+		managePullThread(unindexedDocRePollInterval);
 	}
 
 	@Override
@@ -153,7 +157,15 @@ public abstract class AbstractDocSearchIndexService implements
 		// then I shut down anything else
 	}
 
-	public abstract void doIndexDocument(String identifier)
+	/**
+	 * Actually index the document described the given identifier.
+	 * 
+	 * @param identifier
+	 *            the unique identifier associated with the document
+	 * @throws DocStoreException
+	 * @throws DocSearchException
+	 */
+	protected abstract void doIndexDocument(String identifier)
 			throws DocStoreException, DocSearchException;
 
 	@Override
@@ -183,9 +195,9 @@ public abstract class AbstractDocSearchIndexService implements
 	}
 
 	@Override
-	public void setUnindexedDocSearchInterval(int milliseconds) {
-		unindexedDocSearchInterval = milliseconds;
-		managePullThread(milliseconds);
+	public void setUnindexedDocRePollInterval(int seconds) {
+		unindexedDocRePollInterval = seconds * 1000;
+		managePullThread(unindexedDocRePollInterval);
 	}
 
 	private synchronized void managePullThread(int milliseconds) {

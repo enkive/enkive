@@ -40,7 +40,7 @@ public class TestMongoGridDocStore {
 
 	private static final boolean DROP_DOCS_ON_STARTUP = false;
 	private static final Indexing INDEXING_METHOD = Indexing.MANUAL_PULL;
-	private static final int INDEXING_POLL_TIME = 1000;
+	private static final int INDEXING_POLL_TIME = 1;
 
 	private static final String INDRI_REPOSITORY_PATH = "/tmp/enkive-indri";
 	private static final String INDRI_TEMP_STORAGE_PATH = "/tmp/enkive-indri-tmp";
@@ -88,10 +88,15 @@ public class TestMongoGridDocStore {
 			DocSearchException {
 		StoreRequestResult result = docStoreService.store(new StringDocument(
 				content, "text/plain", "txt", "7 bit"));
+		indexSet.add(result.getIdentifier());
+
+		System.out.println("archived string " + result.getIdentifier() + " "
+				+ (result.getAlreadyStored() ? "OLD" : "NEW"));
+
 		if (INDEXING_METHOD == Indexing.PUSH) {
-			index(result);
-		} else {
-			indexSet.add(result.getIdentifier());
+			if (!result.getAlreadyStored()) {
+				index(result);
+			}
 		}
 	}
 
@@ -178,7 +183,8 @@ public class TestMongoGridDocStore {
 
 				final String identifier = result.getIdentifier();
 				encodedIdentifierSet.add(identifier);
-				System.out.println("archived encoded " + identifier);
+				System.out.println("archived encoded " + identifier + " "
+						+ (result.getAlreadyStored() ? "OLD" : "NEW"));
 			} catch (Throwable e) {
 				e.printStackTrace();
 			}
@@ -198,7 +204,7 @@ public class TestMongoGridDocStore {
 				StreamConnector.transferForeground(d.getDecodedContentStream(),
 						fileStream);
 				fileStream.close();
-				System.out.println("wrote " + identifier + " to "
+				System.out.println("retrieving " + identifier + " to "
 						+ f.getCanonicalPath());
 			} catch (Throwable e) {
 				e.printStackTrace();
@@ -290,7 +296,7 @@ public class TestMongoGridDocStore {
 					INDRI_TEMP_STORAGE_PATH);
 			if (INDEXING_METHOD == Indexing.AUTO_PULL) {
 				docIndexService
-						.setUnindexedDocSearchInterval(INDEXING_POLL_TIME);
+						.setUnindexedDocRePollInterval(INDEXING_POLL_TIME);
 			}
 			docIndexService.startup();
 
@@ -309,7 +315,7 @@ public class TestMongoGridDocStore {
 					// empty
 				}
 			} else {
-				Thread.sleep(2 * INDEXING_POLL_TIME);
+				Thread.sleep(5000 * INDEXING_POLL_TIME);
 			}
 
 			// searchFor("frack");
