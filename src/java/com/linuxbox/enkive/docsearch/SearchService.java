@@ -16,7 +16,6 @@ public interface SearchService {
 	 */
 	void startup() throws DocSearchException;
 	
-	
 	/**
 	 * Shut down the service and release any resources used by the service.
 	 * @throws DocSearchException 
