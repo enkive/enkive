@@ -1,6 +1,5 @@
 package com.linuxbox.enkive.docstore;
 
-import com.linuxbox.enkive.docsearch.exception.DocSearchException;
 import com.linuxbox.enkive.docstore.exception.DocStoreException;
 import com.linuxbox.enkive.docstore.exception.DocumentNotFoundException;
 import com.linuxbox.enkive.docstore.exception.StorageException;
@@ -74,7 +73,7 @@ public interface DocStoreService {
 
 	/**
 	 * Retrieve the (earliest) un-indexed document for the specific index server
-	 * (assuming the indexing is hsarded). Each server will have an index (0 to
+	 * (assuming the indexing is sharded). Each server will have an index (0 to
 	 * n-1) if there are n indexing servers.
 	 * 
 	 * @return The identifier of a document that's not been indexed.
@@ -86,7 +85,16 @@ public interface DocStoreService {
 	 * retrieved as un-indexed again.
 	 * 
 	 * @param identifier
-	 * @throws DocSearchException
+	 * @throws DocStoreException
 	 */
-	void markAsIndexed(String identifier) throws DocSearchException;
+	void markAsIndexed(String identifier) throws DocStoreException;
+
+	/**
+	 * Marks the given document as having an error during indexing. Another
+	 * process may be able to resolve this.
+	 * 
+	 * @param identifier
+	 * @throws DocStoreException
+	 */
+	void markAsErrorIndexing(String identifier) throws DocStoreException;
 }

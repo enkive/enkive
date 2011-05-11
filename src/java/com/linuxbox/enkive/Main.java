@@ -61,5 +61,7 @@ public class Main {
 		}
 
 		System.out.println("Enkive shutting down (" + shutdownReason + ")...");
+		
+		context.close();
 	}
 }

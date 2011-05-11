@@ -33,7 +33,7 @@ import com.linuxbox.util.TypeConverter;
 
 public class IndriSearchService extends AbstractSearchService {
 	/**
-	 * This is supposed to be a callback that gets status updates. But as of
+	 * This is supposed to be a call-back that gets status updates. But as of
 	 * April 25, 2011, delete would be called for reasons unknown and using it
 	 * in the call to IndexEnvironment::open resulted in runtime errors. So for
 	 * now it's not used.
@@ -81,8 +81,23 @@ public class IndriSearchService extends AbstractSearchService {
 	private static final String NAME_FIELD = "docno";
 	private static final String[] METADATA_FIELDS = { NAME_FIELD };
 
-	private static final long MEMORY_TO_USE = 200 * 1024 * 1024; // 200 MB
 	private static final String STEMMER = "krovetz";
+
+	/**
+	 * How much memory (in bytes) to allow the INDRI indexer to use
+	 */
+	private static final long DEFAULT_MEMORY_TO_USE = 200 * 1024 * 1024; // 200MB
+
+	/**
+	 * How many documents can be indexed under a given IndexEnvironment before
+	 * it's closed and re-created.
+	 */
+	private static final int DEFAULT_INDEX_ENV_DOC_LIMIT = 25;
+
+	/**
+	 * How many seconds between creating a new IndexEnvironment;
+	 */
+	private static final int DEFAULT_INDEX_ENV_TIME_LIMIT_SECONDS = 60;
 
 	private static final String TEXT_FORMAT = "txt";
 	private static final String TRECTEXT_FORMAT = "trectext";
@@ -94,16 +109,38 @@ public class IndriSearchService extends AbstractSearchService {
 	private static final QueryResultToDocNameConverter QUERY_RESULT_CONVERTER = new QueryResultToDocNameConverter();
 
 	private String repositoryPath;
+	private String tempStoragePath;
 	private File tempStorageDir;
 
+	/**
+	 * How many documents to index before closing an index environment (which
+	 * causes a save-to-disk) and opening a new one.
+	 */
+	private int indexEnvironmentDocLimit = DEFAULT_INDEX_ENV_DOC_LIMIT;
+
+	/**
+	 * How many seconds since an index environment was opened to close it (which
+	 * causes a save-to-disk) and opening a new one.
+	 */
+	private int indexEnvironmentTimeLimitSeconds = DEFAULT_INDEX_ENV_TIME_LIMIT_SECONDS;
+
+	/**
+	 * How much memory to allow INDRI to use.
+	 */
+	private long indexEnvironmentMemory = DEFAULT_MEMORY_TO_USE;
+
 	private IndexEnvironment indexEnvironment;
+	private long indexEnvironmentCreated;
+	private int indexEnvironmentCount;
+
 	private QueryEnvironment queryEnvironment;
 
 	public IndriSearchService(DocStoreService docStoreService,
 			ContentAnalyzer analyzer, String repositoryPath,
 			String temporaryStoragePath) throws DocSearchException {
 		super(docStoreService, analyzer);
-		finishConstruction(repositoryPath, temporaryStoragePath);
+		this.repositoryPath = repositoryPath;
+		this.tempStoragePath = temporaryStoragePath;
 	}
 
 	public IndriSearchService(DocStoreService docStoreService,
@@ -111,16 +148,26 @@ public class IndriSearchService extends AbstractSearchService {
 			String temporaryStoragePath, int unindexedDocSearchInterval)
 			throws DocSearchException {
 		super(docStoreService, analyzer, unindexedDocSearchInterval);
-		finishConstruction(repositoryPath, temporaryStoragePath);
+		this.repositoryPath = repositoryPath;
+		this.tempStoragePath = temporaryStoragePath;
 	}
 
 	@Override
-	public void startup() {
-		// empty
+	public void subStartup() throws DocSearchException {
+		initializeTemporaryStorage(tempStoragePath);
+		createIndexEnvironment();
+
+		try {
+			queryEnvironment = new QueryEnvironment();
+			queryEnvironment.addIndex(repositoryPath);
+		} catch (Exception e1) {
+			throw new DocSearchException(
+					"could not create an INDRI query environment", e1);
+		}
 	}
 
 	@Override
-	public void shutdown() throws DocSearchException {
+	public void subShutdown() throws DocSearchException {
 		Exception e = null;
 
 		if (queryEnvironment != null) {
@@ -157,8 +204,9 @@ public class IndriSearchService extends AbstractSearchService {
 		}
 	}
 
-	private static void initializeIndexEnvironment(
-			IndexEnvironment indexEnvironment) throws DocSearchException {
+	private void createIndexEnvironment() throws DocSearchException {
+		indexEnvironment = new IndexEnvironment();
+
 		try {
 			indexEnvironment.setStoreDocs(STORE_DOCUMENTS);
 			indexEnvironment.setStemmer(STEMMER);
@@ -167,43 +215,26 @@ public class IndriSearchService extends AbstractSearchService {
 					METADATA_FIELDS);
 			indexEnvironment.setNormalization(true);
 
-			if (MEMORY_TO_USE > 0) {
-				indexEnvironment.setMemory(MEMORY_TO_USE);
+			if (indexEnvironmentMemory > 0) {
+				indexEnvironment.setMemory(indexEnvironmentMemory);
 			}
 		} catch (Exception e) {
 			throw new DocSearchException(
 					"could not initialize INDRI index environment", e);
 		}
-	}
-
-	private void finishConstruction(String repositoryPath,
-			String temporaryStoragePath) throws DocSearchException {
-		initializeTemporaryStorage(temporaryStoragePath);
-
-		this.repositoryPath = repositoryPath;
-		indexEnvironment = new IndexEnvironment();
-		initializeIndexEnvironment(indexEnvironment);
 
 		// try to open existing repository; if that fails try to create one and
 		// open it
 		try {
-			indexEnvironment.open(repositoryPath);
+			openIndexEnvironment();
 		} catch (Exception e1) {
 			createIndriRepository(indexEnvironment, repositoryPath);
 			try {
-				indexEnvironment.open(repositoryPath);
+				openIndexEnvironment();
 			} catch (Exception e2) {
 				throw new DocSearchException(
 						"could not open the INDRI repository", e2);
 			}
-		}
-
-		try {
-			queryEnvironment = new QueryEnvironment();
-			queryEnvironment.addIndex(repositoryPath);
-		} catch (Exception e1) {
-			throw new DocSearchException(
-					"could not create an INDRI query environment", e1);
 		}
 	}
 
@@ -419,6 +450,10 @@ public class IndriSearchService extends AbstractSearchService {
 				}
 				break;
 			}
+
+			// this will close the index environment and re-open it under
+			// certain conditions
+			indexPostProcessing();
 		} catch (DocStoreException e) {
 			throw e;
 		} catch (DocSearchException e) {
@@ -477,5 +512,73 @@ public class IndriSearchService extends AbstractSearchService {
 
 	public String getRepositoryPath() {
 		return repositoryPath;
+	}
+
+	public int getIndexEnvironmentDocLimit() {
+		return indexEnvironmentDocLimit;
+	}
+
+	public void setIndexEnvironmentDocLimit(int indexEnvironmentDocLimit) {
+		this.indexEnvironmentDocLimit = indexEnvironmentDocLimit;
+	}
+
+	public int getIndexEnvironmentTimeLimitSeconds() {
+		return indexEnvironmentTimeLimitSeconds;
+	}
+
+	public void setIndexEnvironmentTimeLimitSeconds(
+			int indexEnvironmentTimeLimitSeconds) {
+		this.indexEnvironmentTimeLimitSeconds = indexEnvironmentTimeLimitSeconds;
+	}
+
+	public long getIndexEnvironmentMemory() {
+		return indexEnvironmentMemory;
+	}
+
+	public void setIndexEnvironmentMemory(long indexEnvironmentMemory) {
+		this.indexEnvironmentMemory = indexEnvironmentMemory;
+	}
+
+	public long getIndexEnvironmentCreated() {
+		return indexEnvironmentCreated;
+	}
+
+	public void setIndexEnvironmentCreated(long indexEnvironmentCreated) {
+		this.indexEnvironmentCreated = indexEnvironmentCreated;
+	}
+
+	public int getIndexEnvironmentCount() {
+		return indexEnvironmentCount;
+	}
+
+	public void setIndexEnvironmentCount(int indexEnvironmentCount) {
+		this.indexEnvironmentCount = indexEnvironmentCount;
+	}
+
+	private void openIndexEnvironment() throws Exception {
+		if (indexEnvironmentMemory > 0) {
+			// in case it was changed, we can modify the amount at
+			// re-open...MAYBE depending on how INDRI handles this.
+			indexEnvironment.setMemory(indexEnvironmentMemory);
+		}
+		indexEnvironment.open(repositoryPath);
+		indexEnvironmentCount = 0;
+		indexEnvironmentCreated = System.currentTimeMillis();
+	}
+
+	private void indexPostProcessing() throws DocSearchException {
+		indexEnvironmentCount++;
+		final long now = System.currentTimeMillis();
+		final long timeSpanMilliseconds = now - indexEnvironmentCreated;
+		if (timeSpanMilliseconds > 1000 * indexEnvironmentTimeLimitSeconds
+				|| indexEnvironmentCount >= indexEnvironmentDocLimit) {
+			try {
+				indexEnvironment.close();
+				openIndexEnvironment();
+			} catch (Exception e) {
+				throw new DocSearchException(
+						"could not close/open index environment", e);
+			}
+		}
 	}
 }
