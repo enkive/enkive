@@ -89,7 +89,7 @@ public abstract class AbstractDocSearchIndexService implements
 	 * True if trying to shut down; this flag will prevent a new thread from
 	 * being created while we're trying to shut down the current one.
 	 */
-	private boolean shuttingDown;
+	protected boolean shuttingDown;
 
 	/**
 	 * The thread that polls the DocStoreService for unindexed documents.

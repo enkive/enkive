@@ -107,9 +107,15 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 	 */
 	private long indexEnvironmentMemory = DEFAULT_MEMORY_TO_USE;
 
+	/**
+	 * Used to control access to the index environment; needed in case an
+	 * outside caller wants to refresh the index environment.
+	 */
+	private Object indexEnvironmentMutex;
+
 	private IndexEnvironment indexEnvironment;
 	private long indexEnvironmentCreated;
-	private int indexEnvironmentCount;
+	private int indexEnvironmentDocCount;
 
 	/**
 	 * We need a query environment for removal of documents from the index,
@@ -191,7 +197,10 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 
 		if (indexEnvironment != null) {
 			try {
-				indexEnvironment.close();
+				synchronized (indexEnvironmentMutex) {
+					indexEnvironment.close();
+					indexEnvironment = null;
+				}
 			} catch (Exception e1) {
 				e = e1;
 			}
@@ -300,9 +309,12 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 			Map<String, String> metaData = new HashMap<String, String>();
 
 			metaData.put(NAME_FIELD, identifier);
-			System.out.println(docString.toString());
-			final int documentId = indexEnvironment.addString(
-					docString.toString(), TEXT_FORMAT, metaData);
+
+			int documentId;
+			synchronized (indexEnvironmentMutex) {
+				documentId = indexEnvironment.addString(docString.toString(),
+						TEXT_FORMAT, metaData);
+			}
 			return documentId;
 		} catch (DocStoreException e) {
 			throw e;
@@ -332,8 +344,10 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 				output.println("</DOC>");
 				output.close();
 
-				indexEnvironment.addFile(tempFile.getAbsolutePath(),
-						TRECTEXT_FORMAT);
+				synchronized (indexEnvironmentMutex) {
+					indexEnvironment.addFile(tempFile.getAbsolutePath(),
+							TRECTEXT_FORMAT);
+				}
 			} finally {
 				tempFile.delete();
 			}
@@ -385,6 +399,7 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 		};
 
 		try {
+			// do not use indexEnvironmentMutex because this is testing code
 			final int docId = indexEnvironment.addParsedDocument(parsedDoc);
 			return docId;
 		} catch (Exception e) {
@@ -424,6 +439,7 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 		};
 
 		try {
+			// do not use indexEnvironmentMutex because this is testing code
 			final int docId = indexEnvironment.addParsedDocument(parsedDoc);
 			return docId;
 		} catch (Exception e) {
@@ -497,11 +513,17 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 			// with best effort.
 			Exception savedException = null;
 
-			for (int documentNumber : documentNumbers) {
-				try {
-					indexEnvironment.deleteDocument(documentNumber);
-				} catch (Exception e) {
-					savedException = e;
+			synchronized (indexEnvironmentMutex) {
+				if (shuttingDown) {
+					throw new DocSearchException(
+							"could not remove a document because the INDRI doc search index server was shut down");
+				}
+				for (int documentNumber : documentNumbers) {
+					try {
+						indexEnvironment.deleteDocument(documentNumber);
+					} catch (Exception e) {
+						savedException = e;
+					}
 				}
 			}
 
@@ -545,22 +567,6 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 		this.indexEnvironmentMemory = indexEnvironmentMemory;
 	}
 
-	public long getIndexEnvironmentCreated() {
-		return indexEnvironmentCreated;
-	}
-
-	public void setIndexEnvironmentCreated(long indexEnvironmentCreated) {
-		this.indexEnvironmentCreated = indexEnvironmentCreated;
-	}
-
-	public int getIndexEnvironmentCount() {
-		return indexEnvironmentCount;
-	}
-
-	public void setIndexEnvironmentCount(int indexEnvironmentCount) {
-		this.indexEnvironmentCount = indexEnvironmentCount;
-	}
-
 	private void openIndexEnvironment() throws Exception {
 		if (indexEnvironmentMemory > 0) {
 			// in case it was changed, we can modify the amount at
@@ -568,19 +574,30 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 			indexEnvironment.setMemory(indexEnvironmentMemory);
 		}
 		indexEnvironment.open(repositoryPath);
-		indexEnvironmentCount = 0;
+		indexEnvironmentDocCount = 0;
 		indexEnvironmentCreated = System.currentTimeMillis();
 	}
 
+	public void refreshIndexEnvironment() throws DocSearchException {
+		try {
+			synchronized (indexEnvironmentMutex) {
+				indexEnvironment.close();
+				openIndexEnvironment();
+			}
+		} catch (Exception e) {
+			throw new DocSearchException("could not refresh index environment",
+					e);
+		}
+	}
+
 	private void indexPostProcessing() throws DocSearchException {
-		indexEnvironmentCount++;
+		indexEnvironmentDocCount++;
 		final long now = System.currentTimeMillis();
 		final long timeSpanMilliseconds = now - indexEnvironmentCreated;
 		if (timeSpanMilliseconds > 1000 * indexEnvironmentTimeLimitSeconds
-				|| indexEnvironmentCount >= indexEnvironmentDocLimit) {
+				|| indexEnvironmentDocCount >= indexEnvironmentDocLimit) {
 			try {
-				indexEnvironment.close();
-				openIndexEnvironment();
+				refreshIndexEnvironment();
 			} catch (Exception e) {
 				throw new DocSearchException(
 						"could not close/open index environment", e);
