@@ -10,6 +10,7 @@
 		<constructor-arg type="java.lang.String" value="fs" />
 
 		<property name="inMemoryLimit" value="${enkive.docstore.buffersize}" />
+		<property name="lockService" ref="LockService" />
 	</bean>
 
 	<bean id="DocSearchIndexService"
@@ -23,7 +24,6 @@
 		<property name="indexEnvironmentDocLimit" value="${enkive.docsearch.index.indri.envDocLimit}" />
 		<property name="indexEnvironmentTimeLimitSeconds" value="${enkive.docsearch.index.indri.envTimeLimit}" />
 
-		<!-- tell INDRI to use 200MB to index documents -->
 		<property name="indexEnvironmentMemory" value="${enkive.docsearch.index.indri.memory}" />
 	</bean>
 
@@ -36,4 +36,8 @@
 	<bean id="ContentAnalyzer"
 		class="com.linuxbox.enkive.docsearch.contentanalyzer.tika.TikaContentAnalyzer" />
 
+	<bean id="LockService" class="com.linuxbox.util.lockservice.mongodb.MongoLockService">
+		<constructor-arg value="${enkive.lockservice.db.name}" />
+		<constructor-arg value="lockService" />
+	</bean>
 </beans>

@@ -1,7 +1,6 @@
 package com.linuxbox.enkive.docstore.mongogrid;
 
 import static com.linuxbox.enkive.docstore.mongogrid.Constants.BINARY_ENCODING_KEY;
-import static com.linuxbox.enkive.docstore.mongogrid.Constants.CONT_FILE_COLLECTION;
 import static com.linuxbox.enkive.docstore.mongogrid.Constants.FILENAME_KEY;
 import static com.linuxbox.enkive.docstore.mongogrid.Constants.FILE_EXTENSION_KEY;
 import static com.linuxbox.enkive.docstore.mongogrid.Constants.GRID_FS_FILES_COLLECTION_SUFFIX;
@@ -25,6 +24,7 @@ import com.linuxbox.enkive.docstore.StoreRequestResultImpl;
 import com.linuxbox.enkive.docstore.exception.DocStoreException;
 import com.linuxbox.enkive.docstore.exception.DocumentNotFoundException;
 import com.linuxbox.util.HashingInputStream;
+import com.linuxbox.util.lockservice.LockService;
 import com.linuxbox.util.lockservice.LockServiceException;
 import com.linuxbox.util.lockservice.mongodb.MongoLockService;
 import com.mongodb.BasicDBObject;
@@ -55,6 +55,8 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 	static final int STATUS_ERROR = 3;
 	static final int STATUS_STALE = 4;
 
+	private static final String DEFAULT_LOCK_SERVICE_COLLECTION_NAME = "lockService";
+
 	/*
 	 * Notations for lock records.
 	 */
@@ -72,7 +74,8 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 
 	GridFS gridFS; // keep visible to tests
 	private DBCollection filesCollection;
-	private MongoLockService lockService;
+	private LockService lockService;
+	private boolean createdLockService;
 
 	public MongoGridDocStoreService(String host, int port, String dbName,
 			String bucketName) throws UnknownHostException {
@@ -116,22 +119,38 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 				.add(INDEX_STATUS_KEY, 1).add(INDEX_TIMESTAMP_KEY, 1).get();
 		filesCollection.ensureIndex(searchIndexingIndex, "indexingStatusIndex",
 				false);
-
-		// file locking service
-
-		final DBCollection fileLockCollection = gridFS.getDB().getCollection(
-				CONT_FILE_COLLECTION);
-		lockService = new MongoLockService(fileLockCollection);
 	}
 
 	@Override
-	public void startup() {
-		// empty
+	public void startup() throws DocStoreException {
+		if (lockService == null) {
+			final String dbName = getDb().getName();
+			createdLockService = true;
+			try {
+				lockService = new MongoLockService(dbName,
+						DEFAULT_LOCK_SERVICE_COLLECTION_NAME);
+				lockService.startup();
+			} catch (Exception e) {
+				throw new DocStoreException(
+						"could not start MongoGridDocStoreService due to internally managed lock service",
+						e);
+			}
+		}
 	}
 
 	@Override
-	public void shutdown() {
-		getMongo().close();
+	public void shutdown() throws DocStoreException {
+		try {
+			if (createdLockService) {
+				lockService.shutdown();
+			}
+		} catch (Exception e) {
+			throw new DocStoreException(
+					"could not cleanly shut down MongoGridDocStoreService due to internally managed lock service",
+					e);
+		} finally {
+			getMongo().close();
+		}
 	}
 
 	/**
@@ -323,6 +342,14 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 
 	private Mongo getMongo() {
 		return getDb().getMongo();
+	}
+
+	public LockService getLockService() {
+		return lockService;
+	}
+
+	public void setLockService(LockService lockService) {
+		this.lockService = lockService;
 	}
 
 	/**

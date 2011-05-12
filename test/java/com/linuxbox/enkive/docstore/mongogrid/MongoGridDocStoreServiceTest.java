@@ -22,6 +22,7 @@ import com.linuxbox.enkive.docstore.AbstractDocStoreService;
 import com.linuxbox.enkive.docstore.Document;
 import com.linuxbox.enkive.docstore.StoreRequestResult;
 import com.linuxbox.enkive.docstore.StringDocument;
+import com.linuxbox.enkive.docstore.exception.DocStoreException;
 import com.linuxbox.util.HashingInputStream;
 import com.mongodb.gridfs.GridFSFile;
 
@@ -48,7 +49,7 @@ public class MongoGridDocStoreServiceTest {
 	}
 
 	@AfterClass
-	public static void tearDownClass() {
+	public static void tearDownClass() throws DocStoreException {
 		service.getDb().dropDatabase();
 		service.shutdown();
 	}

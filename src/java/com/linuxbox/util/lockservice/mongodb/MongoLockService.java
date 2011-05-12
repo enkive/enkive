@@ -1,13 +1,16 @@
 package com.linuxbox.util.lockservice.mongodb;
 
+import java.net.UnknownHostException;
 import java.util.Date;
 
 import com.linuxbox.util.lockservice.LockAcquisitionException;
 import com.linuxbox.util.lockservice.LockReleaseException;
 import com.linuxbox.util.lockservice.LockService;
 import com.mongodb.BasicDBObjectBuilder;
+import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
+import com.mongodb.Mongo;
 import com.mongodb.MongoException;
 import com.mongodb.QueryBuilder;
 import com.mongodb.WriteConcern;
@@ -41,11 +44,32 @@ public class MongoLockService implements LockService {
 	private static String LOCK_NOTE_KEY = "note";
 	private static String LOCK_TIMESTAMP_KEY = "timestamp";
 
+	private Mongo mongo;
+	private DB mongoDB;
 	private DBCollection lockCollection;
+
+	public MongoLockService(String server, int port, String database,
+			String collection) throws UnknownHostException, MongoException {
+		mongo = new Mongo(server, port);
+		mongoDB = mongo.getDB(database);
+		lockCollection = mongoDB.getCollection(collection);
+		finishConstruction();
+	}
+
+	public MongoLockService(String database, String collection)
+			throws UnknownHostException, MongoException {
+		mongo = new Mongo();
+		mongoDB = mongo.getDB(database);
+		lockCollection = mongoDB.getCollection(collection);
+		finishConstruction();
+	}
 
 	public MongoLockService(DBCollection collection) {
 		this.lockCollection = collection;
+		finishConstruction();
+	}
 
+	private void finishConstruction() {
 		lockCollection.setWriteConcern(WriteConcern.FSYNC_SAFE);
 
 		// We want the identifier index to be unique, as that's how we
@@ -55,6 +79,16 @@ public class MongoLockService implements LockService {
 		DBObject lockIndex = BasicDBObjectBuilder.start()
 				.add(LOCK_IDENTIFIER_KEY, 1).get();
 		lockCollection.ensureIndex(lockIndex, "lockIndex", mustBeUnique);
+	}
+
+	public void startup() {
+		// empty
+	}
+
+	public void shutdown() {
+		if (mongo != null) {
+			mongo.close();
+		}
 	}
 
 	/**
