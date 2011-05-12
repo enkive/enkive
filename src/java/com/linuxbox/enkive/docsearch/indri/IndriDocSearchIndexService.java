@@ -143,6 +143,7 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 		super(docStoreService, analyzer);
 		this.repositoryPath = repositoryPath;
 		this.tempStoragePath = temporaryStoragePath;
+		this.indexEnvironmentMutex = new Object();
 	}
 
 	/**
@@ -167,6 +168,7 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 		super(docStoreService, analyzer, unindexedDocSearchInterval);
 		this.repositoryPath = repositoryPath;
 		this.tempStoragePath = temporaryStoragePath;
+		this.indexEnvironmentMutex = new Object();
 	}
 
 	@Override
