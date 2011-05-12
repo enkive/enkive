@@ -1,7 +1,10 @@
-package com.linuxbox.util.mongodb;
+package com.linuxbox.util.lockservice.mongodb;
 
 import java.util.Date;
 
+import com.linuxbox.util.lockservice.LockAcquisitionException;
+import com.linuxbox.util.lockservice.LockReleaseException;
+import com.linuxbox.util.lockservice.LockService;
 import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
@@ -9,7 +12,7 @@ import com.mongodb.MongoException;
 import com.mongodb.QueryBuilder;
 import com.mongodb.WriteConcern;
 
-public class MongoLockingService {
+public class MongoLockService implements LockService {
 	public static class LockRequestFailure {
 		public String identifier;
 		public Date holderTimestamp;
@@ -40,7 +43,7 @@ public class MongoLockingService {
 
 	private DBCollection lockCollection;
 
-	public MongoLockingService(DBCollection collection) {
+	public MongoLockService(DBCollection collection) {
 		this.lockCollection = collection;
 
 		lockCollection.setWriteConcern(WriteConcern.FSYNC_SAFE);

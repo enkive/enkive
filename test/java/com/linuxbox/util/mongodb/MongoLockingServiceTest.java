@@ -13,14 +13,16 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.linuxbox.util.mongodb.MongoLockingService.LockRequestFailure;
+import com.linuxbox.util.lockservice.LockReleaseException;
+import com.linuxbox.util.lockservice.mongodb.MongoLockService;
+import com.linuxbox.util.lockservice.mongodb.MongoLockService.LockRequestFailure;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.Mongo;
 
 public class MongoLockingServiceTest {
 	static DB database;
-	static MongoLockingService service;
+	static MongoLockService service;
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
@@ -29,7 +31,7 @@ public class MongoLockingServiceTest {
 		database = mongo.getDB("test:" + dbUUID.toString());
 		DBCollection lockCollection = database
 				.getCollection("testMongoLockingService");
-		service = new MongoLockingService(lockCollection);
+		service = new MongoLockService(lockCollection);
 	}
 
 	@AfterClass

@@ -25,8 +25,8 @@ import com.linuxbox.enkive.docstore.StoreRequestResultImpl;
 import com.linuxbox.enkive.docstore.exception.DocStoreException;
 import com.linuxbox.enkive.docstore.exception.DocumentNotFoundException;
 import com.linuxbox.util.HashingInputStream;
-import com.linuxbox.util.mongodb.MongoLockingService;
-import com.linuxbox.util.mongodb.MongoLockingServiceException;
+import com.linuxbox.util.lockservice.LockServiceException;
+import com.linuxbox.util.lockservice.mongodb.MongoLockService;
 import com.mongodb.BasicDBObject;
 import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DB;
@@ -72,7 +72,7 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 
 	GridFS gridFS; // keep visible to tests
 	private DBCollection filesCollection;
-	private MongoLockingService lockService;
+	private MongoLockService lockService;
 
 	public MongoGridDocStoreService(String host, int port, String dbName,
 			String bucketName) throws UnknownHostException {
@@ -121,7 +121,7 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 
 		final DBCollection fileLockCollection = gridFS.getDB().getCollection(
 				CONT_FILE_COLLECTION);
-		lockService = new MongoLockingService(fileLockCollection);
+		lockService = new MongoLockService(fileLockCollection);
 	}
 
 	@Override
@@ -242,7 +242,7 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 			} finally {
 				lockService.releaseLock(actualName);
 			}
-		} catch (MongoLockingServiceException e) {
+		} catch (LockServiceException e) {
 			throw new DocStoreException(e);
 		}
 	}
@@ -308,7 +308,7 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 			} finally {
 				lockService.releaseLock(identifier);
 			}
-		} catch (MongoLockingServiceException e) {
+		} catch (LockServiceException e) {
 			throw new DocStoreException(e);
 		}
 	}
