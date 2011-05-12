@@ -14,8 +14,6 @@ import lemurproject.indri.IndexStatus;
 
 import org.apache.james.mime4j.util.MimeUtil;
 
-import com.linuxbox.enkive.docsearch.DocSearchIndexService;
-import com.linuxbox.enkive.docsearch.DocSearchQueryService;
 import com.linuxbox.enkive.docsearch.contentanalyzer.tika.TikaContentAnalyzer;
 import com.linuxbox.enkive.docsearch.exception.DocSearchException;
 import com.linuxbox.enkive.docsearch.indri.IndriDocSearchIndexService;
@@ -39,15 +37,15 @@ public class TestMongoGridDocStore {
 	};
 
 	private static final boolean DROP_DOCS_ON_STARTUP = false;
-	private static final Indexing INDEXING_METHOD = Indexing.MANUAL_PULL;
+	private static final Indexing INDEXING_METHOD = Indexing.AUTO_PULL;
 	private static final int INDEXING_POLL_TIME = 1;
 
 	private static final String INDRI_REPOSITORY_PATH = "/tmp/enkive-indri";
 	private static final String INDRI_TEMP_STORAGE_PATH = "/tmp/enkive-indri-tmp";
 
 	static DocStoreService docStoreService;
-	static DocSearchIndexService docIndexService;
-	static DocSearchQueryService docQueryService;
+	static IndriDocSearchIndexService docIndexService;
+	static IndriDocSearchQueryService docQueryService;
 	static Set<String> indexSet = new HashSet<String>();
 
 	static class RecordedIndexStatus extends IndexStatus {
@@ -93,10 +91,8 @@ public class TestMongoGridDocStore {
 		System.out.println("archived string " + result.getIdentifier() + " "
 				+ (result.getAlreadyStored() ? "OLD" : "NEW"));
 
-		if (INDEXING_METHOD == Indexing.PUSH) {
-			if (!result.getAlreadyStored()) {
-				index(result);
-			}
+		if (INDEXING_METHOD == Indexing.PUSH && !result.getAlreadyStored()) {
+			index(result);
 		}
 	}
 
@@ -179,7 +175,11 @@ public class TestMongoGridDocStore {
 						+ fileRec.name, fileRec.mimeType, fileRec.suffix,
 						fileRec.encoding);
 				StoreRequestResult result = docStoreService.store(d);
-				index(result);
+
+				if (INDEXING_METHOD == Indexing.PUSH
+						&& !result.getAlreadyStored()) {
+					index(result);
+				}
 
 				final String identifier = result.getIdentifier();
 				encodedIdentifierSet.add(identifier);
@@ -286,6 +286,7 @@ public class TestMongoGridDocStore {
 
 		try {
 			if (DROP_DOCS_ON_STARTUP) {
+				System.out.println("DROPping existing documents");
 				dropGridFSCollections("enkive", "fs");
 			}
 			docStoreService = new MongoGridDocStoreService("enkive", "fs");
@@ -302,6 +303,7 @@ public class TestMongoGridDocStore {
 
 			docQueryService = new IndriDocSearchQueryService(
 					INDRI_REPOSITORY_PATH);
+			docQueryService.setQueryEnvironmentRefreshInterval(2000);
 			docQueryService.startup();
 
 			archiveAll();
@@ -317,6 +319,11 @@ public class TestMongoGridDocStore {
 			} else {
 				Thread.sleep(5000 * INDEXING_POLL_TIME);
 			}
+
+			searchFor("#1(the question)");
+
+			docIndexService.refreshIndexEnvironment();
+			docQueryService.refreshQueryEnvironment();
 
 			// searchFor("frack");
 			searchFor("#1(the question)");
