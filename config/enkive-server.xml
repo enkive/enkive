@@ -40,4 +40,10 @@
 		<constructor-arg value="${enkive.lockservice.db.name}" />
 		<constructor-arg value="lockService" />
 	</bean>
+
+	<bean id="QueueService"
+		class="com.linuxbox.util.queueservice.mongodb.MongoQueueService">
+		<constructor-arg value="${enkive.queueservice.db.name}" />
+		<constructor-arg value="queueService" />
+	</bean>
 </beans>
