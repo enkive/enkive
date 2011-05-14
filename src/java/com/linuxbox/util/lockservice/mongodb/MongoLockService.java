@@ -47,29 +47,26 @@ public class MongoLockService implements LockService {
 	private Mongo mongo;
 	private DB mongoDB;
 	private DBCollection lockCollection;
+	private boolean mongoCreated;
 
 	public MongoLockService(String server, int port, String database,
 			String collection) throws UnknownHostException, MongoException {
-		mongo = new Mongo(server, port);
-		mongoDB = mongo.getDB(database);
-		lockCollection = mongoDB.getCollection(collection);
-		finishConstruction();
+		this(new Mongo(server, port), database, collection);
+		mongoCreated = true;
 	}
 
 	public MongoLockService(String database, String collection)
 			throws UnknownHostException, MongoException {
-		mongo = new Mongo();
+		this(new Mongo(), database, collection);
+		mongoCreated = true;
+	}
+
+	public MongoLockService(Mongo mongo, String database, String collection)
+			throws UnknownHostException, MongoException {
+		this.mongo = mongo;
 		mongoDB = mongo.getDB(database);
 		lockCollection = mongoDB.getCollection(collection);
-		finishConstruction();
-	}
 
-	public MongoLockService(DBCollection collection) {
-		this.lockCollection = collection;
-		finishConstruction();
-	}
-
-	private void finishConstruction() {
 		lockCollection.setWriteConcern(WriteConcern.FSYNC_SAFE);
 
 		// We want the identifier index to be unique, as that's how we
@@ -86,7 +83,7 @@ public class MongoLockService implements LockService {
 	}
 
 	public void shutdown() {
-		if (mongo != null) {
+		if (mongoCreated) {
 			mongo.close();
 		}
 	}

@@ -35,16 +35,17 @@ public class MongoQueueServiceTest {
 
 	@AfterClass
 	public static void tearDownAfterClass() throws Exception {
-		mongo.close();
 		service.shutdown();
+		
+		DB db = mongo.getDB(DB_NAME);
+		db.dropDatabase();
+		
+		mongo.close();
 	}
 
 	@Before
 	public void setUp() throws Exception {
-		/*
-		 * DB db = mongo.getDB(DB_NAME); DBCollection coll =
-		 * db.getCollection(DB_COLLECTION); coll.drop();
-		 */
+		// empty
 	}
 
 	@After
