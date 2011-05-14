@@ -37,13 +37,22 @@
 		class="com.linuxbox.enkive.docsearch.contentanalyzer.tika.TikaContentAnalyzer" />
 
 	<bean id="LockService" class="com.linuxbox.util.lockservice.mongodb.MongoLockService">
+		<constructor-arg ref="Mongo" />
 		<constructor-arg value="${enkive.lockservice.db.name}" />
 		<constructor-arg value="lockService" />
 	</bean>
 
 	<bean id="QueueService"
 		class="com.linuxbox.util.queueservice.mongodb.MongoQueueService">
+		<constructor-arg ref="Mongo" />
 		<constructor-arg value="${enkive.queueservice.db.name}" />
 		<constructor-arg value="queueService" />
+	</bean>
+
+	<!-- Create a Mongo shared by various services; that way if the MongoDB 
+		lives on another server or a unique port, that can be configured once. -->
+
+	<bean id="Mongo" class="com.mongodb.Mongo" destroy-method="close">
+		<!-- empty for now -->
 	</bean>
 </beans>
