@@ -1,5 +1,7 @@
 package com.linuxbox.util.queueservice.mongodb;
 
+import static com.linuxbox.util.mongodb.MongoDBConstants.OBJECT_ID_KEY;
+
 import java.net.UnknownHostException;
 import java.util.Date;
 
@@ -29,12 +31,30 @@ public class MongoQueueService implements QueueService {
 	private static final int STATUS_INITIAL = 1;
 	private static final int STATUS_PENDING = 2;
 
+	// Some standard DBObjects used for queries; only create them once and re-use.
+
+	private static final DBObject QUERY_INITIAL_STATUS = new BasicDBObject(
+			STATUS_FIELD, STATUS_INITIAL);
+	private static final DBObject UPDATE_TO_PENDING = new BasicDBObject(
+			DEQUEUED_AT_FIELD, new BSONTimestamp()).append(STATUS_FIELD,
+			STATUS_PENDING);
+	private static final DBObject DEQUEUE_FIELDS = new BasicDBObject(
+			OBJECT_ID_KEY, 1).append(IDENTIFIER_FIELD, 1).append(NOTE_FIELD, 1)
+			.append(CREATED_AT_FIELD, 1);
+	private static final DBObject SORT_BY_CREATED_AT = new BasicDBObject(
+			CREATED_AT_FIELD, 1);
+
 	@SuppressWarnings("unused")
 	private static final int STATUS_COMPLETE = 3;
 
 	private Mongo mongo;
 	private DB mongoDB;
 	private DBCollection queueCollection;
+
+	/**
+	 * Keep track of whether we created the instance of Mongo, as if so, we'll
+	 * have to close it.
+	 */
 	private boolean createdMongo;
 
 	public MongoQueueService(String server, int port, String database,
@@ -54,11 +74,26 @@ public class MongoQueueService implements QueueService {
 		this.mongoDB = mongo.getDB(database);
 		this.queueCollection = mongoDB.getCollection(collection);
 
-		DBObject statusTimestampIndex = new BasicDBObject(STATUS_FIELD, 1)
-				.append(CREATED_AT_FIELD, 1).append(IDENTIFIER_FIELD, 1);
-		queueCollection.ensureIndex(statusTimestampIndex,
-				"statusTimestampIdentifierIndex");
+		// For MongoDB multi-key indexes to work the most efficiently, the
+		// queried fields should appear before the sorting fields in the
+		// indexes.
 
+		// This index is used for finding the earliest entry with a given
+		// status.
+		final DBObject statusTimestampIndex = new BasicDBObject(STATUS_FIELD, 1)
+				.append(CREATED_AT_FIELD, 1);
+		queueCollection.ensureIndex(statusTimestampIndex,
+				"statusTimestampIndex");
+
+		// This index is used for finding the earliest entry with a given status
+		// and identifier.
+		final DBObject statusIdentifierTimestampIndex = new BasicDBObject(
+				STATUS_FIELD, 1).append(IDENTIFIER_FIELD, 1).append(
+				CREATED_AT_FIELD, 1);
+		queueCollection.ensureIndex(statusIdentifierTimestampIndex,
+				"statusIdentifierTimestampIndex");
+
+		// Make sure data is written out to disk before operation is complete.
 		queueCollection.setWriteConcern(WriteConcern.FSYNC_SAFE);
 	}
 
@@ -95,40 +130,41 @@ public class MongoQueueService implements QueueService {
 
 	@Override
 	public QueueEntry dequeue() throws QueueServiceException {
-		DBObject query = new BasicDBObject(STATUS_FIELD, STATUS_INITIAL);
-		DBObject update = new BasicDBObject(DEQUEUED_AT_FIELD,
-				new BSONTimestamp()).append(STATUS_FIELD, STATUS_PENDING);
-		DBObject fields = new BasicDBObject("_id", 1)
-				.append(IDENTIFIER_FIELD, 1).append(NOTE_FIELD, 1)
-				.append(CREATED_AT_FIELD, 1);
-		DBObject sort = new BasicDBObject(CREATED_AT_FIELD, 1);
-
-		DBObject result = queueCollection.findAndModify(query, fields, sort,
-				false, update, false, false);
-		
-		if (result == null) {
-			return null;
-		}
-
-		BSONTimestamp createdAtBSON = (BSONTimestamp) result
-				.get(CREATED_AT_FIELD);
-		Date createdAt = new Date(createdAtBSON.getTime() * 1000L);
-
-		return new MongoQueueEntry((ObjectId) result.get("_id"),
-				(String) result.get(IDENTIFIER_FIELD), result.get(NOTE_FIELD),
-				createdAt);
+		return dequeueHelper(QUERY_INITIAL_STATUS);
 	}
 
 	@Override
 	public QueueEntry dequeue(String identifer) throws QueueServiceException {
-		throw new RuntimeException("unimplemented method");
+		final BasicDBObject query = new BasicDBObject();
+		query.putAll(QUERY_INITIAL_STATUS);
+		query.append(IDENTIFIER_FIELD, identifer);
+		return dequeueHelper(query);
+	}
+
+	private QueueEntry dequeueHelper(DBObject query) {
+		final DBObject result = queueCollection.findAndModify(query,
+				DEQUEUE_FIELDS, SORT_BY_CREATED_AT, false, UPDATE_TO_PENDING,
+				false, false);
+
+		if (result == null) {
+			return null;
+		}
+
+		final BSONTimestamp createdAtBSON = (BSONTimestamp) result
+				.get(CREATED_AT_FIELD);
+		final Date createdAt = new Date(createdAtBSON.getTime() * 1000L);
+
+		return new MongoQueueEntry((ObjectId) result.get(OBJECT_ID_KEY),
+				(String) result.get(IDENTIFIER_FIELD), result.get(NOTE_FIELD),
+				createdAt);
 	}
 
 	@Override
 	public void finish(QueueEntry entry) throws QueueServiceException {
 		if (entry instanceof MongoQueueEntry) {
 			final MongoQueueEntry mongoEntry = (MongoQueueEntry) entry;
-			final DBObject query = new BasicDBObject("_id", mongoEntry.mongoID);
+			final DBObject query = new BasicDBObject(OBJECT_ID_KEY,
+					mongoEntry.mongoID);
 			final DBObject result = queueCollection.findAndRemove(query);
 			if (result == null) {
 				throw new QueueServiceException(

@@ -7,7 +7,6 @@ import static junit.framework.Assert.assertTrue;
 
 import java.util.Date;
 
-import org.bson.types.BSONTimestamp;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -135,7 +134,36 @@ public class MongoQueueServiceTest {
 				entry2.getNote() instanceof Double);
 		assertEquals("make sure we got the second item by note's value",
 				((Double) entry2.getNote()).doubleValue(), 3.14, 0.0001);
+		Date entry2At = entry2.getEnqueuedAt();
+
+		QueueEntry entry3 = service.dequeue("bar");
+		assertNotNull(entry3);
+		assertEquals("bar", entry3.getIdentifier());
+		assertTrue(entry3.getNote() instanceof Date);
+		assertEquals((Date) entry3.getNote(), now);
+		Date entry3At = entry3.getEnqueuedAt();
+		
+		QueueEntry entry4 = service.dequeue("bar");
+		assertNull(entry4);
+
+		QueueEntry entry1 = service.dequeue("foo");
+		assertNotNull(entry1);
+		assertEquals("foo", entry1.getIdentifier());
+		assertTrue(entry1.getNote() instanceof Integer);
+		assertEquals((Integer) entry1.getNote(), (Integer) 3);
+		Date entry1At = entry1.getEnqueuedAt();
+		
+		QueueEntry entry5 = service.dequeue();
+		assertNull(entry5);
+
+		// finish them in whatever order
+		
+		service.finish(entry1);
 		service.finish(entry2);
+		service.finish(entry3);
+		
+		assertTrue(entry1At.compareTo(entry2At) < 0);
+		assertTrue(entry2At.compareTo(entry3At) < 0);
 	}
 
 	@Test(expected = QueueServiceException.class)
