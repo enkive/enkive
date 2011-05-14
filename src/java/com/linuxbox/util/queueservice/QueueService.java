@@ -5,7 +5,9 @@ public interface QueueService {
 
 	void shutdown() throws QueueServiceException;
 
-	void enqueue(String identifier, int note) throws QueueServiceException;
+	void enqueue(String identifier) throws QueueServiceException;
+
+	void enqueue(String identifier, Object note) throws QueueServiceException;
 
 	/**
 	 * Retrieves the next unstarted item on the queue and marks it as being

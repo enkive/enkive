@@ -5,7 +5,7 @@ import java.util.Date;
 public interface QueueEntry {
 	String getIdentifier();
 
-	int getNote();
+	Object getNote();
 
 	Date getEnqueuedAt();
 }

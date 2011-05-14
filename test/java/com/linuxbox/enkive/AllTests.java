@@ -6,10 +6,13 @@ import junit.framework.TestSuite;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
+import com.linuxbox.enkive.archiver.mongodb.MongoArchivingServiceTest;
 import com.linuxbox.enkive.docstore.AbstractDocStoreServiceTest;
 import com.linuxbox.enkive.docstore.mongogrid.MongoGridDocStoreServiceTest;
+import com.linuxbox.enkive.retriever.mongodb.MongoRetrieverServiceTest;
 import com.linuxbox.util.HashingInputStreamTest;
 import com.linuxbox.util.mongodb.MongoLockingServiceTest;
+import com.linuxbox.util.queueservice.mongodb.MongoQueueServiceTest;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
@@ -19,7 +22,10 @@ import com.linuxbox.util.mongodb.MongoLockingServiceTest;
   HashingInputStreamTest.class,
   AbstractDocStoreServiceTest.class,
   MongoLockingServiceTest.class,
-  MongoGridDocStoreServiceTest.class
+  MongoQueueServiceTest.class,
+  MongoGridDocStoreServiceTest.class,
+  MongoArchivingServiceTest.class,
+  MongoRetrieverServiceTest.class
 })
 public class AllTests {
 	public static Test suite() {
