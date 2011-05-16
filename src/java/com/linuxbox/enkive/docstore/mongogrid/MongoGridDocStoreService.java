@@ -1,20 +1,23 @@
 package com.linuxbox.enkive.docstore.mongogrid;
 
 import static com.linuxbox.enkive.docstore.mongogrid.Constants.BINARY_ENCODING_KEY;
-import static com.linuxbox.enkive.docstore.mongogrid.Constants.FILENAME_KEY;
 import static com.linuxbox.enkive.docstore.mongogrid.Constants.FILE_EXTENSION_KEY;
-import static com.linuxbox.enkive.docstore.mongogrid.Constants.GRID_FS_FILES_COLLECTION_SUFFIX;
 import static com.linuxbox.enkive.docstore.mongogrid.Constants.INDEX_SHARD_KEY;
 import static com.linuxbox.enkive.docstore.mongogrid.Constants.INDEX_SHARD_QUERY;
 import static com.linuxbox.enkive.docstore.mongogrid.Constants.INDEX_STATUS_KEY;
 import static com.linuxbox.enkive.docstore.mongogrid.Constants.INDEX_STATUS_QUERY;
 import static com.linuxbox.enkive.docstore.mongogrid.Constants.INDEX_TIMESTAMP_KEY;
 import static com.linuxbox.enkive.docstore.mongogrid.Constants.INDEX_TIMESTAMP_QUERY;
-import static com.linuxbox.enkive.docstore.mongogrid.Constants.OBJECT_ID_KEY;
+import static com.linuxbox.util.mongodb.MongoDBConstants.FILENAME_KEY;
+import static com.linuxbox.util.mongodb.MongoDBConstants.GRID_FS_FILES_COLLECTION_SUFFIX;
+import static com.linuxbox.util.mongodb.MongoDBConstants.OBJECT_ID_KEY;
 
 import java.io.ByteArrayInputStream;
 import java.net.UnknownHostException;
 import java.util.Date;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import com.linuxbox.enkive.docsearch.exception.DocSearchException;
 import com.linuxbox.enkive.docstore.AbstractDocStoreService;
@@ -26,7 +29,6 @@ import com.linuxbox.enkive.docstore.exception.DocumentNotFoundException;
 import com.linuxbox.util.HashingInputStream;
 import com.linuxbox.util.lockservice.LockService;
 import com.linuxbox.util.lockservice.LockServiceException;
-import com.linuxbox.util.lockservice.mongodb.MongoLockService;
 import com.mongodb.BasicDBObject;
 import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DB;
@@ -45,6 +47,10 @@ import com.mongodb.gridfs.GridFSInputFile;
  */
 
 public class MongoGridDocStoreService extends AbstractDocStoreService {
+	@SuppressWarnings("unused")
+	private final static Log logger = LogFactory
+			.getLog("com.linuxbox.enkive.docstore.mongogrid");
+
 	/*
 	 * The various status value a document can have to indicate its state of
 	 * indexing.
@@ -54,8 +60,6 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 	static final int STATUS_INDEXED = 2;
 	static final int STATUS_ERROR = 3;
 	static final int STATUS_STALE = 4;
-
-	private static final String DEFAULT_LOCK_SERVICE_COLLECTION_NAME = "lockService";
 
 	/*
 	 * Notations for lock records.
@@ -73,27 +77,27 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 			.start().add(OBJECT_ID_KEY, 1).add(FILENAME_KEY, 1).get();
 
 	GridFS gridFS; // keep visible to tests
+	private Mongo mongo;
 	private DBCollection filesCollection;
-	private LockService lockService;
-	private boolean createdLockService;
+	private LockService docLockService;
+	private boolean createdMongo;
 
 	public MongoGridDocStoreService(String host, int port, String dbName,
 			String bucketName) throws UnknownHostException {
 		this(new Mongo(host, port), dbName, bucketName);
-	}
-
-	public MongoGridDocStoreService(String host, String dbName,
-			String bucketName) throws UnknownHostException {
-		this(new Mongo(host), dbName, bucketName);
+		createdMongo = true;
 	}
 
 	public MongoGridDocStoreService(String dbName, String bucketName)
 			throws UnknownHostException {
 		this(new Mongo(), dbName, bucketName);
+		createdMongo = true;
 	}
 
 	public MongoGridDocStoreService(Mongo mongo, String dbName,
 			String bucketName) {
+		this.mongo = mongo;
+
 		DB db = mongo.getDB(dbName);
 		gridFS = new GridFS(db, bucketName);
 
@@ -122,34 +126,16 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 	}
 
 	@Override
-	public void startup() throws DocStoreException {
-		if (lockService == null) {
-			final String dbName = getDb().getName();
-			createdLockService = true;
-			try {
-				lockService = new MongoLockService(dbName,
-						DEFAULT_LOCK_SERVICE_COLLECTION_NAME);
-				lockService.startup();
-			} catch (Exception e) {
-				throw new DocStoreException(
-						"could not start MongoGridDocStoreService due to internally managed lock service",
-						e);
-			}
+	public void subStartup() throws DocStoreException {
+		if (docLockService == null) {
+			throw new DocStoreException("document lock service not set");
 		}
 	}
 
 	@Override
-	public void shutdown() throws DocStoreException {
-		try {
-			if (createdLockService) {
-				lockService.shutdown();
-			}
-		} catch (Exception e) {
-			throw new DocStoreException(
-					"could not cleanly shut down MongoGridDocStoreService due to internally managed lock service",
-					e);
-		} finally {
-			getMongo().close();
+	public void subShutdown() {
+		if (createdMongo) {
+			mongo.close();
 		}
 	}
 
@@ -173,7 +159,7 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 			final String identifier = getFileNameFromHash(hash);
 			final int shardKey = getShardIndexFromHash(hash);
 
-			if (!lockService.lock(identifier, LOCK_CREATE_NOTE)) {
+			if (!docLockService.lock(identifier, LOCK_CREATE_NOTE)) {
 				// TODO we should note whether the controller is creating or
 				// removing; if creating we're done; if removing we should
 				// re-create
@@ -197,7 +183,7 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 
 				return new StoreRequestResultImpl(identifier, false);
 			} finally {
-				lockService.releaseLock(identifier);
+				docLockService.releaseLock(identifier);
 			}
 		} catch (Exception e) {
 			throw new DocStoreException(e);
@@ -229,7 +215,7 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 		final int shardKey = getShardIndexFromHash(actualHash);
 
 		try {
-			if (!lockService.lock(actualName, LOCK_CREATE_NOTE)) {
+			if (!docLockService.lock(actualName, LOCK_CREATE_NOTE)) {
 				gridFS.remove(temporaryName);
 
 				// TODO: is there anything we should do at this point to insure
@@ -259,7 +245,7 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 					return new StoreRequestResultImpl(actualName, false);
 				}
 			} finally {
-				lockService.releaseLock(actualName);
+				docLockService.releaseLock(actualName);
 			}
 		} catch (LockServiceException e) {
 			throw new DocStoreException(e);
@@ -304,7 +290,7 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 	@Override
 	public boolean remove(String identifier) throws DocStoreException {
 		try {
-			if (!lockService.lock(identifier, LOCK_REMOVE_NOTE)) {
+			if (!docLockService.lock(identifier, LOCK_REMOVE_NOTE)) {
 				// TODO if we're here and someone else was trying to delete or
 				// create this, then we should do nothing; the file either
 				// needed to
@@ -325,7 +311,7 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 					return false;
 				}
 			} finally {
-				lockService.releaseLock(identifier);
+				docLockService.releaseLock(identifier);
 			}
 		} catch (LockServiceException e) {
 			throw new DocStoreException(e);
@@ -340,16 +326,8 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 		return gridFS.getDB();
 	}
 
-	private Mongo getMongo() {
-		return getDb().getMongo();
-	}
-
-	public LockService getLockService() {
-		return lockService;
-	}
-
-	public void setLockService(LockService lockService) {
-		this.lockService = lockService;
+	public void setDocumentLockService(LockService lockService) {
+		this.docLockService = lockService;
 	}
 
 	/**

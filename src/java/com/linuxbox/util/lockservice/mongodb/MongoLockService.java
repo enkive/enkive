@@ -61,8 +61,7 @@ public class MongoLockService implements LockService {
 		mongoCreated = true;
 	}
 
-	public MongoLockService(Mongo mongo, String database, String collection)
-			throws UnknownHostException, MongoException {
+	public MongoLockService(Mongo mongo, String database, String collection) {
 		this.mongo = mongo;
 		mongoDB = mongo.getDB(database);
 		lockCollection = mongoDB.getCollection(collection);

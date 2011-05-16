@@ -8,9 +8,13 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import com.linuxbox.enkive.docstore.exception.DocStoreException;
 import com.linuxbox.util.HashingInputStream;
+import com.linuxbox.util.queueservice.QueueService;
+import com.linuxbox.util.queueservice.QueueServiceException;
 
 /**
  * In trying to find the right balance between efficiency and memory usage,
@@ -24,7 +28,11 @@ import com.linuxbox.util.HashingInputStream;
  * 
  */
 public abstract class AbstractDocStoreService implements DocStoreService {
+	private final static Log logger = LogFactory
+			.getLog("com.linuxbox.enkive.docstore");
+
 	static final int DEFAULT_IN_MEMORY_LIMIT = 64 * 1024; // 64 KB
+
 	public static final String HASH_ALGORITHM = "SHA-1";
 	public static final int INDEX_SHARD_KEY_BYTES = 2;
 	public static final int INDEX_SHARD_KEY_COUNT = 1 << (INDEX_SHARD_KEY_BYTES * 8);
@@ -34,12 +42,29 @@ public abstract class AbstractDocStoreService implements DocStoreService {
 	 */
 	private int inMemoryLimit;
 
+	private QueueService indexerQueueService;
+
 	public AbstractDocStoreService() {
 		this(DEFAULT_IN_MEMORY_LIMIT);
 	}
 
 	public AbstractDocStoreService(int inMemoryLimit) {
 		setInMemoryLimit(inMemoryLimit);
+	}
+	
+	protected abstract void subStartup() throws DocStoreException;
+	protected abstract void subShutdown() throws DocStoreException;
+	
+	public void startup() throws DocStoreException  {
+		if (indexerQueueService == null) {
+			throw new DocStoreException("indexer queue service not set");
+		}
+		
+		subStartup();
+	}
+	
+	public void shutdown() throws DocStoreException {
+		subShutdown();
 	}
 
 	/**
@@ -122,13 +147,14 @@ public abstract class AbstractDocStoreService implements DocStoreService {
 				}
 			} while (result >= 0 && offset < inMemoryLimit);
 
+			StoreRequestResult storeResult;
 			if (result < 0) {
 				// was able to read whole thing in and offset indicates length
 				messageDigest.update(inMemoryBuffer, 0, offset);
 				final byte[] hashBytes = messageDigest.digest();
-				StoreRequestResult storeResult = storeKnownHash(document,
-						hashBytes, inMemoryBuffer, offset);
-				return storeResult;
+				storeResult = storeKnownHash(document, hashBytes,
+						inMemoryBuffer, offset);
+
 			} else {
 				// could not read whole thing into fix-sized buffer, so store
 				// the document, determine its name after-the fact, and rename
@@ -146,12 +172,20 @@ public abstract class AbstractDocStoreService implements DocStoreService {
 
 				HashingInputStream hashingInputStream = new HashingInputStream(
 						messageDigest, combinedStream);
-				StoreRequestResult storeResult = storeAndDetermineHash(
-						document, hashingInputStream);
-				return storeResult;
+				storeResult = storeAndDetermineHash(document,
+						hashingInputStream);
 			}
+
+			if (!storeResult.getAlreadyStored()) {
+				indexerQueueService.enqueue(storeResult.getIdentifier(),
+						DocStoreConstants.INDEX_DOCUMENT);
+			}
+
+			return storeResult;
 		} catch (IOException e) {
 			throw new DocStoreException(e);
+		} catch (QueueServiceException e) {
+			throw new DocStoreException("could not add index event to queue");
 		}
 	}
 
@@ -162,7 +196,21 @@ public abstract class AbstractDocStoreService implements DocStoreService {
 
 		for (int i = 0; i < numberOfAttempts; i++) {
 			try {
-				return remove(identifier);
+				boolean result = remove(identifier);
+
+				if (result) {
+					try {
+						indexerQueueService.enqueue(identifier,
+								DocStoreConstants.REMOVE_DOCUMENT);
+					} catch (QueueServiceException e) {
+						// TODO should we throw an exception out or is logging
+						// the problem enough?
+						logger.error(
+								"could not add removal of document to queue", e);
+					}
+				}
+
+				return result;
 			} catch (DocStoreException e) {
 				lastException = e;
 				try {
@@ -266,5 +314,9 @@ public abstract class AbstractDocStoreService implements DocStoreService {
 	 */
 	protected static String getFileNameFromHash(byte[] hash) {
 		return new String((new Hex()).encode(hash));
+	}
+	
+	public void setIndexerQueueService(QueueService indexerQueueService) {
+		this.indexerQueueService = indexerQueueService;
 	}
 }

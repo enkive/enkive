@@ -6,11 +6,13 @@
 
 	<bean id="DocStoreService"
 		class="com.linuxbox.enkive.docstore.mongogrid.MongoGridDocStoreService">
+		<constructor-arg ref="Mongo" />
 		<constructor-arg type="java.lang.String" value="${enkive.docstore.db.name}" />
 		<constructor-arg type="java.lang.String" value="fs" />
 
+		<property name="docLockService" ref="DocLockService" />
+		<property name="indexerQueueService" ref="IndexerQueueService" />
 		<property name="inMemoryLimit" value="${enkive.docstore.buffersize}" />
-		<property name="lockService" ref="LockService" />
 	</bean>
 
 	<bean id="DocSearchIndexService"
@@ -36,13 +38,13 @@
 	<bean id="ContentAnalyzer"
 		class="com.linuxbox.enkive.docsearch.contentanalyzer.tika.TikaContentAnalyzer" />
 
-	<bean id="LockService" class="com.linuxbox.util.lockservice.mongodb.MongoLockService">
+	<bean id="DocLockService" class="com.linuxbox.util.lockservice.mongodb.MongoLockService">
 		<constructor-arg ref="Mongo" />
 		<constructor-arg value="${enkive.lockservice.db.name}" />
 		<constructor-arg value="lockService" />
 	</bean>
 
-	<bean id="QueueService"
+	<bean id="IndexerQueueService"
 		class="com.linuxbox.util.queueservice.mongodb.MongoQueueService">
 		<constructor-arg ref="Mongo" />
 		<constructor-arg value="${enkive.queueservice.db.name}" />
