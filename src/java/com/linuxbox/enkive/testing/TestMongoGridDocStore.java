@@ -26,17 +26,19 @@ import com.linuxbox.enkive.docstore.StringDocument;
 import com.linuxbox.enkive.docstore.exception.DocStoreException;
 import com.linuxbox.enkive.docstore.exception.DocumentNotFoundException;
 import com.linuxbox.enkive.docstore.mongogrid.Constants;
-import com.linuxbox.enkive.docstore.mongogrid.MongoGridDocStoreService;
+import com.linuxbox.enkive.docstore.mongogrid.ConvenienceMongoGridDocStoreService;
 import com.linuxbox.util.StreamConnector;
-import com.mongodb.DB;
-import com.mongodb.Mongo;
+import com.linuxbox.util.mongodb.Dropper;
 
 public class TestMongoGridDocStore {
 	enum Indexing {
 		PUSH, MANUAL_PULL, AUTO_PULL
 	};
 
-	private static final boolean DROP_DOCS_ON_STARTUP = false;
+	private final static String DATABASE_NAME = "enkive-test";
+	private final static String GRIDFS_COLLECTION_NAME = "fs-test";
+
+	private static final boolean DROP_DOCS_ON_STARTUP = true;
 	private static final Indexing INDEXING_METHOD = Indexing.AUTO_PULL;
 	private static final int INDEXING_POLL_TIME = 1;
 
@@ -232,12 +234,6 @@ public class TestMongoGridDocStore {
 		}
 	}
 
-	private static void dropCollection(DB db, String collection) {
-		if (db.collectionExists(collection)) {
-			db.getCollection(collection).drop();
-		}
-	}
-
 	/**
 	 * Pull an un-indexed document, mark as needing indexing, and then go ahead
 	 * and index it
@@ -274,22 +270,16 @@ public class TestMongoGridDocStore {
 		return false;
 	}
 
-	private static void dropGridFSCollections(String dbName, String bucket)
-			throws UnknownHostException {
-		DB db = new Mongo().getDB(dbName);
-		dropCollection(db, bucket + ".files");
-		dropCollection(db, bucket + ".chunks");
-	}
-
 	public static void main(String[] args) {
 		System.out.println("Starting");
 
 		try {
 			if (DROP_DOCS_ON_STARTUP) {
-				System.out.println("DROPping existing documents");
-				dropGridFSCollections("enkive", "fs");
+				System.out.println("DROPPING existing documents");
+				Dropper.dropDatabase(DATABASE_NAME);
 			}
-			docStoreService = new MongoGridDocStoreService("enkive", "fs");
+			docStoreService = new ConvenienceMongoGridDocStoreService(
+					DATABASE_NAME, GRIDFS_COLLECTION_NAME);
 			docStoreService.startup();
 
 			docIndexService = new IndriDocSearchIndexService(docStoreService,
