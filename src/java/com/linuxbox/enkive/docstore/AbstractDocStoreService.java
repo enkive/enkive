@@ -51,18 +51,19 @@ public abstract class AbstractDocStoreService implements DocStoreService {
 	public AbstractDocStoreService(int inMemoryLimit) {
 		setInMemoryLimit(inMemoryLimit);
 	}
-	
+
 	protected abstract void subStartup() throws DocStoreException;
+
 	protected abstract void subShutdown() throws DocStoreException;
-	
-	public void startup() throws DocStoreException  {
+
+	public void startup() throws DocStoreException {
 		if (indexerQueueService == null) {
 			throw new DocStoreException("indexer queue service not set");
 		}
-		
+
 		subStartup();
 	}
-	
+
 	public void shutdown() throws DocStoreException {
 		subShutdown();
 	}
@@ -315,7 +316,11 @@ public abstract class AbstractDocStoreService implements DocStoreService {
 	protected static String getFileNameFromHash(byte[] hash) {
 		return new String((new Hex()).encode(hash));
 	}
-	
+
+	public QueueService getIndexerQueueService() {
+		return this.indexerQueueService;
+	}
+
 	public void setIndexerQueueService(QueueService indexerQueueService) {
 		this.indexerQueueService = indexerQueueService;
 	}

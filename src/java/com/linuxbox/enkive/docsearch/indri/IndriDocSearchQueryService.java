@@ -33,10 +33,9 @@ public class IndriDocSearchQueryService extends AbstractDocSearchQueryService {
 		}
 	}
 
-	static final String SYSTEM_PATH_SEPARATOR = System.getProperty(
+	private static final String SYSTEM_PATH_SEPARATOR = System.getProperty(
 			"path.separator", ":");
 
-	@SuppressWarnings("unused")
 	private final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.docsearch.indri");
 
@@ -89,8 +88,10 @@ public class IndriDocSearchQueryService extends AbstractDocSearchQueryService {
 
 	@Override
 	public void shutdown() throws DocSearchException {
+		LOGGER.trace("starting shutdown of IndriDocSearchQueryService");
 		queryEnvironmentManager.forceQueryEnvironmentRefresh();
 		queryEnvironmentManager = null;
+		LOGGER.trace("finished shutdown of IndriDocSearchQueryService");
 	}
 
 	@Override

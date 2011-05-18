@@ -35,6 +35,7 @@ public class QueryEnvironmentManager {
 
 		private QueryEnvironmentProxy() throws Exception {
 			queryEnvironment = new QueryEnvironment();
+			LOGGER.trace("QueryEnvironment created: " + queryEnvironment);
 			if (indexPaths != null) {
 				for (String path : indexPaths) {
 					queryEnvironment.addIndex(path);
@@ -50,7 +51,9 @@ public class QueryEnvironmentManager {
 
 		public void finalize() {
 			try {
+				LOGGER.trace("about to close QueryEnvironment: " + queryEnvironment);
 				queryEnvironment.close();
+				LOGGER.trace("finished closing QueryEnvironment: " + queryEnvironment);
 			} catch (Exception e) {
 				LOGGER.warn("error closing query environment", e);
 			}

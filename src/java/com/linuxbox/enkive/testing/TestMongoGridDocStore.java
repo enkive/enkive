@@ -18,7 +18,6 @@ import com.linuxbox.enkive.docsearch.contentanalyzer.tika.TikaContentAnalyzer;
 import com.linuxbox.enkive.docsearch.exception.DocSearchException;
 import com.linuxbox.enkive.docsearch.indri.IndriDocSearchIndexService;
 import com.linuxbox.enkive.docsearch.indri.IndriDocSearchQueryService;
-import com.linuxbox.enkive.docstore.DocStoreService;
 import com.linuxbox.enkive.docstore.Document;
 import com.linuxbox.enkive.docstore.FileSystemDocument;
 import com.linuxbox.enkive.docstore.StoreRequestResult;
@@ -27,6 +26,7 @@ import com.linuxbox.enkive.docstore.exception.DocStoreException;
 import com.linuxbox.enkive.docstore.exception.DocumentNotFoundException;
 import com.linuxbox.enkive.docstore.mongogrid.Constants;
 import com.linuxbox.enkive.docstore.mongogrid.ConvenienceMongoGridDocStoreService;
+import com.linuxbox.enkive.docstore.mongogrid.MongoGridDocStoreService;
 import com.linuxbox.util.StreamConnector;
 import com.linuxbox.util.mongodb.Dropper;
 
@@ -35,8 +35,8 @@ public class TestMongoGridDocStore {
 		PUSH, MANUAL_PULL, AUTO_PULL
 	};
 
-	private final static String DATABASE_NAME = "enkive-test";
-	private final static String GRIDFS_COLLECTION_NAME = "fs-test";
+	private final static String DATABASE_NAME = "enkiveTest";
+	private final static String GRIDFS_COLLECTION_NAME = "fsTest";
 
 	private static final boolean DROP_DOCS_ON_STARTUP = true;
 	private static final Indexing INDEXING_METHOD = Indexing.AUTO_PULL;
@@ -45,7 +45,7 @@ public class TestMongoGridDocStore {
 	private static final String INDRI_REPOSITORY_PATH = "/tmp/enkive-indri";
 	private static final String INDRI_TEMP_STORAGE_PATH = "/tmp/enkive-indri-tmp";
 
-	static DocStoreService docStoreService;
+	static MongoGridDocStoreService docStoreService;
 	static IndriDocSearchIndexService docIndexService;
 	static IndriDocSearchQueryService docQueryService;
 	static Set<String> indexSet = new HashSet<String>();
@@ -286,6 +286,7 @@ public class TestMongoGridDocStore {
 					new TikaContentAnalyzer(), INDRI_REPOSITORY_PATH,
 					INDRI_TEMP_STORAGE_PATH);
 			if (INDEXING_METHOD == Indexing.AUTO_PULL) {
+				docIndexService.setIndexerQueueService(docStoreService.getIndexerQueueService());
 				docIndexService
 						.setUnindexedDocRePollInterval(INDEXING_POLL_TIME);
 			}
@@ -311,25 +312,43 @@ public class TestMongoGridDocStore {
 			}
 
 			searchFor("#1(the question)");
-
 			docIndexService.refreshIndexEnvironment();
 			docQueryService.refreshQueryEnvironment();
-
-			// searchFor("frack");
 			searchFor("#1(the question)");
+
 			searchFor("#1(BE THAT)");
 			searchFor("#1(question the)");
 			searchFor("test");
 			searchFor("#2(civil test)");
 			searchFor("#1(shall not perish)");
-
-			docQueryService.shutdown();
-			docIndexService.shutdown();
-			docStoreService.shutdown();
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		} catch (Exception e) {
 			e.printStackTrace();
+		} finally {
+			try {
+				if (docQueryService != null) {
+					docQueryService.shutdown();
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+			try {
+				if (docIndexService != null) {
+					docIndexService.shutdown();
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+			try {
+				if (docStoreService != null) {
+					docStoreService.shutdown();
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 
 		System.out.println("Done");

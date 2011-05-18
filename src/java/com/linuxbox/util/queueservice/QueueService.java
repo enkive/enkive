@@ -32,5 +32,5 @@ public interface QueueService {
 	 * 
 	 * @param item
 	 */
-	void finish(QueueEntry item) throws QueueServiceException;
+	void finishEntry(QueueEntry item) throws QueueServiceException;
 }

@@ -326,6 +326,10 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 		return gridFS.getDB();
 	}
 
+	public LockService getDocumentLockService() {
+		return this.docLockService;
+	}
+
 	public void setDocumentLockService(LockService lockService) {
 		this.docLockService = lockService;
 	}

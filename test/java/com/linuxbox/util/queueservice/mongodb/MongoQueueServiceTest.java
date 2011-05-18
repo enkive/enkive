@@ -71,7 +71,7 @@ public class MongoQueueServiceTest {
 		assertTrue(entry1.getNote() instanceof Integer);
 		assertEquals((Integer) entry1.getNote(), (Integer) 3);
 		Date entry1At = entry1.getEnqueuedAt();
-		service.finish(entry1);
+		service.finishEntry(entry1);
 
 		QueueEntry entry2 = service.dequeue();
 		assertNotNull(entry2);
@@ -79,7 +79,7 @@ public class MongoQueueServiceTest {
 		assertTrue(entry2.getNote() instanceof Double);
 		assertEquals(((Double) entry2.getNote()).doubleValue(), 3.14, 0.0001);
 		Date entry2At = entry2.getEnqueuedAt();
-		service.finish(entry2);
+		service.finishEntry(entry2);
 
 		QueueEntry entry3 = service.dequeue();
 		assertNotNull(entry3);
@@ -87,7 +87,7 @@ public class MongoQueueServiceTest {
 		assertTrue(entry3.getNote() instanceof Date);
 		assertEquals((Date) entry3.getNote(), now);
 		Date entry3At = entry3.getEnqueuedAt();
-		service.finish(entry3);
+		service.finishEntry(entry3);
 
 		QueueEntry entry4 = service.dequeue();
 		assertNull(entry4);
@@ -111,7 +111,7 @@ public class MongoQueueServiceTest {
 		assertNotNull(entry1);
 		assertEquals("foo", entry1.getIdentifier());
 		assertNull(entry1.getNote());
-		service.finish(entry1);
+		service.finishEntry(entry1);
 
 		QueueEntry entry2 = service.dequeue();
 		assertNull(entry2);
@@ -159,9 +159,9 @@ public class MongoQueueServiceTest {
 
 		// finish them in whatever order
 		
-		service.finish(entry1);
-		service.finish(entry2);
-		service.finish(entry3);
+		service.finishEntry(entry1);
+		service.finishEntry(entry2);
+		service.finishEntry(entry3);
 		
 		assertTrue(entry1At.compareTo(entry2At) < 0);
 		assertTrue(entry2At.compareTo(entry3At) < 0);
@@ -174,7 +174,7 @@ public class MongoQueueServiceTest {
 		QueueEntry entry1 = service.dequeue();
 		assertNotNull(entry1);
 		assertEquals("bazooka", entry1.getIdentifier());
-		service.finish(new QueueEntry() {
+		service.finishEntry(new QueueEntry() {
 			@Override
 			public Object getNote() {
 				return null;

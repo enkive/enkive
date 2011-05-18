@@ -187,6 +187,8 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 
 	@Override
 	public void subShutdown() throws DocSearchException {
+		LOGGER.trace("in IndriDocSearchIndexService::subShutdown");
+
 		Exception e = null;
 
 		if (queryEnvironment != null) {
@@ -453,6 +455,8 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 	@Override
 	protected void doIndexDocument(String identifier)
 			throws DocSearchException, DocStoreException {
+		LOGGER.trace("starting to index " + identifier);
+
 		@SuppressWarnings("unused")
 		int docId = -1;
 		try {
@@ -483,6 +487,8 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 			// this will close the index environment and re-open it under
 			// certain conditions
 			indexPostProcessing();
+
+			LOGGER.info("indexed " + identifier);
 		} catch (DocStoreException e) {
 			throw e;
 		} catch (DocSearchException e) {
@@ -493,9 +499,10 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 	}
 
 	@Override
-	public void removeDocument(String identifier) throws DocSearchException {
+	protected void doRemoveDocument(String identifier)
+			throws DocSearchException {
 		try {
-			queryEnvironment.addIndex(repositoryPath);
+			LOGGER.trace("starting to remove " + identifier);
 
 			final String[] idListOfOne = { identifier };
 			int documentNumbers[] = queryEnvironment.documentIDsFromMetadata(
@@ -532,6 +539,8 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 			if (savedException != null) {
 				throw savedException;
 			}
+
+			LOGGER.info("removed " + identifier);
 		} catch (DocSearchException e) {
 			throw e;
 		} catch (Exception e) {

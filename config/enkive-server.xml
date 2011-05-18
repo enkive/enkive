@@ -10,7 +10,7 @@
 		<constructor-arg type="java.lang.String" value="${enkive.docstore.db.name}" />
 		<constructor-arg type="java.lang.String" value="fs" />
 
-		<property name="docLockService" ref="DocLockService" />
+		<property name="documentLockService" ref="DocLockService" />
 		<property name="indexerQueueService" ref="IndexerQueueService" />
 		<property name="inMemoryLimit" value="${enkive.docstore.buffersize}" />
 	</bean>
@@ -25,8 +25,8 @@
 
 		<property name="indexEnvironmentDocLimit" value="${enkive.docsearch.index.indri.envDocLimit}" />
 		<property name="indexEnvironmentTimeLimitSeconds" value="${enkive.docsearch.index.indri.envTimeLimit}" />
-
 		<property name="indexEnvironmentMemory" value="${enkive.docsearch.index.indri.memory}" />
+		<property name="indexerQueueService" ref="IndexerQueueService" />
 	</bean>
 
 	<bean id="DocSearchQueryService"

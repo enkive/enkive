@@ -160,7 +160,7 @@ public class MongoQueueService implements QueueService {
 	}
 
 	@Override
-	public void finish(QueueEntry entry) throws QueueServiceException {
+	public void finishEntry(QueueEntry entry) throws QueueServiceException {
 		if (entry instanceof MongoQueueEntry) {
 			final MongoQueueEntry mongoEntry = (MongoQueueEntry) entry;
 			final DBObject query = new BasicDBObject(OBJECT_ID_KEY,

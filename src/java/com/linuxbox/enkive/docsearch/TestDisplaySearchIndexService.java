@@ -45,7 +45,7 @@ public class TestDisplaySearchIndexService extends
 	}
 
 	@Override
-	public void removeDocument(String identifier) {
+	public void doRemoveDocument(String identifier) {
 		throw new RuntimeException("unimplemented method");
 	}
 }
