@@ -294,7 +294,7 @@ public class TestMongoGridDocStore {
 
 			docQueryService = new IndriDocSearchQueryService(
 					INDRI_REPOSITORY_PATH);
-			docQueryService.setQueryEnvironmentRefreshInterval(2000);
+			docQueryService.setQueryEnvironmentRefreshInterval(5);
 			docQueryService.startup();
 
 			archiveAll();

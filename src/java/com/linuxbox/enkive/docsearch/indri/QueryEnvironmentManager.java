@@ -14,6 +14,9 @@ public class QueryEnvironmentManager {
 
 	private Collection<String> indexPaths;
 	private Collection<String> indexServers;
+	/**
+	 * Number of milliseconds between refreshes.
+	 */
 	private long queryEnvironmentRefreshInterval;
 	private QueryEnvironment queryEnvironment;
 	private long createdAt;
@@ -90,9 +93,14 @@ public class QueryEnvironmentManager {
 		return queryEnvironmentRefreshInterval;
 	}
 
+	/**
+	 * Set the number of milliseconds between QueryEnvironment refreshes.
+	 * 
+	 * @param refreshIntervalMilliseconds
+	 */
 	public void setQueryEnvironmentRefreshInterval(
-			long queryEnvironmentRefreshInterval) {
-		this.queryEnvironmentRefreshInterval = queryEnvironmentRefreshInterval;
+			long refreshIntervalMilliseconds) {
+		this.queryEnvironmentRefreshInterval = refreshIntervalMilliseconds;
 	}
 
 	public void addIndexPath(String path) {

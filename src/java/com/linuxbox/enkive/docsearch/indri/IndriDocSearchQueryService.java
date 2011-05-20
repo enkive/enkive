@@ -197,20 +197,25 @@ public class IndriDocSearchQueryService extends AbstractDocSearchQueryService {
 				.listFromArray(indexServerArray));
 	}
 
-	public long getQueryEnvironmentRefreshInterval() {
-		return queryEnvironmentManager.getQueryEnvironmentRefreshInterval();
+	/**
+	 * Number of seconds between QueryEnvironment refreshes.
+	 * 
+	 * @return
+	 */
+	public int getQueryEnvironmentRefreshInterval() {
+		return (int) (queryEnvironmentManager
+				.getQueryEnvironmentRefreshInterval() / 1000);
 	}
 
 	/**
-	 * Number of milliseconds that a query environment can be used before it is
+	 * Number of seconds that a QueryEnvironment can be used before it is
 	 * refreshed.
 	 * 
 	 * @param queryEnvironmentRefreshInterval
 	 */
-	public void setQueryEnvironmentRefreshInterval(
-			long queryEnvironmentRefreshInterval) {
+	public void setQueryEnvironmentRefreshInterval(int refreshIntervalSeconds) {
 		queryEnvironmentManager
-				.setQueryEnvironmentRefreshInterval(queryEnvironmentRefreshInterval);
+				.setQueryEnvironmentRefreshInterval(refreshIntervalSeconds * 1000);
 	}
 
 	// PRIVATE SUPPORT METHODS

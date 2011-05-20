@@ -33,6 +33,8 @@
 		class="com.linuxbox.enkive.docsearch.indri.IndriDocSearchQueryService">
 		<property name="indexPaths" value="${enkive.docsearch.query.indri.indexPaths}" />
 		<property name="indexServers" value="${enkive.docsearch.query.indri.indexServers}" />
+		<property name="queryEnvironmentRefreshInterval"
+			value="${enkive.docsearch.query.indri.refreshInterval}" />
 	</bean>
 
 	<bean id="ContentAnalyzer"
