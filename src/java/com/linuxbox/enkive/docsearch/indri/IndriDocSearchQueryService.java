@@ -14,7 +14,6 @@ import org.apache.commons.logging.LogFactory;
 
 import com.linuxbox.enkive.docsearch.AbstractDocSearchQueryService;
 import com.linuxbox.enkive.docsearch.exception.DocSearchException;
-import com.linuxbox.enkive.docsearch.indri.QueryEnvironmentManager.QueryEnvironmentHolder;
 import com.linuxbox.util.CollectionUtils;
 import com.linuxbox.util.TypeConverter;
 
@@ -100,9 +99,7 @@ public class IndriDocSearchQueryService extends AbstractDocSearchQueryService {
 		try {
 			final ScoredExtentResult[] results;
 			String[] resultDocNumbers;
-			final QueryEnvironmentHolder queryEnvHolder = queryEnvironmentManager
-					.getQueryEnvironmentHolder();
-			final QueryEnvironment queryEnv = queryEnvHolder
+			final QueryEnvironment queryEnv = queryEnvironmentManager
 					.getQueryEnvironment();
 			results = queryEnv.runQuery(query, maxResults);
 			resultDocNumbers = queryEnv.documentMetadata(results, NAME_FIELD);
@@ -131,13 +128,12 @@ public class IndriDocSearchQueryService extends AbstractDocSearchQueryService {
 			request.resultsRequested = maxResults;
 			request.metadata = METADATA_FIELDS;
 
-			final QueryEnvironmentHolder queryEnvHolder = queryEnvironmentManager
-					.getQueryEnvironmentHolder();
+			final QueryEnvironment queryEnvironment = queryEnvironmentManager
+					.getQueryEnvironment();
 
 			// NB: this call will result in an exception if INDRI does not store
 			// a compressed version of the documents
-			QueryResults queryResults = queryEnvHolder.getQueryEnvironment()
-					.runQuery(request);
+			QueryResults queryResults = queryEnvironment.runQuery(request);
 
 			return CollectionUtils.listFromConvertedArray(queryResults.results,
 					QUERY_RESULT_CONVERTER);
