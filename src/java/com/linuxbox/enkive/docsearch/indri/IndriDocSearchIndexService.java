@@ -11,7 +11,6 @@ import java.util.Map;
 import lemurproject.indri.IndexEnvironment;
 import lemurproject.indri.IndexStatus;
 import lemurproject.indri.ParsedDocument;
-import lemurproject.indri.QueryEnvironment;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -76,7 +75,8 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 	/**
 	 * How many seconds between creating a new IndexEnvironment;
 	 */
-	private static final int DEFAULT_INDEX_ENV_TIME_LIMIT_SECONDS = 60;
+	private static final int DEFAULT_INDEX_ENV_REFRESH_INTERVAL = 60;
+	private static final int DEFAULT_QUERY_ENV_REFRESH_INTERVAL = 300;
 
 	private static final String TEXT_FORMAT = "txt";
 	private static final String TRECTEXT_FORMAT = "trectext";
@@ -100,7 +100,7 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 	 * How many seconds since an index environment was opened to close it (which
 	 * causes a save-to-disk) and opening a new one.
 	 */
-	private int indexEnvironmentTimeLimitSeconds = DEFAULT_INDEX_ENV_TIME_LIMIT_SECONDS;
+	private int indexEnvironmentRefreshInterval = DEFAULT_INDEX_ENV_REFRESH_INTERVAL;
 
 	/**
 	 * How much memory to allow INDRI to use.
@@ -122,7 +122,7 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 	 * since we're given the document name and must convert it to a document
 	 * number.
 	 */
-	private QueryEnvironment queryEnvironment;
+	private QueryEnvironmentManager queryEnvironmentManager;
 
 	/**
 	 * Construct an Indri indexing service that does not do polling of the doc
@@ -169,35 +169,20 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 		this.repositoryPath = repositoryPath;
 		this.tempStoragePath = temporaryStoragePath;
 		this.indexEnvironmentMutex = new Object();
+		this.queryEnvironmentManager = new QueryEnvironmentManager(
+				DEFAULT_QUERY_ENV_REFRESH_INTERVAL);
+		this.queryEnvironmentManager.addIndexPath(repositoryPath);
 	}
 
 	@Override
 	public void subStartup() throws DocSearchException {
 		initializeTemporaryStorage(tempStoragePath);
 		createIndexEnvironment();
-
-		try {
-			queryEnvironment = new QueryEnvironment();
-			queryEnvironment.addIndex(repositoryPath);
-		} catch (Exception e1) {
-			throw new DocSearchException(
-					"could not create an INDRI query environment", e1);
-		}
 	}
 
 	@Override
 	public void subShutdown() throws DocSearchException {
 		LOGGER.trace("in IndriDocSearchIndexService::subShutdown");
-
-		Exception e = null;
-
-		if (queryEnvironment != null) {
-			try {
-				queryEnvironment.close();
-			} catch (Exception e1) {
-				e = e1;
-			}
-		}
 
 		if (indexEnvironment != null) {
 			try {
@@ -205,14 +190,10 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 					indexEnvironment.close();
 					indexEnvironment = null;
 				}
-			} catch (Exception e1) {
-				e = e1;
+			} catch (Exception e) {
+				throw new DocSearchException(
+						"could not shut down INDRI search service", e);
 			}
-		}
-
-		if (e != null) {
-			throw new DocSearchException(
-					"could not shut down INDRI search service", e);
 		}
 	}
 
@@ -505,8 +486,9 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 			LOGGER.trace("starting to remove " + identifier);
 
 			final String[] idListOfOne = { identifier };
-			int documentNumbers[] = queryEnvironment.documentIDsFromMetadata(
-					NAME_FIELD, idListOfOne);
+			int documentNumbers[] = queryEnvironmentManager
+					.getQueryEnvironment().documentIDsFromMetadata(NAME_FIELD,
+							idListOfOne);
 
 			if (documentNumbers.length == 0) {
 				throw new DocSearchException(
@@ -553,6 +535,26 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 		return repositoryPath;
 	}
 
+	/**
+	 * Number of seconds between QueryEnvironment refreshes.
+	 * 
+	 * @return
+	 */
+	public int getQueryEnvironmentRefreshInterval() {
+		return (int) (this.queryEnvironmentManager
+				.getQueryEnvironmentRefreshInterval() / 1000);
+	}
+
+	/**
+	 * Number of seconds between QueryEnvironment refreshes.
+	 * 
+	 * @return
+	 */
+	public void setQueryEnvironmentRefreshInterval(int refreshIntervalSeconds) {
+		this.queryEnvironmentManager
+				.setQueryEnvironmentRefreshInterval(refreshIntervalSeconds * 1000);
+	}
+
 	public int getIndexEnvironmentDocLimit() {
 		return indexEnvironmentDocLimit;
 	}
@@ -561,13 +563,12 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 		this.indexEnvironmentDocLimit = indexEnvironmentDocLimit;
 	}
 
-	public int getIndexEnvironmentTimeLimitSeconds() {
-		return indexEnvironmentTimeLimitSeconds;
+	public int getIndexEnvironmentRefreshInterval() {
+		return indexEnvironmentRefreshInterval;
 	}
 
-	public void setIndexEnvironmentTimeLimitSeconds(
-			int indexEnvironmentTimeLimitSeconds) {
-		this.indexEnvironmentTimeLimitSeconds = indexEnvironmentTimeLimitSeconds;
+	public void setIndexEnvironmentRefreshInterval(int refreshIntervalSeconds) {
+		this.indexEnvironmentRefreshInterval = refreshIntervalSeconds;
 	}
 
 	public long getIndexEnvironmentMemory() {
@@ -605,7 +606,7 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 		indexEnvironmentDocCount++;
 		final long now = System.currentTimeMillis();
 		final long timeSpanMilliseconds = now - indexEnvironmentCreated;
-		if (timeSpanMilliseconds > 1000 * indexEnvironmentTimeLimitSeconds
+		if (timeSpanMilliseconds > 1000 * indexEnvironmentRefreshInterval
 				|| indexEnvironmentDocCount >= indexEnvironmentDocLimit) {
 			try {
 				refreshIndexEnvironment();
