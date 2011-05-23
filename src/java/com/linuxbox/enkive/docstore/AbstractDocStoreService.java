@@ -179,7 +179,7 @@ public abstract class AbstractDocStoreService implements DocStoreService {
 
 			if (!storeResult.getAlreadyStored()) {
 				indexerQueueService.enqueue(storeResult.getIdentifier(),
-						DocStoreConstants.INDEX_DOCUMENT);
+						DocStoreConstants.QUEUE_ENTRY_INDEX_DOCUMENT);
 			}
 
 			return storeResult;
@@ -202,7 +202,7 @@ public abstract class AbstractDocStoreService implements DocStoreService {
 				if (result) {
 					try {
 						indexerQueueService.enqueue(identifier,
-								DocStoreConstants.REMOVE_DOCUMENT);
+								DocStoreConstants.QUEUE_ENTRY_REMOVE_DOCUMENT);
 					} catch (QueueServiceException e) {
 						// TODO should we throw an exception out or is logging
 						// the problem enough?

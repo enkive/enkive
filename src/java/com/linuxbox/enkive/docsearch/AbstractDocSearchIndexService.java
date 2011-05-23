@@ -94,7 +94,7 @@ public abstract class AbstractDocSearchIndexService implements
 					}
 
 					switch (note) {
-					case DocStoreConstants.INDEX_DOCUMENT:
+					case DocStoreConstants.QUEUE_ENTRY_INDEX_DOCUMENT:
 						try {
 							doIndexDocument(documentId);
 						} catch (Exception e) {
@@ -103,7 +103,7 @@ public abstract class AbstractDocSearchIndexService implements
 							error = true;
 						}
 						break;
-					case DocStoreConstants.REMOVE_DOCUMENT:
+					case DocStoreConstants.QUEUE_ENTRY_REMOVE_DOCUMENT:
 						try {
 							doRemoveDocument(documentId);
 						} catch (Exception e) {
@@ -240,7 +240,7 @@ public abstract class AbstractDocSearchIndexService implements
 			throws DocSearchException {
 		try {
 			indexerQueueService.enqueue(identifier,
-					DocStoreConstants.INDEX_DOCUMENT);
+					DocStoreConstants.QUEUE_ENTRY_INDEX_DOCUMENT);
 		} catch (QueueServiceException e) {
 			throw new DocSearchException("could not add indexing of \""
 					+ identifier + "\" to indexing queue");
@@ -259,7 +259,7 @@ public abstract class AbstractDocSearchIndexService implements
 	public void removeDocument(String identifier) throws DocSearchException {
 		try {
 			indexerQueueService.enqueue(identifier,
-					DocStoreConstants.REMOVE_DOCUMENT);
+					DocStoreConstants.QUEUE_ENTRY_REMOVE_DOCUMENT);
 		} catch (QueueServiceException e) {
 			throw new DocSearchException("could not add removal of \""
 					+ identifier + "\" to indexing queue");
