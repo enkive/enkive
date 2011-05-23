@@ -1,6 +1,7 @@
 package com.linuxbox.enkive.archiver.mongodb;
 
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.BOUNDARY_ID;
+import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.MESSAGE_DIFF;
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.CC;
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.CONTENT_DISPOSITION;
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.CONTENT_ID;
@@ -95,6 +96,7 @@ public class MongoArchivingService extends AbstractMessageArchivingService {
 			messageObject.put(MESSAGE_ID, message.getMessageId());
 			messageObject.put(MIME_VERSION, message.getMimeVersion());
 			messageObject.put(CONTENT_TYPE, message.getContentType());
+			messageObject.put(MESSAGE_DIFF, message.getMessageDiff());
 			ContentHeader contentHeader = message.getContentHeader();
 			if (message.getContentType().trim().toLowerCase().equals(ContentTypeField.TYPE_MESSAGE_RFC822.toLowerCase())) {
 				try {

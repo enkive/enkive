@@ -21,6 +21,7 @@
 package com.linuxbox.enkive.retriever.mongodb;
 
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.BOUNDARY_ID;
+import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.MESSAGE_DIFF;
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.CC;
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.CONTENT_DISPOSITION;
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.CONTENT_ID;
@@ -223,6 +224,8 @@ public class MongoRetrieverService extends AbstractRetrieverService {
 			throws IOException, BadMessageException {
 		if(messageObject.get(ORIGINAL_HEADERS) != null)
 			message.setOriginalHeaders((String) messageObject.get(ORIGINAL_HEADERS));
+		if(messageObject.get(MESSAGE_DIFF) != null)
+			message.setMessageDiff(((String) messageObject.get(MESSAGE_DIFF)));
 	}
 
 	private void setSinglePartHeaderProperties(SinglePartHeader header,

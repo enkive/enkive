@@ -121,6 +121,9 @@ public interface Message extends MessageSummary {
 	 */
 	public Header getParsedHeader();
 
+	public String getMessageDiff();
+
+	public void setMessageDiff(String messageDiff);
 	/**
 	 * Returns the reconstituted email message as a String.
 	 */
