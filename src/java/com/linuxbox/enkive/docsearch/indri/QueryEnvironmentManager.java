@@ -11,6 +11,7 @@ import org.apache.commons.logging.LogFactory;
 public class QueryEnvironmentManager {
 	private final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.docsearch.indri");
+	private final static boolean LOG_TIMINGS = false;
 
 	private Collection<String> indexPaths;
 	private Collection<String> indexServers;
@@ -30,7 +31,6 @@ public class QueryEnvironmentManager {
 	}
 
 	public QueryEnvironment createQueryEnvironment() throws Exception {
-		LOGGER.trace("QueryEnvironment created: " + queryEnvironment);
 		QueryEnvironment queryEnvironment = new QueryEnvironment();
 		if (indexPaths != null) {
 			for (String path : indexPaths) {
@@ -61,8 +61,10 @@ public class QueryEnvironmentManager {
 					|| (now - createdAt >= queryEnvironmentRefreshInterval)) {
 				queryEnvironment = createQueryEnvironment();
 				createdAt = System.currentTimeMillis();
-				LOGGER.trace("took " + (createdAt - now) / 1000.0
-						+ " seconds to create a QueryEnvironment");
+				if (LOG_TIMINGS) {
+					LOGGER.trace("took " + (createdAt - now) / 1000.0
+							+ " seconds to create a QueryEnvironment");
+				}
 			}
 
 			return queryEnvironment;
