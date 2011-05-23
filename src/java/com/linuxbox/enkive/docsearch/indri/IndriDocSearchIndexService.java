@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import lemurproject.indri.IndexEnvironment;
-import lemurproject.indri.IndexStatus;
 import lemurproject.indri.ParsedDocument;
 
 import org.apache.commons.logging.Log;
@@ -18,36 +17,16 @@ import org.apache.commons.logging.LogFactory;
 import com.linuxbox.enkive.docsearch.AbstractDocSearchIndexService;
 import com.linuxbox.enkive.docsearch.contentanalyzer.ContentAnalyzer;
 import com.linuxbox.enkive.docsearch.exception.DocSearchException;
+import com.linuxbox.enkive.docstore.DocStoreConstants;
 import com.linuxbox.enkive.docstore.DocStoreService;
 import com.linuxbox.enkive.docstore.Document;
 import com.linuxbox.enkive.docstore.exception.DocStoreException;
 import com.linuxbox.util.StreamConnector;
+import com.linuxbox.util.lockservice.LockAcquisitionException;
+import com.linuxbox.util.lockservice.LockReleaseException;
+import com.linuxbox.util.lockservice.LockService;
 
 public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
-	/**
-	 * This is supposed to be a call-back that gets status updates. But as of
-	 * April 25, 2011, delete would be called for reasons unknown and using it
-	 * in the call to IndexEnvironment::open resulted in runtime errors. So for
-	 * now it's not used.
-	 * 
-	 * @author ivancich
-	 * 
-	 */
-	static class RecordedIndexStatus extends IndexStatus {
-		public void status(int code, String documentPath, String error,
-				int documentsIndexed, int documentsSeen) {
-			System.out.println("code: " + code);
-			System.out.println("document path: " + documentPath);
-			System.out.println("error: " + error);
-			System.out.println("documents indexed: " + documentsIndexed);
-			System.out.println("documents seen: " + documentsSeen);
-		}
-
-		public void delete() {
-			System.err.println("IndexStatus::delete called\n");
-		}
-	}
-
 	static enum IndexStorage {
 		STRING, FILE, PARSED_DOCUMENT, BY_SIZE
 	}
@@ -128,6 +107,8 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 	 */
 	private QueryEnvironmentManager queryEnvironmentManager;
 
+	private LockService documentLockingService;
+
 	/**
 	 * Construct an Indri indexing service that does not do polling of the doc
 	 * store.
@@ -180,6 +161,10 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 
 	@Override
 	public void subStartup() throws DocSearchException {
+		if (documentLockingService == null) {
+			throw new DocSearchException(
+					"no document locking service was set for the IndroDocSearchIndexService");
+		}
 		initializeTemporaryStorage(tempStoragePath);
 		createIndexEnvironment();
 	}
@@ -443,7 +428,16 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 		LOGGER.trace("starting to index " + identifier);
 
 		@SuppressWarnings("unused")
-		int docId = -1;
+		int docId;
+
+		try {
+			documentLockingService.lock(identifier,
+					DocStoreConstants.LOCK_TO_INDEX);
+		} catch (LockAcquisitionException e) {
+			throw new DocStoreException(
+					"could not acquire lock to index document \"" + identifier
+							+ "\"", e);
+		}
 		try {
 			Document doc = docStoreService.retrieve(identifier);
 			switch (INDEX_STORAGE) {
@@ -480,6 +474,14 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 			throw e;
 		} catch (Exception e) {
 			throw new DocSearchException("errors managing INDRI index", e);
+		} finally {
+			try {
+				documentLockingService.releaseLock(identifier);
+			} catch (LockReleaseException e) {
+				throw new DocStoreException(
+						"could not release lock for document \"" + identifier
+								+ "\"");
+			}
 		}
 	}
 
@@ -569,6 +571,14 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 
 	public void setIndexEnvironmentMemory(long indexEnvironmentMemory) {
 		this.indexEnvironmentMemory = indexEnvironmentMemory;
+	}
+
+	public LockService getDocumentLockingService() {
+		return documentLockingService;
+	}
+
+	public void setDocumentLockingService(LockService documentLockingService) {
+		this.documentLockingService = documentLockingService;
 	}
 
 	private void openIndexEnvironment() throws Exception {

@@ -289,6 +289,7 @@ public class TestMongoGridDocStore {
 				docIndexService.setIndexerQueueService(docStoreService.getIndexerQueueService());
 				docIndexService
 						.setUnindexedDocRePollInterval(INDEXING_POLL_TIME);
+				docIndexService.setDocumentLockingService(docStoreService.getDocumentLockingService());
 			}
 			docIndexService.startup();
 

@@ -24,10 +24,13 @@
 		<constructor-arg value="${enkive.docsearch.index.indri.repoll}" />
 
 		<property name="indexEnvironmentDocLimit" value="${enkive.docsearch.index.indri.envDocLimit}" />
-		<property name="indexEnvironmentRefreshInterval" value="${enkive.docsearch.index.indri.indexRefreshingInterval}" />
+		<property name="indexEnvironmentRefreshInterval"
+			value="${enkive.docsearch.index.indri.indexRefreshingInterval}" />
 		<property name="indexEnvironmentMemory" value="${enkive.docsearch.index.indri.memory}" />
 		<property name="indexerQueueService" ref="IndexerQueueService" />
-		<property name="queryEnvironmentRefreshInterval" value="${enkive.docsearch.index.indri.queryRefreshingInterval}" />
+		<property name="queryEnvironmentRefreshInterval"
+			value="${enkive.docsearch.index.indri.queryRefreshingInterval}" />
+		<property name="documentLockingService" ref="DocLockService" />
 	</bean>
 
 	<bean id="DocSearchQueryService"
