@@ -24,6 +24,8 @@ import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.Date;
 import java.util.Stack;
 
@@ -97,6 +99,7 @@ public class MessageImpl extends AbstractMessage implements Message {
 		String lineEnding = "\r\n";
 
 		final MessageStreamParser stream = new MessageStreamParser(config);
+		stream.setRecursionMode(MimeTokenStream.M_NO_RECURSE);
 
 		stream.parse(in);
 
@@ -212,7 +215,9 @@ public class MessageImpl extends AbstractMessage implements Message {
 						headerStack.push(mp2);
 					}
 					break;
+
 				}
+
 			}
 		} catch (MimeException e) {
 			throw new BadMessageException(e);
@@ -275,6 +280,12 @@ public class MessageImpl extends AbstractMessage implements Message {
 		else
 			setDate(new Date());
 
+		if(headers.getMimeType() != null)
+			setContentType(headers.getMimeType());
+		
+		if(headers.getContentTransferEncoding() != null)
+			setContentTransferEncoding(headers.getContentTransferEncoding());
+		
 		if (headers.getHeader().getField("MIME-VERSION") != null)
 			setMimeVersion(headers.getHeader().getField("MIME-VERSION")
 					.getBody().toString());

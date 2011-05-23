@@ -36,6 +36,8 @@ public abstract class AbstractMessage extends AbstractMessageSummary
 		implements Message {
 	protected String originalHeaders;
 	protected String mimeVersion;
+	protected String contentType;
+	protected String contentTransferEncoding;
 	protected ContentHeader contentHeader;
 	protected Header parsedHeader;
 
@@ -77,6 +79,22 @@ public abstract class AbstractMessage extends AbstractMessageSummary
 	@Override
 	public void setMimeVersion(String mimeVersion) {
 		this.mimeVersion = mimeVersion;
+	}
+
+	public String getContentType() {
+		return contentType;
+	}
+
+	public void setContentType(String contentType) {
+		this.contentType = contentType;
+	}
+	
+	public String getContentTransferEncoding() {
+		return contentTransferEncoding;
+	}
+
+	public void setContentTransferEncoding(String contentTransferEncoding) {
+		this.contentTransferEncoding = contentTransferEncoding;
 	}
 
 	@Override

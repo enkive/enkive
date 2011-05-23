@@ -37,6 +37,7 @@ import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.RCPT_TO;
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.SUBJECT;
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.TO;
 import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.ATTACHMENT_ID;
+import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.ATTACHMENT_ID_LIST;
 import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.CONTENT_HEADER;
 import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.CONTENT_HEADER_TYPE;
 import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.MULTIPART_HEADER_TYPE;
@@ -108,6 +109,12 @@ public class MongoRetrieverService extends AbstractRetrieverService {
 		} catch (BadMessageException e) {
 			throw new CannotRetrieveException(e);
 		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<String> retrieveAttachmentIds(String messageUUID){
+		DBObject messageObject = messageColl.findOne(messageUUID);
+		return (List<String>) messageObject.get(ATTACHMENT_ID_LIST);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -214,7 +221,8 @@ public class MongoRetrieverService extends AbstractRetrieverService {
 
 	private void setMessageProperties(Message message, DBObject messageObject)
 			throws IOException, BadMessageException {
-		message.setOriginalHeaders((String) messageObject.get(ORIGINAL_HEADERS));
+		if(messageObject.get(ORIGINAL_HEADERS) != null)
+			message.setOriginalHeaders((String) messageObject.get(ORIGINAL_HEADERS));
 	}
 
 	private void setSinglePartHeaderProperties(SinglePartHeader header,
@@ -230,9 +238,8 @@ public class MongoRetrieverService extends AbstractRetrieverService {
 	private void setMultiPartHeaderProperties(MultiPartHeader header,
 			DBObject headerObject) throws IOException {
 		header.setOriginalHeaders((String) headerObject.get(ORIGINAL_HEADERS));
-
 		header.setBoundary((String) headerObject.get(BOUNDARY_ID));
 		header.setPreamble((String) headerObject.get(PREAMBLE));
-		header.setEpilogue((String) headerObject.get(EPILOGUE));
+		header.setEpilogue((String) headerObject.get(EPILOGUE)); 	
 	}
 }

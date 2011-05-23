@@ -28,13 +28,16 @@ import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.PA
 import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.SINGLE_PART_HEADER_TYPE;
 
 import java.io.IOException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.james.mime4j.MimeException;
+import org.apache.james.mime4j.codec.Base64InputStream;
+import org.apache.james.mime4j.codec.QuotedPrintableInputStream;
+import org.apache.james.mime4j.field.ContentTypeField;
+import org.apache.james.mime4j.util.MimeUtil;
 
 import com.linuxbox.enkive.archiver.AbstractMessageArchivingService;
 import com.linuxbox.enkive.archiver.MessageLoggingText;
@@ -42,8 +45,11 @@ import com.linuxbox.enkive.archiver.exceptions.CannotArchiveException;
 import com.linuxbox.enkive.docstore.Document;
 import com.linuxbox.enkive.docstore.StoreRequestResult;
 import com.linuxbox.enkive.docstore.exception.DocStoreException;
+import com.linuxbox.enkive.exception.BadMessageException;
+import com.linuxbox.enkive.exception.CannotTransferMessageContentException;
 import com.linuxbox.enkive.message.ContentHeader;
 import com.linuxbox.enkive.message.Message;
+import com.linuxbox.enkive.message.MessageImpl;
 import com.linuxbox.enkive.message.MimeTransferEncoding;
 import com.linuxbox.enkive.message.MultiPartHeader;
 import com.linuxbox.enkive.message.SinglePartHeader;
@@ -88,9 +94,44 @@ public class MongoArchivingService extends AbstractMessageArchivingService {
 			messageObject.put(SUBJECT, message.getSubject());
 			messageObject.put(MESSAGE_ID, message.getMessageId());
 			messageObject.put(MIME_VERSION, message.getMimeVersion());
-
+			messageObject.put(CONTENT_TYPE, message.getContentType());
 			ContentHeader contentHeader = message.getContentHeader();
-
+			if (message.getContentType().trim().toLowerCase().equals(ContentTypeField.TYPE_MESSAGE_RFC822.toLowerCase())) {
+				try {
+					Message subMessage;
+					if (MimeUtil.isBase64Encoding(message
+							.getContentTransferEncoding())){
+						subMessage = new MessageImpl(new Base64InputStream(
+								message.getContentHeader()
+										.getEncodedContentData()
+										.getBinaryContent()));
+					}
+					else if (MimeUtil.isQuotedPrintableEncoded(message
+							.getContentTransferEncoding())) {
+						subMessage = new MessageImpl(
+								new QuotedPrintableInputStream(message
+										.getContentHeader()
+										.getEncodedContentData()
+										.getBinaryContent()));
+					} else
+						subMessage = new MessageImpl(message.getContentHeader()
+								.getEncodedContentData().getBinaryContent());
+					String subMessageUUID = storeOrFindMessage(subMessage);
+					//System.out.println(subMessageUUID);
+				} catch (CannotTransferMessageContentException e) {
+					throw new CannotArchiveException(
+							"Could not parse embedded message/rfc822", e);
+				} catch (BadMessageException e) {
+					throw new CannotArchiveException(
+							"Could not parse embedded message/rfc822", e);
+				} catch (IOException e) {
+					throw new CannotArchiveException(
+							"Could not parse embedded message/rfc822", e);
+				} catch (MimeException e) {
+					throw new CannotArchiveException(
+							"Could not parse embedded message/rfc822", e);
+				}
+			}
 			messageObject.put(CONTENT_HEADER,
 					archiveContentHeader(contentHeader));
 			messageObject.put(ATTACHMENT_ID_LIST, attachment_ids);
@@ -106,7 +147,8 @@ public class MongoArchivingService extends AbstractMessageArchivingService {
 	}
 
 	@Override
-	public String findMessage(Message message) throws MongoException, CannotArchiveException {
+	public String findMessage(Message message) throws MongoException,
+			CannotArchiveException {
 		String messageUUID = null;
 		DBObject messageObject = messageColl
 				.findOne(calculateMessageId(message));
@@ -170,5 +212,16 @@ public class MongoArchivingService extends AbstractMessageArchivingService {
 		}
 
 		return headerObject;
+	}
+
+	@Override
+	public boolean removeMessage(String messageUUID) {
+		try {
+			DBObject messageObject = messageColl.findOne(messageUUID);
+			messageColl.remove(messageObject);
+		} catch (MongoException e) {
+			return false;
+		}
+		return true;
 	}
 }
