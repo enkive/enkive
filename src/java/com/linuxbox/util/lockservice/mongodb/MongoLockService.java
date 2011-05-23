@@ -129,7 +129,8 @@ public class MongoLockService implements LockService {
 	 * @param identifier
 	 * @return
 	 */
-	public boolean lock(String identifier, String notation)
+	@Override
+	public boolean lock(String identifier, Object notation)
 			throws LockAcquisitionException {
 		try {
 			final DBObject controlRecord = BasicDBObjectBuilder

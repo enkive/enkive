@@ -10,7 +10,7 @@ public interface LockService {
 	LockRequestFailure lockWithFailureData(String identifier, String notation)
 			throws LockAcquisitionException;
 
-	boolean lock(String identifier, String notation)
+	boolean lock(String identifier, Object notation)
 			throws LockAcquisitionException;
 
 	void releaseLock(String identifier) throws LockReleaseException;
