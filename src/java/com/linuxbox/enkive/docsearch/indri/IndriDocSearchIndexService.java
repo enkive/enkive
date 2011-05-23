@@ -108,6 +108,10 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 	private long indexEnvironmentMemory = DEFAULT_MEMORY_TO_USE;
 
 	/**
+	 * NOTE: TODO : since all action through the IndexEnvironment is serialized
+	 * by getting actions off of a queue, this mutex is likely no longer
+	 * necessary. Once code is stable and working, look into removing it.
+	 * 
 	 * Used to control access to the index environment; needed in case an
 	 * outside caller wants to refresh the index environment.
 	 */
@@ -484,17 +488,9 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 			throws DocSearchException {
 		try {
 			LOGGER.trace("starting to remove " + identifier);
+			int[] documentNumbers = lookupDocumentNumbers(identifier);
 
-			final String[] idListOfOne = { identifier };
-			int documentNumbers[] = queryEnvironmentManager
-					.getQueryEnvironment().documentIDsFromMetadata(NAME_FIELD,
-							idListOfOne);
-
-			if (documentNumbers.length == 0) {
-				throw new DocSearchException(
-						"unable to find a document in the index to remove named \""
-								+ identifier + "\"");
-			} else if (documentNumbers.length > 1) {
+			if (documentNumbers.length > 1) {
 				LOGGER.warn("removing multiple (" + documentNumbers.length
 						+ ") documents in the index with name \"" + identifier
 						+ "\"");
@@ -505,10 +501,6 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 			Exception savedException = null;
 
 			synchronized (indexEnvironmentMutex) {
-				if (shuttingDown) {
-					throw new DocSearchException(
-							"could not remove a document because the INDRI doc search index server was shut down");
-				}
 				for (int documentNumber : documentNumbers) {
 					try {
 						indexEnvironment.deleteDocument(documentNumber);
@@ -615,5 +607,47 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 						"could not close/open index environment", e);
 			}
 		}
+	}
+
+	/**
+	 * Given a document identifier this will return the document number(s) with
+	 * a matching identifier; in most cases this should be one or zero, but it
+	 * can handle multiple matches as well.
+	 * 
+	 * @param identifier
+	 * @return
+	 * @throws DocSearchException
+	 */
+	private int[] lookupDocumentNumbers(String identifier)
+			throws DocSearchException {
+		int[] documentNumbers;
+		final String[] idListOfOne = { identifier };
+
+		// try to find the document up to two times; if the first attempt
+		// returns 0 documents or generates an exception, refresh the
+		// QueryEnvironment and try again; this will handle
+		// cases in which the document was indexed since the last refresh.
+		for (int i = 1; i <= 2; i++) {
+			try {
+				if (i == 2) {
+					refreshIndexEnvironment();
+					queryEnvironmentManager.forceQueryEnvironmentRefresh();
+				}
+				documentNumbers = queryEnvironmentManager.getQueryEnvironment()
+						.documentIDsFromMetadata(NAME_FIELD, idListOfOne);
+				if (documentNumbers.length > 0) {
+					return documentNumbers;
+				}
+			} catch (Exception e) {
+				if (i == 2) {
+					throw new DocSearchException(
+							"could not query index for document \""
+									+ identifier + "\"", e);
+				}
+			}
+		}
+
+		throw new DocSearchException("could not find document \"" + identifier
+				+ "\" for removal");
 	}
 }
