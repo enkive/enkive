@@ -29,6 +29,7 @@ import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.PA
 import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.SINGLE_PART_HEADER_TYPE;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -71,6 +72,7 @@ public class MongoArchivingService extends AbstractMessageArchivingService {
 	protected DB messageDb;
 	protected DBCollection messageColl;
 	protected List<String> attachment_ids;
+	protected List<String> nested_message_ids;
 
 	public MongoArchivingService(Mongo m, String dbName, String collName) {
 		this.m = m;
@@ -82,6 +84,7 @@ public class MongoArchivingService extends AbstractMessageArchivingService {
 	public String storeMessage(Message message) throws CannotArchiveException {
 		String messageUUID = null;
 		attachment_ids = new ArrayList<String>();
+		nested_message_ids = new ArrayList<String>();
 		try {
 			BasicDBObject messageObject = new BasicDBObject();
 			messageObject.put(MESSAGE_UUID, calculateMessageId(message));
@@ -98,45 +101,19 @@ public class MongoArchivingService extends AbstractMessageArchivingService {
 			messageObject.put(CONTENT_TYPE, message.getContentType());
 			messageObject.put(MESSAGE_DIFF, message.getMessageDiff());
 			ContentHeader contentHeader = message.getContentHeader();
-			if (message.getContentType().trim().toLowerCase().equals(ContentTypeField.TYPE_MESSAGE_RFC822.toLowerCase())) {
-				try {
-					Message subMessage;
-					if (MimeUtil.isBase64Encoding(message
-							.getContentTransferEncoding())){
-						subMessage = new MessageImpl(new Base64InputStream(
-								message.getContentHeader()
-										.getEncodedContentData()
-										.getBinaryContent()));
-					}
-					else if (MimeUtil.isQuotedPrintableEncoded(message
-							.getContentTransferEncoding())) {
-						subMessage = new MessageImpl(
-								new QuotedPrintableInputStream(message
-										.getContentHeader()
-										.getEncodedContentData()
-										.getBinaryContent()));
-					} else
-						subMessage = new MessageImpl(message.getContentHeader()
-								.getEncodedContentData().getBinaryContent());
-					String subMessageUUID = storeOrFindMessage(subMessage);
-					//System.out.println(subMessageUUID);
-				} catch (CannotTransferMessageContentException e) {
-					throw new CannotArchiveException(
-							"Could not parse embedded message/rfc822", e);
-				} catch (BadMessageException e) {
-					throw new CannotArchiveException(
-							"Could not parse embedded message/rfc822", e);
-				} catch (IOException e) {
-					throw new CannotArchiveException(
-							"Could not parse embedded message/rfc822", e);
-				} catch (MimeException e) {
-					throw new CannotArchiveException(
-							"Could not parse embedded message/rfc822", e);
-				}
+			if (message.getContentType().trim().toLowerCase()
+					.equals(ContentTypeField.TYPE_MESSAGE_RFC822.toLowerCase())) {
+				String subMessageUUID = storeNestedMessage(message
+						.getContentHeader().getEncodedContentData()
+						.getBinaryContent(),
+						message.getContentTransferEncoding());
+				if (!nested_message_ids.contains(subMessageUUID))
+					nested_message_ids.add(subMessageUUID);
 			}
 			messageObject.put(CONTENT_HEADER,
 					archiveContentHeader(contentHeader));
 			messageObject.put(ATTACHMENT_ID_LIST, attachment_ids);
+			messageObject.put(ATTACHMENT_ID_LIST, nested_message_ids);
 			messageColl.insert(messageObject);
 			messageUUID = messageObject.getString(MESSAGE_UUID);
 		} catch (MongoException e) {
@@ -162,7 +139,7 @@ public class MongoArchivingService extends AbstractMessageArchivingService {
 	}
 
 	private BasicDBObject archiveContentHeader(ContentHeader contentHeader)
-			throws DocStoreException {
+			throws DocStoreException, CannotArchiveException {
 		BasicDBObject headerObject = new BasicDBObject();
 		if (contentHeader.isMultipart()) {
 			MultiPartHeader multiPartHeader = (MultiPartHeader) contentHeader;
@@ -199,6 +176,15 @@ public class MongoArchivingService extends AbstractMessageArchivingService {
 			headerObject.put(ORIGINAL_HEADERS,
 					singlePartHeader.getOriginalHeaders());
 
+			if (singlePartHeader.getContentType().trim().toLowerCase()
+					.equals(ContentTypeField.TYPE_MESSAGE_RFC822.toLowerCase())) {
+				String subMessageUUID = storeNestedMessage(singlePartHeader
+						.getEncodedContentData().getBinaryContent(),
+						singlePartHeader.getContentTransferEncoding().toString());
+				if (!nested_message_ids.contains(subMessageUUID))
+					nested_message_ids.add(subMessageUUID);
+			}
+
 			String fileExtension = "";
 			if (singlePartHeader.getFilename() != null)
 				fileExtension = singlePartHeader.getFilename().substring(
@@ -225,5 +211,36 @@ public class MongoArchivingService extends AbstractMessageArchivingService {
 			return false;
 		}
 		return true;
+	}
+
+	protected String storeNestedMessage(InputStream nestedMessage,
+			String contentTransferEncoding) throws CannotArchiveException {
+		String nestedMessageUUID = "";
+		try {
+			Message subMessage;
+			if (MimeUtil.isBase64Encoding(contentTransferEncoding)) {
+				subMessage = new MessageImpl(new Base64InputStream(
+						nestedMessage));
+			} else if (MimeUtil
+					.isQuotedPrintableEncoded(contentTransferEncoding)) {
+				subMessage = new MessageImpl(new QuotedPrintableInputStream(
+						nestedMessage));
+			} else
+				subMessage = new MessageImpl(nestedMessage);
+			nestedMessageUUID = storeOrFindMessage(subMessage);
+		} catch (CannotTransferMessageContentException e) {
+			throw new CannotArchiveException(
+					"Could not parse embedded message/rfc822", e);
+		} catch (BadMessageException e) {
+			throw new CannotArchiveException(
+					"Could not parse embedded message/rfc822", e);
+		} catch (IOException e) {
+			throw new CannotArchiveException(
+					"Could not parse embedded message/rfc822", e);
+		} catch (MimeException e) {
+			throw new CannotArchiveException(
+					"Could not parse embedded message/rfc822", e);
+		}
+		return nestedMessageUUID;
 	}
 }
