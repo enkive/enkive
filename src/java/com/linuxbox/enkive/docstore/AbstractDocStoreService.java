@@ -126,13 +126,6 @@ public abstract class AbstractDocStoreService implements DocStoreService {
 
 		byte[] inMemoryBuffer = new byte[inMemoryLimit];
 		try {
-			// create a fix-sized buffer to see if the data will fit within it
-
-			// TODO change strategy : rather than using a buffered input stream
-			// with mark/reset, which has its own buffer, use a sequence input
-			// stream to combine our buffer with the remainder of the original
-			// stream, so we only have a single buffer
-
 			InputStream originalInputStream = document
 					.getEncodedContentStream();
 
@@ -155,7 +148,6 @@ public abstract class AbstractDocStoreService implements DocStoreService {
 				final byte[] hashBytes = messageDigest.digest();
 				storeResult = storeKnownHash(document, hashBytes,
 						inMemoryBuffer, offset);
-
 			} else {
 				// could not read whole thing into fix-sized buffer, so store
 				// the document, determine its name after-the fact, and rename
