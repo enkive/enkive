@@ -1,6 +1,5 @@
 package com.linuxbox.enkive.docsearch;
 
-import java.io.IOException;
 import java.util.Collection;
 
 import com.linuxbox.enkive.docsearch.contentanalyzer.ContentAnalyzer;
@@ -11,13 +10,15 @@ import com.linuxbox.enkive.docstore.exception.DocStoreException;
 public interface DocSearchIndexService {
 	/**
 	 * Shut down the service and release any resources used by the service.
-	 * @throws DocSearchException 
+	 * 
+	 * @throws DocSearchException
 	 */
 	void startup() throws DocSearchException;
-	
+
 	/**
 	 * Shut down the service and release any resources used by the service.
-	 * @throws DocSearchException 
+	 * 
+	 * @throws DocSearchException
 	 */
 	void shutdown() throws DocSearchException;
 
@@ -29,12 +30,20 @@ public interface DocSearchIndexService {
 
 	// PUSH INDEXING
 
-	void indexDocument(String identifier) throws DocSearchException, DocStoreException;
+	void indexDocument(String identifier) throws DocSearchException,
+			DocStoreException;
 
-	void indexDocuments(Collection<String> identifiers) throws IOException,
-			DocStoreException, DocSearchException;
+	void indexDocuments(Collection<String> identifiers)
+			throws DocStoreException, DocSearchException;
 
 	// PULL INDEXING
 
-	void setUnindexedDocSearchInterval(int milliseconds);
+	void setUnindexedDocRePollInterval(int milliseconds);
+
+	// REMOVE
+
+	/**
+	 * Remove a document from the index.
+	 */
+	void removeDocument(String identifier) throws DocSearchException;
 }

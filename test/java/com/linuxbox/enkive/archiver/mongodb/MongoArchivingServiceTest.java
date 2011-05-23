@@ -18,7 +18,8 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 import com.linuxbox.enkive.archiver.exceptions.CannotArchiveException;
-import com.linuxbox.enkive.docstore.mongogrid.MongoGridDocStoreService;
+import com.linuxbox.enkive.docstore.DocStoreService;
+import com.linuxbox.enkive.docstore.mongogrid.ConvenienceMongoGridDocStoreService;
 import com.linuxbox.enkive.message.Message;
 import com.linuxbox.enkive.message.MessageImpl;
 import com.mongodb.Mongo;
@@ -28,6 +29,7 @@ public class MongoArchivingServiceTest {
 
 	static Mongo m;
 	static MongoArchivingService archiver;
+	static DocStoreService docStoreService;
 
 	private File file;
 	private Message message;
@@ -44,9 +46,11 @@ public class MongoArchivingServiceTest {
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		m = new Mongo();
-		archiver = new MongoArchivingService(m, "enkive-test", "messages-test");
-		MongoGridDocStoreService docStoreService = new MongoGridDocStoreService(
+		docStoreService = new ConvenienceMongoGridDocStoreService(
 				m, "enkive-test", "documents-test");
+		docStoreService.startup();
+
+		archiver = new MongoArchivingService(m, "enkive-test", "messages-test");
 		archiver.setDocStoreService(docStoreService);
 	}
 
@@ -59,11 +63,12 @@ public class MongoArchivingServiceTest {
 
 	@After
 	public void tearDown() throws Exception {
-		
+
 	}
 
 	@AfterClass
 	public static void tearDownAfterClass() throws Exception {
+		docStoreService.shutdown();
 		m.close();
 	}
 

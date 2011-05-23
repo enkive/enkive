@@ -1,7 +1,6 @@
 package com.linuxbox.enkive.docsearch.indri;
 
 import java.util.Collection;
-import java.util.LinkedList;
 import java.util.List;
 
 import lemurproject.indri.QueryEnvironment;
@@ -33,7 +32,7 @@ public class IndriDocSearchQueryService extends AbstractDocSearchQueryService {
 		}
 	}
 
-	static final String SYSTEM_PATH_SEPARATOR = System.getProperty(
+	private static final String SYSTEM_PATH_SEPARATOR = System.getProperty(
 			"path.separator", ":");
 
 	private final static Log LOGGER = LogFactory
@@ -44,10 +43,12 @@ public class IndriDocSearchQueryService extends AbstractDocSearchQueryService {
 
 	private static final QueryResultToDocNameConverter QUERY_RESULT_CONVERTER;
 
-	private Collection<String> indexPaths;
-	private Collection<String> indexServers;
+	/**
+	 * Time between query environment renewals in milliseconds.
+	 */
+	private static final long DEFAULT_QUERY_ENVIRONMENT_REFRESH_INTERVAL = 15000;
 
-	private QueryEnvironment queryEnvironment;
+	private QueryEnvironmentManager queryEnvironmentManager;
 
 	static {
 		QUERY_RESULT_CONVERTER = new QueryResultToDocNameConverter();
@@ -58,7 +59,8 @@ public class IndriDocSearchQueryService extends AbstractDocSearchQueryService {
 	 * setIndexServers thereafter, followed by startup.
 	 */
 	public IndriDocSearchQueryService() {
-		// empty
+		this.queryEnvironmentManager = new QueryEnvironmentManager(
+				DEFAULT_QUERY_ENVIRONMENT_REFRESH_INTERVAL);
 	}
 
 	/**
@@ -67,76 +69,40 @@ public class IndriDocSearchQueryService extends AbstractDocSearchQueryService {
 	 * @param indexPath
 	 */
 	public IndriDocSearchQueryService(String indexPath) {
-		this.indexPaths = new LinkedList<String>();
-		this.indexPaths.add(indexPath);
+		this();
+		queryEnvironmentManager.addIndexPath(indexPath);
 	}
 
 	public IndriDocSearchQueryService(Collection<String> indexPaths,
 			Collection<String> indexServers) {
-		this.indexPaths = indexPaths;
-		this.indexServers = indexServers;
-	}
-
-	private void initializeIndexPaths() {
-		if (indexPaths == null) {
-			return;
-		}
-
-		for (String path : indexPaths) {
-			try {
-				queryEnvironment.addIndex(path);
-			} catch (Exception e) {
-				LOGGER.error("could not add index path \"" + path + "\"", e);
-			}
-		}
-	}
-
-	private void initializeIndexServers() {
-		if (indexServers == null) {
-			return;
-		}
-
-		for (String server : indexServers) {
-			try {
-				queryEnvironment.addServer(server);
-			} catch (Exception e) {
-				LOGGER.error("could not add index server \"" + server + "\"", e);
-			}
-		}
+		this();
+		this.queryEnvironmentManager.setIndexPaths(indexPaths);
+		this.queryEnvironmentManager.setIndexServers(indexServers);
 	}
 
 	@Override
 	public void startup() throws DocSearchException {
-		try {
-			queryEnvironment = new QueryEnvironment();
-			initializeIndexPaths();
-			initializeIndexServers();
-		} catch (Exception e1) {
-			throw new DocSearchException(
-					"could not create an INDRI query environment", e1);
-		}
+		// empty
 	}
 
 	@Override
 	public void shutdown() throws DocSearchException {
-		if (queryEnvironment != null) {
-			try {
-				queryEnvironment.close();
-			} catch (Exception e) {
-				throw new DocSearchException(
-						"unable to close down query environment", e);
-			}
-		}
+		LOGGER.trace("starting shutdown of IndriDocSearchQueryService");
+		queryEnvironmentManager.forceQueryEnvironmentRefresh();
+		queryEnvironmentManager = null;
+		LOGGER.trace("finished shutdown of IndriDocSearchQueryService");
 	}
 
 	@Override
 	public List<String> search(String query, int maxResults)
 			throws DocSearchException {
 		try {
-			final ScoredExtentResult[] results = queryEnvironment.runQuery(
-					query, maxResults);
-			String[] resultDocNumbers = queryEnvironment.documentMetadata(
-					results, NAME_FIELD);
+			final ScoredExtentResult[] results;
+			String[] resultDocNumbers;
+			final QueryEnvironment queryEnv = queryEnvironmentManager
+					.getQueryEnvironment();
+			results = queryEnv.runQuery(query, maxResults);
+			resultDocNumbers = queryEnv.documentMetadata(results, NAME_FIELD);
 			return CollectionUtils.listFromArray(resultDocNumbers);
 		} catch (Exception e) {
 			throw new DocSearchException("could not perform INDRI query", e);
@@ -162,6 +128,9 @@ public class IndriDocSearchQueryService extends AbstractDocSearchQueryService {
 			request.resultsRequested = maxResults;
 			request.metadata = METADATA_FIELDS;
 
+			final QueryEnvironment queryEnvironment = queryEnvironmentManager
+					.getQueryEnvironment();
+
 			// NB: this call will result in an exception if INDRI does not store
 			// a compressed version of the documents
 			QueryResults queryResults = queryEnvironment.runQuery(request);
@@ -176,12 +145,18 @@ public class IndriDocSearchQueryService extends AbstractDocSearchQueryService {
 		}
 	}
 
+	// METHODS THAT DELEGATE TO THE QUERYENVIRONMENTMANAGER
+
+	public void refreshQueryEnvironment() {
+		queryEnvironmentManager.forceQueryEnvironmentRefresh();
+	}
+
 	public Collection<String> getIndexPaths() {
-		return indexPaths;
+		return queryEnvironmentManager.getIndexPaths();
 	}
 
 	public void setIndexPaths(Collection<String> indexPaths) {
-		this.indexPaths = indexPaths;
+		queryEnvironmentManager.setIndexPaths(indexPaths);
 	}
 
 	/**
@@ -194,15 +169,17 @@ public class IndriDocSearchQueryService extends AbstractDocSearchQueryService {
 	 */
 	public void setIndexPaths(String indexPaths) {
 		String[] indexPathArray = indexPaths.split(SYSTEM_PATH_SEPARATOR);
-		this.indexPaths = CollectionUtils.listFromArray(indexPathArray);
+		trimStringArray(indexPathArray);
+		queryEnvironmentManager.setIndexPaths(CollectionUtils
+				.listFromArray(indexPathArray));
 	}
 
 	public Collection<String> getIndexServers() {
-		return indexServers;
+		return queryEnvironmentManager.getIndexServers();
 	}
 
 	public void setIndexServers(Collection<String> indexServers) {
-		this.indexServers = indexServers;
+		queryEnvironmentManager.setIndexServers(indexServers);
 	}
 
 	/**
@@ -215,6 +192,43 @@ public class IndriDocSearchQueryService extends AbstractDocSearchQueryService {
 	 */
 	public void setIndexServers(String indexServers) {
 		String[] indexServerArray = indexServers.split(",");
-		this.indexServers = CollectionUtils.listFromArray(indexServerArray);
+		trimStringArray(indexServerArray);
+		queryEnvironmentManager.setIndexServers(CollectionUtils
+				.listFromArray(indexServerArray));
+	}
+
+	/**
+	 * Number of seconds between QueryEnvironment refreshes.
+	 * 
+	 * @return
+	 */
+	public int getQueryEnvironmentRefreshInterval() {
+		return (int) (queryEnvironmentManager
+				.getQueryEnvironmentRefreshInterval() / 1000);
+	}
+
+	/**
+	 * Number of seconds that a QueryEnvironment can be used before it is
+	 * refreshed.
+	 * 
+	 * @param queryEnvironmentRefreshInterval
+	 */
+	public void setQueryEnvironmentRefreshInterval(int refreshIntervalSeconds) {
+		queryEnvironmentManager
+				.setQueryEnvironmentRefreshInterval(refreshIntervalSeconds * 1000);
+	}
+
+	// PRIVATE SUPPORT METHODS
+
+	/**
+	 * In case the administrator also included spaces around or between items,
+	 * get rid of them.
+	 * 
+	 * @param stringArray
+	 */
+	private void trimStringArray(String[] stringArray) {
+		for (int i = 0; i < stringArray.length; i++) {
+			stringArray[i] = stringArray[i].trim();
+		}
 	}
 }

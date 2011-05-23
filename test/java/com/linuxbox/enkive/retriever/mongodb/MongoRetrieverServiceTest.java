@@ -1,6 +1,5 @@
 package com.linuxbox.enkive.retriever.mongodb;
 
-
 import static org.junit.Assert.assertEquals;
 
 import java.io.BufferedReader;
@@ -22,9 +21,9 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import com.linuxbox.enkive.archiver.exceptions.CannotArchiveException;
 import com.linuxbox.enkive.archiver.mongodb.MongoArchivingService;
-import com.linuxbox.enkive.docstore.mongogrid.MongoGridDocStoreService;
+import com.linuxbox.enkive.docstore.DocStoreService;
+import com.linuxbox.enkive.docstore.mongogrid.ConvenienceMongoGridDocStoreService;
 import com.linuxbox.enkive.exception.CannotRetrieveException;
 import com.linuxbox.enkive.message.Message;
 import com.linuxbox.enkive.message.MessageImpl;
@@ -32,18 +31,19 @@ import com.mongodb.Mongo;
 
 @RunWith(Parameterized.class)
 public class MongoRetrieverServiceTest {
-	
+
 	static Mongo m;
 	static MongoRetrieverService retriever;
-	
+	static DocStoreService docStoreService;
+
 	private File file;
 	private String messageUUID;
 	private String messageString;
-	
+
 	public MongoRetrieverServiceTest(File file) {
 		this.file = file;
 	}
-	
+
 	@Parameters
 	public static Collection<Object[]> data() {
 		return getAllTestFiles(new File("test/data/mime4jTestData"));
@@ -52,14 +52,18 @@ public class MongoRetrieverServiceTest {
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		m = new Mongo();
+		docStoreService = new ConvenienceMongoGridDocStoreService(m,
+				"enkive-test", "documents-test");
+		docStoreService.startup();
+
 		retriever = new MongoRetrieverService(m, "enkive-test", "messages-test");
-		MongoGridDocStoreService docStoreService = new MongoGridDocStoreService(
-				m, "enkive-test", "documents-test");
 		retriever.setDocStoreService(docStoreService);
 	}
 
 	@AfterClass
 	public static void tearDownAfterClass() throws Exception {
+		docStoreService.shutdown();
+
 		m.close();
 	}
 
@@ -77,12 +81,13 @@ public class MongoRetrieverServiceTest {
 	@After
 	public void tearDown() throws Exception {
 	}
-	
+
 	@Test
 	public void testMessageStore() throws CannotRetrieveException, IOException {
 		Message retrievedMessage = retriever.retrieve(messageUUID);
 		assertEquals("Rebuilt message text should be the same as original",
-				retrievedMessage.getReconstitutedEmail().trim(), messageString.trim());
+				retrievedMessage.getReconstitutedEmail().trim(),
+				messageString.trim());
 	}
 
 	private static Collection<Object[]> getAllTestFiles(File dir) {
@@ -98,18 +103,19 @@ public class MongoRetrieverServiceTest {
 		}
 		return files;
 	}
-	
-	private static String readMessage(InputStream inputStream) throws IOException{
+
+	private static String readMessage(InputStream inputStream)
+			throws IOException {
 		StringBuffer message = new StringBuffer();
 		InputStreamReader reader = new InputStreamReader(inputStream);
-		
+
 		Reader in = new BufferedReader(reader);
 		int ch;
 		while ((ch = in.read()) > -1) {
-			message.append((char)ch);
+			message.append((char) ch);
 		}
 		in.close();
 		return message.toString();
 	}
-	
+
 }

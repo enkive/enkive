@@ -7,7 +7,8 @@ import com.linuxbox.enkive.docsearch.exception.DocSearchException;
 import com.linuxbox.enkive.docstore.DocStoreService;
 import com.linuxbox.enkive.docstore.Document;
 
-public class TestDisplaySearchIndexService extends AbstractDocSearchIndexService {
+public class TestDisplaySearchIndexService extends
+		AbstractDocSearchIndexService {
 
 	public TestDisplaySearchIndexService(DocStoreService service,
 			ContentAnalyzer analyzer) {
@@ -41,5 +42,10 @@ public class TestDisplaySearchIndexService extends AbstractDocSearchIndexService
 	@Override
 	public void subShutdown() {
 		// nothing to do
+	}
+
+	@Override
+	public void doRemoveDocument(String identifier) {
+		throw new RuntimeException("unimplemented method");
 	}
 }

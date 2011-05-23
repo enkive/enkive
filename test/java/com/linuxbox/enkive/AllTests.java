@@ -12,6 +12,7 @@ import com.linuxbox.enkive.docstore.mongogrid.MongoGridDocStoreServiceTest;
 import com.linuxbox.enkive.retriever.mongodb.MongoRetrieverServiceTest;
 import com.linuxbox.util.HashingInputStreamTest;
 import com.linuxbox.util.mongodb.MongoLockingServiceTest;
+import com.linuxbox.util.queueservice.mongodb.MongoQueueServiceTest;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
@@ -21,6 +22,7 @@ import com.linuxbox.util.mongodb.MongoLockingServiceTest;
   HashingInputStreamTest.class,
   AbstractDocStoreServiceTest.class,
   MongoLockingServiceTest.class,
+  MongoQueueServiceTest.class,
   MongoGridDocStoreServiceTest.class,
   MongoArchivingServiceTest.class,
   MongoRetrieverServiceTest.class

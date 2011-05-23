@@ -2,18 +2,9 @@ package com.linuxbox.enkive.docstore.mongogrid;
 
 import java.nio.charset.Charset;
 
-public interface Constants {
-	// Mongo internals
-	int DUPLICATE_KEY_ERROR_CODE = 11000;
+import com.linuxbox.util.mongodb.MongoDBConstants;
 
-	// used by GridFS
-	String OBJECT_ID_KEY = "_id";
-	String FILENAME_KEY = "filename";
-	String METADATA_KEY = "metadata";
-	String MIME_TYPE_KEY = "contentType";
-	String GRID_FS_FILES_COLLECTION_SUFFIX = ".files";
-	String GRID_FS_CHUNKS_COLLECTION_SUFFIX = ".chunks";
-
+public interface Constants extends MongoDBConstants {
 	Charset PREFERRED_CHARSET = Charset.forName("UTF-8");
 
 	// file control

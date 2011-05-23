@@ -11,7 +11,7 @@ import org.apache.james.mime4j.MimeException;
 
 import com.linuxbox.enkive.archiver.exceptions.CannotArchiveException;
 import com.linuxbox.enkive.archiver.mongodb.MongoArchivingService;
-import com.linuxbox.enkive.docstore.mongogrid.MongoGridDocStoreService;
+import com.linuxbox.enkive.docstore.DocStoreService;
 import com.linuxbox.enkive.exception.BadMessageException;
 import com.linuxbox.enkive.exception.CannotRetrieveException;
 import com.linuxbox.enkive.exception.CannotTransferMessageContentException;
@@ -21,21 +21,26 @@ import com.linuxbox.enkive.retriever.mongodb.MongoRetrieverService;
 import com.mongodb.Mongo;
 
 public class MongoArchiverTestThread implements Runnable {
+	private final static String DATABASE_NAME = "enkive-test";
+	private final static String MESSAGES_COLLECTION_NAME = "messages-test";
 
-	protected MongoArchivingService archiver;
-	protected MongoRetrieverService retriever;
-	protected File file;
-	
-	public MongoArchiverTestThread(Mongo m, File file){
-		archiver = new MongoArchivingService(m, "enkive", "messages");
-		MongoGridDocStoreService docStoreService = new MongoGridDocStoreService(m, "enkive", "documents");
+	private MongoArchivingService archiver;
+	private MongoRetrieverService retriever;
+	private File file;
+
+	public MongoArchiverTestThread(Mongo m, File file,
+			DocStoreService docStoreService) {
+		archiver = new MongoArchivingService(m, DATABASE_NAME,
+				MESSAGES_COLLECTION_NAME);
 		archiver.setDocStoreService(docStoreService);
-		
-		retriever = new MongoRetrieverService(m, "enkive", "messages");
+
+		retriever = new MongoRetrieverService(m, DATABASE_NAME,
+				MESSAGES_COLLECTION_NAME);
 		retriever.setDocStoreService(docStoreService);
+		
 		this.file = file;
 	}
-	
+
 	@Override
 	public void run() {
 		InputStream fileStream;
@@ -71,9 +76,9 @@ public class MongoArchiverTestThread implements Runnable {
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-		
-
 	}
-
 }

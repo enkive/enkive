@@ -13,36 +13,44 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.linuxbox.util.mongodb.MongoLockingService.LockRequestFailure;
+import com.linuxbox.util.lockservice.LockReleaseException;
+import com.linuxbox.util.lockservice.mongodb.MongoLockService;
+import com.linuxbox.util.lockservice.mongodb.MongoLockService.LockRequestFailure;
 import com.mongodb.DB;
-import com.mongodb.DBCollection;
 import com.mongodb.Mongo;
 
 public class MongoLockingServiceTest {
-	static DB database;
-	static MongoLockingService service;
+	private static final String databaseName = "test-mongo-locking-service";
+	private static final String collectionName = "lockingService";
+	
+	private static Mongo mongo;
+	private static MongoLockService service;
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		Mongo mongo = new Mongo();
-		UUID dbUUID = UUID.randomUUID();
-		database = mongo.getDB("test:" + dbUUID.toString());
-		DBCollection lockCollection = database
-				.getCollection("testMongoLockingService");
-		service = new MongoLockingService(lockCollection);
+		mongo = new Mongo();
+
+		service = new MongoLockService(mongo, databaseName, collectionName);
+		service.startup();
 	}
 
 	@AfterClass
 	public static void tearDownAfterClass() throws Exception {
+		service.shutdown();
+
+		DB database = mongo.getDB(databaseName);
 		database.dropDatabase();
+		mongo.close();
 	}
 
 	@Before
 	public void setUp() throws Exception {
+		// empty
 	}
 
 	@After
 	public void tearDown() throws Exception {
+		// empty
 	}
 
 	@Test

@@ -1,6 +1,7 @@
-package com.linuxbox.util.mongodb;
+package com.linuxbox.util.lockservice;
 
-public class LockAcquisitionException extends MongoLockingServiceException {
+
+public class LockAcquisitionException extends LockServiceException {
 	private static final long serialVersionUID = 8481271470965024607L;
 
 	public LockAcquisitionException(String identifier, String message) {

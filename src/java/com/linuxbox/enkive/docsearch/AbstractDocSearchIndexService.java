@@ -7,66 +7,135 @@ import org.apache.commons.logging.LogFactory;
 
 import com.linuxbox.enkive.docsearch.contentanalyzer.ContentAnalyzer;
 import com.linuxbox.enkive.docsearch.exception.DocSearchException;
+import com.linuxbox.enkive.docstore.DocStoreConstants;
 import com.linuxbox.enkive.docstore.DocStoreService;
 import com.linuxbox.enkive.docstore.exception.DocStoreException;
+import com.linuxbox.util.InterruptableSleeper;
+import com.linuxbox.util.queueservice.QueueEntry;
+import com.linuxbox.util.queueservice.QueueService;
+import com.linuxbox.util.queueservice.QueueServiceException;
 
 public abstract class AbstractDocSearchIndexService implements
 		DocSearchIndexService {
+	static enum Status {
+		BEFORE_STARTED, RUNNING, STOPPING, STOPPED
+	};
+
 	/**
 	 * This is a thread that will try to pull documents from the document store
-	 * that are unindexed and index them. If it finds there are currently no
-	 * unindexed documents, it will go to sleep for a little and then try again.
+	 * that are un-indexed and index them. If it finds there are currently no
+	 * un-indexed documents, it will go to sleep for a little and then try
+	 * again.
 	 * 
 	 * @author ivancich
 	 * 
 	 */
 	class IndexPullingThread extends Thread {
-		boolean shouldStop;
+		InterruptableSleeper sleeper;
+		Status status;
 
 		public IndexPullingThread() {
-			shouldStop = false;
-		}
+			status = Status.BEFORE_STARTED;
 
-		public void requestStop() {
-			shouldStop = true;
-			this.interrupt();
+			// so it's never null
+			sleeper = new InterruptableSleeper();
 		}
 
 		void markAsErrorIndexing(String documentId, Throwable exception) {
 			try {
-				logger.error("Unable to index document: " + documentId,
+				LOGGER.error("Unable to index document: " + documentId,
 						exception);
 				docStoreService.markAsErrorIndexing(documentId);
 			} catch (DocStoreException e) {
-				logger.error(
+				LOGGER.error(
 						"Unable to mark document as having indexing error: "
 								+ documentId, e);
 			}
 		}
 
-		public void run() {
-			while (!shouldStop) {
-				String documentId;
-				while (!shouldStop
-						&& (documentId = docStoreService.nextUnindexed()) != null) {
-					try {
-						indexDocument(documentId);
-					} catch (Exception e) {
-						markAsErrorIndexing(documentId, e);
-					}
-				}
-
-				try {
-					Thread.sleep(unindexedDocSearchInterval);
-				} catch (InterruptedException e) {
-					// do nothing
-				}
+		public void stopAfterFinishingUp(long maximumToWait) {
+			status = Status.STOPPING;
+			sleeper.interrupt();
+			try {
+				LOGGER.trace("waiting for indexing thread to finish up");
+				this.join(maximumToWait);
+				LOGGER.trace("indexing thread finished up");
+			} catch (InterruptedException e) {
+				LOGGER.warn("IndexPullingThread interrupted", e);
 			}
+		}
+
+		public void run() {
+			status = Status.RUNNING;
+			sleeper.start();
+
+			while (status == Status.RUNNING) {
+				String documentId;
+				while (status == Status.RUNNING) {
+					QueueEntry entry;
+					try {
+						entry = indexerQueueService.dequeue();
+						if (entry == null) {
+							break;
+						}
+					} catch (QueueServiceException e) {
+						LOGGER.error("could not access indexer queue", e);
+						break;
+					}
+
+					documentId = entry.getIdentifier();
+
+					Integer note;
+					if (entry.getNote() instanceof Integer) {
+						note = (Integer) entry.getNote();
+					} else {
+						note = Integer.MIN_VALUE; // force error below
+					}
+
+					switch (note) {
+					case DocStoreConstants.INDEX_DOCUMENT:
+						try {
+							doIndexDocument(documentId);
+						} catch (Exception e) {
+							LOGGER.warn("got exception while indexing", e);
+							markAsErrorIndexing(documentId, e);
+						}
+						break;
+					case DocStoreConstants.REMOVE_DOCUMENT:
+						try {
+							doRemoveDocument(documentId);
+						} catch (Exception e) {
+							LOGGER.warn("got exception while removing", e);
+							// TODO figure out what to do here
+						}
+						break;
+					default:
+						LOGGER.error("could not interpret note of \""
+								+ entry.getNote() + "\"");
+					}
+
+					try {
+						indexerQueueService.finishEntry(entry);
+					} catch (QueueServiceException e) {
+						LOGGER.error("could note finalize indexer queue entry (\""
+								+ documentId + "\" / " + note + ")");
+					}
+				} // inner while loop
+
+				sleeper.waitFor(unindexedDocRePollInterval);
+				if (sleeper.wasInterrupted()) {
+					break;
+				}
+			} // outer while loop
+
+			status = Status.STOPPED;
 		}
 	}
 
-	private final static Log logger = LogFactory
+	private final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.docsearch");
+
+	private static final long MAX_SHUTTING_DOWN_WAIT = 30000;
 
 	/**
 	 * The document storage service we're feeding off of.
@@ -75,17 +144,20 @@ public abstract class AbstractDocSearchIndexService implements
 
 	protected ContentAnalyzer contentAnalyzer;
 
+	private QueueService indexerQueueService;
+
 	/**
-	 * In milliseconds; non-positive values indicate that there is no automated
+	 * In MILLISECONDS, although the API exposes it as SECONDS for convenience
+	 * from the outside; non-positive values indicate that there is no automated
 	 * query for un-indexed documents
 	 */
-	protected int unindexedDocSearchInterval;
+	private int unindexedDocRePollInterval;
 
 	/**
 	 * True if trying to shut down; this flag will prevent a new thread from
 	 * being created while we're trying to shut down the current one.
 	 */
-	private boolean shuttingDown;
+	protected boolean shuttingDown;
 
 	/**
 	 * The thread that polls the DocStoreService for unindexed documents.
@@ -97,13 +169,13 @@ public abstract class AbstractDocSearchIndexService implements
 		setDocStoreService(service);
 		setContentAnalyzer(analyzer);
 		this.shuttingDown = false;
-		this.unindexedDocSearchInterval = -1;
+		this.unindexedDocRePollInterval = -1;
 	}
 
 	public AbstractDocSearchIndexService(DocStoreService service,
 			ContentAnalyzer analyzer, int unindexedDocSearchInterval) {
 		this(service, analyzer);
-		this.unindexedDocSearchInterval = unindexedDocSearchInterval;
+		this.unindexedDocRePollInterval = unindexedDocSearchInterval;
 	}
 
 	/*
@@ -123,45 +195,51 @@ public abstract class AbstractDocSearchIndexService implements
 	@Override
 	public final void startup() throws DocSearchException {
 		// first I start up if there's anything I need to do for them
+		if (indexerQueueService == null) {
+			throw new DocSearchException("no indexer queue service was set");
+		}
 
 		// then they start up
 		subStartup();
 
 		// start the thread after they're up and running since we're calling
 		// down into them
-		managePullThread(unindexedDocSearchInterval);
+		managePullThread(unindexedDocRePollInterval);
 	}
 
 	@Override
 	public final void shutdown() throws DocSearchException {
-		// first I shut down my thread if I have one
+		LOGGER.trace("starting shutdown of DocSearchIndexService");
+
+		// first I shut down my index pulling thread if I have one
 		synchronized (this) {
 			shuttingDown = true;
 			if (indexPullingThread != null) {
-				indexPullingThread.requestStop();
-				try {
-					indexPullingThread.join();
-				} catch (InterruptedException e) {
-					// do nothing
-				}
+				indexPullingThread.stopAfterFinishingUp(MAX_SHUTTING_DOWN_WAIT);
 			}
 		}
 
-		// then they shut down
+		// now that I won't be asking to index or remove documents, the
+		// implementation class can now be shut down
 		subShutdown();
 
 		// then I shut down anything else
+		LOGGER.trace("finished shutdown of DocSearchIndexService");
 	}
-
-	public abstract void doIndexDocument(String identifier)
-			throws DocStoreException, DocSearchException;
 
 	@Override
 	public final void indexDocument(String identifier)
 			throws DocStoreException, DocSearchException {
-		doIndexDocument(identifier);
-		docStoreService.markAsIndexed(identifier);
-		logger.info("indexed document " + identifier);
+		throw new RuntimeException(
+				"this should add to the queue rather than doing it directly!");
+		/*
+		 * try { doIndexDocument(identifier);
+		 * docStoreService.markAsIndexed(identifier);
+		 * logger.info("indexed document " + identifier); } catch
+		 * (InterruptedException e) { throw new
+		 * DocSearchException("indexing of \"" + identifier +
+		 * "\"was interrupted"); }
+		 */
 	}
 
 	@Override
@@ -170,6 +248,13 @@ public abstract class AbstractDocSearchIndexService implements
 		for (String identifier : identifiers) {
 			indexDocument(identifier);
 		}
+	}
+
+	@Override
+	public void removeDocument(String id) {
+		// TODO add to queue
+		throw new RuntimeException(
+				"this should add to a remove item to the queue rather than doing it directly!");
 	}
 
 	@Override
@@ -183,9 +268,13 @@ public abstract class AbstractDocSearchIndexService implements
 	}
 
 	@Override
-	public void setUnindexedDocSearchInterval(int milliseconds) {
-		unindexedDocSearchInterval = milliseconds;
-		managePullThread(milliseconds);
+	public void setUnindexedDocRePollInterval(int seconds) {
+		unindexedDocRePollInterval = seconds * 1000;
+		managePullThread(unindexedDocRePollInterval);
+	}
+
+	public void setIndexerQueueService(QueueService indexerQueueService) {
+		this.indexerQueueService = indexerQueueService;
 	}
 
 	private synchronized void managePullThread(int milliseconds) {
@@ -194,9 +283,23 @@ public abstract class AbstractDocSearchIndexService implements
 				indexPullingThread = new IndexPullingThread();
 				indexPullingThread.start();
 			} else if (milliseconds <= 0 && indexPullingThread != null) {
-				indexPullingThread.requestStop();
+				indexPullingThread.stopAfterFinishingUp(MAX_SHUTTING_DOWN_WAIT);
 				indexPullingThread = null;
 			}
 		}
 	}
+
+	/**
+	 * Actually index the document described the given identifier.
+	 * 
+	 * @param identifier
+	 *            the unique identifier associated with the document
+	 * @throws DocStoreException
+	 * @throws DocSearchException
+	 */
+	protected abstract void doIndexDocument(String identifier)
+			throws DocStoreException, DocSearchException;
+
+	protected abstract void doRemoveDocument(String id)
+			throws DocSearchException;
 }

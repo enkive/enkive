@@ -6,16 +6,11 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import lemurproject.indri.IndexEnvironment;
 import lemurproject.indri.IndexStatus;
 import lemurproject.indri.ParsedDocument;
-import lemurproject.indri.QueryEnvironment;
-import lemurproject.indri.QueryRequest;
-import lemurproject.indri.QueryResult;
-import lemurproject.indri.QueryResults;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -26,9 +21,7 @@ import com.linuxbox.enkive.docsearch.exception.DocSearchException;
 import com.linuxbox.enkive.docstore.DocStoreService;
 import com.linuxbox.enkive.docstore.Document;
 import com.linuxbox.enkive.docstore.exception.DocStoreException;
-import com.linuxbox.util.CollectionUtils;
 import com.linuxbox.util.StreamConnector;
-import com.linuxbox.util.TypeConverter;
 
 public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 	/**
@@ -59,20 +52,6 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 		STRING, FILE, PARSED_DOCUMENT, BY_SIZE
 	}
 
-	/**
-	 * Converts a QueryResult into the docno.
-	 * 
-	 * @author ivancich
-	 * 
-	 */
-	static class QueryResultToDocNameConverter implements
-			TypeConverter<QueryResult, String> {
-		@Override
-		public String convert(QueryResult value) throws Exception {
-			return (String) value.metadata.get(NAME_FIELD);
-		}
-	}
-
 	private final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.docsearch.indri");
 
@@ -96,7 +75,8 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 	/**
 	 * How many seconds between creating a new IndexEnvironment;
 	 */
-	private static final int DEFAULT_INDEX_ENV_TIME_LIMIT_SECONDS = 60;
+	private static final int DEFAULT_INDEX_ENV_REFRESH_INTERVAL = 60;
+	private static final int DEFAULT_QUERY_ENV_REFRESH_INTERVAL = 300;
 
 	private static final String TEXT_FORMAT = "txt";
 	private static final String TRECTEXT_FORMAT = "trectext";
@@ -105,7 +85,6 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 	// private static final IndexStorage INDEX_STORAGE =
 	// IndexStorage.PARSED_DOCUMENT;
 	private static final IndexStorage INDEX_STORAGE = IndexStorage.FILE;
-	private static final QueryResultToDocNameConverter QUERY_RESULT_CONVERTER = new QueryResultToDocNameConverter();
 
 	private String repositoryPath;
 	private String tempStoragePath;
@@ -121,27 +100,67 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 	 * How many seconds since an index environment was opened to close it (which
 	 * causes a save-to-disk) and opening a new one.
 	 */
-	private int indexEnvironmentTimeLimitSeconds = DEFAULT_INDEX_ENV_TIME_LIMIT_SECONDS;
+	private int indexEnvironmentRefreshInterval = DEFAULT_INDEX_ENV_REFRESH_INTERVAL;
 
 	/**
 	 * How much memory to allow INDRI to use.
 	 */
 	private long indexEnvironmentMemory = DEFAULT_MEMORY_TO_USE;
 
+	/**
+	 * Used to control access to the index environment; needed in case an
+	 * outside caller wants to refresh the index environment.
+	 */
+	private Object indexEnvironmentMutex;
+
 	private IndexEnvironment indexEnvironment;
 	private long indexEnvironmentCreated;
-	private int indexEnvironmentCount;
+	private int indexEnvironmentDocCount;
 
-	private QueryEnvironment queryEnvironment;
+	/**
+	 * We need a query environment for removal of documents from the index,
+	 * since we're given the document name and must convert it to a document
+	 * number.
+	 */
+	private QueryEnvironmentManager queryEnvironmentManager;
 
+	/**
+	 * Construct an Indri indexing service that does not do polling of the doc
+	 * store.
+	 * 
+	 * @param docStoreService
+	 * @param analyzer
+	 * @param repositoryPath
+	 * @param temporaryStoragePath
+	 *            the path to a directory that indri can use for temporary
+	 *            storage; the indexing service should clean up after itself
+	 *            unless it crashes
+	 * @throws DocSearchException
+	 */
 	public IndriDocSearchIndexService(DocStoreService docStoreService,
 			ContentAnalyzer analyzer, String repositoryPath,
 			String temporaryStoragePath) throws DocSearchException {
 		super(docStoreService, analyzer);
 		this.repositoryPath = repositoryPath;
 		this.tempStoragePath = temporaryStoragePath;
+		this.indexEnvironmentMutex = new Object();
 	}
 
+	/**
+	 * Construct an Indri indexing service that will poll the doc store.
+	 * 
+	 * @param docStoreService
+	 * @param analyzer
+	 * @param repositoryPath
+	 * @param temporaryStoragePath
+	 *            the path to a directory that indri can use for temporary
+	 *            storage; the indexing service should clean up after itself
+	 *            unless it crashes
+	 * @param unindexedDocSearchInterval
+	 *            number of seconds to wait when the last poll resulted in no
+	 *            unindexed documents
+	 * @throws DocSearchException
+	 */
 	public IndriDocSearchIndexService(DocStoreService docStoreService,
 			ContentAnalyzer analyzer, String repositoryPath,
 			String temporaryStoragePath, int unindexedDocSearchInterval)
@@ -149,45 +168,32 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 		super(docStoreService, analyzer, unindexedDocSearchInterval);
 		this.repositoryPath = repositoryPath;
 		this.tempStoragePath = temporaryStoragePath;
+		this.indexEnvironmentMutex = new Object();
+		this.queryEnvironmentManager = new QueryEnvironmentManager(
+				DEFAULT_QUERY_ENV_REFRESH_INTERVAL);
+		this.queryEnvironmentManager.addIndexPath(repositoryPath);
 	}
 
 	@Override
 	public void subStartup() throws DocSearchException {
 		initializeTemporaryStorage(tempStoragePath);
 		createIndexEnvironment();
-
-		try {
-			queryEnvironment = new QueryEnvironment();
-			queryEnvironment.addIndex(repositoryPath);
-		} catch (Exception e1) {
-			throw new DocSearchException(
-					"could not create an INDRI query environment", e1);
-		}
 	}
 
 	@Override
 	public void subShutdown() throws DocSearchException {
-		Exception e = null;
-
-		if (queryEnvironment != null) {
-			try {
-				queryEnvironment.close();
-			} catch (Exception e1) {
-				e = e1;
-			}
-		}
+		LOGGER.trace("in IndriDocSearchIndexService::subShutdown");
 
 		if (indexEnvironment != null) {
 			try {
-				indexEnvironment.close();
-			} catch (Exception e1) {
-				e = e1;
+				synchronized (indexEnvironmentMutex) {
+					indexEnvironment.close();
+					indexEnvironment = null;
+				}
+			} catch (Exception e) {
+				throw new DocSearchException(
+						"could not shut down INDRI search service", e);
 			}
-		}
-
-		if (e != null) {
-			throw new DocSearchException(
-					"could not shut down INDRI search service", e);
 		}
 	}
 
@@ -288,9 +294,12 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 			Map<String, String> metaData = new HashMap<String, String>();
 
 			metaData.put(NAME_FIELD, identifier);
-			System.out.println(docString.toString());
-			final int documentId = indexEnvironment.addString(
-					docString.toString(), TEXT_FORMAT, metaData);
+
+			int documentId;
+			synchronized (indexEnvironmentMutex) {
+				documentId = indexEnvironment.addString(docString.toString(),
+						TEXT_FORMAT, metaData);
+			}
 			return documentId;
 		} catch (DocStoreException e) {
 			throw e;
@@ -320,8 +329,10 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 				output.println("</DOC>");
 				output.close();
 
-				indexEnvironment.addFile(tempFile.getAbsolutePath(),
-						TRECTEXT_FORMAT);
+				synchronized (indexEnvironmentMutex) {
+					indexEnvironment.addFile(tempFile.getAbsolutePath(),
+							TRECTEXT_FORMAT);
+				}
 			} finally {
 				tempFile.delete();
 			}
@@ -373,6 +384,7 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 		};
 
 		try {
+			// do not use indexEnvironmentMutex because this is testing code
 			final int docId = indexEnvironment.addParsedDocument(parsedDoc);
 			return docId;
 		} catch (Exception e) {
@@ -412,6 +424,7 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 		};
 
 		try {
+			// do not use indexEnvironmentMutex because this is testing code
 			final int docId = indexEnvironment.addParsedDocument(parsedDoc);
 			return docId;
 		} catch (Exception e) {
@@ -421,8 +434,10 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 	}
 
 	@Override
-	public void doIndexDocument(String identifier) throws DocSearchException,
-			DocStoreException {
+	protected void doIndexDocument(String identifier)
+			throws DocSearchException, DocStoreException {
+		LOGGER.trace("starting to index " + identifier);
+
 		@SuppressWarnings("unused")
 		int docId = -1;
 		try {
@@ -453,6 +468,8 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 			// this will close the index environment and re-open it under
 			// certain conditions
 			indexPostProcessing();
+
+			LOGGER.info("indexed " + identifier);
 		} catch (DocStoreException e) {
 			throw e;
 		} catch (DocSearchException e) {
@@ -462,42 +479,80 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 		}
 	}
 
-
-	/**
-	 * This is an alternate implementation of search. It fails when the document
-	 * is not stored in the INDRI database.
-	 * 
-	 * @param query
-	 * @param maxResults
-	 * @return
-	 * @throws DocSearchException
-	 */
-	@SuppressWarnings("unused")
-	private List<String> searchAlt(String query, int maxResults)
+	@Override
+	protected void doRemoveDocument(String identifier)
 			throws DocSearchException {
 		try {
-			QueryRequest request = new QueryRequest();
-			request.query = query;
-			request.startNum = 0;
-			request.resultsRequested = maxResults;
-			request.metadata = METADATA_FIELDS;
+			LOGGER.trace("starting to remove " + identifier);
 
-			// NB: this call will result in an exception if INDRI does not store
-			// a compressed version of the documents
-			QueryResults queryResults = queryEnvironment.runQuery(request);
+			final String[] idListOfOne = { identifier };
+			int documentNumbers[] = queryEnvironmentManager
+					.getQueryEnvironment().documentIDsFromMetadata(NAME_FIELD,
+							idListOfOne);
 
-			return CollectionUtils.listFromConvertedArray(queryResults.results,
-					QUERY_RESULT_CONVERTER);
-		} catch (ClassCastException e) {
-			throw new DocSearchException(
-					"could not retrieve document identifer from INDRI query");
+			if (documentNumbers.length == 0) {
+				throw new DocSearchException(
+						"unable to find a document in the index to remove named \""
+								+ identifier + "\"");
+			} else if (documentNumbers.length > 1) {
+				LOGGER.warn("removing multiple (" + documentNumbers.length
+						+ ") documents in the index with name \"" + identifier
+						+ "\"");
+			}
+
+			// Save the last exception of possibly many to throw when finished
+			// with best effort.
+			Exception savedException = null;
+
+			synchronized (indexEnvironmentMutex) {
+				if (shuttingDown) {
+					throw new DocSearchException(
+							"could not remove a document because the INDRI doc search index server was shut down");
+				}
+				for (int documentNumber : documentNumbers) {
+					try {
+						indexEnvironment.deleteDocument(documentNumber);
+					} catch (Exception e) {
+						savedException = e;
+					}
+				}
+			}
+
+			if (savedException != null) {
+				throw savedException;
+			}
+
+			LOGGER.info("removed " + identifier);
+		} catch (DocSearchException e) {
+			throw e;
 		} catch (Exception e) {
-			throw new DocSearchException("could not perform INDRI query", e);
+			throw new DocSearchException("could not remove document \""
+					+ identifier + "\" from index", e);
 		}
 	}
 
 	public String getRepositoryPath() {
 		return repositoryPath;
+	}
+
+	/**
+	 * Number of seconds between QueryEnvironment refreshes.
+	 * 
+	 * @return
+	 */
+	public int getQueryEnvironmentRefreshInterval() {
+		return (int) (this.queryEnvironmentManager
+				.getQueryEnvironmentRefreshInterval() / 1000);
+	}
+
+	/**
+	 * Number of seconds between QueryEnvironment refreshes.
+	 * 
+	 * @return
+	 */
+	public void setQueryEnvironmentRefreshInterval(int refreshIntervalSeconds) {
+		this.queryEnvironmentManager
+				.setQueryEnvironmentRefreshInterval(refreshIntervalSeconds * 1000);
 	}
 
 	public int getIndexEnvironmentDocLimit() {
@@ -508,13 +563,12 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 		this.indexEnvironmentDocLimit = indexEnvironmentDocLimit;
 	}
 
-	public int getIndexEnvironmentTimeLimitSeconds() {
-		return indexEnvironmentTimeLimitSeconds;
+	public int getIndexEnvironmentRefreshInterval() {
+		return indexEnvironmentRefreshInterval;
 	}
 
-	public void setIndexEnvironmentTimeLimitSeconds(
-			int indexEnvironmentTimeLimitSeconds) {
-		this.indexEnvironmentTimeLimitSeconds = indexEnvironmentTimeLimitSeconds;
+	public void setIndexEnvironmentRefreshInterval(int refreshIntervalSeconds) {
+		this.indexEnvironmentRefreshInterval = refreshIntervalSeconds;
 	}
 
 	public long getIndexEnvironmentMemory() {
@@ -525,22 +579,6 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 		this.indexEnvironmentMemory = indexEnvironmentMemory;
 	}
 
-	public long getIndexEnvironmentCreated() {
-		return indexEnvironmentCreated;
-	}
-
-	public void setIndexEnvironmentCreated(long indexEnvironmentCreated) {
-		this.indexEnvironmentCreated = indexEnvironmentCreated;
-	}
-
-	public int getIndexEnvironmentCount() {
-		return indexEnvironmentCount;
-	}
-
-	public void setIndexEnvironmentCount(int indexEnvironmentCount) {
-		this.indexEnvironmentCount = indexEnvironmentCount;
-	}
-
 	private void openIndexEnvironment() throws Exception {
 		if (indexEnvironmentMemory > 0) {
 			// in case it was changed, we can modify the amount at
@@ -548,19 +586,30 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 			indexEnvironment.setMemory(indexEnvironmentMemory);
 		}
 		indexEnvironment.open(repositoryPath);
-		indexEnvironmentCount = 0;
+		indexEnvironmentDocCount = 0;
 		indexEnvironmentCreated = System.currentTimeMillis();
 	}
 
-	private void indexPostProcessing() throws DocSearchException {
-		indexEnvironmentCount++;
-		final long now = System.currentTimeMillis();
-		final long timeSpanMilliseconds = now - indexEnvironmentCreated;
-		if (timeSpanMilliseconds > 1000 * indexEnvironmentTimeLimitSeconds
-				|| indexEnvironmentCount >= indexEnvironmentDocLimit) {
-			try {
+	public void refreshIndexEnvironment() throws DocSearchException {
+		try {
+			synchronized (indexEnvironmentMutex) {
 				indexEnvironment.close();
 				openIndexEnvironment();
+			}
+		} catch (Exception e) {
+			throw new DocSearchException("could not refresh index environment",
+					e);
+		}
+	}
+
+	private void indexPostProcessing() throws DocSearchException {
+		indexEnvironmentDocCount++;
+		final long now = System.currentTimeMillis();
+		final long timeSpanMilliseconds = now - indexEnvironmentCreated;
+		if (timeSpanMilliseconds > 1000 * indexEnvironmentRefreshInterval
+				|| indexEnvironmentDocCount >= indexEnvironmentDocLimit) {
+			try {
+				refreshIndexEnvironment();
 			} catch (Exception e) {
 				throw new DocSearchException(
 						"could not close/open index environment", e);

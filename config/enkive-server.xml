@@ -6,31 +6,58 @@
 
 	<bean id="DocStoreService"
 		class="com.linuxbox.enkive.docstore.mongogrid.MongoGridDocStoreService">
+		<constructor-arg ref="Mongo" />
 		<constructor-arg type="java.lang.String" value="${enkive.docstore.db.name}" />
 		<constructor-arg type="java.lang.String" value="fs" />
 
+		<property name="documentLockService" ref="DocLockService" />
+		<property name="indexerQueueService" ref="IndexerQueueService" />
 		<property name="inMemoryLimit" value="${enkive.docstore.buffersize}" />
 	</bean>
 
-	<bean id="DocSearchIndexService" class="com.linuxbox.enkive.docsearch.indri.IndriDocSearchIndexService">
+	<bean id="DocSearchIndexService"
+		class="com.linuxbox.enkive.docsearch.indri.IndriDocSearchIndexService">
 		<constructor-arg ref="DocStoreService" />
 		<constructor-arg ref="ContentAnalyzer" />
-		<constructor-arg value="${enkive.docsearch.indri.index}" />
-		<constructor-arg value="${enkive.docsearch.indri.tmp}" />
-		<constructor-arg value="15000" />
+		<constructor-arg value="${enkive.docsearch.index.indri.index}" />
+		<constructor-arg value="${enkive.docsearch.index.indri.tmp}" />
+		<constructor-arg value="${enkive.docsearch.index.indri.repoll}" />
 
-		<property name="indexEnvironmentDocLimit" value="25" />
-		<property name="indexEnvironmentTimeLimitSeconds" value="60" />
-
-		<!-- tell INDRI to use 200MB to index documents -->
-		<property name="indexEnvironmentMemory" value="209715200" />
+		<property name="indexEnvironmentDocLimit" value="${enkive.docsearch.index.indri.envDocLimit}" />
+		<property name="indexEnvironmentRefreshInterval" value="${enkive.docsearch.index.indri.indexRefreshingInterval}" />
+		<property name="indexEnvironmentMemory" value="${enkive.docsearch.index.indri.memory}" />
+		<property name="indexerQueueService" ref="IndexerQueueService" />
+		<property name="queryEnvironmentRefreshInterval" value="${enkive.docsearch.index.indri.queryRefreshingInterval}" />
 	</bean>
 
-	<bean id="DocSearchQueryService" class="com.linuxbox.enkive.docsearch.indri.IndriDocSearchQueryService">
-		<property name="indexPaths" value="${enkive.docsearch.indri.index}" />
+	<bean id="DocSearchQueryService"
+		class="com.linuxbox.enkive.docsearch.indri.IndriDocSearchQueryService">
+		<property name="indexPaths" value="${enkive.docsearch.query.indri.indexPaths}" />
+		<property name="indexServers" value="${enkive.docsearch.query.indri.indexServers}" />
+		<property name="queryEnvironmentRefreshInterval"
+			value="${enkive.docsearch.query.indri.refreshInterval}" />
 	</bean>
 
 	<bean id="ContentAnalyzer"
 		class="com.linuxbox.enkive.docsearch.contentanalyzer.tika.TikaContentAnalyzer" />
 
+	<bean id="DocLockService" class="com.linuxbox.util.lockservice.mongodb.MongoLockService">
+		<constructor-arg ref="Mongo" />
+		<constructor-arg value="${enkive.lockservice.db.name}" />
+		<constructor-arg value="lockService" />
+	</bean>
+
+	<bean id="IndexerQueueService"
+		class="com.linuxbox.util.queueservice.mongodb.MongoQueueService">
+		<constructor-arg ref="Mongo" />
+		<constructor-arg value="${enkive.queueservice.db.name}" />
+		<constructor-arg value="queueService" />
+	</bean>
+
+	<!-- Create a Mongo shared by various services; that way if the MongoDB 
+		lives on another server or a unique port, that can be configured once. -->
+
+	<bean id="Mongo" class="com.mongodb.Mongo" destroy-method="close">
+		<!-- empty for now -->
+	</bean>
 </beans>

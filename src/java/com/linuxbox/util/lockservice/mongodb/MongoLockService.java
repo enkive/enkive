@@ -1,15 +1,21 @@
-package com.linuxbox.util.mongodb;
+package com.linuxbox.util.lockservice.mongodb;
 
+import java.net.UnknownHostException;
 import java.util.Date;
 
+import com.linuxbox.util.lockservice.LockAcquisitionException;
+import com.linuxbox.util.lockservice.LockReleaseException;
+import com.linuxbox.util.lockservice.LockService;
 import com.mongodb.BasicDBObjectBuilder;
+import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
+import com.mongodb.Mongo;
 import com.mongodb.MongoException;
 import com.mongodb.QueryBuilder;
 import com.mongodb.WriteConcern;
 
-public class MongoLockingService {
+public class MongoLockService implements LockService {
 	public static class LockRequestFailure {
 		public String identifier;
 		public Date holderTimestamp;
@@ -38,10 +44,27 @@ public class MongoLockingService {
 	private static String LOCK_NOTE_KEY = "note";
 	private static String LOCK_TIMESTAMP_KEY = "timestamp";
 
+	private Mongo mongo;
+	private DB mongoDB;
 	private DBCollection lockCollection;
+	private boolean mongoCreated;
 
-	public MongoLockingService(DBCollection collection) {
-		this.lockCollection = collection;
+	public MongoLockService(String server, int port, String database,
+			String collection) throws UnknownHostException, MongoException {
+		this(new Mongo(server, port), database, collection);
+		mongoCreated = true;
+	}
+
+	public MongoLockService(String database, String collection)
+			throws UnknownHostException, MongoException {
+		this(new Mongo(), database, collection);
+		mongoCreated = true;
+	}
+
+	public MongoLockService(Mongo mongo, String database, String collection) {
+		this.mongo = mongo;
+		mongoDB = mongo.getDB(database);
+		lockCollection = mongoDB.getCollection(collection);
 
 		lockCollection.setWriteConcern(WriteConcern.FSYNC_SAFE);
 
@@ -52,6 +75,16 @@ public class MongoLockingService {
 		DBObject lockIndex = BasicDBObjectBuilder.start()
 				.add(LOCK_IDENTIFIER_KEY, 1).get();
 		lockCollection.ensureIndex(lockIndex, "lockIndex", mustBeUnique);
+	}
+
+	public void startup() {
+		// empty
+	}
+
+	public void shutdown() {
+		if (mongoCreated) {
+			mongo.close();
+		}
 	}
 
 	/**

@@ -23,22 +23,27 @@ import com.linuxbox.enkive.docstore.Document;
 import com.linuxbox.enkive.docstore.StoreRequestResult;
 import com.linuxbox.enkive.docstore.StringDocument;
 import com.linuxbox.util.HashingInputStream;
+import com.linuxbox.util.mongodb.Dropper;
 import com.mongodb.gridfs.GridFSFile;
 
 public class MongoGridDocStoreServiceTest {
+	private final static String DB_NAME = "enkive-test";
+	private final static String GRID_FS_COLLECTION = "fs-test";
+
 	static final String testString = "to be or not to be; that is the \u20AC 1 question";
 	static final byte[] testData = testString
 			.getBytes(Constants.PREFERRED_CHARSET);
 	static Document testDocument;
 	static byte[] testDocumentHash;
 
-	static MongoGridDocStoreService service;
+	static ConvenienceMongoGridDocStoreService docStoreService;
 
 	@BeforeClass
 	public static void setUpClass() throws Exception {
-		service = new MongoGridDocStoreService("enkive-test", "fs-test");
-		service.startup();
-		
+		docStoreService = new ConvenienceMongoGridDocStoreService(DB_NAME,
+				GRID_FS_COLLECTION);
+		docStoreService.startup();
+
 		testDocument = new StringDocument(testString, "text/plain", "txt",
 				MimeUtil.ENC_7BIT);
 
@@ -48,9 +53,9 @@ public class MongoGridDocStoreServiceTest {
 	}
 
 	@AfterClass
-	public static void tearDownClass() {
-		service.getDb().dropDatabase();
-		service.shutdown();
+	public static void tearDownClass() throws Exception {
+		docStoreService.shutdown();
+		Dropper.dropDatabase(DB_NAME);
 	}
 
 	/*
@@ -63,11 +68,11 @@ public class MongoGridDocStoreServiceTest {
 	public void testStoreKnownNameFullLength() throws Exception {
 		byte[] hash = generateFakeRandomHash();
 
-		StoreRequestResult result = service.storeKnownHash(testDocument, hash,
-				testData, testData.length);
+		StoreRequestResult result = docStoreService.storeKnownHash(
+				testDocument, hash, testData, testData.length);
 		assertFalse(result.getAlreadyStored());
 
-		Document outDoc = service.retrieve(result.getIdentifier());
+		Document outDoc = docStoreService.retrieve(result.getIdentifier());
 
 		BufferedReader r = new BufferedReader(new InputStreamReader(
 				outDoc.getEncodedContentStream(), Constants.PREFERRED_CHARSET));
@@ -77,7 +82,7 @@ public class MongoGridDocStoreServiceTest {
 
 		r.close();
 
-		service.gridFS.remove(result.getIdentifier());
+		docStoreService.gridFS.remove(result.getIdentifier());
 	}
 
 	@Test
@@ -85,11 +90,11 @@ public class MongoGridDocStoreServiceTest {
 		final int length = testString.length() / 2;
 		byte[] hash = generateFakeRandomHash();
 
-		StoreRequestResult result = service.storeKnownHash(testDocument, hash,
-				testData, length);
+		StoreRequestResult result = docStoreService.storeKnownHash(
+				testDocument, hash, testData, length);
 		assertFalse(result.getAlreadyStored());
 
-		Document outDoc = service.retrieve(result.getIdentifier());
+		Document outDoc = docStoreService.retrieve(result.getIdentifier());
 
 		InputStream is = outDoc.getEncodedContentStream();
 
@@ -108,42 +113,42 @@ public class MongoGridDocStoreServiceTest {
 
 		is.close();
 
-		service.gridFS.remove(result.getIdentifier());
+		docStoreService.gridFS.remove(result.getIdentifier());
 	}
 
 	@Test
 	public void testIndexing() throws Exception {
 		byte[] hash = generateFakeRandomHash();
 
-		StoreRequestResult result = service.storeKnownHash(testDocument, hash,
-				testData, testData.length);
+		StoreRequestResult result = docStoreService.storeKnownHash(
+				testDocument, hash, testData, testData.length);
 		final String identifier = result.getIdentifier();
 
-		GridFSFile gFile1 = service.gridFS.findOne(identifier);
+		GridFSFile gFile1 = docStoreService.gridFS.findOne(identifier);
 		assertEquals("a new file is initially UNINDEXED",
 				(Integer) MongoGridDocStoreService.STATUS_UNINDEXED,
 				(Integer) gFile1.getMetaData().get(Constants.INDEX_STATUS_KEY));
 
-		final String nextUnindexedId1 = service.nextUnindexed();
+		final String nextUnindexedId1 = docStoreService.nextUnindexed();
 		assertEquals(identifier, nextUnindexedId1);
 
-		GridFSFile gFile2 = service.gridFS.findOne(identifier);
+		GridFSFile gFile2 = docStoreService.gridFS.findOne(identifier);
 		assertEquals(
 				"once a file has been retrieved as unindexed, it should not be in INDEXING state",
 				(Integer) MongoGridDocStoreService.STATUS_INDEXING,
 				(Integer) gFile2.getMetaData().get(Constants.INDEX_STATUS_KEY));
 
-		final String nextUnindexedId2 = service.nextUnindexed();
+		final String nextUnindexedId2 = docStoreService.nextUnindexed();
 		assertNull(nextUnindexedId2);
 
-		service.markAsIndexed(identifier);
-		GridFSFile gFile3 = service.gridFS.findOne(identifier);
+		docStoreService.markAsIndexed(identifier);
+		GridFSFile gFile3 = docStoreService.gridFS.findOne(identifier);
 		assertEquals(
 				"now that a file is marked as indexed, it should appear as INDEXED",
 				(Integer) MongoGridDocStoreService.STATUS_INDEXED,
 				(Integer) gFile3.getMetaData().get(Constants.INDEX_STATUS_KEY));
 
-		service.gridFS.remove(identifier);
+		docStoreService.gridFS.remove(identifier);
 	}
 
 	@Test
@@ -152,12 +157,12 @@ public class MongoGridDocStoreServiceTest {
 				getPrimedMessageDigest(testDocument), new ByteArrayInputStream(
 						testData));
 
-		StoreRequestResult result = service.storeAndDetermineHash(testDocument,
-				in);
+		StoreRequestResult result = docStoreService.storeAndDetermineHash(
+				testDocument, in);
 
 		assertFalse(result.getAlreadyStored());
 
-		Document outDoc = service.retrieve(result.getIdentifier());
+		Document outDoc = docStoreService.retrieve(result.getIdentifier());
 
 		BufferedReader r = new BufferedReader(new InputStreamReader(
 				outDoc.getEncodedContentStream(), Constants.PREFERRED_CHARSET));
@@ -167,13 +172,13 @@ public class MongoGridDocStoreServiceTest {
 
 		r.close();
 
-		service.gridFS.remove(result.getIdentifier());
+		docStoreService.gridFS.remove(result.getIdentifier());
 	}
 
 	@Test
 	public void testStoreKnownNameWithExistingDocument() throws Exception {
-		StoreRequestResult result1 = service.storeKnownHash(testDocument,
-				testDocumentHash, testData, testData.length);
+		StoreRequestResult result1 = docStoreService.storeKnownHash(
+				testDocument, testDocumentHash, testData, testData.length);
 
 		assertFalse(result1.getAlreadyStored());
 
@@ -181,7 +186,7 @@ public class MongoGridDocStoreServiceTest {
 				getPrimedMessageDigest(testDocument), new ByteArrayInputStream(
 						testData));
 
-		StoreRequestResult result2 = service.storeAndDetermineHash(
+		StoreRequestResult result2 = docStoreService.storeAndDetermineHash(
 				testDocument, doc1Input);
 
 		assertTrue(result2.getAlreadyStored());
@@ -189,7 +194,7 @@ public class MongoGridDocStoreServiceTest {
 		assertEquals("identifiers should be the same", result1.getIdentifier(),
 				result2.getIdentifier());
 
-		service.gridFS.remove(result1.getIdentifier());
+		docStoreService.gridFS.remove(result1.getIdentifier());
 	}
 
 	@Test
@@ -199,20 +204,20 @@ public class MongoGridDocStoreServiceTest {
 				getPrimedMessageDigest(testDocument), new ByteArrayInputStream(
 						testData));
 
-		StoreRequestResult result1 = service.storeAndDetermineHash(
+		StoreRequestResult result1 = docStoreService.storeAndDetermineHash(
 				testDocument, doc1Input);
 
 		assertFalse(result1.getAlreadyStored());
 
-		StoreRequestResult result2 = service.storeKnownHash(testDocument,
-				testDocumentHash, testData, testData.length);
+		StoreRequestResult result2 = docStoreService.storeKnownHash(
+				testDocument, testDocumentHash, testData, testData.length);
 
 		assertTrue(result2.getAlreadyStored());
 
 		assertEquals("identifiers should be the same", result1.getIdentifier(),
 				result2.getIdentifier());
 
-		service.gridFS.remove(result1.getIdentifier());
+		docStoreService.gridFS.remove(result1.getIdentifier());
 	}
 
 	@Test
