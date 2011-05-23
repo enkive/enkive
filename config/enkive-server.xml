@@ -10,7 +10,7 @@
 		<constructor-arg type="java.lang.String" value="${enkive.docstore.db.name}" />
 		<constructor-arg type="java.lang.String" value="fs" />
 
-		<property name="documentLockService" ref="DocLockService" />
+		<property name="documentLockingService" ref="DocLockService" />
 		<property name="indexerQueueService" ref="IndexerQueueService" />
 		<property name="inMemoryLimit" value="${enkive.docstore.buffersize}" />
 	</bean>

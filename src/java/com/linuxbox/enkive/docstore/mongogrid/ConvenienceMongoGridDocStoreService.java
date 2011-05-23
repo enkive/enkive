@@ -54,7 +54,7 @@ public class ConvenienceMongoGridDocStoreService extends
 		try {
 			myDocLockService = new MongoLockService(mongo, dbName,
 					docLockServiceCollectionName);
-			setDocumentLockService(myDocLockService);
+			setDocumentLockingService(myDocLockService);
 			myDocLockService.startup();
 
 			myIndexerQueueService = new MongoQueueService(mongo, dbName,
