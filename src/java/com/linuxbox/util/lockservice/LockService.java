@@ -13,5 +13,8 @@ public interface LockService {
 	boolean lock(String identifier, Object notation)
 			throws LockAcquisitionException;
 
+	boolean lockWithRetries(String identifier, Object notation, int retries,
+			long delayInMilliseconds) throws LockAcquisitionException;
+
 	void releaseLock(String identifier) throws LockReleaseException;
 }
