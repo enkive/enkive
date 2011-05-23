@@ -28,7 +28,7 @@ import com.linuxbox.util.queueservice.QueueServiceException;
  * 
  */
 public abstract class AbstractDocStoreService implements DocStoreService {
-	private final static Log logger = LogFactory
+	private final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.docstore");
 
 	static final int DEFAULT_IN_MEMORY_LIMIT = 64 * 1024; // 64 KB
@@ -198,7 +198,7 @@ public abstract class AbstractDocStoreService implements DocStoreService {
 					} catch (QueueServiceException e) {
 						// TODO should we throw an exception out or is logging
 						// the problem enough?
-						logger.error(
+						LOGGER.error(
 								"could not add removal of document to queue", e);
 					}
 				}
