@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import lemurproject.indri.IndexEnvironment;
-import lemurproject.indri.IndexStatus;
 import lemurproject.indri.ParsedDocument;
 
 import org.apache.commons.logging.Log;
@@ -18,36 +17,16 @@ import org.apache.commons.logging.LogFactory;
 import com.linuxbox.enkive.docsearch.AbstractDocSearchIndexService;
 import com.linuxbox.enkive.docsearch.contentanalyzer.ContentAnalyzer;
 import com.linuxbox.enkive.docsearch.exception.DocSearchException;
+import com.linuxbox.enkive.docstore.DocStoreConstants;
 import com.linuxbox.enkive.docstore.DocStoreService;
 import com.linuxbox.enkive.docstore.Document;
 import com.linuxbox.enkive.docstore.exception.DocStoreException;
 import com.linuxbox.util.StreamConnector;
+import com.linuxbox.util.lockservice.LockAcquisitionException;
+import com.linuxbox.util.lockservice.LockReleaseException;
+import com.linuxbox.util.lockservice.LockService;
 
 public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
-	/**
-	 * This is supposed to be a call-back that gets status updates. But as of
-	 * April 25, 2011, delete would be called for reasons unknown and using it
-	 * in the call to IndexEnvironment::open resulted in runtime errors. So for
-	 * now it's not used.
-	 * 
-	 * @author ivancich
-	 * 
-	 */
-	static class RecordedIndexStatus extends IndexStatus {
-		public void status(int code, String documentPath, String error,
-				int documentsIndexed, int documentsSeen) {
-			System.out.println("code: " + code);
-			System.out.println("document path: " + documentPath);
-			System.out.println("error: " + error);
-			System.out.println("documents indexed: " + documentsIndexed);
-			System.out.println("documents seen: " + documentsSeen);
-		}
-
-		public void delete() {
-			System.err.println("IndexStatus::delete called\n");
-		}
-	}
-
 	static enum IndexStorage {
 		STRING, FILE, PARSED_DOCUMENT, BY_SIZE
 	}
@@ -108,6 +87,10 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 	private long indexEnvironmentMemory = DEFAULT_MEMORY_TO_USE;
 
 	/**
+	 * NOTE: TODO : since all action through the IndexEnvironment is serialized
+	 * by getting actions off of a queue, this mutex is likely no longer
+	 * necessary. Once code is stable and working, look into removing it.
+	 * 
 	 * Used to control access to the index environment; needed in case an
 	 * outside caller wants to refresh the index environment.
 	 */
@@ -123,6 +106,8 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 	 * number.
 	 */
 	private QueryEnvironmentManager queryEnvironmentManager;
+
+	private LockService documentLockingService;
 
 	/**
 	 * Construct an Indri indexing service that does not do polling of the doc
@@ -176,6 +161,10 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 
 	@Override
 	public void subStartup() throws DocSearchException {
+		if (documentLockingService == null) {
+			throw new DocSearchException(
+					"no document locking service was set for the IndroDocSearchIndexService");
+		}
 		initializeTemporaryStorage(tempStoragePath);
 		createIndexEnvironment();
 	}
@@ -439,7 +428,16 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 		LOGGER.trace("starting to index " + identifier);
 
 		@SuppressWarnings("unused")
-		int docId = -1;
+		int docId;
+
+		try {
+			documentLockingService.lock(identifier,
+					DocStoreConstants.LOCK_TO_INDEX);
+		} catch (LockAcquisitionException e) {
+			throw new DocStoreException(
+					"could not acquire lock to index document \"" + identifier
+							+ "\"", e);
+		}
 		try {
 			Document doc = docStoreService.retrieve(identifier);
 			switch (INDEX_STORAGE) {
@@ -476,6 +474,14 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 			throw e;
 		} catch (Exception e) {
 			throw new DocSearchException("errors managing INDRI index", e);
+		} finally {
+			try {
+				documentLockingService.releaseLock(identifier);
+			} catch (LockReleaseException e) {
+				throw new DocStoreException(
+						"could not release lock for document \"" + identifier
+								+ "\"");
+			}
 		}
 	}
 
@@ -484,17 +490,9 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 			throws DocSearchException {
 		try {
 			LOGGER.trace("starting to remove " + identifier);
+			int[] documentNumbers = lookupDocumentNumbers(identifier);
 
-			final String[] idListOfOne = { identifier };
-			int documentNumbers[] = queryEnvironmentManager
-					.getQueryEnvironment().documentIDsFromMetadata(NAME_FIELD,
-							idListOfOne);
-
-			if (documentNumbers.length == 0) {
-				throw new DocSearchException(
-						"unable to find a document in the index to remove named \""
-								+ identifier + "\"");
-			} else if (documentNumbers.length > 1) {
+			if (documentNumbers.length > 1) {
 				LOGGER.warn("removing multiple (" + documentNumbers.length
 						+ ") documents in the index with name \"" + identifier
 						+ "\"");
@@ -505,10 +503,6 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 			Exception savedException = null;
 
 			synchronized (indexEnvironmentMutex) {
-				if (shuttingDown) {
-					throw new DocSearchException(
-							"could not remove a document because the INDRI doc search index server was shut down");
-				}
 				for (int documentNumber : documentNumbers) {
 					try {
 						indexEnvironment.deleteDocument(documentNumber);
@@ -579,6 +573,14 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 		this.indexEnvironmentMemory = indexEnvironmentMemory;
 	}
 
+	public LockService getDocumentLockingService() {
+		return documentLockingService;
+	}
+
+	public void setDocumentLockingService(LockService documentLockingService) {
+		this.documentLockingService = documentLockingService;
+	}
+
 	private void openIndexEnvironment() throws Exception {
 		if (indexEnvironmentMemory > 0) {
 			// in case it was changed, we can modify the amount at
@@ -615,5 +617,47 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 						"could not close/open index environment", e);
 			}
 		}
+	}
+
+	/**
+	 * Given a document identifier this will return the document number(s) with
+	 * a matching identifier; in most cases this should be one or zero, but it
+	 * can handle multiple matches as well.
+	 * 
+	 * @param identifier
+	 * @return
+	 * @throws DocSearchException
+	 */
+	private int[] lookupDocumentNumbers(String identifier)
+			throws DocSearchException {
+		int[] documentNumbers;
+		final String[] idListOfOne = { identifier };
+
+		// try to find the document up to two times; if the first attempt
+		// returns 0 documents or generates an exception, refresh the
+		// QueryEnvironment and try again; this will handle
+		// cases in which the document was indexed since the last refresh.
+		for (int i = 1; i <= 2; i++) {
+			try {
+				if (i == 2) {
+					refreshIndexEnvironment();
+					queryEnvironmentManager.forceQueryEnvironmentRefresh();
+				}
+				documentNumbers = queryEnvironmentManager.getQueryEnvironment()
+						.documentIDsFromMetadata(NAME_FIELD, idListOfOne);
+				if (documentNumbers.length > 0) {
+					return documentNumbers;
+				}
+			} catch (Exception e) {
+				if (i == 2) {
+					throw new DocSearchException(
+							"could not query index for document \""
+									+ identifier + "\"", e);
+				}
+			}
+		}
+
+		throw new DocSearchException("could not find document \"" + identifier
+				+ "\" for removal");
 	}
 }

@@ -33,4 +33,12 @@ public interface QueueService {
 	 * @param item
 	 */
 	void finishEntry(QueueEntry item) throws QueueServiceException;
+	
+	/**
+	 * Tells the queueing system that a given entry has been completed and to
+	 * mark it as completed (which may involve removing it).
+	 * 
+	 * @param item
+	 */
+	void markEntryAsError(QueueEntry item) throws QueueServiceException;
 }

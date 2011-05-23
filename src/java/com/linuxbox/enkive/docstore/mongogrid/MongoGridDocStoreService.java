@@ -21,6 +21,7 @@ import org.apache.commons.logging.LogFactory;
 
 import com.linuxbox.enkive.docsearch.exception.DocSearchException;
 import com.linuxbox.enkive.docstore.AbstractDocStoreService;
+import com.linuxbox.enkive.docstore.DocStoreConstants;
 import com.linuxbox.enkive.docstore.Document;
 import com.linuxbox.enkive.docstore.StoreRequestResult;
 import com.linuxbox.enkive.docstore.StoreRequestResultImpl;
@@ -61,12 +62,6 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 	static final int STATUS_ERROR = 3;
 	static final int STATUS_STALE = 4;
 
-	/*
-	 * Notations for lock records.
-	 */
-	private static final String LOCK_CREATE_NOTE = "create";
-	private static final String LOCK_REMOVE_NOTE = "remove";
-
 	final static DBObject SORT_BY_INDEX_TIMESTAMP = new BasicDBObject(
 			INDEX_TIMESTAMP_QUERY, 1);
 	final static DBObject UNINDEXED_QUERY = new QueryBuilder()
@@ -79,7 +74,7 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 	GridFS gridFS; // keep visible to tests
 	private Mongo mongo;
 	private DBCollection filesCollection;
-	private LockService docLockService;
+	private LockService documentLockingService;
 	private boolean createdMongo;
 
 	public MongoGridDocStoreService(String host, int port, String dbName,
@@ -127,7 +122,7 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 
 	@Override
 	public void subStartup() throws DocStoreException {
-		if (docLockService == null) {
+		if (documentLockingService == null) {
 			throw new DocStoreException("document lock service not set");
 		}
 	}
@@ -159,7 +154,8 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 			final String identifier = getFileNameFromHash(hash);
 			final int shardKey = getShardIndexFromHash(hash);
 
-			if (!docLockService.lock(identifier, LOCK_CREATE_NOTE)) {
+			if (!documentLockingService.lock(identifier,
+					DocStoreConstants.LOCK_TO_STORE)) {
 				// TODO we should note whether the controller is creating or
 				// removing; if creating we're done; if removing we should
 				// re-create
@@ -183,7 +179,7 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 
 				return new StoreRequestResultImpl(identifier, false);
 			} finally {
-				docLockService.releaseLock(identifier);
+				documentLockingService.releaseLock(identifier);
 			}
 		} catch (Exception e) {
 			throw new DocStoreException(e);
@@ -215,7 +211,8 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 		final int shardKey = getShardIndexFromHash(actualHash);
 
 		try {
-			if (!docLockService.lock(actualName, LOCK_CREATE_NOTE)) {
+			if (!documentLockingService.lock(actualName,
+					DocStoreConstants.LOCK_TO_STORE)) {
 				gridFS.remove(temporaryName);
 
 				// TODO: is there anything we should do at this point to insure
@@ -245,7 +242,7 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 					return new StoreRequestResultImpl(actualName, false);
 				}
 			} finally {
-				docLockService.releaseLock(actualName);
+				documentLockingService.releaseLock(actualName);
 			}
 		} catch (LockServiceException e) {
 			throw new DocStoreException(e);
@@ -290,7 +287,8 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 	@Override
 	public boolean remove(String identifier) throws DocStoreException {
 		try {
-			if (!docLockService.lock(identifier, LOCK_REMOVE_NOTE)) {
+			if (!documentLockingService.lock(identifier,
+					DocStoreConstants.LOCK_TO_REMOVE)) {
 				// TODO if we're here and someone else was trying to delete or
 				// create this, then we should do nothing; the file either
 				// needed to
@@ -311,7 +309,7 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 					return false;
 				}
 			} finally {
-				docLockService.releaseLock(identifier);
+				documentLockingService.releaseLock(identifier);
 			}
 		} catch (LockServiceException e) {
 			throw new DocStoreException(e);
@@ -326,12 +324,12 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 		return gridFS.getDB();
 	}
 
-	public LockService getDocumentLockService() {
-		return this.docLockService;
+	public LockService getDocumentLockingService() {
+		return this.documentLockingService;
 	}
 
-	public void setDocumentLockService(LockService lockService) {
-		this.docLockService = lockService;
+	public void setDocumentLockingService(LockService lockService) {
+		this.documentLockingService = lockService;
 	}
 
 	/**

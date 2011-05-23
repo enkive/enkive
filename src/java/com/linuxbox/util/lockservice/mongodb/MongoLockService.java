@@ -5,7 +5,6 @@ import java.util.Date;
 
 import com.linuxbox.util.lockservice.LockAcquisitionException;
 import com.linuxbox.util.lockservice.LockReleaseException;
-import com.linuxbox.util.lockservice.LockService;
 import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
@@ -15,7 +14,7 @@ import com.mongodb.MongoException;
 import com.mongodb.QueryBuilder;
 import com.mongodb.WriteConcern;
 
-public class MongoLockService implements LockService {
+public class MongoLockService extends AbstractRetryingLockService {
 	public static class LockRequestFailure {
 		public String identifier;
 		public Date holderTimestamp;
@@ -129,7 +128,8 @@ public class MongoLockService implements LockService {
 	 * @param identifier
 	 * @return
 	 */
-	public boolean lock(String identifier, String notation)
+	@Override
+	public boolean lock(String identifier, Object notation)
 			throws LockAcquisitionException {
 		try {
 			final DBObject controlRecord = BasicDBObjectBuilder

@@ -72,6 +72,7 @@ public abstract class AbstractDocSearchIndexService implements
 			while (status == Status.RUNNING) {
 				String documentId;
 				while (status == Status.RUNNING) {
+					boolean error = false;
 					QueueEntry entry;
 					try {
 						entry = indexerQueueService.dequeue();
@@ -93,20 +94,23 @@ public abstract class AbstractDocSearchIndexService implements
 					}
 
 					switch (note) {
-					case DocStoreConstants.INDEX_DOCUMENT:
+					case DocStoreConstants.QUEUE_ENTRY_INDEX_DOCUMENT:
 						try {
 							doIndexDocument(documentId);
 						} catch (Exception e) {
 							LOGGER.warn("got exception while indexing", e);
 							markAsErrorIndexing(documentId, e);
+							error = true;
 						}
 						break;
-					case DocStoreConstants.REMOVE_DOCUMENT:
+					case DocStoreConstants.QUEUE_ENTRY_REMOVE_DOCUMENT:
 						try {
 							doRemoveDocument(documentId);
 						} catch (Exception e) {
-							LOGGER.warn("got exception while removing", e);
-							// TODO figure out what to do here
+							LOGGER.error(
+									"got exception while trying to remove \""
+											+ documentId + "\"", e);
+							error = true;
 						}
 						break;
 					default:
@@ -115,7 +119,11 @@ public abstract class AbstractDocSearchIndexService implements
 					}
 
 					try {
-						indexerQueueService.finishEntry(entry);
+						if (error) {
+							indexerQueueService.markEntryAsError(entry);
+						} else {
+							indexerQueueService.finishEntry(entry);
+						}
 					} catch (QueueServiceException e) {
 						LOGGER.error("could note finalize indexer queue entry (\""
 								+ documentId + "\" / " + note + ")");
@@ -229,17 +237,14 @@ public abstract class AbstractDocSearchIndexService implements
 
 	@Override
 	public final void indexDocument(String identifier)
-			throws DocStoreException, DocSearchException {
-		throw new RuntimeException(
-				"this should add to the queue rather than doing it directly!");
-		/*
-		 * try { doIndexDocument(identifier);
-		 * docStoreService.markAsIndexed(identifier);
-		 * logger.info("indexed document " + identifier); } catch
-		 * (InterruptedException e) { throw new
-		 * DocSearchException("indexing of \"" + identifier +
-		 * "\"was interrupted"); }
-		 */
+			throws DocSearchException {
+		try {
+			indexerQueueService.enqueue(identifier,
+					DocStoreConstants.QUEUE_ENTRY_INDEX_DOCUMENT);
+		} catch (QueueServiceException e) {
+			throw new DocSearchException("could not add indexing of \""
+					+ identifier + "\" to indexing queue");
+		}
 	}
 
 	@Override
@@ -251,10 +256,14 @@ public abstract class AbstractDocSearchIndexService implements
 	}
 
 	@Override
-	public void removeDocument(String id) {
-		// TODO add to queue
-		throw new RuntimeException(
-				"this should add to a remove item to the queue rather than doing it directly!");
+	public void removeDocument(String identifier) throws DocSearchException {
+		try {
+			indexerQueueService.enqueue(identifier,
+					DocStoreConstants.QUEUE_ENTRY_REMOVE_DOCUMENT);
+		} catch (QueueServiceException e) {
+			throw new DocSearchException("could not add removal of \""
+					+ identifier + "\" to indexing queue");
+		}
 	}
 
 	@Override
