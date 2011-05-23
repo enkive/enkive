@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+import org.apache.commons.codec.binary.Hex;
+
 import com.linuxbox.enkive.archiver.exceptions.CannotArchiveException;
 import com.linuxbox.enkive.docstore.DocStoreService;
 import com.linuxbox.enkive.message.Message;
@@ -35,8 +37,8 @@ public abstract class AbstractMessageArchivingService implements MessageArchivin
 		try {
 			MessageDigest sha1calc = MessageDigest.getInstance("SHA-1");
 			sha1calc.reset();
-			messageUUID = new String(sha1calc.digest(message
-					.getReconstitutedEmail().getBytes()));
+			messageUUID = new String((new Hex()).encode(sha1calc.digest(message
+					.getReconstitutedEmail().getBytes())));
 		} catch (NoSuchAlgorithmException e) {
 			throw new CannotArchiveException("Could not calculate UUID for message", e);
 		} catch (IOException e) {

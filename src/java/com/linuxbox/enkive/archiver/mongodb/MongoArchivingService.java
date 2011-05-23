@@ -1,6 +1,7 @@
 package com.linuxbox.enkive.archiver.mongodb;
 
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.BOUNDARY_ID;
+import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.MESSAGE_DIFF;
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.CC;
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.CONTENT_DISPOSITION;
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.CONTENT_ID;
@@ -28,13 +29,17 @@ import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.PA
 import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.SINGLE_PART_HEADER_TYPE;
 
 import java.io.IOException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.james.mime4j.MimeException;
+import org.apache.james.mime4j.codec.Base64InputStream;
+import org.apache.james.mime4j.codec.QuotedPrintableInputStream;
+import org.apache.james.mime4j.field.ContentTypeField;
+import org.apache.james.mime4j.util.MimeUtil;
 
 import com.linuxbox.enkive.archiver.AbstractMessageArchivingService;
 import com.linuxbox.enkive.archiver.MessageLoggingText;
@@ -42,8 +47,11 @@ import com.linuxbox.enkive.archiver.exceptions.CannotArchiveException;
 import com.linuxbox.enkive.docstore.Document;
 import com.linuxbox.enkive.docstore.StoreRequestResult;
 import com.linuxbox.enkive.docstore.exception.DocStoreException;
+import com.linuxbox.enkive.exception.BadMessageException;
+import com.linuxbox.enkive.exception.CannotTransferMessageContentException;
 import com.linuxbox.enkive.message.ContentHeader;
 import com.linuxbox.enkive.message.Message;
+import com.linuxbox.enkive.message.MessageImpl;
 import com.linuxbox.enkive.message.MimeTransferEncoding;
 import com.linuxbox.enkive.message.MultiPartHeader;
 import com.linuxbox.enkive.message.SinglePartHeader;
@@ -64,6 +72,7 @@ public class MongoArchivingService extends AbstractMessageArchivingService {
 	protected DB messageDb;
 	protected DBCollection messageColl;
 	protected List<String> attachment_ids;
+	protected List<String> nested_message_ids;
 
 	public MongoArchivingService(Mongo m, String dbName, String collName) {
 		this.m = m;
@@ -75,6 +84,7 @@ public class MongoArchivingService extends AbstractMessageArchivingService {
 	public String storeMessage(Message message) throws CannotArchiveException {
 		String messageUUID = null;
 		attachment_ids = new ArrayList<String>();
+		nested_message_ids = new ArrayList<String>();
 		try {
 			BasicDBObject messageObject = new BasicDBObject();
 			messageObject.put(MESSAGE_UUID, calculateMessageId(message));
@@ -88,12 +98,22 @@ public class MongoArchivingService extends AbstractMessageArchivingService {
 			messageObject.put(SUBJECT, message.getSubject());
 			messageObject.put(MESSAGE_ID, message.getMessageId());
 			messageObject.put(MIME_VERSION, message.getMimeVersion());
-
+			messageObject.put(CONTENT_TYPE, message.getContentType());
+			messageObject.put(MESSAGE_DIFF, message.getMessageDiff());
 			ContentHeader contentHeader = message.getContentHeader();
-
+			if (message.getContentType().trim().toLowerCase()
+					.equals(ContentTypeField.TYPE_MESSAGE_RFC822.toLowerCase())) {
+				String subMessageUUID = storeNestedMessage(message
+						.getContentHeader().getEncodedContentData()
+						.getBinaryContent(),
+						message.getContentTransferEncoding());
+				if (!nested_message_ids.contains(subMessageUUID))
+					nested_message_ids.add(subMessageUUID);
+			}
 			messageObject.put(CONTENT_HEADER,
 					archiveContentHeader(contentHeader));
 			messageObject.put(ATTACHMENT_ID_LIST, attachment_ids);
+			messageObject.put(ATTACHMENT_ID_LIST, nested_message_ids);
 			messageColl.insert(messageObject);
 			messageUUID = messageObject.getString(MESSAGE_UUID);
 		} catch (MongoException e) {
@@ -106,7 +126,8 @@ public class MongoArchivingService extends AbstractMessageArchivingService {
 	}
 
 	@Override
-	public String findMessage(Message message) throws MongoException, CannotArchiveException {
+	public String findMessage(Message message) throws MongoException,
+			CannotArchiveException {
 		String messageUUID = null;
 		DBObject messageObject = messageColl
 				.findOne(calculateMessageId(message));
@@ -118,7 +139,7 @@ public class MongoArchivingService extends AbstractMessageArchivingService {
 	}
 
 	private BasicDBObject archiveContentHeader(ContentHeader contentHeader)
-			throws DocStoreException {
+			throws DocStoreException, CannotArchiveException {
 		BasicDBObject headerObject = new BasicDBObject();
 		if (contentHeader.isMultipart()) {
 			MultiPartHeader multiPartHeader = (MultiPartHeader) contentHeader;
@@ -155,6 +176,15 @@ public class MongoArchivingService extends AbstractMessageArchivingService {
 			headerObject.put(ORIGINAL_HEADERS,
 					singlePartHeader.getOriginalHeaders());
 
+			if (singlePartHeader.getContentType().trim().toLowerCase()
+					.equals(ContentTypeField.TYPE_MESSAGE_RFC822.toLowerCase())) {
+				String subMessageUUID = storeNestedMessage(singlePartHeader
+						.getEncodedContentData().getBinaryContent(),
+						singlePartHeader.getContentTransferEncoding().toString());
+				if (!nested_message_ids.contains(subMessageUUID))
+					nested_message_ids.add(subMessageUUID);
+			}
+
 			String fileExtension = "";
 			if (singlePartHeader.getFilename() != null)
 				fileExtension = singlePartHeader.getFilename().substring(
@@ -170,5 +200,47 @@ public class MongoArchivingService extends AbstractMessageArchivingService {
 		}
 
 		return headerObject;
+	}
+
+	@Override
+	public boolean removeMessage(String messageUUID) {
+		try {
+			DBObject messageObject = messageColl.findOne(messageUUID);
+			messageColl.remove(messageObject);
+		} catch (MongoException e) {
+			return false;
+		}
+		return true;
+	}
+
+	protected String storeNestedMessage(InputStream nestedMessage,
+			String contentTransferEncoding) throws CannotArchiveException {
+		String nestedMessageUUID = "";
+		try {
+			Message subMessage;
+			if (MimeUtil.isBase64Encoding(contentTransferEncoding)) {
+				subMessage = new MessageImpl(new Base64InputStream(
+						nestedMessage));
+			} else if (MimeUtil
+					.isQuotedPrintableEncoded(contentTransferEncoding)) {
+				subMessage = new MessageImpl(new QuotedPrintableInputStream(
+						nestedMessage));
+			} else
+				subMessage = new MessageImpl(nestedMessage);
+			nestedMessageUUID = storeOrFindMessage(subMessage);
+		} catch (CannotTransferMessageContentException e) {
+			throw new CannotArchiveException(
+					"Could not parse embedded message/rfc822", e);
+		} catch (BadMessageException e) {
+			throw new CannotArchiveException(
+					"Could not parse embedded message/rfc822", e);
+		} catch (IOException e) {
+			throw new CannotArchiveException(
+					"Could not parse embedded message/rfc822", e);
+		} catch (MimeException e) {
+			throw new CannotArchiveException(
+					"Could not parse embedded message/rfc822", e);
+		}
+		return nestedMessageUUID;
 	}
 }

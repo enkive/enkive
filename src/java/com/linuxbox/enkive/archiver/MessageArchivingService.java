@@ -39,4 +39,13 @@ public interface MessageArchivingService {
 	 */
 	public String findMessage(Message message) throws MongoException, CannotArchiveException;
 	
+	/**
+	 * Removes a message from the store. Note that this method does not remove
+	 * attachments.
+	 * 
+	 * @param messageUUID
+	 * @return boolean reflecting success or failure of deletion
+	 */
+	public boolean removeMessage(String messageUUID);
+	
 }

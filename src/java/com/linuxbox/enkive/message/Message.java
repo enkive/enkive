@@ -44,6 +44,18 @@ public interface Message extends MessageSummary {
 	 *         return null if this is note MIME content.
 	 */
 	public String getMimeVersion();
+	
+	/**
+	 * 
+	 * @return A string containing the content-type header.
+	 */
+	public String getContentType();
+	
+	/**
+	 * 
+	 * @return A string containing the content-transfer-encoding header.
+	 */
+	public String getContentTransferEncoding();
 
 	/**
 	 * 
@@ -78,6 +90,22 @@ public interface Message extends MessageSummary {
 	 * @param mimeVersion
 	 */
 	public void setMimeVersion(String mimeVersion);
+	
+	/**
+	 * 
+	 * Sets the contentType attribute
+	 * 
+	 * @param contentType
+	 */
+	public void setContentType(String contentType);
+	
+	/**
+	 * 
+	 * Sets the contentTransferEncoding attribute
+	 * 
+	 * @param contentTranserEncoding
+	 */
+	public void setContentTransferEncoding(String contentTransferEncoding);
 
 	/**
 	 * 
@@ -93,6 +121,9 @@ public interface Message extends MessageSummary {
 	 */
 	public Header getParsedHeader();
 
+	public String getMessageDiff();
+
+	public void setMessageDiff(String messageDiff);
 	/**
 	 * Returns the reconstituted email message as a String.
 	 */

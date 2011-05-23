@@ -7,6 +7,7 @@ Content-Type: multipart/mixed;
  boundary="------------090404080405080108000909"
 
 This is a multi-part message in MIME format.
+
 --------------090404080405080108000909
 Content-Type: text/plain; charset=ISO-8859-15
 Content-Transfer-Encoding: 7bit

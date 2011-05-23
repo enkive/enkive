@@ -25,8 +25,12 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.HashSet;
 import java.util.Set;
+
+import name.fraser.neil.plaintext.diff_match_patch;
+import name.fraser.neil.plaintext.diff_match_patch.Patch;
 
 import org.apache.james.mime4j.message.Header;
 
@@ -36,8 +40,12 @@ public abstract class AbstractMessage extends AbstractMessageSummary
 		implements Message {
 	protected String originalHeaders;
 	protected String mimeVersion;
+	protected String contentType;
+	protected String contentTransferEncoding;
 	protected ContentHeader contentHeader;
 	protected Header parsedHeader;
+	protected String messageDiff;
+	protected diff_match_patch differ;
 
 	public AbstractMessage() {
 		super();
@@ -45,6 +53,7 @@ public abstract class AbstractMessage extends AbstractMessageSummary
 		rcptTo = new ArrayList<String>();
 		to = new ArrayList<String>();
 		cc = new ArrayList<String>();
+		differ = new diff_match_patch();
 	}
 
 	@Override
@@ -79,18 +88,42 @@ public abstract class AbstractMessage extends AbstractMessageSummary
 		this.mimeVersion = mimeVersion;
 	}
 
-	@Override
-	public void pushReconstitutedEmail(Writer output) throws IOException {
-		PrintWriter writer = new PrintWriter(output);
-		writer.print(originalHeaders);
-		writer.flush();
-		contentHeader.pushReconstitutedEmail(writer);
+	public String getContentType() {
+		return contentType;
+	}
+
+	public void setContentType(String contentType) {
+		this.contentType = contentType;
+	}
+	
+	public String getContentTransferEncoding() {
+		return contentTransferEncoding;
+	}
+
+	public void setContentTransferEncoding(String contentTransferEncoding) {
+		this.contentTransferEncoding = contentTransferEncoding;
 	}
 
 	@Override
+	public void pushReconstitutedEmail(Writer output) throws IOException {
+		PrintWriter writer = new PrintWriter(output);
+		writer.print(getReconstitutedEmail());
+		writer.flush();
+	}
+	
+	@Override
 	public String getReconstitutedEmail() throws IOException {
+		return (String) differ.patch_apply(
+				(LinkedList<Patch>) differ.patch_fromText(getMessageDiff()),
+				getUnpatchedEmail())[0];
+	}
+	
+	protected String getUnpatchedEmail() throws IOException {
 		StringWriter out = new StringWriter();
-		pushReconstitutedEmail(out);
+		PrintWriter writer = new PrintWriter(out);
+		writer.print(originalHeaders);
+		writer.flush();
+		contentHeader.pushReconstitutedEmail(writer);
 		return out.toString();
 	}
 
@@ -112,6 +145,14 @@ public abstract class AbstractMessage extends AbstractMessageSummary
 		Set<String> result = new HashSet<String>();
 
 		return result;
+	}
+
+	public String getMessageDiff() {
+		return messageDiff;
+	}
+
+	public void setMessageDiff(String messageDiff) {
+		this.messageDiff = messageDiff;
 	}
 
 	/**
