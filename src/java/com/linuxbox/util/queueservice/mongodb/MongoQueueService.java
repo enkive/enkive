@@ -5,6 +5,8 @@ import static com.linuxbox.util.mongodb.MongoDBConstants.OBJECT_ID_KEY;
 import java.net.UnknownHostException;
 import java.util.Date;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.bson.types.BSONTimestamp;
 import org.bson.types.ObjectId;
 
@@ -22,6 +24,9 @@ import com.mongodb.WriteConcern;
 import com.mongodb.WriteResult;
 
 public class MongoQueueService implements QueueService {
+	protected static final Log LOGGER = LogFactory
+			.getLog("com.linuxbox.util.queueservice.mongodb");
+
 	private static final String STATUS_FIELD = "status";
 	private static final String CREATED_AT_FIELD = "createdAt";
 	private static final String DEQUEUED_AT_FIELD = "dequeuedAt";
