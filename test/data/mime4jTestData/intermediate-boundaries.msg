@@ -7,7 +7,7 @@ Content-Type: text/plain
 
 first part
 
---boundary    
+--boundary
 Content-Type: text/plain
 
 from the rfc:
@@ -28,7 +28,7 @@ and also have a boundary not at the beginning
 ... that should be ignored
 
 also a boundary with more data (a tab) shoud be ignored
- --boundary	
+ --boundary
  
 end of part
 

@@ -13,6 +13,7 @@ public interface MesssageAttributeConstants {
 	String MESSAGE_ID = "message_id";
 	String MIME_VERSION = "mime_version";	
 	String ORIGINAL_HEADERS = "original_headers";
+	String MESSAGE_DIFF = "messageDiff";
 	
 	// Multipart Header Properties
 

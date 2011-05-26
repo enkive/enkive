@@ -37,6 +37,7 @@ import org.apache.james.mime4j.parser.MimeTokenStream;
 
 import com.linuxbox.enkive.exception.BadMessageException;
 import com.linuxbox.enkive.exception.CannotTransferMessageContentException;
+import com.linuxbox.util.StringUtils;
 
 /**
  * @author lee
@@ -59,8 +60,7 @@ public class MessageImpl extends AbstractMessage implements Message {
 	public MessageImpl(InputStream dataStream)
 			throws CannotTransferMessageContentException, IOException,
 			MimeException, BadMessageException {
-		this();
-		ConstructMessage(dataStream);
+		this(StringUtils.stringFromInputStream(dataStream));
 	}
 
 	public MessageImpl(String in) throws CannotTransferMessageContentException,
@@ -68,6 +68,7 @@ public class MessageImpl extends AbstractMessage implements Message {
 		this();
 		InputStream dataStream = new ByteArrayInputStream(in.getBytes());
 		ConstructMessage(dataStream);
+		calculateMessageDiff(in);
 	}
 
 	/**
@@ -86,7 +87,6 @@ public class MessageImpl extends AbstractMessage implements Message {
 	public void ConstructMessage(InputStream in) throws IOException,
 			CannotTransferMessageContentException, BadMessageException {
 
-
 		Stack<MultiPartHeader> headerStack = new Stack<MultiPartHeader>();
 		MultiPartHeader mp;
 		StringBuilder headers = new StringBuilder();
@@ -97,6 +97,7 @@ public class MessageImpl extends AbstractMessage implements Message {
 		String lineEnding = "\r\n";
 
 		final MessageStreamParser stream = new MessageStreamParser(config);
+		stream.setRecursionMode(MimeTokenStream.M_NO_RECURSE);
 
 		stream.parse(in);
 
@@ -212,7 +213,9 @@ public class MessageImpl extends AbstractMessage implements Message {
 						headerStack.push(mp2);
 					}
 					break;
+
 				}
+
 			}
 		} catch (MimeException e) {
 			throw new BadMessageException(e);
@@ -275,10 +278,22 @@ public class MessageImpl extends AbstractMessage implements Message {
 		else
 			setDate(new Date());
 
+		if (headers.getMimeType() != null)
+			setContentType(headers.getMimeType());
+
+		if (headers.getContentTransferEncoding() != null)
+			setContentTransferEncoding(headers.getContentTransferEncoding());
+
 		if (headers.getHeader().getField("MIME-VERSION") != null)
 			setMimeVersion(headers.getHeader().getField("MIME-VERSION")
 					.getBody().toString());
 
 		setParsedHeader(headers.getHeader());
+	}
+
+	private void calculateMessageDiff(String originalMessage) throws IOException {
+		String patchText = differ.patch_toText(differ.patch_make(differ.diff_main(
+				getUnpatchedEmail(), originalMessage)));
+		setMessageDiff(patchText);
 	}
 }

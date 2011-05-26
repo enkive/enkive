@@ -21,6 +21,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
+import com.linuxbox.enkive.TestingConstants;
 import com.linuxbox.enkive.archiver.mongodb.MongoArchivingService;
 import com.linuxbox.enkive.docstore.DocStoreService;
 import com.linuxbox.enkive.docstore.mongogrid.ConvenienceMongoGridDocStoreService;
@@ -46,7 +47,7 @@ public class MongoRetrieverServiceTest {
 
 	@Parameters
 	public static Collection<Object[]> data() {
-		return getAllTestFiles(new File("test/data/mime4jTestData"));
+		return getAllTestFiles(new File(TestingConstants.TEST_MESSAGE_DIRECTORY));
 	}
 
 	@BeforeClass
@@ -97,7 +98,7 @@ public class MongoRetrieverServiceTest {
 				if (file.isFile()) {
 					files.add(new File[] { file });
 				} else {
-					getAllTestFiles(file);
+					return getAllTestFiles(file);
 				}
 			}
 		}
