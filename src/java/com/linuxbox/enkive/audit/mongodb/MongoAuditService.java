@@ -160,8 +160,8 @@ public class MongoAuditService implements AuditService {
 	}
 
 	@Override
-	public AuditEntry getEvent(String identifer) throws AuditTrailException {
-		final ObjectId idObject = ObjectId.massageToObjectId(identifer);
+	public AuditEntry getEvent(String identifier) throws AuditTrailException {
+		final ObjectId idObject = ObjectId.massageToObjectId(identifier);
 		final QueryBuilder queryBuilder = QueryBuilder.start(
 				MongoDBConstants.OBJECT_ID_KEY).is(idObject);
 		final DBObject resultObject = auditCollection.findOne(queryBuilder
@@ -181,10 +181,14 @@ public class MongoAuditService implements AuditService {
 			qb.put(USERNAME_FIELD).is(userIdentifier);
 		}
 		if (startDate != null) {
-			qb.put(TIMESTAMP_FIELD).greaterThanEquals(startDate);
+			final int epochTime = (int) (startDate.getTime() / 1000);
+			final BSONTimestamp timestamp = new BSONTimestamp(epochTime, 0);
+			qb.put(TIMESTAMP_FIELD).greaterThanEquals(timestamp);
 		}
 		if (endDate != null) {
-			qb.put(TIMESTAMP_FIELD).lessThan(endDate);
+			final int epochTime = (int) (Math.ceil(endDate.getTime() / 1000.0));
+			final BSONTimestamp timestamp = new BSONTimestamp(epochTime, 0);
+			qb.put(TIMESTAMP_FIELD).lessThan(timestamp);
 		}
 
 		final DBCursor cursor = auditCollection.find(qb.get()).sort(
@@ -204,7 +208,7 @@ public class MongoAuditService implements AuditService {
 	public long getAuditEntryCount() throws AuditTrailException {
 		return auditCollection.count();
 	}
-	
+
 	private List<AuditEntry> dbCursortoAuditEntryList(DBCursor cursor) {
 		List<AuditEntry> list = new ArrayList<AuditEntry>();
 		while (cursor.hasNext()) {
@@ -219,7 +223,11 @@ public class MongoAuditService implements AuditService {
 				.toString();
 		final BSONTimestamp entryTimestamp = (BSONTimestamp) entry
 				.get(TIMESTAMP_FIELD);
-		final Date entryDate = new Date(1000 * entryTimestamp.getTime());
+
+		// if we don't use long math, we get a roll-over; the cast is
+		// unnecessary other than to emphasize this fact
+		final Date entryDate = new Date(1000L * (long) entryTimestamp.getTime());
+
 		final int entryCode = (Integer) entry.get(CODE_FIELD);
 		final String user = (String) entry.get(USERNAME_FIELD);
 		final String description = (String) entry.get(DESCRIPTION_FIELD);
