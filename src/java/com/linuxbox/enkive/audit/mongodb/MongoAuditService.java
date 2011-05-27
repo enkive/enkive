@@ -108,8 +108,14 @@ public class MongoAuditService implements AuditService {
 		// TODO: do we (will we) need a who, what, when index, so we can select
 		// by who/what and sort by when?
 
-		// Make sure data is written out to disk before operation is complete.
-		queueCollection.setWriteConcern(WriteConcern.NORMAL);
+		// TODO: this is an important decision, which is whether we need to hold
+		// up until the audit log entry is written to disk, or whether we
+		// continue asynchronously.
+		if (CONFIRM_AUIDIT_LOG_WRITES) {
+			auditCollection.setWriteConcern(WriteConcern.FSYNC_SAFE);
+		} else {
+			auditCollection.setWriteConcern(WriteConcern.NORMAL);
+		}
 	}
 
 	public void startup() throws QueueServiceException {
@@ -126,10 +132,26 @@ public class MongoAuditService implements AuditService {
 	@Override
 	public void addEvent(int eventCode, String userIdentifier,
 			String description) throws AuditTrailException {
-		// TODO Auto-generated method stub
+		final DBObject insert = new BasicDBObject()
+				.append(TIMESTAMP_FIELD, new BSONTimestamp())
+				.append(CODE_FIELD, eventCode)
+				.append(USERNAME_FIELD, userIdentifier)
+				.append(DESCRIPTION_FIELD, description);
+		final WriteResult result = auditCollection.insert(insert);
 
+		if (CONFIRM_AUIDIT_LOG_WRITES) {
+			if (!result.getLastError().ok()) {
+				throw new AuditTrailException(
+						"could not write entry to audit log", result
+								.getLastError().getException());
+			}
+		}
 	}
 
+	/**
+	 * Since MongoDB does not impose limits on fields, let's just ignore
+	 * truncateDescription.
+	 */
 	@Override
 	public void addEvent(int eventCode, String userIdentifier,
 			String description, boolean truncateDescription)
@@ -139,26 +161,71 @@ public class MongoAuditService implements AuditService {
 
 	@Override
 	public AuditEntry getEvent(String identifer) throws AuditTrailException {
-		// TODO Auto-generated method stub
-		return null;
+		final ObjectId idObject = ObjectId.massageToObjectId(identifer);
+		final QueryBuilder queryBuilder = QueryBuilder.start(
+				MongoDBConstants.OBJECT_ID_KEY).is(idObject);
+		final DBObject resultObject = auditCollection.findOne(queryBuilder
+				.get());
+		return dbObjectToAuditEntry(resultObject);
 	}
 
 	@Override
 	public List<AuditEntry> search(Integer eventCode, String userIdentifier,
 			Date startDate, Date endDate) throws AuditTrailException {
-		// TODO Auto-generated method stub
-		return null;
+		final QueryBuilder qb = QueryBuilder.start();
+
+		if (eventCode != null) {
+			qb.put(CODE_FIELD).is(eventCode);
+		}
+		if (userIdentifier != null) {
+			qb.put(USERNAME_FIELD).is(userIdentifier);
+		}
+		if (startDate != null) {
+			qb.put(TIMESTAMP_FIELD).greaterThanEquals(startDate);
+		}
+		if (endDate != null) {
+			qb.put(TIMESTAMP_FIELD).lessThan(endDate);
+		}
+
+		final DBCursor cursor = auditCollection.find(qb.get()).sort(
+				DATE_BACKWARD_SORT);
+		return dbCursortoAuditEntryList(cursor);
 	}
 
 	@Override
 	public List<AuditEntry> getMostRecentByPage(int perPage, int pagesToSkip)
 			throws AuditTrailException {
-		// TODO Auto-generated method stub
-		return null;
+		final DBCursor cursor = auditCollection.find().sort(DATE_BACKWARD_SORT)
+				.skip(perPage * pagesToSkip).limit(perPage);
+		return dbCursortoAuditEntryList(cursor);
 	}
 
 	@Override
 	public long getAuditEntryCount() throws AuditTrailException {
 		return auditCollection.count();
+	}
+	
+	private List<AuditEntry> dbCursortoAuditEntryList(DBCursor cursor) {
+		List<AuditEntry> list = new ArrayList<AuditEntry>();
+		while (cursor.hasNext()) {
+			final DBObject entry = cursor.next();
+			list.add(dbObjectToAuditEntry(entry));
+		}
+		return list;
+	}
+
+	private AuditEntry dbObjectToAuditEntry(DBObject entry) {
+		final String objectId = entry.get(MongoDBConstants.OBJECT_ID_KEY)
+				.toString();
+		final BSONTimestamp entryTimestamp = (BSONTimestamp) entry
+				.get(TIMESTAMP_FIELD);
+		final Date entryDate = new Date(1000 * entryTimestamp.getTime());
+		final int entryCode = (Integer) entry.get(CODE_FIELD);
+		final String user = (String) entry.get(USERNAME_FIELD);
+		final String description = (String) entry.get(DESCRIPTION_FIELD);
+
+		final AuditEntry auditEntry = new AuditEntry(objectId, entryDate,
+				entryCode, user, description);
+		return auditEntry;
 	}
 }
