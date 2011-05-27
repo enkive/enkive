@@ -1,5 +1,5 @@
 /*
- *  Copyright 2010 The Linux Box Corporation.
+ *  Copyright 2010-2011 The Linux Box Corporation.
  *
  *  This file is part of Enkive CE (Community Edition).
  *
@@ -33,21 +33,21 @@ import java.io.PrintWriter;
  * @author eric
  * 
  */
-public class AuditTrailException extends Exception {
+public class AuditServiceException extends Exception {
 	private static final long serialVersionUID = 1L;
 
 	private Throwable trueCause;
 
-	public AuditTrailException(String message) {
+	public AuditServiceException(String message) {
 		super(message);
 	}
 
-	public AuditTrailException(String message, Throwable throwable) {
+	public AuditServiceException(String message, Throwable throwable) {
 		super(message);
 		trueCause = throwable;
 	}
 
-	public AuditTrailException(Throwable throwable) {
+	public AuditServiceException(Throwable throwable) {
 		super();
 		trueCause = throwable;
 	}

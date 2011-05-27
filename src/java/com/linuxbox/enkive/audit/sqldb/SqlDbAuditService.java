@@ -38,7 +38,7 @@ import org.apache.commons.logging.LogFactory;
 
 import com.linuxbox.enkive.audit.AuditEntry;
 import com.linuxbox.enkive.audit.AuditService;
-import com.linuxbox.enkive.audit.AuditTrailException;
+import com.linuxbox.enkive.audit.AuditServiceException;
 
 public class SqlDbAuditService implements AuditService {
 	protected static final Log LOGGER = LogFactory
@@ -65,7 +65,7 @@ public class SqlDbAuditService implements AuditService {
 		try {
 			descriptionColumnSize = getDescriptionColumnSize();
 			LOGGER.info("description column size is " + descriptionColumnSize);
-		} catch (AuditTrailException e) {
+		} catch (AuditServiceException e) {
 			LOGGER
 					.error("could not determine column size for description in events table");
 		}
@@ -84,19 +84,19 @@ public class SqlDbAuditService implements AuditService {
 		 * @param connection
 		 * @return what this operation should return
 		 * @throws SQLException
-		 * @throws AuditTrailException
+		 * @throws AuditServiceException
 		 */
 		public abstract R execute(Connection connection) throws SQLException,
-				AuditTrailException;
+				AuditServiceException;
 
-		public R executeAuditOperation() throws AuditTrailException {
+		public R executeAuditOperation() throws AuditServiceException {
 			Connection connection = null;
 			try {
 				connection = dataSource.getConnection();
 				return execute(connection);
 			} catch (SQLException e) {
 				e.printStackTrace();
-				throw new AuditTrailException(e);
+				throw new AuditServiceException(e);
 			} finally {
 				try {
 					if (resultSet != null) {
@@ -133,14 +133,14 @@ public class SqlDbAuditService implements AuditService {
 
 	@Override
 	public void addEvent(final int eventCode, final String userIdentifier,
-			final String description) throws AuditTrailException {
+			final String description) throws AuditServiceException {
 		addEvent(eventCode, userIdentifier, description, true);
 	}
 
 	@Override
 	public void addEvent(final int eventCode, final String userIdentifier,
 			final String description, final boolean truncateDescription)
-			throws AuditTrailException {
+			throws AuditServiceException {
 		AuditOperation<Integer> op = new AuditOperation<Integer>() {
 			@Override
 			public Integer execute(Connection connection) throws SQLException {
@@ -176,11 +176,11 @@ public class SqlDbAuditService implements AuditService {
 
 	@Override
 	public AuditEntry getEvent(final String identifer)
-			throws AuditTrailException {
+			throws AuditServiceException {
 		AuditOperation<AuditEntry> op = new AuditOperation<AuditEntry>() {
 			@Override
 			public AuditEntry execute(Connection connection)
-					throws SQLException, AuditTrailException {
+					throws SQLException, AuditServiceException {
 				PreparedStatement statement = connection
 						.prepareStatement(BY_ID_STATEMENT);
 				setStatement(statement);
@@ -196,7 +196,7 @@ public class SqlDbAuditService implements AuditService {
 				} else if (resultList.size() == 1) {
 					return resultList.get(0);
 				} else {
-					throw new AuditTrailException(
+					throw new AuditServiceException(
 							"severe error : audit trail lookup returned multiple results");
 				}
 			}
@@ -207,19 +207,19 @@ public class SqlDbAuditService implements AuditService {
 
 	@Override
 	public List<AuditEntry> getMostRecentByPage(final int perPage,
-			final int page) throws AuditTrailException {
+			final int page) throws AuditServiceException {
 		if (perPage < 1) {
-			throw new AuditTrailException(
+			throw new AuditServiceException(
 					"perPage must be at least 1 and should be at least 10");
 		}
 		if (page < 1) {
-			throw new AuditTrailException("page must be at least 1");
+			throw new AuditServiceException("page must be at least 1");
 		}
 
 		AuditOperation<List<AuditEntry>> op = new AuditOperation<List<AuditEntry>>() {
 			@Override
 			public List<AuditEntry> execute(Connection connection)
-					throws SQLException, AuditTrailException {
+					throws SQLException, AuditServiceException {
 				PreparedStatement statement = connection
 						.prepareStatement(MOST_RECENT_STATEMENT);
 				setStatement(statement);
@@ -239,16 +239,16 @@ public class SqlDbAuditService implements AuditService {
 
 	@Override
 	public List<AuditEntry> search(Integer eventCode, String userIdentifer,
-			Date startDate, Date endDate) throws AuditTrailException {
-		throw new AuditTrailException("feature not implemented yet");
+			Date startDate, Date endDate) throws AuditServiceException {
+		throw new AuditServiceException("feature not implemented yet");
 	}
 
 	@Override
-	public long getAuditEntryCount() throws AuditTrailException {
+	public long getAuditEntryCount() throws AuditServiceException {
 		AuditOperation<Long> op = new AuditOperation<Long>() {
 			@Override
 			public Long execute(Connection connection) throws SQLException,
-					AuditTrailException {
+					AuditServiceException {
 				long count = 0;
 
 				PreparedStatement statement = connection
@@ -260,7 +260,7 @@ public class SqlDbAuditService implements AuditService {
 				if (resultSet.next()) {
 					count = resultSet.getLong(1);
 				} else {
-					throw new AuditTrailException(
+					throw new AuditServiceException(
 							"could not count the number of entries in the audit log");
 				}
 
@@ -298,13 +298,13 @@ public class SqlDbAuditService implements AuditService {
 	 * retrieves the current column size from the databases metadata.
 	 * 
 	 * @return
-	 * @throws AuditTrailException
+	 * @throws AuditServiceException
 	 */
-	public int getDescriptionColumnSize() throws AuditTrailException {
+	public int getDescriptionColumnSize() throws AuditServiceException {
 		AuditOperation<Integer> op = new AuditOperation<Integer>() {
 			@Override
 			public Integer execute(Connection connection) throws SQLException,
-					AuditTrailException {
+					AuditServiceException {
 				int columnSize = -1;
 
 				DatabaseMetaData metaData = connection.getMetaData();
@@ -315,11 +315,11 @@ public class SqlDbAuditService implements AuditService {
 				if (resultSet.next()) {
 					columnSize = resultSet.getInt("COLUMN_SIZE");
 					if (resultSet.next()) {
-						throw new AuditTrailException(
+						throw new AuditServiceException(
 								"retrieved multiple column metadata entries for the description column in the events table");
 					}
 				} else {
-					throw new AuditTrailException(
+					throw new AuditServiceException(
 							"could not retrieve the size of the description column in the events table");
 				}
 

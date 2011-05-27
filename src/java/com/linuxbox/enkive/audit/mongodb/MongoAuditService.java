@@ -32,7 +32,7 @@ import org.bson.types.ObjectId;
 
 import com.linuxbox.enkive.audit.AuditEntry;
 import com.linuxbox.enkive.audit.AuditService;
-import com.linuxbox.enkive.audit.AuditTrailException;
+import com.linuxbox.enkive.audit.AuditServiceException;
 import com.linuxbox.util.mongodb.MongoDBConstants;
 import com.linuxbox.util.queueservice.QueueServiceException;
 import com.mongodb.BasicDBObject;
@@ -50,6 +50,11 @@ public class MongoAuditService implements AuditService {
 	protected static final Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.audit.mongodb");
 
+	/**
+	 * TODO: We have to decide whether the system will wait until the audit log
+	 * entries are in storage or whether we can continue before so. If this is
+	 * set to true, the audit log will likely be slower but safer.
+	 */
 	private static final boolean CONFIRM_AUIDIT_LOG_WRITES = false;
 
 	private static final String TIMESTAMP_FIELD = "tstamp";
@@ -57,15 +62,19 @@ public class MongoAuditService implements AuditService {
 	private static final String USERNAME_FIELD = "user";
 	private static final String DESCRIPTION_FIELD = "desc";
 
+	private static final String TIMESTAMP_INDEX = "timestampIndex";
+	private static final String CODE_TIMESTAMP_INDEX = "codeTimestampIndex";
+	private static final String USER_TIMESTAMP_INDEX = "userTimestampIndex";
+
 	@SuppressWarnings("unused")
 	private static DBObject DATE_FORWARD_SORT = new BasicDBObject(
 			TIMESTAMP_FIELD, 1);
 	private static DBObject DATE_BACKWARD_SORT = new BasicDBObject(
 			TIMESTAMP_FIELD, -1);
 
-	private Mongo mongo;
-	private DB mongoDB;
-	private DBCollection auditCollection;
+	private final Mongo mongo;
+	private final DB mongoDB;
+	private final DBCollection auditCollection;
 
 	/**
 	 * Keep track of whether we created the instance of Mongo, as if so, we'll
@@ -94,27 +103,31 @@ public class MongoAuditService implements AuditService {
 		// queried fields should appear before the sorting fields in the
 		// indexes.
 
-		final DBObject whenIndex = new BasicDBObject(TIMESTAMP_FIELD, 1);
-		auditCollection.ensureIndex(whenIndex, "timestampIndex");
+		final DBObject whenIndex = new BasicDBObject(TIMESTAMP_FIELD, -1);
+		auditCollection.ensureIndex(whenIndex, TIMESTAMP_INDEX);
 
 		final DBObject whatWhenIndex = new BasicDBObject(CODE_FIELD, 1).append(
-				TIMESTAMP_FIELD, 1);
-		auditCollection.ensureIndex(whatWhenIndex, "codeTimestampIndex");
+				TIMESTAMP_FIELD, -1);
+		auditCollection.ensureIndex(whatWhenIndex, CODE_TIMESTAMP_INDEX);
 
 		final DBObject whoWhenIndex = new BasicDBObject(USERNAME_FIELD, 1)
-				.append(TIMESTAMP_FIELD, 1);
-		auditCollection.ensureIndex(whoWhenIndex, "userTimestampIndex");
+				.append(TIMESTAMP_FIELD, -1);
+		auditCollection.ensureIndex(whoWhenIndex, USER_TIMESTAMP_INDEX);
 
 		// TODO: do we (will we) need a who, what, when index, so we can select
 		// by who/what and sort by when?
 
-		// TODO: this is an important decision, which is whether we need to hold
-		// up until the audit log entry is written to disk, or whether we
-		// continue asynchronously.
 		if (CONFIRM_AUIDIT_LOG_WRITES) {
 			auditCollection.setWriteConcern(WriteConcern.FSYNC_SAFE);
 		} else {
 			auditCollection.setWriteConcern(WriteConcern.NORMAL);
+		}
+
+		final int indexCount = auditCollection.getIndexInfo().size();
+		// we expect 4 -- our 3 plus the default index on ObjectID
+		if (indexCount != 4) {
+			LOGGER.warn("the MongoAuditService may have extra indices (which could impact performance); expect 4 but have "
+					+ indexCount);
 		}
 	}
 
@@ -131,7 +144,7 @@ public class MongoAuditService implements AuditService {
 
 	@Override
 	public void addEvent(int eventCode, String userIdentifier,
-			String description) throws AuditTrailException {
+			String description) throws AuditServiceException {
 		final DBObject insert = new BasicDBObject()
 				.append(TIMESTAMP_FIELD, new BSONTimestamp())
 				.append(CODE_FIELD, eventCode)
@@ -141,7 +154,7 @@ public class MongoAuditService implements AuditService {
 
 		if (CONFIRM_AUIDIT_LOG_WRITES) {
 			if (!result.getLastError().ok()) {
-				throw new AuditTrailException(
+				throw new AuditServiceException(
 						"could not write entry to audit log", result
 								.getLastError().getException());
 			}
@@ -155,12 +168,12 @@ public class MongoAuditService implements AuditService {
 	@Override
 	public void addEvent(int eventCode, String userIdentifier,
 			String description, boolean truncateDescription)
-			throws AuditTrailException {
+			throws AuditServiceException {
 		addEvent(eventCode, userIdentifier, description);
 	}
 
 	@Override
-	public AuditEntry getEvent(String identifier) throws AuditTrailException {
+	public AuditEntry getEvent(String identifier) {
 		final ObjectId idObject = ObjectId.massageToObjectId(identifier);
 		final QueryBuilder queryBuilder = QueryBuilder.start(
 				MongoDBConstants.OBJECT_ID_KEY).is(idObject);
@@ -169,46 +182,67 @@ public class MongoAuditService implements AuditService {
 		return dbObjectToAuditEntry(resultObject);
 	}
 
+	/**
+	 * If there is a username, then we hint to use that index, as we expect
+	 * there to be many users compared to event codes. Thus it is likely that
+	 * generally filtering by users will reduce the result set by the greatest
+	 * amount. Of course some event codes are more prevalent than others, so
+	 * this won't always be the case.
+	 * 
+	 * @param startTime
+	 *            all results must occur ON or AFTER this timestamp
+	 * @param endTime
+	 *            all results must occur BEFORE this timestamp
+	 */
 	@Override
 	public List<AuditEntry> search(Integer eventCode, String userIdentifier,
-			Date startDate, Date endDate) throws AuditTrailException {
+			Date startTime, Date endTime) {
 		final QueryBuilder qb = QueryBuilder.start();
+		String indexHint = TIMESTAMP_INDEX;
 
 		if (eventCode != null) {
 			qb.put(CODE_FIELD).is(eventCode);
+			indexHint = CODE_TIMESTAMP_INDEX;
 		}
 		if (userIdentifier != null) {
 			qb.put(USERNAME_FIELD).is(userIdentifier);
+			indexHint = CODE_TIMESTAMP_INDEX;
 		}
-		if (startDate != null) {
-			final int epochTime = (int) (startDate.getTime() / 1000);
+		if (startTime != null) {
+			final int epochTime = (int) (startTime.getTime() / 1000);
 			final BSONTimestamp timestamp = new BSONTimestamp(epochTime, 0);
 			qb.put(TIMESTAMP_FIELD).greaterThanEquals(timestamp);
 		}
-		if (endDate != null) {
-			final int epochTime = (int) (Math.ceil(endDate.getTime() / 1000.0));
+		if (endTime != null) {
+			final int epochTime = (int) (Math.ceil(endTime.getTime() / 1000.0));
 			final BSONTimestamp timestamp = new BSONTimestamp(epochTime, 0);
 			qb.put(TIMESTAMP_FIELD).lessThan(timestamp);
 		}
 
-		final DBCursor cursor = auditCollection.find(qb.get()).sort(
-				DATE_BACKWARD_SORT);
+		final DBCursor cursor = auditCollection.find(qb.get())
+				.sort(DATE_BACKWARD_SORT).hint(indexHint);
 		return dbCursortoAuditEntryList(cursor);
 	}
 
 	@Override
-	public List<AuditEntry> getMostRecentByPage(int perPage, int pagesToSkip)
-			throws AuditTrailException {
+	public List<AuditEntry> getMostRecentByPage(int perPage, int pagesToSkip) {
 		final DBCursor cursor = auditCollection.find().sort(DATE_BACKWARD_SORT)
 				.skip(perPage * pagesToSkip).limit(perPage);
 		return dbCursortoAuditEntryList(cursor);
 	}
 
 	@Override
-	public long getAuditEntryCount() throws AuditTrailException {
+	public long getAuditEntryCount() {
 		return auditCollection.count();
 	}
 
+	/**
+	 * Takes a DBCursor to a result containing AuditService entries and returns
+	 * a List of those AuditEntry(s).
+	 * 
+	 * @param cursor
+	 * @return
+	 */
 	private List<AuditEntry> dbCursortoAuditEntryList(DBCursor cursor) {
 		List<AuditEntry> list = new ArrayList<AuditEntry>();
 		while (cursor.hasNext()) {
@@ -218,6 +252,13 @@ public class MongoAuditService implements AuditService {
 		return list;
 	}
 
+	/**
+	 * Takes a DBObject to a result containing an AuditService entry and returns
+	 * the corresponding AuditEntry.
+	 * 
+	 * @param cursor
+	 * @return
+	 */
 	private AuditEntry dbObjectToAuditEntry(DBObject entry) {
 		final String objectId = entry.get(MongoDBConstants.OBJECT_ID_KEY)
 				.toString();

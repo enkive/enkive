@@ -47,27 +47,27 @@ public class ConsoleAuditService implements AuditService {
 	}
 
 	@Override
-	public AuditEntry getEvent(String identifer) throws AuditTrailException {
-		throw new AuditTrailException(
+	public AuditEntry getEvent(String identifer) throws AuditServiceException {
+		throw new AuditServiceException(
 				"ConsoleAuditService cannot perform this action");
 	}
 
 	@Override
 	public List<AuditEntry> search(Integer eventCode, String userIdentifer,
-			Date startDate, Date endDate) throws AuditTrailException {
-		throw new AuditTrailException(
+			Date startDate, Date endDate) throws AuditServiceException {
+		throw new AuditServiceException(
 				"ConsoleAuditService cannot perform this action");
 	}
 
 	@Override
 	public List<AuditEntry> getMostRecentByPage(int perPage, int page)
-			throws AuditTrailException {
-		throw new AuditTrailException(
+			throws AuditServiceException {
+		throw new AuditServiceException(
 				"ConsoleAuditService cannot perform this action");
 	}
 
 	@Override
-	public long getAuditEntryCount() throws AuditTrailException {
+	public long getAuditEntryCount() throws AuditServiceException {
 		return 0;
 	}
 }
