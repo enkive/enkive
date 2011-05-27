@@ -1,5 +1,5 @@
 /*
- *  Copyright 2010 The Linux Box Corporation.
+ *  Copyright 2010-2011 The Linux Box Corporation.
  *
  *  This file is part of Enkive CE (Community Edition).
  *
@@ -67,7 +67,7 @@ public class ConsoleAuditService implements AuditService {
 	}
 
 	@Override
-	public int getAuditEntryCount() throws AuditTrailException {
+	public long getAuditEntryCount() throws AuditTrailException {
 		return 0;
 	}
 }

@@ -1,5 +1,5 @@
 /*
- *  Copyright 2010 The Linux Box Corporation.
+ *  Copyright 2010-2011 The Linux Box Corporation.
  *
  *  This file is part of Enkive CE (Community Edition).
  *
@@ -90,9 +90,9 @@ public interface AuditService {
 	void addEvent(int eventCode, String userIdentifier, String description,
 			boolean truncateDescription) throws AuditTrailException;
 
-	AuditEntry getEvent(String identifer) throws AuditTrailException;
+	AuditEntry getEvent(String identifier) throws AuditTrailException;
 
-	List<AuditEntry> search(Integer eventCode, String userIdentifer,
+	List<AuditEntry> search(Integer eventCode, String userIdentifier,
 			Date startDate, Date endDate) throws AuditTrailException;
 
 	/**
@@ -114,5 +114,5 @@ public interface AuditService {
 	 * @return
 	 * @throws AuditTrailException
 	 */
-	int getAuditEntryCount() throws AuditTrailException;
+	long getAuditEntryCount() throws AuditTrailException;
 }

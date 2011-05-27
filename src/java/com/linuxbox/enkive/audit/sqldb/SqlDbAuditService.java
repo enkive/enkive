@@ -1,5 +1,5 @@
 /*
- *  Copyright 2010 The Linux Box Corporation.
+ *  Copyright 2010-2011 The Linux Box Corporation.
  *
  *  This file is part of Enkive CE (Community Edition).
  *
@@ -244,12 +244,12 @@ public class SqlDbAuditService implements AuditService {
 	}
 
 	@Override
-	public int getAuditEntryCount() throws AuditTrailException {
-		AuditOperation<Integer> op = new AuditOperation<Integer>() {
+	public long getAuditEntryCount() throws AuditTrailException {
+		AuditOperation<Long> op = new AuditOperation<Long>() {
 			@Override
-			public Integer execute(Connection connection) throws SQLException,
+			public Long execute(Connection connection) throws SQLException,
 					AuditTrailException {
-				int count = 0;
+				long count = 0;
 
 				PreparedStatement statement = connection
 						.prepareStatement(COUNT_STATEMENT);
@@ -258,7 +258,7 @@ public class SqlDbAuditService implements AuditService {
 				ResultSet resultSet = statement.executeQuery();
 				setResultSet(resultSet);
 				if (resultSet.next()) {
-					count = resultSet.getInt(1);
+					count = resultSet.getLong(1);
 				} else {
 					throw new AuditTrailException(
 							"could not count the number of entries in the audit log");
