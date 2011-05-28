@@ -243,4 +243,14 @@ public class MongoArchivingService extends AbstractMessageArchivingService {
 		}
 		return nestedMessageUUID;
 	}
+
+	@Override
+	public void subStartup() {
+		// Do nothing
+	}
+	
+	@Override
+	public void subShutdown() {
+		// Do nothing
+	}
 }

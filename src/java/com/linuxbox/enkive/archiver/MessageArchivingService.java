@@ -1,6 +1,7 @@
 package com.linuxbox.enkive.archiver;
 
 import com.linuxbox.enkive.archiver.exceptions.CannotArchiveException;
+import com.linuxbox.enkive.archiver.exceptions.MessageArchivingServiceException;
 import com.linuxbox.enkive.message.Message;
 import com.mongodb.MongoException;
 
@@ -47,5 +48,17 @@ public interface MessageArchivingService {
 	 * @return boolean reflecting success or failure of deletion
 	 */
 	public boolean removeMessage(String messageUUID);
+	
+	/**
+	 * Initialize any resources needed for message storage
+	 * @throws MessageArchivingServiceException 
+	 */
+	public void startup() throws MessageArchivingServiceException;
+	
+	/**
+	 * Clean up any resources needed for message storage
+	 * @throws MessageArchivingServiceException 
+	 */
+	public void shutdown() throws MessageArchivingServiceException;
 	
 }
