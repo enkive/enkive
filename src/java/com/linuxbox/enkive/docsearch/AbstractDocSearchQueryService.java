@@ -10,7 +10,7 @@ import com.linuxbox.enkive.docsearch.exception.DocSearchException;
 public abstract class AbstractDocSearchQueryService implements
 		DocSearchQueryService {
 	@SuppressWarnings("unused")
-	private final static Log logger = LogFactory
+	private final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.docsearch");
 
 	/**

@@ -18,6 +18,7 @@ import java.util.Date;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.bson.types.ObjectId;
 
 import com.linuxbox.enkive.docsearch.exception.DocSearchException;
 import com.linuxbox.enkive.docstore.AbstractDocStoreService;
@@ -36,7 +37,9 @@ import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import com.mongodb.Mongo;
+import com.mongodb.MongoException;
 import com.mongodb.QueryBuilder;
+import com.mongodb.WriteConcern;
 import com.mongodb.gridfs.GridFS;
 import com.mongodb.gridfs.GridFSDBFile;
 import com.mongodb.gridfs.GridFSInputFile;
@@ -49,8 +52,14 @@ import com.mongodb.gridfs.GridFSInputFile;
 
 public class MongoGridDocStoreService extends AbstractDocStoreService {
 	@SuppressWarnings("unused")
-	private final static Log logger = LogFactory
+	private final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.docstore.mongogrid");
+
+	/*
+	 * These are used to obtain the locks.
+	 */
+	private final static int LOCK_RETRIES = 10;
+	private final static long LOCK_RETRY_DELAY_MILLISECONDS = 10000;
 
 	/*
 	 * The various status value a document can have to indicate its state of
@@ -118,6 +127,9 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 				.add(INDEX_STATUS_KEY, 1).add(INDEX_TIMESTAMP_KEY, 1).get();
 		filesCollection.ensureIndex(searchIndexingIndex, "indexingStatusIndex",
 				false);
+
+		// insure data is written to disk
+		filesCollection.setWriteConcern(WriteConcern.FSYNC_SAFE);
 	}
 
 	@Override
@@ -154,12 +166,12 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 			final String identifier = getFileNameFromHash(hash);
 			final int shardKey = getShardIndexFromHash(hash);
 
-			if (!documentLockingService.lock(identifier,
-					DocStoreConstants.LOCK_TO_STORE)) {
-				// TODO we should note whether the controller is creating or
-				// removing; if creating we're done; if removing we should
-				// re-create
-				return new StoreRequestResultImpl(identifier, true);
+			if (!documentLockingService.lockWithRetries(identifier,
+					DocStoreConstants.LOCK_TO_STORE, LOCK_RETRIES,
+					LOCK_RETRY_DELAY_MILLISECONDS)) {
+				throw new DocStoreException(
+						"could not acquire lock to store document \""
+								+ identifier + "\"");
 			}
 
 			try {
@@ -172,10 +184,12 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 				newFile.setFilename(identifier);
 				setFileMetaData(newFile, document, shardKey);
 				newFile.save();
-
-				// TODO: is there anything we should do at this point to insure
-				// that
-				// it's actually stored?
+				try {
+					newFile.validate();
+				} catch (MongoException e) {
+					throw new DocStoreException(
+							"file saved to GridFS did not validate", e);
+				}
 
 				return new StoreRequestResultImpl(identifier, false);
 			} finally {
@@ -202,9 +216,12 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 		newFile.setFilename(temporaryName);
 		setFileMetaData(newFile, document, -1);
 		newFile.save();
-
-		// TODO: is there anything we should do at this point to insure that
-		// it's actually stored?
+		try {
+			newFile.validate();
+		} catch (MongoException e) {
+			throw new DocStoreException(
+					"file saved to GridFS did not validate", e);
+		}
 
 		final byte[] actualHash = inputStream.getDigest();
 		final String actualName = getFileNameFromHash(actualHash);
@@ -213,11 +230,10 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 		try {
 			if (!documentLockingService.lock(actualName,
 					DocStoreConstants.LOCK_TO_STORE)) {
-				gridFS.remove(temporaryName);
+				gridFS.remove((ObjectId) newFile.getId());
 
 				// TODO: is there anything we should do at this point to insure
-				// that
-				// it's actually been removed?
+				// that it's actually been removed?
 
 				return new StoreRequestResultImpl(actualName, true);
 			}

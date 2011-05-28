@@ -1,3 +1,23 @@
+/*
+ *  Copyright 2010-2011 The Linux Box Corporation.
+ *
+ *  This file is part of Enkive CE (Community Edition).
+ *
+ *  Enkive CE is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU Affero General Public License as
+ *  published by the Free Software Foundation, either version 3 of
+ *  the License, or (at your option) any later version.
+ *
+ *  Enkive CE is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ *  GNU Affero General Public License for more details.
+ *
+ *  You should have received a copy of the GNU Affero General Public
+ *  License along with Enkive CE. If not, see
+ *  <http://www.gnu.org/licenses/>.
+ */
+
 package com.linuxbox.util.queueservice.mongodb;
 
 import static com.linuxbox.util.mongodb.MongoDBConstants.OBJECT_ID_KEY;
@@ -5,6 +25,8 @@ import static com.linuxbox.util.mongodb.MongoDBConstants.OBJECT_ID_KEY;
 import java.net.UnknownHostException;
 import java.util.Date;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.bson.types.BSONTimestamp;
 import org.bson.types.ObjectId;
 
@@ -22,6 +44,9 @@ import com.mongodb.WriteConcern;
 import com.mongodb.WriteResult;
 
 public class MongoQueueService implements QueueService {
+	protected static final Log LOGGER = LogFactory
+			.getLog("com.linuxbox.util.queueservice.mongodb");
+
 	private static final String STATUS_FIELD = "status";
 	private static final String CREATED_AT_FIELD = "createdAt";
 	private static final String DEQUEUED_AT_FIELD = "dequeuedAt";

@@ -57,10 +57,6 @@
 		<constructor-arg value="queueService" />
 	</bean>
 
-	<bean id="AuditService" class="com.linuxbox.enkive.audit.ConsoleAuditService">
-		<!-- empty for now -->
-	</bean>
-
 	<bean id="MessageArchivingService"
 		class="com.linuxbox.enkive.archiver.mongodb.MongoArchivingService">
 		<constructor-arg ref="Mongo" />
@@ -76,15 +72,21 @@
 	<bean id="PostfixFilterServer"
 		class="com.linuxbox.enkive.server.PostfixFilterServer" init-method="startServer" destroy-method="shutdownServer">
 		<constructor-arg ref="MessageArchivingService" />
-		<constructor-arg ref="AuditService" />
+		<constructor-arg ref="AuditLogService" />
 		<constructor-arg type="int" value="2525" />
 		<constructor-arg ref="ThreadPoolServerConfiguration" />
+	</bean>
+
+	<bean id="AuditLogService" class="com.linuxbox.enkive.audit.mongodb.MongoAuditService">
+		<constructor-arg ref="Mongo" />
+		<constructor-arg value="${enkive.queueservice.db.name}" />
+		<constructor-arg value="auditLog" />
 	</bean>
 
 	<!-- Create a Mongo shared by various services; that way if the MongoDB 
 		lives on another server or a unique port, that can be configured once. -->
 
 	<bean id="Mongo" class="com.mongodb.Mongo" destroy-method="close">
-		<!-- empty for now -->
+		<constructor-arg type="java.lang.String" value="localhost" />
 	</bean>
 </beans>

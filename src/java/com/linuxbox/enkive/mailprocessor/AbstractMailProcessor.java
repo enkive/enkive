@@ -52,6 +52,7 @@ import org.apache.james.mime4j.MimeException;
 import com.linuxbox.enkive.GeneralConstants;
 import com.linuxbox.enkive.archiver.MessageArchivingService;
 import com.linuxbox.enkive.audit.AuditService;
+import com.linuxbox.enkive.audit.AuditServiceException;
 import com.linuxbox.enkive.audit.AuditTrailException;
 import com.linuxbox.enkive.exception.BadMessageException;
 import com.linuxbox.enkive.archiver.exceptions.CannotArchiveException;
@@ -265,7 +266,7 @@ public abstract class AbstractMailProcessor implements ArchivingProcessor,
 				auditService.addEvent(AuditService.MESSAGE_ARCHIVE_FAILURE,
 						AuditService.USER_SYSTEM,
 						"Failed in pre-archival steps");
-			} catch (AuditTrailException e2) {
+			} catch (AuditServiceException e2) {
 				logger.fatal("failure to audit archiving failure", e2);
 			}
 		}
@@ -331,7 +332,7 @@ public abstract class AbstractMailProcessor implements ArchivingProcessor,
 	 * @throws AuditTrailException
 	 */
 	private void handleEmergencySaving(final String data)
-			throws FailedToEmergencySaveException, AuditTrailException {
+			throws FailedToEmergencySaveException, AuditServiceException {
 		handleEmergencySaving(data, false);
 	}
 
@@ -343,10 +344,11 @@ public abstract class AbstractMailProcessor implements ArchivingProcessor,
 	 * @param messageIsIncomplete
 	 * @throws FailedToEmergencySaveException
 	 * @throws AuditTrailException
+	 * @throws AuditServiceException 
 	 */
 	private void handleEmergencySaving(final String data,
 			boolean messageIsIncomplete) throws FailedToEmergencySaveException,
-			AuditTrailException {
+			AuditServiceException {
 		if (!data.isEmpty()) {
 			processorState = EMERGENCY_SAVING;
 			final String fileName = saveToDisk(data, messageIsIncomplete);

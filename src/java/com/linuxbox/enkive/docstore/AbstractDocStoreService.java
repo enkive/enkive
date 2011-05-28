@@ -28,7 +28,7 @@ import com.linuxbox.util.queueservice.QueueServiceException;
  * 
  */
 public abstract class AbstractDocStoreService implements DocStoreService {
-	private final static Log logger = LogFactory
+	private final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.docstore");
 
 	static final int DEFAULT_IN_MEMORY_LIMIT = 64 * 1024; // 64 KB
@@ -126,13 +126,6 @@ public abstract class AbstractDocStoreService implements DocStoreService {
 
 		byte[] inMemoryBuffer = new byte[inMemoryLimit];
 		try {
-			// create a fix-sized buffer to see if the data will fit within it
-
-			// TODO change strategy : rather than using a buffered input stream
-			// with mark/reset, which has its own buffer, use a sequence input
-			// stream to combine our buffer with the remainder of the original
-			// stream, so we only have a single buffer
-
 			InputStream originalInputStream = document
 					.getEncodedContentStream();
 
@@ -155,7 +148,6 @@ public abstract class AbstractDocStoreService implements DocStoreService {
 				final byte[] hashBytes = messageDigest.digest();
 				storeResult = storeKnownHash(document, hashBytes,
 						inMemoryBuffer, offset);
-
 			} else {
 				// could not read whole thing into fix-sized buffer, so store
 				// the document, determine its name after-the fact, and rename
@@ -206,7 +198,7 @@ public abstract class AbstractDocStoreService implements DocStoreService {
 					} catch (QueueServiceException e) {
 						// TODO should we throw an exception out or is logging
 						// the problem enough?
-						logger.error(
+						LOGGER.error(
 								"could not add removal of document to queue", e);
 					}
 				}

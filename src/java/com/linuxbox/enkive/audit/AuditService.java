@@ -1,5 +1,5 @@
 /*
- *  Copyright 2010 The Linux Box Corporation.
+ *  Copyright 2010-2011 The Linux Box Corporation.
  *
  *  This file is part of Enkive CE (Community Edition).
  *
@@ -85,15 +85,29 @@ public interface AuditService {
 	 * @param description
 	 */
 	void addEvent(int eventCode, String userIdentifier, String description)
-			throws AuditTrailException;
+			throws AuditServiceException;
 
 	void addEvent(int eventCode, String userIdentifier, String description,
-			boolean truncateDescription) throws AuditTrailException;
+			boolean truncateDescription) throws AuditServiceException;
 
-	AuditEntry getEvent(String identifer) throws AuditTrailException;
+	AuditEntry getEvent(String identifier) throws AuditServiceException;
 
-	List<AuditEntry> search(Integer eventCode, String userIdentifer,
-			Date startDate, Date endDate) throws AuditTrailException;
+	/**
+	 * Returns a list of all events that match the various criteria. Criteria
+	 * that are not searched on should be passed in as null. Note that with
+	 * respect to timestamps: startTime <= timestamp < endTime.
+	 * 
+	 * @param eventCode
+	 * @param userIdentifier
+	 * @param startTime
+	 *            a time that will be BEFORE or EQUAL to any search results
+	 * @param endTime
+	 *            a time that will be AFTER any search results
+	 * @return
+	 * @throws AuditServiceException
+	 */
+	List<AuditEntry> search(Integer eventCode, String userIdentifier,
+			Date startTime, Date endTime) throws AuditServiceException;
 
 	/**
 	 * Returns perPage entries sorted by date descending (i.e., most recent
@@ -103,16 +117,16 @@ public interface AuditService {
 	 * @param perPage
 	 * @param pagesToSkip
 	 * @return
-	 * @throws AuditTrailException
+	 * @throws AuditServiceException
 	 */
 	List<AuditEntry> getMostRecentByPage(int perPage, int pagesToSkip)
-			throws AuditTrailException;
+			throws AuditServiceException;
 
 	/**
 	 * Returns the number of audit entries in the log that can be accessed.
 	 * 
 	 * @return
-	 * @throws AuditTrailException
+	 * @throws AuditServiceException
 	 */
-	int getAuditEntryCount() throws AuditTrailException;
+	long getAuditEntryCount() throws AuditServiceException;
 }
