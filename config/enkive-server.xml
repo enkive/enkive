@@ -71,10 +71,14 @@
 
 	<bean id="PostfixFilterServer"
 		class="com.linuxbox.enkive.server.PostfixFilterServer" init-method="startServer" destroy-method="shutdownServer">
-		<constructor-arg ref="MessageArchivingService" />
-		<constructor-arg ref="AuditLogService" />
 		<constructor-arg type="int" value="2525" />
 		<constructor-arg ref="ThreadPoolServerConfiguration" />
+	</bean>
+
+	<bean id="PostfixFilterProcessor"
+		class="com.linuxbox.enkive.mailprocessor.processors.PostfixFilterProcessor" scope="prototype">
+		<property name="archiver" ref="MessageArchivingService" />
+		<property name="auditService" ref="AuditLogService" />
 	</bean>
 
 	<bean id="AuditLogService" class="com.linuxbox.enkive.audit.mongodb.MongoAuditService">

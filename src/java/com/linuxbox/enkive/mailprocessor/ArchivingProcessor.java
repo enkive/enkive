@@ -38,10 +38,6 @@ public interface ArchivingProcessor extends ThreadedProcessor {
 	 *            The socket (not ServerSocket) on which a connection has been
 	 *            established. The socket should be ready to create input and
 	 *            output streams on which to speak to an (S|L)MTP server.
-	 * @param archiver
-	 *            The archiver that will be storing the parsed and processed
-	 *            email messages into the archive.
 	 */
-	public void initializeProcessor(AbstractSocketServer server, Socket  socket,
-			MessageArchivingService archiver, AuditService auditService);
+	public void initializeProcessor(AbstractSocketServer server, Socket  socket);
 }

@@ -46,9 +46,6 @@ public abstract class ArchivingThreadPoolServer extends ThreadPoolServer
 		implements ArchivingThreadPoolServerMBean, ThreadAspects {
 	private final static Log logger = LogFactory
 			.getLog("com.linuxbox.enkive.server");
-
-	protected MessageArchivingService archiver;
-	protected AuditService auditService;
 	
 	// private Set<AbstractMailProcessor> liveProcessors = Collections
 	// .synchronizedSet(new HashSet<AbstractMailProcessor>());
@@ -57,18 +54,16 @@ public abstract class ArchivingThreadPoolServer extends ThreadPoolServer
 	private int historicMessagesProcessed;
 	private double historicMillisecondsPerMessage;
 
-	public ArchivingThreadPoolServer(MessageArchivingService archiver, AuditService auditService, String serverName, int port,
+	public ArchivingThreadPoolServer(String serverName, int port,
 			ThreadPoolServerConfiguration poolConfig) {
 		super(serverName, port, poolConfig);
-		this.archiver = archiver;
-		this.auditService = auditService;
 	}
 
-	protected ThreadedProcessor initializeProcessor(Socket sessionSocket, MessageArchivingService archiver){
+	protected ThreadedProcessor initializeProcessor(Socket sessionSocket){
 
 		ArchivingProcessor processor = createArchivingProcessor();
 
-		processor.initializeProcessor(this, sessionSocket, archiver, auditService);
+		processor.initializeProcessor(this, sessionSocket);
 
 		return processor;
 	}
@@ -78,7 +73,7 @@ public abstract class ArchivingThreadPoolServer extends ThreadPoolServer
 		// If there is space left in the queue, process the message.
 		// Otherwise, reject the message and let the client end manage it.
 		try {
-			ThreadedProcessor session = initializeProcessor(socket, archiver);
+			ThreadedProcessor session = initializeProcessor(socket);
 			threadPool.execute(session);
 		} catch (RejectedExecutionException e) {
 			socket.close();

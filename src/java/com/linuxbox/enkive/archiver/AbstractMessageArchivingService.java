@@ -9,7 +9,6 @@ import org.apache.commons.codec.binary.Hex;
 import com.linuxbox.enkive.archiver.exceptions.CannotArchiveException;
 import com.linuxbox.enkive.archiver.exceptions.MessageArchivingServiceException;
 import com.linuxbox.enkive.docstore.DocStoreService;
-import com.linuxbox.enkive.docstore.exception.DocStoreException;
 import com.linuxbox.enkive.message.Message;
 
 public abstract class AbstractMessageArchivingService implements MessageArchivingService {
@@ -22,7 +21,7 @@ public abstract class AbstractMessageArchivingService implements MessageArchivin
 
 	public void startup() throws MessageArchivingServiceException {
 		if (docStoreService == null) {
-			throw new MessageArchivingServiceException("indexer queue service not set");
+			throw new MessageArchivingServiceException("DocStore service not set");
 		}
 
 		subStartup();

@@ -22,6 +22,10 @@ package com.linuxbox.enkive.server;
 
 import java.net.Socket;
 
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+
 import com.linuxbox.enkive.archiver.MessageArchivingService;
 import com.linuxbox.enkive.audit.AuditService;
 import com.linuxbox.enkive.server.config.ThreadPoolServerConfiguration;
@@ -33,14 +37,23 @@ import com.linuxbox.enkive.mailprocessor.processors.PostfixFilterProcessor;
  * @author eric
  * 
  */
-public class PostfixFilterServer extends ArchivingThreadPoolServer {
+public class PostfixFilterServer extends ArchivingThreadPoolServer implements ApplicationContextAware {
 	
-	public PostfixFilterServer(MessageArchivingService archiver, AuditService auditService, int port, 
+	private static ApplicationContext applicationContext = null;
+	
+	public PostfixFilterServer(int port, 
 			ThreadPoolServerConfiguration threadConfiguration) {
-		super(archiver, auditService, "postfix_filter_server", port, threadConfiguration);
+		super("postfix_filter_server", port, threadConfiguration);
 	}
 
 	protected ArchivingProcessor createArchivingProcessor() {
-		return new PostfixFilterProcessor();
+		return (ArchivingProcessor) applicationContext.getBean("PostfixFilterProcessor");
+	}
+
+	@Override
+	public void setApplicationContext(ApplicationContext ctx)
+			throws BeansException {
+		PostfixFilterServer.applicationContext = ctx;
+		
 	}
 }

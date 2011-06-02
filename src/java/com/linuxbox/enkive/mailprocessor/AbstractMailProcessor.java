@@ -149,13 +149,10 @@ public abstract class AbstractMailProcessor implements ArchivingProcessor,
 	}
 
 	@Override
-	public void initializeProcessor(AbstractSocketServer server, Socket socket,
-			MessageArchivingService archiver, AuditService auditService) {
+	public void initializeProcessor(AbstractSocketServer server, Socket socket) {
 		logger.trace("in initializeProcessor");
 		this.server = server;
 		this.socket = socket;
-		this.archiver = archiver;
-		this.auditService = auditService;
 
 		closeInitiated = false;
 
@@ -512,6 +509,14 @@ public abstract class AbstractMailProcessor implements ArchivingProcessor,
 
 	public void setAuditService(AuditService auditService) {
 		this.auditService = auditService;
+	}
+
+	public MessageArchivingService getArchiver() {
+		return archiver;
+	}
+
+	public void setArchiver(MessageArchivingService archiver) {
+		this.archiver = archiver;
 	}
 
 	/**
