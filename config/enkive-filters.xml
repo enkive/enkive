@@ -1,0 +1,12 @@
+<filters 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="enkive-filters.xsd">
+	<filter enabled="false">
+		<header>X-Spam-Flag</header>
+		<value type="Text">YES</value>
+	</filter>
+	<filter enabled="false">
+		<header>X-Spam-Flag-2</header>
+		<value type="Numerical">4</value>
+	</filter>
+</filters>

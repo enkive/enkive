@@ -27,13 +27,14 @@ import java.util.concurrent.RejectedExecutionException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 
-import com.linuxbox.enkive.archiver.MessageArchivingService;
-import com.linuxbox.enkive.audit.AuditService;
-import com.linuxbox.enkive.server.config.ThreadPoolServerConfiguration;
 import com.linuxbox.enkive.mailprocessor.AbstractMailProcessor;
 import com.linuxbox.enkive.mailprocessor.ArchivingProcessor;
 import com.linuxbox.enkive.mailprocessor.ThreadedProcessor;
+import com.linuxbox.enkive.server.config.ThreadPoolServerConfiguration;
 import com.linuxbox.util.threadpool.ThreadAspects;
 
 /**
@@ -43,9 +44,11 @@ import com.linuxbox.util.threadpool.ThreadAspects;
  * 
  */
 public abstract class ArchivingThreadPoolServer extends ThreadPoolServer
-		implements ArchivingThreadPoolServerMBean, ThreadAspects {
+		implements ArchivingThreadPoolServerMBean, ThreadAspects, ApplicationContextAware{
 	private final static Log logger = LogFactory
 			.getLog("com.linuxbox.enkive.server");
+	
+	protected static ApplicationContext applicationContext = null;
 	
 	// private Set<AbstractMailProcessor> liveProcessors = Collections
 	// .synchronizedSet(new HashSet<AbstractMailProcessor>());
@@ -135,5 +138,12 @@ public abstract class ArchivingThreadPoolServer extends ThreadPoolServer
 				historicMessagesProcessed += threadMessagesProcessed;
 			}
 		}
+	}
+	
+	@Override
+	public void setApplicationContext(ApplicationContext ctx)
+			throws BeansException {
+		PostfixFilterServer.applicationContext = ctx;
+		
 	}
 }

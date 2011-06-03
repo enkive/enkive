@@ -27,9 +27,7 @@ import java.net.SocketException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.context.ApplicationContext;
 
-import com.linuxbox.enkive.archiver.MessageArchivingService;
 import com.linuxbox.enkive.mailprocessor.ThreadedProcessor;
 
 public abstract class AbstractSocketServer implements EnkiveServer {

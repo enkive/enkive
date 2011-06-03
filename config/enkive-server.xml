@@ -4,6 +4,10 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd"
 	default-init-method="startup" default-destroy-method="shutdown">
 
+	<bean id="EnkiveFilters"
+		class="com.linuxbox.enkive.filter.EnkiveFiltersBean">
+	</bean>
+
 	<bean id="DocStoreService"
 		class="com.linuxbox.enkive.docstore.mongogrid.MongoGridDocStoreService">
 		<constructor-arg ref="Mongo" />
@@ -61,17 +65,21 @@
 		class="com.linuxbox.enkive.archiver.mongodb.MongoArchivingService">
 		<constructor-arg ref="Mongo" />
 		<constructor-arg type="java.lang.String" value="${enkive.messagestore.db.name}" />
-		<constructor-arg type="java.lang.String" value="email-messages" />
+		<constructor-arg type="java.lang.String" value="${enkive.messagestore.collection.name}" />
 		<property name="docStoreService" ref="DocStoreService" />
 	</bean>
 
 	<bean id="ThreadPoolServerConfiguration"
 		class="com.linuxbox.enkive.server.config.ThreadPoolServerConfiguration">
+		<constructor-arg type="int" value="${enkive.threadServer.queueSize}" />
+		<constructor-arg type="int" value="${enkive.threadServer.corePoolSize}" />
+		<constructor-arg type="int" value="${enkive.threadServer.maxPoolSize}" />
+		<constructor-arg type="long" value="${enkive.threadServer.keepAliveTime}" />
 	</bean>
 
 	<bean id="PostfixFilterServer"
 		class="com.linuxbox.enkive.server.PostfixFilterServer" init-method="startServer" destroy-method="shutdownServer">
-		<constructor-arg type="int" value="2525" />
+		<constructor-arg type="int" value="${enkive.server.postfix.port}" />
 		<constructor-arg ref="ThreadPoolServerConfiguration" />
 	</bean>
 
@@ -79,6 +87,9 @@
 		class="com.linuxbox.enkive.mailprocessor.processors.PostfixFilterProcessor" scope="prototype">
 		<property name="archiver" ref="MessageArchivingService" />
 		<property name="auditService" ref="AuditLogService" />
+		<property name="enkiveFilters" ref="EnkiveFilters" />
+		<property name="emergencySaveRoot" value="${enkive.messagestore.emergencysave.root}" />
+		<property name="jmxEnabled" value="${enkive.jmx.enabled}" />
 	</bean>
 
 	<bean id="AuditLogService" class="com.linuxbox.enkive.audit.mongodb.MongoAuditService">

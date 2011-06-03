@@ -51,16 +51,16 @@ import org.apache.james.mime4j.MimeException;
 
 import com.linuxbox.enkive.GeneralConstants;
 import com.linuxbox.enkive.archiver.MessageArchivingService;
+import com.linuxbox.enkive.archiver.exceptions.CannotArchiveException;
+import com.linuxbox.enkive.archiver.exceptions.MessageArchivingServiceException;
 import com.linuxbox.enkive.audit.AuditService;
 import com.linuxbox.enkive.audit.AuditServiceException;
 import com.linuxbox.enkive.audit.AuditTrailException;
 import com.linuxbox.enkive.exception.BadMessageException;
-import com.linuxbox.enkive.archiver.exceptions.CannotArchiveException;
-import com.linuxbox.enkive.archiver.exceptions.MessageArchivingServiceException;
 import com.linuxbox.enkive.exception.CannotTransferMessageContentException;
 import com.linuxbox.enkive.exception.SocketClosedException;
 import com.linuxbox.enkive.exception.UninitializedMailProcessorException;
-import com.linuxbox.enkive.filter.EnkiveFilter;
+import com.linuxbox.enkive.filter.EnkiveFiltersBean;
 import com.linuxbox.enkive.message.Message;
 import com.linuxbox.enkive.message.MessageImpl;
 import com.linuxbox.enkive.server.AbstractSocketServer;
@@ -83,7 +83,11 @@ public abstract class AbstractMailProcessor implements ArchivingProcessor,
 	protected AbstractSocketServer server;
 	protected MessageArchivingService archiver;
 	protected AuditService auditService;
-
+	
+	protected EnkiveFiltersBean enkiveFilters;
+	protected String emergencySaveRoot;
+	protected boolean jmxEnabled = false;
+	
 	private boolean closeInitiated;
 	private boolean initialized;
 	protected boolean multiMessage = false;
@@ -174,11 +178,6 @@ public abstract class AbstractMailProcessor implements ArchivingProcessor,
 		}
 
 		initialized = true;
-	}
-
-	private boolean isJmxEnabled() {
-		// TODO Auto-generated method stub
-		return false;
 	}
 
 	public void initiateStop() {
@@ -443,9 +442,12 @@ public abstract class AbstractMailProcessor implements ArchivingProcessor,
 		}
 	}
 
-	private String getEmergencySaveRoot() {
-		// TODO Auto-generated method stub
-		return "/tmp";
+	public String getEmergencySaveRoot() {
+		return emergencySaveRoot;
+	}
+	
+	public void setEmergencySaveRoot(String emergencySaveRoot) {
+		this.emergencySaveRoot = emergencySaveRoot;
 	}
 
 	private Message createMessage(String data) throws IOException,
@@ -464,28 +466,12 @@ public abstract class AbstractMailProcessor implements ArchivingProcessor,
 
 	private void archiveMessage(Message message) throws IOException,
 			CannotArchiveException {
-		boolean archiveMessage = true;
-
-		for (EnkiveFilter filter : getFilters()) {
-			try {
-				String value = message.getParsedHeader().getField(
-						filter.getHeader()).getBody().toString().trim();
-				archiveMessage = filter.filter(value);
-			} catch (Exception e) {
-				// do nothing
-			}
-
-			if (archiveMessage == false) {
-				logger.trace("Message " + message.getMessageId()
-						+ " did not pass filter " + filter.getHeader());
-				break;
-			}
-		}
+		boolean archiveMessage = enkiveFilters.filterMessage(message);
 
 		if (archiveMessage) {
 			String messageUUID = archiver.storeOrFindMessage(message);
 				logger.info("Message: " + message.getCleanMessageId()
-						+ " successfully archived");
+						+ " successfully archived with UUID " + messageUUID);
 				messageSaved = true;
 		} else {
 			logger.info("Message Rejected:" + message.getMessageId()
@@ -493,15 +479,10 @@ public abstract class AbstractMailProcessor implements ArchivingProcessor,
 			messageSaved = true;
 		}
 	}
-
-	private EnkiveFilter[] getFilters() {
-		// TODO Auto-generated method stub
-		return new EnkiveFilter[0];
+	
+	public void setEnkiveFilters(EnkiveFiltersBean filters){
+		enkiveFilters = filters;
 	}
-
-	/*
-	 * Subclass API
-	 */
 
 	public AuditService getAuditService() {
 		return auditService;
@@ -518,6 +499,18 @@ public abstract class AbstractMailProcessor implements ArchivingProcessor,
 	public void setArchiver(MessageArchivingService archiver) {
 		this.archiver = archiver;
 	}
+
+	public boolean isJmxEnabled() {
+		return jmxEnabled;
+	}
+	
+	public void setJmxEnabled(boolean jmxEnabled) {
+		this.jmxEnabled = jmxEnabled;
+	}
+	
+	/*
+	 * Subclass API
+	 */
 
 	/**
 	 * Prepares the processor. The processor may, for example, want to create an

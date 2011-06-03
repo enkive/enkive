@@ -35,13 +35,12 @@ public class ThreadPoolServerConfiguration {
 	}
 
 	public ThreadPoolServerConfiguration(int queueSize, int corePoolSize,
-			int maximumPoolSize, long keepAliveTime, TimeUnit timeUnit) {
+			int maximumPoolSize, long keepAliveTime) {
 		super();
 		this.queueSize = queueSize;
 		this.corePoolSize = corePoolSize;
 		this.maximumPoolSize = maximumPoolSize;
 		this.keepAliveTime = keepAliveTime;
-		this.timeUnit = timeUnit;
 	}
 
 	public int getCorePoolSize() {

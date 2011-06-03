@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+<!-- definition of simple elements -->
+<xs:element name="header" type="xs:string"/>
+
+<!-- definition of attributes -->
+<xs:attribute name="type">
+	<xs:simpleType>
+	    <xs:restriction base="xs:string">
+	      <xs:enumeration value="Text"/>
+	      <xs:enumeration value="Numerical"/>
+	    </xs:restriction>
+    </xs:simpleType>
+</xs:attribute>
+
+<!-- definition of complex elements -->
+<xs:element name="value">
+	<xs:complexType>
+	    <xs:simpleContent>
+	      <xs:extension base="xs:string">
+			<xs:attribute ref="type" use="required"/>
+	      </xs:extension>
+	    </xs:simpleContent>
+	</xs:complexType>
+</xs:element>
+
+<xs:element name="filter">
+  <xs:complexType>
+    <xs:sequence>
+      <xs:element ref="header"/>
+      <xs:element ref="value"/>
+    </xs:sequence>
+  <xs:attribute name="enabled" type="xs:boolean" use="required"/>
+  </xs:complexType>
+</xs:element>
+
+<xs:element name="filters">
+  <xs:complexType>
+    <xs:sequence>
+      <xs:element ref="filter" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+</xs:element>
+
+</xs:schema>
