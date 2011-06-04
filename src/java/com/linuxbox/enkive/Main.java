@@ -23,8 +23,7 @@ public class Main {
 			.getLog("com.linuxbox.enkive");
 
 	static final String CONSOLE_PROMPT = "enkive> ";
-	static final String[] CONFIG_FILES = { "enkive-properties.xml",
-			"enkive-server.xml" };
+	static final String[] CONFIG_FILES = { "jetty-server.xml" };
 	private static final String USER = AuditService.USER_SYSTEM;
 	private static final String DESCRIPTION = "com.linuxbox.enkive.Main.main";
 
@@ -76,10 +75,12 @@ public class Main {
 			auditService.addEvent(AuditService.SYSTEM_SHUTDOWN, USER,
 					DESCRIPTION);
 		} catch (IOException e) {
-			shutdownReason = "received I/O exception on console: " + e.getMessage();
+			shutdownReason = "received I/O exception on console: "
+					+ e.getMessage();
 			LOGGER.error(shutdownReason, e);
 		} catch (AuditServiceException e) {
-			shutdownReason = "received AuditServiceException: " + e.getMessage();
+			shutdownReason = "received AuditServiceException: "
+					+ e.getMessage();
 			LOGGER.error(shutdownReason, e);
 		}
 
