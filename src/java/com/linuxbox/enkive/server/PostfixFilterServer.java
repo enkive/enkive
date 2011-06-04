@@ -1,5 +1,5 @@
 /*
- *  Copyright 2010 The Linux Box Corporation.
+ *  Copyright 2011 The Linux Box Corporation.
  *
  *  This file is part of Enkive CE (Community Edition).
  *
@@ -29,13 +29,15 @@ import com.linuxbox.enkive.server.config.ThreadPoolServerConfiguration;
  * 
  */
 public class PostfixFilterServer extends ArchivingThreadPoolServer {
-	
-	public PostfixFilterServer(int port, 
+	public PostfixFilterServer(int port,
 			ThreadPoolServerConfiguration threadConfiguration) {
 		super("postfix_filter_server", port, threadConfiguration);
 	}
 
 	protected ArchivingProcessor createArchivingProcessor() {
-		return (ArchivingProcessor) applicationContext.getBean("PostfixFilterProcessor");
+		// TODO hard-coded constant name should not appear below; make a final
+		// constant some place
+		return (ArchivingProcessor) applicationContext
+				.getBean("PostfixFilterProcessor");
 	}
 }
