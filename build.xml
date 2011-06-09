@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="Enkive Email Archiver" default="package" basedir=".">
+
+	<property name="project.dir" value="." />
+	<property name="label" value="enkive" />
+	<property name="project.name" value="enkive" />
+	<property name="build.dir" value="${project.dir}/build" />
+	<property name="bin.dir" value="${project.dir}/bin" />
+	<property name="contrib.bin.dir" value="${project.dir}/bin" />
+	<property name="source.dir" value="${project.dir}/src" />
+	<property name="config.dir" value="${project.dir}/config" />
+	<property name="lib.dir" value="${project.dir}/lib" />
+	<property name="contrib.dir" value="${project.dir}/contrib" />
+	<property name="package.file.jar" value="${build.dir}/${project.name}.jar" />
+	<property name="package.file.zip" value="${build.dir}/${project.name}.zip" />
+		
+		
+	<path id="classpath.lib">
+		<fileset dir="${lib.dir}" includes="**/*.jar" />
+	</path>
+	
+	<path id="contribpath.lib">
+		<fileset dir="${contrib.dir}/java" />
+	</path>
+	
+	<target name="clean" description="Removes all generated files">
+		<delete dir="${build.dir}" />
+		<delete dir="${bin.dir}" />
+	</target>
+
+	<target name="setup" description="Creates the ${build.dir} and ${bin.dir} directories">
+		<mkdir dir="${build.dir}" />
+		<mkdir dir="${bin.dir}" />
+	</target>
+	
+	<target name="compile" depends="setup" description="Compiles src to ${bin.dir}">
+		<mkdir dir="${bin.dir}" />
+		<javac srcdir="${source.dir}/java; ${contrib.dir}/java" destdir="${bin.dir}"  
+			source="1.5" target="1.5" debug="on" fork="yes" deprecation="on">
+			<classpath refid="classpath.lib" />
+			<exclude name="${contrib.dir}/java" />
+		</javac>
+		<javac srcdir="${contrib.dir}/java" destdir="${contrib.bin.dir}" source="1.5" target="1.5" debug="on" fork="yes" deprecation="on">
+		</javac>
+		<!-- copy in non-compiled files like props if needed -->
+		<copy todir="${bin.dir}">
+			<fileset dir="${source.dir}/java" excludes="**/*.java" />
+		</copy>
+	</target>
+	
+	<target name="package-jar" depends="compile" description="Jars up the compiled classes into ${package.file.jar}">
+		<delete file="${package.file.jar}" />
+		<jar destfile="${package.file.jar}">
+			<fileset dir="${bin.dir}" includes="com/**" />
+			<fileset dir="${bin.dir}" includes="name/**" />
+		</jar>
+	</target>
+	
+	<target name="package" depends="package-jar" description="Creates a zip called ${package.file.zip} ">
+
+		<delete file="${package.file.zip}" />
+		<zip destfile="${package.file.zip}" update="true">
+			<zipfileset file="${package.file.jar}" prefix="${label}" />
+			<zipfileset dir="${config.dir}" prefix="${label}/config" />
+			<zipfileset dir="${lib.dir}" prefix="${label}/lib" excludes="src/**, javadoc/**" />
+		</zip>
+	</target>
+	
+</project>
