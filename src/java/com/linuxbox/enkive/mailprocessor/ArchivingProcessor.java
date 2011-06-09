@@ -22,8 +22,6 @@ package com.linuxbox.enkive.mailprocessor;
 
 import java.net.Socket;
 
-import com.linuxbox.enkive.archiver.MessageArchivingService;
-import com.linuxbox.enkive.audit.AuditService;
 import com.linuxbox.enkive.server.AbstractSocketServer;
 
 public interface ArchivingProcessor extends ThreadedProcessor {
