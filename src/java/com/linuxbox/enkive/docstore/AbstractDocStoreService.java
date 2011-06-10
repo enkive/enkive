@@ -110,12 +110,16 @@ public abstract class AbstractDocStoreService implements DocStoreService {
 
 	@Override
 	public StoreRequestResult store(Document document) throws DocStoreException {
+		StoreRequestResult storeResult = null;
+
 		MessageDigest messageDigest = null;
 		try {
 			messageDigest = MessageDigest.getInstance(HASH_ALGORITHM);
 		} catch (NoSuchAlgorithmException e) {
 			throw new DocStoreException(e);
 		}
+
+		final long startTime = System.currentTimeMillis();
 
 		// begin the hash calculation using the mime type, file extension, and
 		// binary encoding, so if the same data comes in but is claimed to be a
@@ -141,7 +145,6 @@ public abstract class AbstractDocStoreService implements DocStoreService {
 				}
 			} while (result >= 0 && offset < inMemoryLimit);
 
-			StoreRequestResult storeResult;
 			if (result < 0) {
 				// was able to read whole thing in and offset indicates length
 				messageDigest.update(inMemoryBuffer, 0, offset);
@@ -179,6 +182,16 @@ public abstract class AbstractDocStoreService implements DocStoreService {
 			throw new DocStoreException(e);
 		} catch (QueueServiceException e) {
 			throw new DocStoreException("could not add index event to queue");
+		} finally {
+			if (LOGGER.isTraceEnabled()) {
+				final long endTime = System.currentTimeMillis();
+				LOGGER.trace("TIMING: "
+						+ (endTime - startTime)
+						+ " ms to "
+						+ (storeResult.getAlreadyStored() ? "determine already stored document "
+								: "store document ")
+						+ storeResult.getIdentifier());
+			}
 		}
 	}
 
