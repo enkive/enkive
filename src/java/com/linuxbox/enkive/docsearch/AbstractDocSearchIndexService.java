@@ -1,5 +1,8 @@
 package com.linuxbox.enkive.docsearch;
 
+import static com.linuxbox.enkive.docstore.DocStoreConstants.QUEUE_ENTRY_INDEX_DOCUMENT;
+import static com.linuxbox.enkive.docstore.DocStoreConstants.QUEUE_ENTRY_REMOVE_DOCUMENT;
+
 import java.util.Collection;
 
 import org.apache.commons.logging.Log;
@@ -84,6 +87,8 @@ public abstract class AbstractDocSearchIndexService implements
 						break;
 					}
 
+					final long startTime = System.currentTimeMillis();
+
 					documentId = entry.getIdentifier();
 
 					Integer note;
@@ -94,7 +99,7 @@ public abstract class AbstractDocSearchIndexService implements
 					}
 
 					switch (note) {
-					case DocStoreConstants.QUEUE_ENTRY_INDEX_DOCUMENT:
+					case QUEUE_ENTRY_INDEX_DOCUMENT:
 						try {
 							doIndexDocument(documentId);
 						} catch (Exception e) {
@@ -103,7 +108,7 @@ public abstract class AbstractDocSearchIndexService implements
 							error = true;
 						}
 						break;
-					case DocStoreConstants.QUEUE_ENTRY_REMOVE_DOCUMENT:
+					case QUEUE_ENTRY_REMOVE_DOCUMENT:
 						try {
 							doRemoveDocument(documentId);
 						} catch (Exception e) {
@@ -127,6 +132,16 @@ public abstract class AbstractDocSearchIndexService implements
 					} catch (QueueServiceException e) {
 						LOGGER.error("could note finalize indexer queue entry (\""
 								+ documentId + "\" / " + note + ")");
+					} finally {
+						if (LOGGER.isTraceEnabled()) {
+							final long endTime = System.currentTimeMillis();
+							LOGGER.trace("TIMING: "
+									+ (endTime - startTime)
+									+ " ms to "
+									+ (note == QUEUE_ENTRY_INDEX_DOCUMENT ? "index "
+											: "de-index ") + documentId
+									+ (error ? " w/ ERROR" : ""));
+						}
 					}
 				} // inner while loop
 
