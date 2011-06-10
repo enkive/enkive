@@ -163,7 +163,7 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 	protected StoreRequestResult storeKnownHash(Document document, byte[] hash,
 			byte[] data, int length) throws DocStoreException {
 		try {
-			final String identifier = getFileNameFromHash(hash);
+			final String identifier = getIdentifierFromHash(hash);
 			final int shardKey = getShardIndexFromHash(hash);
 
 			if (!documentLockingService.lockWithRetries(identifier,
@@ -176,7 +176,8 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 
 			try {
 				if (fileExists(identifier)) {
-					return new StoreRequestResultImpl(identifier, true);
+					return new StoreRequestResultImpl(identifier, true,
+							shardKey);
 				}
 
 				GridFSInputFile newFile = gridFS
@@ -191,7 +192,7 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 							"file saved to GridFS did not validate", e);
 				}
 
-				return new StoreRequestResultImpl(identifier, false);
+				return new StoreRequestResultImpl(identifier, false, shardKey);
 			} finally {
 				documentLockingService.releaseLock(identifier);
 			}
@@ -224,28 +225,26 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 		}
 
 		final byte[] actualHash = inputStream.getDigest();
-		final String actualName = getFileNameFromHash(actualHash);
+		final String actualName = getIdentifierFromHash(actualHash);
 		final int shardKey = getShardIndexFromHash(actualHash);
 
 		try {
-			if (!documentLockingService.lock(actualName,
-					DocStoreConstants.LOCK_TO_STORE)) {
+			if (!documentLockingService.lockWithRetries(actualName,
+					DocStoreConstants.LOCK_TO_STORE, LOCK_RETRIES,
+					LOCK_RETRY_DELAY_MILLISECONDS)) {
 				gridFS.remove((ObjectId) newFile.getId());
-
-				// TODO: is there anything we should do at this point to insure
-				// that it's actually been removed?
-
-				return new StoreRequestResultImpl(actualName, true);
+				throw new DocStoreException(
+						"could not acquire lock to store document \""
+								+ actualName + "\"");
 			}
 
 			// so now we're in "control" of that file
 
 			try {
-				// so now we're in "control" of that file
-
 				if (fileExists(actualName)) {
 					gridFS.remove(temporaryName);
-					return new StoreRequestResultImpl(actualName, true);
+					return new StoreRequestResultImpl(actualName, true,
+							shardKey);
 				} else {
 					final boolean wasRenamed = setFileNameAndShardKey(
 							newFile.getId(), actualName, shardKey);
@@ -255,7 +254,8 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 										+ newFile.getId()
 										+ "\" but could not find it");
 					}
-					return new StoreRequestResultImpl(actualName, false);
+					return new StoreRequestResultImpl(actualName, false,
+							shardKey);
 				}
 			} finally {
 				documentLockingService.releaseLock(actualName);
@@ -305,11 +305,10 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 		try {
 			if (!documentLockingService.lock(identifier,
 					DocStoreConstants.LOCK_TO_REMOVE)) {
-				// TODO if we're here and someone else was trying to delete or
-				// create this, then we should do nothing; the file either
-				// needed to
-				// be recreated, or it was already removed; let's lie and say we
-				// succeeded!
+				// TODO VERIFY: if we're here and someone else was trying to
+				// delete or create this, then we should do nothing; the file
+				// either needed to be recreated, or it was already removed;
+				// let's lie and say we succeeded!
 				return true;
 			}
 

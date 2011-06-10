@@ -36,10 +36,10 @@ public class MongoQueueServiceTest {
 	@AfterClass
 	public static void tearDownAfterClass() throws Exception {
 		service.shutdown();
-		
+
 		DB db = mongo.getDB(DB_NAME);
 		db.dropDatabase();
-		
+
 		mongo.close();
 	}
 
@@ -59,11 +59,11 @@ public class MongoQueueServiceTest {
 	public void testEnqueueWithNotes() throws Exception {
 		Date now = new Date();
 
-		service.enqueue("foo", 3);
+		service.enqueue("foo", 200, 3);
 		Thread.sleep(1001);
-		service.enqueue("bar", 3.14);
+		service.enqueue("bar", 300, 3.14);
 		Thread.sleep(1001);
-		service.enqueue("bar", now);
+		service.enqueue("bar", -400, now);
 
 		QueueEntry entry1 = service.dequeue();
 		assertNotNull(entry1);
@@ -121,11 +121,11 @@ public class MongoQueueServiceTest {
 	public void testDequeueWithIdentifier() throws Exception {
 		Date now = new Date();
 
-		service.enqueue("foo", 3);
+		service.enqueue("foo", 200, 3);
 		Thread.sleep(1001);
-		service.enqueue("bar", 3.14);
+		service.enqueue("bar", -300, 3.14);
 		Thread.sleep(1001);
-		service.enqueue("bar", now);
+		service.enqueue("bar", 400, now);
 
 		QueueEntry entry2 = service.dequeue("bar");
 		assertNotNull(entry2);
@@ -143,7 +143,7 @@ public class MongoQueueServiceTest {
 		assertTrue(entry3.getNote() instanceof Date);
 		assertEquals((Date) entry3.getNote(), now);
 		Date entry3At = entry3.getEnqueuedAt();
-		
+
 		QueueEntry entry4 = service.dequeue("bar");
 		assertNull(entry4);
 
@@ -153,16 +153,16 @@ public class MongoQueueServiceTest {
 		assertTrue(entry1.getNote() instanceof Integer);
 		assertEquals((Integer) entry1.getNote(), (Integer) 3);
 		Date entry1At = entry1.getEnqueuedAt();
-		
+
 		QueueEntry entry5 = service.dequeue();
 		assertNull(entry5);
 
 		// finish them in whatever order
-		
+
 		service.finishEntry(entry1);
 		service.finishEntry(entry2);
 		service.finishEntry(entry3);
-		
+
 		assertTrue(entry1At.compareTo(entry2At) < 0);
 		assertTrue(entry2At.compareTo(entry3At) < 0);
 	}

@@ -10,6 +10,7 @@ import org.apache.commons.logging.LogFactory;
 
 import com.linuxbox.enkive.docsearch.contentanalyzer.ContentAnalyzer;
 import com.linuxbox.enkive.docsearch.exception.DocSearchException;
+import com.linuxbox.enkive.docstore.AbstractDocStoreService;
 import com.linuxbox.enkive.docstore.DocStoreConstants;
 import com.linuxbox.enkive.docstore.DocStoreService;
 import com.linuxbox.enkive.docstore.exception.DocStoreException;
@@ -254,7 +255,8 @@ public abstract class AbstractDocSearchIndexService implements
 	public final void indexDocument(String identifier)
 			throws DocSearchException {
 		try {
-			indexerQueueService.enqueue(identifier,
+			indexerQueueService.enqueue(identifier, AbstractDocStoreService
+					.getShardIndexFromIdentifier(identifier),
 					DocStoreConstants.QUEUE_ENTRY_INDEX_DOCUMENT);
 		} catch (QueueServiceException e) {
 			throw new DocSearchException("could not add indexing of \""
@@ -273,7 +275,8 @@ public abstract class AbstractDocSearchIndexService implements
 	@Override
 	public void removeDocument(String identifier) throws DocSearchException {
 		try {
-			indexerQueueService.enqueue(identifier,
+			indexerQueueService.enqueue(identifier, AbstractDocStoreService
+					.getShardIndexFromIdentifier(identifier),
 					DocStoreConstants.QUEUE_ENTRY_REMOVE_DOCUMENT);
 		} catch (QueueServiceException e) {
 			throw new DocSearchException("could not add removal of \""

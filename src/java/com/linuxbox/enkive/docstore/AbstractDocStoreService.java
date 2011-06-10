@@ -174,6 +174,7 @@ public abstract class AbstractDocStoreService implements DocStoreService {
 
 			if (!storeResult.getAlreadyStored()) {
 				indexerQueueService.enqueue(storeResult.getIdentifier(),
+						storeResult.getShardKey(),
 						DocStoreConstants.QUEUE_ENTRY_INDEX_DOCUMENT);
 			}
 
@@ -199,6 +200,7 @@ public abstract class AbstractDocStoreService implements DocStoreService {
 	public boolean removeWithRetries(String identifier, int numberOfAttempts,
 			int millisecondsBetweenRetries) throws DocStoreException {
 		DocStoreException lastException = null;
+		final int shardKey = getShardIndexFromIdentifier(identifier);
 
 		for (int i = 0; i < numberOfAttempts; i++) {
 			try {
@@ -206,7 +208,7 @@ public abstract class AbstractDocStoreService implements DocStoreService {
 
 				if (result) {
 					try {
-						indexerQueueService.enqueue(identifier,
+						indexerQueueService.enqueue(identifier, shardKey,
 								DocStoreConstants.QUEUE_ENTRY_REMOVE_DOCUMENT);
 					} catch (QueueServiceException e) {
 						// TODO should we throw an exception out or is logging
@@ -289,9 +291,11 @@ public abstract class AbstractDocStoreService implements DocStoreService {
 	 * @param shardKeyHigh
 	 * @return
 	 */
+	@Deprecated
 	protected abstract String nextUnindexedByShardKey(int shardKeyLow,
 			int shardKeyHigh);
 
+	@Deprecated
 	@Override
 	public String nextUnindexed(int serverNumber, int serverCount) {
 		final float perServer = (float) INDEX_SHARD_KEY_COUNT / serverCount;
@@ -302,7 +306,7 @@ public abstract class AbstractDocStoreService implements DocStoreService {
 
 	/**
 	 * Returns a shard key in the range of 0-255 (unsigned byte). It converts
-	 * the first byte of the hash into an unsigned byte value.
+	 * the first two bytes of the hash into an unsigned byte value.
 	 * 
 	 * @param hash
 	 * @return
@@ -312,13 +316,39 @@ public abstract class AbstractDocStoreService implements DocStoreService {
 		return key < 0 ? INDEX_SHARD_KEY_COUNT + key : key;
 	}
 
+	protected static int getHexValue(char c) {
+		if (c >= '0' && c <= '9') {
+			return c - '0';
+		} else if (c >= 'a' && c <= 'f') {
+			return c - 'a' + 10;
+		} else if (c >= 'A' && c <= 'F') {
+			return c - 'A' + 10;
+		} else {
+			return -1;
+		}
+	}
+
+	public static int getShardIndexFromIdentifier(String id) {
+		final char c1 = id.charAt(0);
+		final char c2 = id.charAt(1);
+		final char c3 = id.charAt(2);
+		final char c4 = id.charAt(3);
+		
+		final int i1 = getHexValue(c1);
+		final int i2 = getHexValue(c2);
+		final int i3 = getHexValue(c3);
+		final int i4 = getHexValue(c4);
+
+		return (i1 << 12) + (i2 << 8) + (i3 << 4) + i4;
+	}
+
 	/**
 	 * Returns a string representation of an array of bytes.
 	 * 
 	 * @param hash
 	 * @return
 	 */
-	protected static String getFileNameFromHash(byte[] hash) {
+	public static String getIdentifierFromHash(byte[] hash) {
 		return new String((new Hex()).encode(hash));
 	}
 

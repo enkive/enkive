@@ -51,6 +51,7 @@ public class MongoQueueService implements QueueService {
 	private static final String CREATED_AT_FIELD = "createdAt";
 	private static final String DEQUEUED_AT_FIELD = "dequeuedAt";
 	private static final String IDENTIFIER_FIELD = "identifier";
+	private static final String SHARD_KEY_FIELD = "shard";
 	private static final String NOTE_FIELD = "note";
 
 	private static final int STATUS_ENQUEUED = 1;
@@ -140,20 +141,22 @@ public class MongoQueueService implements QueueService {
 
 	@Override
 	public void enqueue(String identifier) throws QueueServiceException {
-		enqueue(identifier, null);
+		enqueue(identifier, -1, null);
 	}
 
 	@Override
-	public void enqueue(String identifier, Object note)
+	public void enqueue(String identifier, int shardKey, Object note)
 			throws QueueServiceException {
 		final DBObject entry = new BasicDBObject(CREATED_AT_FIELD,
 				new BSONTimestamp()).append(STATUS_FIELD, STATUS_ENQUEUED)
-				.append(IDENTIFIER_FIELD, identifier).append(NOTE_FIELD, note);
+				.append(IDENTIFIER_FIELD, identifier)
+				.append(SHARD_KEY_FIELD, shardKey).append(NOTE_FIELD, note);
 		WriteResult result = queueCollection.insert(entry);
 		if (!result.getLastError().ok()) {
 			throw new QueueServiceException("could not enqueue \"" + identifier
-					+ "\" (note: \"" + note.toString() + "\")", result
-					.getLastError().getException());
+					+ "\" (shard: \"" + shardKey + "\"; note: \""
+					+ note.toString() + "\")", result.getLastError()
+					.getException());
 		}
 	}
 
@@ -164,6 +167,14 @@ public class MongoQueueService implements QueueService {
 
 	@Override
 	public QueueEntry dequeue(String identifer) throws QueueServiceException {
+		final BasicDBObject query = new BasicDBObject();
+		query.putAll(QUERY_ENQUEUED_STATUS);
+		query.append(IDENTIFIER_FIELD, identifer);
+		return dequeueHelper(query);
+	}
+	
+	@Override
+	public QueueEntry dequeueByShardKey(int server, int serverCount) throws QueueServiceException {
 		final BasicDBObject query = new BasicDBObject();
 		query.putAll(QUERY_ENQUEUED_STATUS);
 		query.append(IDENTIFIER_FIELD, identifer);
