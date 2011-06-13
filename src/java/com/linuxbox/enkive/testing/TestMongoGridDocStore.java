@@ -14,10 +14,12 @@ import lemurproject.indri.IndexStatus;
 
 import org.apache.james.mime4j.util.MimeUtil;
 
+import com.linuxbox.enkive.docsearch.AbstractDocSearchIndexService;
 import com.linuxbox.enkive.docsearch.contentanalyzer.tika.TikaContentAnalyzer;
 import com.linuxbox.enkive.docsearch.exception.DocSearchException;
 import com.linuxbox.enkive.docsearch.indri.IndriDocSearchIndexService;
 import com.linuxbox.enkive.docsearch.indri.IndriDocSearchQueryService;
+import com.linuxbox.enkive.docstore.AbstractDocStoreService;
 import com.linuxbox.enkive.docstore.Document;
 import com.linuxbox.enkive.docstore.FileSystemDocument;
 import com.linuxbox.enkive.docstore.StoreRequestResult;
@@ -295,8 +297,8 @@ public class TestMongoGridDocStore {
 				docIndexService.setDocumentLockingService(docStoreService
 						.getDocumentLockingService());
 			}
-			docIndexService.setShardingHelper(ShardingHelper
-					.createWithBitCount(16, 1));
+			docIndexService.setShardingHelper(AbstractDocStoreService
+					.createShardingHelper(1));
 			docIndexService.setShardIndex(0);
 			docIndexService.startup();
 

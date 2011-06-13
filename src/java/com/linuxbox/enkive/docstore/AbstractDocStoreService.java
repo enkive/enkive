@@ -13,6 +13,7 @@ import org.apache.commons.logging.LogFactory;
 
 import com.linuxbox.enkive.docstore.exception.DocStoreException;
 import com.linuxbox.util.HashingInputStream;
+import com.linuxbox.util.ShardingHelper;
 import com.linuxbox.util.queueservice.QueueService;
 import com.linuxbox.util.queueservice.QueueServiceException;
 
@@ -333,7 +334,7 @@ public abstract class AbstractDocStoreService implements DocStoreService {
 		final char c2 = id.charAt(1);
 		final char c3 = id.charAt(2);
 		final char c4 = id.charAt(3);
-		
+
 		final int i1 = getHexValue(c1);
 		final int i2 = getHexValue(c2);
 		final int i3 = getHexValue(c3);
@@ -358,5 +359,16 @@ public abstract class AbstractDocStoreService implements DocStoreService {
 
 	public void setIndexerQueueService(QueueService indexerQueueService) {
 		this.indexerQueueService = indexerQueueService;
+	}
+
+	/**
+	 * Factory method so we can make use of local knowledge about how the
+	 * indexing is sharded.
+	 * 
+	 * @param shardCount
+	 * @return
+	 */
+	public static ShardingHelper createShardingHelper(int shardCount) {
+		return new ShardingHelper(INDEX_SHARD_KEY_COUNT, shardCount);
 	}
 }

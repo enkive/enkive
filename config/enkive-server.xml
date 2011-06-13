@@ -37,8 +37,9 @@
 			value="${enkive.docsearch.index.indri.queryRefreshingInterval}" />
 		<property name="documentLockingService" ref="DocLockService" />
 
-		<!-- Control Sharding -->
+		<!-- control index sharding -->
 		<property name="shardingHelper" ref="IndexShardingHelper" />
+		<!-- NOTE: to turn off indexing, change the value below from 0 to -1 -->
 		<property name="shardIndex" value="0" />
 	</bean>
 
@@ -116,9 +117,8 @@
 		<constructor-arg type="java.lang.String" value="localhost" />
 	</bean>
 
-	<bean id="IndexShardingHelper" class="com.linuxbox.util.ShardingHelper"
-		factory-method="createWithBitCount">
-		<constructor-arg value="${enkive.docsearch.index.shard.bits}" />
+	<bean id="IndexShardingHelper" class="com.linuxbox.enkive.docstore.AbstractDocStoreService"
+		factory-method="createShardingHelper">
 		<constructor-arg value="${enkive.docsearch.index.shard.count}" />
 	</bean>
 </beans>
