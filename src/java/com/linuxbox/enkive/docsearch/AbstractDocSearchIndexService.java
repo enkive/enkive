@@ -15,6 +15,7 @@ import com.linuxbox.enkive.docstore.DocStoreConstants;
 import com.linuxbox.enkive.docstore.DocStoreService;
 import com.linuxbox.enkive.docstore.exception.DocStoreException;
 import com.linuxbox.util.InterruptableSleeper;
+import com.linuxbox.util.ShardingHelper;
 import com.linuxbox.util.queueservice.QueueEntry;
 import com.linuxbox.util.queueservice.QueueService;
 import com.linuxbox.util.queueservice.QueueServiceException;
@@ -70,6 +71,8 @@ public abstract class AbstractDocSearchIndexService implements
 		}
 
 		public void run() {
+			final ShardingHelper.Range shardRange = shardingHelper
+					.getRange(shardIndex);
 			status = Status.RUNNING;
 			sleeper.start();
 
@@ -79,7 +82,8 @@ public abstract class AbstractDocSearchIndexService implements
 					boolean error = false;
 					QueueEntry entry;
 					try {
-						entry = indexerQueueService.dequeue();
+						entry = indexerQueueService.dequeueByShardKey(
+								shardRange.getLow(), shardRange.getHigh());
 						if (entry == null) {
 							break;
 						}
@@ -170,6 +174,10 @@ public abstract class AbstractDocSearchIndexService implements
 
 	private QueueService indexerQueueService;
 
+	private ShardingHelper shardingHelper;
+
+	private Integer shardIndex;
+
 	/**
 	 * In MILLISECONDS, although the API exposes it as SECONDS for convenience
 	 * from the outside; non-positive values indicate that there is no automated
@@ -196,6 +204,14 @@ public abstract class AbstractDocSearchIndexService implements
 		this.unindexedDocRePollInterval = -1;
 	}
 
+	/**
+	 * 
+	 * @param service
+	 * @param analyzer
+	 * @param unindexedDocSearchInterval
+	 *            number of MILLISECONDS to wait after a polling could not find
+	 *            any un-indexed documents before polling again.
+	 */
 	public AbstractDocSearchIndexService(DocStoreService service,
 			ContentAnalyzer analyzer, int unindexedDocSearchInterval) {
 		this(service, analyzer);
@@ -221,6 +237,14 @@ public abstract class AbstractDocSearchIndexService implements
 		// first I start up if there's anything I need to do for them
 		if (indexerQueueService == null) {
 			throw new DocSearchException("no indexer queue service was set");
+		}
+
+		if (shardingHelper == null) {
+			throw new DocSearchException("no sharding helper was set");
+		}
+
+		if (shardIndex == null) {
+			throw new DocSearchException("no shard index was set");
 		}
 
 		// then they start up
@@ -302,6 +326,14 @@ public abstract class AbstractDocSearchIndexService implements
 
 	public void setIndexerQueueService(QueueService indexerQueueService) {
 		this.indexerQueueService = indexerQueueService;
+	}
+
+	public void setShardingHelper(ShardingHelper shardingHelper) {
+		this.shardingHelper = shardingHelper;
+	}
+
+	public void setShardIndex(int shardIndex) {
+		this.shardIndex = shardIndex;
 	}
 
 	private synchronized void managePullThread(int milliseconds) {

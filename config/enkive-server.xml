@@ -26,7 +26,7 @@
 		<constructor-arg ref="ContentAnalyzer" />
 		<constructor-arg value="${enkive.docsearch.index.indri.index}" />
 		<constructor-arg value="${enkive.docsearch.index.indri.tmp}" />
-		<constructor-arg value="${enkive.docsearch.index.indri.repoll}" />
+		<constructor-arg value="${enkive.docsearch.index.indri.repoll.ms}" />
 
 		<property name="indexEnvironmentDocLimit" value="${enkive.docsearch.index.indri.envDocLimit}" />
 		<property name="indexEnvironmentRefreshInterval"
@@ -36,6 +36,10 @@
 		<property name="queryEnvironmentRefreshInterval"
 			value="${enkive.docsearch.index.indri.queryRefreshingInterval}" />
 		<property name="documentLockingService" ref="DocLockService" />
+
+		<!-- Control Sharding -->
+		<property name="shardingHelper" ref="IndexShardingHelper" />
+		<property name="shardIndex" value="0" />
 	</bean>
 
 	<bean id="DocSearchQueryService"
@@ -110,5 +114,11 @@
 
 	<bean id="Mongo" class="com.mongodb.Mongo" destroy-method="close">
 		<constructor-arg type="java.lang.String" value="localhost" />
+	</bean>
+
+	<bean id="IndexShardingHelper" class="com.linuxbox.util.ShardingHelper"
+		factory-method="createWithBitCount">
+		<constructor-arg value="${enkive.docsearch.index.shard.bits}" />
+		<constructor-arg value="${enkive.docsearch.index.shard.count}" />
 	</bean>
 </beans>

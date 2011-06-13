@@ -39,15 +39,21 @@ public class ShardingHelper {
 	private final float perServer;
 	private Map<Integer, Range> rangeMemo;
 
-	public ShardingHelper(int valueMax, int shardCount) {
-		this.valueMax = valueMax;
+	/**
+	 * Creates a sharding helper with the largest (+1) shard value, and the
+	 * number of shards.
+	 * 
+	 * @param maxShardValue
+	 *            this is one more than the highest value of the shard range
+	 *            (e.g., if this is 128, then the shard values range from 0 to
+	 *            127).
+	 * @param shardCount
+	 */
+	public ShardingHelper(int maxShardValue, int shardCount) {
+		this.valueMax = maxShardValue;
 		this.shardCount = shardCount;
 		this.perServer = this.valueMax / (float) this.shardCount;
 		this.rangeMemo = new HashMap<Integer, Range>();
-	}
-
-	public ShardingHelper(byte valueBits, int shardCount) {
-		this(1 << valueBits, shardCount);
 	}
 
 	/**
@@ -76,5 +82,21 @@ public class ShardingHelper {
 
 	public int getShardCount() {
 		return shardCount;
+	}
+
+	/**
+	 * When the shard value is determined by the number of bits, this factory
+	 * method can be used in lieu of a constructor. Unfortunately, its two
+	 * numeric values are similar to the two numeric values that the constructor
+	 * takes, making it easy to invoke the wrong constructor. So it's a factory
+	 * method instead.
+	 * 
+	 * @param valueBits
+	 * @param shardCount
+	 * @return
+	 */
+	public static ShardingHelper createWithBitCount(int valueBits,
+			int shardCount) {
+		return new ShardingHelper(1 << valueBits, shardCount);
 	}
 }

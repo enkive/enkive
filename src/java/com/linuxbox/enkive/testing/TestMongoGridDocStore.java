@@ -27,6 +27,7 @@ import com.linuxbox.enkive.docstore.exception.DocumentNotFoundException;
 import com.linuxbox.enkive.docstore.mongogrid.Constants;
 import com.linuxbox.enkive.docstore.mongogrid.ConvenienceMongoGridDocStoreService;
 import com.linuxbox.enkive.docstore.mongogrid.MongoGridDocStoreService;
+import com.linuxbox.util.ShardingHelper;
 import com.linuxbox.util.StreamConnector;
 import com.linuxbox.util.mongodb.Dropper;
 
@@ -41,6 +42,7 @@ public class TestMongoGridDocStore {
 	private static final boolean DROP_DOCS_ON_STARTUP = true;
 	private static final Indexing INDEXING_METHOD = Indexing.AUTO_PULL;
 	private static final int INDEXING_POLL_TIME = 1;
+	private static final int WAIT_TIME_MS = 5000;
 
 	private static final String INDRI_REPOSITORY_PATH = "/tmp/enkive-indri";
 	private static final String INDRI_TEMP_STORAGE_PATH = "/tmp/enkive-indri-tmp";
@@ -286,11 +288,16 @@ public class TestMongoGridDocStore {
 					new TikaContentAnalyzer(), INDRI_REPOSITORY_PATH,
 					INDRI_TEMP_STORAGE_PATH);
 			if (INDEXING_METHOD == Indexing.AUTO_PULL) {
-				docIndexService.setIndexerQueueService(docStoreService.getIndexerQueueService());
+				docIndexService.setIndexerQueueService(docStoreService
+						.getIndexerQueueService());
 				docIndexService
 						.setUnindexedDocRePollInterval(INDEXING_POLL_TIME);
-				docIndexService.setDocumentLockingService(docStoreService.getDocumentLockingService());
+				docIndexService.setDocumentLockingService(docStoreService
+						.getDocumentLockingService());
 			}
+			docIndexService.setShardingHelper(ShardingHelper
+					.createWithBitCount(16, 1));
+			docIndexService.setShardIndex(0);
 			docIndexService.startup();
 
 			docQueryService = new IndriDocSearchQueryService(
@@ -309,7 +316,7 @@ public class TestMongoGridDocStore {
 					// empty
 				}
 			} else {
-				Thread.sleep(5000 * INDEXING_POLL_TIME);
+				Thread.sleep(WAIT_TIME_MS);
 			}
 
 			searchFor("#1(the question)");
