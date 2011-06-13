@@ -1,5 +1,14 @@
 package com.linuxbox.util.queueservice;
 
+/**
+ * NOTE: this interface and subclasses should probably be generalized at some
+ * point. It seems odd for the shard key to be at this level of generalization,
+ * yet it will be a valid selection field. So I'm thinking there should be a
+ * generalized query mechanism along the lines of what MongoDB offers.
+ * 
+ * @author eric
+ * 
+ */
 public interface QueueService {
 	void startup() throws QueueServiceException;
 
@@ -29,12 +38,12 @@ public interface QueueService {
 
 	/**
 	 * Retrieves the next unstarted item on the queue with a shard key within
-	 * the range defined by the server/server-count.
+	 * the range specified.
 	 * 
 	 * @param identifer
 	 * @return
 	 */
-	QueueEntry dequeueByShardKey(int server, int serverCount)
+	QueueEntry dequeueByShardKey(int rangeLow, int rangeHigh)
 			throws QueueServiceException;
 
 	/**

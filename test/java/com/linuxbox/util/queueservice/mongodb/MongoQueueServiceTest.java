@@ -189,6 +189,11 @@ public class MongoQueueServiceTest {
 			public Date getEnqueuedAt() {
 				return null;
 			}
+
+			@Override
+			public int getShardKey() {
+				return 0;
+			}
 		});
 	}
 }
