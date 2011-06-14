@@ -190,6 +190,7 @@ public abstract class AbstractDocSearchIndexService implements
 	 * being created while we're trying to shut down the current one.
 	 */
 	protected boolean shuttingDown;
+	private boolean started = false;
 
 	/**
 	 * The thread that polls the DocStoreService for unindexed documents.
@@ -208,14 +209,14 @@ public abstract class AbstractDocSearchIndexService implements
 	 * 
 	 * @param service
 	 * @param analyzer
-	 * @param unindexedDocSearchInterval
+	 * @param unindexedDocRePollInterval
 	 *            number of MILLISECONDS to wait after a polling could not find
 	 *            any un-indexed documents before polling again.
 	 */
 	public AbstractDocSearchIndexService(DocStoreService service,
-			ContentAnalyzer analyzer, int unindexedDocSearchInterval) {
+			ContentAnalyzer analyzer, int unindexedDocRePollInterval) {
 		this(service, analyzer);
-		this.unindexedDocRePollInterval = unindexedDocSearchInterval;
+		this.unindexedDocRePollInterval = unindexedDocRePollInterval;
 	}
 
 	/*
@@ -250,9 +251,11 @@ public abstract class AbstractDocSearchIndexService implements
 		// then they start up
 		subStartup();
 
+		started = true;
+
 		// start the thread after they're up and running since we're calling
 		// down into them
-		managePullThread(unindexedDocRePollInterval);
+		managePullThread();
 	}
 
 	@Override
@@ -321,7 +324,7 @@ public abstract class AbstractDocSearchIndexService implements
 	@Override
 	public void setUnindexedDocRePollInterval(int seconds) {
 		unindexedDocRePollInterval = seconds * 1000;
-		managePullThread(unindexedDocRePollInterval);
+		managePullThread();
 	}
 
 	public void setIndexerQueueService(QueueService indexerQueueService) {
@@ -336,12 +339,13 @@ public abstract class AbstractDocSearchIndexService implements
 		this.shardIndex = shardIndex;
 	}
 
-	private synchronized void managePullThread(int milliseconds) {
-		if (!shuttingDown) {
-			if (milliseconds > 0 && indexPullingThread == null) {
+	private synchronized void managePullThread() {
+		if (started && !shuttingDown) {
+			if (unindexedDocRePollInterval > 0 && indexPullingThread == null) {
 				indexPullingThread = new IndexPullingThread();
 				indexPullingThread.start();
-			} else if (milliseconds <= 0 && indexPullingThread != null) {
+			} else if (unindexedDocRePollInterval <= 0
+					&& indexPullingThread != null) {
 				indexPullingThread.stopAfterFinishingUp(MAX_SHUTTING_DOWN_WAIT);
 				indexPullingThread = null;
 			}
