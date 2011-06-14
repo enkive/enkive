@@ -3,6 +3,7 @@ package com.linuxbox.enkive;
 import static com.linuxbox.enkive.Copyright.COPYRIGHT;
 import static com.linuxbox.enkive.Copyright.LICENSE;
 import static com.linuxbox.enkive.Copyright.PRODUCT;
+import static com.linuxbox.enkive.Copyright.VERSION;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -15,14 +16,18 @@ public class MainConsole extends Main {
 	static final String CONSOLE_PROMPT = "enkive> ";
 	static final String[] CONFIG_FILES = { "enkive-server.xml" };
 
-	private BufferedReader in;
-	private PrintStream out;
+	protected BufferedReader in;
+	protected PrintStream out;
 
 	private Set<String> stopCommandSet = new HashSet<String>();
 	private String shutdownReason;
 
 	public MainConsole(String[] arguments) {
-		super(CONFIG_FILES, arguments);
+		this(CONFIG_FILES, arguments);
+	}
+
+	public MainConsole(String[] configFiles, String[] arguments) {
+		super(configFiles, arguments);
 
 		out = System.out;
 		in = new BufferedReader(new InputStreamReader(System.in));
@@ -38,7 +43,7 @@ public class MainConsole extends Main {
 
 	@Override
 	protected void startup() {
-		out.println(PRODUCT);
+		out.println(PRODUCT + " v. " + VERSION);
 		out.println(COPYRIGHT);
 		out.println(LICENSE);
 	}
