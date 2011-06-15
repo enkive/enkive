@@ -12,6 +12,8 @@ import java.io.PrintStream;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.springframework.context.ApplicationContext;
+
 public class MainConsole extends Main {
 	static final String CONSOLE_PROMPT = "enkive> ";
 	static final String[] CONFIG_FILES = { "enkive-server.xml" };
@@ -54,7 +56,7 @@ public class MainConsole extends Main {
 	}
 
 	@Override
-	protected void doEventLoop() {
+	protected void doEventLoop(ApplicationContext context) {
 		try {
 			String input;
 

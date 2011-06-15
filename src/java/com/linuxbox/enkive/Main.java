@@ -2,6 +2,7 @@ package com.linuxbox.enkive;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -16,8 +17,12 @@ public abstract class Main {
 
 	protected String[] configFiles;
 
-	protected abstract void doEventLoop();
+	private AbstractApplicationContext context;
+
+	protected abstract void doEventLoop(ApplicationContext context);
+
 	protected abstract void startup();
+
 	protected abstract void shutdown();
 
 	public Main(String[] configFiles, String[] arguments) {
@@ -26,9 +31,8 @@ public abstract class Main {
 
 	public void run() {
 		startup();
-		
-		AbstractApplicationContext context = new ClassPathXmlApplicationContext(
-				configFiles);
+
+		context = new ClassPathXmlApplicationContext(configFiles);
 		context.registerShutdownHook();
 
 		try {
@@ -37,18 +41,17 @@ public abstract class Main {
 
 			auditService.addEvent(AuditService.SYSTEM_STARTUP, USER,
 					DESCRIPTION);
-			
-			doEventLoop();
+
+			doEventLoop(context);
 
 			auditService.addEvent(AuditService.SYSTEM_SHUTDOWN, USER,
 					DESCRIPTION);
-
 		} catch (AuditServiceException e) {
 			LOGGER.error("received AuditServiceException: " + e.getMessage(), e);
 		}
 
 		context.close();
-		
+
 		shutdown();
 	}
 }
