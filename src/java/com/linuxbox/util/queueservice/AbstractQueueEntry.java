@@ -3,15 +3,23 @@ package com.linuxbox.util.queueservice;
 import java.util.Date;
 
 public class AbstractQueueEntry implements QueueEntry {
+	private Date enqueuedAt;
 	private String identifier;
 	private Object note;
-	private Date enqueuedAt;
+	private int shardKey;
 
-	public AbstractQueueEntry(String identifier, Object note, Date enqueuedAt) {
+	public AbstractQueueEntry(Date enqueuedAt, String identifier, Object note, 
+			int shardKey) {
 		super();
+		this.enqueuedAt = enqueuedAt;
 		this.identifier = identifier;
 		this.note = note;
-		this.enqueuedAt = enqueuedAt;
+		this.shardKey = shardKey;
+	}
+
+	@Override
+	public Date getEnqueuedAt() {
+		return enqueuedAt;
 	}
 
 	@Override
@@ -25,8 +33,7 @@ public class AbstractQueueEntry implements QueueEntry {
 	}
 
 	@Override
-	public Date getEnqueuedAt() {
-		return enqueuedAt;
+	public int getShardKey() {
+		return shardKey;
 	}
-
 }

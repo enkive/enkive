@@ -26,7 +26,7 @@
 		<constructor-arg ref="ContentAnalyzer" />
 		<constructor-arg value="${enkive.docsearch.index.indri.index}" />
 		<constructor-arg value="${enkive.docsearch.index.indri.tmp}" />
-		<constructor-arg value="${enkive.docsearch.index.indri.repoll}" />
+		<constructor-arg value="${enkive.docsearch.index.indri.repoll.ms}" />
 
 		<property name="indexEnvironmentDocLimit" value="${enkive.docsearch.index.indri.envDocLimit}" />
 		<property name="indexEnvironmentRefreshInterval"
@@ -36,6 +36,11 @@
 		<property name="queryEnvironmentRefreshInterval"
 			value="${enkive.docsearch.index.indri.queryRefreshingInterval}" />
 		<property name="documentLockingService" ref="DocLockService" />
+
+		<!-- control index sharding -->
+		<property name="shardingHelper" ref="IndexShardingHelper" />
+		<!-- NOTE: to turn off indexing, change the value below from 0 to -1 -->
+		<property name="shardIndex" value="0" />
 	</bean>
 
 	<bean id="DocSearchQueryService"
@@ -110,5 +115,10 @@
 
 	<bean id="Mongo" class="com.mongodb.Mongo" destroy-method="close">
 		<constructor-arg type="java.lang.String" value="localhost" />
+	</bean>
+
+	<bean id="IndexShardingHelper" class="com.linuxbox.enkive.docstore.AbstractDocStoreService"
+		factory-method="createShardingHelper">
+		<constructor-arg value="${enkive.docsearch.index.shard.count}" />
 	</bean>
 </beans>

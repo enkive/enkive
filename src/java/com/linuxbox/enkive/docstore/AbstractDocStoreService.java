@@ -13,6 +13,7 @@ import org.apache.commons.logging.LogFactory;
 
 import com.linuxbox.enkive.docstore.exception.DocStoreException;
 import com.linuxbox.util.HashingInputStream;
+import com.linuxbox.util.ShardingHelper;
 import com.linuxbox.util.queueservice.QueueService;
 import com.linuxbox.util.queueservice.QueueServiceException;
 
@@ -110,12 +111,16 @@ public abstract class AbstractDocStoreService implements DocStoreService {
 
 	@Override
 	public StoreRequestResult store(Document document) throws DocStoreException {
+		StoreRequestResult storeResult = null;
+
 		MessageDigest messageDigest = null;
 		try {
 			messageDigest = MessageDigest.getInstance(HASH_ALGORITHM);
 		} catch (NoSuchAlgorithmException e) {
 			throw new DocStoreException(e);
 		}
+
+		final long startTime = System.currentTimeMillis();
 
 		// begin the hash calculation using the mime type, file extension, and
 		// binary encoding, so if the same data comes in but is claimed to be a
@@ -141,7 +146,6 @@ public abstract class AbstractDocStoreService implements DocStoreService {
 				}
 			} while (result >= 0 && offset < inMemoryLimit);
 
-			StoreRequestResult storeResult;
 			if (result < 0) {
 				// was able to read whole thing in and offset indicates length
 				messageDigest.update(inMemoryBuffer, 0, offset);
@@ -171,6 +175,7 @@ public abstract class AbstractDocStoreService implements DocStoreService {
 
 			if (!storeResult.getAlreadyStored()) {
 				indexerQueueService.enqueue(storeResult.getIdentifier(),
+						storeResult.getShardKey(),
 						DocStoreConstants.QUEUE_ENTRY_INDEX_DOCUMENT);
 			}
 
@@ -179,6 +184,16 @@ public abstract class AbstractDocStoreService implements DocStoreService {
 			throw new DocStoreException(e);
 		} catch (QueueServiceException e) {
 			throw new DocStoreException("could not add index event to queue");
+		} finally {
+			if (LOGGER.isTraceEnabled()) {
+				final long endTime = System.currentTimeMillis();
+				LOGGER.trace("TIMING: "
+						+ (endTime - startTime)
+						+ " ms to "
+						+ (storeResult.getAlreadyStored() ? "determine already stored document "
+								: "store document ")
+						+ storeResult.getIdentifier());
+			}
 		}
 	}
 
@@ -186,6 +201,7 @@ public abstract class AbstractDocStoreService implements DocStoreService {
 	public boolean removeWithRetries(String identifier, int numberOfAttempts,
 			int millisecondsBetweenRetries) throws DocStoreException {
 		DocStoreException lastException = null;
+		final int shardKey = getShardIndexFromIdentifier(identifier);
 
 		for (int i = 0; i < numberOfAttempts; i++) {
 			try {
@@ -193,7 +209,7 @@ public abstract class AbstractDocStoreService implements DocStoreService {
 
 				if (result) {
 					try {
-						indexerQueueService.enqueue(identifier,
+						indexerQueueService.enqueue(identifier, shardKey,
 								DocStoreConstants.QUEUE_ENTRY_REMOVE_DOCUMENT);
 					} catch (QueueServiceException e) {
 						// TODO should we throw an exception out or is logging
@@ -276,9 +292,11 @@ public abstract class AbstractDocStoreService implements DocStoreService {
 	 * @param shardKeyHigh
 	 * @return
 	 */
+	@Deprecated
 	protected abstract String nextUnindexedByShardKey(int shardKeyLow,
 			int shardKeyHigh);
 
+	@Deprecated
 	@Override
 	public String nextUnindexed(int serverNumber, int serverCount) {
 		final float perServer = (float) INDEX_SHARD_KEY_COUNT / serverCount;
@@ -289,7 +307,7 @@ public abstract class AbstractDocStoreService implements DocStoreService {
 
 	/**
 	 * Returns a shard key in the range of 0-255 (unsigned byte). It converts
-	 * the first byte of the hash into an unsigned byte value.
+	 * the first two bytes of the hash into an unsigned byte value.
 	 * 
 	 * @param hash
 	 * @return
@@ -299,13 +317,39 @@ public abstract class AbstractDocStoreService implements DocStoreService {
 		return key < 0 ? INDEX_SHARD_KEY_COUNT + key : key;
 	}
 
+	protected static int getHexValue(char c) {
+		if (c >= '0' && c <= '9') {
+			return c - '0';
+		} else if (c >= 'a' && c <= 'f') {
+			return c - 'a' + 10;
+		} else if (c >= 'A' && c <= 'F') {
+			return c - 'A' + 10;
+		} else {
+			return -1;
+		}
+	}
+
+	public static int getShardIndexFromIdentifier(String id) {
+		final char c1 = id.charAt(0);
+		final char c2 = id.charAt(1);
+		final char c3 = id.charAt(2);
+		final char c4 = id.charAt(3);
+
+		final int i1 = getHexValue(c1);
+		final int i2 = getHexValue(c2);
+		final int i3 = getHexValue(c3);
+		final int i4 = getHexValue(c4);
+
+		return (i1 << 12) + (i2 << 8) + (i3 << 4) + i4;
+	}
+
 	/**
 	 * Returns a string representation of an array of bytes.
 	 * 
 	 * @param hash
 	 * @return
 	 */
-	protected static String getFileNameFromHash(byte[] hash) {
+	public static String getIdentifierFromHash(byte[] hash) {
 		return new String((new Hex()).encode(hash));
 	}
 
@@ -315,5 +359,16 @@ public abstract class AbstractDocStoreService implements DocStoreService {
 
 	public void setIndexerQueueService(QueueService indexerQueueService) {
 		this.indexerQueueService = indexerQueueService;
+	}
+
+	/**
+	 * Factory method so we can make use of local knowledge about how the
+	 * indexing is sharded.
+	 * 
+	 * @param shardCount
+	 * @return
+	 */
+	public static ShardingHelper createShardingHelper(int shardCount) {
+		return new ShardingHelper(INDEX_SHARD_KEY_COUNT, shardCount);
 	}
 }

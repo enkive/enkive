@@ -40,18 +40,17 @@
 
 		<property name="beans">
 			<list>
-				<!-- <bean id="ContextDeployer" class="org.mortbay.jetty.spring.ContextDeployer"> -->
-				<bean id="ContextDeployer" class="org.eclipse.jetty.deploy.ContextDeployer">
-					<property name="contexts" ref="contexts" />
-					<property name="contextsDir" value="contexts" />
+				<bean id="ContextProvider" class="org.eclipse.jetty.deploy.providers.ContextProvider">
+					<property name="monitoredDir" value="jetty/contexts" />
 					<property name="scanInterval" value="5" />
 				</bean>
 
-				<bean id="WebAppDeployer" class="org.eclipse.jetty.deploy.WebAppDeployer">
-					<property name="contexts" ref="contexts" />
-					<property name="webAppDir" value="jetty/webapps" />
-					<property name="extract" value="true" />
+				<bean id="WebAppProvider" class="org.eclipse.jetty.deploy.providers.WebAppProvider">
+					<property name="monitoredDirName" value="jetty/webapps" />
+					<property name="contextXmlDir" value="jetty/contexts" />
 					<property name="defaultsDescriptor" value="etc/webdefault.xml" />
+					<property name="extractWars" value="true" />
+					<property name="scanInterval" value="5" />
 				</bean>
 
 				<bean class="org.eclipse.jetty.security.HashLoginService">
@@ -59,7 +58,6 @@
 					<property name="config" value="jetty/etc/realm.properties" />
 					<property name="refreshInterval" value="0" />
 				</bean>
-
 			</list>
 		</property>
 
