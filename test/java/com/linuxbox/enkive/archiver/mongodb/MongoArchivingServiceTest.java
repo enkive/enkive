@@ -5,7 +5,6 @@ import static org.junit.Assert.assertEquals;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Collection;
 
 import org.junit.After;
@@ -18,6 +17,7 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 import com.linuxbox.enkive.TestingConstants;
+import com.linuxbox.enkive.archiver.ArchiverUtils;
 import com.linuxbox.enkive.archiver.exceptions.CannotArchiveException;
 import com.linuxbox.enkive.docstore.DocStoreService;
 import com.linuxbox.enkive.docstore.mongogrid.ConvenienceMongoGridDocStoreService;
@@ -41,7 +41,7 @@ public class MongoArchivingServiceTest {
 
 	@Parameters
 	public static Collection<Object[]> data() {
-		return getAllTestFiles(new File(TestingConstants.TEST_MESSAGE_DIRECTORY));
+		return ArchiverUtils.getAllTestFiles(new File(TestingConstants.TEST_MESSAGE_DIRECTORY));
 	}
 
 	@BeforeClass
@@ -78,19 +78,5 @@ public class MongoArchivingServiceTest {
 		String messageUUID = archiver.storeOrFindMessage(message);
 		assertEquals("Identifiers should be the same",
 				archiver.findMessage(message), messageUUID);
-	}
-
-	private static Collection<Object[]> getAllTestFiles(File dir) {
-		Collection<Object[]> files = new ArrayList<Object[]>();
-		if (dir.isDirectory()) {
-			for (File file : dir.listFiles()) {
-				if (file.isFile()) {
-					files.add(new File[] { file });
-				} else {
-					return getAllTestFiles(file);
-				}
-			}
-		}
-		return files;
 	}
 }
