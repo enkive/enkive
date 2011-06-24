@@ -12,6 +12,13 @@
 	<bean id="Server" class="org.mortbay.jetty.spring.Server"
 		init-method="start" destroy-method="stop">
 
+		<property name="threadPool">
+			<bean id="ThreadPool" class="org.eclipse.jetty.util.thread.QueuedThreadPool">
+				<property name="minThreads" value="10" />
+				<property name="maxThreads" value="50" />
+			</bean>
+		</property>
+
 		<property name="connectors">
 			<list>
 				<bean id="Connector" class="org.eclipse.jetty.server.nio.SelectChannelConnector">
@@ -24,19 +31,7 @@
 			<bean id="handlers" class="org.eclipse.jetty.server.handler.HandlerList">
 				<property name="handlers">
 					<list>
-						<ref bean="ServletContextHandler" />
 						<ref bean="contexts" />
-
-						<bean class="org.eclipse.jetty.server.handler.ResourceHandler">
-							<property name="directoriesListed" value="false" />
-							<property name="welcomeFiles">
-								<list>
-									<value>index.html</value>
-								</list>
-							</property>
-							<property name="resourceBase" value="jetty/resources" />
-						</bean>
-
 						<bean class="org.eclipse.jetty.server.handler.DefaultHandler" />
 					</list>
 				</property>
@@ -45,33 +40,25 @@
 
 		<property name="beans">
 			<list>
-				<!-- <bean id="ContextProvider" class="org.eclipse.jetty.deploy.providers.ContextProvider"> 
-					<property name="monitoredDir" value="jetty/contexts" /> <property name="scanInterval" 
-					value="5" /> </bean> -->
-
-				<bean id="WebAppDeployer" class="org.eclipse.jetty.deploy.WebAppDeployer">
+				<bean id="ContextDeployer" class="org.eclipse.jetty.deploy.ContextDeployer">
 					<property name="contexts" ref="contexts" />
-					<property name="webAppDir" value="jetty/webapps" />
-					<property name="extract" value="true" />
-					<!-- <property name="defaultsDescriptor" value="etc/webdefault.xml" 
-						/> -->
+					<property name="contextsDir" value="jetty/contexts" />
+					<property name="scanInterval" value="5" />
 				</bean>
 
-				<!-- <bean id="WebAppProvider" class="org.eclipse.jetty.deploy.providers.WebAppProvider"> 
-					<property name="contexts" ref="contexts" /> <property name="monitoredDirName" 
-					value="jetty/webapps" /> <property name="extractWars" value="true" /> <property 
-					name="scanInterval" value="5" /> </bean> -->
+				<!-- may not be needed given context deployer enkive-context.xml is pointing 
+					into that directory <bean id="WebAppDeployer" class="org.eclipse.jetty.deploy.WebAppDeployer"> 
+					<property name="contexts" ref="contexts" /> <property name="webAppDir" value="jetty/webapps" 
+					/> <property name="extract" value="true" /> <property name="defaultsDescriptor" 
+					value="etc/webdefault.xml" /> </bean> -->
 
-				<!-- <bean class="org.eclipse.jetty.security.HashLoginService"> <property 
-					name="name" value="Test Realm" /> <property name="config" value="jetty/etc/realm.properties" 
-					/> <property name="refreshInterval" value="0" /> </bean> -->
+				<bean class="org.eclipse.jetty.security.HashLoginService">
+					<property name="name" value="Test Realm" />
+					<property name="config" value="jetty/etc/realm.properties" />
+					<property name="refreshInterval" value="0" />
+				</bean>
 			</list>
 		</property>
-	</bean>
-
-	<bean id="ServletContextHandler" class="org.eclipse.jetty.servlet.ServletContextHandler">
-		<property name="contextPath" value="/enkive" />
-		<property name="displayName" value="Enkive CE Servlet Context Handler" />
 	</bean>
 
 </beans>

@@ -5,12 +5,12 @@
  
  <web-app>
      <servlet>
-         <servlet-name>TempServlet</servlet-name>
-         <servlet-class>com.linuxbox.enkive.MainJetty.TempServlet</servlet-class>
+         <servlet-name>TestServlet</servlet-name>
+         <servlet-class>com.linuxbox.enkive.web.TestServlet</servlet-class>
      </servlet>
  
      <servlet-mapping>
-         <servlet-name>TempServlet</servlet-name>
-         <url-pattern>/test2</url-pattern>
+         <servlet-name>TestServlet</servlet-name>
+         <url-pattern>/test</url-pattern>
      </servlet-mapping>
  </web-app>
