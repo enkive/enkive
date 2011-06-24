@@ -21,7 +21,7 @@
 	<classpathentry kind="lib" path="lib/spring/org.springframework.core-3.0.5.RELEASE.jar"/>
 	<classpathentry kind="lib" path="lib/spring/org.springframework.expression-3.0.5.RELEASE.jar"/>
 	<classpathentry kind="lib" path="config"/>
-	<classpathentry kind="lib" path="lib/jetty-all-server-7.4.2.v20110526.jar">
+	<classpathentry kind="lib" path="lib/jetty-all-server-7.4.2.v20110526.jar" sourcepath="lib/src/jetty-7.4.2-src.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="jar:platform:/resource/enkive2/lib/javadoc/jetty-all-server-7.4.2.v20110526-javadoc.jar!/"/>
 		</attributes>
