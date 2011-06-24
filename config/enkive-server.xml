@@ -121,4 +121,6 @@
 		factory-method="createShardingHelper">
 		<constructor-arg value="${enkive.docsearch.index.shard.count}" />
 	</bean>
+
+	<bean id="ApplicationContextProvider" class="com.linuxbox.util.spring.ApplicationContextProvider" />
 </beans>
