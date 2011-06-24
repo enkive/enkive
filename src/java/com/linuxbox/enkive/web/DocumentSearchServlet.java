@@ -8,8 +8,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-public class TestServlet extends EnkiveServlet {
-	private static final long serialVersionUID = 7489338160172966335L;
+public class DocumentSearchServlet extends EnkiveServlet {
+	private static final long serialVersionUID = 5469321957476311038L;
 
 	@Override
 	public void init(ServletConfig config) throws ServletException {
@@ -19,14 +19,6 @@ public class TestServlet extends EnkiveServlet {
 	public void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
 		PrintWriter out = resp.getWriter();
-		out.println("<html><body>");
-		out.println("Hello, <b>user</b>. This is TestServlet!");
-		if (getDocSearchQueryService() != null) {
-			out.println("<p>got doc search query service!</p>");
-		} else {
-			out.println("<p>did NOT get doc search query service!</p>");
-
-		}
-		out.println("</body></html>");
+		out.println("<html><body>Hello, <b>user</b>. This is TestServlet!</body></html>");
 	}
 }
