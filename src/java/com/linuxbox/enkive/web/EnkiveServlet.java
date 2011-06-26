@@ -1,7 +1,11 @@
 package com.linuxbox.enkive.web;
 
+import java.io.IOException;
+
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServlet;
 
 import org.apache.commons.logging.Log;
@@ -27,5 +31,10 @@ public class EnkiveServlet extends HttpServlet {
 
 	public DocSearchQueryService getDocSearchQueryService() {
 		return appContext.getBean(DocSearchQueryService.class);
+	}
+
+	public void forward(String url, ServletRequest req, ServletResponse resp)
+			throws ServletException, IOException {
+		getServletContext().getRequestDispatcher(url).forward(req, resp);
 	}
 }

@@ -2,15 +2,23 @@
  <!DOCTYPE web-app
      PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.2//EN"
      "http://java.sun.com/j2ee/dtds/web-app_2_2.dtd">
- 
- <web-app>
-     <servlet>
-         <servlet-name>TestServlet</servlet-name>
-         <servlet-class>com.linuxbox.enkive.web.TestServlet</servlet-class>
-     </servlet>
- 
-     <servlet-mapping>
-         <servlet-name>TestServlet</servlet-name>
-         <url-pattern>/test</url-pattern>
-     </servlet-mapping>
- </web-app>
+
+<web-app>
+	<servlet>
+		<servlet-name>TestServlet</servlet-name>
+		<servlet-class>com.linuxbox.enkive.web.TestServlet</servlet-class>
+	</servlet>
+	<servlet>
+		<servlet-name>DocSearchServlet</servlet-name>
+		<servlet-class>com.linuxbox.enkive.web.DocSearchServlet</servlet-class>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>TestServlet</servlet-name>
+		<url-pattern>/test</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>DocSearchServlet</servlet-name>
+		<url-pattern>/docSearch</url-pattern>
+	</servlet-mapping>
+</web-app>
