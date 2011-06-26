@@ -28,5 +28,11 @@
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/servlet-api-2.5.jar"/>
 	<classpathentry kind="lib" path="lib/jetty-spring-7.4.2.v20110526.jar"/>
+	<classpathentry kind="lib" path="lib/javax.servlet.jsp_2.1.0.v201004190952.jar"/>
+	<classpathentry kind="lib" path="lib/org.apache.jasper.glassfish_2.1.0.v201007080150.jar"/>
+	<classpathentry kind="lib" path="lib/ant.jar"/>
+	<classpathentry kind="lib" path="lib/ant-launcher.jar"/>
+	<classpathentry kind="lib" path="lib/javax.el_2.1.0.v201004190952.jar"/>
+	<classpathentry kind="lib" path="lib/javax.servlet.jsp.jstl_1.2.0.v201004190952.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
