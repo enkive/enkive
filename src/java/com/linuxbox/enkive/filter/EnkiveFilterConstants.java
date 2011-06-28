@@ -20,8 +20,27 @@
 
 package com.linuxbox.enkive.filter;
 
-public class EnkiveFilterType {
-	public static final int NUMERICAL = 1;
-	public static final int TEXT = 2;
-	public static final int ADDRESS = 3;
+public class EnkiveFilterConstants {
+
+	static class FilterAction {
+		public static final int ALLOW = 1;
+		public static final int DENY = 0;
+	}
+
+	static class FilterType {
+		public static final int INTEGER = 1;
+		public static final int FLOAT = 2;
+		public static final int DATE = 3;
+		public static final int STRING = 4;
+		public static final int ADDRESS = 5;
+	}
+
+	static class FilterComparator {
+		public static final int IS_GREATER_THAN = 1;
+		public static final int IS_LESS_THAN = 2;
+		public static final int MATCHES = 3;
+		public static final int DOES_NOT_MATCH = 4;
+		public static final int CONTAINS = 5;
+		public static final int DOES_NOT_CONTAIN = 6;
+	}
 }

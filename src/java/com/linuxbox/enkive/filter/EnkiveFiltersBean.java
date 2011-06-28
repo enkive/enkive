@@ -40,6 +40,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import com.linuxbox.enkive.filter.EnkiveFilterConstants.FilterAction;
+import com.linuxbox.enkive.filter.EnkiveFilterConstants.FilterType;
 import com.linuxbox.enkive.message.Message;
 
 public class EnkiveFiltersBean {
@@ -47,9 +49,10 @@ public class EnkiveFiltersBean {
 	private final static Log logger = LogFactory
 			.getLog("com.linuxbox.enkive.messagefilters");
 
+	protected int defaultAction;
 	protected Set<EnkiveFilter> filterSet;
-	
-	public EnkiveFiltersBean(){
+
+	public EnkiveFiltersBean() {
 		filterSet = new HashSet<EnkiveFilter>();
 	}
 
@@ -58,36 +61,71 @@ public class EnkiveFiltersBean {
 		try {
 			Resource res = new ClassPathResource("enkive-filters.xml");
 			// If a new file wasn't placed on the classpath, load the defaults
-			//if (!res.exists())
-			//	res = new ClassPathResource(
-			//			"alfresco/module/com.linuxbox.enkive/enkive-filters.xml");
+			// if (!res.exists())
+			// res = new ClassPathResource(
+			// "alfresco/module/com.linuxbox.enkive/enkive-filters.xml");
 
 			FileInputStream filterFile = new FileInputStream(res.getFile());
 			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 			DocumentBuilder db = dbf.newDocumentBuilder();
 			Document doc = db.parse(filterFile);
 			NodeList filters = doc.getElementsByTagName("filter");
+			doc.getElementsByTagName("defaultAction").item(0).getTextContent();
+			if (doc.getElementsByTagName("defaultAction").item(0)
+					.getTextContent().equals("deny"))
+				defaultAction = FilterAction.DENY;
 
 			for (int i = 0; i < filters.getLength(); i++) {
 				Element filter = (Element) filters.item(i);
 				if (filter.getAttribute("enabled").equals("true")) {
+					int filterAction = 0;
+					Node action = filter.getElementsByTagName("action").item(0);
+					if (action.getTextContent().equals("allow"))
+						filterAction = FilterAction.ALLOW;
+					if (action.getTextContent().equals("deny"))
+						filterAction = FilterAction.DENY;
 					Node header = filter.getElementsByTagName("header").item(0);
 					Node value = filter.getElementsByTagName("value").item(0);
+					Node comparator = filter.getElementsByTagName("comparison").item(0);
+					
 					int filterType = 0;
+					int filterComparator = 0;
+					
+					if (((Element) value).getAttribute("type").toLowerCase()
+							.equals("integer"))
+						filterType = FilterType.INTEGER;
+					else if (((Element) value).getAttribute("type")
+							.toLowerCase().equals("text"))
+						filterType = FilterType.STRING;
+					else if (((Element) value).getAttribute("type")
+							.toLowerCase().equals("address"))
+						filterType = FilterType.ADDRESS;
+					else if (((Element) value).getAttribute("type")
+							.toLowerCase().equals("float"))
+						filterType = FilterType.FLOAT;
+					else if (((Element) value).getAttribute("type")
+							.toLowerCase().equals("date"))
+						filterType = FilterType.DATE;
+					
+					if (((Element) value).getAttribute("type").toLowerCase()
+							.equals("integer"))
+						filterType = FilterType.INTEGER;
+					else if (((Element) value).getAttribute("type")
+							.toLowerCase().equals("text"))
+						filterType = FilterType.STRING;
+					else if (((Element) value).getAttribute("type")
+							.toLowerCase().equals("address"))
+						filterType = FilterType.ADDRESS;
+					else if (((Element) value).getAttribute("type")
+							.toLowerCase().equals("float"))
+						filterType = FilterType.FLOAT;
+					else if (((Element) value).getAttribute("type")
+							.toLowerCase().equals("date"))
+						filterType = FilterType.DATE;
+					
 
-					if (((Element) value).getAttribute("type").equals(
-							"Numerical"))
-						filterType = EnkiveFilterType.NUMERICAL;
-					else if (((Element) value).getAttribute("type").equals(
-							"Text"))
-						filterType = EnkiveFilterType.TEXT;
-					else if (((Element) value).getAttribute("type").equals(
-							"Address"))
-						filterType = EnkiveFilterType.ADDRESS;
-
-					filterSet.add(new EnkiveFilter(header
-							.getTextContent(), filterType, value
-							.getTextContent()));
+					filterSet.add(new EnkiveFilter(header.getTextContent(),
+							filterAction, filterType, value.getTextContent(), filterComparator));
 					logger.info("Enkive filtering by header "
 							+ header.getTextContent());
 				}
@@ -109,12 +147,13 @@ public class EnkiveFiltersBean {
 
 	}
 
-	public boolean filterMessage(Message message){
+	public boolean filterMessage(Message message) {
 		boolean archiveMessage = true;
 		for (EnkiveFilter filter : filterSet) {
 			try {
-				String value = message.getParsedHeader().getField(
-						filter.getHeader()).getBody().toString().trim();
+				String value = message.getParsedHeader()
+						.getField(filter.getHeader()).getBody().toString()
+						.trim();
 				archiveMessage = filter.filter(value);
 			} catch (Exception e) {
 				// do nothing

@@ -20,27 +20,40 @@
 
 package com.linuxbox.enkive.filter;
 
+import java.text.DateFormat;
+import java.util.Date;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.james.mime4j.field.address.Address;
 import org.apache.james.mime4j.field.address.AddressList;
 import org.apache.james.mime4j.field.address.parser.ParseException;
+
+import com.linuxbox.enkive.filter.EnkiveFilterConstants.FilterAction;
+import com.linuxbox.enkive.filter.EnkiveFilterConstants.FilterComparator;
+import com.linuxbox.enkive.filter.EnkiveFilterConstants.FilterType;
 
 public class EnkiveFilter {
 	private final static Log logger = LogFactory
 			.getLog("com.linuxbox.enkive.filter");
 
 	private String header;
+	private int filterAction;
 	private int filterType;
+	private int filterComparator;
 	private String filterValue;
+	private int defaultAction;
 
 	private EnkiveFilter(String header, int filterType) {
 		this.header = header;
 		this.filterType = filterType;
 	}
 
-	public EnkiveFilter(String header, int filterType, String filterValue) {
+	public EnkiveFilter(String header, int filterAction, int filterType, String filterValue, int filterComparator) {
 		this(header, filterType);
+		this.filterAction = filterAction;
 		this.filterValue = filterValue;
+		this.filterComparator = filterComparator;
 	}
 
 	public void setHeader(String header) {
@@ -59,27 +72,156 @@ public class EnkiveFilter {
 		return filterType;
 	}
 
+	public int getFilterAction() {
+		return filterAction;
+	}
+
+	public void setFilterAction(int filterAction) {
+		this.filterAction = filterAction;
+	}
+	
 	public boolean filter(String value) {
-		boolean passed = true;
-		switch (filterType) {
-		case EnkiveFilterType.NUMERICAL:
-			passed = new Float(value) < new Float(filterValue);
-			break;
-		case EnkiveFilterType.TEXT:
-			passed = !filterValue.equals(value);
-			break;
-		case EnkiveFilterType.ADDRESS:
+		boolean matched = true;
+		switch (filterComparator) {
+		case FilterType.INTEGER:
+			matched = filterInteger(value);
+		case FilterType.FLOAT:
+			matched = filterFloat(value);
+		case FilterType.DATE:
 			try {
-				AddressList addresses = AddressList.parse(value);
-				if (addresses.size() == 1
-						&& addresses.get(0).toString().contains(filterValue))
-					passed = false;
+				matched = filterDate(value);
+			} catch (java.text.ParseException e) {
+				logger.warn("Could not parse Date for filtering", e);
+				matched = false;
+			}
+			break;
+		case FilterType.STRING:
+			matched = filterString(value);
+		case FilterType.ADDRESS:
+			try{
+				matched = filterAddress(value);
 			} catch (ParseException e) {
-				logger.warn("Could not parse Address list for filtering");
-				passed = true;
+				logger.warn("Could not parse Address list for filtering", e);
+				matched = false;
 			}
 			break;
 		}
-		return passed;
+		if(matched && filterType == FilterAction.ALLOW)
+			return true;
+		else if(matched && filterType == FilterAction.DENY)
+			return false;
+		else if (defaultAction == FilterAction.DENY) 
+			return false;
+		else
+			return true;
+	}
+	
+	private boolean filterString(String value) {
+		boolean matched = false;
+		switch (filterComparator){
+			case FilterComparator.MATCHES:
+				if (value.equals(filterValue))
+					matched = true;
+			case  FilterComparator.DOES_NOT_MATCH:
+				if (!value.equals(filterValue))
+					matched = true;
+		}
+		return matched;
+	}
+
+	private boolean filterDate(String value) throws java.text.ParseException {
+		boolean matched = false;
+		
+		Date dateValue = DateFormat.getDateInstance().parse(value);
+		Date dateFilterValue = DateFormat.getDateInstance().parse(filterValue);
+		
+		switch (filterComparator){
+			case FilterComparator.MATCHES:
+				if (value.equals(filterValue))
+					matched = true;
+			case FilterComparator.DOES_NOT_MATCH:
+				if (!value.equals(filterValue))
+					matched = true;
+			case FilterComparator.IS_GREATER_THAN:
+				if (dateValue.after(dateFilterValue))
+					matched = true;
+			case FilterComparator.IS_LESS_THAN:
+				if (dateValue.before(dateFilterValue))
+					matched = true;
+				
+		}
+		return matched;
+	}
+
+	private boolean filterFloat(String value) {
+		boolean matched = false;
+		
+		float floatValue = Float.valueOf(value);
+		float floatFilterValue = Float.valueOf(filterValue);
+		
+		switch (filterComparator){
+			case FilterComparator.MATCHES:
+				if (value.equals(filterValue))
+					matched = true;
+			case FilterComparator.DOES_NOT_MATCH:
+				if (!value.equals(filterValue))
+					matched = true;
+			case FilterComparator.IS_GREATER_THAN:
+				if (floatValue > floatFilterValue)
+					matched = true;
+			case FilterComparator.IS_LESS_THAN:
+				if (floatValue < floatFilterValue)
+					matched = true;
+				
+		}
+		return matched;
+	}
+
+	private boolean filterInteger(String value) {
+		boolean matched = false;
+		
+		int intValue = Integer.valueOf(value);
+		int intFilterValue = Integer.valueOf(filterValue);
+		
+		switch (filterComparator){
+			case FilterComparator.MATCHES:
+				if (value.equals(filterValue))
+					matched = true;
+			case FilterComparator.DOES_NOT_MATCH:
+				if (!value.equals(filterValue))
+					matched = true;
+			case FilterComparator.IS_GREATER_THAN:
+				if (intValue > intFilterValue)
+					matched = true;
+			case FilterComparator.IS_LESS_THAN:
+				if (intValue < intFilterValue)
+					matched = true;
+				
+		}
+		return matched;
+	}
+
+	private boolean filterAddress(String value) throws ParseException{
+		boolean matched = false;
+		AddressList addresses = AddressList.parse(value);
+		Address address = Address.parse(filterValue);
+		
+		switch (filterComparator){
+			case FilterComparator.MATCHES:
+				if (addresses.size() == 1
+						&& addresses.get(0).equals(address))
+					matched = true;
+			case  FilterComparator.DOES_NOT_MATCH:
+				if (addresses.size() == 1
+						&& !addresses.get(0).equals(address))
+					matched = true;
+			case  FilterComparator.CONTAINS:
+				if (addresses.contains(address))
+					matched = true;
+			case  FilterComparator.DOES_NOT_CONTAIN:
+				if (!addresses.contains(address))
+					matched = true;
+		}
+		return matched;
 	}
 }
