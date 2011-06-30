@@ -14,7 +14,6 @@ import lemurproject.indri.IndexStatus;
 
 import org.apache.james.mime4j.util.MimeUtil;
 
-import com.linuxbox.enkive.docsearch.AbstractDocSearchIndexService;
 import com.linuxbox.enkive.docsearch.contentanalyzer.tika.TikaContentAnalyzer;
 import com.linuxbox.enkive.docsearch.exception.DocSearchException;
 import com.linuxbox.enkive.docsearch.indri.IndriDocSearchIndexService;
@@ -29,7 +28,6 @@ import com.linuxbox.enkive.docstore.exception.DocumentNotFoundException;
 import com.linuxbox.enkive.docstore.mongogrid.Constants;
 import com.linuxbox.enkive.docstore.mongogrid.ConvenienceMongoGridDocStoreService;
 import com.linuxbox.enkive.docstore.mongogrid.MongoGridDocStoreService;
-import com.linuxbox.util.ShardingHelper;
 import com.linuxbox.util.StreamConnector;
 import com.linuxbox.util.mongodb.Dropper;
 
