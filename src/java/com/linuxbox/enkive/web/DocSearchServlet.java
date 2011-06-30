@@ -29,10 +29,13 @@ public class DocSearchServlet extends EnkiveServlet {
 			throws IOException, ServletException {
 		try {
 			final DocSearchQueryService queryService = getDocSearchQueryService();
-			String searchTerms = req.getParameter("search-terms");
-			List<String> result = queryService.search(searchTerms);
-			req.setAttribute("doc-id-list", result);
-			forward("docSearchResults.jsp", req, resp);
+			String searchTerm = req.getParameter("search_term");
+			LOGGER.trace("submitted document search string: \"" + searchTerm + "\"");
+			List<String> result = queryService.search(searchTerm);
+			LOGGER.trace("document search yield: " + result.size() + " documentss");
+			req.setAttribute("doc_id_list", result);
+			req.setAttribute("search_term", searchTerm);
+			forward("/docSearchResults.jsp", req, resp);
 		} catch (DocSearchException e) {
 			throw new ServletException(
 					"could not search through document index", e);
