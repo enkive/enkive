@@ -32,6 +32,25 @@ public class IndriDocSearchQueryService extends AbstractDocSearchQueryService {
 		}
 	}
 
+	/**
+	 * A filter that removes empty strings (or strings of only whitespace) by
+	 * returning null for them. An instance of this class is used in conjunction
+	 * w/ CollectionUtils.listFromArray.
+	 * 
+	 * @author ivancich
+	 * 
+	 */
+	private class RemoveEmptyStringsFilter implements
+			CollectionUtils.ItemFilter<String> {
+		@Override
+		public String doFilter(String input) {
+			final String trimmed = input.trim();
+			return trimmed.isEmpty() ? null : trimmed;
+		}
+	}
+
+	private final RemoveEmptyStringsFilter aRemoveEmptyStringsFilter = new RemoveEmptyStringsFilter();
+
 	private static final String SYSTEM_PATH_SEPARATOR = System.getProperty(
 			"path.separator", ":");
 
@@ -167,11 +186,11 @@ public class IndriDocSearchQueryService extends AbstractDocSearchQueryService {
 	 *            a colon-separated list (or semicolon-separated list if on
 	 *            Windows) of paths; uses the System's "path.separator" property
 	 */
-	public void setIndexPaths(String indexPaths) {
+	public void setIndexPathsString(String indexPaths) {
 		String[] indexPathArray = indexPaths.split(SYSTEM_PATH_SEPARATOR);
 		trimStringArray(indexPathArray);
-		queryEnvironmentManager.setIndexPaths(CollectionUtils
-				.listFromArray(indexPathArray));
+		queryEnvironmentManager.setIndexPaths(CollectionUtils.listFromArray(
+				indexPathArray, aRemoveEmptyStringsFilter));
 	}
 
 	public Collection<String> getIndexServers() {
@@ -190,11 +209,11 @@ public class IndriDocSearchQueryService extends AbstractDocSearchQueryService {
 	 *            a comma-separated list of servers (either domain name, IP
 	 *            address, or anything else that the platform will accept).
 	 */
-	public void setIndexServers(String indexServers) {
+	public void setIndexServersString(String indexServers) {
 		String[] indexServerArray = indexServers.split(",");
 		trimStringArray(indexServerArray);
-		queryEnvironmentManager.setIndexServers(CollectionUtils
-				.listFromArray(indexServerArray));
+		queryEnvironmentManager.setIndexServers(CollectionUtils.listFromArray(
+				indexServerArray, aRemoveEmptyStringsFilter));
 	}
 
 	/**
