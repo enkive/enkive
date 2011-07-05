@@ -2,6 +2,7 @@ package com.linuxbox.enkive.docsearch;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -9,7 +10,7 @@ public class TextQueryParser {
 	public static class Phrase {
 		List<String> terms;
 		boolean negated;
-		
+
 		public Phrase(boolean negated) {
 			this.negated = negated;
 			terms = new ArrayList<String>();
@@ -23,7 +24,7 @@ public class TextQueryParser {
 			this(negated);
 			terms.add(phrase);
 		}
-		
+
 		public Phrase(String phrase) {
 			this(phrase, false);
 		}
@@ -31,11 +32,11 @@ public class TextQueryParser {
 		public void addTerm(String term) {
 			terms.add(term);
 		}
-		
-		public boolean multipleTerms() {
+
+		public boolean hasMultipleTerms() {
 			return terms.size() > 1;
 		}
-		
+
 		public boolean anyTerms() {
 			return terms.size() > 0;
 		}
@@ -47,9 +48,23 @@ public class TextQueryParser {
 		public void setNegated(boolean negated) {
 			this.negated = negated;
 		}
+
+		public CharSequence getTermsAsCharSeq() {
+			StringBuffer result = new StringBuffer();
+
+			for (String s : terms) {
+				result.append(s);
+				result.append(' ');
+			}
+
+			// delete last space
+			result.deleteCharAt(result.length() - 1);
+
+			return result;
+		}
 	}
 
-	public static class Query {
+	public static class Query implements Iterable<Phrase> {
 		Collection<Phrase> phrases;
 
 		public Query() {
@@ -58,6 +73,11 @@ public class TextQueryParser {
 
 		public void addPhrase(Phrase phrase) {
 			phrases.add(phrase);
+		}
+
+		@Override
+		public Iterator<Phrase> iterator() {
+			return phrases.iterator();
 		}
 	}
 
@@ -144,5 +164,30 @@ public class TextQueryParser {
 		}
 
 		return resultQuery;
+	}
+
+	public static String unparseContentCriteria(Query query) {
+		StringBuffer result = new StringBuffer();
+
+		for (Phrase p : query) {
+			if (p.negated) {
+				result.append('-');
+			}
+
+			if (p.hasMultipleTerms()) {
+				result.append('"');
+				result.append(p.getTermsAsCharSeq());
+				result.append('"');
+			} else {
+				result.append(p.getTermsAsCharSeq());
+			}
+			
+			result.append(' ');
+		}
+		
+		// remove last space
+		result.deleteCharAt(result.length() - 1);
+
+		return result.toString();
 	}
 }

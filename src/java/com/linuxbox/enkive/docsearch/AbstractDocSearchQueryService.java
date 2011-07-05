@@ -26,7 +26,19 @@ public abstract class AbstractDocSearchQueryService implements
 
 	@Override
 	public List<String> search(String query) throws DocSearchException {
-		return search(query, maxSearchResults);
+		return search(query, maxSearchResults, false);
+	}
+
+	@Override
+	public List<String> search(String query, int maxSearchResultsParam)
+			throws DocSearchException {
+		return search(query, maxSearchResultsParam, false);
+	}
+
+	@Override
+	public List<String> search(String query, boolean rawSearch)
+			throws DocSearchException {
+		return search(query, maxSearchResults, rawSearch);
 	}
 
 	public int getMaxSearchResults() {

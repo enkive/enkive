@@ -226,7 +226,7 @@ public class TestMongoGridDocStore {
 
 	private static void searchFor(String query) throws DocSearchException {
 		System.out.println("SEARCHING FOR: " + query);
-		List<String> theSearch = docQueryService.search(query);
+		List<String> theSearch = docQueryService.search(query, true);
 		if (theSearch.isEmpty()) {
 			System.out.println("no search results");
 		} else {
