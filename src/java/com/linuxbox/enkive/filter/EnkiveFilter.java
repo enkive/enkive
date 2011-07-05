@@ -49,11 +49,13 @@ public class EnkiveFilter {
 		this.filterType = filterType;
 	}
 
-	public EnkiveFilter(String header, int filterAction, int filterType, String filterValue, int filterComparator) {
+	public EnkiveFilter(String header, int filterAction, int filterType,
+			String filterValue, int filterComparator, int defaultAction) {
 		this(header, filterType);
 		this.filterAction = filterAction;
 		this.filterValue = filterValue;
 		this.filterComparator = filterComparator;
+		this.defaultAction = defaultAction;
 	}
 
 	public void setHeader(String header) {
@@ -79,7 +81,7 @@ public class EnkiveFilter {
 	public void setFilterAction(int filterAction) {
 		this.filterAction = filterAction;
 	}
-	
+
 	public boolean filter(String value) {
 		boolean matched = true;
 		switch (filterComparator) {
@@ -98,7 +100,7 @@ public class EnkiveFilter {
 		case FilterType.STRING:
 			matched = filterString(value);
 		case FilterType.ADDRESS:
-			try{
+			try {
 				matched = filterAddress(value);
 			} catch (ParseException e) {
 				logger.warn("Could not parse Address list for filtering", e);
@@ -106,121 +108,119 @@ public class EnkiveFilter {
 			}
 			break;
 		}
-		if(matched && filterType == FilterAction.ALLOW)
+		if (matched && filterType == FilterAction.ALLOW)
 			return true;
-		else if(matched && filterType == FilterAction.DENY)
+		else if (matched && filterType == FilterAction.DENY)
 			return false;
-		else if (defaultAction == FilterAction.DENY) 
+		else if (defaultAction == FilterAction.DENY)
 			return false;
 		else
 			return true;
 	}
-	
+
 	private boolean filterString(String value) {
 		boolean matched = false;
-		switch (filterComparator){
-			case FilterComparator.MATCHES:
-				if (value.equals(filterValue))
-					matched = true;
-			case  FilterComparator.DOES_NOT_MATCH:
-				if (!value.equals(filterValue))
-					matched = true;
+		switch (filterComparator) {
+		case FilterComparator.MATCHES:
+			if (value.equals(filterValue))
+				matched = true;
+		case FilterComparator.DOES_NOT_MATCH:
+			if (!value.equals(filterValue))
+				matched = true;
 		}
 		return matched;
 	}
 
 	private boolean filterDate(String value) throws java.text.ParseException {
 		boolean matched = false;
-		
+
 		Date dateValue = DateFormat.getDateInstance().parse(value);
 		Date dateFilterValue = DateFormat.getDateInstance().parse(filterValue);
-		
-		switch (filterComparator){
-			case FilterComparator.MATCHES:
-				if (value.equals(filterValue))
-					matched = true;
-			case FilterComparator.DOES_NOT_MATCH:
-				if (!value.equals(filterValue))
-					matched = true;
-			case FilterComparator.IS_GREATER_THAN:
-				if (dateValue.after(dateFilterValue))
-					matched = true;
-			case FilterComparator.IS_LESS_THAN:
-				if (dateValue.before(dateFilterValue))
-					matched = true;
-				
+
+		switch (filterComparator) {
+		case FilterComparator.MATCHES:
+			if (value.equals(filterValue))
+				matched = true;
+		case FilterComparator.DOES_NOT_MATCH:
+			if (!value.equals(filterValue))
+				matched = true;
+		case FilterComparator.IS_GREATER_THAN:
+			if (dateValue.after(dateFilterValue))
+				matched = true;
+		case FilterComparator.IS_LESS_THAN:
+			if (dateValue.before(dateFilterValue))
+				matched = true;
+
 		}
 		return matched;
 	}
 
 	private boolean filterFloat(String value) {
 		boolean matched = false;
-		
+
 		float floatValue = Float.valueOf(value);
 		float floatFilterValue = Float.valueOf(filterValue);
-		
-		switch (filterComparator){
-			case FilterComparator.MATCHES:
-				if (value.equals(filterValue))
-					matched = true;
-			case FilterComparator.DOES_NOT_MATCH:
-				if (!value.equals(filterValue))
-					matched = true;
-			case FilterComparator.IS_GREATER_THAN:
-				if (floatValue > floatFilterValue)
-					matched = true;
-			case FilterComparator.IS_LESS_THAN:
-				if (floatValue < floatFilterValue)
-					matched = true;
-				
+
+		switch (filterComparator) {
+		case FilterComparator.MATCHES:
+			if (value.equals(filterValue))
+				matched = true;
+		case FilterComparator.DOES_NOT_MATCH:
+			if (!value.equals(filterValue))
+				matched = true;
+		case FilterComparator.IS_GREATER_THAN:
+			if (floatValue > floatFilterValue)
+				matched = true;
+		case FilterComparator.IS_LESS_THAN:
+			if (floatValue < floatFilterValue)
+				matched = true;
+
 		}
 		return matched;
 	}
 
 	private boolean filterInteger(String value) {
 		boolean matched = false;
-		
+
 		int intValue = Integer.valueOf(value);
 		int intFilterValue = Integer.valueOf(filterValue);
-		
-		switch (filterComparator){
-			case FilterComparator.MATCHES:
-				if (value.equals(filterValue))
-					matched = true;
-			case FilterComparator.DOES_NOT_MATCH:
-				if (!value.equals(filterValue))
-					matched = true;
-			case FilterComparator.IS_GREATER_THAN:
-				if (intValue > intFilterValue)
-					matched = true;
-			case FilterComparator.IS_LESS_THAN:
-				if (intValue < intFilterValue)
-					matched = true;
-				
+
+		switch (filterComparator) {
+		case FilterComparator.MATCHES:
+			if (value.equals(filterValue))
+				matched = true;
+		case FilterComparator.DOES_NOT_MATCH:
+			if (!value.equals(filterValue))
+				matched = true;
+		case FilterComparator.IS_GREATER_THAN:
+			if (intValue > intFilterValue)
+				matched = true;
+		case FilterComparator.IS_LESS_THAN:
+			if (intValue < intFilterValue)
+				matched = true;
+
 		}
 		return matched;
 	}
 
-	private boolean filterAddress(String value) throws ParseException{
+	private boolean filterAddress(String value) throws ParseException {
 		boolean matched = false;
 		AddressList addresses = AddressList.parse(value);
 		Address address = Address.parse(filterValue);
-		
-		switch (filterComparator){
-			case FilterComparator.MATCHES:
-				if (addresses.size() == 1
-						&& addresses.get(0).equals(address))
-					matched = true;
-			case  FilterComparator.DOES_NOT_MATCH:
-				if (addresses.size() == 1
-						&& !addresses.get(0).equals(address))
-					matched = true;
-			case  FilterComparator.CONTAINS:
-				if (addresses.contains(address))
-					matched = true;
-			case  FilterComparator.DOES_NOT_CONTAIN:
-				if (!addresses.contains(address))
-					matched = true;
+		System.out.println("Filtering");
+		switch (filterComparator) {
+		case FilterComparator.MATCHES:
+			if (addresses.size() == 1 && addresses.get(0).equals(address))
+				matched = true;
+		case FilterComparator.DOES_NOT_MATCH:
+			if (addresses.size() == 1 && !addresses.get(0).equals(address))
+				matched = true;
+		case FilterComparator.CONTAINS:
+			if (addresses.contains(address))
+				matched = true;
+		case FilterComparator.DOES_NOT_CONTAIN:
+			if (!addresses.contains(address))
+				matched = true;
 		}
 		return matched;
 	}

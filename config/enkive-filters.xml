@@ -1,7 +1,7 @@
 <filters 
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="enkive-filters.xsd">
-	<defaultAction>Accept</defaultAction>
+	<defaultAction>Deny</defaultAction>
 	<filter enabled="false">
 		<action>deny</action>
 		<header>X-Spam-Flag</header>
