@@ -30,8 +30,9 @@ public class DocSearchServlet extends EnkiveServlet {
 		try {
 			final DocSearchQueryService queryService = getDocSearchQueryService();
 			String searchTerm = req.getParameter("search_term");
+			boolean rawSearch = null != req.getParameter("raw_search");
 			LOGGER.trace("submitted document search string: \"" + searchTerm + "\"");
-			List<String> result = queryService.search(searchTerm);
+			List<String> result = queryService.search(searchTerm, rawSearch);
 			LOGGER.trace("document search yield: " + result.size() + " documentss");
 			req.setAttribute("doc_id_list", result);
 			req.setAttribute("search_term", searchTerm);

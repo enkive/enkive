@@ -8,8 +8,9 @@
 </head>
 <body>
 	<form action="docSearch" method="get">
-		<input type="text" name="search_term" /> <input type="submit"
-			title="Search" />
+		Query: <input type="text" name="search_term" size="30"/> <br /> Raw Search: <input
+			type="checkbox" name="raw_search" />  <br /> <input
+			type="submit" title="Search" />
 	</form>
 </body>
 </html>
