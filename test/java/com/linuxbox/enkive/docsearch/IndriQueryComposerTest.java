@@ -2,41 +2,49 @@ package com.linuxbox.enkive.docsearch;
 
 import static com.linuxbox.enkive.docsearch.indri.IndriQueryComposer.composeQuery;
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.fail;
 
 import org.junit.Test;
+
+import com.linuxbox.enkive.docsearch.exception.DocSearchException;
 
 public class IndriQueryComposerTest {
 	final String s1 = "the rain in spain";
 
 	@Test
-	public void testSimple() {
+	public void testNotice() throws DocSearchException {
+		fail("not current; everything will likely fail here");
+	}
+
+	@Test
+	public void testSimple() throws DocSearchException {
 		final String indriQuery = composeQuery(s1).toString();
 		assertEquals("#band<the rain in spain>", indriQuery);
 	}
 
 	@Test
-	public void testNot() {
+	public void testNot() throws DocSearchException {
 		final String indriQuery = composeQuery("-the rain in -spain")
 				.toString();
 		assertEquals("#band<#not<the> rain in #not<spain>>", indriQuery);
 	}
 
 	@Test
-	public void testPhrase() {
+	public void testPhrase() throws DocSearchException {
 		final String indriQuery = composeQuery("\"the rain in spain\"")
 				.toString();
 		assertEquals("#band<#1<the rain in spain>>", indriQuery);
 	}
 
 	@Test
-	public void testNegatedPhrase() {
+	public void testNegatedPhrase() throws DocSearchException {
 		final String indriQuery = composeQuery("-\"the rain in spain\"")
 				.toString();
 		assertEquals("#band<#not<#1<the rain in spain>>>", indriQuery);
 	}
 
 	@Test
-	public void testPhrases() {
+	public void testPhrases() throws DocSearchException {
 		final String indriQuery = composeQuery(
 				"\"the rain in spain\" stays mainly \"in the plains\"")
 				.toString();
@@ -46,7 +54,7 @@ public class IndriQueryComposerTest {
 	}
 
 	@Test
-	public void testNegatedPhrases() {
+	public void testNegatedPhrases() throws DocSearchException {
 		final String indriQuery = composeQuery(
 				"-\"the rain in spain\" stays mainly -\"in the plains\"")
 				.toString();

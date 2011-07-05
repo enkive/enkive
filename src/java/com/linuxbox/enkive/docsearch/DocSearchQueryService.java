@@ -7,13 +7,15 @@ import com.linuxbox.enkive.docsearch.exception.DocSearchException;
 public interface DocSearchQueryService {
 	/**
 	 * Shut down the service and release any resources used by the service.
-	 * @throws DocSearchException 
+	 * 
+	 * @throws DocSearchException
 	 */
 	void startup() throws DocSearchException;
-	
+
 	/**
 	 * Shut down the service and release any resources used by the service.
-	 * @throws DocSearchException 
+	 * 
+	 * @throws DocSearchException
 	 */
 	void shutdown() throws DocSearchException;
 
@@ -31,9 +33,37 @@ public interface DocSearchQueryService {
 	 * @param query
 	 * 
 	 * @return
-	 * @throws DocSearchException 
+	 * @throws DocSearchException
 	 */
 	List<String> search(String query) throws DocSearchException;
+
+	/**
+	 * Perform a search and return a list of document identifiers that match.
+	 * 
+	 * @param query
+	 * @param rawSearch
+	 *            if true submit query string to engine w/o any
+	 *            pre-processing/parsing/composing
+	 * 
+	 * @return
+	 * @throws DocSearchException
+	 */
+	List<String> search(String query, boolean rawSearch)
+			throws DocSearchException;
+
+	/**
+	 * Perform a search and return a list of document identifiers that match.
+	 * 
+	 * @param query
+	 * @param rawSearch
+	 *            if true submit query string to engine w/o any
+	 *            pre-processing/parsing/composing
+	 * 
+	 * @return
+	 * @throws DocSearchException
+	 */
+	List<String> search(String query, int maxResults)
+			throws DocSearchException;
 
 	/**
 	 * Perform a search and return a list of document identifiers that match, at
@@ -44,5 +74,6 @@ public interface DocSearchQueryService {
 	 * @return
 	 */
 
-	List<String> search(String query, int maxResults) throws DocSearchException;
+	List<String> search(String query, int maxResults, boolean rawSearch)
+			throws DocSearchException;
 }
