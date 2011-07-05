@@ -1,5 +1,7 @@
 package com.linuxbox.enkive.docsearch.indri;
 
+import static com.linuxbox.enkive.docsearch.indri.IndriQueryComposer.composeQuery;
+
 import java.util.Collection;
 import java.util.List;
 
@@ -116,11 +118,16 @@ public class IndriDocSearchQueryService extends AbstractDocSearchQueryService {
 	public List<String> search(String query, int maxResults)
 			throws DocSearchException {
 		try {
+			final String indriQuery = composeQuery(query).toString();
+			LOGGER.trace("query \"" + query + "\" became Indri query \"" + indriQuery
+					+ "\"");
+
 			final ScoredExtentResult[] results;
 			String[] resultDocNumbers;
 			final QueryEnvironment queryEnv = queryEnvironmentManager
 					.getQueryEnvironment();
-			results = queryEnv.runQuery(query, maxResults);
+
+			results = queryEnv.runQuery(indriQuery, maxResults);
 			resultDocNumbers = queryEnv.documentMetadata(results, NAME_FIELD);
 			return CollectionUtils.listFromArray(resultDocNumbers);
 		} catch (Exception e) {
