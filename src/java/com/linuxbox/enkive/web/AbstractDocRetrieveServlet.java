@@ -28,11 +28,11 @@ public abstract class AbstractDocRetrieveServlet extends EnkiveServlet {
 			throws IOException, ServletException {
 		final String documentId = req.getParameter("document_id");
 		final DocStoreService docStoreService = getDocStoreService();
-		
+
 		try {
 			final Document doc = docStoreService.retrieve(documentId);
 			LOGGER.trace("retrieving document " + documentId);
-			
+
 			resp.setContentType(getContentType(doc));
 
 			final InputStream inputStream = getInputStream(doc);
@@ -42,10 +42,13 @@ public abstract class AbstractDocRetrieveServlet extends EnkiveServlet {
 			resp.flushBuffer();
 		} catch (DocumentNotFoundException e) {
 			LOGGER.error("requested document not found: " + documentId);
-			resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+			resp.sendError(HttpServletResponse.SC_NOT_FOUND,
+					"could not find document " + documentId);
 		} catch (DocStoreException e) {
 			LOGGER.error("error retrieving document " + documentId, e);
-			resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+					"error retrieving document " + documentId
+							+ "; see server logs");
 		}
 	}
 
