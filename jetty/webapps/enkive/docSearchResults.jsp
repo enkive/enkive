@@ -23,19 +23,21 @@
 		} else {
 	%>
 	<p>
-		Found:
-
+		Found
+		<%=docIdList.size()%>
+		document<%=docIdList.size() == 1 ? "" : "s"%>:
+	<ul>
 		<%
-		for (String id : docIdList) {
-	%>
-	
-	<li><%=id%> <a href="docRetrieve?document_id=<%=id%>"
-		target="_blank">binary</a> <a
-		href="docRetrieveEncoded?document_id=<%=id%>" target="_blank">encoded</a>
-	</li>
-	<%
-		}
-	%>
+			for (String id : docIdList) {
+		%>
+
+		<li><%=id%> <a href="docRetrieve?document_id=<%=id%>"
+			target="_blank">binary</a> <a
+			href="docRetrieveEncoded?document_id=<%=id%>" target="_blank">encoded</a>
+		</li>
+		<%
+			}
+		%>
 	</ul>
 	</p>
 	<%
