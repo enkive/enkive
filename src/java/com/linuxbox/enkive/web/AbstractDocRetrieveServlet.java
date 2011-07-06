@@ -41,7 +41,7 @@ public abstract class AbstractDocRetrieveServlet extends EnkiveServlet {
 
 			resp.flushBuffer();
 		} catch (DocumentNotFoundException e) {
-			LOGGER.error("failed to retrieve document " + documentId, e);
+			LOGGER.error("requested document not found: " + documentId);
 			resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
 		} catch (DocStoreException e) {
 			LOGGER.error("error retrieving document " + documentId, e);
