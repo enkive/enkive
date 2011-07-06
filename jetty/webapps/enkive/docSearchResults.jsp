@@ -28,12 +28,14 @@
 		<%
 		for (String id : docIdList) {
 	%>
-		
 	
-		<li><%=id%></li>
-		<%
-			}
-		%>
+	<li><%=id%> <a href="docRetrieve?document_id=<%=id%>"
+		target="_blank">binary</a> <a
+		href="docRetrieveEncoded?document_id=<%=id%>" target="_blank">encoded</a>
+	</li>
+	<%
+		}
+	%>
 	</ul>
 	</p>
 	<%
