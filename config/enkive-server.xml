@@ -13,7 +13,7 @@
 		class="com.linuxbox.enkive.docstore.mongogrid.MongoGridDocStoreService">
 		<constructor-arg ref="Mongo" />
 		<constructor-arg type="java.lang.String" value="${enkive.docstore.db.name}" />
-		<constructor-arg type="java.lang.String" value="fs" />
+		<constructor-arg type="java.lang.String" value="${enkive.docstore.fs.collection.name}" />
 
 		<property name="documentLockingService" ref="DocLockService" />
 		<property name="indexerQueueService" ref="IndexerQueueService" />
