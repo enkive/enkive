@@ -66,13 +66,9 @@ public class StreamConnector {
 			throws IOException {
 		byte[] buffer = new byte[BUFFER_SIZE_DEFAULT];
 		int bytesRead;
-		System.out.println("here");
 		while ((bytesRead = input.read(buffer)) != -1) {
 			output.write(buffer, 0, bytesRead);
-			System.out.println("transferred " + bytesRead);
 		}
-		System.out.println("there");
-		System.out.flush();
 		input.close();
 		output.flush();
 	}
