@@ -34,11 +34,11 @@ public abstract class AbstractDocRetrieveServlet extends EnkiveServlet {
 			LOGGER.trace("retrieving document " + documentId);
 
 			resp.setContentType(getContentType(doc));
+			handleResponse(resp, doc);
 
 			final InputStream inputStream = getInputStream(doc);
 			final ServletOutputStream outputStream = resp.getOutputStream();
 			StreamConnector.transferForeground(inputStream, outputStream);
-
 			resp.flushBuffer();
 		} catch (DocumentNotFoundException e) {
 			LOGGER.error("requested document not found: " + documentId);
@@ -71,4 +71,13 @@ public abstract class AbstractDocRetrieveServlet extends EnkiveServlet {
 	 * @throws DocStoreException
 	 */
 	protected abstract String getContentType(Document doc);
+
+	/**
+	 * Allow the subclasses to modify the response in some way.
+	 * 
+	 * @param response
+	 * @param doc
+	 */
+	protected abstract void handleResponse(HttpServletResponse response,
+			Document doc);
 }

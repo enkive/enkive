@@ -2,6 +2,8 @@ package com.linuxbox.enkive.web;
 
 import java.io.InputStream;
 
+import javax.servlet.http.HttpServletResponse;
+
 import com.linuxbox.enkive.docstore.Document;
 import com.linuxbox.enkive.docstore.exception.DocStoreException;
 
@@ -23,5 +25,11 @@ public class DocRetrieveServlet extends AbstractDocRetrieveServlet {
 	@Override
 	protected String getContentType(Document doc) {
 		return doc.getMimeType();
+	}
+
+	@Override
+	protected void handleResponse(HttpServletResponse response, Document doc) {
+		response.addHeader("Content-disposition", "attachment; filename="
+				+ System.currentTimeMillis() + "." + doc.getFileExtension());
 	}
 }

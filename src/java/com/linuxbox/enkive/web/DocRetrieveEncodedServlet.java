@@ -2,6 +2,8 @@ package com.linuxbox.enkive.web;
 
 import java.io.InputStream;
 
+import javax.servlet.http.HttpServletResponse;
+
 import com.linuxbox.enkive.docstore.Document;
 import com.linuxbox.enkive.docstore.exception.DocStoreException;
 
@@ -16,5 +18,10 @@ public class DocRetrieveEncodedServlet extends AbstractDocRetrieveServlet {
 	@Override
 	protected String getContentType(Document doc) {
 		return "text/plain";
+	}
+
+	@Override
+	protected void handleResponse(HttpServletResponse response, Document doc) {
+		// nothing to be done
 	}
 }
