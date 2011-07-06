@@ -12,6 +12,14 @@
 		<servlet-name>DocSearchServlet</servlet-name>
 		<servlet-class>com.linuxbox.enkive.web.DocSearchServlet</servlet-class>
 	</servlet>
+	<servlet>
+		<servlet-name>DocRetrieveServlet</servlet-name>
+		<servlet-class>com.linuxbox.enkive.web.DocRetrieveServlet</servlet-class>
+	</servlet>
+	<servlet>
+		<servlet-name>DocRetrieveEncodedServlet</servlet-name>
+		<servlet-class>com.linuxbox.enkive.web.DocRetrieveEncodedServlet</servlet-class>
+	</servlet>
 
 	<servlet-mapping>
 		<servlet-name>TestServlet</servlet-name>
@@ -21,10 +29,35 @@
 		<servlet-name>DocSearchServlet</servlet-name>
 		<url-pattern>/docSearch</url-pattern>
 	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>DocRetrieveServlet</servlet-name>
+		<url-pattern>/docRetrieve</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>DocRetrieveEncodedServlet</servlet-name>
+		<url-pattern>/docRetrieveEncoded</url-pattern>
+	</servlet-mapping>
 
 	<welcome-file-list>
 		<welcome-file>index.jsp</welcome-file>
 		<welcome-file>index.html</welcome-file>
 		<welcome-file>index.htm</welcome-file>
 	</welcome-file-list>
+
+	<error-page>
+	<error-page>
+		<error-code>
+			404
+        </error-code>
+		<location>
+			/error.jsp
+        </location>
+	</error-page>
+			<exception-type>
+			java.lang.Throwable
+        </exception-type>
+		<location>
+			/error.jsp
+        </location>
+	</error-page>
 </web-app>

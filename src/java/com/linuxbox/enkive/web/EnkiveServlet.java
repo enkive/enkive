@@ -14,6 +14,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.context.ApplicationContext;
 
 import com.linuxbox.enkive.docsearch.DocSearchQueryService;
+import com.linuxbox.enkive.docstore.DocStoreService;
 import com.linuxbox.util.spring.ApplicationContextProvider;
 
 public class EnkiveServlet extends HttpServlet {
@@ -34,8 +35,13 @@ public class EnkiveServlet extends HttpServlet {
 		return appContext.getBean(DocSearchQueryService.class);
 	}
 
+	public DocStoreService getDocStoreService() {
+		return appContext.getBean(DocStoreService.class);
+	}
+
 	/**
 	 * Helper function to make forwarding easier.
+	 * 
 	 * @param url
 	 * @param req
 	 * @param resp
