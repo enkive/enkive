@@ -1,18 +1,39 @@
 package com.linuxbox.enkive.docsearch.indri;
 
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ListIterator;
+import java.util.Set;
 
 import com.linuxbox.enkive.docsearch.TextQueryParser;
 import com.linuxbox.enkive.docsearch.TextQueryParser.Phrase;
 import com.linuxbox.enkive.docsearch.exception.DocSearchException;
 
 public class IndriQueryComposer {
+	protected static Set<Character> allowableSymbols = new HashSet<Character>();
+
+	static {
+		allowableSymbols.add('.');
+		allowableSymbols.add('@');
+		allowableSymbols.add('-');
+		allowableSymbols.add('_');
+	}
+
 	public static CharSequence composeQuery(String queryString)
 			throws DocSearchException {
 		return composeQuery(TextQueryParser.parseContentCriteria(queryString));
 	}
 
+	/**
+	 * Returns a phrase in Indri's query language #N(...) construct, where N is
+	 * the size of the window. Since we want zero words to be between the words
+	 * in our phrase, we use N=1 (you'd think it should be N=0, but that's not
+	 * how Indri is set up.
+	 * 
+	 * @param phrase
+	 * @return
+	 */
 	protected static CharSequence composePhrase(Phrase phrase) {
 		StringBuffer result = new StringBuffer();
 
@@ -25,6 +46,47 @@ public class IndriQueryComposer {
 		}
 
 		return result;
+	}
+
+	/**
+	 * Sanitize search term by only allowing letters, digits, and a small subset
+	 * of symbols.
+	 * 
+	 * @param buffer
+	 */
+	protected static void sanitizeStringBuffer(StringBuffer buffer) {
+		for (int i = buffer.length() - 1; i >= 0; i--) {
+			Character c = buffer.charAt(i);
+			if (!Character.isLetterOrDigit(c) && !allowableSymbols.contains(c)) {
+				buffer.deleteCharAt(i);
+			}
+		}
+	}
+
+	/**
+	 * Iterate through all the terms in the phrase and sanitize each one in
+	 * place.
+	 * 
+	 * @param phrase
+	 */
+	protected static void sanitizePhraseInPlace(Phrase phrase) {
+		ListIterator<CharSequence> i = phrase.getTermsListIterator();
+		while (i.hasNext()) {
+			CharSequence charSeq = i.next();
+
+			// convert to a StringBuffer if not one already
+			StringBuffer buffer;
+			if (!(charSeq instanceof StringBuffer)) {
+				buffer = new StringBuffer(charSeq);
+			} else {
+				buffer = (StringBuffer) charSeq;
+			}
+
+			sanitizeStringBuffer(buffer);
+
+			// replace term in phrase
+			i.set(buffer);
+		}
 	}
 
 	/**
@@ -43,11 +105,13 @@ public class IndriQueryComposer {
 		StringBuffer result = new StringBuffer();
 
 		/*
-		 * Separate the requirements and the rejections.
+		 * Separate the requirements and the rejections and sanitize in place.
 		 */
 		List<Phrase> requirements = new LinkedList<Phrase>();
 		List<Phrase> rejections = new LinkedList<Phrase>();
 		for (Phrase p : query) {
+			sanitizePhraseInPlace(p);
+
 			if (p.isNegated()) {
 				rejections.add(p);
 			} else {
@@ -56,7 +120,8 @@ public class IndriQueryComposer {
 		}
 
 		if (!requirements.isEmpty()) {
-			// prefer to combine requirements with #combine
+			// prefer to combine requirements with #combine, which does some
+			// perhaps useful weighting of search terms based on frequency
 			if (requirements.size() > 1) {
 				result.append("#combine(");
 			}
@@ -85,7 +150,7 @@ public class IndriQueryComposer {
 		// requirements (#filereq) are likely to reduce the number of results
 		// more quickly, make that the outer filter with the rejections within.
 
-		// add rejections filter if necessary
+		// first wrap rejection filter if necessary
 		if (!rejections.isEmpty()) {
 			StringBuffer prefix = new StringBuffer("#filrej(");
 
@@ -111,7 +176,8 @@ public class IndriQueryComposer {
 			result.append(")");
 		}
 
-		// add requirements filter if necessary
+		// now wrap requirements filter if necessary; this will be executed
+		// before any rejection filter
 		if (!requirements.isEmpty()) {
 			StringBuffer prefix = new StringBuffer("#filreq(");
 

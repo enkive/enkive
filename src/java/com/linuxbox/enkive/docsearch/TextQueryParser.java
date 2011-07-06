@@ -5,15 +5,16 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ListIterator;
 
 public class TextQueryParser {
 	public static class Phrase {
-		List<String> terms;
+		List<CharSequence> terms;
 		boolean negated;
 
 		public Phrase(boolean negated) {
 			this.negated = negated;
-			terms = new ArrayList<String>();
+			terms = new ArrayList<CharSequence>();
 		}
 
 		public Phrase() {
@@ -52,7 +53,7 @@ public class TextQueryParser {
 		public CharSequence getTermsAsCharSeq() {
 			StringBuffer result = new StringBuffer();
 
-			for (String s : terms) {
+			for (CharSequence s : terms) {
 				result.append(s);
 				result.append(' ');
 			}
@@ -61,6 +62,10 @@ public class TextQueryParser {
 			result.deleteCharAt(result.length() - 1);
 
 			return result;
+		}
+
+		public ListIterator<CharSequence> getTermsListIterator() {
+			return terms.listIterator();
 		}
 	}
 
@@ -181,10 +186,10 @@ public class TextQueryParser {
 			} else {
 				result.append(p.getTermsAsCharSeq());
 			}
-			
+
 			result.append(' ');
 		}
-		
+
 		// remove last space
 		result.deleteCharAt(result.length() - 1);
 
