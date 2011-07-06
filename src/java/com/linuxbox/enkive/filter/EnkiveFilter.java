@@ -21,6 +21,7 @@
 package com.linuxbox.enkive.filter;
 
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.apache.commons.logging.Log;
@@ -34,6 +35,10 @@ import com.linuxbox.enkive.filter.EnkiveFilterConstants.FilterComparator;
 import com.linuxbox.enkive.filter.EnkiveFilterConstants.FilterType;
 
 public class EnkiveFilter {
+	
+	private static final SimpleDateFormat dateFormatter = new SimpleDateFormat(
+	"EEE, dd MMM yyyy HH:mm:ss ZZZZ");
+	
 	private final static Log logger = LogFactory
 			.getLog("com.linuxbox.enkive.filter");
 
@@ -84,33 +89,36 @@ public class EnkiveFilter {
 
 	public boolean filter(String value) {
 		boolean matched = true;
-		switch (filterComparator) {
-		case FilterType.INTEGER:
-			matched = filterInteger(value);
-		case FilterType.FLOAT:
-			matched = filterFloat(value);
-		case FilterType.DATE:
-			try {
-				matched = filterDate(value);
-			} catch (java.text.ParseException e) {
-				logger.warn("Could not parse Date for filtering", e);
-				matched = false;
-			}
-			break;
-		case FilterType.STRING:
-			matched = filterString(value);
-		case FilterType.ADDRESS:
-			try {
-				matched = filterAddress(value);
-			} catch (ParseException e) {
-				logger.warn("Could not parse Address list for filtering", e);
-				matched = false;
-			}
-			break;
+		switch (filterType) {
+			case FilterType.INTEGER:
+				matched = filterInteger(value);
+				break;
+			case FilterType.FLOAT:
+				matched = filterFloat(value);
+				break;
+			case FilterType.DATE:
+				try {
+					matched = filterDate(value);
+				} catch (java.text.ParseException e) {
+					logger.warn("Could not parse Date for filtering", e);
+					matched = false;
+				}
+				break;
+			case FilterType.STRING:
+				matched = filterString(value);
+				break;
+			case FilterType.ADDRESS:
+				try {
+					matched = filterAddress(value);
+				} catch (ParseException e) {
+					logger.warn("Could not parse Address list for filtering", e);
+					matched = false;
+				}
+				break;
 		}
-		if (matched && filterType == FilterAction.ALLOW)
+		if (matched && filterAction == FilterAction.ALLOW)
 			return true;
-		else if (matched && filterType == FilterAction.DENY)
+		else if (matched && filterAction == FilterAction.DENY)
 			return false;
 		else if (defaultAction == FilterAction.DENY)
 			return false;
@@ -121,36 +129,41 @@ public class EnkiveFilter {
 	private boolean filterString(String value) {
 		boolean matched = false;
 		switch (filterComparator) {
-		case FilterComparator.MATCHES:
-			if (value.equals(filterValue))
-				matched = true;
-		case FilterComparator.DOES_NOT_MATCH:
-			if (!value.equals(filterValue))
-				matched = true;
+			case FilterComparator.MATCHES:
+				if (value.equals(filterValue))
+					matched = true;
+				break;
+			case FilterComparator.DOES_NOT_MATCH:
+				if (!value.equals(filterValue))
+					matched = true;
+				break;
 		}
 		return matched;
 	}
 
 	private boolean filterDate(String value) throws java.text.ParseException {
 		boolean matched = false;
-
-		Date dateValue = DateFormat.getDateInstance().parse(value);
-		Date dateFilterValue = DateFormat.getDateInstance().parse(filterValue);
+		
+		Date dateValue = dateFormatter.parse(value);
+		Date dateFilterValue = dateFormatter.parse(filterValue);
 
 		switch (filterComparator) {
-		case FilterComparator.MATCHES:
-			if (value.equals(filterValue))
-				matched = true;
-		case FilterComparator.DOES_NOT_MATCH:
-			if (!value.equals(filterValue))
-				matched = true;
-		case FilterComparator.IS_GREATER_THAN:
-			if (dateValue.after(dateFilterValue))
-				matched = true;
-		case FilterComparator.IS_LESS_THAN:
-			if (dateValue.before(dateFilterValue))
-				matched = true;
-
+			case FilterComparator.MATCHES:
+				if (value.equals(filterValue))
+					matched = true;
+				break;
+			case FilterComparator.DOES_NOT_MATCH:
+				if (!value.equals(filterValue))
+					matched = true;
+				break;
+			case FilterComparator.IS_GREATER_THAN:
+				if (dateValue.after(dateFilterValue))
+					matched = true;
+				break;
+			case FilterComparator.IS_LESS_THAN:
+				if (dateValue.before(dateFilterValue))
+					matched = true;
+				break;
 		}
 		return matched;
 	}
@@ -165,15 +178,19 @@ public class EnkiveFilter {
 		case FilterComparator.MATCHES:
 			if (value.equals(filterValue))
 				matched = true;
+			break;
 		case FilterComparator.DOES_NOT_MATCH:
 			if (!value.equals(filterValue))
 				matched = true;
+			break;
 		case FilterComparator.IS_GREATER_THAN:
 			if (floatValue > floatFilterValue)
 				matched = true;
+			break;
 		case FilterComparator.IS_LESS_THAN:
 			if (floatValue < floatFilterValue)
 				matched = true;
+			break;
 
 		}
 		return matched;
@@ -189,16 +206,19 @@ public class EnkiveFilter {
 		case FilterComparator.MATCHES:
 			if (value.equals(filterValue))
 				matched = true;
+			break;
 		case FilterComparator.DOES_NOT_MATCH:
 			if (!value.equals(filterValue))
 				matched = true;
+			break;
 		case FilterComparator.IS_GREATER_THAN:
 			if (intValue > intFilterValue)
 				matched = true;
+			break;
 		case FilterComparator.IS_LESS_THAN:
 			if (intValue < intFilterValue)
 				matched = true;
-
+			break;
 		}
 		return matched;
 	}
@@ -207,20 +227,24 @@ public class EnkiveFilter {
 		boolean matched = false;
 		AddressList addresses = AddressList.parse(value);
 		Address address = Address.parse(filterValue);
-		System.out.println("Filtering");
+		
 		switch (filterComparator) {
-		case FilterComparator.MATCHES:
-			if (addresses.size() == 1 && addresses.get(0).equals(address))
-				matched = true;
-		case FilterComparator.DOES_NOT_MATCH:
-			if (addresses.size() == 1 && !addresses.get(0).equals(address))
-				matched = true;
-		case FilterComparator.CONTAINS:
-			if (addresses.contains(address))
-				matched = true;
-		case FilterComparator.DOES_NOT_CONTAIN:
-			if (!addresses.contains(address))
-				matched = true;
+			case FilterComparator.MATCHES:
+				if (addresses.size() == 1 && addresses.get(0).equals(address))
+					matched = true;
+				break;
+			case FilterComparator.DOES_NOT_MATCH:
+				if (addresses.size() == 1 && !addresses.get(0).equals(address))
+					matched = true;
+				break;
+			case FilterComparator.CONTAINS:
+				if (addresses.contains(address))
+					matched = true;
+				break;
+			case FilterComparator.DOES_NOT_CONTAIN:
+				if (!addresses.contains(address))
+					matched = true;
+				break;
 		}
 		return matched;
 	}

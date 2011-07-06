@@ -262,11 +262,12 @@ public class MessageImpl extends AbstractMessage implements Message {
 			for (Address to : headers.getTo()) {
 				appendTo(to.toString());
 			}
-
-		if (headers.getCc() != null)
+		
+		if (headers.getCc() != null){
 			for (Address cc : headers.getCc()) {
 				appendCc(cc.toString());
 			}
+		}		
 		if (headers.getSubject() != null)
 			setSubject(headers.getSubject());
 		if (headers.getMessageId() != null)

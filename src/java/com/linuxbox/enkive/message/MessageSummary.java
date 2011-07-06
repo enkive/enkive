@@ -161,6 +161,12 @@ public interface MessageSummary {
 	 * @return the text after "From: " in the header
 	 */
 	public String getFrom();
+	
+	/**
+	 * 
+	 * @return the "From:" sender of the message, stripped of all brackets
+	 */
+	public String getFromStr();
 
 	/**
 	 * 

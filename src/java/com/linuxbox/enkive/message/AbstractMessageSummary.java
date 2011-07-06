@@ -195,6 +195,10 @@ public abstract class AbstractMessageSummary implements MessageSummary {
 		recipients.removeAll(getCc());
 		return recipients;
 	}
+	
+	public String getFromStr() {
+		return Utility.stripBracketsFromFromAddress(getFrom());
+	}
 
 	public String getToStr() {
 		return StringUtils.collectionToCommaSeparatedString(getTo());
