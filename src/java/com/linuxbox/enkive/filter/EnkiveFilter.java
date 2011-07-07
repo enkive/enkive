@@ -144,8 +144,6 @@ public class EnkiveFilter {
 	private boolean filterDate(String value) throws java.text.ParseException {
 		boolean matched = false;
 		
-		System.out.println(value);
-		
 		Date dateValue = dateFormatter.parse(value);
 		Date dateFilterValue = dateFormatter.parse(filterValue);
 
