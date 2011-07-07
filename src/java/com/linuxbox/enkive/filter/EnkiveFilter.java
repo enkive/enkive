@@ -37,7 +37,7 @@ import com.linuxbox.enkive.filter.EnkiveFilterConstants.FilterType;
 public class EnkiveFilter {
 	
 	private static final SimpleDateFormat dateFormatter = new SimpleDateFormat(
-	"EEE, dd MMM yyyy HH:mm:ss ZZZZ");
+	"EEE, dd MMM yyyy HH:mm:ss Z");
 	
 	private final static Log logger = LogFactory
 			.getLog("com.linuxbox.enkive.filter");
@@ -143,6 +143,8 @@ public class EnkiveFilter {
 
 	private boolean filterDate(String value) throws java.text.ParseException {
 		boolean matched = false;
+		
+		System.out.println(value);
 		
 		Date dateValue = dateFormatter.parse(value);
 		Date dateFilterValue = dateFormatter.parse(filterValue);
