@@ -1,0 +1,7 @@
+<webscript>
+  <shortname>Attachment Download</shortname>
+  <description>Attachment Download</description>
+  <url>/attachment</url>
+  <authentication>user</authentication>
+  <format default="html">argument</format>
+</webscript>
