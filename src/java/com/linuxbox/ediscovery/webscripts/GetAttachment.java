@@ -79,10 +79,8 @@ public class GetAttachment extends AbstractWebScript {
 		con.setUseCaches(true);
 		
 		res.setStatus(con.getResponseCode());             
-		for( Iterator i = con.getHeaderFields().entrySet().iterator() ; i.hasNext() ;){
-		Map.Entry mapEntry = (Map.Entry)i.next();
-		if(mapEntry.getKey()!=null)
-		   res.setHeader(mapEntry.getKey().toString(), ((List)mapEntry.getValue()).get(0).toString());
+		for( String key : con.getHeaderFields().keySet()){
+		   res.setHeader(key, con.getHeaderField(key));
 		}   
 		BufferedInputStream attachmentStream = new BufferedInputStream(con.getInputStream());
 		BufferedOutputStream resOutputStream = new BufferedOutputStream(res.getOutputStream());
