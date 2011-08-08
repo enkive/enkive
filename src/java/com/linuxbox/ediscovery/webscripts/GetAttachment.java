@@ -20,8 +20,14 @@
 
 package com.linuxbox.ediscovery.webscripts;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.extensions.webscripts.AbstractWebScript;
@@ -46,8 +52,6 @@ public class GetAttachment extends AbstractWebScript {
 		Map<String, Object> returnModel = new HashMap<String, Object>();
 		scriptModel.put("model", returnModel);
 		executeScript(script.getContent(), scriptModel);
-		mergeScriptModelIntoTemplateModel(script.getContent(), returnModel,
-				model);
 
 		ScriptProcessor scriptProcessor = getContainer()
 				.getScriptProcessorRegistry().getScriptProcessor(
@@ -64,34 +68,33 @@ public class GetAttachment extends AbstractWebScript {
 		if(ticket.getStatus().getCode() == 200)
 			ticketText = "?alf_ticket=" + ticket.getText();
 				
-		res.setStatus(302);
-		res.setHeader("Location", connector.getEndpoint() +
-		"/enkive/attachment/"
-		+ req.getParameterValues("attachmentid")[0] + ticketText);
-		res.setHeader( "Connection", "close" );
+		URL url = new URL(connector.getEndpoint() +
+				               "/enkive/attachment/"
+				               + req.getParameterValues("attachmentid")[0] + ticketText);
+		HttpURLConnection con = (HttpURLConnection) url.openConnection();
+		
+		con.setRequestMethod("GET");
+		con.setDoOutput(true);
+		con.setDoInput(true);
+		con.setUseCaches(true);
+		
+		res.setStatus(con.getResponseCode());             
+		for( Iterator i = con.getHeaderFields().entrySet().iterator() ; i.hasNext() ;){
+		Map.Entry mapEntry = (Map.Entry)i.next();
+		if(mapEntry.getKey()!=null)
+		   res.setHeader(mapEntry.getKey().toString(), ((List)mapEntry.getValue()).get(0).toString());
+		}   
+		BufferedInputStream attachmentStream = new BufferedInputStream(con.getInputStream());
+		BufferedOutputStream resOutputStream = new BufferedOutputStream(res.getOutputStream());
+		int read;
+		while ((read = attachmentStream.read()) != -1) 
+		     resOutputStream.write(read);
 
-		Map<String, Object> templateModel = createTemplateParameters(req, res,
-				model);
+		resOutputStream.flush();
+		resOutputStream.close();
+		attachmentStream.close();
+		con.disconnect();
 
-		String templatePath = getDescription().getId() + "." + req.getFormat();
-		// render response according to requested format
-		renderTemplate(templatePath, templateModel, res.getWriter());
-
-	}
-
-	private void mergeScriptModelIntoTemplateModel(ScriptContent scriptContent,
-			Map<String, Object> scriptModel, Map<String, Object> templateModel) {
-		// determine script processor
-		ScriptProcessor scriptProcessor = getContainer()
-				.getScriptProcessorRegistry().getScriptProcessor(scriptContent);
-		if (scriptProcessor != null) {
-			for (Map.Entry<String, Object> entry : scriptModel.entrySet()) {
-				// retrieve script model value
-				Object value = entry.getValue();
-				Object templateValue = scriptProcessor.unwrapValue(value);
-				templateModel.put(entry.getKey(), templateValue);
-			}
-		}
 	}
 
 }
