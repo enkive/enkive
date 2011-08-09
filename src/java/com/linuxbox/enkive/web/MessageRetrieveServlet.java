@@ -30,7 +30,6 @@ public class MessageRetrieveServlet extends EnkiveServlet {
 		final MessageRetrieverService retriever = getMessageRetrieverService();
 
 		try {
-			retriever.retrieveSummary(messageId);
 			final Message message = retriever.retrieve(messageId);
 			LOGGER.trace("retrieving message " + messageId);
 
