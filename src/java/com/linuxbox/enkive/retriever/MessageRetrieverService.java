@@ -27,7 +27,7 @@ import com.linuxbox.enkive.exception.CannotRetrieveException;
 import com.linuxbox.enkive.message.Message;
 import com.linuxbox.enkive.message.MessageSummary;
 
-public interface Retriever {
+public interface MessageRetrieverService {
 	/**
 	 * 
 	 * @param messageId

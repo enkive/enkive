@@ -21,7 +21,6 @@
 package com.linuxbox.enkive.retriever.mongodb;
 
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.BOUNDARY_ID;
-import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.MESSAGE_DIFF;
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.CC;
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.CONTENT_DISPOSITION;
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.CONTENT_ID;
@@ -31,6 +30,7 @@ import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.DATE;
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.EPILOGUE;
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.FROM;
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.MAIL_FROM;
+import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.MESSAGE_DIFF;
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.MESSAGE_ID;
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.ORIGINAL_HEADERS;
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.PREAMBLE;
@@ -47,7 +47,7 @@ import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.SI
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -96,6 +96,7 @@ public class MongoRetrieverService extends AbstractRetrieverService {
 	public Message retrieve(String messageUUID) throws CannotRetrieveException {
 		try {
 			DBObject messageObject = messageColl.findOne(messageUUID);
+			System.out.println(messageUUID);
 			Message message = new MessageImpl();
 			setMessageProperties(message, messageObject);
 			message.setContentHeader(makeContentHeader(messageObject));
@@ -128,8 +129,8 @@ public class MongoRetrieverService extends AbstractRetrieverService {
 
 		result.setMessageId((String) messageObject.get(MESSAGE_ID));
 
-		final Calendar date = (Calendar) messageObject.get(DATE);
-		result.setDate(date.getTime());
+		final Date date = (Date) messageObject.get(DATE);
+		result.setDate(date);
 
 		result.setSubject((String) messageObject.get(SUBJECT));
 

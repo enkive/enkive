@@ -76,6 +76,7 @@ public class MongoArchivingServiceTest {
 	@Test
 	public void testMessageStore() throws CannotArchiveException {
 		String messageUUID = archiver.storeOrFindMessage(message);
+		System.out.println(messageUUID);
 		assertEquals("Identifiers should be the same",
 				archiver.findMessage(message), messageUUID);
 	}

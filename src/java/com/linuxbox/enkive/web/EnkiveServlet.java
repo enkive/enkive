@@ -15,6 +15,7 @@ import org.springframework.context.ApplicationContext;
 
 import com.linuxbox.enkive.docsearch.DocSearchQueryService;
 import com.linuxbox.enkive.docstore.DocStoreService;
+import com.linuxbox.enkive.retriever.MessageRetrieverService;
 import com.linuxbox.util.spring.ApplicationContextProvider;
 
 public class EnkiveServlet extends HttpServlet {
@@ -37,6 +38,10 @@ public class EnkiveServlet extends HttpServlet {
 
 	public DocStoreService getDocStoreService() {
 		return appContext.getBean(DocStoreService.class);
+	}
+	
+	public MessageRetrieverService getMessageRetrieverService() {
+		return appContext.getBean(MessageRetrieverService.class);
 	}
 
 	/**
