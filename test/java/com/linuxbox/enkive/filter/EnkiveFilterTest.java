@@ -368,7 +368,55 @@ public class EnkiveFilterTest {
 
 		assertFalse(filter.filter(message.getSubject()));
 	}
+	
+	@Test
+	public void testStringContainsAllow() {
+		EnkiveFilter filter = new EnkiveFilter("Subject",
+				EnkiveFilterConstants.FilterAction.ALLOW,
+				EnkiveFilterConstants.FilterType.STRING,
+				"subject",
+				EnkiveFilterConstants.FilterComparator.CONTAINS,
+				EnkiveFilterConstants.FilterAction.DENY);
 
+		assertTrue(filter.filter(message.getSubject()));
+	}
+
+	@Test
+	public void testStringContainsDeny() {
+		EnkiveFilter filter = new EnkiveFilter("Subject",
+				EnkiveFilterConstants.FilterAction.DENY,
+				EnkiveFilterConstants.FilterType.STRING,
+				"subject",
+				EnkiveFilterConstants.FilterComparator.CONTAINS,
+				EnkiveFilterConstants.FilterAction.ALLOW);
+
+		assertFalse(filter.filter(message.getSubject()));
+	}
+	
+	@Test
+	public void testStringDoesNotContainAllow() {
+		EnkiveFilter filter = new EnkiveFilter("Subject",
+				EnkiveFilterConstants.FilterAction.ALLOW,
+				EnkiveFilterConstants.FilterType.STRING,
+				"notthesubject",
+				EnkiveFilterConstants.FilterComparator.DOES_NOT_CONTAIN,
+				EnkiveFilterConstants.FilterAction.DENY);
+
+		assertTrue(filter.filter(message.getSubject()));
+	}
+
+	@Test
+	public void testStringDoesNotContainDeny() {
+		EnkiveFilter filter = new EnkiveFilter("Subject",
+				EnkiveFilterConstants.FilterAction.DENY,
+				EnkiveFilterConstants.FilterType.STRING,
+				"notthesubject",
+				EnkiveFilterConstants.FilterComparator.DOES_NOT_CONTAIN,
+				EnkiveFilterConstants.FilterAction.ALLOW);
+
+		assertFalse(filter.filter(message.getSubject()));
+	}
+	
 	@Test
 	public void testAddressMatchesAllow() throws BadMessageException {
 		EnkiveFilter filter = new EnkiveFilter("From",

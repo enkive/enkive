@@ -23,6 +23,7 @@ package com.linuxbox.enkive.filter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.regex.Pattern;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -135,6 +136,14 @@ public class EnkiveFilter {
 				break;
 			case FilterComparator.DOES_NOT_MATCH:
 				if (!value.equals(filterValue))
+					matched = true;
+				break;
+			case FilterComparator.CONTAINS:
+				if (Pattern.matches(filterValue, value));
+					matched = true;
+				break;
+			case FilterComparator.DOES_NOT_CONTAIN:
+				if (!Pattern.matches(filterValue, value));
 					matched = true;
 				break;
 		}
