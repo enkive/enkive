@@ -8,6 +8,10 @@
 		<servlet-name>TestServlet</servlet-name>
 		<servlet-class>com.linuxbox.enkive.web.TestServlet</servlet-class>
 	</servlet>
+    <servlet>
+        <servlet-name>AuditEntryServlet</servlet-name>
+        <servlet-class>com.linuxbox.enkive.web.AuditEntryServlet</servlet-class>
+    </servlet>
 	<servlet>
 		<servlet-name>MessageRetrieveServlet</servlet-name>
 		<servlet-class>com.linuxbox.enkive.web.MessageRetrieveServlet</servlet-class>
@@ -29,6 +33,10 @@
 		<servlet-name>TestServlet</servlet-name>
 		<url-pattern>/test</url-pattern>
 	</servlet-mapping>
+	<servlet-mapping>
+        <servlet-name>AuditEntryServlet</servlet-name>
+        <url-pattern>/AuditEntry</url-pattern>
+    </servlet-mapping>
 	<servlet-mapping>
 		<servlet-name>MessageRetrieveServlet</servlet-name>
 		<url-pattern>/messageRetrieve</url-pattern>

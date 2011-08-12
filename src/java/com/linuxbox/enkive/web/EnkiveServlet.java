@@ -13,6 +13,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.context.ApplicationContext;
 
+import com.linuxbox.enkive.audit.AuditService;
 import com.linuxbox.enkive.docsearch.DocSearchQueryService;
 import com.linuxbox.enkive.docstore.DocStoreService;
 import com.linuxbox.enkive.retriever.MessageRetrieverService;
@@ -42,6 +43,10 @@ public class EnkiveServlet extends HttpServlet {
 	
 	public MessageRetrieverService getMessageRetrieverService() {
 		return appContext.getBean(MessageRetrieverService.class);
+	}
+
+	public AuditService getAuditService() {
+		return appContext.getBean("AuditLogService", AuditService.class);
 	}
 
 	/**
