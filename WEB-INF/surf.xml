@@ -31,4 +31,15 @@
 			</defaults>
 		</web-framework>
 	</config>
+	
+	<config evaluator="string-compare" condition="Remote">
+	  <remote>
+	    <endpoint>
+	      <id>enkive</id>
+	      <name>Enkive</name>
+	      <connector-id>http</connector-id>
+	      <endpoint-url>http://localhost:8888/enkive</endpoint-url>
+	    </endpoint>
+	  </remote>
+	</config>
 </alfresco-config>

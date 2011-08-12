@@ -1,16 +1,16 @@
 var messageid = context.properties["messageid"];
 // get a connector to the Alfresco repository endpoint
-var connector = remote.connect("alfresco");
+var connector = remote.connect("enkive");
 
-var attachments = connector.get("/enkive/messageattachments/" + messageid);
+//var attachments = connector.get("/enkive/messageattachments/" + messageid);
 
 // retrieve the message
-var response = connector.get("/enkive/message/" + messageid);
+var response = connector.get("/messageRetrieve?message_id=" + messageid);
 
 if(response.status == 200){
 	model.text = response;
-	var attachmentsJSON = eval("(" + attachments + ")");
-	model.attachments = attachmentsJSON.data;
+	//var attachmentsJSON = eval("(" + attachments + ")");
+	//model.attachments = attachmentsJSON.data;
 }
 else
 	model.text = "Your session has expired.  You must login to view this message";
