@@ -13,10 +13,6 @@
 	<property name="package.file.jar" value="${build.dir}/${project.name}.jar" />
 	<property name="package.file.war" value="${build.dir}/${project.name}.war" />
 
-	<path id="classpath.server">
-		<fileset dir="${alfresco.sdk.dir}/server" includes="**/*.jar" />
-	</path>
-
 	<path id="classpath.remote">
 		<fileset dir="${alfresco.sdk.dir}/remote" includes="**/*.jar" />
 	</path>
@@ -47,7 +43,6 @@
 	<target name="compile" description="Compiles src to ${bin.dir}">
 		<mkdir dir="${bin.dir}" />
 		<javac srcdir="${source.dir}/java" destdir="${bin.dir}" source="1.5" target="1.5" debug="on" fork="yes" deprecation="on">
-			<classpath refid="classpath.server" />
 		</javac>
 	</target>
 
