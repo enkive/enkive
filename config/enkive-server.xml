@@ -119,6 +119,16 @@
 		<property name="jmxEnabled" value="${enkive.jmx.enabled}" />
 	</bean>
 
+	<bean id="ConversionProcessor"
+		class="com.linuxbox.enkive.mailprocessor.processors.MailDirProcessor"
+		scope="prototype">
+		<property name="archiver" ref="MessageArchivingService" />
+		<property name="auditService" ref="AuditLogService" />
+		<property name="enkiveFilters" ref="EnkiveFilters" />
+		<property name="emergencySaveRoot" value="${enkive.messagestore.emergencysave.root}" />
+		<property name="jmxEnabled" value="${enkive.jmx.enabled}" />
+	</bean>
+
 	<bean id="AuditLogService" class="com.linuxbox.enkive.audit.mongodb.MongoAuditService">
 		<constructor-arg ref="Mongo" />
 		<constructor-arg value="${enkive.queueservice.db.name}" />

@@ -36,6 +36,9 @@ public class ConversionServer extends ArchivingThreadPoolServer {
 	}
 
 	protected ArchivingProcessor createArchivingProcessor() {
-		return new MailDirProcessor();
+		// TODO hard-coded constant name should not appear below; make a final
+		// constant some place
+		return (ArchivingProcessor) applicationContext
+		.getBean("ConversionProcessor");
 	}
 }
