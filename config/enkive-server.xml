@@ -103,8 +103,24 @@
 		<constructor-arg ref="ThreadPoolServerConfiguration" />
 	</bean>
 
+	<bean id="ConversionServer" class="com.linuxbox.enkive.server.ConversionServer"
+		init-method="startServer" destroy-method="shutdownServer">
+		<constructor-arg type="int" value="${enkive.server.conversion.port}" />
+		<constructor-arg ref="ThreadPoolServerConfiguration" />
+	</bean>
+
 	<bean id="PostfixFilterProcessor"
 		class="com.linuxbox.enkive.mailprocessor.processors.PostfixFilterProcessor"
+		scope="prototype">
+		<property name="archiver" ref="MessageArchivingService" />
+		<property name="auditService" ref="AuditLogService" />
+		<property name="enkiveFilters" ref="EnkiveFilters" />
+		<property name="emergencySaveRoot" value="${enkive.messagestore.emergencysave.root}" />
+		<property name="jmxEnabled" value="${enkive.jmx.enabled}" />
+	</bean>
+
+	<bean id="ConversionProcessor"
+		class="com.linuxbox.enkive.mailprocessor.processors.MailDirProcessor"
 		scope="prototype">
 		<property name="archiver" ref="MessageArchivingService" />
 		<property name="auditService" ref="AuditLogService" />
