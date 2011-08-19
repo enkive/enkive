@@ -198,4 +198,12 @@ public interface ContentHeader {
 	 *         and "text/html").
 	 */
 	public Set<String> getAttachmentTypes();
+	
+	/**
+	 * 
+	 * @return a set of all attachment UUIDs 
+	 *      .
+	 */
+	public Set<String> getAttachmentUUIDs();
+
 }

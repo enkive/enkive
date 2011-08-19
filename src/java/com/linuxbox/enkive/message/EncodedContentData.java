@@ -24,4 +24,12 @@ public interface EncodedContentData extends BaseContentData {
 
 	public boolean isEmpty();
 
+
+	public String getUUID();
+	public void setUUID(String uUID);
+	
+	public String getFilename();
+	
+	public void setFilename(String filename);
+
 }

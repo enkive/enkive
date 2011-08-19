@@ -55,7 +55,9 @@ import org.apache.commons.logging.LogFactory;
 
 import com.linuxbox.enkive.docstore.Document;
 import com.linuxbox.enkive.docstore.exception.DocStoreException;
+import com.linuxbox.enkive.docstore.mongogrid.MongoGridDocument;
 import com.linuxbox.enkive.exception.BadMessageException;
+import com.linuxbox.enkive.exception.CannotGetPermissionsException;
 import com.linuxbox.enkive.exception.CannotRetrieveException;
 import com.linuxbox.enkive.exception.CannotTransferMessageContentException;
 import com.linuxbox.enkive.message.ContentHeader;
@@ -76,6 +78,7 @@ import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import com.mongodb.Mongo;
+import com.mongodb.gridfs.GridFSDBFile;
 
 public class MongoRetrieverService extends AbstractRetrieverService {
 	
@@ -149,6 +152,8 @@ public class MongoRetrieverService extends AbstractRetrieverService {
 
 		return result;
 	}
+	
+	
 
 	private ContentHeader makeContentHeader(DBObject messageObject)
 			throws CannotRetrieveException, IOException {
@@ -188,6 +193,7 @@ public class MongoRetrieverService extends AbstractRetrieverService {
 		
 		EncodedContentData encodedContentData = null;
 		encodedContentData = buildEncodedContentData((String) contentHeaderObject.get(ATTACHMENT_ID));
+		
 		header.setEncodedContentData(encodedContentData);
 
 		return header;
@@ -213,7 +219,14 @@ public class MongoRetrieverService extends AbstractRetrieverService {
 		EncodedContentData encodedContentData = new EncodedContentDataImpl();
 		try {
 			Document document = docStoreService.retrieve(attachmentUUID);
+			
+			MongoGridDocument tmpDocument = (MongoGridDocument) docStoreService.retrieve(attachmentUUID);
+			String tmp = tmpDocument.getGridFileName();
+			String tmpFileName =  ((MongoGridDocument)document).getGridFileName();
+			
 			encodedContentData.setBinaryContent(document.getEncodedContentStream());
+			encodedContentData.setFilename(tmpFileName);
+			encodedContentData.setUUID(attachmentUUID);
 		} catch (CannotTransferMessageContentException e) {
 			throw new CannotRetrieveException(
 					"could not extract data from datastore", e);
@@ -246,4 +259,23 @@ public class MongoRetrieverService extends AbstractRetrieverService {
 		header.setPreamble((String) headerObject.get(PREAMBLE));
 		header.setEpilogue((String) headerObject.get(EPILOGUE)); 	
 	}
+
+
+	@Override
+	public EncodedContentData retrieveAttachment(String attachmentUUID)
+	throws CannotRetrieveException {
+		
+			EncodedContentData attachment;
+			try {
+				attachment = buildEncodedContentData(attachmentUUID);
+				return attachment;
+			} catch (DocStoreException e) {
+				
+				throw new CannotRetrieveException(
+						"could not retrieve attachment from datastore", e);
+			}
+
+	}
+	
+	
 }

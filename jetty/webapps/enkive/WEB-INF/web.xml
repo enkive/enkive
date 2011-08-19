@@ -17,6 +17,10 @@
 		<servlet-class>com.linuxbox.enkive.web.MessageRetrieveServlet</servlet-class>
 	</servlet>
 	<servlet>
+	    <servlet-name>MessageAttachmentDetailServlet</servlet-name>
+	    <servlet-class>com.linuxbox.enkive.web.MessageAttachmentDetailServlet</servlet-class>
+	</servlet>
+	<servlet>
 		<servlet-name>DocSearchServlet</servlet-name>
 		<servlet-class>com.linuxbox.enkive.web.DocSearchServlet</servlet-class>
 	</servlet>
@@ -35,11 +39,15 @@
 	</servlet-mapping>
 	<servlet-mapping>
         <servlet-name>AuditEntryServlet</servlet-name>
-        <url-pattern>/AuditEntry</url-pattern>
+        <url-pattern>/auditEntry</url-pattern>
     </servlet-mapping>
 	<servlet-mapping>
 		<servlet-name>MessageRetrieveServlet</servlet-name>
 		<url-pattern>/messageRetrieve</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+	    <servlet-name>MessageAttachmentDetailServlet</servlet-name>
+	    <url-pattern>/messageAttachmentDetail</url-pattern>
 	</servlet-mapping>
 	<servlet-mapping>
 		<servlet-name>DocSearchServlet</servlet-name>

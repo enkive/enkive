@@ -94,4 +94,12 @@ public class SinglePartHeaderImpl extends AbstractSinglePartHeader implements
 		}
 		return result;
 	}
+	
+	@Override
+	public Set<String> getAttachmentUUIDs() {
+		Set<String> result = newSet();
+	
+		result.add(getEncodedContentData().getUUID());
+		return result;
+	}
 }
