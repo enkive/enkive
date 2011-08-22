@@ -12,6 +12,10 @@
         <servlet-name>AuditEntryServlet</servlet-name>
         <servlet-class>com.linuxbox.enkive.web.AuditEntryServlet</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>AttachmentRetrieveServlet</servlet-name>
+        <servlet-class>com.linuxbox.enkive.web.AttachmentRetrieveServlet</servlet-class>
+    </servlet>
 	<servlet>
 		<servlet-name>MessageRetrieveServlet</servlet-name>
 		<servlet-class>com.linuxbox.enkive.web.MessageRetrieveServlet</servlet-class>
@@ -40,6 +44,10 @@
 	<servlet-mapping>
         <servlet-name>AuditEntryServlet</servlet-name>
         <url-pattern>/auditEntry</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>AttachmentRetrieveServlet</servlet-name>
+        <url-pattern>/attachmentRetrieve</url-pattern>
     </servlet-mapping>
 	<servlet-mapping>
 		<servlet-name>MessageRetrieveServlet</servlet-name>

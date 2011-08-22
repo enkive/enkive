@@ -24,6 +24,7 @@ public class EncodedContentDataImpl extends AbstractBaseContentData  implements
 		EncodedContentData {
 	protected String UUID;
 	protected String filename;
+	protected String mimeType;
 
 	public EncodedContentDataImpl() {
 		super();
@@ -50,6 +51,14 @@ public class EncodedContentDataImpl extends AbstractBaseContentData  implements
 		this.filename = filename;
 	}
 	
+	public String getMimeType() {
+		return mimeType;
+	}
+
+	public void setMimeType(String mimeType) {
+		this.mimeType = mimeType;
+	}
+
 
 
    

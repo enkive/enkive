@@ -31,5 +31,8 @@ public interface EncodedContentData extends BaseContentData {
 	public String getFilename();
 	
 	public void setFilename(String filename);
+	
+	public String getMimeType();
+	public void setMimeType(String mimeType);
 
 }

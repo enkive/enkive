@@ -220,12 +220,13 @@ public class MongoRetrieverService extends AbstractRetrieverService {
 		try {
 			Document document = docStoreService.retrieve(attachmentUUID);
 			
-			MongoGridDocument tmpDocument = (MongoGridDocument) docStoreService.retrieve(attachmentUUID);
-			String tmp = tmpDocument.getGridFileName();
+			//MongoGridDocument tmpDocument = (MongoGridDocument) docStoreService.retrieve(attachmentUUID);
+			//String tmp = tmpDocument.getGridFileName();
 			String tmpFileName =  ((MongoGridDocument)document).getGridFileName();
 			
 			encodedContentData.setBinaryContent(document.getEncodedContentStream());
 			encodedContentData.setFilename(tmpFileName);
+			encodedContentData.setMimeType(document.getMimeType());
 			encodedContentData.setUUID(attachmentUUID);
 		} catch (CannotTransferMessageContentException e) {
 			throw new CannotRetrieveException(
