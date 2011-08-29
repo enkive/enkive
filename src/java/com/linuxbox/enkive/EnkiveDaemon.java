@@ -12,13 +12,13 @@ public class EnkiveDaemon implements Daemon {
 
 	private static final String USER = AuditService.USER_SYSTEM;
 	private static final String DESCRIPTION = "com.linuxbox.enkive.daemon";
-	
+
 	static final String[] CONFIG_FILES = { "enkive-server.xml" };
-	
+
 	protected String[] configFiles;
 	protected AbstractApplicationContext appContext;
 	protected AuditService auditService;
-	
+
 	@Override
 	public void init(DaemonContext context) throws DaemonInitException,
 			Exception {
@@ -27,19 +27,16 @@ public class EnkiveDaemon implements Daemon {
 
 	@Override
 	public void start() throws Exception {
-		appContext = new ClassPathXmlApplicationContext(
-				configFiles);
-		auditService = appContext.getBean("AuditLogService",
-				AuditService.class);
-		auditService.addEvent(AuditService.SYSTEM_STARTUP, USER,
-				DESCRIPTION);
-		
+		appContext = new ClassPathXmlApplicationContext(configFiles);
+		auditService = appContext
+				.getBean("AuditLogService", AuditService.class);
+		auditService.addEvent(AuditService.SYSTEM_STARTUP, USER, DESCRIPTION);
+
 	}
 
 	@Override
 	public void stop() throws Exception {
-		auditService.addEvent(AuditService.SYSTEM_SHUTDOWN, USER,
-				DESCRIPTION);
+		auditService.addEvent(AuditService.SYSTEM_SHUTDOWN, USER, DESCRIPTION);
 		appContext.close();
 	}
 

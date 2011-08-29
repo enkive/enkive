@@ -34,7 +34,8 @@ public class MessageRetrieveServlet extends EnkiveServlet {
 			LOGGER.trace("retrieving message " + messageId);
 
 			final ServletOutputStream outputStream = resp.getOutputStream();
-			BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream));
+			BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(
+					outputStream));
 			message.pushReconstitutedEmail(writer);
 			resp.flushBuffer();
 		} catch (CannotRetrieveException e) {

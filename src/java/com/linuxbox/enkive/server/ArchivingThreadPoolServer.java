@@ -44,12 +44,13 @@ import com.linuxbox.util.threadpool.ThreadAspects;
  * 
  */
 public abstract class ArchivingThreadPoolServer extends ThreadPoolServer
-		implements ArchivingThreadPoolServerMBean, ThreadAspects, ApplicationContextAware{
+		implements ArchivingThreadPoolServerMBean, ThreadAspects,
+		ApplicationContextAware {
 	private final static Log logger = LogFactory
 			.getLog("com.linuxbox.enkive.server");
-	
+
 	protected static ApplicationContext applicationContext = null;
-	
+
 	// private Set<AbstractMailProcessor> liveProcessors = Collections
 	// .synchronizedSet(new HashSet<AbstractMailProcessor>());
 	private Set<AbstractMailProcessor> liveProcessors = new HashSet<AbstractMailProcessor>();
@@ -62,7 +63,7 @@ public abstract class ArchivingThreadPoolServer extends ThreadPoolServer
 		super(serverName, port, poolConfig);
 	}
 
-	protected ThreadedProcessor initializeProcessor(Socket sessionSocket){
+	protected ThreadedProcessor initializeProcessor(Socket sessionSocket) {
 
 		ArchivingProcessor processor = createArchivingProcessor();
 
@@ -82,7 +83,7 @@ public abstract class ArchivingThreadPoolServer extends ThreadPoolServer
 			socket.close();
 		}
 	}
-	
+
 	abstract protected ArchivingProcessor createArchivingProcessor();
 
 	/**
@@ -139,11 +140,11 @@ public abstract class ArchivingThreadPoolServer extends ThreadPoolServer
 			}
 		}
 	}
-	
+
 	@Override
 	public void setApplicationContext(ApplicationContext ctx)
 			throws BeansException {
 		PostfixFilterServer.applicationContext = ctx;
-		
+
 	}
 }

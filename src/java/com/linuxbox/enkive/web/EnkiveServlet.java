@@ -40,7 +40,7 @@ public class EnkiveServlet extends HttpServlet {
 	public DocStoreService getDocStoreService() {
 		return appContext.getBean(DocStoreService.class);
 	}
-	
+
 	public MessageRetrieverService getMessageRetrieverService() {
 		return appContext.getBean(MessageRetrieverService.class);
 	}

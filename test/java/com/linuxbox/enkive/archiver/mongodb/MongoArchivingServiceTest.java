@@ -41,14 +41,15 @@ public class MongoArchivingServiceTest {
 
 	@Parameters
 	public static Collection<Object[]> data() {
-		return ArchiverUtils.getAllTestFiles(new File(TestingConstants.TEST_MESSAGE_DIRECTORY));
+		return ArchiverUtils.getAllTestFiles(new File(
+				TestingConstants.TEST_MESSAGE_DIRECTORY));
 	}
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		m = new Mongo();
-		docStoreService = new ConvenienceMongoGridDocStoreService(
-				m, "enkive-test", "documents-test");
+		docStoreService = new ConvenienceMongoGridDocStoreService(m,
+				"enkive-test", "documents-test");
 		docStoreService.startup();
 
 		archiver = new MongoArchivingService(m, "enkive-test", "messages-test");

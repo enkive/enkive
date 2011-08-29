@@ -21,7 +21,6 @@
 package com.linuxbox.enkive.server;
 
 import com.linuxbox.enkive.mailprocessor.ArchivingProcessor;
-import com.linuxbox.enkive.mailprocessor.processors.MailDirProcessor;
 import com.linuxbox.enkive.server.config.ThreadPoolServerConfiguration;
 
 /**
@@ -39,6 +38,6 @@ public class ConversionServer extends ArchivingThreadPoolServer {
 		// TODO hard-coded constant name should not appear below; make a final
 		// constant some place
 		return (ArchivingProcessor) applicationContext
-		.getBean("ConversionProcessor");
+				.getBean("ConversionProcessor");
 	}
 }

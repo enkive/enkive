@@ -19,7 +19,6 @@
  */
 package com.linuxbox.enkive.web;
 
-
 import java.util.List;
 
 import org.json.JSONException;
@@ -55,9 +54,9 @@ public class WebPageInfo {
 	}
 
 	public WebPageInfo() {
-		//Just use the defaults
+		// Just use the defaults
 	}
-	
+
 	public WebPageInfo(String pagePos, String pageSize) {
 		if (pagePos != null)
 			this.pagePos = Integer.parseInt(pagePos);
@@ -137,7 +136,8 @@ public class WebPageInfo {
 	}
 
 	/*
-	 * Helper function to get a sub list of a set of results, used for pagination
+	 * Helper function to get a sub list of a set of results, used for
+	 * pagination
 	 */
 	public List<?> getSubList(List<?> list) {
 		List<?> subList;

@@ -65,7 +65,7 @@ public class MongoAuditServiceTest {
 		long count2 = service.getAuditEntryCount();
 		assertEquals(5L, count2);
 	}
-	
+
 	@Test
 	public void testRetreiveById() throws Exception {
 		addData(service, 0);
@@ -136,7 +136,7 @@ public class MongoAuditServiceTest {
 				"first result date must be after last result date",
 				lastResult.getTimestamp().compareTo(firstResult.getTimestamp()) < 0);
 	}
-	
+
 	@Test
 	public void testRetrieveByCodeAndUser() throws Exception {
 		addData(service, 501);

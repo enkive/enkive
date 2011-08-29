@@ -22,7 +22,7 @@ import com.mongodb.Mongo;
 public class MongoLockingServiceTest {
 	private static final String databaseName = "test-mongo-locking-service";
 	private static final String collectionName = "lockingService";
-	
+
 	private static Mongo mongo;
 	private static MongoLockService service;
 

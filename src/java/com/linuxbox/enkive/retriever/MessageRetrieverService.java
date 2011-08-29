@@ -55,7 +55,8 @@ public interface MessageRetrieverService {
 	 * @return a re-constituted message
 	 */
 	public Message retrieve(String messageUUID) throws CannotRetrieveException;
+
 	EncodedContentData retrieveAttachment(String attachmentUUID)
-	throws CannotRetrieveException;
+			throws CannotRetrieveException;
 
 }

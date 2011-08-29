@@ -83,11 +83,11 @@ public abstract class AbstractMailProcessor implements ArchivingProcessor,
 	protected AbstractSocketServer server;
 	protected MessageArchivingService archiver;
 	protected AuditService auditService;
-	
+
 	protected EnkiveFiltersBean enkiveFilters;
 	protected String emergencySaveRoot;
 	protected boolean jmxEnabled = false;
-	
+
 	private boolean closeInitiated;
 	private boolean initialized;
 	protected boolean multiMessage = false;
@@ -340,7 +340,7 @@ public abstract class AbstractMailProcessor implements ArchivingProcessor,
 	 * @param messageIsIncomplete
 	 * @throws FailedToEmergencySaveException
 	 * @throws AuditTrailException
-	 * @throws AuditServiceException 
+	 * @throws AuditServiceException
 	 */
 	private void handleEmergencySaving(final String data,
 			boolean messageIsIncomplete) throws FailedToEmergencySaveException,
@@ -370,15 +370,14 @@ public abstract class AbstractMailProcessor implements ArchivingProcessor,
 
 		for (int attempt = 0; attempt < EMERGENCY_SAVE_ATTEMPTS; ++attempt) {
 			// choose one of two billion random numbers
-			String random = String.format("%08x", Math.round(Math.random()
-					* RANDOM_FILENAME_SUFFIX_RANGE));
+			String random = String.format("%08x",
+					Math.round(Math.random() * RANDOM_FILENAME_SUFFIX_RANGE));
 
 			Date now = Calendar
 					.getInstance(GeneralConstants.STANDARD_TIME_ZONE).getTime();
 
 			String fileName = GeneralConstants.NUMERIC_FORMAT_W_MILLIS
-					.format(now)
-					+ "_" + random;
+					.format(now) + "_" + random;
 			if (messageIsIncomplete) {
 				fileName += "-incomplete";
 			}
@@ -400,8 +399,7 @@ public abstract class AbstractMailProcessor implements ArchivingProcessor,
 	private String saveToDisk(String messageData, String fileName)
 			throws FailedToEmergencySaveException,
 			SaveFileAlreadyExistsException {
-		final String filePath = getEmergencySaveRoot() + "/"
-				+ fileName;
+		final String filePath = getEmergencySaveRoot() + "/" + fileName;
 
 		BufferedWriter out = null;
 		FileOutputStream fileStream = null;
@@ -445,7 +443,7 @@ public abstract class AbstractMailProcessor implements ArchivingProcessor,
 	public String getEmergencySaveRoot() {
 		return emergencySaveRoot;
 	}
-	
+
 	public void setEmergencySaveRoot(String emergencySaveRoot) {
 		this.emergencySaveRoot = emergencySaveRoot;
 	}
@@ -470,17 +468,17 @@ public abstract class AbstractMailProcessor implements ArchivingProcessor,
 
 		if (archiveMessage) {
 			String messageUUID = archiver.storeOrFindMessage(message);
-				logger.info("Message: " + message.getCleanMessageId()
-						+ " successfully archived with UUID " + messageUUID);
-				messageSaved = true;
+			logger.info("Message: " + message.getCleanMessageId()
+					+ " successfully archived with UUID " + messageUUID);
+			messageSaved = true;
 		} else {
 			logger.info("Message Rejected:" + message.getMessageId()
 					+ " did not pass message filters");
 			messageSaved = true;
 		}
 	}
-	
-	public void setEnkiveFilters(EnkiveFiltersBean filters){
+
+	public void setEnkiveFilters(EnkiveFiltersBean filters) {
 		enkiveFilters = filters;
 	}
 
@@ -503,11 +501,11 @@ public abstract class AbstractMailProcessor implements ArchivingProcessor,
 	public boolean isJmxEnabled() {
 		return jmxEnabled;
 	}
-	
+
 	public void setJmxEnabled(boolean jmxEnabled) {
 		this.jmxEnabled = jmxEnabled;
 	}
-	
+
 	/*
 	 * Subclass API
 	 */

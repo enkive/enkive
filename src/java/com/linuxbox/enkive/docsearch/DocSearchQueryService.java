@@ -62,8 +62,7 @@ public interface DocSearchQueryService {
 	 * @return
 	 * @throws DocSearchException
 	 */
-	List<String> search(String query, int maxResults)
-			throws DocSearchException;
+	List<String> search(String query, int maxResults) throws DocSearchException;
 
 	/**
 	 * Perform a search and return a list of document identifiers that match, at

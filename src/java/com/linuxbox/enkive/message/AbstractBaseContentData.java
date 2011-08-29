@@ -52,6 +52,9 @@ public abstract class AbstractBaseContentData implements BaseContentData {
 	protected byte[] data;
 	protected byte[] hashBytes;
 	protected String hashString;
+	protected String UUID;
+	protected String filename;
+	protected String mimeType;
 
 	public AbstractBaseContentData() {
 		super();
@@ -156,4 +159,29 @@ public abstract class AbstractBaseContentData implements BaseContentData {
 		hashBytes = md.digest();
 		hashString = new String((new Hex()).encode(hashBytes));
 	}
+
+	public String getUUID() {
+		return UUID;
+	}
+
+	public void setUUID(String uUID) {
+		this.UUID = uUID;
+	}
+
+	public String getFilename() {
+		return filename;
+	}
+
+	public void setFilename(String filename) {
+		this.filename = filename;
+	}
+
+	public String getMimeType() {
+		return mimeType;
+	}
+
+	public void setMimeType(String mimeType) {
+		this.mimeType = mimeType;
+	}
+
 }

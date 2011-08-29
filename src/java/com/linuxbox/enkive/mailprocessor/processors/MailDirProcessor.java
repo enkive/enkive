@@ -53,8 +53,8 @@ public class MailDirProcessor extends AbstractMailProcessor {
 	@Override
 	protected void prepareProcessor() throws UnknownHostException, IOException {
 		this.multiMessage = true;
-		reader = new BufferedReader(new InputStreamReader(socket
-				.getInputStream()));
+		reader = new BufferedReader(new InputStreamReader(
+				socket.getInputStream()));
 	}
 
 	/**
@@ -86,8 +86,7 @@ public class MailDirProcessor extends AbstractMailProcessor {
 			// check for closed socket / end-of-stream
 			if (character < 0) {
 				if (!addresses.isEmpty() || !address.isEmpty()) {
-					logger
-							.error("MailDirProcessor: socket closed after reading address data");
+					logger.error("MailDirProcessor: socket closed after reading address data");
 					throw new MessageIncompleteException(
 							"socket closed while reading address line");
 				}
@@ -130,8 +129,8 @@ public class MailDirProcessor extends AbstractMailProcessor {
 
 		if (tmp == null) {
 			throw new MessageIncompleteException(
-					"socket closed before end-of-message indicator", m
-							.toString());
+					"socket closed before end-of-message indicator",
+					m.toString());
 		}
 
 		return m.toString();
@@ -173,12 +172,9 @@ public class MailDirProcessor extends AbstractMailProcessor {
 				return null;
 			}
 		} catch (ParseException e) {
-			logger
-					.error("Email address header "
-							+ headerTypeDescription
-							+ "(\""
-							+ strippedAddress
-							+ "\") could not be parsed as one or more email addresses.");
+			logger.error("Email address header " + headerTypeDescription
+					+ "(\"" + strippedAddress
+					+ "\") could not be parsed as one or more email addresses.");
 			return null;
 		}
 	}

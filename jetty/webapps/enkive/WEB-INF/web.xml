@@ -8,21 +8,21 @@
 		<servlet-name>TestServlet</servlet-name>
 		<servlet-class>com.linuxbox.enkive.web.TestServlet</servlet-class>
 	</servlet>
-    <servlet>
-        <servlet-name>AuditEntryServlet</servlet-name>
-        <servlet-class>com.linuxbox.enkive.web.AuditEntryServlet</servlet-class>
-    </servlet>
-    <servlet>
-        <servlet-name>AttachmentRetrieveServlet</servlet-name>
-        <servlet-class>com.linuxbox.enkive.web.AttachmentRetrieveServlet</servlet-class>
-    </servlet>
+	<servlet>
+		<servlet-name>AuditEntryServlet</servlet-name>
+		<servlet-class>com.linuxbox.enkive.web.AuditEntryServlet</servlet-class>
+	</servlet>
+	<servlet>
+		<servlet-name>AttachmentRetrieveServlet</servlet-name>
+		<servlet-class>com.linuxbox.enkive.web.AttachmentRetrieveServlet</servlet-class>
+	</servlet>
 	<servlet>
 		<servlet-name>MessageRetrieveServlet</servlet-name>
 		<servlet-class>com.linuxbox.enkive.web.MessageRetrieveServlet</servlet-class>
 	</servlet>
 	<servlet>
-	    <servlet-name>MessageAttachmentDetailServlet</servlet-name>
-	    <servlet-class>com.linuxbox.enkive.web.MessageAttachmentDetailServlet</servlet-class>
+		<servlet-name>MessageAttachmentDetailServlet</servlet-name>
+		<servlet-class>com.linuxbox.enkive.web.MessageAttachmentDetailServlet</servlet-class>
 	</servlet>
 	<servlet>
 		<servlet-name>DocSearchServlet</servlet-name>
@@ -42,20 +42,20 @@
 		<url-pattern>/test</url-pattern>
 	</servlet-mapping>
 	<servlet-mapping>
-        <servlet-name>AuditEntryServlet</servlet-name>
-        <url-pattern>/auditEntry</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>AttachmentRetrieveServlet</servlet-name>
-        <url-pattern>/attachmentRetrieve</url-pattern>
-    </servlet-mapping>
+		<servlet-name>AuditEntryServlet</servlet-name>
+		<url-pattern>/auditEntry</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>AttachmentRetrieveServlet</servlet-name>
+		<url-pattern>/attachmentRetrieve</url-pattern>
+	</servlet-mapping>
 	<servlet-mapping>
 		<servlet-name>MessageRetrieveServlet</servlet-name>
 		<url-pattern>/messageRetrieve</url-pattern>
 	</servlet-mapping>
 	<servlet-mapping>
-	    <servlet-name>MessageAttachmentDetailServlet</servlet-name>
-	    <url-pattern>/messageAttachmentDetail</url-pattern>
+		<servlet-name>MessageAttachmentDetailServlet</servlet-name>
+		<url-pattern>/messageAttachmentDetail</url-pattern>
 	</servlet-mapping>
 	<servlet-mapping>
 		<servlet-name>DocSearchServlet</servlet-name>
@@ -77,15 +77,15 @@
 	</welcome-file-list>
 
 	<error-page>
-	<error-page>
-		<error-code>
-			404
-        </error-code>
-		<location>
-			/error.jsp
-        </location>
-	</error-page>
-			<exception-type>
+		<error-page>
+			<error-code>
+				404
+            </error-code>
+			<location>
+				/error.jsp
+            </location>
+		</error-page>
+		<exception-type>
 			java.lang.Throwable
         </exception-type>
 		<location>

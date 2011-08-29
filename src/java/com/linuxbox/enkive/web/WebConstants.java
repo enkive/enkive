@@ -33,7 +33,8 @@ public interface WebConstants {
 	DateFormat DETAILED_LOCAL_DATE_FORMAT = new SimpleDateFormat(
 			"EEE, MMM dd, yyyy hh:mm:ss aa zzz");
 
-	// DateFormat DETAILED_LOCAL_DATE_FORMAT = SimpleDateFormat.getDateTimeInstance(
+	// DateFormat DETAILED_LOCAL_DATE_FORMAT =
+	// SimpleDateFormat.getDateTimeInstance(
 	// DateFormat.MEDIUM, DateFormat.FULL);
 
 	DateFormat SIMPLE_LOCAL_DATE_FORMAT = DateFormat.getDateTimeInstance(
@@ -41,8 +42,8 @@ public interface WebConstants {
 
 	public static final String DATA_TAG = "data";
 	public static final String ERRORS_TAG = "errors";
-	
-	//Search results related constants
+
+	// Search results related constants
 	public static final String RESULTS_TAG = "results";
 	public static final String QUERY_TAG = "query";
 	public static final String SEARCH_ID_TAG = "searchId";
@@ -51,7 +52,7 @@ public interface WebConstants {
 	public static final String SEARCH_PARAMETER_TAG = "parameter";
 	public static final String SEARCH_VALUE_TAG = "value";
 	public static final String ITEM_TOTAL_TAG = "itemTotal";
-	
+
 	public static final String MESSAGE_ID_TAG = "messageId";
 	public static final String MESSAGE_DATE_TAG = "date";
 	public static final String MESSAGE_DATENUMBER_TAG = "datenumber";
@@ -66,10 +67,10 @@ public interface WebConstants {
 	public static final String RUNNING_STATUS_VALUE = "running";
 	public static final String ERROR_STATUS_VALUE = "error";
 	public static final String STOPPED_STATUS_VALUE = "stopped";
-	
+
 	public static final String USERNAME_TAG = "userName";
 	public static final String PERMISSION_ADDRESSES_TAG = "addresses";
 	public static final String PERMISSION_ADMIN_TAG = "admin";
 	public static final String PERMISSION_CAN_READ_ALL_TAG = "can_read_all";
-	
+
 }

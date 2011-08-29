@@ -28,15 +28,16 @@ import com.linuxbox.enkive.docstore.DocStoreService;
 import com.linuxbox.enkive.exception.CannotRetrieveException;
 import com.linuxbox.enkive.message.MessageSummary;
 
-public abstract class AbstractRetrieverService implements MessageRetrieverService {
-	
+public abstract class AbstractRetrieverService implements
+		MessageRetrieverService {
+
 	protected DocStoreService docStoreService;
 
 	@Override
 	public List<MessageSummary> retrieveSummary(Collection<String> messageIds)
 			throws CannotRetrieveException {
-		List<MessageSummary> result = new ArrayList<MessageSummary>(messageIds
-				.size());
+		List<MessageSummary> result = new ArrayList<MessageSummary>(
+				messageIds.size());
 		for (String messageId : messageIds) {
 			MessageSummary summary = retrieveSummary(messageId);
 			if (summary != null)
@@ -44,7 +45,7 @@ public abstract class AbstractRetrieverService implements MessageRetrieverServic
 		}
 		return result;
 	}
-	
+
 	public DocStoreService getDocStoreService() {
 		return docStoreService;
 	}

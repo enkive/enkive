@@ -31,7 +31,7 @@ import org.apache.commons.logging.LogFactory;
 import com.linuxbox.enkive.mailprocessor.ThreadedProcessor;
 
 public abstract class AbstractSocketServer implements EnkiveServer {
-	//protected static final int LISTEN_BACKLOG = 10;
+	// protected static final int LISTEN_BACKLOG = 10;
 	protected int LISTEN_BACKLOG;
 	protected static Log logger = LogFactory
 			.getLog("com.linuxbox.enkive.server");
@@ -41,8 +41,7 @@ public abstract class AbstractSocketServer implements EnkiveServer {
 	protected ServerSocket serverSocket;
 	private Thread serverThread;
 
-	public AbstractSocketServer(String serviceName, int port,
-			int listenBacklog) {
+	public AbstractSocketServer(String serviceName, int port, int listenBacklog) {
 		super();
 		this.serviceName = serviceName;
 		this.port = port;
@@ -137,7 +136,7 @@ public abstract class AbstractSocketServer implements EnkiveServer {
 	 * Responsible for shutting down any processors that are still running.
 	 */
 	protected abstract void shutdownProcessors();
-	
+
 	/**
 	 * Responsible for creating and setting up the management of the processor
 	 * that feeds off the given socket.
@@ -145,5 +144,6 @@ public abstract class AbstractSocketServer implements EnkiveServer {
 	 * @param socket
 	 * @throws Exception
 	 */
-	protected abstract void createAndStartProcessor(Socket socket) throws Exception;
+	protected abstract void createAndStartProcessor(Socket socket)
+			throws Exception;
 }

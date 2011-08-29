@@ -37,5 +37,5 @@ public interface ArchivingProcessor extends ThreadedProcessor {
 	 *            established. The socket should be ready to create input and
 	 *            output streams on which to speak to an (S|L)MTP server.
 	 */
-	public void initializeProcessor(AbstractSocketServer server, Socket  socket);
+	public void initializeProcessor(AbstractSocketServer server, Socket socket);
 }

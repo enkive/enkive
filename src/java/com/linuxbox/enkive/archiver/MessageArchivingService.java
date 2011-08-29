@@ -16,8 +16,9 @@ public interface MessageArchivingService {
 	 * @return unique identifier for message
 	 * @throws CannotArchiveException
 	 */
-	public String storeOrFindMessage(Message message) throws CannotArchiveException;
-	
+	public String storeOrFindMessage(Message message)
+			throws CannotArchiveException;
+
 	/**
 	 * Stores the given message and generates a unique identifier for the
 	 * message, which is returned.
@@ -27,19 +28,20 @@ public interface MessageArchivingService {
 	 * @throws CannotArchiveException
 	 */
 	public String storeMessage(Message message) throws CannotArchiveException;
-	
+
 	/**
-	 * Searches the message store for a duplicate message.
-	 * If a duplicate is found the unique id for that message is returned.
-	 * If no duplicates are found, null is returned.
+	 * Searches the message store for a duplicate message. If a duplicate is
+	 * found the unique id for that message is returned. If no duplicates are
+	 * found, null is returned.
 	 * 
 	 * @param message
 	 * @return unique identifier for message
-	 * @throws CannotArchiveException 
-	 * @throws MongoException 
+	 * @throws CannotArchiveException
+	 * @throws MongoException
 	 */
-	public String findMessage(Message message) throws MongoException, CannotArchiveException;
-	
+	public String findMessage(Message message) throws MongoException,
+			CannotArchiveException;
+
 	/**
 	 * Removes a message from the store. Note that this method does not remove
 	 * attachments.
@@ -48,17 +50,19 @@ public interface MessageArchivingService {
 	 * @return boolean reflecting success or failure of deletion
 	 */
 	public boolean removeMessage(String messageUUID);
-	
+
 	/**
 	 * Initialize any resources needed for message storage
-	 * @throws MessageArchivingServiceException 
+	 * 
+	 * @throws MessageArchivingServiceException
 	 */
 	public void startup() throws MessageArchivingServiceException;
-	
+
 	/**
 	 * Clean up any resources needed for message storage
-	 * @throws MessageArchivingServiceException 
+	 * 
+	 * @throws MessageArchivingServiceException
 	 */
 	public void shutdown() throws MessageArchivingServiceException;
-	
+
 }

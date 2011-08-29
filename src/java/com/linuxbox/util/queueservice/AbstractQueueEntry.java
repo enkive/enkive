@@ -8,7 +8,7 @@ public class AbstractQueueEntry implements QueueEntry {
 	private Object note;
 	private int shardKey;
 
-	public AbstractQueueEntry(Date enqueuedAt, String identifier, Object note, 
+	public AbstractQueueEntry(Date enqueuedAt, String identifier, Object note,
 			int shardKey) {
 		super();
 		this.enqueuedAt = enqueuedAt;

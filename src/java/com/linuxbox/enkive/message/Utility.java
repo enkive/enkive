@@ -25,7 +25,7 @@ public class Utility {
 		if (fromAddress == null || fromAddress.length() <= 0) {
 			return "";
 		}
-		
+
 		boolean partial = false;
 
 		int startIndex = 0;

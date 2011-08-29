@@ -5,7 +5,8 @@ public class StoreRequestResultImpl implements StoreRequestResult {
 	private boolean alreadyStored;
 	private int shardKey;
 
-	public StoreRequestResultImpl(String identifier, boolean alreadyStored, int shardKey) {
+	public StoreRequestResultImpl(String identifier, boolean alreadyStored,
+			int shardKey) {
 		this.identifier = identifier;
 		this.alreadyStored = alreadyStored;
 		this.shardKey = shardKey;

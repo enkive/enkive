@@ -83,7 +83,7 @@ public class ThreadedMessageImporter {
 		int threadPoolSize = DEFAULT_THREAD_POOL_SIZE;
 		String path = args[0];
 		String host = "localhost";
-		
+
 		if (args.length > 1) {
 			String threadPoolSizeStr = args[1];
 			threadPoolSize = Integer.parseInt(threadPoolSizeStr);
@@ -93,9 +93,9 @@ public class ThreadedMessageImporter {
 		if (args.length > 2) {
 			host = args[2];
 		}
-		
-		ThreadedMessageImporter importer = new ThreadedMessageImporter(
-				host, CONVERSION_PORT, threadPoolSize);
+
+		ThreadedMessageImporter importer = new ThreadedMessageImporter(host,
+				CONVERSION_PORT, threadPoolSize);
 
 		long start = System.currentTimeMillis();
 

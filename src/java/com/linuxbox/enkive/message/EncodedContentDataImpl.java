@@ -20,11 +20,8 @@
 
 package com.linuxbox.enkive.message;
 
-public class EncodedContentDataImpl extends AbstractBaseContentData  implements
+public class EncodedContentDataImpl extends AbstractBaseContentData implements
 		EncodedContentData {
-	protected String UUID;
-	protected String filename;
-	protected String mimeType;
 
 	public EncodedContentDataImpl() {
 		super();
@@ -33,36 +30,5 @@ public class EncodedContentDataImpl extends AbstractBaseContentData  implements
 	public boolean isEmpty() {
 		return (data == null);
 	}
-
-	public String getUUID() {
-		return UUID;
-	}
-
-	public void setUUID(String uUID) {
-		this.UUID = uUID;
-	}
-	
-
-	public String getFilename() {
-		return filename;
-	}
-
-	public void setFilename(String filename) {
-		this.filename = filename;
-	}
-	
-	public String getMimeType() {
-		return mimeType;
-	}
-
-	public void setMimeType(String mimeType) {
-		this.mimeType = mimeType;
-	}
-
-
-
-   
-
-
 
 }

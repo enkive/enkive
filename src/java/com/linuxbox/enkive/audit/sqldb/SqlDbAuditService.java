@@ -66,8 +66,7 @@ public class SqlDbAuditService implements AuditService {
 			descriptionColumnSize = getDescriptionColumnSize();
 			LOGGER.info("description column size is " + descriptionColumnSize);
 		} catch (AuditServiceException e) {
-			LOGGER
-					.error("could not determine column size for description in events table");
+			LOGGER.error("could not determine column size for description in events table");
 		}
 	}
 
@@ -275,7 +274,7 @@ public class SqlDbAuditService implements AuditService {
 			throws SQLException {
 		List<AuditEntry> results = new ArrayList<AuditEntry>();
 		while (resultSet.next()) {
-			try{
+			try {
 				int id = resultSet.getInt(1);
 				Date timestamp = resultSet.getTimestamp(2);
 				int eventCode = resultSet.getInt(3);
@@ -283,7 +282,7 @@ public class SqlDbAuditService implements AuditService {
 				String description = resultSet.getString(5);
 				results.add(new AuditEntry(Integer.toString(id), timestamp,
 						eventCode, username, description));
-			} catch (SQLException e){
+			} catch (SQLException e) {
 				LOGGER.error("Could not return audit entry", e);
 			}
 		}

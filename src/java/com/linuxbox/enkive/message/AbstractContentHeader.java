@@ -35,7 +35,6 @@ public abstract class AbstractContentHeader implements ContentHeader {
 	protected int maxLineLength;
 
 	protected EncodedContentData encodedContentData;
-	
 
 	public AbstractContentHeader() {
 		super();

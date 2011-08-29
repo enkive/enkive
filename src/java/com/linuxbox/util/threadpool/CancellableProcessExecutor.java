@@ -213,8 +213,9 @@ public class CancellableProcessExecutor {
 		CPFuture<?> toCancel = lookup(processIdentifier);
 
 		if (toCancel != null) {
-//			AbstractCancellableProcess<?> process = toCancel.cancellableProcess;
-//			process.cancelOnceStarted();
+			// AbstractCancellableProcess<?> process =
+			// toCancel.cancellableProcess;
+			// process.cancelOnceStarted();
 			return toCancel.cancel(stopWhileRunning);
 		} else {
 			return false;

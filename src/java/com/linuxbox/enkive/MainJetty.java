@@ -33,7 +33,7 @@ public class MainJetty extends MainConsole {
 				org.eclipse.jetty.servlet.ServletContextHandler.class);
 
 		servletContextHandler.addServlet(TestServlet.class, "/test");
-		
+
 		super.doEventLoop(context);
 	}
 

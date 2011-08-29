@@ -91,9 +91,10 @@ public class MultiPartHeaderImpl extends AbstractMultiPartHeader implements
 		}
 		return result;
 	}
+
 	@Override
 	public Set<String> getAttachmentUUIDs() {
-		
+
 		Set<String> result = newSet();
 		for (ContentHeader header : getPartHeaders()) {
 			result.addAll(header.getAttachmentUUIDs());

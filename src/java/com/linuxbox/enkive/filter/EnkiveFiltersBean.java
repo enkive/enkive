@@ -107,8 +107,8 @@ public class EnkiveFiltersBean {
 							.toLowerCase().equals("date"))
 						filterType = FilterType.DATE;
 
-					if (((Element) value).getAttribute("comparison").toLowerCase()
-							.equals("is_greater_than"))
+					if (((Element) value).getAttribute("comparison")
+							.toLowerCase().equals("is_greater_than"))
 						filterComparator = FilterComparator.IS_GREATER_THAN;
 					else if (((Element) value).getAttribute("comparison")
 							.toLowerCase().equals("is_less_than"))
@@ -152,14 +152,14 @@ public class EnkiveFiltersBean {
 
 	public boolean filterMessage(Message message) {
 		boolean archiveMessage = true;
-		
-		if (filterSet.isEmpty()){
+
+		if (filterSet.isEmpty()) {
 			if (defaultAction == FilterAction.ALLOW)
-				archiveMessage=true;
+				archiveMessage = true;
 			else if (defaultAction == FilterAction.DENY)
 				archiveMessage = false;
 		}
-		
+
 		for (EnkiveFilter filter : filterSet) {
 			try {
 				String value = message.getParsedHeader()

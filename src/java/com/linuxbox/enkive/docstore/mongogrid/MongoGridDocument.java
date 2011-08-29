@@ -24,10 +24,9 @@ public class MongoGridDocument extends AbstractDocument {
 	public long getEncodedSize() {
 		return gridFile.getLength();
 	}
-	
-	public String getGridFileName(){
+
+	public String getGridFileName() {
 		return gridFile.getFilename();
 	}
-	
 
 }

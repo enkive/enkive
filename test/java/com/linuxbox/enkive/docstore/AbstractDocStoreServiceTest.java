@@ -1,6 +1,6 @@
 package com.linuxbox.enkive.docstore;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -43,13 +43,13 @@ public class AbstractDocStoreServiceTest {
 		j = AbstractDocStoreService.getShardIndexFromIdentifier(s2);
 		assertEquals(i, j);
 
-		byte[] b3 = { 0x60, -0x4d , -0x80};
+		byte[] b3 = { 0x60, -0x4d, -0x80 };
 		String s3 = AbstractDocStoreService.getIdentifierFromHash(b3);
 		i = AbstractDocStoreService.getShardIndexFromHash(b3);
 		j = AbstractDocStoreService.getShardIndexFromIdentifier(s3);
 		assertEquals(i, j);
 
-		byte[] b4 = { -0x21, -0x22 , -0x7f};
+		byte[] b4 = { -0x21, -0x22, -0x7f };
 		String s4 = AbstractDocStoreService.getIdentifierFromHash(b4);
 		i = AbstractDocStoreService.getShardIndexFromHash(b4);
 		j = AbstractDocStoreService.getShardIndexFromIdentifier(s4);

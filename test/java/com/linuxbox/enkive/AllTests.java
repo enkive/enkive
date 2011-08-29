@@ -22,7 +22,8 @@ import com.linuxbox.util.queueservice.mongodb.MongoQueueServiceTest;
 		AbstractDocStoreServiceTest.class, MongoAuditServiceTest.class,
 		MongoLockingServiceTest.class, MongoQueueServiceTest.class,
 		MongoGridDocStoreServiceTest.class, MongoArchivingServiceTest.class,
-		MongoRetrieverServiceTest.class, IndriQueryComposerTest.class, EnkiveFilterTest.class })
+		MongoRetrieverServiceTest.class, IndriQueryComposerTest.class,
+		EnkiveFilterTest.class })
 public class AllTests {
 	public static Test suite() {
 		TestSuite suite = new TestSuite(AllTests.class.getName());

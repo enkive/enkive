@@ -8,8 +8,8 @@ import com.linuxbox.enkive.message.EncodedContentData;
 
 /**
  * This class acts as a bridge between the ContentData data type used by the
- * archiver and the more generic Document type used by out back-end,
- * document storage service.
+ * archiver and the more generic Document type used by out back-end, document
+ * storage service.
  * 
  * @author ivancich
  * 
@@ -17,12 +17,12 @@ import com.linuxbox.enkive.message.EncodedContentData;
 public class ContentDataDocument extends AbstractDocument {
 	private EncodedContentData contentData;
 
-	public ContentDataDocument(EncodedContentData contentData,
-			String mimeType, String fileSuffix, String binaryEncoding) {
+	public ContentDataDocument(EncodedContentData contentData, String mimeType,
+			String fileSuffix, String binaryEncoding) {
 		super(mimeType, fileSuffix, binaryEncoding);
 		this.contentData = contentData;
 	}
-	
+
 	/**
 	 * Do not know the size, so return negative value.
 	 */
@@ -35,9 +35,10 @@ public class ContentDataDocument extends AbstractDocument {
 	public InputStream getEncodedContentStream() {
 		return contentData.getBinaryContent();
 	}
-	
+
 	@Override
 	public InputStream getDecodedContentStream() throws DocStoreException {
-		throw new DocStoreException("decoded version of ContentData not available");
+		throw new DocStoreException(
+				"decoded version of ContentData not available");
 	}
 }

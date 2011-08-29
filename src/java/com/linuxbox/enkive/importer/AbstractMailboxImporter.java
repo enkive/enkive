@@ -43,7 +43,8 @@ public abstract class AbstractMailboxImporter extends AbstractMessageImporter {
 		super(host, port);
 		this.rootDir = rootDir + "/";
 		session = Session.getDefaultInstance(System.getProperties());
-		Provider mboxProvider = new Provider(Provider.Type.STORE, "mbox", "gnu.mail.providers.mbox.MboxStore", "gnumail", "1");
+		Provider mboxProvider = new Provider(Provider.Type.STORE, "mbox",
+				"gnu.mail.providers.mbox.MboxStore", "gnumail", "1");
 		session.addProvider(mboxProvider);
 
 		Store store = session.getStore(url);

@@ -23,8 +23,8 @@ package com.linuxbox.enkive.server;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 
-import com.linuxbox.enkive.server.config.ThreadPoolServerConfiguration;
 import com.linuxbox.enkive.mailprocessor.ThreadedProcessor;
+import com.linuxbox.enkive.server.config.ThreadPoolServerConfiguration;
 import com.linuxbox.util.threadpool.ThreadAspects;
 import com.linuxbox.util.threadpool.ThreadPoolExecutorWithAspects;
 
@@ -42,19 +42,19 @@ public abstract class ThreadPoolServer extends AbstractSocketServer implements
 
 	public ThreadPoolServer(String serverName, int port,
 			ThreadPoolServerConfiguration poolConfig) {
-		super(serverName, port, (poolConfig
-				.getMaximumPoolSize() + (poolConfig.getMaximumPoolSize() / 2)));
+		super(serverName, port, (poolConfig.getMaximumPoolSize() + (poolConfig
+				.getMaximumPoolSize() / 2)));
 
 		queue = new ArrayBlockingQueue<Runnable>(poolConfig.getQueueSize());
-		
+
 		ThreadAspects threadAspects = null;
 		if (this instanceof ThreadAspects) {
 			threadAspects = (ThreadAspects) this;
 		}
 
-		threadPool = new ThreadPoolExecutorWithAspects(poolConfig
-				.getCorePoolSize(), poolConfig.getMaximumPoolSize(), poolConfig
-				.getKeepAliveTime(), poolConfig.getTimeUnit(), queue,
+		threadPool = new ThreadPoolExecutorWithAspects(
+				poolConfig.getCorePoolSize(), poolConfig.getMaximumPoolSize(),
+				poolConfig.getKeepAliveTime(), poolConfig.getTimeUnit(), queue,
 				threadAspects);
 	}
 
