@@ -15,6 +15,8 @@ public interface Document {
 	long getEncodedSize();
 
 	String getMimeType();
+	
+	String getFilename();
 
 	String getFileExtension();
 

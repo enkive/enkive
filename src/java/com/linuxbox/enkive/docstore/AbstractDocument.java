@@ -19,8 +19,9 @@ public abstract class AbstractDocument implements Document {
 	protected String mimeType;
 	protected String fileExtension;
 	protected String binaryEncoding;
+	protected String filename;
 
-	public AbstractDocument(String mimeType, String fileExtension,
+	public AbstractDocument(String mimeType, String filename, String fileExtension,
 			String binaryEncoding) {
 		this.mimeType = mimeType;
 		this.fileExtension = fileExtension;
@@ -51,5 +52,13 @@ public abstract class AbstractDocument implements Document {
 		} else {
 			return getEncodedContentStream();
 		}
+	}
+
+	public String getFilename() {
+		return filename;
+	}
+
+	public void setFilename(String filename) {
+		this.filename = filename;
 	}
 }

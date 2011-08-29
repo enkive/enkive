@@ -32,8 +32,6 @@ public class MessageAttachmentDetailServlet extends EnkiveServlet {
 
 		try {
 			final Message message = retriever.retrieve(messageId);
-			// Sample final Message message =
-			// retriever.retrieve("11925f0f19fe215f308d683131eeb7288d7c054d");
 
 			JSONArray attachments = new JSONArray();
 

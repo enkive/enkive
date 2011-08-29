@@ -194,7 +194,8 @@ public class MongoArchivingService extends AbstractMessageArchivingService {
 			Document document = new ContentDataDocument(
 					singlePartHeader.getEncodedContentData(),
 					singlePartHeader.getContentType(), fileExtension,
-					singlePartHeader.getContentTransferEncoding().toString());
+					singlePartHeader.getFilename(), singlePartHeader
+							.getContentTransferEncoding().toString());
 			StoreRequestResult docResult = docStoreService.store(document);
 			headerObject.put(ATTACHMENT_ID, docResult.getIdentifier());
 			attachment_ids.add(docResult.getIdentifier());

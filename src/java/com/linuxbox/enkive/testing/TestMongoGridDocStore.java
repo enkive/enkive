@@ -89,7 +89,7 @@ public class TestMongoGridDocStore {
 	private static void archive(String content) throws DocStoreException,
 			DocSearchException {
 		StoreRequestResult result = docStoreService.store(new StringDocument(
-				content, "text/plain", "txt", "7 bit"));
+				content, "text/plain", "testFile.txt", "txt", "7 bit"));
 		indexSet.add(result.getIdentifier());
 
 		System.out.println("archived string " + result.getIdentifier() + " "
@@ -176,8 +176,8 @@ public class TestMongoGridDocStore {
 		for (FileRecord fileRec : encodedFiles) {
 			try {
 				FileSystemDocument d = new FileSystemDocument(inputDir + "/"
-						+ fileRec.name, fileRec.mimeType, fileRec.suffix,
-						fileRec.encoding);
+						+ fileRec.name, fileRec.mimeType, fileRec.name,
+						fileRec.suffix, fileRec.encoding);
 				StoreRequestResult result = docStoreService.store(d);
 
 				if (INDEXING_METHOD == Indexing.PUSH
@@ -242,6 +242,7 @@ public class TestMongoGridDocStore {
 	 * 
 	 * @return true if a document was pulled, false if no documents to pull
 	 */
+	@SuppressWarnings("deprecation")
 	private static boolean indexAnUnindexedDocument(int serverIndex,
 			int serverCount) {
 		String identifier = docStoreService.nextUnindexed(serverIndex,

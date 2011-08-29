@@ -55,7 +55,6 @@ import org.apache.commons.logging.LogFactory;
 
 import com.linuxbox.enkive.docstore.Document;
 import com.linuxbox.enkive.docstore.exception.DocStoreException;
-import com.linuxbox.enkive.docstore.mongogrid.MongoGridDocument;
 import com.linuxbox.enkive.exception.BadMessageException;
 import com.linuxbox.enkive.exception.CannotRetrieveException;
 import com.linuxbox.enkive.exception.CannotTransferMessageContentException;
@@ -217,15 +216,9 @@ public class MongoRetrieverService extends AbstractRetrieverService {
 		try {
 			Document document = docStoreService.retrieve(attachmentUUID);
 
-			// MongoGridDocument tmpDocument = (MongoGridDocument)
-			// docStoreService.retrieve(attachmentUUID);
-			// String tmp = tmpDocument.getGridFileName();
-			String tmpFileName = ((MongoGridDocument) document)
-					.getGridFileName();
-
 			encodedContentData.setBinaryContent(document
 					.getEncodedContentStream());
-			encodedContentData.setFilename(tmpFileName);
+			encodedContentData.setFilename(document.getFilename());
 			encodedContentData.setMimeType(document.getMimeType());
 			encodedContentData.setUUID(attachmentUUID);
 		} catch (CannotTransferMessageContentException e) {
@@ -271,12 +264,12 @@ public class MongoRetrieverService extends AbstractRetrieverService {
 		EncodedContentData attachment;
 		try {
 			attachment = buildEncodedContentData(attachmentUUID);
-			return attachment;
 		} catch (DocStoreException e) {
 
-			throw new CannotRetrieveException(
-					"could not retrieve attachment from datastore", e);
+			throw new CannotRetrieveException("Could not retrieve attachment",
+					e);
 		}
+		return attachment;
 
 	}
 

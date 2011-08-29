@@ -18,8 +18,8 @@ public class ContentDataDocument extends AbstractDocument {
 	private EncodedContentData contentData;
 
 	public ContentDataDocument(EncodedContentData contentData, String mimeType,
-			String fileSuffix, String binaryEncoding) {
-		super(mimeType, fileSuffix, binaryEncoding);
+			String filename, String fileSuffix, String binaryEncoding) {
+		super(mimeType, filename, fileSuffix, binaryEncoding);
 		this.contentData = contentData;
 	}
 
