@@ -39,5 +39,18 @@
 	<classpathentry kind="lib" path="lib/ant-launcher.jar"/>
 	<classpathentry kind="lib" path="lib/javax.el_2.1.0.v201004190952.jar"/>
 	<classpathentry kind="lib" path="lib/javax.servlet.jsp.jstl_1.2.0.v201004190952.jar"/>
+	<classpathentry kind="lib" path="/usr/lib/jvm/java-6-sun/lib/tools.jar"/>
+	<classpathentry kind="lib" path="lib/json.jar"/>
+	<classpathentry kind="lib" path="lib/mail.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://javamail.kenai.com/nonav/javadocs/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/gnumail-providers.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://www.gnu.org/s/classpathx/javamail/javadoc/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/inetlib.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
