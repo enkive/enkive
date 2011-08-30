@@ -52,5 +52,15 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/inetlib.jar"/>
+	<classpathentry kind="lib" path="lib/spring/org.springframework.web-3.0.6.RELEASE.jar" sourcepath="lib/src/spring/org.springframework.web-sources-3.0.6.RELEASE.jar"/>
+	<classpathentry kind="lib" path="lib/spring/org.springframework.aop-3.0.6.RELEASE.jar" sourcepath="lib/src/spring/org.springframework.aop-sources-3.0.6.RELEASE.jar"/>
+	<classpathentry kind="lib" path="lib/spring/spring-security-acl-3.0.5.RELEASE.jar" sourcepath="lib/src/spring/spring-security-acl-3.0.5.RELEASE-sources.jar"/>
+	<classpathentry kind="lib" path="lib/spring/spring-security-aspects-3.0.5.RELEASE.jar" sourcepath="lib/src/spring/spring-security-aspects-3.0.5.RELEASE-sources.jar"/>
+	<classpathentry kind="lib" path="lib/spring/spring-security-config-3.0.5.RELEASE.jar" sourcepath="lib/src/spring/spring-security-config-3.0.5.RELEASE-sources.jar"/>
+	<classpathentry kind="lib" path="lib/spring/spring-security-core-3.0.5.RELEASE.jar" sourcepath="lib/src/spring/spring-security-core-3.0.5.RELEASE-sources.jar"/>
+	<classpathentry kind="lib" path="lib/spring/spring-security-taglibs-3.0.5.RELEASE.jar" sourcepath="lib/src/spring/spring-security-taglibs-3.0.5.RELEASE-sources.jar"/>
+	<classpathentry kind="lib" path="lib/spring/spring-security-web-3.0.5.RELEASE.jar" sourcepath="lib/src/spring/spring-security-web-3.0.5.RELEASE-sources.jar"/>
+	<classpathentry kind="lib" path="lib/spring/org.springframework.context.support-3.0.6.RELEASE.jar"/>
+	<classpathentry kind="lib" path="lib/spring/org.springframework.transaction-3.0.6.RELEASE.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
