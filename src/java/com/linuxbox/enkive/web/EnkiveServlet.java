@@ -14,9 +14,11 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.context.ApplicationContext;
 
 import com.linuxbox.enkive.audit.AuditService;
+import com.linuxbox.enkive.authentication.AuthenticationService;
 import com.linuxbox.enkive.docsearch.DocSearchQueryService;
 import com.linuxbox.enkive.docstore.DocStoreService;
 import com.linuxbox.enkive.retriever.MessageRetrieverService;
+import com.linuxbox.enkive.workspace.WorkspaceService;
 import com.linuxbox.util.spring.ApplicationContextProvider;
 
 public class EnkiveServlet extends HttpServlet {
@@ -47,6 +49,14 @@ public class EnkiveServlet extends HttpServlet {
 
 	public AuditService getAuditService() {
 		return appContext.getBean("AuditLogService", AuditService.class);
+	}
+	
+	public AuthenticationService getAuthenticationService() {
+		return appContext.getBean(AuthenticationService.class);
+	}
+	
+	public WorkspaceService getWorkspaceService() {
+		return appContext.getBean(WorkspaceService.class);
 	}
 
 	/**

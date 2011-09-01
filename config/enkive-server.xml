@@ -13,7 +13,8 @@
 		class="com.linuxbox.enkive.docstore.mongogrid.MongoGridDocStoreService">
 		<constructor-arg ref="Mongo" />
 		<constructor-arg type="java.lang.String" value="${enkive.docstore.db.name}" />
-		<constructor-arg type="java.lang.String" value="${enkive.docstore.fs.collection.name}" />
+		<constructor-arg type="java.lang.String"
+			value="${enkive.docstore.fs.collection.name}" />
 
 		<property name="documentLockingService" ref="DocLockService" />
 		<property name="indexerQueueService" ref="IndexerQueueService" />
@@ -75,7 +76,7 @@
 			value="${enkive.messagestore.collection.name}" />
 		<property name="docStoreService" ref="DocStoreService" />
 	</bean>
-	
+
 	<bean id="MessageRetrieverService"
 		class="com.linuxbox.enkive.retriever.mongodb.MongoRetrieverService">
 		<constructor-arg ref="Mongo" />
@@ -105,7 +106,8 @@
 
 	<bean id="ConversionServer" class="com.linuxbox.enkive.server.ConversionServer"
 		init-method="startServer" destroy-method="shutdownServer">
-		<constructor-arg type="int" value="${enkive.server.conversion.port}" />
+		<constructor-arg type="int"
+			value="${enkive.server.conversion.port}" />
 		<constructor-arg ref="ThreadPoolServerConfiguration" />
 	</bean>
 
@@ -133,6 +135,24 @@
 		<constructor-arg ref="Mongo" />
 		<constructor-arg value="${enkive.queueservice.db.name}" />
 		<constructor-arg value="auditLog" />
+	</bean>
+
+	<bean id="AuthenticationService"
+		class="com.linuxbox.enkive.authentication.SpringSecurityAuthenticationService">
+	</bean>
+	
+	<bean id="WorkspaceService"
+		class="com.linuxbox.enkive.workspace.mongo.MongoWorkspaceService">
+		<constructor-arg ref="Mongo" />
+		<constructor-arg type="java.lang.String" value="${enkive.workspace.db.name}" />
+		<constructor-arg type="java.lang.String"
+			value="${enkive.workspaces.collection.name}" />
+		<constructor-arg type="java.lang.String"
+			value="${enkive.workspace.searches.collection.name}" />
+		<constructor-arg type="java.lang.String"
+			value="${enkive.workspace.userWorkspaces.collection.name}" />
+		<property name="authenticationService"
+			ref="AuthenticationService" />
 	</bean>
 
 	<!-- Create a Mongo shared by various services; that way if the MongoDB 
