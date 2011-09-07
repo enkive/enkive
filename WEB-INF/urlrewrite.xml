@@ -7,6 +7,10 @@
 		<from>/proxy**</from>
 		<to>/service/proxy/$1</to>
 	</rule>
+	  <rule>
+        <from>/sessionServlet**</from>
+        <to>/sessionServlet</to>
+    </rule>
 	<rule>
 		<from>/res/**</from>
 		<to>/service/resource/$1</to>

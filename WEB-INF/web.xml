@@ -15,8 +15,15 @@
 		<filter-name>UrlRewriteFilter</filter-name>
 		<url-pattern>/*</url-pattern>
 	</filter-mapping>
+    
+    <servlet>
+      <servlet-name>SessionServlet</servlet-name>
+      <servlet-class>com.linuxbox.ediscovery.jaas.LoginServlet</servlet-class>
+    </servlet>
+ 
 
-	<!-- Spring MVC Dispatcher Servlet -->
+
+   	<!-- Spring MVC Dispatcher Servlet -->
 	<servlet>
 		<servlet-name>Spring MVC Dispatcher Servlet</servlet-name>
 		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
@@ -26,15 +33,21 @@
 		</init-param>
 		<load-on-startup>1</load-on-startup>
 	</servlet>
+
 	<servlet-mapping>
 		<servlet-name>Spring MVC Dispatcher Servlet</servlet-name>
 		<url-pattern>/service/*</url-pattern>
 	</servlet-mapping>
+	
+	<servlet-mapping>
+       <servlet-name>SessionServlet</servlet-name>
+       <url-pattern>/sessionServlet</url-pattern>
+    </servlet-mapping>
 
     <session-config>
         <session-timeout>30</session-timeout>
     </session-config>	
-
+    
     <mime-mapping>
         <extension>ico</extension>
         <mime-type>image/x-icon</mime-type>
