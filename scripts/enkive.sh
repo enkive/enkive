@@ -9,12 +9,12 @@ INDRI_SO_PATH=/usr/local/lib/
 
 start() {
         echo -n "Starting Enkive:  "
-        su $ENKIVE_OWNER -c $JSVC -java-home $JAVA_HOME -pidfile $ENKIVE_HOME/enkive.pid -errfile $ENKIVE_HOME/log/enkive.err -cp $ENKIVE_CLASSPATH -Djava.library.path=$INDRI_SO_PATH com.linuxbox.enkive.EnkiveDaemon
+        su $ENKIVE_OWNER -c "$JSVC -java-home $JAVA_HOME -pidfile $ENKIVE_HOME/enkive.pid -errfile $ENKIVE_HOME/log/enkive.err -cp $ENKIVE_CLASSPATH -Djava.library.path=$INDRI_SO_PATH com.linuxbox.enkive.EnkiveDaemon"
         sleep 2
 }
 stop() {
         echo -n "Stopping Enkive: "
-        su $ENKIVE_OWNER -c $JSVC -stop -java-home $JAVA_HOME -pidfile $ENKIVE_HOME/enkive.pid -errfile $ENKIVE_HOME/log/enkive.err -cp $ENKIVE_CLASSPATH -Djava.library.path=$INDRI_SO_PATH com.linuxbox.enkive.EnkiveDaemon
+        su $ENKIVE_OWNER -c "$JSVC -stop -java-home $JAVA_HOME -pidfile $ENKIVE_HOME/enkive.pid -errfile $ENKIVE_HOME/log/enkive.err -cp $ENKIVE_CLASSPATH -Djava.library.path=$INDRI_SO_PATH com.linuxbox.enkive.EnkiveDaemon"
 }
 
 # See how we were called.
