@@ -41,13 +41,10 @@ public interface WorkspaceService extends WorkspaceServiceMBean {
 	
 	void deleteWorkspace(Workspace workspace) throws WorkspaceException;
 	
-	void saveSearchQuery(SearchQuery query) throws WorkspaceException;
+	String saveSearchQuery(SearchQuery query) throws WorkspaceException;
 
+	String saveSearchResult(SearchResult result) throws WorkspaceException;
 	
-	
-	SearchResult prepareQueryResultsRecord(SearchQuery query)
-			throws WorkspaceException;
-
 	CPFuture<Set<String>> submitSearchProcessToQueue(
 			SearchProcess process);
 
@@ -63,16 +60,17 @@ public interface WorkspaceService extends WorkspaceServiceMBean {
 	List<SearchQuery> readSavedSearches(Workspace workspace)
 			throws WorkspaceException;
 
-	SearchQuery readQuery(String queryUUID)
+	SearchQuery getSearchQuery(String searchQueryId) throws WorkspaceException;
+
+	void deleteSearchQuery(SearchQuery query) throws WorkspaceException;
+
+	void deleteSearchQuery(String stringQueryId) throws WorkspaceException;
+
+	SearchResult getSearchResult(String searchResultId)
 			throws WorkspaceException;
 
-	SearchResult readResult(String resultUUID)
-			throws WorkspaceException;
+	void deleteSearchResult(SearchResult result) throws WorkspaceException;
 
-	List<SearchResult> readResults(SearchQuery query) throws WorkspaceException;
+	void deleteSearchResult(String searchResultId) throws WorkspaceException;
 
-	void deleteSearch(Workspace workspace, String id) throws WorkspaceException;
-	
-	void saveSearchWithName(Workspace workspace, String id, String name)
-			throws WorkspaceException;
 }

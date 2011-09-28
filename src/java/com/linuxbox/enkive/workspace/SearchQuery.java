@@ -50,10 +50,9 @@ import com.linuxbox.enkive.search.SearchSummary;
 public class SearchQuery {
 	protected String id;
 	protected String name;
-	protected Date timestamp;
 	protected Map<String, String> criteria;
 
-	protected SearchQuery() {
+	public SearchQuery() {
 		criteria = new HashMap<String, String>();
 	}
 
@@ -71,14 +70,6 @@ public class SearchQuery {
 
 	public void setName(String name) {
 		this.name = name;
-	}
-
-	public Date getTimestamp() {
-		return timestamp;
-	}
-
-	public void setTimestamp(Date timestamp) {
-		this.timestamp = timestamp;
 	}
 
 	public void addAllSearchCriteria(SearchSummary searchSummary) {

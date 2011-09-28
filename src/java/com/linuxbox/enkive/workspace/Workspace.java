@@ -21,9 +21,9 @@
 package com.linuxbox.enkive.workspace;
 
 import java.text.DateFormat;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.Set;
 
 /**
  * A Workspace represents a place where the search history is kept. It's kind of
@@ -41,7 +41,7 @@ public class Workspace {
 	protected String creator = "";
 	protected Date creationDate;
 	protected Date lastUpdate;
-	protected Set<String> searchResultUUIDs;
+	protected Collection<String> searchResultUUIDs;
 
 	public Workspace() {
 		creationDate = new Date(System.currentTimeMillis());
@@ -86,11 +86,11 @@ public class Workspace {
 		this.lastUpdate = lastUpdate;
 	}
 
-	public Set<String> getSearchResultUUIDs() {
+	public Collection<String> getSearchResultUUIDs() {
 		return searchResultUUIDs;
 	}
 
-	public void setSearchResultUUIDs(Set<String> searchResultUUIDs) {
+	public void setSearchResultUUIDs(Collection<String> searchResultUUIDs) {
 		this.searchResultUUIDs = searchResultUUIDs;
 	}
 

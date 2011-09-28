@@ -13,11 +13,18 @@ public class MongoWorkspaceConstants {
 	public static String MODIFIEDDATE = "ModifiedUpdate";
 	public static String CREATOR = "Creator";
 	public static String WORKSPACENAME = "WorkspaceName";
-	public static String SEARCHLIST = "SearchList";
+	public static String SEARCHRESULTSLIST = "SearchResultsList";
 
-	// Search Constants
+	// Search Result Constants
 	public static String EXECUTIONTIMESTAMP = "ExecutionTimestamp";
 	public static String EXECUTEDBY = "ExecutedBy";
 	public static String SEARCHRESULTS = "SearchResults";
+	public static String SEARCHSTATUS = "Status";
+	public static String SEARCHQUERYID = "SearchQueryId";
+	
+	// Search Query Constants
+	public static String SEARCHNAME = "SearchName";
+	public static String SEARCHCRITERIA = "SearchCriteria";
+	
 
 }

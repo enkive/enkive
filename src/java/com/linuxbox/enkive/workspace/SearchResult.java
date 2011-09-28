@@ -20,6 +20,7 @@
 
 package com.linuxbox.enkive.workspace;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 
@@ -41,12 +42,15 @@ public class SearchResult {
 
 	private String id;
 	private Date timestamp;
+	protected String executedBy;
 	private Collection<String> messageIds;
 	private Status status;
+	protected String searchQueryId;
 
-	protected SearchResult() {
+	public SearchResult() {
 		this.timestamp = new Date();
 		this.status = Status.RUNNING;
+		messageIds = new ArrayList<String>();
 	}
 
 	public String getId() {
@@ -79,5 +83,21 @@ public class SearchResult {
 
 	public void setMessageIds(Collection<String> messageIds) {
 		this.messageIds = messageIds;
+	}
+
+	public String getSearchQueryId() {
+		return searchQueryId;
+	}
+
+	public void setSearchQueryId(String searchQueryId) {
+		this.searchQueryId = searchQueryId;
+	}
+
+	public String getExecutedBy() {
+		return executedBy;
+	}
+
+	public void setExecutedBy(String executedBy) {
+		this.executedBy = executedBy;
 	}
 }
