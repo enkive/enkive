@@ -44,6 +44,8 @@ import org.apache.james.mime4j.util.MimeUtil;
 import com.linuxbox.enkive.archiver.AbstractMessageArchivingService;
 import com.linuxbox.enkive.archiver.MessageLoggingText;
 import com.linuxbox.enkive.archiver.exceptions.CannotArchiveException;
+import com.linuxbox.enkive.archiver.exceptions.FailedToEmergencySaveException;
+import com.linuxbox.enkive.audit.AuditServiceException;
 import com.linuxbox.enkive.docstore.Document;
 import com.linuxbox.enkive.docstore.StoreRequestResult;
 import com.linuxbox.enkive.docstore.exception.DocStoreException;
@@ -81,7 +83,8 @@ public class MongoArchivingService extends AbstractMessageArchivingService {
 	}
 
 	@Override
-	public String storeMessage(Message message) throws CannotArchiveException {
+	public String storeMessage(Message message) throws CannotArchiveException,
+			FailedToEmergencySaveException, AuditServiceException {
 		String messageUUID = null;
 		attachment_ids = new ArrayList<String>();
 		nested_message_ids = new ArrayList<String>();
@@ -139,7 +142,8 @@ public class MongoArchivingService extends AbstractMessageArchivingService {
 	}
 
 	private BasicDBObject archiveContentHeader(ContentHeader contentHeader)
-			throws DocStoreException, CannotArchiveException {
+			throws DocStoreException, CannotArchiveException,
+			FailedToEmergencySaveException, AuditServiceException {
 		BasicDBObject headerObject = new BasicDBObject();
 		if (contentHeader.isMultipart()) {
 			MultiPartHeader multiPartHeader = (MultiPartHeader) contentHeader;
@@ -216,7 +220,8 @@ public class MongoArchivingService extends AbstractMessageArchivingService {
 	}
 
 	protected String storeNestedMessage(InputStream nestedMessage,
-			String contentTransferEncoding) throws CannotArchiveException {
+			String contentTransferEncoding) throws CannotArchiveException,
+			FailedToEmergencySaveException, AuditServiceException {
 		String nestedMessageUUID = "";
 		try {
 			Message subMessage;

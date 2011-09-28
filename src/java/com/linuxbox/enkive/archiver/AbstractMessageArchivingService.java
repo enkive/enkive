@@ -1,20 +1,52 @@
 package com.linuxbox.enkive.archiver;
 
+import java.io.BufferedWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.nio.channels.FileLock;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Calendar;
+import java.util.Date;
 
 import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
+import com.linuxbox.enkive.GeneralConstants;
 import com.linuxbox.enkive.archiver.exceptions.CannotArchiveException;
+import com.linuxbox.enkive.archiver.exceptions.FailedToEmergencySaveException;
 import com.linuxbox.enkive.archiver.exceptions.MessageArchivingServiceException;
+import com.linuxbox.enkive.audit.AuditService;
+import com.linuxbox.enkive.audit.AuditServiceException;
 import com.linuxbox.enkive.docstore.DocStoreService;
 import com.linuxbox.enkive.message.Message;
 
 public abstract class AbstractMessageArchivingService implements
 		MessageArchivingService {
 
+	protected final static Log logger = LogFactory
+			.getLog("com.linuxbox.enkive.messageArchvingService");
+	private final static int EMERGENCY_SAVE_ATTEMPTS = 4;
+
+	/**
+	 * When an emergency save file is created, it's given a name with a
+	 * timestamp plus a random 8-digit hex value to avoid naming conflicts.
+	 * Should be at least 268,435,547 but less than 2,147,483,648 to fit.
+	 */
+	private final static long RANDOM_FILENAME_SUFFIX_RANGE = 2147480000;
+
 	protected DocStoreService docStoreService;
+	protected String emergencySaveRoot;
+	protected AuditService auditService;
+
+	@SuppressWarnings("serial")
+	class SaveFileAlreadyExistsException extends FailedToEmergencySaveException {
+		public SaveFileAlreadyExistsException(String message) {
+			super(message);
+		}
+	}
 
 	protected abstract void subStartup()
 			throws MessageArchivingServiceException;
@@ -36,11 +68,16 @@ public abstract class AbstractMessageArchivingService implements
 	}
 
 	public String storeOrFindMessage(Message message)
-			throws CannotArchiveException {
+			throws CannotArchiveException, FailedToEmergencySaveException,
+			AuditServiceException, IOException {
 		String uuid = null;
-		uuid = findMessage(message);
-		if (uuid == null) {
-			uuid = storeMessage(message);
+		try {
+			uuid = findMessage(message);
+			if (uuid == null) {
+				uuid = storeMessage(message);
+			}
+		} catch (Exception e) {
+			emergencySave(message.getReconstitutedEmail());
 		}
 		return uuid;
 	}
@@ -70,4 +107,143 @@ public abstract class AbstractMessageArchivingService implements
 		}
 		return messageUUID;
 	}
+
+	/**
+	 * Convenience method assumes the message is not incomplete.
+	 * 
+	 * @param data
+	 * @throws FailedToEmergencySaveException
+	 * @throws AuditTrailException
+	 */
+	public boolean emergencySave(final String data)
+			throws FailedToEmergencySaveException, AuditServiceException {
+		return emergencySave(data, false);
+	}
+
+	/**
+	 * Contains basic logic for doing an emergency save since this needs to be
+	 * done from a few points in the code.
+	 * 
+	 * @param data
+	 * @param messageIsIncomplete
+	 * @throws FailedToEmergencySaveException
+	 * @throws AuditTrailException
+	 * @throws AuditServiceException
+	 */
+	public boolean emergencySave(final String data, boolean messageIsIncomplete)
+			throws FailedToEmergencySaveException, AuditServiceException {
+		boolean messageSaved = false;
+		if (!data.isEmpty()) {
+			final String fileName = saveToDisk(data, messageIsIncomplete);
+			auditService.addEvent(AuditService.MESSAGE_EMERGENCY_SAVED,
+					AuditService.USER_SYSTEM, fileName);
+			if (!fileName.isEmpty())
+				messageSaved = true;
+
+		} else {
+			logger.warn("emergency save data is empty; nothing saved");
+		}
+		return messageSaved;
+	}
+
+	/**
+	 * Generates a file name based on the current date and time, including
+	 * milliseconds. It's unlikely that another save file would occur during the
+	 * same millisecond. But as added protection a random number (over 30 bits)
+	 * is appended as well (in base 16).
+	 * 
+	 * @param data
+	 * @throws IOException
+	 */
+	private String saveToDisk(String data, boolean messageIsIncomplete)
+			throws FailedToEmergencySaveException {
+		SaveFileAlreadyExistsException lastExistsException = null;
+
+		for (int attempt = 0; attempt < EMERGENCY_SAVE_ATTEMPTS; ++attempt) {
+			// choose one of two billion random numbers
+			String random = String.format("%08x",
+					Math.round(Math.random() * RANDOM_FILENAME_SUFFIX_RANGE));
+
+			Date now = Calendar
+					.getInstance(GeneralConstants.STANDARD_TIME_ZONE).getTime();
+
+			String fileName = GeneralConstants.NUMERIC_FORMAT_W_MILLIS
+					.format(now) + "_" + random;
+			if (messageIsIncomplete) {
+				fileName += "-incomplete";
+			}
+			fileName += ".eml";
+
+			try {
+				saveToDisk(data, fileName);
+				return fileName;
+			} catch (SaveFileAlreadyExistsException e) {
+				// empty ; loop again
+			}
+		}
+
+		// throw the last exception encapsulated in a
+		// FailedToEmergencySaveException
+		throw new FailedToEmergencySaveException(lastExistsException);
+	}
+
+	private String saveToDisk(String messageData, String fileName)
+			throws FailedToEmergencySaveException,
+			SaveFileAlreadyExistsException {
+		final String filePath = getEmergencySaveRoot() + "/" + fileName;
+
+		BufferedWriter out = null;
+		FileOutputStream fileStream = null;
+		try {
+			fileStream = new FileOutputStream(filePath);
+			FileLock lock = null;
+			try {
+				lock = fileStream.getChannel().tryLock();
+				if (lock == null) {
+					throw new SaveFileAlreadyExistsException(filePath);
+				}
+
+				out = new BufferedWriter(new OutputStreamWriter(fileStream));
+				out.write(messageData);
+
+				logger.info("Saved message to file: \"" + fileName + "\"");
+				return filePath;
+			} finally {
+				if (lock != null) {
+					lock.release();
+				}
+			}
+		} catch (IOException e) {
+			logger.fatal("Emergency save to disk failed. ", e);
+			throw new FailedToEmergencySaveException(e);
+		} finally {
+			try {
+				if (out != null) {
+					out.close();
+				} else if (fileStream != null) {
+					fileStream.close();
+				}
+			} catch (IOException e) {
+				logger.warn("could not close emergency save file \"" + filePath
+						+ "\".");
+			}
+		}
+	}
+
+	public String getEmergencySaveRoot() {
+		return emergencySaveRoot;
+	}
+
+	public void setEmergencySaveRoot(String emergencySaveRoot) {
+		this.emergencySaveRoot = emergencySaveRoot;
+	}
+
+	public AuditService getAuditService() {
+		return auditService;
+	}
+
+	public void setAuditService(AuditService auditService) {
+		this.auditService = auditService;
+	}
+
 }

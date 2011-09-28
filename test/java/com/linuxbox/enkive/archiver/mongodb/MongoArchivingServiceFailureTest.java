@@ -18,9 +18,9 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 import com.linuxbox.enkive.TestingConstants;
+import com.linuxbox.enkive.archiver.exceptions.FailedToEmergencySaveException;
 import com.linuxbox.enkive.archiver.ArchiverUtils;
 import com.linuxbox.enkive.archiver.exceptions.CannotArchiveException;
-import com.linuxbox.enkive.archiver.exceptions.FailedToEmergencySaveException;
 import com.linuxbox.enkive.audit.AuditServiceException;
 import com.linuxbox.enkive.docstore.DocStoreService;
 import com.linuxbox.enkive.docstore.mongogrid.ConvenienceMongoGridDocStoreService;
@@ -29,7 +29,7 @@ import com.linuxbox.enkive.message.MessageImpl;
 import com.mongodb.Mongo;
 
 @RunWith(Parameterized.class)
-public class MongoArchivingServiceTest {
+public class MongoArchivingServiceFailureTest {
 
 	static Mongo m;
 	static MongoArchivingService archiver;
@@ -38,7 +38,7 @@ public class MongoArchivingServiceTest {
 	private File file;
 	private Message message;
 
-	public MongoArchivingServiceTest(File file) {
+	public MongoArchivingServiceFailureTest(File file) {
 		this.file = file;
 	}
 
@@ -57,6 +57,8 @@ public class MongoArchivingServiceTest {
 
 		archiver = new MongoArchivingService(m, "enkive-test", "messages-test");
 		archiver.setDocStoreService(docStoreService);
+		archiver.setEmergencySaveRoot("test/emergencySaveFiles/");
+		m.close();
 	}
 
 	@Before
