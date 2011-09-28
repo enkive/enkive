@@ -22,7 +22,6 @@ package com.linuxbox.enkive.mailprocessor;
 
 import static com.linuxbox.enkive.mailprocessor.ProcessorState.ANALYZING_MESSAGE_DATA;
 import static com.linuxbox.enkive.mailprocessor.ProcessorState.ARCHIVING;
-import static com.linuxbox.enkive.mailprocessor.ProcessorState.EMERGENCY_SAVING;
 import static com.linuxbox.enkive.mailprocessor.ProcessorState.ERROR_HANDLING;
 import static com.linuxbox.enkive.mailprocessor.ProcessorState.IDLE;
 import static com.linuxbox.enkive.mailprocessor.ProcessorState.PARSING_MESSAGE;
@@ -32,16 +31,10 @@ import static com.linuxbox.enkive.mailprocessor.ProcessorState.RETRIEVING_MESSAG
 import static com.linuxbox.enkive.mailprocessor.ProcessorState.SHUTTING_DOWN;
 import static com.linuxbox.enkive.mailprocessor.ProcessorState.STARTING_UP_ARCHIVER;
 
-import java.io.BufferedWriter;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
-import java.nio.channels.FileLock;
-import java.util.Calendar;
-import java.util.Date;
 
 import javax.management.ObjectName;
 
@@ -49,13 +42,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.james.mime4j.MimeException;
 
-import com.linuxbox.enkive.GeneralConstants;
 import com.linuxbox.enkive.archiver.MessageArchivingService;
 import com.linuxbox.enkive.archiver.exceptions.CannotArchiveException;
+import com.linuxbox.enkive.archiver.exceptions.FailedToEmergencySaveException;
 import com.linuxbox.enkive.archiver.exceptions.MessageArchivingServiceException;
 import com.linuxbox.enkive.audit.AuditService;
 import com.linuxbox.enkive.audit.AuditServiceException;
-import com.linuxbox.enkive.audit.AuditTrailException;
 import com.linuxbox.enkive.exception.BadMessageException;
 import com.linuxbox.enkive.exception.CannotTransferMessageContentException;
 import com.linuxbox.enkive.exception.SocketClosedException;
@@ -70,14 +62,6 @@ public abstract class AbstractMailProcessor implements ArchivingProcessor,
 		AbstractMailProcessorMBean {
 	protected final static Log logger = LogFactory
 			.getLog("com.linuxbox.enkive.mailprocessor");
-	private final static int EMERGENCY_SAVE_ATTEMPTS = 4;
-
-	/**
-	 * When an emergency save file is created, it's given a name with a
-	 * timestamp plus a random 8-digit hex value to avoid naming conflicts.
-	 * Should be at least 268,435,547 but less than 2,147,483,648 to fit.
-	 */
-	private final static long RANDOM_FILENAME_SUFFIX_RANGE = 2147480000;
 
 	protected Socket socket;
 	protected AbstractSocketServer server;
@@ -85,7 +69,6 @@ public abstract class AbstractMailProcessor implements ArchivingProcessor,
 	protected AuditService auditService;
 
 	protected EnkiveFiltersBean enkiveFilters;
-	protected String emergencySaveRoot;
 	protected boolean jmxEnabled = false;
 
 	private boolean closeInitiated;
@@ -102,28 +85,6 @@ public abstract class AbstractMailProcessor implements ArchivingProcessor,
 	/*
 	 * Inner Classes
 	 */
-
-	@SuppressWarnings("serial")
-	class FailedToEmergencySaveException extends Exception {
-		public FailedToEmergencySaveException(String message) {
-			super(message);
-		}
-
-		public FailedToEmergencySaveException(Exception e) {
-			super(e);
-		}
-
-		public FailedToEmergencySaveException(String message, Exception e) {
-			super(message, e);
-		}
-	}
-
-	@SuppressWarnings("serial")
-	class SaveFileAlreadyExistsException extends FailedToEmergencySaveException {
-		public SaveFileAlreadyExistsException(String message) {
-			super(message);
-		}
-	}
 
 	@SuppressWarnings("serial")
 	protected class MessageIncompleteException extends Exception {
@@ -232,17 +193,17 @@ public abstract class AbstractMailProcessor implements ArchivingProcessor,
 					processorState = ERROR_HANDLING;
 					logger.fatal(
 							"socket closed with only partial message read", e);
-					handleEmergencySaving(e.getData(), true);
+					archiver.emergencySave(e.getData(), true);
 					processingComplete = true;
 				} catch (BadMessageException e) {
 					processorState = ERROR_HANDLING;
 					logger.fatal("could not create message object to archive",
 							e);
-					handleEmergencySaving(data);
+					archiver.emergencySave(data);
 				} catch (Exception e) {
 					processorState = ERROR_HANDLING;
 					logger.fatal("could not archive message", e);
-					handleEmergencySaving(data);
+					archiver.emergencySave(data);
 				}
 
 				processorState = IDLE;
@@ -269,6 +230,7 @@ public abstract class AbstractMailProcessor implements ArchivingProcessor,
 
 		processorState = SHUTTING_DOWN;
 		if (!closeInitiated) {
+			logger.fatal("Shutting down mailprocessor");
 			closeProcessor();
 			closeSessionResources();
 			try {
@@ -320,134 +282,6 @@ public abstract class AbstractMailProcessor implements ArchivingProcessor,
 		}
 	}
 
-	/**
-	 * Convenience method assumes the message is not incomplete.
-	 * 
-	 * @param data
-	 * @throws FailedToEmergencySaveException
-	 * @throws AuditTrailException
-	 */
-	private void handleEmergencySaving(final String data)
-			throws FailedToEmergencySaveException, AuditServiceException {
-		handleEmergencySaving(data, false);
-	}
-
-	/**
-	 * Contains basic logic for doing an emergency save since this needs to be
-	 * done from a few points in the code.
-	 * 
-	 * @param data
-	 * @param messageIsIncomplete
-	 * @throws FailedToEmergencySaveException
-	 * @throws AuditTrailException
-	 * @throws AuditServiceException
-	 */
-	private void handleEmergencySaving(final String data,
-			boolean messageIsIncomplete) throws FailedToEmergencySaveException,
-			AuditServiceException {
-		if (!data.isEmpty()) {
-			processorState = EMERGENCY_SAVING;
-			final String fileName = saveToDisk(data, messageIsIncomplete);
-			auditService.addEvent(AuditService.MESSAGE_EMERGENCY_SAVED,
-					AuditService.USER_SYSTEM, fileName);
-		} else {
-			logger.warn("emergency save data is empty; nothing saved");
-		}
-	}
-
-	/**
-	 * Generates a file name based on the current date and time, including
-	 * milliseconds. It's unlikely that another save file would occur during the
-	 * same millisecond. But as added protection a random number (over 30 bits)
-	 * is appended as well (in base 16).
-	 * 
-	 * @param data
-	 * @throws IOException
-	 */
-	private String saveToDisk(String data, boolean messageIsIncomplete)
-			throws FailedToEmergencySaveException {
-		SaveFileAlreadyExistsException lastExistsException = null;
-
-		for (int attempt = 0; attempt < EMERGENCY_SAVE_ATTEMPTS; ++attempt) {
-			// choose one of two billion random numbers
-			String random = String.format("%08x",
-					Math.round(Math.random() * RANDOM_FILENAME_SUFFIX_RANGE));
-
-			Date now = Calendar
-					.getInstance(GeneralConstants.STANDARD_TIME_ZONE).getTime();
-
-			String fileName = GeneralConstants.NUMERIC_FORMAT_W_MILLIS
-					.format(now) + "_" + random;
-			if (messageIsIncomplete) {
-				fileName += "-incomplete";
-			}
-			fileName += ".eml";
-
-			try {
-				saveToDisk(data, fileName);
-				return fileName;
-			} catch (SaveFileAlreadyExistsException e) {
-				// empty ; loop again
-			}
-		}
-
-		// throw the last exception encapsulated in a
-		// FailedToEmergencySaveException
-		throw new FailedToEmergencySaveException(lastExistsException);
-	}
-
-	private String saveToDisk(String messageData, String fileName)
-			throws FailedToEmergencySaveException,
-			SaveFileAlreadyExistsException {
-		final String filePath = getEmergencySaveRoot() + "/" + fileName;
-
-		BufferedWriter out = null;
-		FileOutputStream fileStream = null;
-		try {
-			fileStream = new FileOutputStream(filePath);
-			FileLock lock = null;
-			try {
-				lock = fileStream.getChannel().tryLock();
-				if (lock == null) {
-					throw new SaveFileAlreadyExistsException(filePath);
-				}
-
-				out = new BufferedWriter(new OutputStreamWriter(fileStream));
-				out.write(messageData);
-
-				logger.info("Saved message to file: \"" + fileName + "\"");
-				messageSaved = true;
-				return filePath;
-			} finally {
-				if (lock != null) {
-					lock.release();
-				}
-			}
-		} catch (IOException e) {
-			logger.fatal("Emergency save to disk failed. ", e);
-			throw new FailedToEmergencySaveException(e);
-		} finally {
-			try {
-				if (out != null) {
-					out.close();
-				} else if (fileStream != null) {
-					fileStream.close();
-				}
-			} catch (IOException e) {
-				logger.warn("could not close emergency save file \"" + filePath
-						+ "\".");
-			}
-		}
-	}
-
-	public String getEmergencySaveRoot() {
-		return emergencySaveRoot;
-	}
-
-	public void setEmergencySaveRoot(String emergencySaveRoot) {
-		this.emergencySaveRoot = emergencySaveRoot;
-	}
-
 	private Message createMessage(String data) throws IOException,
 			BadMessageException {
 		try {
@@ -463,7 +297,8 @@ public abstract class AbstractMailProcessor implements ArchivingProcessor,
 	}
 
 	private void archiveMessage(Message message) throws IOException,
-			CannotArchiveException {
+			CannotArchiveException, FailedToEmergencySaveException,
+			AuditServiceException {
 		boolean archiveMessage = enkiveFilters.filterMessage(message);
 
 		if (archiveMessage) {
