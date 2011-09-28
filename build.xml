@@ -9,6 +9,7 @@
 	<property name="contrib.bin.dir" value="${project.dir}/bin" />
 	<property name="source.dir" value="${project.dir}/src" />
 	<property name="config.dir" value="${project.dir}/config" />
+	<property name="scripts.dir" value="${project.dir}/scripts" />
 	<property name="lib.dir" value="${project.dir}/lib" />
 	<property name="contrib.dir" value="${project.dir}/contrib" />
 	<property name="package.file.jar" value="${build.dir}/${project.name}.jar" />
@@ -31,6 +32,14 @@
 	<target name="setup" description="Creates the ${build.dir} and ${bin.dir} directories">
 		<mkdir dir="${build.dir}" />
 		<mkdir dir="${bin.dir}" />
+		<delete file="${build.dir}/data" />
+		<mkdir dir="${build.dir}/data" />
+		<delete file="${build.dir}/data/logs" />
+		<mkdir dir="${build.dir}/data/logs" />
+		<delete file="${build.dir}/data/indri" />
+		<mkdir dir="${build.dir}/data/indri" />
+		<delete file="${build.dir}/data/emergencySaveMessages" />
+		<mkdir dir="${build.dir}/data/emergencySaveMessages" />
 	</target>
 	
 	<target name="compile" depends="setup" description="Compiles src to ${bin.dir}">
@@ -61,8 +70,11 @@
 		<delete file="${package.file.zip}" />
 		<zip destfile="${package.file.zip}" update="true">
 			<zipfileset file="${package.file.jar}" prefix="${label}" />
+			<zipfileset file="${scripts.dir}/enkive" prefix="${label}" />
 			<zipfileset dir="${config.dir}" prefix="${label}/config" />
+			<zipfileset dir="${scripts.dir}" prefix="${label}/scripts" excludesfile="${scripts.dir}/enkive" />
 			<zipfileset dir="${lib.dir}" prefix="${label}/lib" excludes="src/**, javadoc/**" />
+			<zipfileset dir="${build.dir}/data" prefix="${label}/data" />
 		</zip>
 	</target>
 	
