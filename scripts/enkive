@@ -1,20 +1,40 @@
-#!/bin/sh
+#!/bin/bash
+#
+# enkive     Startup script for enkive
+#
+# chkconfig: - 64 36
+# description: Enkive e-mail Archiver
+#
+# processname: enkive
+#
 
-ENKIVE_OWNER=enkive
-ENKIVE_HOME=/opt/enkive/
+ENKIVE_OWNER=`whoami`
+ENKIVE_HOME=`pwd`
+ENKIVE_LOG_PATH=$ENKIVE_HOME/data/logs
+ENKIVE_PID_FILE=$ENKIVE_HOME/data/enkive.pid
 ENKIVE_CLASSPATH=$ENKIVE_HOME/enkive.jar:$ENKIVE_HOME/lib/*:$ENKIVE_HOME/lib/spring/*:$ENKIVE_HOME/config/
 JSVC=/usr/local/bin/jsvc
 JAVA_HOME=/usr/lib/jvm/java-openjdk
 INDRI_SO_PATH=/usr/local/lib/
 
+RETVAL=0
+
 start() {
+	    cd $ENKIVE_HOME
         echo -n "Starting Enkive:  "
-        su $ENKIVE_OWNER -c "$JSVC -java-home $JAVA_HOME -pidfile $ENKIVE_HOME/enkive.pid -errfile $ENKIVE_HOME/log/enkive.err -cp $ENKIVE_CLASSPATH -Djava.library.path=$INDRI_SO_PATH com.linuxbox.enkive.EnkiveDaemon"
+        su $ENKIVE_OWNER -c "$JSVC -java-home $JAVA_HOME -pidfile $ENKIVE_PID_FILE -errfile $ENKIVE_LOG_PATH/enkive.err -cp $ENKIVE_CLASSPATH -Djava.library.path=$INDRI_SO_PATH com.linuxbox.enkive.EnkiveDae\
+mon"
+        RETVAL=$?
         sleep 2
+        echo
 }
 stop() {
+		cd $ENKIVE_HOME
         echo -n "Stopping Enkive: "
-        su $ENKIVE_OWNER -c "$JSVC -stop -java-home $JAVA_HOME -pidfile $ENKIVE_HOME/enkive.pid -errfile $ENKIVE_HOME/log/enkive.err -cp $ENKIVE_CLASSPATH -Djava.library.path=$INDRI_SO_PATH com.linuxbox.enkive.EnkiveDaemon"
+        su $ENKIVE_OWNER -c "$JSVC -stop -java-home $JAVA_HOME -pidfile $ENKIVE_PID_FILE -errfile $ENKIVE_LOG_PATH/enkive.err -cp $ENKIVE_CLASSPATH -Djava.library.path=$INDRI_SO_PATH com.linuxbox.enkive.Enk\
+iveDaemon"
+        RETVAL=$?
+        echo
 }
 
 # See how we were called.
@@ -30,6 +50,9 @@ case "$1" in
         start
         ;;
   *)
-        echo $"Usage: enkive {start|stop|restart}"
-        exit
+    	echo $"Usage: enkive {start|stop|restart}"
+        RETVAL=1
 esac
+
+exit $RETVAL
+        
