@@ -33,7 +33,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.linuxbox.enkive.search.SearchSummary;
+import com.linuxbox.enkive.message.search.MessageSearchSummary;
 
 /**
  * Represents a query consisting of a set of search criteria and a set of
@@ -72,7 +72,7 @@ public class SearchQuery {
 		this.name = name;
 	}
 
-	public void addAllSearchCriteria(SearchSummary searchSummary) {
+	public void addAllSearchCriteria(MessageSearchSummary searchSummary) {
 		addAllSearchCriteria(searchSummary.sender, searchSummary.recipient,
 				searchSummary.dateEarliest, searchSummary.dateLatest,
 				searchSummary.subject, searchSummary.messageId,

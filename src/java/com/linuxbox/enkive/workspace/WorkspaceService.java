@@ -73,4 +73,17 @@ public interface WorkspaceService extends WorkspaceServiceMBean {
 
 	void deleteSearchResult(String searchResultId) throws WorkspaceException;
 
+	void deleteSearch(Workspace workspace, String searchId);
+
+	List<SearchResult> readResults(SearchQuery searchQuery);
+
+	SearchQuery readQuery(Workspace workspace, String searchId);
+
+	void saveSearchWithName(Workspace workspace, String searchId,
+			String nameOfSavedSearch);
+
+	SearchResult readBestResult(Workspace activeWorkspace, String searchId);
+
+	SearchResult readResult(Workspace workspace, String id);
+
 }
