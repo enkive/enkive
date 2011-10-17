@@ -20,12 +20,25 @@
 
 package com.linuxbox.enkive.search;
 
-public interface Constants {
-	String SENDER_PARAMETER = "sender";
-	String RECIPIENT_PARAMETER = "recipient";
-	String DATE_EARLIEST_PARAMETER = "dateEarliest";
-	String DATE_LATEST_PARAMETER = "dateLatest";
-	String SUBJECT_PARAMETER = "subject";
-	String MESSAGE_ID_PARAMETER = "messageId";
-	String CONTENT_PARAMETER = "content";
+import static com.linuxbox.enkive.GeneralConstants.STANDARD_TIME_ZONE;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+
+public class Constants {
+	public static final String SENDER_PARAMETER = "sender";
+	public static final String RECIPIENT_PARAMETER = "recipient";
+	public static final String DATE_EARLIEST_PARAMETER = "dateEarliest";
+	public static final String DATE_LATEST_PARAMETER = "dateLatest";
+	public static final String SUBJECT_PARAMETER = "subject";
+	public static final String MESSAGE_ID_PARAMETER = "messageId";
+	public static final String CONTENT_PARAMETER = "content";
+
+	public static final DateFormat NUMERIC_SEARCH_FORMAT;
+
+	static {
+		NUMERIC_SEARCH_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
+		NUMERIC_SEARCH_FORMAT.setTimeZone(STANDARD_TIME_ZONE);
+	}
+
 }

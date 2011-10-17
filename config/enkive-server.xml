@@ -52,6 +52,8 @@
 			value="${enkive.docsearch.query.indri.refreshInterval}" />
 	</bean>
 
+
+
 	<bean id="ContentAnalyzer"
 		class="com.linuxbox.enkive.docsearch.contentanalyzer.tika.TikaContentAnalyzer" />
 
@@ -86,6 +88,15 @@
 		<constructor-arg type="java.lang.String"
 			value="${enkive.messagestore.collection.name}" />
 		<property name="docStoreService" ref="DocStoreService" />
+	</bean>
+
+	<bean id="MessageSearchService"
+		class="com.linuxbox.enkive.message.search.mongodb.MongoMessageSearchService">
+		<constructor-arg ref="Mongo" />
+		<constructor-arg type="java.lang.String" value="${enkive.messagestore.db.name}" />
+		<constructor-arg type="java.lang.String"
+			value="${enkive.messagestore.collection.name}" />
+		<property name="docSearchService" ref="DocSearchQueryService" />
 	</bean>
 
 	<bean id="ThreadPoolServerConfiguration"
