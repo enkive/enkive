@@ -22,6 +22,7 @@ package com.linuxbox.enkive.search;
 
 import java.util.Set;
 
+import com.linuxbox.enkive.message.search.MessageSearchSummary;
 import com.linuxbox.enkive.workspace.SearchQuery;
 import com.linuxbox.enkive.workspace.SearchResult;
 import com.linuxbox.enkive.workspace.WorkspaceService;
@@ -31,14 +32,14 @@ public abstract class SearchProcess extends
 		AbstractCancellableProcess<Set<String>> {
 	protected final WorkspaceService workspaceService;
 
-	protected final SearchSummary searchSummary;
+	protected final MessageSearchSummary searchSummary;
 	protected final String searchUser;
 
 	protected final SearchQuery searchQuery;
 	protected final SearchResult searchResult;
 
 	public SearchProcess(WorkspaceService workspaceServiceParam,
-			SearchSummary searchSummary, String searchUser,
+			MessageSearchSummary searchSummary, String searchUser,
 			SearchQuery searchQuery, SearchResult searchResult) {
 		super(searchResult.getId());
 

@@ -3,11 +3,16 @@ package com.linuxbox.enkive.workspace.mongo;
 import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.ACTIVEWORKSPACE;
 import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.CREATIONDATE;
 import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.CREATOR;
+import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.EXECUTEDBY;
+import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.EXECUTIONTIMESTAMP;
 import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.MODIFIEDDATE;
+import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.SEARCHCRITERIA;
+import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.SEARCHNAME;
+import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.SEARCHQUERYID;
 import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.SEARCHRESULTS;
+import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.SEARCHSTATUS;
 import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.UUID;
 import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.WORKSPACENAME;
-import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.*;
 
 import java.util.Collection;
 import java.util.Date;
@@ -312,6 +317,44 @@ public class MongoWorkspaceService extends AbstractWorkspaceService implements
 
 	public void setSearchColl(DBCollection searchColl) {
 		this.searchResultsColl = searchColl;
+	}
+
+	@Override
+	public void deleteSearch(Workspace workspace, String searchId) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public List<SearchResult> readResults(SearchQuery searchQuery) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public SearchQuery readQuery(Workspace workspace, String searchId) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void saveSearchWithName(Workspace workspace, String searchId,
+			String nameOfSavedSearch) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public SearchResult readBestResult(Workspace activeWorkspace,
+			String searchId) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public SearchResult readResult(Workspace workspace, String id) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

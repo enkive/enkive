@@ -22,6 +22,7 @@ import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.TO;
 import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.ARCHIVE_TIME;
 import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.ATTACHMENT_ID;
 import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.ATTACHMENT_ID_LIST;
+import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.NESTED_MESSAGE_ID_LIST;
 import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.CONTENT_HEADER;
 import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.CONTENT_HEADER_TYPE;
 import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.MESSAGE_UUID;
@@ -119,7 +120,7 @@ public class MongoArchivingService extends AbstractMessageArchivingService {
 			messageObject.put(CONTENT_HEADER,
 					archiveContentHeader(contentHeader));
 			messageObject.put(ATTACHMENT_ID_LIST, attachment_ids);
-			messageObject.put(ATTACHMENT_ID_LIST, nested_message_ids);
+			messageObject.put(NESTED_MESSAGE_ID_LIST, nested_message_ids);
 			messageColl.insert(messageObject);
 			messageUUID = messageObject.getString(MESSAGE_UUID);
 		} catch (MongoException e) {
