@@ -19,6 +19,7 @@ import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.PREAMBLE;
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.RCPT_TO;
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.SUBJECT;
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.TO;
+import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.ARCHIVE_TIME;
 import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.ATTACHMENT_ID;
 import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.ATTACHMENT_ID_LIST;
 import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.CONTENT_HEADER;
@@ -31,6 +32,7 @@ import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.SI
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -91,6 +93,7 @@ public class MongoArchivingService extends AbstractMessageArchivingService {
 		try {
 			BasicDBObject messageObject = new BasicDBObject();
 			messageObject.put(MESSAGE_UUID, calculateMessageId(message));
+			messageObject.put(ARCHIVE_TIME, new Date());
 			messageObject.put(ORIGINAL_HEADERS, message.getOriginalHeaders());
 			messageObject.put(MAIL_FROM, message.getMailFrom());
 			messageObject.put(RCPT_TO, message.getRcptTo());
