@@ -2,6 +2,12 @@
 <!DOCTYPE beans PUBLIC '-//SPRING//DTD BEAN//EN' 'http://www.springframework.org/dtd/spring-beans.dtd'>
 <beans>
 
+	<bean id="webframework.factory.user.ediscovery"
+		class="com.linuxbox.ediscovery.userfactory.EnkiveUserFactory" 
+		parent="webframework.factory.base">
+		<constructor-arg type="java.lang.String" value="enkive" />
+	</bean>
+
 	<!-- EXPORT -->
 	<bean id="webscript.webscripts.search.export.mbox.get"
 		class="com.linuxbox.ediscovery.webscripts.ExportMbox"

@@ -1,7 +1,7 @@
 <ul>
 <#list pages as page>
 	<#assign display = true>
-	<#if page.properties["authentication"] == "admin" && !userData.capabilities.isAdmin >
+	<#if page.properties["authentication"] == "admin" && !user.capabilities.isAdmin >
 		<#assign display = false>
 	</#if>
 	<#if display>

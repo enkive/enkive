@@ -5,8 +5,9 @@ var size = context.properties["size"];
 var connector = remote.connect("enkive");
 
 // retrieve the web script index page
-var auditEntryListJSON = connector.get("/AuditEntry");
-		
+var auditEntryListJSON = connector.get("/audit/recent?pos=" + pos
+		+ "&size=" + size);
+
 var auditEntryList = eval("(" + auditEntryListJSON + ")");
 model.result = auditEntryList
 
