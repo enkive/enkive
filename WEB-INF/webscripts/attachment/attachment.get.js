@@ -1,4 +1,4 @@
 var attachmentid = context.properties["attachmentid"];
 
-var connector = remote.connect("alfresco");
+var connector = remote.connect("enkive");
 
