@@ -20,7 +20,7 @@ import com.linuxbox.enkive.audit.AuditService;
 import com.linuxbox.enkive.audit.AuditServiceDescriptions;
 import com.linuxbox.enkive.audit.AuditServiceException;
 
-public class AuditEntryServlet extends EnkiveServlet {
+public class AuditLogServlet extends EnkiveServlet {
 	/**
 	 * 
 	 */
@@ -37,7 +37,7 @@ public class AuditEntryServlet extends EnkiveServlet {
 	protected static final String DATE_NUMBER_KEY = "date_number";
 	protected static final String AUDIT_TRAIL_SIZE_KEY = "audit_trail_size";
 
-	public AuditEntryServlet() {
+	public AuditLogServlet() {
 		super();
 	}
 
@@ -81,7 +81,6 @@ public class AuditEntryServlet extends EnkiveServlet {
 						pageInfo.getPageJSON());
 				auditService.addEvent(AuditService.AUDIT_LOG_QUERY,
 						AuditService.USER_SYSTEM, resultsString);
-
 			} catch (AuditServiceException e) {
 				LOGGER.error("error creating audit entry ", e);
 				resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
@@ -117,9 +116,9 @@ public class AuditEntryServlet extends EnkiveServlet {
 		entryObject.put(IDENTIFIER_KEY, entry.getIdentifier());
 		entryObject.put(TIMESTAMP_KEY,
 				DETAILED_LOCAL_DATE_FORMAT.format(entry.getTimestamp()));
-		entryObject.put(EVENT_CODE_KEY, entry.getEventCode());
+		entryObject.put(EVENT_CODE_KEY, String.valueOf(entry.getEventCode()));
 		entryObject.put(USER_NAME_KEY, entry.getUserName());
-		entryObject.put(DATE_NUMBER_KEY, entry.getTimestamp().getTime());
+		entryObject.put(DATE_NUMBER_KEY, String.valueOf(entry.getTimestamp().getTime()));
 		entryObject.put(DESCRIPTION_KEY, buildDescription(entry));
 
 		return entryObject;

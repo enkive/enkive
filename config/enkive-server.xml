@@ -96,6 +96,9 @@
 		<constructor-arg type="java.lang.String" value="${enkive.messagestore.db.name}" />
 		<constructor-arg type="java.lang.String"
 			value="${enkive.messagestore.collection.name}" />
+		<property name="authenticationService" ref="AuthenticationService" />
+		<property name="workspaceService" ref="WorkspaceService" />
+		<property name="auditService" ref="AuditLogService" />
 		<property name="docSearchService" ref="DocSearchQueryService" />
 	</bean>
 

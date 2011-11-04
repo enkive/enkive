@@ -20,9 +20,9 @@
 
 package com.linuxbox.enkive.workspace;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 public class SearchResult {
 
@@ -43,14 +43,14 @@ public class SearchResult {
 	private String id;
 	private Date timestamp;
 	protected String executedBy;
-	private Collection<String> messageIds;
+	private Set<String> messageIds;
 	private Status status;
 	protected String searchQueryId;
 
 	public SearchResult() {
 		this.timestamp = new Date();
 		this.status = Status.RUNNING;
-		messageIds = new ArrayList<String>();
+		messageIds = new HashSet<String>();
 	}
 
 	public String getId() {
@@ -77,11 +77,11 @@ public class SearchResult {
 		this.status = status;
 	}
 
-	public Collection<String> getMessageIds() {
+	public Set<String> getMessageIds() {
 		return messageIds;
 	}
 
-	public void setMessageIds(Collection<String> messageIds) {
+	public void setMessageIds(Set<String> messageIds) {
 		this.messageIds = messageIds;
 	}
 

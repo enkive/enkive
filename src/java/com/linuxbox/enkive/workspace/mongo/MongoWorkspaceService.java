@@ -19,6 +19,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -79,7 +80,21 @@ public class MongoWorkspaceService extends AbstractWorkspaceService implements
 	public Workspace getActiveWorkspace(String userId)
 			throws WorkspaceException {
 		DBObject workspaceList = userWorkspacesColl.findOne(userId);
-		String workspaceUUID = (String) workspaceList.get(ACTIVEWORKSPACE);
+		String workspaceUUID;
+		if(workspaceList == null){
+			workspaceList = new BasicDBObject();
+			workspaceList.put(UUID, userId);
+			
+			Workspace workspace = new Workspace();
+			workspace.setCreator(userId);
+			workspace.setCreationDate(new Date());
+			workspace.setLastUpdate(new Date());
+			workspace.setWorkspaceName("Default Workspace");
+			workspaceUUID = saveWorkspace(workspace);
+			workspaceList.put(ACTIVEWORKSPACE, workspaceUUID);
+			userWorkspacesColl.save(workspaceList);
+		}
+		workspaceUUID = (String) workspaceList.get(ACTIVEWORKSPACE);
 		return getWorkspace(workspaceUUID);
 	}
 
@@ -158,7 +173,7 @@ public class MongoWorkspaceService extends AbstractWorkspaceService implements
 		if (searchQueryObject.getString(UUID) == null)
 			searchQueryColl.insert(searchQueryObject);
 
-		logger.info("Saved Search Results - "
+		logger.info("Saved Search Query - "
 				+ searchQueryObject.getString(UUID));
 		return searchQueryObject.getString(UUID);
 
@@ -236,7 +251,7 @@ public class MongoWorkspaceService extends AbstractWorkspaceService implements
 		BasicDBList searchResults = (BasicDBList) searchResultObject
 				.get(SEARCHRESULTS);
 
-		Collection<String> searchResultUUIDs = new HashSet<String>();
+		Set<String> searchResultUUIDs = new HashSet<String>();
 		Iterator<Object> searchResultsIterator = searchResults.iterator();
 		while (searchResultsIterator.hasNext())
 			searchResultUUIDs.add((String) searchResultsIterator.next());

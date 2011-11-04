@@ -29,7 +29,7 @@ import org.apache.commons.logging.LogFactory;
 
 import com.linuxbox.enkive.docsearch.DocSearchQueryService;
 import com.linuxbox.enkive.docsearch.exception.DocSearchException;
-import com.linuxbox.enkive.message.search.MessageSearchService;
+import com.linuxbox.enkive.message.search.AbstractMessageSearchService;
 import com.linuxbox.enkive.message.search.exception.MessageSearchException;
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
@@ -39,7 +39,7 @@ import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.Mongo;
 
-public class MongoMessageSearchService implements MessageSearchService {
+public class MongoMessageSearchService extends AbstractMessageSearchService {
 
 	private final static Log logger = LogFactory
 			.getLog("com.linuxbox.enkive.searchService.mongodb");
@@ -47,7 +47,6 @@ public class MongoMessageSearchService implements MessageSearchService {
 	protected Mongo m = null;
 	protected DB messageDb;
 	protected DBCollection messageColl;
-	protected DocSearchQueryService docSearchService;
 
 	public MongoMessageSearchService(Mongo m, String dbName, String collName) {
 		this.m = m;
@@ -55,8 +54,7 @@ public class MongoMessageSearchService implements MessageSearchService {
 		messageColl = messageDb.getCollection(collName);
 	}
 
-	@Override
-	public Set<String> search(HashMap<String, String> fields)
+	public Set<String> searchImpl(HashMap<String, String> fields)
 			throws MessageSearchException {
 		Set<String> messageIds = new HashSet<String>();
 
@@ -139,20 +137,4 @@ public class MongoMessageSearchService implements MessageSearchService {
 
 		return messageIds;
 	}
-
-	@Override
-	public Set<String> searchAsync(HashMap<String, String> fields)
-			throws MessageSearchException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public DocSearchQueryService getDocSearchService() {
-		return docSearchService;
-	}
-
-	public void setDocSearchService(DocSearchQueryService docSearchService) {
-		this.docSearchService = docSearchService;
-	}
-
 }

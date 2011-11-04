@@ -54,6 +54,7 @@ public class SearchQuery {
 
 	public SearchQuery() {
 		criteria = new HashMap<String, String>();
+		name = new Date().toString();
 	}
 
 	public String getId() {

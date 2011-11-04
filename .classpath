@@ -39,7 +39,7 @@
 	<classpathentry kind="lib" path="lib/ant-launcher.jar"/>
 	<classpathentry kind="lib" path="lib/javax.el_2.1.0.v201004190952.jar"/>
 	<classpathentry kind="lib" path="lib/javax.servlet.jsp.jstl_1.2.0.v201004190952.jar"/>
-	<classpathentry kind="lib" path="/usr/lib/jvm/java-6-sun/lib/tools.jar"/>
+	<classpathentry kind="lib" path="/usr/lib/jvm/java-6-openjdk/lib/dt.jar"/>
 	<classpathentry kind="lib" path="lib/json.jar"/>
 	<classpathentry kind="lib" path="lib/mail.jar">
 		<attributes>
@@ -62,5 +62,6 @@
 	<classpathentry kind="lib" path="lib/spring/spring-security-web-3.0.5.RELEASE.jar" sourcepath="lib/src/spring/spring-security-web-3.0.5.RELEASE-sources.jar"/>
 	<classpathentry kind="lib" path="lib/spring/org.springframework.context.support-3.0.6.RELEASE.jar"/>
 	<classpathentry kind="lib" path="lib/spring/org.springframework.transaction-3.0.6.RELEASE.jar"/>
+	<classpathentry kind="lib" path="/usr/lib/jvm/java-6-openjdk/lib/tools.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

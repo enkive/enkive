@@ -10,10 +10,10 @@
 		<form-login />
 	</http>
 
-    <authentication-manager>
-        <authentication-provider>
-            <user-service id="userDetailsService" properties="WEB-INF/users.properties"/>
-        </authentication-provider>
-    </authentication-manager>
+	<authentication-manager alias="authenticationManager">
+		<authentication-provider>
+			<user-service id="userDetailsService" properties="WEB-INF/users.properties" />
+		</authentication-provider>
+	</authentication-manager>
 
 </beans:beans>

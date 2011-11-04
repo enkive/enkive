@@ -24,8 +24,8 @@
 		<servlet-class>com.linuxbox.enkive.web.TestServlet</servlet-class>
 	</servlet>
 	<servlet>
-		<servlet-name>AuditEntryServlet</servlet-name>
-		<servlet-class>com.linuxbox.enkive.web.AuditEntryServlet</servlet-class>
+		<servlet-name>AuditLogServlet</servlet-name>
+		<servlet-class>com.linuxbox.enkive.web.AuditLogServlet</servlet-class>
 	</servlet>
 	<servlet>
 		<servlet-name>AttachmentRetrieveServlet</servlet-name>
@@ -61,8 +61,8 @@
 		<url-pattern>/test</url-pattern>
 	</servlet-mapping>
 	<servlet-mapping>
-		<servlet-name>AuditEntryServlet</servlet-name>
-		<url-pattern>/auditEntry</url-pattern>
+		<servlet-name>AuditLogServlet</servlet-name>
+		<url-pattern>/audit/recent</url-pattern>
 	</servlet-mapping>
 	<servlet-mapping>
 		<servlet-name>AttachmentRetrieveServlet</servlet-name>
