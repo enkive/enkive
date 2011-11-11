@@ -95,11 +95,11 @@ public class Workspace {
 	}
 
 	public void addSearchResult(String searchResultUUID){
-		searchResultUUIDs.remove(searchResultUUID);
+		searchResultUUIDs.add(searchResultUUID);
 	}
 	
 	public void deleteSearchResult(String searchResultUUID){
-		searchResultUUIDs.add(searchResultUUID);
+		searchResultUUIDs.remove(searchResultUUID);
 	}
 	
 	public void setWorkspaceUUID(String workspaceUUID) {

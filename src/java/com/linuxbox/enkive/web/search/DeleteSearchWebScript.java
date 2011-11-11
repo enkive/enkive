@@ -47,11 +47,14 @@ public class DeleteSearchWebScript extends EnkiveServlet {
 		
 		String searchId = "";
 		try {
-			searchId = WebScriptUtils.cleanGetParameter(req, "id");
+			searchId = WebScriptUtils.cleanGetParameter(req, "searchid");
 			WorkspaceService workspaceService = getWorkspaceService();
 			Workspace workspace = workspaceService.getActiveWorkspace();
-			workspaceService.deleteSearch(workspace, searchId);
-
+			workspace.deleteSearchResult(searchId);
+			
+			workspaceService.deleteSearchResult(searchId);
+			workspaceService.saveWorkspace(workspace);
+			
 			logger.debug("deleted search at id " + searchId);
 		} catch (WorkspaceException e) {
 			throw new IOException("Could not delete search at UUID "

@@ -46,6 +46,7 @@ public class SearchResult {
 	private Set<String> messageIds;
 	private Status status;
 	protected String searchQueryId;
+	protected Boolean isSaved = false;
 
 	public SearchResult() {
 		this.timestamp = new Date();
@@ -99,5 +100,13 @@ public class SearchResult {
 
 	public void setExecutedBy(String executedBy) {
 		this.executedBy = executedBy;
+	}
+	
+	public Boolean isSaved() {
+		return isSaved;
+	}
+	
+	public void setSaved(Boolean isSaved){
+		this.isSaved = isSaved;
 	}
 }

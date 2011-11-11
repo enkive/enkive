@@ -22,30 +22,42 @@ package com.linuxbox.enkive.web.search;
 
 import java.io.IOException;
 
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.linuxbox.enkive.exception.EnkiveServletException;
+import com.linuxbox.enkive.web.EnkiveServlet;
 import com.linuxbox.enkive.web.WebScriptUtils;
-import com.linuxbox.enkive.workspace.Workspace;
+import com.linuxbox.enkive.workspace.SearchResult;
 import com.linuxbox.enkive.workspace.WorkspaceException;
+import com.linuxbox.enkive.workspace.WorkspaceService;
 
-public class SaveSearchWebScript extends AbstractWorkspaceWebscript {
+public class SaveSearchWebScript extends EnkiveServlet {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 8342072157628116473L;
 
+	protected WorkspaceService workspaceService;
+
+	@Override
+	public void init(ServletConfig config) throws ServletException {
+		super.init(config);
+		this.workspaceService = getWorkspaceService();
+	}
+
 	public void doGet(HttpServletRequest req, HttpServletResponse res)
 			throws IOException {
 
-		String searchId = WebScriptUtils.cleanGetParameter(req, "id");
+		String searchId = WebScriptUtils.cleanGetParameter(req, "searchid");
 		String nameOfSavedSearch = WebScriptUtils
 				.cleanGetParameter(req, "name");
 		try {
-			Workspace workspace = workspaceService.getActiveWorkspace();
-			workspaceService.saveSearchWithName(workspace, searchId,
-					nameOfSavedSearch);
+			SearchResult result = workspaceService.getSearchResult(searchId);
+			result.setSaved(true);
+			workspaceService.saveSearchResult(result);
 
 			LOGGER.debug("saved search at id " + searchId + " with name \""
 					+ nameOfSavedSearch + "\"");

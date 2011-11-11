@@ -52,8 +52,6 @@
 			value="${enkive.docsearch.query.indri.refreshInterval}" />
 	</bean>
 
-
-
 	<bean id="ContentAnalyzer"
 		class="com.linuxbox.enkive.docsearch.contentanalyzer.tika.TikaContentAnalyzer" />
 

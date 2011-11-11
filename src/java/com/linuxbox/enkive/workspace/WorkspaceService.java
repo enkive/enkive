@@ -36,28 +36,24 @@ public interface WorkspaceService extends WorkspaceServiceMBean {
 	Workspace getActiveWorkspace(String userId) throws WorkspaceException;
 
 	Workspace getWorkspace(String workspaceUUID) throws WorkspaceException;
-	
+
 	String saveWorkspace(Workspace workspace) throws WorkspaceException;
-	
+
 	void deleteWorkspace(Workspace workspace) throws WorkspaceException;
-	
+
 	String saveSearchQuery(SearchQuery query) throws WorkspaceException;
 
 	String saveSearchResult(SearchResult result) throws WorkspaceException;
-	
-	CPFuture<Set<String>> submitSearchProcessToQueue(
-			SearchProcess process);
+
+	CPFuture<Set<String>> submitSearchProcessToQueue(SearchProcess process);
 
 	void requestSearchCancellation(SearchResult result)
 			throws WorkspaceException;
 
-	void setSearchResultStatus(SearchResult result, SearchResult.Status status)
+	List<SearchResult> getRecentSearches(String workspaceId)
 			throws WorkspaceException;
 
-	List<SearchQuery> readRecentSearches(Workspace workspace)
-			throws WorkspaceException;
-
-	List<SearchQuery> readSavedSearches(Workspace workspace)
+	List<SearchResult> getSavedSearches(String workspaceId)
 			throws WorkspaceException;
 
 	SearchQuery getSearchQuery(String searchQueryId) throws WorkspaceException;
@@ -72,18 +68,5 @@ public interface WorkspaceService extends WorkspaceServiceMBean {
 	void deleteSearchResult(SearchResult result) throws WorkspaceException;
 
 	void deleteSearchResult(String searchResultId) throws WorkspaceException;
-
-	void deleteSearch(Workspace workspace, String searchId);
-
-	List<SearchResult> readResults(SearchQuery searchQuery);
-
-	SearchQuery readQuery(Workspace workspace, String searchId);
-
-	void saveSearchWithName(Workspace workspace, String searchId,
-			String nameOfSavedSearch);
-
-	SearchResult readBestResult(Workspace activeWorkspace, String searchId);
-
-	SearchResult readResult(Workspace workspace, String id);
 
 }

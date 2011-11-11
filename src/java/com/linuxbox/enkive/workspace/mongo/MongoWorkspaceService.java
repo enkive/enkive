@@ -7,6 +7,7 @@ import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.EXECUT
 import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.EXECUTIONTIMESTAMP;
 import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.MODIFIEDDATE;
 import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.SEARCHCRITERIA;
+import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.SEARCHISSAVED;
 import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.SEARCHNAME;
 import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.SEARCHQUERYID;
 import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.SEARCHRESULTS;
@@ -14,6 +15,7 @@ import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.SEARCH
 import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.UUID;
 import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.WORKSPACENAME;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
@@ -81,10 +83,10 @@ public class MongoWorkspaceService extends AbstractWorkspaceService implements
 			throws WorkspaceException {
 		DBObject workspaceList = userWorkspacesColl.findOne(userId);
 		String workspaceUUID;
-		if(workspaceList == null){
+		if (workspaceList == null) {
 			workspaceList = new BasicDBObject();
 			workspaceList.put(UUID, userId);
-			
+
 			Workspace workspace = new Workspace();
 			workspace.setCreator(userId);
 			workspace.setCreationDate(new Date());
@@ -152,8 +154,9 @@ public class MongoWorkspaceService extends AbstractWorkspaceService implements
 
 	@Override
 	public void deleteWorkspace(Workspace workspace) throws WorkspaceException {
-		// TODO Auto-generated method stub
-
+		DBObject workspaceObject = searchResultsColl.findOne(ObjectId
+				.massageToObjectId(workspace.getWorkspaceUUID()));
+		searchResultsColl.remove(workspaceObject);
 	}
 
 	@Override
@@ -173,8 +176,7 @@ public class MongoWorkspaceService extends AbstractWorkspaceService implements
 		if (searchQueryObject.getString(UUID) == null)
 			searchQueryColl.insert(searchQueryObject);
 
-		logger.info("Saved Search Query - "
-				+ searchQueryObject.getString(UUID));
+		logger.info("Saved Search Query - " + searchQueryObject.getString(UUID));
 		return searchQueryObject.getString(UUID);
 
 	}
@@ -198,15 +200,15 @@ public class MongoWorkspaceService extends AbstractWorkspaceService implements
 
 	@Override
 	public void deleteSearchQuery(SearchQuery query) throws WorkspaceException {
-		// TODO Auto-generated method stub
-
+		deleteSearchQuery(query.getId());
 	}
 
 	@Override
-	public void deleteSearchQuery(String stringQueryId)
+	public void deleteSearchQuery(String searchQueryId)
 			throws WorkspaceException {
-		// TODO Auto-generated method stub
-
+		DBObject searchQueryObject = searchResultsColl.findOne(ObjectId
+				.massageToObjectId(searchQueryId));
+		searchResultsColl.remove(searchQueryObject);
 	}
 
 	@Override
@@ -219,6 +221,7 @@ public class MongoWorkspaceService extends AbstractWorkspaceService implements
 		searchResultObject.put(SEARCHRESULTS, result.getMessageIds());
 		searchResultObject.put(SEARCHSTATUS, result.getStatus().toString());
 		searchResultObject.put(SEARCHQUERYID, result.getSearchQueryId());
+		searchResultObject.put(SEARCHISSAVED, result.isSaved());
 
 		if (result.getId() != null && !result.getId().isEmpty()) {
 			DBObject toUpdate = searchResultsColl.findOne(ObjectId
@@ -261,6 +264,8 @@ public class MongoWorkspaceService extends AbstractWorkspaceService implements
 		result.setStatus(Status.valueOf((String) searchResultObject
 				.get(SEARCHSTATUS)));
 		result.setSearchQueryId((String) searchResultObject.get(SEARCHQUERYID));
+		if(searchResultObject.get(SEARCHISSAVED) != null)
+			result.setSaved((Boolean) searchResultObject.get(SEARCHISSAVED));
 
 		logger.info("Retrieved Search Results - " + result.getId());
 		return result;
@@ -269,36 +274,16 @@ public class MongoWorkspaceService extends AbstractWorkspaceService implements
 	@Override
 	public void deleteSearchResult(SearchResult result)
 			throws WorkspaceException {
-		// TODO Auto-generated method stub
+		deleteSearchResult(result.getId());
 
 	}
 
 	@Override
 	public void deleteSearchResult(String searchResultId)
 			throws WorkspaceException {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void setSearchResultStatus(SearchResult result, Status status)
-			throws WorkspaceException {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public List<SearchQuery> readRecentSearches(Workspace workspace)
-			throws WorkspaceException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public List<SearchQuery> readSavedSearches(Workspace workspace)
-			throws WorkspaceException {
-		// TODO Auto-generated method stub
-		return null;
+		DBObject searchResultObject = searchResultsColl.findOne(ObjectId
+				.massageToObjectId(searchResultId));
+		searchResultsColl.remove(searchResultObject);
 	}
 
 	public void setAuthenticationService(
@@ -335,41 +320,25 @@ public class MongoWorkspaceService extends AbstractWorkspaceService implements
 	}
 
 	@Override
-	public void deleteSearch(Workspace workspace, String searchId) {
-		// TODO Auto-generated method stub
-		
+	public List<SearchResult> getRecentSearches(String workspaceId)
+			throws WorkspaceException {
+		List<SearchResult> searchResults = new ArrayList<SearchResult>();
+		for (String resultUUID : getWorkspace(workspaceId)
+				.getSearchResultUUIDs()) {
+			searchResults.add(getSearchResult(resultUUID));
+		}
+		return searchResults;
 	}
 
 	@Override
-	public List<SearchResult> readResults(SearchQuery searchQuery) {
-		// TODO Auto-generated method stub
-		return null;
+	public List<SearchResult> getSavedSearches(String workspaceId)
+			throws WorkspaceException {
+		List<SearchResult> searchResults = new ArrayList<SearchResult>();
+		for (String resultUUID : getWorkspace(workspaceId)
+				.getSearchResultUUIDs()) {
+			if (getSearchResult(resultUUID).isSaved())
+				searchResults.add(getSearchResult(resultUUID));
+		}
+		return searchResults;
 	}
-
-	@Override
-	public SearchQuery readQuery(Workspace workspace, String searchId) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void saveSearchWithName(Workspace workspace, String searchId,
-			String nameOfSavedSearch) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public SearchResult readBestResult(Workspace activeWorkspace,
-			String searchId) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public SearchResult readResult(Workspace workspace, String id) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 }

@@ -25,7 +25,7 @@ public abstract class AbstractMessageSearchService implements
 	protected DocSearchQueryService docSearchService;
 
 	@Override
-	public Set<String> search(HashMap<String, String> fields)
+	public SearchResult search(HashMap<String, String> fields)
 			throws MessageSearchException {
 
 		SearchQuery query = new SearchQuery();
@@ -33,25 +33,27 @@ public abstract class AbstractMessageSearchService implements
 
 		try {
 			Workspace workspace = workspaceService.getActiveWorkspace();
-			
+
 			query.setId(workspaceService.saveSearchQuery(query));
-			
+
 			SearchResult result = new SearchResult();
 			result.setSearchQueryId(query.getId());
 			result.setMessageIds(searchImpl(fields));
 			result.setTimestamp(new Date());
 			result.setExecutedBy(authenticationService.getUserName());
 			result.setStatus(Status.COMPLETE);
-			workspaceService.saveSearchResult(result);
-			
-			workspace.addSearchResult(result.getId());
+			String resultId = workspaceService.saveSearchResult(result);
+			result.setId(resultId);
+
+			workspace.addSearchResult(resultId);
 			workspaceService.saveWorkspace(workspace);
-			
-			return result.getMessageIds();
+
+			return result;
 		} catch (WorkspaceException e) {
 			throw new MessageSearchException("Could not save search query", e);
 		} catch (AuthenticationException e) {
-			throw new MessageSearchException("Could not get authenticated user for search", e);
+			throw new MessageSearchException(
+					"Could not get authenticated user for search", e);
 		}
 	}
 
@@ -77,7 +79,8 @@ public abstract class AbstractMessageSearchService implements
 		return authenticationService;
 	}
 
-	public void setAuthenticationService(AuthenticationService authenticationService) {
+	public void setAuthenticationService(
+			AuthenticationService authenticationService) {
 		this.authenticationService = authenticationService;
 	}
 

@@ -29,24 +29,18 @@ import static com.linuxbox.enkive.search.Constants.SENDER_PARAMETER;
 import static com.linuxbox.enkive.search.Constants.SUBJECT_PARAMETER;
 import static com.linuxbox.enkive.web.WebConstants.COMPLETE_STATUS_VALUE;
 import static com.linuxbox.enkive.web.WebConstants.DATA_TAG;
-import static com.linuxbox.enkive.web.WebConstants.ERRORS_TAG;
-import static com.linuxbox.enkive.web.WebConstants.ERROR_STATUS_VALUE;
 import static com.linuxbox.enkive.web.WebConstants.QUERY_TAG;
 import static com.linuxbox.enkive.web.WebConstants.RESULTS_TAG;
-import static com.linuxbox.enkive.web.WebConstants.RESULT_ID_TAG;
-import static com.linuxbox.enkive.web.WebConstants.RUNNING_STATUS_VALUE;
 import static com.linuxbox.enkive.web.WebConstants.SEARCH_ID_TAG;
 import static com.linuxbox.enkive.web.WebConstants.STATUS_ID_TAG;
 import static com.linuxbox.enkive.web.WebPageInfo.PAGING_LABEL;
 
 import java.io.IOException;
-import java.text.ParseException;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -56,25 +50,20 @@ import org.json.JSONObject;
 
 import com.linuxbox.enkive.audit.AuditService;
 import com.linuxbox.enkive.audit.AuditServiceException;
-import com.linuxbox.enkive.audit.AuditTrailException;
 import com.linuxbox.enkive.authentication.AuthenticationException;
 import com.linuxbox.enkive.authentication.AuthenticationService;
 import com.linuxbox.enkive.exception.CannotRetrieveException;
 import com.linuxbox.enkive.exception.EnkiveServletException;
 import com.linuxbox.enkive.message.MessageSummary;
 import com.linuxbox.enkive.message.search.MessageSearchService;
-import com.linuxbox.enkive.message.search.MessageSearchSummary;
 import com.linuxbox.enkive.retriever.MessageRetrieverService;
 import com.linuxbox.enkive.web.WebConstants;
 import com.linuxbox.enkive.web.WebPageInfo;
 import com.linuxbox.enkive.web.WebScriptUtils;
 import com.linuxbox.enkive.workspace.SearchResult;
-import com.linuxbox.enkive.workspace.WorkspaceException;
-import com.linuxbox.enkive.workspace.WorkspaceService;
-import com.linuxbox.util.threadpool.CancellableProcessExecutor.CPFuture;
 
 public class AdvancedSearch extends AbstractSearchWebScript {
-	
+
 	/**
 	 * 
 	 */
@@ -82,9 +71,17 @@ public class AdvancedSearch extends AbstractSearchWebScript {
 	protected MessageRetrieverService archiveService;
 	protected MessageSearchService searchService;
 	protected AuditService auditService;
-	protected WorkspaceService workspaceService;
 	protected AuthenticationService authenticationService;
 
+	@Override
+	public void init(ServletConfig config) throws ServletException {
+		super.init(config);
+		this.searchService = getMessageSearchService();
+		this.auditService = getAuditService();
+		this.authenticationService = getAuthenticationService();
+		this.archiveService = getMessageRetrieverService();
+	}
+	
 	public void doGet(HttpServletRequest req, HttpServletResponse res)
 			throws IOException {
 		JSONObject jsonData = new JSONObject();
@@ -124,30 +121,6 @@ public class AdvancedSearch extends AbstractSearchWebScript {
 					searchQueryToJson(sender, recipient, dateEarliestString,
 							dateLatestString, subject, messageId,
 							contentCriteriaString));
-
-			Date dateEarliest = null;
-			Date dateLatest = null;
-
-			try {
-				dateEarliest = parseDate(dateEarliestString);
-			} catch (ParseException e) {
-				addError(jsonData, "Cannot parse \"" + dateEarliestString
-						+ "\" as a date.");
-			}
-
-			try {
-				dateLatest = parseDate(dateLatestString);
-			} catch (ParseException e) {
-				addError(jsonData, "Cannot parse \"" + dateLatestString
-						+ "\" as a date.");
-			}
-
-			MessageSearchSummary searchSummary = new MessageSearchSummary(messageId, sender,
-					recipient, dateEarliest, dateLatest, subject,
-					contentCriteriaString);
-
-			//jsonData.put(SEARCH_ID_TAG, searchProcess.getSearchQuery().getId());
-			//jsonData.put(RESULT_ID_TAG, searchProcess.getSearchResult().getId());
 			
 			HashMap<String, String> searchFields = new HashMap<String, String>();
 			searchFields.put(SENDER_PARAMETER, sender);
@@ -158,25 +131,26 @@ public class AdvancedSearch extends AbstractSearchWebScript {
 			searchFields.put(MESSAGE_ID_PARAMETER, messageId);
 			searchFields.put(CONTENT_PARAMETER, contentCriteriaString);
 			
-			Set<String> searchResultMessageIds = null;
+			SearchResult result = null;
 			try {
-				searchResultMessageIds = searchService.search(searchFields);
+				result = searchService.search(searchFields);
 			} catch (Exception e) {
 				// catch various kinds of exceptions, including cancellations
 			}
 
+			jsonData.put(SEARCH_ID_TAG, result.getId());
 			WebPageInfo pageInfo = new WebPageInfo();
 			logger.info("search results are complete");
-
+			
 			final List<MessageSummary> messageSummaries = archiveService
-					.retrieveSummary(searchResultMessageIds);
+					.retrieveSummary(result.getMessageIds());
+			
 			pageInfo.setTotal(messageSummaries.size());
 			@SuppressWarnings("unchecked")
 			final JSONArray jsonMessageSummary = SearchResultsBuilder
 					.getMessageListJSON((List<MessageSummary>) pageInfo
 							.getSubList(messageSummaries));
 			jsonData.put(RESULTS_TAG, jsonMessageSummary);
-			pageInfo.setTotal(searchResultMessageIds.size());
 
 			jsonData.put(STATUS_ID_TAG, COMPLETE_STATUS_VALUE);
 			jsonData.put(WebConstants.ITEM_TOTAL_TAG, pageInfo
@@ -184,17 +158,13 @@ public class AdvancedSearch extends AbstractSearchWebScript {
 
 			jsonResult.put(DATA_TAG, jsonData);
 			jsonResult.put(PAGING_LABEL, pageInfo.getPageJSON());
+			
 		} catch (JSONException e) {
 			logger.error("JSONException", e);
 			throw new EnkiveServletException("Unable to serialize JSON");
 		} catch (CannotRetrieveException e) {
 			logger.fatal("could not retrieve message summaries from archive", e);
 			throw new EnkiveServletException("Unable to access repository");
-//		} catch (WorkspaceException e) {
-//			logger.fatal(
-//					"A workspace exception occurred while searching for messages",
-//					e);
-//			throw new EnkiveServletException("Unable to access workspace");
 		} finally {
 			try {
 				auditService.addEvent(AuditService.SEARCH_PERFORMED,

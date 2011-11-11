@@ -34,6 +34,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -47,19 +49,20 @@ import com.linuxbox.enkive.exception.CannotRetrieveException;
 import com.linuxbox.enkive.exception.EnkiveServletException;
 import com.linuxbox.enkive.message.MessageSummary;
 import com.linuxbox.enkive.retriever.MessageRetrieverService;
+import com.linuxbox.enkive.web.EnkiveServlet;
 import com.linuxbox.enkive.web.WebConstants;
 import com.linuxbox.enkive.web.WebPageInfo;
 import com.linuxbox.enkive.web.WebScriptUtils;
 import com.linuxbox.enkive.workspace.SearchQuery;
 import com.linuxbox.enkive.workspace.SearchResult;
-import com.linuxbox.enkive.workspace.Workspace;
 import com.linuxbox.enkive.workspace.WorkspaceException;
+import com.linuxbox.enkive.workspace.WorkspaceService;
 
 /**
  * This webscript is run when a user wants to see the results of a prior search,
  * either recent or saved
  */
-public class ViewSavedResultsWebScript extends AbstractWorkspaceWebscript {
+public class ViewSavedResultsServlet extends EnkiveServlet {
 	/**
 	 * 
 	 */
@@ -68,32 +71,39 @@ public class ViewSavedResultsWebScript extends AbstractWorkspaceWebscript {
 	protected static final Log logger = LogFactory
 			.getLog("com.linuxbox.enkive.webscripts.search.saved");
 
-	MessageRetrieverService archiveService;
+	protected MessageRetrieverService archiveService;
+	protected WorkspaceService workspaceService;
+
+	@Override
+	public void init(ServletConfig config) throws ServletException {
+		super.init(config);
+		this.workspaceService = getWorkspaceService();
+		this.archiveService = getMessageRetrieverService();
+	}
 
 	public void doGet(HttpServletRequest req, HttpServletResponse res)
 			throws IOException {
 		try {
 			String searchId = WebScriptUtils.cleanGetParameter(req, "id");
-			
+
 			WebPageInfo pageInfo = new WebPageInfo(
 					WebScriptUtils.cleanGetParameter(req,
 							PAGE_POSITION_PARAMETER),
 					WebScriptUtils.cleanGetParameter(req, PAGE_SIZE_PARAMETER));
-			
-			logger.info("in execute workspace service is set to "
-					+ workspaceService);
-			Workspace workspace = workspaceService.getActiveWorkspace();
 
 			JSONObject dataJSON = new JSONObject();
 			JSONObject jsonResult = new JSONObject();
 			dataJSON.put(SEARCH_ID_TAG, searchId);
-			
-			/* Query */
 
-			SearchQuery searchQuery = workspaceService.readQuery(workspace,
-					searchId);
+			logger.info("Loading " + searchId);
+
+			SearchResult searchResult = workspaceService
+					.getSearchResult(searchId);
+			SearchQuery searchQuery = workspaceService
+					.getSearchQuery(searchResult.getSearchQueryId());
 
 			JSONObject jsonCriteria = new JSONObject();
+			/* Query */
 			try {
 				for (String parameter : searchQuery.getCriteriaParameters()) {
 					String value = searchQuery.getCriteriumValue(parameter);
@@ -108,41 +118,25 @@ public class ViewSavedResultsWebScript extends AbstractWorkspaceWebscript {
 			/* Message Result List */
 
 			try {
-				List<SearchResult> searchResults = workspaceService
-						.readResults(searchQuery);
 
-				SearchResult theResult;
-				if (searchResults.size() == 0) {
-					logger.error("no results for search " + searchId);
-					throw new EnkiveServletException(
-							"Unable to access results for search " + searchId);
-				} else if (searchResults.size() == 1) {
-					theResult = searchResults.get(0);
-				} else {
-					logger
-							.warn("search "
-									+ searchId
-									+ " had "
-									+ searchResults.size()
-									+ " search results, but was only expecting one for now (until search queries can be re-executed)");
-					// returning last result
-					theResult = searchResults.get(searchResults.size() - 1);
-				}
-				List<String> messageIds = new ArrayList<String>(theResult.getMessageIds());
+				List<String> messageIds = new ArrayList<String>(
+						searchResult.getMessageIds());
 				@SuppressWarnings("unchecked")
 				List<MessageSummary> messageSummaries = archiveService
-						.retrieveSummary((List<String>) pageInfo.getSubList(messageIds));
+						.retrieveSummary((List<String>) pageInfo
+								.getSubList(messageIds));
 				pageInfo.setTotal(messageIds.size());
-				dataJSON.put(WebConstants.STATUS_ID_TAG, theResult.getStatus());
+				dataJSON.put(WebConstants.STATUS_ID_TAG,
+						searchResult.getStatus());
 
 				JSONArray jsonMessageSummaryList = SearchResultsBuilder
-						.getMessageListJSON((Collection<MessageSummary>)messageSummaries);
-				
+						.getMessageListJSON((Collection<MessageSummary>) messageSummaries);
+
 				dataJSON.put(ITEM_TOTAL_TAG, pageInfo.getItemTotal());
-				
+
 				dataJSON.put(RESULTS_TAG, jsonMessageSummaryList);
 			} catch (CannotRetrieveException e) {
-				logger.error("Could not access query result message list", e);
+				logger.error("Could not access result message list", e);
 				// throw new WebScriptException(
 				// "Could not access query result message list", e);
 			}

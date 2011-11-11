@@ -6,13 +6,17 @@ import com.linuxbox.enkive.workspace.SearchResult;
 import com.linuxbox.enkive.workspace.Workspace;
 import com.linuxbox.enkive.workspace.WorkspaceException;
 
-public class RecentSearchListServlet extends AbstractSearchListServlet {
-	private static final long serialVersionUID = 7489338160172966335L;
+public class SavedSearchListServlet extends AbstractSearchListServlet {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 6786720212005301805L;
 
 	@Override
 	List<SearchResult> getSearches(Workspace workspace)
 			throws WorkspaceException {
-		return workspaceService.getRecentSearches(workspace.getWorkspaceUUID());
+		return workspaceService.getSavedSearches(workspace.getWorkspaceUUID());
 	}
 
 

@@ -5,6 +5,7 @@ import java.util.Set;
 
 import com.linuxbox.enkive.docsearch.exception.DocSearchException;
 import com.linuxbox.enkive.message.search.exception.MessageSearchException;
+import com.linuxbox.enkive.workspace.SearchResult;
 
 public interface MessageSearchService {
 
@@ -16,7 +17,7 @@ public interface MessageSearchService {
 	 * @return
 	 * @throws DocSearchException
 	 */
-	Set<String> search(HashMap<String, String> fields)
+	SearchResult search(HashMap<String, String> fields)
 			throws MessageSearchException;
 
 	/**

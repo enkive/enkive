@@ -45,7 +45,7 @@
 	</servlet>
 	<servlet>
 		<servlet-name>MessageSearchServlet</servlet-name>
-		<servlet-class>com.linuxbox.enkive.web.MessageSearchServlet</servlet-class>
+		<servlet-class>com.linuxbox.enkive.web.search.AdvancedSearch</servlet-class>
 	</servlet>
 	<servlet>
 		<servlet-name>DocRetrieveServlet</servlet-name>
@@ -54,6 +54,30 @@
 	<servlet>
 		<servlet-name>DocRetrieveEncodedServlet</servlet-name>
 		<servlet-class>com.linuxbox.enkive.web.DocRetrieveEncodedServlet</servlet-class>
+	</servlet>
+	<servlet>
+		<servlet-name>ViewSearchResultsServlet</servlet-name>
+		<servlet-class>com.linuxbox.enkive.web.search.ViewSavedResultsServlet</servlet-class>
+	</servlet>
+	<servlet>
+		<servlet-name>ViewRecentSearchListServlet</servlet-name>
+		<servlet-class>com.linuxbox.enkive.web.search.RecentSearchListServlet</servlet-class>
+	</servlet>
+	<servlet>
+		<servlet-name>ViewSavedSearchListServlet</servlet-name>
+		<servlet-class>com.linuxbox.enkive.web.search.SavedSearchListServlet</servlet-class>
+	</servlet>
+	<servlet>
+		<servlet-name>MboxExportServlet</servlet-name>
+		<servlet-class>com.linuxbox.enkive.web.search.MboxExportServlet</servlet-class>
+	</servlet>
+	<servlet>
+		<servlet-name>SaveSearchServlet</servlet-name>
+		<servlet-class>com.linuxbox.enkive.web.search.SaveSearchWebScript</servlet-class>
+	</servlet>
+	<servlet>
+		<servlet-name>DeleteSearchServlet</servlet-name>
+		<servlet-class>com.linuxbox.enkive.web.search.DeleteSearchWebScript</servlet-class>
 	</servlet>
 
 	<servlet-mapping>
@@ -81,6 +105,18 @@
 		<url-pattern>/messageAttachmentDetail</url-pattern>
 	</servlet-mapping>
 	<servlet-mapping>
+		<servlet-name>ViewSearchResultsServlet</servlet-name>
+		<url-pattern>/messageSearchResults</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>ViewRecentSearchListServlet</servlet-name>
+		<url-pattern>/recentSearchList</url-pattern>
+	</servlet-mapping>
+		<servlet-mapping>
+		<servlet-name>ViewSavedSearchListServlet</servlet-name>
+		<url-pattern>/savedSearchList</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
 		<servlet-name>DocSearchServlet</servlet-name>
 		<url-pattern>/docSearch</url-pattern>
 	</servlet-mapping>
@@ -92,7 +128,19 @@
 		<servlet-name>DocRetrieveEncodedServlet</servlet-name>
 		<url-pattern>/docRetrieveEncoded</url-pattern>
 	</servlet-mapping>
-
+	<servlet-mapping>
+		<servlet-name>MboxExportServlet</servlet-name>
+		<url-pattern>/export/mbox</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>SaveSearchServlet</servlet-name>
+		<url-pattern>/search/save</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>DeleteSearchServlet</servlet-name>
+		<url-pattern>/search/delete</url-pattern>
+	</servlet-mapping>
+	
 	<welcome-file-list>
 		<welcome-file>index.jsp</welcome-file>
 		<welcome-file>index.html</welcome-file>
