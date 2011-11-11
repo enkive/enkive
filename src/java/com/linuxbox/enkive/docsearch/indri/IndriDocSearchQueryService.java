@@ -1,5 +1,7 @@
 package com.linuxbox.enkive.docsearch.indri;
 
+import static com.linuxbox.enkive.docsearch.indri.IndriQueryComposer.composeQuery;
+
 import java.util.Collection;
 import java.util.List;
 
@@ -31,6 +33,25 @@ public class IndriDocSearchQueryService extends AbstractDocSearchQueryService {
 			return (String) value.metadata.get(NAME_FIELD);
 		}
 	}
+
+	/**
+	 * A filter that removes empty strings (or strings of only whitespace) by
+	 * returning null for them. An instance of this class is used in conjunction
+	 * w/ CollectionUtils.listFromArray.
+	 * 
+	 * @author ivancich
+	 * 
+	 */
+	private class RemoveEmptyStringsFilter implements
+			CollectionUtils.ItemFilter<String> {
+		@Override
+		public String doFilter(String input) {
+			final String trimmed = input.trim();
+			return trimmed.isEmpty() ? null : trimmed;
+		}
+	}
+
+	private final RemoveEmptyStringsFilter aRemoveEmptyStringsFilter = new RemoveEmptyStringsFilter();
 
 	private static final String SYSTEM_PATH_SEPARATOR = System.getProperty(
 			"path.separator", ":");
@@ -94,13 +115,24 @@ public class IndriDocSearchQueryService extends AbstractDocSearchQueryService {
 	}
 
 	@Override
-	public List<String> search(String query, int maxResults)
-			throws DocSearchException {
+	public List<String> search(String rawQuery, int maxResults,
+			boolean rawSearch) throws DocSearchException {
 		try {
+			String query = rawQuery;
+
+			if (!rawSearch) {
+				query = composeQuery(rawQuery).toString();
+				LOGGER.trace("query \"" + rawQuery + "\" became Indri query \""
+						+ query + "\"");
+			} else {
+				LOGGER.trace("using raw query \"" + query + "\"");
+			}
+
 			final ScoredExtentResult[] results;
 			String[] resultDocNumbers;
 			final QueryEnvironment queryEnv = queryEnvironmentManager
 					.getQueryEnvironment();
+
 			results = queryEnv.runQuery(query, maxResults);
 			resultDocNumbers = queryEnv.documentMetadata(results, NAME_FIELD);
 			return CollectionUtils.listFromArray(resultDocNumbers);
@@ -167,11 +199,11 @@ public class IndriDocSearchQueryService extends AbstractDocSearchQueryService {
 	 *            a colon-separated list (or semicolon-separated list if on
 	 *            Windows) of paths; uses the System's "path.separator" property
 	 */
-	public void setIndexPaths(String indexPaths) {
+	public void setIndexPathsString(String indexPaths) {
 		String[] indexPathArray = indexPaths.split(SYSTEM_PATH_SEPARATOR);
 		trimStringArray(indexPathArray);
-		queryEnvironmentManager.setIndexPaths(CollectionUtils
-				.listFromArray(indexPathArray));
+		queryEnvironmentManager.setIndexPaths(CollectionUtils.listFromArray(
+				indexPathArray, aRemoveEmptyStringsFilter));
 	}
 
 	public Collection<String> getIndexServers() {
@@ -190,11 +222,11 @@ public class IndriDocSearchQueryService extends AbstractDocSearchQueryService {
 	 *            a comma-separated list of servers (either domain name, IP
 	 *            address, or anything else that the platform will accept).
 	 */
-	public void setIndexServers(String indexServers) {
+	public void setIndexServersString(String indexServers) {
 		String[] indexServerArray = indexServers.split(",");
 		trimStringArray(indexServerArray);
-		queryEnvironmentManager.setIndexServers(CollectionUtils
-				.listFromArray(indexServerArray));
+		queryEnvironmentManager.setIndexServers(CollectionUtils.listFromArray(
+				indexServerArray, aRemoveEmptyStringsFilter));
 	}
 
 	/**

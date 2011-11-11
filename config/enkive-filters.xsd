@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+<!-- definition of simple elements -->
+<xs:element name="defaultAction">
+	<xs:simpleType>
+	    <xs:restriction base="xs:string">
+	      <xs:enumeration value="accept"/>
+	      <xs:enumeration value="deny"/>
+	    </xs:restriction>
+    </xs:simpleType>
+</xs:element>
+
+<xs:element name="header" type="xs:string"/>
+
+<xs:element name="action">
+	<xs:simpleType>
+	    <xs:restriction base="xs:string">
+	      <xs:enumeration value="accept"/>
+	      <xs:enumeration value="deny"/>
+	    </xs:restriction>
+    </xs:simpleType>
+</xs:element>
+
+<xs:attribute name="comparison">
+	<xs:simpleType>
+	    <xs:restriction base="xs:string">
+	      <xs:enumeration value="isGreaterThan"/>
+	      <xs:enumeration value="isLessThan"/>
+	      <xs:enumeration value="matches"/>
+	      <xs:enumeration value="doesNotMatch"/>
+	      <xs:enumeration value="contains"/>
+	      <xs:enumeration value="doesNotContain"/>
+	    </xs:restriction>
+    </xs:simpleType>
+</xs:attribute>
+
+<xs:attribute name="type">
+	<xs:simpleType>
+	    <xs:restriction base="xs:string">
+	      <xs:enumeration value="string"/>
+	      <xs:enumeration value="float"/>
+	      <xs:enumeration value="integer"/>
+	      <xs:enumeration value="date"/>
+	      <xs:enumeration value="address"/>
+	    </xs:restriction>
+    </xs:simpleType>
+</xs:attribute>
+
+<!-- definition of complex elements -->
+<xs:element name="value">
+  <xs:complexType>
+  	<xs:simpleContent>
+	  <xs:extension base="xs:string">
+	    <xs:attribute ref="type" use="required"/>
+    	<xs:attribute ref="comparison" use="required"/>
+	  </xs:extension>
+	</xs:simpleContent>
+  </xs:complexType>
+</xs:element>
+
+<xs:element name="filter">
+  <xs:complexType>
+    <xs:sequence>
+      <xs:element ref="action"/>
+      <xs:element ref="header"/>
+      <xs:element ref="value"/>
+    </xs:sequence>
+  <xs:attribute name="enabled" type="xs:boolean" use="required"/>
+  </xs:complexType>
+</xs:element>
+
+<xs:element name="filters">
+  <xs:complexType>
+    <xs:sequence>
+      <xs:element ref="defaultAction" maxOccurs="1"/>
+      <xs:element ref="filter" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+</xs:element>
+
+</xs:schema>

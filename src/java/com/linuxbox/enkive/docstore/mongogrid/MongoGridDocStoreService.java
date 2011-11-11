@@ -18,6 +18,7 @@ import java.util.Date;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.bson.types.ObjectId;
 
 import com.linuxbox.enkive.docsearch.exception.DocSearchException;
 import com.linuxbox.enkive.docstore.AbstractDocStoreService;
@@ -36,7 +37,9 @@ import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import com.mongodb.Mongo;
+import com.mongodb.MongoException;
 import com.mongodb.QueryBuilder;
+import com.mongodb.WriteConcern;
 import com.mongodb.gridfs.GridFS;
 import com.mongodb.gridfs.GridFSDBFile;
 import com.mongodb.gridfs.GridFSInputFile;
@@ -49,8 +52,14 @@ import com.mongodb.gridfs.GridFSInputFile;
 
 public class MongoGridDocStoreService extends AbstractDocStoreService {
 	@SuppressWarnings("unused")
-	private final static Log logger = LogFactory
+	private final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.docstore.mongogrid");
+
+	/*
+	 * These are used to obtain the locks.
+	 */
+	private final static int LOCK_RETRIES = 10;
+	private final static long LOCK_RETRY_DELAY_MILLISECONDS = 10000;
 
 	/*
 	 * The various status value a document can have to indicate its state of
@@ -118,6 +127,9 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 				.add(INDEX_STATUS_KEY, 1).add(INDEX_TIMESTAMP_KEY, 1).get();
 		filesCollection.ensureIndex(searchIndexingIndex, "indexingStatusIndex",
 				false);
+
+		// insure data is written to disk
+		filesCollection.setWriteConcern(WriteConcern.FSYNC_SAFE);
 	}
 
 	@Override
@@ -151,20 +163,21 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 	protected StoreRequestResult storeKnownHash(Document document, byte[] hash,
 			byte[] data, int length) throws DocStoreException {
 		try {
-			final String identifier = getFileNameFromHash(hash);
+			final String identifier = getIdentifierFromHash(hash);
 			final int shardKey = getShardIndexFromHash(hash);
 
-			if (!documentLockingService.lock(identifier,
-					DocStoreConstants.LOCK_TO_STORE)) {
-				// TODO we should note whether the controller is creating or
-				// removing; if creating we're done; if removing we should
-				// re-create
-				return new StoreRequestResultImpl(identifier, true);
+			if (!documentLockingService.lockWithRetries(identifier,
+					DocStoreConstants.LOCK_TO_STORE, LOCK_RETRIES,
+					LOCK_RETRY_DELAY_MILLISECONDS)) {
+				throw new DocStoreException(
+						"could not acquire lock to store document \""
+								+ identifier + "\"");
 			}
 
 			try {
 				if (fileExists(identifier)) {
-					return new StoreRequestResultImpl(identifier, true);
+					return new StoreRequestResultImpl(identifier, true,
+							shardKey);
 				}
 
 				GridFSInputFile newFile = gridFS
@@ -172,12 +185,14 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 				newFile.setFilename(identifier);
 				setFileMetaData(newFile, document, shardKey);
 				newFile.save();
+				try {
+					newFile.validate();
+				} catch (MongoException e) {
+					throw new DocStoreException(
+							"file saved to GridFS did not validate", e);
+				}
 
-				// TODO: is there anything we should do at this point to insure
-				// that
-				// it's actually stored?
-
-				return new StoreRequestResultImpl(identifier, false);
+				return new StoreRequestResultImpl(identifier, false, shardKey);
 			} finally {
 				documentLockingService.releaseLock(identifier);
 			}
@@ -202,34 +217,34 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 		newFile.setFilename(temporaryName);
 		setFileMetaData(newFile, document, -1);
 		newFile.save();
-
-		// TODO: is there anything we should do at this point to insure that
-		// it's actually stored?
+		try {
+			newFile.validate();
+		} catch (MongoException e) {
+			throw new DocStoreException(
+					"file saved to GridFS did not validate", e);
+		}
 
 		final byte[] actualHash = inputStream.getDigest();
-		final String actualName = getFileNameFromHash(actualHash);
+		final String actualName = getIdentifierFromHash(actualHash);
 		final int shardKey = getShardIndexFromHash(actualHash);
 
 		try {
-			if (!documentLockingService.lock(actualName,
-					DocStoreConstants.LOCK_TO_STORE)) {
-				gridFS.remove(temporaryName);
-
-				// TODO: is there anything we should do at this point to insure
-				// that
-				// it's actually been removed?
-
-				return new StoreRequestResultImpl(actualName, true);
+			if (!documentLockingService.lockWithRetries(actualName,
+					DocStoreConstants.LOCK_TO_STORE, LOCK_RETRIES,
+					LOCK_RETRY_DELAY_MILLISECONDS)) {
+				gridFS.remove((ObjectId) newFile.getId());
+				throw new DocStoreException(
+						"could not acquire lock to store document \""
+								+ actualName + "\"");
 			}
 
 			// so now we're in "control" of that file
 
 			try {
-				// so now we're in "control" of that file
-
 				if (fileExists(actualName)) {
 					gridFS.remove(temporaryName);
-					return new StoreRequestResultImpl(actualName, true);
+					return new StoreRequestResultImpl(actualName, true,
+							shardKey);
 				} else {
 					final boolean wasRenamed = setFileNameAndShardKey(
 							newFile.getId(), actualName, shardKey);
@@ -239,7 +254,8 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 										+ newFile.getId()
 										+ "\" but could not find it");
 					}
-					return new StoreRequestResultImpl(actualName, false);
+					return new StoreRequestResultImpl(actualName, false,
+							shardKey);
 				}
 			} finally {
 				documentLockingService.releaseLock(actualName);
@@ -289,11 +305,10 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 		try {
 			if (!documentLockingService.lock(identifier,
 					DocStoreConstants.LOCK_TO_REMOVE)) {
-				// TODO if we're here and someone else was trying to delete or
-				// create this, then we should do nothing; the file either
-				// needed to
-				// be recreated, or it was already removed; let's lie and say we
-				// succeeded!
+				// TODO VERIFY: if we're here and someone else was trying to
+				// delete or create this, then we should do nothing; the file
+				// either needed to be recreated, or it was already removed;
+				// let's lie and say we succeeded!
 				return true;
 			}
 

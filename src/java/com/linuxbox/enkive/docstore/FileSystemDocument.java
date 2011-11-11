@@ -10,9 +10,9 @@ import com.linuxbox.enkive.docstore.exception.DocStoreException;
 public class FileSystemDocument extends AbstractDocument {
 	private File theFile;
 
-	public FileSystemDocument(String path, String mimeType,
+	public FileSystemDocument(String path, String mimeType, String filename,
 			String fileExtension, String binaryEncoding) {
-		super(mimeType, fileExtension, binaryEncoding);
+		super(mimeType, filename, fileExtension, binaryEncoding);
 		theFile = new File(path);
 	}
 

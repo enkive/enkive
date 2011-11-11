@@ -263,10 +263,11 @@ public class MessageImpl extends AbstractMessage implements Message {
 				appendTo(to.toString());
 			}
 
-		if (headers.getCc() != null)
+		if (headers.getCc() != null) {
 			for (Address cc : headers.getCc()) {
 				appendCc(cc.toString());
 			}
+		}
 		if (headers.getSubject() != null)
 			setSubject(headers.getSubject());
 		if (headers.getMessageId() != null)
@@ -291,9 +292,10 @@ public class MessageImpl extends AbstractMessage implements Message {
 		setParsedHeader(headers.getHeader());
 	}
 
-	private void calculateMessageDiff(String originalMessage) throws IOException {
-		String patchText = differ.patch_toText(differ.patch_make(differ.diff_main(
-				getUnpatchedEmail(), originalMessage)));
+	private void calculateMessageDiff(String originalMessage)
+			throws IOException {
+		String patchText = differ.patch_toText(differ.patch_make(differ
+				.diff_main(getUnpatchedEmail(), originalMessage)));
 		setMessageDiff(patchText);
 	}
 }

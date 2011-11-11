@@ -70,6 +70,7 @@ public class StreamConnector {
 			output.write(buffer, 0, bytesRead);
 		}
 		input.close();
+		output.flush();
 	}
 
 	/**
@@ -89,6 +90,7 @@ public class StreamConnector {
 			output.write(buffer, 0, charsRead);
 		}
 		input.close();
+		output.flush();
 	}
 
 	static class StreamConnectorStatusImpl extends Thread implements

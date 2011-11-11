@@ -1,5 +1,8 @@
 package com.linuxbox.enkive.docsearch;
 
+import static com.linuxbox.enkive.docstore.DocStoreConstants.QUEUE_ENTRY_INDEX_DOCUMENT;
+import static com.linuxbox.enkive.docstore.DocStoreConstants.QUEUE_ENTRY_REMOVE_DOCUMENT;
+
 import java.util.Collection;
 
 import org.apache.commons.logging.Log;
@@ -7,10 +10,12 @@ import org.apache.commons.logging.LogFactory;
 
 import com.linuxbox.enkive.docsearch.contentanalyzer.ContentAnalyzer;
 import com.linuxbox.enkive.docsearch.exception.DocSearchException;
+import com.linuxbox.enkive.docstore.AbstractDocStoreService;
 import com.linuxbox.enkive.docstore.DocStoreConstants;
 import com.linuxbox.enkive.docstore.DocStoreService;
 import com.linuxbox.enkive.docstore.exception.DocStoreException;
 import com.linuxbox.util.InterruptableSleeper;
+import com.linuxbox.util.ShardingHelper;
 import com.linuxbox.util.queueservice.QueueEntry;
 import com.linuxbox.util.queueservice.QueueService;
 import com.linuxbox.util.queueservice.QueueServiceException;
@@ -66,6 +71,8 @@ public abstract class AbstractDocSearchIndexService implements
 		}
 
 		public void run() {
+			final ShardingHelper.Range shardRange = shardingHelper
+					.getRange(shardIndex);
 			status = Status.RUNNING;
 			sleeper.start();
 
@@ -75,7 +82,8 @@ public abstract class AbstractDocSearchIndexService implements
 					boolean error = false;
 					QueueEntry entry;
 					try {
-						entry = indexerQueueService.dequeue();
+						entry = indexerQueueService.dequeueByShardKey(
+								shardRange.getLow(), shardRange.getHigh());
 						if (entry == null) {
 							break;
 						}
@@ -83,6 +91,8 @@ public abstract class AbstractDocSearchIndexService implements
 						LOGGER.error("could not access indexer queue", e);
 						break;
 					}
+
+					final long startTime = System.currentTimeMillis();
 
 					documentId = entry.getIdentifier();
 
@@ -94,7 +104,7 @@ public abstract class AbstractDocSearchIndexService implements
 					}
 
 					switch (note) {
-					case DocStoreConstants.QUEUE_ENTRY_INDEX_DOCUMENT:
+					case QUEUE_ENTRY_INDEX_DOCUMENT:
 						try {
 							doIndexDocument(documentId);
 						} catch (Exception e) {
@@ -103,7 +113,7 @@ public abstract class AbstractDocSearchIndexService implements
 							error = true;
 						}
 						break;
-					case DocStoreConstants.QUEUE_ENTRY_REMOVE_DOCUMENT:
+					case QUEUE_ENTRY_REMOVE_DOCUMENT:
 						try {
 							doRemoveDocument(documentId);
 						} catch (Exception e) {
@@ -127,6 +137,16 @@ public abstract class AbstractDocSearchIndexService implements
 					} catch (QueueServiceException e) {
 						LOGGER.error("could note finalize indexer queue entry (\""
 								+ documentId + "\" / " + note + ")");
+					} finally {
+						if (LOGGER.isTraceEnabled()) {
+							final long endTime = System.currentTimeMillis();
+							LOGGER.trace("TIMING: "
+									+ (endTime - startTime)
+									+ " ms to "
+									+ (note == QUEUE_ENTRY_INDEX_DOCUMENT ? "index "
+											: "de-index ") + documentId
+									+ (error ? " w/ ERROR" : ""));
+						}
 					}
 				} // inner while loop
 
@@ -154,6 +174,10 @@ public abstract class AbstractDocSearchIndexService implements
 
 	private QueueService indexerQueueService;
 
+	private ShardingHelper shardingHelper;
+
+	private Integer shardIndex;
+
 	/**
 	 * In MILLISECONDS, although the API exposes it as SECONDS for convenience
 	 * from the outside; non-positive values indicate that there is no automated
@@ -166,6 +190,7 @@ public abstract class AbstractDocSearchIndexService implements
 	 * being created while we're trying to shut down the current one.
 	 */
 	protected boolean shuttingDown;
+	private boolean started = false;
 
 	/**
 	 * The thread that polls the DocStoreService for unindexed documents.
@@ -180,10 +205,18 @@ public abstract class AbstractDocSearchIndexService implements
 		this.unindexedDocRePollInterval = -1;
 	}
 
+	/**
+	 * 
+	 * @param service
+	 * @param analyzer
+	 * @param unindexedDocRePollInterval
+	 *            number of MILLISECONDS to wait after a polling could not find
+	 *            any un-indexed documents before polling again.
+	 */
 	public AbstractDocSearchIndexService(DocStoreService service,
-			ContentAnalyzer analyzer, int unindexedDocSearchInterval) {
+			ContentAnalyzer analyzer, int unindexedDocRePollInterval) {
 		this(service, analyzer);
-		this.unindexedDocRePollInterval = unindexedDocSearchInterval;
+		this.unindexedDocRePollInterval = unindexedDocRePollInterval;
 	}
 
 	/*
@@ -207,12 +240,22 @@ public abstract class AbstractDocSearchIndexService implements
 			throw new DocSearchException("no indexer queue service was set");
 		}
 
+		if (shardingHelper == null) {
+			throw new DocSearchException("no sharding helper was set");
+		}
+
+		if (shardIndex == null) {
+			throw new DocSearchException("no shard index was set");
+		}
+
 		// then they start up
 		subStartup();
 
+		started = true;
+
 		// start the thread after they're up and running since we're calling
 		// down into them
-		managePullThread(unindexedDocRePollInterval);
+		managePullThread();
 	}
 
 	@Override
@@ -239,7 +282,8 @@ public abstract class AbstractDocSearchIndexService implements
 	public final void indexDocument(String identifier)
 			throws DocSearchException {
 		try {
-			indexerQueueService.enqueue(identifier,
+			indexerQueueService.enqueue(identifier, AbstractDocStoreService
+					.getShardIndexFromIdentifier(identifier),
 					DocStoreConstants.QUEUE_ENTRY_INDEX_DOCUMENT);
 		} catch (QueueServiceException e) {
 			throw new DocSearchException("could not add indexing of \""
@@ -258,7 +302,8 @@ public abstract class AbstractDocSearchIndexService implements
 	@Override
 	public void removeDocument(String identifier) throws DocSearchException {
 		try {
-			indexerQueueService.enqueue(identifier,
+			indexerQueueService.enqueue(identifier, AbstractDocStoreService
+					.getShardIndexFromIdentifier(identifier),
 					DocStoreConstants.QUEUE_ENTRY_REMOVE_DOCUMENT);
 		} catch (QueueServiceException e) {
 			throw new DocSearchException("could not add removal of \""
@@ -279,19 +324,28 @@ public abstract class AbstractDocSearchIndexService implements
 	@Override
 	public void setUnindexedDocRePollInterval(int seconds) {
 		unindexedDocRePollInterval = seconds * 1000;
-		managePullThread(unindexedDocRePollInterval);
+		managePullThread();
 	}
 
 	public void setIndexerQueueService(QueueService indexerQueueService) {
 		this.indexerQueueService = indexerQueueService;
 	}
 
-	private synchronized void managePullThread(int milliseconds) {
-		if (!shuttingDown) {
-			if (milliseconds > 0 && indexPullingThread == null) {
+	public void setShardingHelper(ShardingHelper shardingHelper) {
+		this.shardingHelper = shardingHelper;
+	}
+
+	public void setShardIndex(int shardIndex) {
+		this.shardIndex = shardIndex;
+	}
+
+	private synchronized void managePullThread() {
+		if (started && !shuttingDown) {
+			if (unindexedDocRePollInterval > 0 && indexPullingThread == null) {
 				indexPullingThread = new IndexPullingThread();
 				indexPullingThread.start();
-			} else if (milliseconds <= 0 && indexPullingThread != null) {
+			} else if (unindexedDocRePollInterval <= 0
+					&& indexPullingThread != null) {
 				indexPullingThread.stopAfterFinishingUp(MAX_SHUTTING_DOWN_WAIT);
 				indexPullingThread = null;
 			}

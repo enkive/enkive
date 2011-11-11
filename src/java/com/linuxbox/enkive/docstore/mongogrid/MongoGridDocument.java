@@ -9,9 +9,10 @@ public class MongoGridDocument extends AbstractDocument {
 	private GridFSDBFile gridFile;
 
 	public MongoGridDocument(GridFSDBFile gridFile) {
-		super(gridFile.getContentType(), (String) gridFile.getMetaData().get(
-				Constants.FILE_EXTENSION_KEY), (String) gridFile.getMetaData()
-				.get(Constants.BINARY_ENCODING_KEY));
+		super(gridFile.getContentType(), gridFile.getFilename(),
+				(String) gridFile.getMetaData().get(
+						Constants.FILE_EXTENSION_KEY), (String) gridFile
+						.getMetaData().get(Constants.BINARY_ENCODING_KEY));
 		this.gridFile = gridFile;
 	}
 

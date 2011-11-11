@@ -28,7 +28,7 @@ import java.util.Iterator;
 import java.util.List;
 
 public class StringUtils {
-	// private final static Log logger = LogFactory.getLog("com.linuxbox.util");
+	// private final static Log LOGGER = LogFactory.getLog("com.linuxbox.util");
 
 	public static final boolean isEmpty(String s) {
 		return s == null || s.isEmpty();

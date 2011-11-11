@@ -34,6 +34,12 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 	private final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.docsearch.indri");
 
+	/*
+	 * These are used to obtain the locks.
+	 */
+	private final static int LOCK_RETRIES = 10;
+	private final static long LOCK_RETRY_DELAY_MILLISECONDS = 10000;
+
 	private static final boolean STORE_DOCUMENTS = false;
 	private static final String NAME_FIELD = "docno";
 	private static final String[] METADATA_FIELDS = { NAME_FIELD };
@@ -431,8 +437,9 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 		int docId;
 
 		try {
-			documentLockingService.lock(identifier,
-					DocStoreConstants.LOCK_TO_INDEX);
+			documentLockingService.lockWithRetries(identifier,
+					DocStoreConstants.LOCK_TO_INDEX, LOCK_RETRIES,
+					LOCK_RETRY_DELAY_MILLISECONDS);
 		} catch (LockAcquisitionException e) {
 			throw new DocStoreException(
 					"could not acquire lock to index document \"" + identifier

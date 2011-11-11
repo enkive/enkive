@@ -8,9 +8,9 @@ import com.linuxbox.enkive.docstore.mongogrid.Constants;
 public class StringDocument extends AbstractDocument {
 	private String dataString;
 
-	public StringDocument(String dataString, String mimeType,
+	public StringDocument(String dataString, String mimeType, String filename,
 			String fileExtension, String binaryEncoding) {
-		super(mimeType, fileExtension, binaryEncoding);
+		super(mimeType, filename, fileExtension, binaryEncoding);
 		this.dataString = dataString;
 	}
 

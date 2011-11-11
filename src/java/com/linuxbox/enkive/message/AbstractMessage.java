@@ -25,8 +25,8 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.Set;
 
 import name.fraser.neil.plaintext.diff_match_patch;
@@ -36,8 +36,8 @@ import org.apache.james.mime4j.message.Header;
 
 import com.linuxbox.enkive.exception.BadMessageException;
 
-public abstract class AbstractMessage extends AbstractMessageSummary
-		implements Message {
+public abstract class AbstractMessage extends AbstractMessageSummary implements
+		Message {
 	protected String originalHeaders;
 	protected String mimeVersion;
 	protected String contentType;
@@ -95,7 +95,7 @@ public abstract class AbstractMessage extends AbstractMessageSummary
 	public void setContentType(String contentType) {
 		this.contentType = contentType;
 	}
-	
+
 	public String getContentTransferEncoding() {
 		return contentTransferEncoding;
 	}
@@ -110,14 +110,14 @@ public abstract class AbstractMessage extends AbstractMessageSummary
 		writer.print(getReconstitutedEmail());
 		writer.flush();
 	}
-	
+
 	@Override
 	public String getReconstitutedEmail() throws IOException {
 		return (String) differ.patch_apply(
 				(LinkedList<Patch>) differ.patch_fromText(getMessageDiff()),
 				getUnpatchedEmail())[0];
 	}
-	
+
 	protected String getUnpatchedEmail() throws IOException {
 		StringWriter out = new StringWriter();
 		PrintWriter writer = new PrintWriter(out);

@@ -1,0 +1,15 @@
+<filters 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="enkive-filters.xsd">
+	<defaultAction>Allow</defaultAction>
+	<filter enabled="false">
+		<action>deny</action>
+		<header>X-Spam-Flag</header>
+		<value type="string" comparison="matches">YES</value>
+	</filter>
+	<filter enabled="false">
+		<action>deny</action>
+		<header>X-Spam-Flag-2</header>
+		<value type="integer" comparison="isLessThan">4</value>
+	</filter>
+</filters>

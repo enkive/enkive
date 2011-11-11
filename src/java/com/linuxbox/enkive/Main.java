@@ -1,67 +1,57 @@
 package com.linuxbox.enkive;
 
-import static com.linuxbox.enkive.Copyright.COPYRIGHT;
-import static com.linuxbox.enkive.Copyright.LICENSE;
-import static com.linuxbox.enkive.Copyright.PRODUCT;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.HashSet;
-import java.util.Set;
-
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-public class Main {
-	static final String CONSOLE_PROMPT = "enkive> ";
-	static final String[] CONFIG_FILES = { "enkive-properties.xml",
-			"enkive-server.xml" };
+import com.linuxbox.enkive.audit.AuditService;
+import com.linuxbox.enkive.audit.AuditServiceException;
 
-	public static void main(String[] arguments) {
-		System.out.println(PRODUCT);
-		System.out.println(COPYRIGHT);
-		System.out.println(LICENSE);
+public abstract class Main {
+	protected static final Log LOGGER = LogFactory
+			.getLog("com.linuxbox.enkive");
+	private static final String USER = AuditService.USER_SYSTEM;
+	private static final String DESCRIPTION = "com.linuxbox.enkive.Main.main";
 
-		AbstractApplicationContext context = new ClassPathXmlApplicationContext(
-				CONFIG_FILES);
+	protected String[] configFiles;
+
+	private AbstractApplicationContext context;
+
+	protected abstract void doEventLoop(ApplicationContext context);
+
+	protected abstract void startup();
+
+	protected abstract void shutdown();
+
+	public Main(String[] configFiles, String[] arguments) {
+		this.configFiles = configFiles;
+	}
+
+	public void run() {
+		startup();
+
+		context = new ClassPathXmlApplicationContext(configFiles);
 		context.registerShutdownHook();
 
-		String shutdownReason = "UNKNOWN";
-		Set<String> stopCommandSet = new HashSet<String>();
-		stopCommandSet.add("shutdown");
-		stopCommandSet.add("stop");
-		stopCommandSet.add("exit");
-		stopCommandSet.add("quit");
-		stopCommandSet.add("end");
-
 		try {
-			BufferedReader in = new BufferedReader(new InputStreamReader(
-					System.in));
-			String input;
+			AuditService auditService = context.getBean("AuditLogService",
+					AuditService.class);
 
-			System.out.print(CONSOLE_PROMPT);
-			while ((input = in.readLine().trim()) != null) {
-				if (stopCommandSet.contains(input.toLowerCase())) {
-					shutdownReason = "\"" + input + "\" entered in console";
-					break;
-				}
-				if (!input.isEmpty()) {
-					System.out.println("Error: \"" + input
-							+ "\" is not understood.");
-				}
-				System.out.print(CONSOLE_PROMPT);
-			}
+			auditService.addEvent(AuditService.SYSTEM_STARTUP, USER,
+					DESCRIPTION);
 
-			if (input == null) {
-				shutdownReason = "received console end-of-file";
-			}
-		} catch (IOException e) {
-			shutdownReason = "received I/O exception on console";
+			doEventLoop(context);
+
+			auditService.addEvent(AuditService.SYSTEM_SHUTDOWN, USER,
+					DESCRIPTION);
+		} catch (AuditServiceException e) {
+			LOGGER.error("received AuditServiceException: " + e.getMessage(), e);
 		}
 
-		System.out.println("Enkive shutting down (" + shutdownReason + ")...");
-		
 		context.close();
+
+		shutdown();
 	}
 }

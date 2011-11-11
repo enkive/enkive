@@ -1,7 +1,6 @@
 package com.linuxbox.enkive.archiver.mongodb;
 
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.BOUNDARY_ID;
-import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.MESSAGE_DIFF;
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.CC;
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.CONTENT_DISPOSITION;
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.CONTENT_ID;
@@ -12,6 +11,7 @@ import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.EPILOGUE;
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.FILENAME;
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.FROM;
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.MAIL_FROM;
+import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.MESSAGE_DIFF;
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.MESSAGE_ID;
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.MIME_VERSION;
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.ORIGINAL_HEADERS;
@@ -180,7 +180,8 @@ public class MongoArchivingService extends AbstractMessageArchivingService {
 					.equals(ContentTypeField.TYPE_MESSAGE_RFC822.toLowerCase())) {
 				String subMessageUUID = storeNestedMessage(singlePartHeader
 						.getEncodedContentData().getBinaryContent(),
-						singlePartHeader.getContentTransferEncoding().toString());
+						singlePartHeader.getContentTransferEncoding()
+								.toString());
 				if (!nested_message_ids.contains(subMessageUUID))
 					nested_message_ids.add(subMessageUUID);
 			}
@@ -193,7 +194,8 @@ public class MongoArchivingService extends AbstractMessageArchivingService {
 			Document document = new ContentDataDocument(
 					singlePartHeader.getEncodedContentData(),
 					singlePartHeader.getContentType(), fileExtension,
-					singlePartHeader.getContentTransferEncoding().toString());
+					singlePartHeader.getFilename(), singlePartHeader
+							.getContentTransferEncoding().toString());
 			StoreRequestResult docResult = docStoreService.store(document);
 			headerObject.put(ATTACHMENT_ID, docResult.getIdentifier());
 			attachment_ids.add(docResult.getIdentifier());
@@ -242,5 +244,15 @@ public class MongoArchivingService extends AbstractMessageArchivingService {
 					"Could not parse embedded message/rfc822", e);
 		}
 		return nestedMessageUUID;
+	}
+
+	@Override
+	public void subStartup() {
+		// Do nothing
+	}
+
+	@Override
+	public void subShutdown() {
+		// Do nothing
 	}
 }

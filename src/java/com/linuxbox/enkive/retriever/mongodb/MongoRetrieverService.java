@@ -21,7 +21,6 @@
 package com.linuxbox.enkive.retriever.mongodb;
 
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.BOUNDARY_ID;
-import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.MESSAGE_DIFF;
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.CC;
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.CONTENT_DISPOSITION;
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.CONTENT_ID;
@@ -31,6 +30,7 @@ import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.DATE;
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.EPILOGUE;
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.FROM;
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.MAIL_FROM;
+import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.MESSAGE_DIFF;
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.MESSAGE_ID;
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.ORIGINAL_HEADERS;
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.PREAMBLE;
@@ -47,7 +47,7 @@ import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.SI
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -78,7 +78,7 @@ import com.mongodb.DBObject;
 import com.mongodb.Mongo;
 
 public class MongoRetrieverService extends AbstractRetrieverService {
-	
+
 	protected Mongo m = null;
 	protected DB messageDb;
 	protected DBCollection messageColl;
@@ -91,18 +91,16 @@ public class MongoRetrieverService extends AbstractRetrieverService {
 		messageColl = messageDb.getCollection(collName);
 	}
 
-
 	@Override
 	public Message retrieve(String messageUUID) throws CannotRetrieveException {
 		try {
 			DBObject messageObject = messageColl.findOne(messageUUID);
+			System.out.println(messageUUID);
 			Message message = new MessageImpl();
 			setMessageProperties(message, messageObject);
 			message.setContentHeader(makeContentHeader(messageObject));
 
-			logger
-					.info("Message " + messageUUID
-							+ " retrieved");
+			logger.info("Message " + messageUUID + " retrieved");
 
 			return message;
 		} catch (IOException e) {
@@ -111,16 +109,16 @@ public class MongoRetrieverService extends AbstractRetrieverService {
 			throw new CannotRetrieveException(e);
 		}
 	}
-	
+
 	@SuppressWarnings("unchecked")
-	public List<String> retrieveAttachmentIds(String messageUUID){
+	public List<String> retrieveAttachmentIds(String messageUUID) {
 		DBObject messageObject = messageColl.findOne(messageUUID);
 		return (List<String>) messageObject.get(ATTACHMENT_ID_LIST);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public MessageSummary retrieveSummary(String messageUUID){
+	public MessageSummary retrieveSummary(String messageUUID) {
 
 		DBObject messageObject = messageColl.findOne(messageUUID);
 		final MessageSummary result = new MessageSummaryImpl();
@@ -128,8 +126,8 @@ public class MongoRetrieverService extends AbstractRetrieverService {
 
 		result.setMessageId((String) messageObject.get(MESSAGE_ID));
 
-		final Calendar date = (Calendar) messageObject.get(DATE);
-		result.setDate(date.getTime());
+		final Date date = (Date) messageObject.get(DATE);
+		result.setDate(date);
 
 		result.setSubject((String) messageObject.get(SUBJECT));
 
@@ -152,7 +150,8 @@ public class MongoRetrieverService extends AbstractRetrieverService {
 	private ContentHeader makeContentHeader(DBObject messageObject)
 			throws CannotRetrieveException, IOException {
 		ContentHeader result = null;
-		DBObject contentHeaderObject = (DBObject) messageObject.get(CONTENT_HEADER);
+		DBObject contentHeaderObject = (DBObject) messageObject
+				.get(CONTENT_HEADER);
 		result = makeContentHeaderHelper(contentHeaderObject);
 		return result;
 	}
@@ -161,7 +160,8 @@ public class MongoRetrieverService extends AbstractRetrieverService {
 			throws CannotRetrieveException, IOException {
 		ContentHeader result = null;
 
-		String headerTypeName = (String) contentHeaderObject.get(CONTENT_HEADER_TYPE);
+		String headerTypeName = (String) contentHeaderObject
+				.get(CONTENT_HEADER_TYPE);
 		if (headerTypeName.equals(SINGLE_PART_HEADER_TYPE)) {
 			try {
 				result = buildContentHeader(contentHeaderObject);
@@ -184,9 +184,11 @@ public class MongoRetrieverService extends AbstractRetrieverService {
 			throws CannotRetrieveException, IOException, DocStoreException {
 		SinglePartHeader header = new SinglePartHeaderImpl();
 		setSinglePartHeaderProperties(header, contentHeaderObject);
-		
+
 		EncodedContentData encodedContentData = null;
-		encodedContentData = buildEncodedContentData((String) contentHeaderObject.get(ATTACHMENT_ID));
+		encodedContentData = buildEncodedContentData((String) contentHeaderObject
+				.get(ATTACHMENT_ID));
+
 		header.setEncodedContentData(encodedContentData);
 
 		return header;
@@ -198,8 +200,9 @@ public class MongoRetrieverService extends AbstractRetrieverService {
 		MultiPartHeader multiPartHeader = new MultiPartHeaderImpl();
 		setMultiPartHeaderProperties(multiPartHeader, contentHeaderObject);
 
-		ArrayList<BasicDBObject> partHeadersList = (ArrayList<BasicDBObject>) contentHeaderObject.get(PART_HEADERS);
-		for(BasicDBObject partHeaderObject : partHeadersList) {
+		ArrayList<BasicDBObject> partHeadersList = (ArrayList<BasicDBObject>) contentHeaderObject
+				.get(PART_HEADERS);
+		for (BasicDBObject partHeaderObject : partHeadersList) {
 			ContentHeader partHeader = makeContentHeaderHelper(partHeaderObject);
 			multiPartHeader.addPartHeader(partHeader);
 		}
@@ -212,7 +215,12 @@ public class MongoRetrieverService extends AbstractRetrieverService {
 		EncodedContentData encodedContentData = new EncodedContentDataImpl();
 		try {
 			Document document = docStoreService.retrieve(attachmentUUID);
-			encodedContentData.setBinaryContent(document.getEncodedContentStream());
+
+			encodedContentData.setBinaryContent(document
+					.getEncodedContentStream());
+			encodedContentData.setFilename(document.getFilename());
+			encodedContentData.setMimeType(document.getMimeType());
+			encodedContentData.setUUID(attachmentUUID);
 		} catch (CannotTransferMessageContentException e) {
 			throw new CannotRetrieveException(
 					"could not extract data from datastore", e);
@@ -222,9 +230,10 @@ public class MongoRetrieverService extends AbstractRetrieverService {
 
 	private void setMessageProperties(Message message, DBObject messageObject)
 			throws IOException, BadMessageException {
-		if(messageObject.get(ORIGINAL_HEADERS) != null)
-			message.setOriginalHeaders((String) messageObject.get(ORIGINAL_HEADERS));
-		if(messageObject.get(MESSAGE_DIFF) != null)
+		if (messageObject.get(ORIGINAL_HEADERS) != null)
+			message.setOriginalHeaders((String) messageObject
+					.get(ORIGINAL_HEADERS));
+		if (messageObject.get(MESSAGE_DIFF) != null)
 			message.setMessageDiff(((String) messageObject.get(MESSAGE_DIFF)));
 	}
 
@@ -232,8 +241,10 @@ public class MongoRetrieverService extends AbstractRetrieverService {
 			DBObject headerObject) throws IOException {
 		header.setOriginalHeaders((String) headerObject.get(ORIGINAL_HEADERS));
 
-		header.setContentDisposition((String) headerObject.get(CONTENT_DISPOSITION));
-		header.setContentTransferEncoding((String) headerObject.get(CONTENT_TRANSFER_ENCODING));
+		header.setContentDisposition((String) headerObject
+				.get(CONTENT_DISPOSITION));
+		header.setContentTransferEncoding((String) headerObject
+				.get(CONTENT_TRANSFER_ENCODING));
 		header.setContentType((String) headerObject.get(CONTENT_TYPE));
 		header.setContentID((String) headerObject.get(CONTENT_ID));
 	}
@@ -243,6 +254,23 @@ public class MongoRetrieverService extends AbstractRetrieverService {
 		header.setOriginalHeaders((String) headerObject.get(ORIGINAL_HEADERS));
 		header.setBoundary((String) headerObject.get(BOUNDARY_ID));
 		header.setPreamble((String) headerObject.get(PREAMBLE));
-		header.setEpilogue((String) headerObject.get(EPILOGUE)); 	
+		header.setEpilogue((String) headerObject.get(EPILOGUE));
 	}
+
+	@Override
+	public EncodedContentData retrieveAttachment(String attachmentUUID)
+			throws CannotRetrieveException {
+
+		EncodedContentData attachment;
+		try {
+			attachment = buildEncodedContentData(attachmentUUID);
+		} catch (DocStoreException e) {
+
+			throw new CannotRetrieveException("Could not retrieve attachment",
+					e);
+		}
+		return attachment;
+
+	}
+
 }

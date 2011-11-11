@@ -1,5 +1,5 @@
 /*
- *  Copyright 2010 The Linux Box Corporation.
+ *  Copyright 2011 The Linux Box Corporation.
  *
  *  This file is part of Enkive CE (Community Edition).
  *
@@ -23,5 +23,17 @@ package com.linuxbox.enkive.message;
 public interface EncodedContentData extends BaseContentData {
 
 	public boolean isEmpty();
+
+	public String getUUID();
+
+	public void setUUID(String UUID);
+
+	public String getFilename();
+
+	public void setFilename(String filename);
+
+	public String getMimeType();
+
+	public void setMimeType(String mimeType);
 
 }

@@ -21,5 +21,36 @@
 	<classpathentry kind="lib" path="lib/spring/org.springframework.core-3.0.5.RELEASE.jar"/>
 	<classpathentry kind="lib" path="lib/spring/org.springframework.expression-3.0.5.RELEASE.jar"/>
 	<classpathentry kind="lib" path="config"/>
+	<classpathentry kind="lib" path="lib/jetty-all-server-7.4.2.v20110526.jar" sourcepath="lib/src/jetty-7.4.2-src.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/enkive2/lib/javadoc/jetty-all-server-7.4.2.v20110526-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/servlet-api-2.5.jar"/>
+	<classpathentry kind="lib" path="lib/jetty-spring-7.4.2.v20110526.jar"/>
+	<classpathentry kind="lib" path="lib/commons-daemon-1.0.5.jar" sourcepath="lib/src/commons-daemon-1.0.5-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/enkive2/lib/javadoc/commons-daemon-1.0.5-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/javax.servlet.jsp_2.1.0.v201004190952.jar"/>
+	<classpathentry kind="lib" path="lib/org.apache.jasper.glassfish_2.1.0.v201007080150.jar"/>
+	<classpathentry kind="lib" path="lib/ant.jar"/>
+	<classpathentry kind="lib" path="lib/ant-launcher.jar"/>
+	<classpathentry kind="lib" path="lib/javax.el_2.1.0.v201004190952.jar"/>
+	<classpathentry kind="lib" path="lib/javax.servlet.jsp.jstl_1.2.0.v201004190952.jar"/>
+	<classpathentry kind="lib" path="/usr/lib/jvm/java-6-sun/lib/tools.jar"/>
+	<classpathentry kind="lib" path="lib/json.jar"/>
+	<classpathentry kind="lib" path="lib/mail.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://javamail.kenai.com/nonav/javadocs/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/gnumail-providers.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://www.gnu.org/s/classpathx/javamail/javadoc/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/inetlib.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

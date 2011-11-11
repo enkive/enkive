@@ -45,7 +45,7 @@ public class MongoGridDocStoreServiceTest {
 		docStoreService.startup();
 
 		testDocument = new StringDocument(testString, "text/plain", "txt",
-				MimeUtil.ENC_7BIT);
+				"testFile.txt", MimeUtil.ENC_7BIT);
 
 		MessageDigest messageDigest = getPrimedMessageDigest(testDocument);
 		messageDigest.update(testData);

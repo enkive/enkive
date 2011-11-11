@@ -147,7 +147,7 @@ public interface MessageSummary {
 	 * @param messageId
 	 */
 	public abstract void setMessageId(String messageId);
-	
+
 	/**
 	 * 
 	 * @return the data from the MAIL FROM (S|L)MTP command; the email address
@@ -161,6 +161,12 @@ public interface MessageSummary {
 	 * @return the text after "From: " in the header
 	 */
 	public String getFrom();
+
+	/**
+	 * 
+	 * @return the "From:" sender of the message, stripped of all brackets
+	 */
+	public String getFromStr();
 
 	/**
 	 * 
@@ -188,7 +194,7 @@ public interface MessageSummary {
 	 * @return the "Bcc:" recipients of the message as a comma-separated string
 	 */
 	public String getBccStr();
-	
+
 	/**
 	 * 
 	 * @return a list containing all the elements of the "To" header, but

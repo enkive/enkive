@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd"
+	default-init-method="startup" default-destroy-method="shutdown">
+
+	<import resource="enkive-server.xml" />
+
+	<bean id="Server" class="org.mortbay.jetty.spring.Server"
+		init-method="start" destroy-method="stop">
+
+		<property name="connectors">
+			<list>
+				<bean id="Connector" class="org.eclipse.jetty.server.nio.SelectChannelConnector">
+					<property name="port" value="8888" />
+				</bean>
+			</list>
+		</property>
+
+		<property name="handler">
+			<bean id="handlers" class="org.eclipse.jetty.server.handler.HandlerList">
+				<property name="handlers">
+					<list>
+						<ref bean="ServletContextHandler" />
+
+						<bean class="org.eclipse.jetty.server.handler.ResourceHandler">
+							<property name="directoriesListed" value="false" />
+							<property name="welcomeFiles">
+								<list>
+									<value>index.html</value>
+								</list>
+							</property>
+							<property name="resourceBase" value="jetty/resources" />
+						</bean>
+
+						<bean class="org.eclipse.jetty.server.handler.DefaultHandler" />
+					</list>
+				</property>
+			</bean>
+		</property>
+
+	</bean>
+
+	<bean id="ServletContextHandler" class="org.eclipse.jetty.servlet.ServletContextHandler">
+		<property name="contextPath" value="/enkive" />
+		<property name="displayName" value="Enkive CE Servlet Context Handler" />
+	</bean>
+
+</beans>
