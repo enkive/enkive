@@ -24,7 +24,7 @@
 			    </td>
 			    <td>${search.status}</td>	
 				<td width="50px" class="search_action">
-				    <#if search.status == "COMPLETE">
+				    <#if search.status == "COMPLETE" && !search.searchIsSaved>
 					    <table>
 					    	<tr>
 				    			<td class="noscript">

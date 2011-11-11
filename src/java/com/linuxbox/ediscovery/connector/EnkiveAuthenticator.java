@@ -9,6 +9,7 @@ import java.net.URL;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.extensions.surf.exception.AuthenticationException;
+import org.springframework.extensions.surf.util.URLEncoder;
 import org.springframework.extensions.webscripts.connector.AbstractAuthenticator;
 import org.springframework.extensions.webscripts.connector.ConnectorSession;
 import org.springframework.extensions.webscripts.connector.Credentials;
@@ -21,6 +22,13 @@ public class EnkiveAuthenticator extends AbstractAuthenticator {
 
 	public final static String ENKIVE_SESSION_TICKET = "JSESSIONID";
 	public final static String ENKIVE_AUTHENTICATION_URL = "/j_spring_security_check";
+	public final static String ENKIVE_LOGIN_USERNAME_FIELD = "j_username";
+	public final static String ENKIVE_LOGIN_PASSWORD_FIELD = "j_password";
+
+	public final static String HTTP_CONTENT_TYPE = "Content-type";
+	public final static String HTTP_URL_ENCODED_FORM = "application/x-www-form-urlencoded";
+	public final static String HTTP_SET_COOKIE = "set-cookie";
+	public final static String HTTP_POST = "POST";
 
 	public EnkiveAuthenticator() {
 
@@ -43,34 +51,34 @@ public class EnkiveAuthenticator extends AbstractAuthenticator {
 			RemoteClient remoteClient = new RemoteClient(endpoint);
 			URL url;
 			try {
-				url = new URL(remoteClient.getURL()
-						+ ENKIVE_AUTHENTICATION_URL);
+				url = new URL(remoteClient.getURL() + ENKIVE_AUTHENTICATION_URL);
 				HttpURLConnection.setFollowRedirects(false);
 				HttpURLConnection conn = (HttpURLConnection) url
 						.openConnection();
 				conn.setDoOutput(true);
-				conn.setRequestProperty("Content-type",
-						"application/x-www-form-urlencoded");
-				conn.setRequestMethod("POST");
+				conn.setRequestProperty(HTTP_CONTENT_TYPE,
+						HTTP_URL_ENCODED_FORM);
+				conn.setRequestMethod(HTTP_POST);
 				BufferedOutputStream os = new BufferedOutputStream(
 						conn.getOutputStream());
-				String body = "j_username=" + user + "&j_password=" + pass;
+				String body = ENKIVE_LOGIN_USERNAME_FIELD + "="
+						+ URLEncoder.encode(user) + "&"
+						+ ENKIVE_LOGIN_PASSWORD_FIELD + "="
+						+ URLEncoder.encode(pass);
 				os.write(body.getBytes());
 				os.close();
-
-				for (String key : conn.getHeaderFields().keySet()) {
-					if (key != null && key.toLowerCase().equals("set-cookie")) {
-						setCookie(conn.getHeaderField(key), connectorSession);
-					}
+				if (!conn.getHeaderField("Location").endsWith("login_error")) {
+					setCookie(conn.getHeaderField(HTTP_SET_COOKIE),
+							connectorSession);
+					cs = connectorSession;
 				}
-				cs = connectorSession;
 
 			} catch (MalformedURLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.error("Could not authenticate to Enkive - URL: "
+						+ remoteClient.getURL() + ENKIVE_AUTHENTICATION_URL, e);
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.error("Could not authenticate to Enkive - URL: "
+						+ remoteClient.getURL() + ENKIVE_AUTHENTICATION_URL, e);
 			}
 
 			if (logger.isDebugEnabled())
@@ -87,7 +95,8 @@ public class EnkiveAuthenticator extends AbstractAuthenticator {
 	@Override
 	public boolean isAuthenticated(String endpoint,
 			ConnectorSession connectorSession) {
-		return true;
+		return (connectorSession != null && connectorSession
+				.getCookie(ENKIVE_SESSION_TICKET) != null);
 
 	}
 

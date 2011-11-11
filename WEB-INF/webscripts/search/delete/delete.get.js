@@ -1,5 +1,5 @@
 var searchid = context.properties["searchid"];
 
-var connector = remote.connect("alfresco"); 
+var connector = remote.connect("enkive"); 
 
-connector.get("/enkive/search/delete/" + searchid);
+connector.get("/search/delete?searchid=" + searchid);

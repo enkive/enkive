@@ -1,1 +1,0 @@
-User ${userName} successfully added!

@@ -18,9 +18,17 @@
 	<rule>
 		<from>/service/**</from>
 		<to>/service/$1</to>
-	</rule>			
+	</rule>
+			<rule>
+		<from>/service/**/</from>
+		<to>/service/$1</to>
+	</rule>	
 	<rule>
 		<from>/**</from>
+		<to>/service/$1</to>
+	</rule>
+		<rule>
+		<from>/**/</from>
 		<to>/service/$1</to>
 	</rule>
 	<outbound-rule>

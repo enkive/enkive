@@ -1,7 +1,7 @@
 var messagelist = null;
 
 // get a connector to the Alfresco repository endpoint
-var connector = remote.connect("alfresco"); 
+var connector = remote.connect("enkive"); 
 
 var searchid = context.properties["searchid"];
 var pos = context.properties["pos"];
@@ -19,7 +19,7 @@ var uri = url.uri;
 
 if (searchid != null){
 	// retrieve the web script index page 
-	messagelist = connector.get("/enkive/search/saved/view/" + searchid + "?pos=" + pos + "&size=" + size);
+	messagelist = connector.get("/messageSearchResults?id=" + searchid + "&pos=" + pos + "&size=" + size);
 	
 } else if(
 		(content != null && content != "")|| 
@@ -31,7 +31,7 @@ if (searchid != null){
 		(messageId != null && messageId != "")
 	){
 	
-	messagelist = connector.get("/enkive/search" + 
+	messagelist = connector.get("/messageSearch" + 
 		"?content=" + encodeURIComponent(content) +
 		"&sender=" + encodeURIComponent(sender) +
 		"&recipient=" + encodeURIComponent(recipient) +

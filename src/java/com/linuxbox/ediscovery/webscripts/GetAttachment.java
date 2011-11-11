@@ -21,10 +21,8 @@
 package com.linuxbox.ediscovery.webscripts;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
+import java.io.BufferedWriter;
 import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,11 +32,7 @@ import org.springframework.extensions.webscripts.ScriptRemote;
 import org.springframework.extensions.webscripts.ScriptRemoteConnector;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 import org.springframework.extensions.webscripts.WebScriptResponse;
-import org.springframework.extensions.webscripts.connector.AuthenticatingConnector;
-import org.springframework.extensions.webscripts.connector.Connector;
 import org.springframework.extensions.webscripts.connector.Response;
-
-import com.linuxbox.ediscovery.connector.EnkiveAuthenticator;
 
 public class GetAttachment extends AbstractWebScript {
 
@@ -62,39 +56,25 @@ public class GetAttachment extends AbstractWebScript {
 				.unwrapValue(scriptModel.get("remote"));
 
 		ScriptRemoteConnector connector = remote.connect("enkive");
-		
-		Response ticket = connector.get("/enkive/ticket");
 
-		String ticketText = "";
-		if (ticket.getStatus().getCode() == 200)
-			ticketText = "?alf_ticket=" + ticket.getText();
+		Response resp = connector.call("/attachmentRetrieve?attachmentid="
+				+ req.getParameterValues("attachmentid")[0]);
 
-		URL url = new URL(connector.getEndpoint() + "/enkive/attachment/"
-				+ req.getParameterValues("attachmentid")[0] + ticketText);
-		HttpURLConnection con = (HttpURLConnection) url.openConnection();
+		res.setStatus(resp.getStatus().getCode());
+        for (String key : resp.getStatus().getHeaders().keySet()) {
+                res.setHeader(key, resp.getStatus().getHeaders().get(key));
+        }
 
-		con.setRequestMethod("GET");
-		con.setDoOutput(true);
-		con.setDoInput(true);
-		con.setUseCaches(true);
-
-		res.setStatus(con.getResponseCode());
-		for (String key : con.getHeaderFields().keySet()) {
-			res.setHeader(key, con.getHeaderField(key));
-		}
 		BufferedInputStream attachmentStream = new BufferedInputStream(
-				con.getInputStream());
-		BufferedOutputStream resOutputStream = new BufferedOutputStream(
-				res.getOutputStream());
+				resp.getResponseStream());
+		BufferedWriter resWriter = new BufferedWriter(res.getWriter());
 		int read;
 		while ((read = attachmentStream.read()) != -1)
-			resOutputStream.write(read);
+			resWriter.write(read);
 
-		resOutputStream.flush();
-		resOutputStream.close();
+		resWriter.flush();
+		resWriter.close();
 		attachmentStream.close();
-		con.disconnect();
-
 	}
 
 }

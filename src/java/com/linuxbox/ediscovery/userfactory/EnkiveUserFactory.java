@@ -55,15 +55,12 @@ public class EnkiveUserFactory extends AbstractUserFactory {
 				authenticatingConnector = new AuthenticatingConnector(
 						connector, new EnkiveAuthenticator());
 			}
-			authenticated = authenticatingConnector.handshake();
-			
+			if(authenticatingConnector != null)
+				authenticated = authenticatingConnector.handshake();
+
 		} catch (Exception ex) {
-			// many things might have happened
-			// an invalid ticket or perhaps a connectivity issue
-			// at any rate, we cannot authenticate
 			logger.warn("Exception in EnkiveUserFactory.authenticate()", ex);
 		}
-
 		return authenticated;
 	}
 
