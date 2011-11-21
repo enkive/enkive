@@ -18,6 +18,7 @@ import com.linuxbox.enkive.authentication.AuthenticationService;
 import com.linuxbox.enkive.docsearch.DocSearchQueryService;
 import com.linuxbox.enkive.docstore.DocStoreService;
 import com.linuxbox.enkive.message.search.MessageSearchService;
+import com.linuxbox.enkive.permissions.PermissionService;
 import com.linuxbox.enkive.retriever.MessageRetrieverService;
 import com.linuxbox.enkive.workspace.WorkspaceService;
 import com.linuxbox.util.spring.ApplicationContextProvider;
@@ -62,6 +63,10 @@ public class EnkiveServlet extends HttpServlet {
 	
 	public MessageSearchService getMessageSearchService() {
 		return appContext.getBean(MessageSearchService.class);
+	}
+	
+	public PermissionService getPermissionService() {
+		return appContext.getBean(PermissionService.class);
 	}
 
 	/**

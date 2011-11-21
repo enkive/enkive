@@ -80,7 +80,8 @@
 	</bean>
 
 	<bean id="MessageRetrieverService"
-		class="com.linuxbox.enkive.retriever.mongodb.MongoRetrieverService">
+		class="com.linuxbox.enkive.retriever.mongodb.PermissionsEnforcingMongoRetrieverService">
+		<constructor-arg ref="PermissionService" />
 		<constructor-arg ref="Mongo" />
 		<constructor-arg type="java.lang.String" value="${enkive.messagestore.db.name}" />
 		<constructor-arg type="java.lang.String"
@@ -89,7 +90,8 @@
 	</bean>
 
 	<bean id="MessageSearchService"
-		class="com.linuxbox.enkive.message.search.mongodb.MongoMessageSearchService">
+		class="com.linuxbox.enkive.message.search.mongodb.PermissionEnforcingMongoSearchService">
+		<constructor-arg ref="PermissionService" />
 		<constructor-arg ref="Mongo" />
 		<constructor-arg type="java.lang.String" value="${enkive.messagestore.db.name}" />
 		<constructor-arg type="java.lang.String"
@@ -143,7 +145,8 @@
 		<property name="jmxEnabled" value="${enkive.jmx.enabled}" />
 	</bean>
 
-	<bean id="AuditLogService" class="com.linuxbox.enkive.audit.mongodb.MongoAuditService">
+	<bean id="AuditLogService" class="com.linuxbox.enkive.audit.mongodb.PermissionsEnforcingMongoAuditService">
+		<constructor-arg ref="PermissionService" />
 		<constructor-arg ref="Mongo" />
 		<constructor-arg value="${enkive.queueservice.db.name}" />
 		<constructor-arg value="auditLog" />
@@ -151,6 +154,10 @@
 
 	<bean id="AuthenticationService"
 		class="com.linuxbox.enkive.authentication.SpringSecurityAuthenticationService">
+	</bean>
+	
+	<bean id="PermissionService"
+		class="com.linuxbox.enkive.permissions.SpringContextPermissionService">
 	</bean>
 
 	<bean id="WorkspaceService"

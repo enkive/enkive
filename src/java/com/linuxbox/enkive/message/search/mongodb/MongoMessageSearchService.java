@@ -27,7 +27,6 @@ import java.util.regex.Pattern;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.linuxbox.enkive.docsearch.DocSearchQueryService;
 import com.linuxbox.enkive.docsearch.exception.DocSearchException;
 import com.linuxbox.enkive.message.search.AbstractMessageSearchService;
 import com.linuxbox.enkive.message.search.exception.MessageSearchException;
@@ -58,6 +57,20 @@ public class MongoMessageSearchService extends AbstractMessageSearchService {
 			throws MessageSearchException {
 		Set<String> messageIds = new HashSet<String>();
 
+		BasicDBObject query = buildQueryObject(fields);
+		
+		DBCursor results = messageColl.find(query);
+		while (results.hasNext()) {
+			DBObject message = results.next();
+			messageIds.add((String) message.get("_id"));
+		}
+
+		return messageIds;
+	}
+
+	protected BasicDBObject buildQueryObject(HashMap<String, String> fields)
+			throws MessageSearchException {
+
 		BasicDBObject query = new BasicDBObject();
 
 		for (String searchField : fields.keySet()) {
@@ -85,26 +98,26 @@ public class MongoMessageSearchService extends AbstractMessageSearchService {
 			} else if (searchField.equals(DATE_EARLIEST_PARAMETER)
 					|| searchField.equals(DATE_LATEST_PARAMETER)) {
 				BasicDBObject dateQuery = new BasicDBObject();
-				if (fields.containsKey(DATE_EARLIEST_PARAMETER) && fields
-						.get(DATE_EARLIEST_PARAMETER) != null) {
-					try{
+				if (fields.containsKey(DATE_EARLIEST_PARAMETER)
+						&& fields.get(DATE_EARLIEST_PARAMETER) != null) {
+					try {
 						Date dateEarliest = NUMERIC_SEARCH_FORMAT.parse(fields
 								.get(DATE_EARLIEST_PARAMETER));
 						dateQuery.put("$gte", dateEarliest);
 					} catch (ParseException e) {
-						logger.warn("Could not parse earliest date submitted to search - " + fields
-								.get(DATE_EARLIEST_PARAMETER));
+						logger.warn("Could not parse earliest date submitted to search - "
+								+ fields.get(DATE_EARLIEST_PARAMETER));
 					}
 				}
-				if (fields.containsKey(DATE_LATEST_PARAMETER) && fields
-						.get(DATE_LATEST_PARAMETER) != null) {
+				if (fields.containsKey(DATE_LATEST_PARAMETER)
+						&& fields.get(DATE_LATEST_PARAMETER) != null) {
 					try {
 						Date dateLatest = NUMERIC_SEARCH_FORMAT.parse(fields
 								.get(DATE_LATEST_PARAMETER));
 						dateQuery.put("$lte", dateLatest);
 					} catch (ParseException e) {
-						logger.warn("Could not parse latest date submitted to search - " + fields
-								.get(DATE_LATEST_PARAMETER));
+						logger.warn("Could not parse latest date submitted to search - "
+								+ fields.get(DATE_LATEST_PARAMETER));
 					}
 				}
 				query.put(DATE, dateQuery);
@@ -128,13 +141,7 @@ public class MongoMessageSearchService extends AbstractMessageSearchService {
 				}
 			}
 		}
-
-		DBCursor results = messageColl.find(query);
-		while (results.hasNext()) {
-			DBObject message = results.next();
-			messageIds.add((String) message.get("_id"));
-		}
-
-		return messageIds;
+		return query;
 	}
+
 }

@@ -135,6 +135,7 @@ public class AdvancedSearch extends AbstractSearchWebScript {
 			try {
 				result = searchService.search(searchFields);
 			} catch (Exception e) {
+				e.printStackTrace();
 				// catch various kinds of exceptions, including cancellations
 			}
 

@@ -79,6 +79,10 @@
 		<servlet-name>DeleteSearchServlet</servlet-name>
 		<servlet-class>com.linuxbox.enkive.web.search.DeleteSearchWebScript</servlet-class>
 	</servlet>
+	<servlet>
+		<servlet-name>GetPermissionsServlet</servlet-name>
+		<servlet-class>com.linuxbox.enkive.web.GetPermissionsServlet</servlet-class>
+	</servlet>
 
 	<servlet-mapping>
 		<servlet-name>TestServlet</servlet-name>
@@ -139,6 +143,10 @@
 	<servlet-mapping>
 		<servlet-name>DeleteSearchServlet</servlet-name>
 		<url-pattern>/search/delete</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>GetPermissionsServlet</servlet-name>
+		<url-pattern>/user/permissions</url-pattern>
 	</servlet-mapping>
 	
 	<welcome-file-list>
