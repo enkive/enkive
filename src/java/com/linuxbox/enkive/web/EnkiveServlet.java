@@ -8,6 +8,7 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -82,5 +83,22 @@ public class EnkiveServlet extends HttpServlet {
 			throws ServletException, IOException {
 		final RequestDispatcher dispatcher = req.getRequestDispatcher(url);
 		dispatcher.forward(req, resp);
+	}
+	
+	/**
+	 * Helper function to make error responding easier.
+	 * 
+	 * @param responseCode
+	 * @param errorMsg
+	 * @param resp
+	 * @throws ServletException
+	 * @throws IOException
+	 */
+	public void respondError(int responseStatus, String errorMsg, HttpServletResponse resp)
+			throws IOException {
+		if(errorMsg != null && !errorMsg.isEmpty())
+			resp.sendError(responseStatus, errorMsg);
+		else
+			resp.sendError(responseStatus);
 	}
 }

@@ -20,10 +20,6 @@
 	</filter-mapping>
 
 	<servlet>
-		<servlet-name>TestServlet</servlet-name>
-		<servlet-class>com.linuxbox.enkive.web.TestServlet</servlet-class>
-	</servlet>
-	<servlet>
 		<servlet-name>AuditLogServlet</servlet-name>
 		<servlet-class>com.linuxbox.enkive.web.AuditLogServlet</servlet-class>
 	</servlet>
@@ -40,20 +36,8 @@
 		<servlet-class>com.linuxbox.enkive.web.MessageAttachmentDetailServlet</servlet-class>
 	</servlet>
 	<servlet>
-		<servlet-name>DocSearchServlet</servlet-name>
-		<servlet-class>com.linuxbox.enkive.web.DocSearchServlet</servlet-class>
-	</servlet>
-	<servlet>
 		<servlet-name>MessageSearchServlet</servlet-name>
 		<servlet-class>com.linuxbox.enkive.web.search.AdvancedSearch</servlet-class>
-	</servlet>
-	<servlet>
-		<servlet-name>DocRetrieveServlet</servlet-name>
-		<servlet-class>com.linuxbox.enkive.web.DocRetrieveServlet</servlet-class>
-	</servlet>
-	<servlet>
-		<servlet-name>DocRetrieveEncodedServlet</servlet-name>
-		<servlet-class>com.linuxbox.enkive.web.DocRetrieveEncodedServlet</servlet-class>
 	</servlet>
 	<servlet>
 		<servlet-name>ViewSearchResultsServlet</servlet-name>
@@ -85,56 +69,40 @@
 	</servlet>
 
 	<servlet-mapping>
-		<servlet-name>TestServlet</servlet-name>
-		<url-pattern>/test</url-pattern>
-	</servlet-mapping>
-	<servlet-mapping>
 		<servlet-name>AuditLogServlet</servlet-name>
 		<url-pattern>/audit/recent</url-pattern>
 	</servlet-mapping>
 	<servlet-mapping>
 		<servlet-name>AttachmentRetrieveServlet</servlet-name>
-		<url-pattern>/attachmentRetrieve</url-pattern>
+		<url-pattern>/attachment/retrieve</url-pattern>
 	</servlet-mapping>
 	<servlet-mapping>
 		<servlet-name>MessageRetrieveServlet</servlet-name>
-		<url-pattern>/messageRetrieve</url-pattern>
+		<url-pattern>/message/retrieve</url-pattern>
 	</servlet-mapping>
 	<servlet-mapping>
 		<servlet-name>MessageSearchServlet</servlet-name>
-		<url-pattern>/messageSearch</url-pattern>
+		<url-pattern>/message/search</url-pattern>
 	</servlet-mapping>
 	<servlet-mapping>
 		<servlet-name>MessageAttachmentDetailServlet</servlet-name>
-		<url-pattern>/messageAttachmentDetail</url-pattern>
+		<url-pattern>/message/attachmentDetail</url-pattern>
 	</servlet-mapping>
 	<servlet-mapping>
 		<servlet-name>ViewSearchResultsServlet</servlet-name>
-		<url-pattern>/messageSearchResults</url-pattern>
+		<url-pattern>/search/results</url-pattern>
 	</servlet-mapping>
 	<servlet-mapping>
 		<servlet-name>ViewRecentSearchListServlet</servlet-name>
-		<url-pattern>/recentSearchList</url-pattern>
+		<url-pattern>/search/recentList</url-pattern>
 	</servlet-mapping>
 		<servlet-mapping>
 		<servlet-name>ViewSavedSearchListServlet</servlet-name>
-		<url-pattern>/savedSearchList</url-pattern>
-	</servlet-mapping>
-	<servlet-mapping>
-		<servlet-name>DocSearchServlet</servlet-name>
-		<url-pattern>/docSearch</url-pattern>
-	</servlet-mapping>
-	<servlet-mapping>
-		<servlet-name>DocRetrieveServlet</servlet-name>
-		<url-pattern>/docRetrieve</url-pattern>
-	</servlet-mapping>
-	<servlet-mapping>
-		<servlet-name>DocRetrieveEncodedServlet</servlet-name>
-		<url-pattern>/docRetrieveEncoded</url-pattern>
+		<url-pattern>/search/savedList</url-pattern>
 	</servlet-mapping>
 	<servlet-mapping>
 		<servlet-name>MboxExportServlet</servlet-name>
-		<url-pattern>/export/mbox</url-pattern>
+		<url-pattern>/search/export/mbox</url-pattern>
 	</servlet-mapping>
 	<servlet-mapping>
 		<servlet-name>SaveSearchServlet</servlet-name>
@@ -148,12 +116,6 @@
 		<servlet-name>GetPermissionsServlet</servlet-name>
 		<url-pattern>/user/permissions</url-pattern>
 	</servlet-mapping>
-	
-	<welcome-file-list>
-		<welcome-file>index.jsp</welcome-file>
-		<welcome-file>index.html</welcome-file>
-		<welcome-file>index.htm</welcome-file>
-	</welcome-file-list>
 
 	<error-page>
 		<error-page>

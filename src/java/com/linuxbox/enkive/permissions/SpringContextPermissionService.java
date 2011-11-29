@@ -22,7 +22,7 @@ public class SpringContextPermissionService implements PermissionService {
 		for(GrantedAuthority auth : SecurityContextHolder.getContext().getAuthentication().getAuthorities()){
 			authorityStrings.add(auth.getAuthority());
 		}
-		return authorityStrings.contains("ROLE_ADMIN");
+		return authorityStrings.contains("ROLE_ENKIVE_ADMIN");
 	}
 
 	@Override

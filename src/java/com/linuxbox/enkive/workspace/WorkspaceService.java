@@ -31,8 +31,6 @@ public interface WorkspaceService extends WorkspaceServiceMBean {
 	// NOTE: inherits getInteractiveSearchWaitSeconds() and
 	// setInteractiveSearchWaitSeconds from WorkspaceServiceMBean
 
-	Workspace getActiveWorkspace() throws WorkspaceException;
-
 	Workspace getActiveWorkspace(String userId) throws WorkspaceException;
 
 	Workspace getWorkspace(String workspaceUUID) throws WorkspaceException;

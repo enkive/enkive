@@ -36,6 +36,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.linuxbox.enkive.GeneralConstants;
+import com.linuxbox.enkive.authentication.AuthenticationException;
 import com.linuxbox.enkive.exception.EnkiveServletException;
 import com.linuxbox.enkive.web.EnkiveServlet;
 import com.linuxbox.enkive.web.WebConstants;
@@ -82,6 +83,8 @@ public abstract class AbstractSearchListServlet extends EnkiveServlet {
 			logger.debug("Returned search list");
 		} catch (JSONException e) {
 			logger.error("Error retrieving search list", e);
+			respondError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, null,
+					resp);
 			throw new EnkiveServletException("Unable to serialize JSON");
 		}
 	}
@@ -90,7 +93,9 @@ public abstract class AbstractSearchListServlet extends EnkiveServlet {
 		JSONArray searches = new JSONArray();
 
 		try {
-			Workspace workspace = workspaceService.getActiveWorkspace();
+			Workspace workspace = workspaceService
+					.getActiveWorkspace(getAuthenticationService()
+							.getUserName());
 			List<SearchResult> searchResults = getSearches(workspace);
 
 			pageInfo.setTotal(searchResults.size());
@@ -137,6 +142,8 @@ public abstract class AbstractSearchListServlet extends EnkiveServlet {
 				}
 			}
 		} catch (WorkspaceException e) {
+			logger.warn("error accessing workspace for retrieval of searches");
+		} catch (AuthenticationException e) {
 			logger.warn("error accessing workspace for retrieval of searches");
 		}
 

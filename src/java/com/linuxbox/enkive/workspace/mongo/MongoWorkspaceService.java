@@ -27,8 +27,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.bson.types.ObjectId;
 
-import com.linuxbox.enkive.authentication.AuthenticationException;
-import com.linuxbox.enkive.authentication.AuthenticationService;
 import com.linuxbox.enkive.workspace.AbstractWorkspaceService;
 import com.linuxbox.enkive.workspace.SearchQuery;
 import com.linuxbox.enkive.workspace.SearchResult;
@@ -53,8 +51,6 @@ public class MongoWorkspaceService extends AbstractWorkspaceService implements
 	protected DBCollection searchQueryColl;
 	protected DBCollection userWorkspacesColl;
 
-	private AuthenticationService authenticationService;
-
 	private final static Log logger = LogFactory
 			.getLog("com.linuxbox.enkive.workspaces");
 
@@ -67,15 +63,6 @@ public class MongoWorkspaceService extends AbstractWorkspaceService implements
 		searchResultsColl = workspaceDb.getCollection(searchResultsCollName);
 		searchQueryColl = workspaceDb.getCollection(searchQueryCollName);
 		userWorkspacesColl = workspaceDb.getCollection(userWorkspacesCollName);
-	}
-
-	@Override
-	public Workspace getActiveWorkspace() throws WorkspaceException {
-		try {
-			return getActiveWorkspace(authenticationService.getUserName());
-		} catch (AuthenticationException e) {
-			throw new WorkspaceException("Could not get active user", e);
-		}
 	}
 
 	@Override
@@ -92,8 +79,13 @@ public class MongoWorkspaceService extends AbstractWorkspaceService implements
 			workspace.setCreationDate(new Date());
 			workspace.setLastUpdate(new Date());
 			workspace.setWorkspaceName("Default Workspace");
+
 			workspaceUUID = saveWorkspace(workspace);
 			workspaceList.put(ACTIVEWORKSPACE, workspaceUUID);
+			Collection<String> workspaces = new HashSet<String>();
+			workspaces.add(workspaceUUID);
+			workspaceList
+					.put(MongoWorkspaceConstants.WORKSPACELIST, workspaces);
 			userWorkspacesColl.save(workspaceList);
 		}
 		workspaceUUID = (String) workspaceList.get(ACTIVEWORKSPACE);
@@ -156,7 +148,7 @@ public class MongoWorkspaceService extends AbstractWorkspaceService implements
 	public void deleteWorkspace(Workspace workspace) throws WorkspaceException {
 		DBObject workspaceObject = searchResultsColl.findOne(ObjectId
 				.massageToObjectId(workspace.getWorkspaceUUID()));
-		searchResultsColl.remove(workspaceObject);
+		workspaceColl.remove(workspaceObject);
 	}
 
 	@Override
@@ -169,7 +161,7 @@ public class MongoWorkspaceService extends AbstractWorkspaceService implements
 			DBObject toUpdate = searchQueryColl.findOne(ObjectId
 					.massageToObjectId(query.getId()));
 			if (toUpdate != null) {
-				searchResultsColl.update(toUpdate, searchQueryObject);
+				searchQueryColl.update(toUpdate, searchQueryObject);
 				searchQueryObject.put(UUID, toUpdate.get(UUID));
 			}
 		}
@@ -181,6 +173,7 @@ public class MongoWorkspaceService extends AbstractWorkspaceService implements
 
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public SearchQuery getSearchQuery(String searchQueryId)
 			throws WorkspaceException {
@@ -206,9 +199,9 @@ public class MongoWorkspaceService extends AbstractWorkspaceService implements
 	@Override
 	public void deleteSearchQuery(String searchQueryId)
 			throws WorkspaceException {
-		DBObject searchQueryObject = searchResultsColl.findOne(ObjectId
+		DBObject searchQueryObject = searchQueryColl.findOne(ObjectId
 				.massageToObjectId(searchQueryId));
-		searchResultsColl.remove(searchQueryObject);
+		searchQueryColl.remove(searchQueryObject);
 	}
 
 	@Override
@@ -264,7 +257,7 @@ public class MongoWorkspaceService extends AbstractWorkspaceService implements
 		result.setStatus(Status.valueOf((String) searchResultObject
 				.get(SEARCHSTATUS)));
 		result.setSearchQueryId((String) searchResultObject.get(SEARCHQUERYID));
-		if(searchResultObject.get(SEARCHISSAVED) != null)
+		if (searchResultObject.get(SEARCHISSAVED) != null)
 			result.setSaved((Boolean) searchResultObject.get(SEARCHISSAVED));
 
 		logger.info("Retrieved Search Results - " + result.getId());
@@ -284,15 +277,6 @@ public class MongoWorkspaceService extends AbstractWorkspaceService implements
 		DBObject searchResultObject = searchResultsColl.findOne(ObjectId
 				.massageToObjectId(searchResultId));
 		searchResultsColl.remove(searchResultObject);
-	}
-
-	public void setAuthenticationService(
-			AuthenticationService authenticationService) {
-		this.authenticationService = authenticationService;
-	}
-
-	public AuthenticationService getAuthenticationService() {
-		return authenticationService;
 	}
 
 	public DBCollection getuserWorkspacesColl() {

@@ -157,11 +157,12 @@
 	</bean>
 	
 	<bean id="PermissionService"
-		class="com.linuxbox.enkive.permissions.SpringContextPermissionService">
+		class="com.linuxbox.enkive.permissions.LdapSpringContextPermissionService">
 	</bean>
 
 	<bean id="WorkspaceService"
-		class="com.linuxbox.enkive.workspace.mongo.MongoWorkspaceService">
+		class="com.linuxbox.enkive.workspace.mongo.PermissionsEnforcingMongoWorkspaceService">
+		<constructor-arg ref="PermissionService" />
 		<constructor-arg ref="Mongo" />
 		<constructor-arg type="java.lang.String" value="${enkive.workspace.db.name}" />
 		<constructor-arg type="java.lang.String"

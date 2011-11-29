@@ -8,6 +8,8 @@ import java.util.Collection;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -17,7 +19,9 @@ import com.linuxbox.enkive.permissions.PermissionService;
 public class GetPermissionsServlet extends EnkiveServlet {
 
 	private static final long serialVersionUID = 7260328900686039838L;
-
+	protected static final Log LOGGER = LogFactory
+			.getLog("com.linuxbox.enkive.web.permissions");
+	
 	public void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
 		PermissionService permService = getPermissionService();
@@ -34,11 +38,11 @@ public class GetPermissionsServlet extends EnkiveServlet {
 				LOGGER.error("Could not write JSON response");
 			}
 		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			respondError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, null, resp);
+			LOGGER.error("Could not serialize JSON", e);
 		} catch (CannotGetPermissionsException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			respondError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, null, resp);
+			LOGGER.error("Could not get user permissions", e);
 		}
 
 	}

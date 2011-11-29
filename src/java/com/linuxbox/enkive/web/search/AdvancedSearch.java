@@ -81,7 +81,7 @@ public class AdvancedSearch extends AbstractSearchWebScript {
 		this.authenticationService = getAuthenticationService();
 		this.archiveService = getMessageRetrieverService();
 	}
-	
+
 	public void doGet(HttpServletRequest req, HttpServletResponse res)
 			throws IOException {
 		JSONObject jsonData = new JSONObject();
@@ -103,8 +103,8 @@ public class AdvancedSearch extends AbstractSearchWebScript {
 					SENDER_PARAMETER);
 			String recipient = WebScriptUtils.cleanGetParameter(req,
 					RECIPIENT_PARAMETER);
-			String dateEarliestString = WebScriptUtils.cleanGetParameter(
-					req, DATE_EARLIEST_PARAMETER);
+			String dateEarliestString = WebScriptUtils.cleanGetParameter(req,
+					DATE_EARLIEST_PARAMETER);
 			String dateLatestString = WebScriptUtils.cleanGetParameter(req,
 					DATE_LATEST_PARAMETER);
 			String subject = WebScriptUtils.cleanGetParameter(req,
@@ -121,7 +121,7 @@ public class AdvancedSearch extends AbstractSearchWebScript {
 					searchQueryToJson(sender, recipient, dateEarliestString,
 							dateLatestString, subject, messageId,
 							contentCriteriaString));
-			
+
 			HashMap<String, String> searchFields = new HashMap<String, String>();
 			searchFields.put(SENDER_PARAMETER, sender);
 			searchFields.put(RECIPIENT_PARAMETER, recipient);
@@ -130,22 +130,21 @@ public class AdvancedSearch extends AbstractSearchWebScript {
 			searchFields.put(SUBJECT_PARAMETER, subject);
 			searchFields.put(MESSAGE_ID_PARAMETER, messageId);
 			searchFields.put(CONTENT_PARAMETER, contentCriteriaString);
-			
+
 			SearchResult result = null;
 			try {
 				result = searchService.search(searchFields);
 			} catch (Exception e) {
-				e.printStackTrace();
 				// catch various kinds of exceptions, including cancellations
 			}
 
 			jsonData.put(SEARCH_ID_TAG, result.getId());
 			WebPageInfo pageInfo = new WebPageInfo();
 			logger.info("search results are complete");
-			
+
 			final List<MessageSummary> messageSummaries = archiveService
 					.retrieveSummary(result.getMessageIds());
-			
+
 			pageInfo.setTotal(messageSummaries.size());
 			@SuppressWarnings("unchecked")
 			final JSONArray jsonMessageSummary = SearchResultsBuilder
@@ -154,17 +153,20 @@ public class AdvancedSearch extends AbstractSearchWebScript {
 			jsonData.put(RESULTS_TAG, jsonMessageSummary);
 
 			jsonData.put(STATUS_ID_TAG, COMPLETE_STATUS_VALUE);
-			jsonData.put(WebConstants.ITEM_TOTAL_TAG, pageInfo
-					.getItemTotal());
+			jsonData.put(WebConstants.ITEM_TOTAL_TAG, pageInfo.getItemTotal());
 
 			jsonResult.put(DATA_TAG, jsonData);
 			jsonResult.put(PAGING_LABEL, pageInfo.getPageJSON());
-			
+
 		} catch (JSONException e) {
 			logger.error("JSONException", e);
+			respondError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, null,
+					res);
 			throw new EnkiveServletException("Unable to serialize JSON");
 		} catch (CannotRetrieveException e) {
 			logger.fatal("could not retrieve message summaries from archive", e);
+			respondError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, null,
+					res);
 			throw new EnkiveServletException("Unable to access repository");
 		} finally {
 			try {

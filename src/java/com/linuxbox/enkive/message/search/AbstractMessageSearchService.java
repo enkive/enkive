@@ -32,7 +32,8 @@ public abstract class AbstractMessageSearchService implements
 		query.setCriteria(fields);
 
 		try {
-			Workspace workspace = workspaceService.getActiveWorkspace();
+			Workspace workspace = workspaceService
+					.getActiveWorkspace(authenticationService.getUserName());
 
 			query.setId(workspaceService.saveSearchQuery(query));
 

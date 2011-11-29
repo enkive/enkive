@@ -148,9 +148,11 @@ public class ViewSavedResultsServlet extends EnkiveServlet {
 			jsonResult.put(PAGING_LABEL, pageInfo.getPageJSON());
 			res.getWriter().write(jsonResult.toString());
 		} catch (WorkspaceException e) {
+			respondError(HttpServletResponse.SC_UNAUTHORIZED, null, res);
 			throw new EnkiveServletException(
 					"Could not login to repository to retrieve search", e);
 		} catch (JSONException e) {
+			respondError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, null, res);
 			throw new EnkiveServletException("Unable to serialize JSON", e);
 		}
 	}

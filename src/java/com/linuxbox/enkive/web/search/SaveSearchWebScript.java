@@ -62,6 +62,7 @@ public class SaveSearchWebScript extends EnkiveServlet {
 			LOGGER.debug("saved search at id " + searchId + " with name \""
 					+ nameOfSavedSearch + "\"");
 		} catch (WorkspaceException e) {
+			respondError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, null, res);
 			throw new EnkiveServletException("Could not mark search at UUID "
 					+ searchId + "as saved", e);
 		}

@@ -95,12 +95,16 @@ public class MboxExportServlet extends EnkiveServlet {
 						writer.write("\r\n");
 					}
 				} catch (CannotRetrieveException e) {
+					respondError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+							null, res);
 					logger.error("Could not retrieve message with id"
 							+ messageId);
 				}
 				writer.write("\r\n");
 			}
 		} catch (WorkspaceException e) {
+			respondError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, null,
+					res);
 			throw new EnkiveServletException(
 					"unable to access workspace or access search or result with id "
 							+ searchId);

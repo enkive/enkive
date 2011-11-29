@@ -40,9 +40,9 @@ public class MessageRetrieveServlet extends EnkiveServlet {
 			resp.flushBuffer();
 		} catch (CannotRetrieveException e) {
 			LOGGER.error("error retrieving message " + messageId, e);
-			resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+			respondError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
 					"error retrieving message " + messageId
-							+ "; see server logs");
+							+ "; see server logs", resp);
 		}
 	}
 }

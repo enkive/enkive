@@ -58,12 +58,15 @@ public class MessageAttachmentDetailServlet extends EnkiveServlet {
 					String jsonString = jObject.toString();
 					resp.getWriter().write(jsonString);
 				} catch (JSONException e) {
+					respondError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+							null, resp);
 					throw new CannotRetrieveException(
 							"could not create JSON for message attachment", e);
 				}
 			}
 
 		} catch (CannotRetrieveException e) {
+			respondError(HttpServletResponse.SC_UNAUTHORIZED, null, resp);
 			LOGGER.error("Could not retrieve attachment");
 
 		}

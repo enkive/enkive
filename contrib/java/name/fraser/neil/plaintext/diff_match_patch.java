@@ -1412,7 +1412,6 @@ public class diff_match_patch {
 	 */
 	public String diff_prettyHtml(LinkedList<Diff> diffs) {
 		StringBuilder html = new StringBuilder();
-		int i = 0;
 		for (Diff aDiff : diffs) {
 			String text = aDiff.text.replace("&", "&amp;").replace("<", "&lt;")
 					.replace(">", "&gt;").replace("\n", "&para;<br>");
@@ -1430,7 +1429,6 @@ public class diff_match_patch {
 				break;
 			}
 			if (aDiff.operation != Operation.DELETE) {
-				i += aDiff.text.length();
 			}
 		}
 		return html.toString();
