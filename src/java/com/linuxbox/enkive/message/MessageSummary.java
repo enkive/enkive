@@ -158,15 +158,15 @@ public interface MessageSummary {
 
 	/**
 	 * 
-	 * @return the text after "From: " in the header
+	 * @return a List of all addresses in the "From: " in the header
 	 */
-	public String getFrom();
-
+	public List<String> getFrom();
+	
 	/**
 	 * 
-	 * @return the "From:" sender of the message, stripped of all brackets
+	 * @return the "From:" recipients of the message as a comma-separated string
 	 */
-	public String getFromStr();
+	public abstract String getFromStr();
 
 	/**
 	 * 
@@ -214,7 +214,15 @@ public interface MessageSummary {
 	 * 
 	 * @param from
 	 */
-	public void setFrom(String from);
+	public void setFrom(List<String> from);
+	
+	/**
+	 * 
+	 * Appends to the from attribute
+	 * 
+	 * @param from
+	 */
+	public void appendFrom(String from);
 
 	/**
 	 * 

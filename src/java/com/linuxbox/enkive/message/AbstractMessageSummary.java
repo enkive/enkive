@@ -21,6 +21,7 @@
 package com.linuxbox.enkive.message;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -42,7 +43,7 @@ public abstract class AbstractMessageSummary implements MessageSummary {
 	protected String messageId;
 	protected String mailFrom;
 	protected List<String> rcptTo;
-	protected String from;
+	protected List<String> from;
 	protected List<String> to;
 	protected List<String> cc;
 	protected Date date;
@@ -50,6 +51,10 @@ public abstract class AbstractMessageSummary implements MessageSummary {
 
 	public AbstractMessageSummary() {
 		super();
+		rcptTo = new ArrayList<String>();
+		to = new ArrayList<String>();
+		cc = new ArrayList<String>();
+		from = new ArrayList<String>();
 	}
 
 	public String getId() {
@@ -149,7 +154,7 @@ public abstract class AbstractMessageSummary implements MessageSummary {
 	}
 
 	@Override
-	public String getFrom() {
+	public List<String> getFrom() {
 		return from;
 	}
 
@@ -174,8 +179,13 @@ public abstract class AbstractMessageSummary implements MessageSummary {
 	}
 
 	@Override
-	public void setFrom(String from) {
+	public void setFrom( List<String>from) {
 		this.from = from;
+	}
+	
+	@Override
+	public void appendFrom(String from) {
+		this.from.add(from);
 	}
 
 	@Override
@@ -197,7 +207,7 @@ public abstract class AbstractMessageSummary implements MessageSummary {
 	}
 
 	public String getFromStr() {
-		return Utility.stripBracketsFromFromAddress(getFrom());
+		return StringUtils.collectionToCommaSeparatedString(getFrom());
 	}
 
 	public String getToStr() {

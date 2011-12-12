@@ -4,7 +4,6 @@
 	<classpathentry kind="src" path="test/java"/>
 	<classpathentry kind="src" path="contrib/java"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
-	<classpathentry kind="lib" path="lib/mongo-2.5.3.jar" sourcepath="lib/src/mongo-2.5.3"/>
 	<classpathentry kind="lib" path="lib/apache-mime4j-0.6.1.jar" sourcepath="lib/src/apache-mime4j-0.6.1/">
 		<attributes>
 			<attribute name="javadoc_location" value="jar:platform:/resource/enkive2/lib/javadoc/apache-mime4j-0.6-javadoc.jar!/"/>
@@ -12,8 +11,11 @@
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/commons-logging-1.1.1.jar"/>
 	<classpathentry kind="lib" path="lib/commons-codec-1.4.jar"/>
-	<classpathentry kind="lib" path="lib/tika-app-0.9.jar"/>
-	<classpathentry kind="lib" path="lib/indri.jar"/>
+	<classpathentry kind="lib" path="lib/indri.jar">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="/opt/indri/lib"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="lib" path="lib/spring/org.springframework.asm-3.0.5.RELEASE.jar"/>
 	<classpathentry kind="lib" path="lib/spring/org.springframework.beans-3.0.5.RELEASE.jar"/>
@@ -70,5 +72,7 @@
 			<attribute name="javadoc_location" value="jar:platform:/resource/enkive2/lib/javadoc/commons-lang-2.6-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="lib/mongo-2.7.2.jar"/>
+	<classpathentry kind="lib" path="lib/tika-app-1.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

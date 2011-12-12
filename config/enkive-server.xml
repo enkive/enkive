@@ -157,7 +157,7 @@
 	</bean>
 	
 	<bean id="PermissionService"
-		class="com.linuxbox.enkive.permissions.LdapSpringContextPermissionService">
+		class="com.linuxbox.enkive.permissions.SpringContextPermissionService">
 	</bean>
 
 	<bean id="WorkspaceService"

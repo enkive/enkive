@@ -22,11 +22,11 @@ import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.TO;
 import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.ARCHIVE_TIME;
 import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.ATTACHMENT_ID;
 import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.ATTACHMENT_ID_LIST;
-import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.NESTED_MESSAGE_ID_LIST;
 import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.CONTENT_HEADER;
 import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.CONTENT_HEADER_TYPE;
 import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.MESSAGE_UUID;
 import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.MULTIPART_HEADER_TYPE;
+import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.NESTED_MESSAGE_ID_LIST;
 import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.PART_HEADERS;
 import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.SINGLE_PART_HEADER_TYPE;
 
@@ -44,8 +44,8 @@ import org.apache.james.mime4j.codec.QuotedPrintableInputStream;
 import org.apache.james.mime4j.field.ContentTypeField;
 import org.apache.james.mime4j.util.MimeUtil;
 
-import com.linuxbox.enkive.archiver.AbstractMessageArchivingService;
 import com.linuxbox.enkive.archiver.MessageLoggingText;
+import com.linuxbox.enkive.archiver.RetryingAbstractMessageArchivingService;
 import com.linuxbox.enkive.archiver.exceptions.CannotArchiveException;
 import com.linuxbox.enkive.archiver.exceptions.FailedToEmergencySaveException;
 import com.linuxbox.enkive.audit.AuditServiceException;
@@ -68,7 +68,7 @@ import com.mongodb.DBObject;
 import com.mongodb.Mongo;
 import com.mongodb.MongoException;
 
-public class MongoArchivingService extends AbstractMessageArchivingService {
+public class MongoArchivingService extends RetryingAbstractMessageArchivingService {
 
 	private final static Log logger = LogFactory
 			.getLog("com.linuxbox.enkive.archiveService.mongodb");

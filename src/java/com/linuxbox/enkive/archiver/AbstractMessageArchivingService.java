@@ -77,6 +77,7 @@ public abstract class AbstractMessageArchivingService implements
 				uuid = storeMessage(message);
 			}
 		} catch (Exception e) {
+			logger.error("Could not archive Message " + message.getCleanMessageId(), e);
 			emergencySave(message.getReconstitutedEmail());
 		}
 		return uuid;

@@ -51,7 +51,6 @@ import com.mongodb.gridfs.GridFSInputFile;
  */
 
 public class MongoGridDocStoreService extends AbstractDocStoreService {
-	@SuppressWarnings("unused")
 	private final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.docstore.mongogrid");
 
@@ -155,7 +154,6 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 		if (file == null) {
 			throw new DocumentNotFoundException(identifier);
 		}
-
 		return new MongoGridDocument(file);
 	}
 
@@ -173,13 +171,11 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 						"could not acquire lock to store document \""
 								+ identifier + "\"");
 			}
-
 			try {
 				if (fileExists(identifier)) {
 					return new StoreRequestResultImpl(identifier, true,
 							shardKey);
 				}
-
 				GridFSInputFile newFile = gridFS
 						.createFile(new ByteArrayInputStream(data, 0, length));
 				newFile.setFilename(identifier);
@@ -191,12 +187,12 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 					throw new DocStoreException(
 							"file saved to GridFS did not validate", e);
 				}
-
 				return new StoreRequestResultImpl(identifier, false, shardKey);
 			} finally {
 				documentLockingService.releaseLock(identifier);
 			}
 		} catch (Exception e) {
+			LOGGER.error("Could not save document to gridfs", e);
 			throw new DocStoreException(e);
 		}
 	}
@@ -356,7 +352,7 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 	 */
 	boolean fileExists(String identifier) {
 		DBObject query = new BasicDBObject(Constants.FILENAME_KEY, identifier);
-		DBObject result = filesCollection.findOne(query, RETRIEVE_OBJECT_ID);
+		DBObject result = filesCollection.findOne(query);
 		return result != null;
 	}
 

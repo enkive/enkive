@@ -13,7 +13,7 @@ public class EnkiveDaemon implements Daemon {
 	private static final String USER = AuditService.USER_SYSTEM;
 	private static final String DESCRIPTION = "com.linuxbox.enkive.daemon";
 
-	static final String[] CONFIG_FILES = { "enkive-server.xml" };
+	static final String[] CONFIG_FILES = { "jetty-server-webapps.xml" };
 
 	protected String[] configFiles;
 	protected AbstractApplicationContext appContext;

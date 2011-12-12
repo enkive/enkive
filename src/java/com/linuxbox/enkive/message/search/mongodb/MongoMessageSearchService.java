@@ -58,7 +58,7 @@ public class MongoMessageSearchService extends AbstractMessageSearchService {
 		Set<String> messageIds = new HashSet<String>();
 
 		BasicDBObject query = buildQueryObject(fields);
-		
+
 		DBCursor results = messageColl.find(query);
 		while (results.hasNext()) {
 			DBObject message = results.next();
@@ -77,24 +77,36 @@ public class MongoMessageSearchService extends AbstractMessageSearchService {
 			if (fields.get(searchField) == null
 					|| fields.get(searchField).isEmpty()) {
 				// Do Nothing
-			} else if (searchField.equals(SENDER_PARAMETER)) {
-				// Needs to match MAIL_FROM OR FROM
-				BasicDBList senderQuery = new BasicDBList();
-				senderQuery.add(new BasicDBObject(MAIL_FROM, fields
-						.get(searchField)));
-				senderQuery
-						.add(new BasicDBObject(FROM, fields.get(searchField)));
-				query.put("$or", senderQuery);
-			} else if (searchField.equals(RECIPIENT_PARAMETER)) {
-				// Needs to match TO OR CC OR RCPTO
-				BasicDBList receiverQuery = new BasicDBList();
-				receiverQuery.add(new BasicDBObject(RCPT_TO, fields
-						.get(searchField)));
-				receiverQuery
-						.add(new BasicDBObject(TO, fields.get(searchField)));
-				receiverQuery
-						.add(new BasicDBObject(CC, fields.get(searchField)));
-				query.put("$or", receiverQuery);
+			} else if (searchField.equals(SENDER_PARAMETER)
+					|| searchField.equals(RECIPIENT_PARAMETER)) {
+				BasicDBList addressesQuery = new BasicDBList();
+				if (fields.containsKey(SENDER_PARAMETER)
+						&& fields.get(SENDER_PARAMETER) != null
+						&& !fields.get(SENDER_PARAMETER).isEmpty()) {
+					// Needs to match MAIL_FROM OR FROM
+					BasicDBList senderQuery = new BasicDBList();
+					senderQuery.add(new BasicDBObject(MAIL_FROM, fields
+							.get(SENDER_PARAMETER)));
+					senderQuery.add(new BasicDBObject(FROM, fields
+							.get(SENDER_PARAMETER)));
+
+					addressesQuery.add(new BasicDBObject("$or", senderQuery));
+				}
+				if (fields.containsKey(RECIPIENT_PARAMETER)
+						&& fields.get(RECIPIENT_PARAMETER) != null
+						&& !fields.get(RECIPIENT_PARAMETER).isEmpty()) {
+					// Needs to match TO OR CC OR RCPTO
+					BasicDBList receiverQuery = new BasicDBList();
+					receiverQuery.add(new BasicDBObject(RCPT_TO, fields
+							.get(RECIPIENT_PARAMETER)));
+					receiverQuery.add(new BasicDBObject(TO, fields
+							.get(RECIPIENT_PARAMETER)));
+					receiverQuery.add(new BasicDBObject(CC, fields
+							.get(RECIPIENT_PARAMETER)));
+
+					addressesQuery.add(new BasicDBObject("$or", receiverQuery));
+				}
+				query.put("$and", addressesQuery);
 			} else if (searchField.equals(DATE_EARLIEST_PARAMETER)
 					|| searchField.equals(DATE_LATEST_PARAMETER)) {
 				BasicDBObject dateQuery = new BasicDBObject();

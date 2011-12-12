@@ -69,7 +69,6 @@ import com.linuxbox.enkive.message.MultiPartHeader;
 import com.linuxbox.enkive.message.MultiPartHeaderImpl;
 import com.linuxbox.enkive.message.SinglePartHeader;
 import com.linuxbox.enkive.message.SinglePartHeaderImpl;
-import com.linuxbox.enkive.message.Utility;
 import com.linuxbox.enkive.retriever.AbstractRetrieverService;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
@@ -134,10 +133,7 @@ public class MongoRetrieverService extends AbstractRetrieverService {
 
 		result.setRcptTo((List<String>) messageObject.get(RCPT_TO));
 
-		final String from = (String) messageObject.get(FROM);
-		final String fromNoBrackets = Utility
-				.stripBracketsFromFromAddress(from);
-		result.setFrom(fromNoBrackets);
+		result.setFrom((List<String>) messageObject.get(FROM));
 
 		result.setTo((List<String>) messageObject.get(TO));
 

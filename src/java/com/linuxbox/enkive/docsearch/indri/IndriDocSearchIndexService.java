@@ -307,12 +307,15 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 	private void indexDocumentAsFile(Document doc, String identifier)
 			throws DocSearchException, DocStoreException {
 		Reader input = null;
+
 		try {
 			input = contentAnalyzer.parseIntoText(doc);
 
 			File tempFile = File.createTempFile("enkive-indri", ".txt",
 					tempStorageDir);
+
 			PrintWriter output = null;
+
 			try {
 				output = new PrintWriter(new FileWriter(tempFile));
 				output.println("<DOC>");

@@ -37,9 +37,13 @@ public class PermissionEnforcingMongoSearchService extends
 		if (permService.isAdmin()) {
 			return query;
 		} else {
+			BasicDBList addressesQuery = new BasicDBList();
+			
 			// Needs to match MAIL_FROM OR FROM
 			BasicDBList senderQuery = new BasicDBList();
-			if (fields.keySet().contains(SENDER_PARAMETER)) {
+			if (fields.keySet().contains(SENDER_PARAMETER)
+					&& fields.get(SENDER_PARAMETER) != null
+					&& !fields.get(SENDER_PARAMETER).isEmpty()) {
 				senderQuery.add(new BasicDBObject(MAIL_FROM, fields
 						.get(SENDER_PARAMETER)));
 				senderQuery.add(new BasicDBObject(FROM, fields
@@ -51,10 +55,12 @@ public class PermissionEnforcingMongoSearchService extends
 				senderQuery.add(new BasicDBObject(MAIL_FROM, address));
 				senderQuery.add(new BasicDBObject(FROM, address));
 			}
-			query.put("$or", senderQuery);
+			addressesQuery.add(new BasicDBObject("$or", senderQuery));
 
 			BasicDBList receiverQuery = new BasicDBList();
-			if (fields.keySet().contains(RECIPIENT_PARAMETER)) {
+			if (fields.keySet().contains(RECIPIENT_PARAMETER)
+					&& fields.get(RECIPIENT_PARAMETER) != null
+					&& !fields.get(RECIPIENT_PARAMETER).isEmpty()) {
 				receiverQuery.add(new BasicDBObject(RCPT_TO, fields
 						.get(RECIPIENT_PARAMETER)));
 				receiverQuery.add(new BasicDBObject(TO, fields
@@ -67,7 +73,8 @@ public class PermissionEnforcingMongoSearchService extends
 				receiverQuery.add(new BasicDBObject(TO, address));
 				receiverQuery.add(new BasicDBObject(CC, address));
 			}
-			query.put("$or", receiverQuery);
+			addressesQuery.add(new BasicDBObject("$or", receiverQuery));
+			query.put("$and", addressesQuery);
 
 			return query;
 		}

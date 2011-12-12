@@ -36,7 +36,7 @@ public class SpringContextPermissionService implements PermissionService {
 		addressesInMessage.addAll(message.getTo());
 		addressesInMessage.addAll(message.getCc());
 		addressesInMessage.addAll(message.getBcc());
-		addressesInMessage.add(message.getFrom());
+		addressesInMessage.addAll(message.getFrom());
 		addressesInMessage.add(message.getMailFrom());
 		addressesInMessage.addAll(message.getRcptTo());
 		

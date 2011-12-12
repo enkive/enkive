@@ -22,8 +22,7 @@ RETVAL=0
 start() {
 	    cd $ENKIVE_HOME
         echo -n "Starting Enkive:  "
-        su $ENKIVE_OWNER -c "$JSVC -java-home $JAVA_HOME -pidfile $ENKIVE_PID_FILE -errfile $ENKIVE_LOG_PATH/enkive.err -cp $ENKIVE_CLASSPATH -Djava.library.path=$INDRI_SO_PATH com.linuxbox.enkive.EnkiveDae\
-mon"
+        su $ENKIVE_OWNER -c "$JSVC -java-home $JAVA_HOME -pidfile $ENKIVE_PID_FILE -outfile $ENKIVE_LOG_PATH/enkive.log -errfile $ENKIVE_LOG_PATH/enkive.err -cp $ENKIVE_CLASSPATH -Djava.library.path=$INDRI_SO_PATH com.linuxbox.enkive.EnkiveDaemon"
         RETVAL=$?
         sleep 2
         echo
@@ -31,8 +30,7 @@ mon"
 stop() {
 		cd $ENKIVE_HOME
         echo -n "Stopping Enkive: "
-        su $ENKIVE_OWNER -c "$JSVC -stop -java-home $JAVA_HOME -pidfile $ENKIVE_PID_FILE -errfile $ENKIVE_LOG_PATH/enkive.err -cp $ENKIVE_CLASSPATH -Djava.library.path=$INDRI_SO_PATH com.linuxbox.enkive.Enk\
-iveDaemon"
+        su $ENKIVE_OWNER -c "$JSVC -stop -java-home $JAVA_HOME -pidfile $ENKIVE_PID_FILE -outfile $ENKIVE_LOG_PATH/enkive.log -errfile $ENKIVE_LOG_PATH/enkive.err -cp $ENKIVE_CLASSPATH -Djava.library.path=$INDRI_SO_PATH com.linuxbox.enkive.EnkiveDaemon"
         RETVAL=$?
         echo
 }

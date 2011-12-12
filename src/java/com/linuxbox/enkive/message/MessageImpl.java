@@ -255,7 +255,9 @@ public class MessageImpl extends AbstractMessage implements Message {
 		}
 
 		if (headers.getFrom() != null) {
-			setFrom(headers.getFrom().toString());
+			for (Address from : headers.getFrom()) {
+				appendFrom(from.toString());
+			}
 		}
 
 		if (headers.getTo() != null)

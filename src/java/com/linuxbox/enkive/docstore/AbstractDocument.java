@@ -26,6 +26,7 @@ public abstract class AbstractDocument implements Document {
 		this.mimeType = mimeType;
 		this.fileExtension = fileExtension;
 		this.binaryEncoding = binaryEncoding;
+		this.filename = filename;
 	}
 
 	@Override

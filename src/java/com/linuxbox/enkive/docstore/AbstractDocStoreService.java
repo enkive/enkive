@@ -128,7 +128,6 @@ public abstract class AbstractDocStoreService implements DocStoreService {
 		// don't expect this to happen often if at all, but doing so makes
 		// everything else easier
 		messageDigest.update(getFileTypeEncodingDigestPrime(document));
-
 		byte[] inMemoryBuffer = new byte[inMemoryLimit];
 		try {
 			InputStream originalInputStream = document

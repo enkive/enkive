@@ -2,8 +2,8 @@ package com.linuxbox.enkive.archiver;
 
 import java.io.IOException;
 
-import com.linuxbox.enkive.archiver.exceptions.FailedToEmergencySaveException;
 import com.linuxbox.enkive.archiver.exceptions.CannotArchiveException;
+import com.linuxbox.enkive.archiver.exceptions.FailedToEmergencySaveException;
 import com.linuxbox.enkive.archiver.exceptions.MessageArchivingServiceException;
 import com.linuxbox.enkive.audit.AuditServiceException;
 import com.linuxbox.enkive.message.Message;
@@ -39,8 +39,10 @@ public interface MessageArchivingService {
 	 * @throws CannotArchiveException
 	 * @throws AuditServiceException
 	 * @throws FailedToEmergencySaveException
+	 * @throws IOException
 	 */
-	public String storeMessage(Message message) throws CannotArchiveException, FailedToEmergencySaveException, AuditServiceException;
+	public String storeMessage(Message message) throws CannotArchiveException,
+			FailedToEmergencySaveException, AuditServiceException, IOException;
 
 	/**
 	 * Searches the message store for a duplicate message. If a duplicate is

@@ -182,12 +182,14 @@ public class MailDirProcessor extends AbstractMailProcessor {
 	@Override
 	protected Message postProcess(Message message) {
 		if (INFER_MAIL_FROM_AND_RCPT_TO) {
-			String address = parseOutAddress(message.getFrom(), "FROM");
+			for (String unparsedAddress : message.getFrom()) {
+			String address = parseOutAddress(unparsedAddress, "FROM");
 			if (address != null) {
 				message.setMailFrom(address);
 			} else {
 				logger.warn("did not get a FROM address from "
 						+ message.getFrom());
+			}
 			}
 
 			for (String unparsedAddress : message.getTo()) {
