@@ -109,7 +109,7 @@ public class EnkiveUserFactory extends AbstractUserFactory {
 			capabilities.put("isAdmin", false);
 			for (int i = 0; i < authArray.length(); i++) {
 				String auth = authArray.getString(i);
-				if (auth.equals("ROLE_ADMIN"))
+				if (auth.equals("ROLE_ENKIVE_ADMIN"))
 					capabilities.put("isAdmin", true);
 				else
 					capabilities.put(auth, true);

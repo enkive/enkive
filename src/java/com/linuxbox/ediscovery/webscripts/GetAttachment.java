@@ -36,6 +36,9 @@ import org.springframework.extensions.webscripts.connector.Response;
 
 public class GetAttachment extends AbstractWebScript {
 
+	public static String ATTACHMENT_RETRIEVE_REST_URL = "/attachment/retrieve?attachmentid=";
+	
+	
 	@Override
 	public void execute(WebScriptRequest req, WebScriptResponse res)
 			throws IOException {
@@ -57,7 +60,7 @@ public class GetAttachment extends AbstractWebScript {
 
 		ScriptRemoteConnector connector = remote.connect("enkive");
 
-		Response resp = connector.call("/attachmentRetrieve?attachmentid="
+		Response resp = connector.call(ATTACHMENT_RETRIEVE_REST_URL
 				+ req.getParameterValues("attachmentid")[0]);
 
 		res.setStatus(resp.getStatus().getCode());

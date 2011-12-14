@@ -2,8 +2,8 @@ var messageid = context.properties["messageid"];
 var connector = remote.connect("enkive");
 
 // retrieve the message
-var response = connector.get("/messageRetrieve?message_id=" + messageid);
-var attachments = connector.get("/messageAttachmentDetail?message_id=" + messageid);
+var response = connector.get("/message/retrieve?message_id=" + messageid);
+var attachments = connector.get("/message/attachmentDetail?message_id=" + messageid);
 
 if(response.status == 200){
 	model.text = response;

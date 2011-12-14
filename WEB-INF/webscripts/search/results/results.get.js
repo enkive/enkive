@@ -19,7 +19,7 @@ var uri = url.uri;
 
 if (searchid != null){
 	// retrieve the web script index page 
-	messagelist = connector.get("/messageSearchResults?id=" + searchid + "&pos=" + pos + "&size=" + size);
+	messagelist = connector.get("/search/results?id=" + searchid + "&pos=" + pos + "&size=" + size);
 	
 } else if(
 		(content != null && content != "")|| 
@@ -31,7 +31,7 @@ if (searchid != null){
 		(messageId != null && messageId != "")
 	){
 	
-	messagelist = connector.get("/messageSearch" + 
+	messagelist = connector.get("/message/search" + 
 		"?content=" + encodeURIComponent(content) +
 		"&sender=" + encodeURIComponent(sender) +
 		"&recipient=" + encodeURIComponent(recipient) +

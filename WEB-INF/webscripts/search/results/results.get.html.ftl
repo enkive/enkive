@@ -46,7 +46,9 @@
 					        ${message.date}
 					    </td>
 					    <td style="white-space: nowrap">
-					        ${message.sender}
+					    	<#list message.sender as sender>
+					        	${sender}
+					        </#list>
 					    </td>
 					    <td style="white-space: nowrap">
 					      	<#list message.recipients as recipient>
