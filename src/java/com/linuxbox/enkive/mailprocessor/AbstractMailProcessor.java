@@ -148,8 +148,7 @@ public abstract class AbstractMailProcessor implements ArchivingProcessor,
 		try {
 			archiver.shutdown();
 		} catch (MessageArchivingServiceException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("Could not shutdown mail processor", e);
 		}
 	}
 
@@ -236,8 +235,7 @@ public abstract class AbstractMailProcessor implements ArchivingProcessor,
 			try {
 				archiver.shutdown();
 			} catch (MessageArchivingServiceException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.error("Could not shutdown archiver", e);
 			}
 			server.processorClosed(this);
 		}

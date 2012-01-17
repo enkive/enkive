@@ -1,7 +1,7 @@
 package com.linuxbox.enkive.message.search;
 
 import java.util.HashMap;
-import java.util.Set;
+import java.util.concurrent.Future;
 
 import com.linuxbox.enkive.docsearch.exception.DocSearchException;
 import com.linuxbox.enkive.message.search.exception.MessageSearchException;
@@ -21,15 +21,23 @@ public interface MessageSearchService {
 			throws MessageSearchException;
 
 	/**
-	 * Perform an asynchronous search and return a list of message identifiers
-	 * that match.
+	 * Perform an asynchronous search and return a Future<SearchResult> object.
 	 * 
 	 * @param fields
-	 * 
 	 * @return
+	 * 
 	 * @throws DocSearchException
 	 */
-	Set<String> searchAsync(HashMap<String, String> fields)
+	Future<SearchResult> searchAsync(HashMap<String, String> fields)
 			throws MessageSearchException;
+
+	/**
+	 * Cancel an asynchronous search based on the search identifier
+	 * 
+	 * @param searchId
+	 * @return
+	 * @throws MessageSearchException
+	 */
+	boolean cancelAsyncSearch(String searchId) throws MessageSearchException;
 
 }

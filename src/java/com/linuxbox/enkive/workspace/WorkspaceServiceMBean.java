@@ -21,13 +21,5 @@
 package com.linuxbox.enkive.workspace;
 
 public interface WorkspaceServiceMBean {
-	int getInteractiveSearchWaitSeconds();
 
-	void setInteractiveSearchWaitSeconds(int secondsToWait);
-
-	public int getActualSearchThreadCount();
-
-	public int getDesiredSearchThreadCount();
-
-	public void setDesiredSearchThreadCount(int requestedSearchThreadCount);
 }

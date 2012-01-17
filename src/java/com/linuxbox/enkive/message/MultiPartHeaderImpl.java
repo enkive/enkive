@@ -27,7 +27,7 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.james.mime4j.parser.MimeEntityConfig;
+import org.apache.james.mime4j.stream.MimeConfig;
 
 public class MultiPartHeaderImpl extends AbstractMultiPartHeader implements
 		MultiPartHeader {
@@ -40,7 +40,7 @@ public class MultiPartHeaderImpl extends AbstractMultiPartHeader implements
 	}
 
 	@Override
-	public void parseHeaders(String partHeader, MimeEntityConfig config) {
+	public void parseHeaders(String partHeader, MimeConfig config) {
 		parseHeaders(partHeader);
 	}
 

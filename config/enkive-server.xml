@@ -90,7 +90,7 @@
 	</bean>
 
 	<bean id="MessageSearchService"
-		class="com.linuxbox.enkive.message.search.mongodb.PermissionEnforcingMongoSearchService">
+		class="com.linuxbox.enkive.message.search.mongodb.TaskPoolPermEnforcingMongoSearchService">
 		<constructor-arg ref="PermissionService" />
 		<constructor-arg ref="Mongo" />
 		<constructor-arg type="java.lang.String" value="${enkive.messagestore.db.name}" />

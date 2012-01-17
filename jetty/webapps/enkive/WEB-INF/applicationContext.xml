@@ -9,9 +9,9 @@
 		<intercept-url pattern="/**" access="isAuthenticated()" />
 		<form-login />
 	</http>
-<!--
-	<ldap-server url="ldap://10.1.1.55:389/dc=linuxbox,dc=com" />
 
+	<ldap-server url="ldap://10.1.1.55:389/dc=linuxbox,dc=com" />
+<!--
 	<authentication-manager alias="authenticationManager">
 		<ldap-authentication-provider user-dn-pattern="uid={0},ou=people"/>
 	</authentication-manager>

@@ -3,6 +3,13 @@ package com.linuxbox.enkive.message.search;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.scheduling.annotation.Async;
 
 import com.linuxbox.enkive.audit.AuditService;
 import com.linuxbox.enkive.authentication.AuthenticationException;
@@ -19,6 +26,9 @@ import com.linuxbox.enkive.workspace.WorkspaceService;
 public abstract class AbstractMessageSearchService implements
 		MessageSearchService {
 
+	protected static final Log LOGGER = LogFactory
+			.getLog("com.linuxbox.enkive.message.search");
+	
 	protected AuthenticationService authenticationService;
 	protected WorkspaceService workspaceService;
 	protected AuditService auditService;
@@ -39,16 +49,15 @@ public abstract class AbstractMessageSearchService implements
 
 			SearchResult result = new SearchResult();
 			result.setSearchQueryId(query.getId());
+
 			result.setMessageIds(searchImpl(fields));
 			result.setTimestamp(new Date());
 			result.setExecutedBy(authenticationService.getUserName());
 			result.setStatus(Status.COMPLETE);
 			String resultId = workspaceService.saveSearchResult(result);
 			result.setId(resultId);
-
 			workspace.addSearchResult(resultId);
 			workspaceService.saveWorkspace(workspace);
-
 			return result;
 		} catch (WorkspaceException e) {
 			throw new MessageSearchException("Could not save search query", e);
@@ -59,10 +68,23 @@ public abstract class AbstractMessageSearchService implements
 	}
 
 	@Override
-	public Set<String> searchAsync(HashMap<String, String> fields)
+	@Async
+	public Future<SearchResult> searchAsync(final HashMap<String, String> fields)
 			throws MessageSearchException {
-		// TODO Auto-generated method stub
-		return null;
+		FutureTask<SearchResult> searchFuture = new FutureTask<SearchResult>(
+				new Callable<SearchResult>(){
+					public SearchResult call(){
+						SearchResult result = null;
+						try {
+							result = search(fields);
+						} catch (MessageSearchException e) {
+							LOGGER.warn("Error Searching for message", e);
+						}
+						return result;
+					}
+				});
+		searchFuture.run();
+		return searchFuture;
 	}
 
 	protected abstract Set<String> searchImpl(HashMap<String, String> fields)

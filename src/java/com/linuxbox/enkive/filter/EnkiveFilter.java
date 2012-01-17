@@ -26,13 +26,14 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.james.mime4j.field.address.Address;
-import org.apache.james.mime4j.field.address.AddressList;
-import org.apache.james.mime4j.field.address.parser.ParseException;
+import org.apache.james.mime4j.dom.address.Address;
+import org.apache.james.mime4j.dom.address.AddressList;
+import org.apache.james.mime4j.field.address.ParseException;
 
 import com.linuxbox.enkive.filter.EnkiveFilterConstants.FilterAction;
 import com.linuxbox.enkive.filter.EnkiveFilterConstants.FilterComparator;
 import com.linuxbox.enkive.filter.EnkiveFilterConstants.FilterType;
+import com.linuxbox.enkive.message.AddressParser;
 
 public class EnkiveFilter {
 
@@ -159,11 +160,11 @@ public class EnkiveFilter {
 
 		switch (filterComparator) {
 		case FilterComparator.MATCHES:
-			if (value.equals(filterValue))
+			if (dateValue.equals(dateFilterValue))
 				matched = true;
 			break;
 		case FilterComparator.DOES_NOT_MATCH:
-			if (!value.equals(filterValue))
+			if (!dateValue.equals(dateFilterValue))
 				matched = true;
 			break;
 		case FilterComparator.IS_GREATER_THAN:
@@ -235,8 +236,11 @@ public class EnkiveFilter {
 
 	private boolean filterAddress(String value) throws ParseException {
 		boolean matched = false;
-		AddressList addresses = AddressList.parse(value);
-		Address address = Address.parse(filterValue);
+
+		AddressParser parser = new AddressParser();
+
+		AddressList addresses = parser.parseAddressList(value);
+		Address address = parser.parseAddress(filterValue);
 
 		switch (filterComparator) {
 		case FilterComparator.MATCHES:

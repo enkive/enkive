@@ -21,10 +21,6 @@
 package com.linuxbox.enkive.workspace;
 
 import java.util.List;
-import java.util.Set;
-
-import com.linuxbox.enkive.search.SearchProcess;
-import com.linuxbox.util.threadpool.CancellableProcessExecutor.CPFuture;
 
 public interface WorkspaceService extends WorkspaceServiceMBean {
 
@@ -42,11 +38,6 @@ public interface WorkspaceService extends WorkspaceServiceMBean {
 	String saveSearchQuery(SearchQuery query) throws WorkspaceException;
 
 	String saveSearchResult(SearchResult result) throws WorkspaceException;
-
-	CPFuture<Set<String>> submitSearchProcessToQueue(SearchProcess process);
-
-	void requestSearchCancellation(SearchResult result)
-			throws WorkspaceException;
 
 	List<SearchResult> getRecentSearches(String workspaceId)
 			throws WorkspaceException;

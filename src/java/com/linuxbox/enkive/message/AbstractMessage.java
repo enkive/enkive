@@ -32,7 +32,7 @@ import java.util.Set;
 import name.fraser.neil.plaintext.diff_match_patch;
 import name.fraser.neil.plaintext.diff_match_patch.Patch;
 
-import org.apache.james.mime4j.message.Header;
+import org.apache.james.mime4j.dom.Header;
 
 import com.linuxbox.enkive.exception.BadMessageException;
 

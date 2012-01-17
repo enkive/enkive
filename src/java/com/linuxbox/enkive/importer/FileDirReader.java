@@ -73,10 +73,8 @@ public class FileDirReader extends AbstractMessageImporter implements Runnable {
 			sendAllFiles(rootDir);
 			System.out.println(rootDir.getName() + " - Finished without error");
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (MessagingException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} finally {
 			closeWriter();

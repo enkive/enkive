@@ -40,7 +40,7 @@ import com.mongodb.Mongo;
 
 public class MongoMessageSearchService extends AbstractMessageSearchService {
 
-	private final static Log logger = LogFactory
+	protected final static Log logger = LogFactory
 			.getLog("com.linuxbox.enkive.searchService.mongodb");
 
 	protected Mongo m = null;
@@ -58,7 +58,6 @@ public class MongoMessageSearchService extends AbstractMessageSearchService {
 		Set<String> messageIds = new HashSet<String>();
 
 		BasicDBObject query = buildQueryObject(fields);
-
 		DBCursor results = messageColl.find(query);
 		while (results.hasNext()) {
 			DBObject message = results.next();
@@ -75,7 +74,8 @@ public class MongoMessageSearchService extends AbstractMessageSearchService {
 
 		for (String searchField : fields.keySet()) {
 			if (fields.get(searchField) == null
-					|| fields.get(searchField).isEmpty()) {
+					|| fields.get(searchField).isEmpty()
+					|| fields.get(searchField).trim().isEmpty()) {
 				// Do Nothing
 			} else if (searchField.equals(SENDER_PARAMETER)
 					|| searchField.equals(RECIPIENT_PARAMETER)) {
@@ -111,7 +111,8 @@ public class MongoMessageSearchService extends AbstractMessageSearchService {
 					|| searchField.equals(DATE_LATEST_PARAMETER)) {
 				BasicDBObject dateQuery = new BasicDBObject();
 				if (fields.containsKey(DATE_EARLIEST_PARAMETER)
-						&& fields.get(DATE_EARLIEST_PARAMETER) != null) {
+						&& fields.get(DATE_EARLIEST_PARAMETER) != null
+						&& !fields.get(DATE_EARLIEST_PARAMETER).isEmpty()) {
 					try {
 						Date dateEarliest = NUMERIC_SEARCH_FORMAT.parse(fields
 								.get(DATE_EARLIEST_PARAMETER));
@@ -122,7 +123,8 @@ public class MongoMessageSearchService extends AbstractMessageSearchService {
 					}
 				}
 				if (fields.containsKey(DATE_LATEST_PARAMETER)
-						&& fields.get(DATE_LATEST_PARAMETER) != null) {
+						&& fields.get(DATE_LATEST_PARAMETER) != null
+						&& !fields.get(DATE_LATEST_PARAMETER).isEmpty()) {
 					try {
 						Date dateLatest = NUMERIC_SEARCH_FORMAT.parse(fields
 								.get(DATE_LATEST_PARAMETER));
@@ -154,6 +156,12 @@ public class MongoMessageSearchService extends AbstractMessageSearchService {
 			}
 		}
 		return query;
+	}
+
+	@Override
+	public boolean cancelAsyncSearch(String searchId)
+			throws MessageSearchException {
+		throw new MessageSearchException("Unimplemented");
 	}
 
 }

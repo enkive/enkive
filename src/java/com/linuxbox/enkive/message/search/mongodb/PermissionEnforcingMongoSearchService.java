@@ -33,11 +33,18 @@ public class PermissionEnforcingMongoSearchService extends
 			throws MessageSearchException {
 
 		BasicDBObject query = super.buildQueryObject(fields);
-
 		if (permService.isAdmin()) {
 			return query;
 		} else {
 			BasicDBList addressesQuery = new BasicDBList();
+			
+			Collection<String> addresses = permService
+					.canReadAddresses(permService.getCurrentUsername());
+			if(addresses.isEmpty()){
+				query.clear();
+				query.put("_id", "");
+				return query;
+			}
 			
 			// Needs to match MAIL_FROM OR FROM
 			BasicDBList senderQuery = new BasicDBList();
@@ -49,8 +56,7 @@ public class PermissionEnforcingMongoSearchService extends
 				senderQuery.add(new BasicDBObject(FROM, fields
 						.get(SENDER_PARAMETER)));
 			}
-			Collection<String> addresses = permService
-					.canReadAddresses(permService.getCurrentUsername());
+			
 			for (String address : addresses) {
 				senderQuery.add(new BasicDBObject(MAIL_FROM, address));
 				senderQuery.add(new BasicDBObject(FROM, address));

@@ -28,6 +28,7 @@ import static com.linuxbox.enkive.search.Constants.RECIPIENT_PARAMETER;
 import static com.linuxbox.enkive.search.Constants.SENDER_PARAMETER;
 import static com.linuxbox.enkive.search.Constants.SUBJECT_PARAMETER;
 import static com.linuxbox.enkive.web.WebConstants.COMPLETE_STATUS_VALUE;
+import static com.linuxbox.enkive.web.WebConstants.RUNNING_STATUS_VALUE;
 import static com.linuxbox.enkive.web.WebConstants.DATA_TAG;
 import static com.linuxbox.enkive.web.WebConstants.QUERY_TAG;
 import static com.linuxbox.enkive.web.WebConstants.RESULTS_TAG;
@@ -38,6 +39,8 @@ import static com.linuxbox.enkive.web.WebPageInfo.PAGING_LABEL;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -72,6 +75,8 @@ public class AdvancedSearch extends AbstractSearchWebScript {
 	protected MessageSearchService searchService;
 	protected AuditService auditService;
 	protected AuthenticationService authenticationService;
+
+	protected int searchTimeoutSeconds = 15;
 
 	@Override
 	public void init(ServletConfig config) throws ServletException {
@@ -132,32 +137,43 @@ public class AdvancedSearch extends AbstractSearchWebScript {
 			searchFields.put(CONTENT_PARAMETER, contentCriteriaString);
 
 			SearchResult result = null;
+			
 			try {
-				result = searchService.search(searchFields);
+				Future<SearchResult> resultFuture = searchService
+						.searchAsync(searchFields);
+				result = resultFuture.get(searchTimeoutSeconds,
+						TimeUnit.SECONDS);
+
 			} catch (Exception e) {
 				// catch various kinds of exceptions, including cancellations
+				result = null;
 			}
 
-			jsonData.put(SEARCH_ID_TAG, result.getId());
-			WebPageInfo pageInfo = new WebPageInfo();
-			logger.info("search results are complete");
+			if (result != null) {
+				jsonData.put(SEARCH_ID_TAG, result.getId());
+				WebPageInfo pageInfo = new WebPageInfo();
+				logger.info("search results are complete");
 
-			final List<MessageSummary> messageSummaries = archiveService
-					.retrieveSummary(result.getMessageIds());
+				final List<MessageSummary> messageSummaries = archiveService
+						.retrieveSummary(result.getMessageIds());
 
-			pageInfo.setTotal(messageSummaries.size());
-			@SuppressWarnings("unchecked")
-			final JSONArray jsonMessageSummary = SearchResultsBuilder
-					.getMessageListJSON((List<MessageSummary>) pageInfo
-							.getSubList(messageSummaries));
-			jsonData.put(RESULTS_TAG, jsonMessageSummary);
+				pageInfo.setTotal(messageSummaries.size());
+				@SuppressWarnings("unchecked")
+				final JSONArray jsonMessageSummary = SearchResultsBuilder
+						.getMessageListJSON((List<MessageSummary>) pageInfo
+								.getSubList(messageSummaries));
+				jsonData.put(RESULTS_TAG, jsonMessageSummary);
 
-			jsonData.put(STATUS_ID_TAG, COMPLETE_STATUS_VALUE);
-			jsonData.put(WebConstants.ITEM_TOTAL_TAG, pageInfo.getItemTotal());
+				jsonData.put(STATUS_ID_TAG, COMPLETE_STATUS_VALUE);
+				jsonData.put(WebConstants.ITEM_TOTAL_TAG,
+						pageInfo.getItemTotal());
 
+				jsonResult.put(PAGING_LABEL, pageInfo.getPageJSON());
+			} else {
+				logger.info("search results are not ready yet");
+				jsonData.put(STATUS_ID_TAG, RUNNING_STATUS_VALUE);
+			}
 			jsonResult.put(DATA_TAG, jsonData);
-			jsonResult.put(PAGING_LABEL, pageInfo.getPageJSON());
-
 		} catch (JSONException e) {
 			logger.error("JSONException", e);
 			respondError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, null,

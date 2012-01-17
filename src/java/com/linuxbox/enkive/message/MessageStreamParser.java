@@ -20,12 +20,12 @@
 
 package com.linuxbox.enkive.message;
 
-import org.apache.james.mime4j.parser.MimeEntityConfig;
-import org.apache.james.mime4j.parser.MimeTokenStream;
+import org.apache.james.mime4j.stream.MimeConfig;
+import org.apache.james.mime4j.stream.MimeTokenStream;
 
 public class MessageStreamParser extends MimeTokenStream {
 
-	public MessageStreamParser(MimeEntityConfig config) {
+	public MessageStreamParser(MimeConfig config) {
 		super(config);
 	}
 

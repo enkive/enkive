@@ -24,7 +24,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.Set;
 
-import org.apache.james.mime4j.parser.MimeEntityConfig;
+import org.apache.james.mime4j.stream.MimeConfig;
 
 public interface ContentHeader {
 	/**
@@ -177,7 +177,7 @@ public interface ContentHeader {
 	 */
 	public void parseHeaders(String someContentHeader);
 
-	public void parseHeaders(String string, MimeEntityConfig config);
+	public void parseHeaders(String string, MimeConfig config);
 
 	/**
 	 * 

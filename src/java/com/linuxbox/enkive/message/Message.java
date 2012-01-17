@@ -23,7 +23,7 @@ package com.linuxbox.enkive.message;
 import java.io.IOException;
 import java.io.Writer;
 
-import org.apache.james.mime4j.message.Header;
+import org.apache.james.mime4j.dom.Header;
 
 import com.linuxbox.enkive.exception.BadMessageException;
 

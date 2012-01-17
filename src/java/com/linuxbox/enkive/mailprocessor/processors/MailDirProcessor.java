@@ -30,13 +30,13 @@ import java.io.InputStreamReader;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 
-import org.apache.james.mime4j.field.address.AddressList;
-import org.apache.james.mime4j.field.address.MailboxList;
-import org.apache.james.mime4j.field.address.parser.ParseException;
+import org.apache.james.mime4j.dom.address.MailboxList;
+import org.apache.james.mime4j.field.address.ParseException;
 
 import com.linuxbox.enkive.exception.SocketClosedException;
 import com.linuxbox.enkive.mailprocessor.AbstractMailProcessor;
 import com.linuxbox.enkive.mailprocessor.ProcessorState;
+import com.linuxbox.enkive.message.AddressParser;
 import com.linuxbox.enkive.message.Message;
 import com.linuxbox.enkive.message.Utility;
 
@@ -153,8 +153,8 @@ public class MailDirProcessor extends AbstractMailProcessor {
 				.stripBracketsFromFromAddress(fullAddress);
 
 		try {
-			MailboxList mailboxes = AddressList.parse(strippedAddress)
-					.flatten();
+			MailboxList mailboxes = new AddressParser().parseAddressList(
+					strippedAddress).flatten();
 
 			// log anything unexpected
 			if (mailboxes.size() != 1) {
@@ -183,13 +183,13 @@ public class MailDirProcessor extends AbstractMailProcessor {
 	protected Message postProcess(Message message) {
 		if (INFER_MAIL_FROM_AND_RCPT_TO) {
 			for (String unparsedAddress : message.getFrom()) {
-			String address = parseOutAddress(unparsedAddress, "FROM");
-			if (address != null) {
-				message.setMailFrom(address);
-			} else {
-				logger.warn("did not get a FROM address from "
-						+ message.getFrom());
-			}
+				String address = parseOutAddress(unparsedAddress, "FROM");
+				if (address != null) {
+					message.setMailFrom(address);
+				} else {
+					logger.warn("did not get a FROM address from "
+							+ message.getFrom());
+				}
 			}
 
 			for (String unparsedAddress : message.getTo()) {

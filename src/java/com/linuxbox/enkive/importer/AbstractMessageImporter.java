@@ -39,8 +39,14 @@ import java.net.UnknownHostException;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 public abstract class AbstractMessageImporter {
 
+	protected static final Log LOGGER = LogFactory
+			.getLog("com.linuxbox.enkive.message.importer");
+	
 	protected BufferedWriter writer;
 	protected InetAddress host;
 	protected int port;
@@ -104,15 +110,14 @@ public abstract class AbstractMessageImporter {
 			try {
 				writer.close();
 			} catch (IOException e) {
-				e.printStackTrace();
+				LOGGER.error("Error closing message importer writer", e);
 			}
 		}
 		if (socket != null) {
 			try {
 				socket.close();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				LOGGER.error("Could not close message importer write socket", e);
 			}
 		}
 	}

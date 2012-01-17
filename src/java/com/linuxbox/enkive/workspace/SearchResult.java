@@ -27,7 +27,9 @@ import java.util.Set;
 public class SearchResult {
 
 	public enum Status {
-		RUNNING, // could also mean it's been queued but not started running
+		QUEUED,
+		
+		RUNNING,
 		
 		COMPLETE,
 		

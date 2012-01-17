@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.util.Calendar;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -27,6 +28,10 @@ public class EnkiveFilterTest {
 		InputStream filestream = new FileInputStream(new File(
 				TestingConstants.TEST_MESSAGE_DIRECTORY + "/basic-plain.msg"));
 		message = new MessageImpl(filestream);
+		Calendar date = Calendar.getInstance();
+		date.set(1997, 2, 11, 14, 0, 0);
+
+		message.setDate(date.getTime());
 		filestream.close();
 	}
 
@@ -242,7 +247,7 @@ public class EnkiveFilterTest {
 		EnkiveFilter filter = new EnkiveFilter("Date",
 				EnkiveFilterConstants.FilterAction.ALLOW,
 				EnkiveFilterConstants.FilterType.DATE,
-				"Wed, 11 Feb 1998 12:52:00 -0500",
+				"Wed, 11 Feb 1999 12:52:00 -0500",
 				EnkiveFilterConstants.FilterComparator.IS_LESS_THAN,
 				EnkiveFilterConstants.FilterAction.DENY);
 		assertTrue(filter.filter(message.getDateStr()));
@@ -253,7 +258,7 @@ public class EnkiveFilterTest {
 		EnkiveFilter filter = new EnkiveFilter("Date",
 				EnkiveFilterConstants.FilterAction.DENY,
 				EnkiveFilterConstants.FilterType.DATE,
-				"Wed, 11 Feb 1998 12:52:00 -0500",
+				"Wed, 11 Feb 1999 12:52:00 -0500",
 				EnkiveFilterConstants.FilterComparator.IS_LESS_THAN,
 				EnkiveFilterConstants.FilterAction.ALLOW);
 
@@ -265,7 +270,7 @@ public class EnkiveFilterTest {
 		EnkiveFilter filter = new EnkiveFilter("Date",
 				EnkiveFilterConstants.FilterAction.ALLOW,
 				EnkiveFilterConstants.FilterType.DATE,
-				"Wed, 11 Feb 1998 12:50:00 -0500",
+				"Wed, 11 Feb 1996 12:50:00 -0500",
 				EnkiveFilterConstants.FilterComparator.IS_GREATER_THAN,
 				EnkiveFilterConstants.FilterAction.DENY);
 
@@ -277,7 +282,7 @@ public class EnkiveFilterTest {
 		EnkiveFilter filter = new EnkiveFilter("Date",
 				EnkiveFilterConstants.FilterAction.DENY,
 				EnkiveFilterConstants.FilterType.DATE,
-				"Wed, 11 Feb 1998 12:50:00 -0500",
+				"Wed, 11 Feb 1996 12:00:00 -0500",
 				EnkiveFilterConstants.FilterComparator.IS_GREATER_THAN,
 				EnkiveFilterConstants.FilterAction.ALLOW);
 
@@ -289,7 +294,7 @@ public class EnkiveFilterTest {
 		EnkiveFilter filter = new EnkiveFilter("Date",
 				EnkiveFilterConstants.FilterAction.ALLOW,
 				EnkiveFilterConstants.FilterType.DATE,
-				"Wed, 11 Feb 1998 12:51:00 -0500",
+				"Tue, 11 Mar 1997 14:00:00 -0500",
 				EnkiveFilterConstants.FilterComparator.MATCHES,
 				EnkiveFilterConstants.FilterAction.DENY);
 
@@ -301,7 +306,7 @@ public class EnkiveFilterTest {
 		EnkiveFilter filter = new EnkiveFilter("Date",
 				EnkiveFilterConstants.FilterAction.DENY,
 				EnkiveFilterConstants.FilterType.DATE,
-				"Wed, 11 Feb 1998 12:51:00 -0500",
+				"Tue, 11 Mar 1997 14:00:00 -0500",
 				EnkiveFilterConstants.FilterComparator.MATCHES,
 				EnkiveFilterConstants.FilterAction.ALLOW);
 

@@ -43,7 +43,6 @@ public class AttachmentRetrieveServlet extends EnkiveServlet {
 						+ filename);
 				attachment.transferBinaryContent(resp.getOutputStream());
 			} catch (CannotTransferMessageContentException e) {
-				e.printStackTrace();
 				LOGGER.error(
 						"error transferring attachment  " + attachmentUUID, e);
 				resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,

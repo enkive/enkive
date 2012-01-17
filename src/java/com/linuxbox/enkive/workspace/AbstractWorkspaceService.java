@@ -20,33 +20,12 @@
 
 package com.linuxbox.enkive.workspace;
 
-import java.util.Set;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
-
-import com.linuxbox.enkive.search.SearchProcess;
 import com.linuxbox.util.MBeanUtils;
-import com.linuxbox.util.threadpool.CancellableProcessExecutor;
-import com.linuxbox.util.threadpool.CancellableProcessExecutor.CPFuture;
 
 public abstract class AbstractWorkspaceService implements WorkspaceService {
-	private final int DEFAULT_INTERACTIVE_SEARCH_TIMEOUT = 15;
-	private final int DEFAULT_SEARCH_THREAD_COUNT = 5;
-
-	private int interactiveSearchWaitSeconds;
-	private int desiredSearchThreadCount;
-	private CancellableProcessExecutor searchProcessExecutor;
-
+	
 	public AbstractWorkspaceService() {
-		interactiveSearchWaitSeconds = DEFAULT_INTERACTIVE_SEARCH_TIMEOUT;
-		desiredSearchThreadCount = DEFAULT_SEARCH_THREAD_COUNT;
-
-		// using an unbounded queue
-		final BlockingQueue<Runnable> workQueue = new LinkedBlockingQueue<Runnable>();
-		searchProcessExecutor = new CancellableProcessExecutor(
-				desiredSearchThreadCount, desiredSearchThreadCount, 1,
-				TimeUnit.MINUTES, workQueue);
+		
 	}
 
 	public void registerMBean() {
@@ -55,51 +34,4 @@ public abstract class AbstractWorkspaceService implements WorkspaceService {
 		MBeanUtils.registerMBean(this, WorkspaceServiceMBean.class, type, name);
 	}
 
-	@Override
-	public CPFuture<Set<String>> submitSearchProcessToQueue(
-			SearchProcess process) {
-		return searchProcessExecutor.submit(process);
-	}
-
-	@Override
-	public void requestSearchCancellation(SearchResult result) {
-		searchProcessExecutor.cancel(result.getId(), false);
-	}
-
-	@Override
-	public int getInteractiveSearchWaitSeconds() {
-		return interactiveSearchWaitSeconds;
-	}
-
-	@Override
-	public void setInteractiveSearchWaitSeconds(int secondsToWait) {
-		interactiveSearchWaitSeconds = secondsToWait;
-	}
-
-	@Override
-	public int getDesiredSearchThreadCount() {
-		return desiredSearchThreadCount;
-	}
-
-	@Override
-	public int getActualSearchThreadCount() {
-		return searchProcessExecutor.getPoolSize();
-	}
-
-	@Override
-	public void setDesiredSearchThreadCount(int requestedSearchThreadCount) {
-		if (requestedSearchThreadCount > this.desiredSearchThreadCount) {
-			// growing thread count
-			searchProcessExecutor
-					.setMaximumPoolSize(requestedSearchThreadCount);
-			searchProcessExecutor.setCorePoolSize(requestedSearchThreadCount);
-		} else {
-			// shrinking thread count
-			searchProcessExecutor.setCorePoolSize(requestedSearchThreadCount);
-			searchProcessExecutor
-					.setMaximumPoolSize(requestedSearchThreadCount);
-		}
-
-		this.desiredSearchThreadCount = requestedSearchThreadCount;
-	}
 }

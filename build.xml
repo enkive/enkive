@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="Enkive Email Archiver" default="package" basedir=".">
 
+	<property name="enkive.version" value="1.0" />
 	<property name="project.dir" value="." />
-	<property name="label" value="enkive" />
+	<property name="label" value="enkive-${enkive.version}" />
 	<property name="project.name" value="enkive" />
 	<property name="build.dir" value="${project.dir}/build" />
 	<property name="bin.dir" value="${project.dir}/bin" />
@@ -14,7 +15,7 @@
 	<property name="contrib.dir" value="${project.dir}/contrib" />
 	<property name="jetty.dir" value="${project.dir}/jetty" />
 	<property name="package.file.jar" value="${build.dir}/${project.name}.jar" />
-	<property name="package.file.zip" value="${build.dir}/${project.name}.zip" />
+	<property name="package.file.zip" value="${build.dir}/${project.name}-${enkive.version}.zip" />
 		
 		
 	<path id="classpath.lib">

@@ -31,9 +31,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.james.mime4j.MimeException;
 import org.apache.james.mime4j.MimeIOException;
-import org.apache.james.mime4j.field.address.Address;
-import org.apache.james.mime4j.parser.MimeEntityConfig;
-import org.apache.james.mime4j.parser.MimeTokenStream;
+import org.apache.james.mime4j.dom.address.Address;
+import org.apache.james.mime4j.message.DefaultMessageBuilder;
+import org.apache.james.mime4j.stream.EntityState;
+import org.apache.james.mime4j.stream.MimeConfig;
+import org.apache.james.mime4j.stream.RecursionMode;
 
 import com.linuxbox.enkive.exception.BadMessageException;
 import com.linuxbox.enkive.exception.CannotTransferMessageContentException;
@@ -47,14 +49,16 @@ public class MessageImpl extends AbstractMessage implements Message {
 	private final static Log logger = LogFactory
 			.getLog("com.linuxbox.enkive.message");
 
-	private MimeEntityConfig config;
+	private MimeConfig config;
 
 	public MessageImpl() {
 		super();
-		config = new MimeEntityConfig();
+		config = new MimeConfig();
 		config.setStrictParsing(false);
 		config.setMaxLineLen(-1);
 		config.setMaxContentLen(-1);
+		config.setMaxHeaderCount(-1);
+		config.setMaxHeaderLen(-1);
 	}
 
 	public MessageImpl(InputStream dataStream)
@@ -97,24 +101,24 @@ public class MessageImpl extends AbstractMessage implements Message {
 		String lineEnding = "\r\n";
 
 		final MessageStreamParser stream = new MessageStreamParser(config);
-		stream.setRecursionMode(MimeTokenStream.M_NO_RECURSE);
+		stream.setRecursionMode(RecursionMode.M_NO_RECURSE);
 
 		stream.parse(in);
 
 		try {
-			for (int state = stream.getState(); state != MimeTokenStream.T_END_OF_STREAM; state = stream
+			for (EntityState state = stream.getState(); state != EntityState.T_END_OF_STREAM; state = stream
 					.next()) {
 				switch (state) {
 
 				// At the start of a header section we want to reset the local
 				// header variable since we only want to store the headers
 				// for the section currently being parsed
-				case MimeTokenStream.T_START_HEADER:
+				case T_START_HEADER:
 					headers = new StringBuilder();
 					break;
 
 				// Append each header field to the local header variable
-				case MimeTokenStream.T_FIELD:
+				case T_FIELD:
 					headers.append(stream.getField());
 					headers.append(lineEnding);
 					break;
@@ -122,7 +126,7 @@ public class MessageImpl extends AbstractMessage implements Message {
 				// If we haven't set the message headers set them and
 				// clear the variable so they don't get stored in a
 				// ContentHeader object
-				case MimeTokenStream.T_END_HEADER:
+				case T_END_HEADER:
 					if (!messageHeadersParsed) {
 						setOriginalHeaders(headers.toString());
 						messageHeadersParsed = true;
@@ -132,7 +136,7 @@ public class MessageImpl extends AbstractMessage implements Message {
 
 				// If we have a multipart message, create a new object,
 				// grab the information we need and push it on the stack
-				case MimeTokenStream.T_START_MULTIPART:
+				case T_START_MULTIPART:
 					isMultiPart = true;
 					mp = new MultiPartHeaderImpl();
 					mp.setBoundary(stream.getBodyDescriptor().getBoundary());
@@ -143,7 +147,7 @@ public class MessageImpl extends AbstractMessage implements Message {
 
 				// If there's a preamble, get the multipartheader off
 				// the top of the stack, set it, and push back on the stack
-				case MimeTokenStream.T_PREAMBLE:
+				case T_PREAMBLE:
 					BufferedReader reader = new BufferedReader(
 							stream.getReader());
 
@@ -159,7 +163,7 @@ public class MessageImpl extends AbstractMessage implements Message {
 
 				// If there's an epilogue, get the multipartheader off
 				// the top of the stack, set it, and push back on the stack
-				case MimeTokenStream.T_EPILOGUE:
+				case T_EPILOGUE:
 					BufferedReader epilogueReader = new BufferedReader(
 							stream.getReader());
 
@@ -175,7 +179,7 @@ public class MessageImpl extends AbstractMessage implements Message {
 
 				// Create a new singlepartheader, set the headers,
 				// set the content_data
-				case MimeTokenStream.T_BODY:
+				case T_BODY:
 					SinglePartHeader single = new SinglePartHeaderImpl();
 
 					EncodedContentDataImpl cd = new EncodedContentDataImpl();
@@ -203,7 +207,7 @@ public class MessageImpl extends AbstractMessage implements Message {
 				// Add the nested multipart to the multipart a level above.
 				// If not nested, we've reached the end of the content headers
 				// so set it.
-				case MimeTokenStream.T_END_MULTIPART:
+				case T_END_MULTIPART:
 					mp = headerStack.pop();
 					if (headerStack.isEmpty())
 						this.setContentHeader(mp);
@@ -245,11 +249,12 @@ public class MessageImpl extends AbstractMessage implements Message {
 	 */
 	protected void parseHeaders(InputStream dataStream)
 			throws BadMessageException, IOException {
-		org.apache.james.mime4j.message.Message headers = new org.apache.james.mime4j.message.Message();
+		org.apache.james.mime4j.dom.Message headers = new org.apache.james.mime4j.message.MessageImpl();
 
 		try {
-			headers = new org.apache.james.mime4j.message.Message(dataStream,
-					config);
+			DefaultMessageBuilder builder = new DefaultMessageBuilder();
+			builder.setMimeEntityConfig(config);
+			headers = builder.parseMessage(dataStream);
 		} catch (MimeIOException e) {
 			throw new BadMessageException(e);
 		}

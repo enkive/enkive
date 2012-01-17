@@ -27,7 +27,8 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.james.mime4j.parser.MimeEntityConfig;
+import org.apache.james.mime4j.message.DefaultMessageBuilder;
+import org.apache.james.mime4j.stream.MimeConfig;
 
 public class SinglePartHeaderImpl extends AbstractSinglePartHeader implements
 		SinglePartHeader {
@@ -40,18 +41,19 @@ public class SinglePartHeaderImpl extends AbstractSinglePartHeader implements
 
 	@Override
 	public void parseHeaders(String partHeaders) {
-		parseHeaders(partHeaders, new MimeEntityConfig());
+		parseHeaders(partHeaders, new MimeConfig());
 	}
 
 	@Override
-	public void parseHeaders(String partHeaders, MimeEntityConfig config) {
+	public void parseHeaders(String partHeaders, MimeConfig config) {
 		ByteArrayInputStream dataStream = new ByteArrayInputStream(
 				partHeaders.getBytes());
 
-		org.apache.james.mime4j.message.Message headers = new org.apache.james.mime4j.message.Message();
+		org.apache.james.mime4j.dom.Message headers = new org.apache.james.mime4j.message.MessageImpl();
 		try {
-			headers = new org.apache.james.mime4j.message.Message(dataStream,
-					config);
+			DefaultMessageBuilder builder = new org.apache.james.mime4j.message.DefaultMessageBuilder();
+			builder.setMimeEntityConfig(config);
+			headers = builder.parseMessage(dataStream);
 		} catch (Exception e) {
 			logger.error("Could not parse headers for message", e);
 		}
