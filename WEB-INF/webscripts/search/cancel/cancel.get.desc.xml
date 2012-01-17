@@ -1,0 +1,7 @@
+<webscript>
+  <shortname>Cancel Search</shortname>
+  <description>Cancel a running search</description>
+  <url>/search/cancel</url>
+  <format default="text">any</format>
+  <authentication>user</authentication>
+</webscript>

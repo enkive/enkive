@@ -1,4 +1,9 @@
-<#if result?? && (result.data.status?upper_case == "COMPLETE" || result.data.status?upper_case == "UNKNOWN")>
+<#if !firstRun?? && result.data.status == "running">
+	<p>
+		<b>Your search has not yet returned results</b><br />
+		When the search is complete, it will appear in the recent search list.
+	</p>
+<#elseif result?? && !firstRun?? && result.data??>
 	<#if result.errors??>
 	<p>
 	Errors:
@@ -19,9 +24,7 @@
 		  </#list>
 	  </#if>
 	</p>
-	<#if (result.data.itemTotal == 0) && result.data.query['content']?? >
-		Note: extremely common words (e.g., "the", "a") are not indexed and therefore do not affect searches.
-	</#if>
+	
 	<#if result.data.results??>
 		<div class="scrollable">
 			<#if (result.data.itemTotal > 0)>
@@ -75,10 +78,5 @@
 			</form>
 		</div>
 	</#if>
-<#elseif !firstRun??>
-	<p>
-		<b>Your search has not yet returned results</b><br />
-		When the search is complete, it will appear in the recent search list.
-	</p>
 </#if>
 

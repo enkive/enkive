@@ -5,7 +5,7 @@
 			<th>Criteria</th>
 			<th>Status</th>
 		</tr>
-		<#list searchList as search>
+		<#list searchList?sort_by("searchDate")?reverse as search>
 			<#if (search_index % 2) == 0>
 			   	<tr class="result_even 
 			<#else>
@@ -34,7 +34,7 @@
 							    <td><input type="button" onClick='delete_recent_search("${search.searchId}")' value="Delete" /></td>
 							</tr>
 						</table>
-					<#elseif search.status == "RUNNING">
+					<#elseif search.status == "RUNNING" || search.status == "QUEUED">
 					    <table>
 					    	<tr>
 							    <td><input type="button" onClick='stop_search("${search.searchId}")' value="Request Stop" /></td>
