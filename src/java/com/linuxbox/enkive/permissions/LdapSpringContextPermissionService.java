@@ -17,6 +17,8 @@ public class LdapSpringContextPermissionService extends
 	public Collection<String> canReadAddresses(String userId) {
 		Collection<String> addresses = new HashSet<String>();
 
+		//If a specific field for email addresses is not listed
+		//attempt to build it from the dn
 		if (ldapEmailField != null && !ldapEmailField.isEmpty()) {
 			addresses.addAll(getEmailAddressesFromDn(ldapEmailField));
 		} else

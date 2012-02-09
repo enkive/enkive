@@ -22,6 +22,32 @@ package com.linuxbox.enkive.filter;
 
 public class EnkiveFilterConstants {
 
+	static class FilterDefinitionConstants{
+		public static final String FILTER = "filter";
+		public static final String DEFAULT_ACTION = "defaultAction";
+		public static final String DENY = "deny";
+		public static final String ENABLED = "enabled";
+		public static final String FILTER_TRUE = "true";
+		public static final String FILTER_FALSE = "false";
+		public static final String ACTION = "action";
+		public static final String  ALLOW = "allow";
+		public static final String  HEADER = "header";
+		public static final String  VALUE = "value";
+		public static final String  TYPE = "type";
+		public static final String  INTEGER = "integer";
+		public static final String  TEXT = "text";
+		public static final String  ADDRESS = "address";
+		public static final String  FLOAT = "float";
+		public static final String  DATE = "date";
+		public static final String  COMPARISON = "comparison";
+		public static final String  IS_GREATER_THAN = "is_greater_than";
+		public static final String  IS_LESS_THAN = "is_less_than";
+		public static final String  CONTAINS = "contains";
+		public static final String  DOES_NOT_CONTAIN = "does_not_contain";
+		public static final String  MATCHES = "matches";
+		public static final String  DOES_NOT_MATCH = "does_not_match"; 		
+	}
+	
 	static class FilterAction {
 		public static final int ALLOW = 1;
 		public static final int DENY = 0;

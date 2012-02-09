@@ -96,6 +96,9 @@
 		<constructor-arg type="java.lang.String" value="${enkive.messagestore.db.name}" />
 		<constructor-arg type="java.lang.String"
 			value="${enkive.messagestore.collection.name}" />
+		<constructor-arg value="${enkive.messageSearch.corePoolSize}" />
+		<constructor-arg value="${enkive.messageSearch.maxPoolSize}" />
+		<constructor-arg value="${enkive.messageSearch.keepAliveTime}" />
 		<property name="authenticationService" ref="AuthenticationService" />
 		<property name="workspaceService" ref="WorkspaceService" />
 		<property name="auditService" ref="AuditLogService" />

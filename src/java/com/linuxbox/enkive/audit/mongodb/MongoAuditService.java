@@ -173,7 +173,7 @@ public class MongoAuditService implements AuditService {
 	}
 
 	@Override
-	public AuditEntry getEvent(String identifier) {
+	public AuditEntry getEvent(String identifier) throws AuditServiceException {
 		final ObjectId idObject = ObjectId.massageToObjectId(identifier);
 		final QueryBuilder queryBuilder = QueryBuilder.start(
 				MongoDBConstants.OBJECT_ID_KEY).is(idObject);
@@ -193,10 +193,11 @@ public class MongoAuditService implements AuditService {
 	 *            all results must occur ON or AFTER this timestamp
 	 * @param endTime
 	 *            all results must occur BEFORE this timestamp
+	 * @throws AuditServiceException
 	 */
 	@Override
 	public List<AuditEntry> search(Integer eventCode, String userIdentifier,
-			Date startTime, Date endTime) {
+			Date startTime, Date endTime) throws AuditServiceException {
 		final QueryBuilder qb = QueryBuilder.start();
 		String indexHint = TIMESTAMP_INDEX;
 
@@ -225,14 +226,15 @@ public class MongoAuditService implements AuditService {
 	}
 
 	@Override
-	public List<AuditEntry> getMostRecentByPage(int perPage, int pagesToSkip) {
+	public List<AuditEntry> getMostRecentByPage(int perPage, int pagesToSkip)
+			throws AuditServiceException {
 		final DBCursor cursor = auditCollection.find().sort(DATE_BACKWARD_SORT)
 				.skip(perPage * pagesToSkip).limit(perPage);
 		return dbCursortoAuditEntryList(cursor);
 	}
 
 	@Override
-	public long getAuditEntryCount() {
+	public long getAuditEntryCount() throws AuditServiceException {
 		return auditCollection.count();
 	}
 

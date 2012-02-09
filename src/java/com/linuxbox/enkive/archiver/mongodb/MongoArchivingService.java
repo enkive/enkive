@@ -139,7 +139,7 @@ public class MongoArchivingService extends RetryingAbstractMessageArchivingServi
 		DBObject messageObject = messageColl
 				.findOne(calculateMessageId(message));
 		if (messageObject != null) {
-			messageUUID = (String) messageObject.get("_id");
+			messageUUID = (String) messageObject.get(MESSAGE_UUID);
 			logger.info(MessageLoggingText.DUPLICATE_FOUND_TEXT + messageUUID);
 		}
 		return messageUUID;

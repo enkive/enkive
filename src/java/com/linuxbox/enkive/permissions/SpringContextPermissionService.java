@@ -17,11 +17,8 @@ public class SpringContextPermissionService implements PermissionService {
 		return SecurityContextHolder.getContext().getAuthentication().getName();
 	}
 	
-	public boolean isAdmin(){
-		Collection<String> authorityStrings = new HashSet<String>();
-		for(GrantedAuthority auth : SecurityContextHolder.getContext().getAuthentication().getAuthorities()){
-			authorityStrings.add(auth.getAuthority());
-		}
+	public boolean isAdmin() throws CannotGetPermissionsException{
+		Collection<String> authorityStrings = getCurrentUserAuthorities();
 		return authorityStrings.contains("ROLE_ENKIVE_ADMIN");
 	}
 

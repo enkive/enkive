@@ -9,7 +9,7 @@ public interface PermissionService {
 
 	public String getCurrentUsername();
 	
-	public boolean isAdmin();
+	public boolean isAdmin() throws CannotGetPermissionsException;
 	
 	public Collection<String> getCurrentUserAuthorities() throws CannotGetPermissionsException;
 	

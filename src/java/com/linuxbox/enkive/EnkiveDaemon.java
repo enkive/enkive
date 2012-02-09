@@ -3,6 +3,8 @@ package com.linuxbox.enkive;
 import org.apache.commons.daemon.Daemon;
 import org.apache.commons.daemon.DaemonContext;
 import org.apache.commons.daemon.DaemonInitException;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -10,6 +12,9 @@ import com.linuxbox.enkive.audit.AuditService;
 
 public class EnkiveDaemon implements Daemon {
 
+	protected static final Log LOGGER = LogFactory
+			.getLog("com.linuxbox.enkive");
+	
 	private static final String USER = AuditService.USER_SYSTEM;
 	private static final String DESCRIPTION = "com.linuxbox.enkive.daemon";
 
@@ -22,6 +27,7 @@ public class EnkiveDaemon implements Daemon {
 	@Override
 	public void init(DaemonContext context) throws DaemonInitException,
 			Exception {
+
 		this.configFiles = CONFIG_FILES;
 	}
 

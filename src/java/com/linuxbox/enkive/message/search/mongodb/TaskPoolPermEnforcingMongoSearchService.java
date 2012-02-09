@@ -23,13 +23,10 @@ public class TaskPoolPermEnforcingMongoSearchService extends
 
 	CancellableProcessExecutor searchExecutor;
 
-	int corePoolSize = 10;
-	int maxPoolSize = 15;
-	int keepAliveTime = 600;
-
 	public TaskPoolPermEnforcingMongoSearchService(
 			PermissionService permService, Mongo m, String dbName,
-			String collName) {
+			String collName, int corePoolSize, int maxPoolSize,
+			int keepAliveTime) {
 		super(permService, m, dbName, collName);
 		BlockingQueue<Runnable> queue = new LinkedBlockingQueue<Runnable>();
 		searchExecutor = new CancellableProcessExecutor(corePoolSize,
@@ -107,30 +104,6 @@ public class TaskPoolPermEnforcingMongoSearchService extends
 			throw new MessageSearchException(
 					"Could not get authenticated user for search", e);
 		}
-	}
-
-	public int getCorePoolSize() {
-		return corePoolSize;
-	}
-
-	public void setCorePoolSize(int corePoolSize) {
-		this.corePoolSize = corePoolSize;
-	}
-
-	public int getMaxPoolSize() {
-		return maxPoolSize;
-	}
-
-	public void setMaxPoolSize(int maxPoolSize) {
-		this.maxPoolSize = maxPoolSize;
-	}
-
-	public int getKeepAliveTime() {
-		return keepAliveTime;
-	}
-
-	public void setKeepAliveTime(int keepAliveTime) {
-		this.keepAliveTime = keepAliveTime;
 	}
 
 }

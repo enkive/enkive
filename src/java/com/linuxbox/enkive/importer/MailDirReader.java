@@ -45,8 +45,8 @@ public class MailDirReader extends AbstractMailboxImporter {
 
 	MailDirReader(String rootDir, String host, String port)
 			throws MessagingException, IOException {
-		super(rootDir + "/Maildir", host, port, new URLName("maildir://"
-				+ rootDir + "Maildir/"));
+		super(rootDir, host, port, new URLName("maildir://"
+				+ rootDir));
 		ignoreDirectories = new HashSet<String>();
 
 		System.setProperty("user.home", rootDir);
@@ -56,7 +56,6 @@ public class MailDirReader extends AbstractMailboxImporter {
 	public void readAllMessages() throws MessagingException, IOException {
 		System.out.print(messageCount);
 		readMailDirectory("INBOX");
-
 		// now process any subdirectories
 		String[] subDirs = listSubDirectories();
 		if (subDirs != null) {
@@ -108,7 +107,8 @@ public class MailDirReader extends AbstractMailboxImporter {
 			reader = new MailDirReader(path, host, portString);
 			reader.setWriter();
 			reader.addIgnoreDirectory(".Trash");
-			reader.addIgnoreDirectory(".drafts");
+			reader.addIgnoreDirectory(".Trash.2011");
+			reader.addIgnoreDirectory(".Drafts");
 
 			reader.readAllMessages();
 			reader.closeWriter();

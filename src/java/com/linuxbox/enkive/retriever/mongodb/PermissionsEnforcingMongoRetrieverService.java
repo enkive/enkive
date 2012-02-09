@@ -35,8 +35,9 @@ public class PermissionsEnforcingMongoRetrieverService extends
 	public Message retrieve(String messageUUID) throws CannotRetrieveException {
 		Message message = super.retrieve(messageUUID);
 		try {
-			if (permService.isAdmin() || permService.canReadMessage(permService.getCurrentUsername(),
-					message))
+			if (permService.isAdmin()
+					|| permService.canReadMessage(
+							permService.getCurrentUsername(), message))
 				return message;
 			else
 				throw new CannotRetrieveException(
@@ -60,10 +61,16 @@ public class PermissionsEnforcingMongoRetrieverService extends
 			throw new CannotRetrieveException();
 	}
 
-	protected boolean canReadAttachment(String userId, String attachmentUUID) {
+	protected boolean canReadAttachment(String userId, String attachmentUUID)
+			throws CannotRetrieveException {
 
-		if(permService.isAdmin())
-			return true;
+		try {
+			if (permService.isAdmin())
+				return true;
+		} catch (CannotGetPermissionsException e) {
+			throw new CannotRetrieveException(
+					"Could not get permissions for user " + userId, e);
+		}
 		BasicDBObject query = new BasicDBObject();
 
 		// Needs to match MAIL_FROM OR FROM

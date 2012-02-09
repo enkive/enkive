@@ -41,10 +41,6 @@ import com.linuxbox.enkive.exception.BadMessageException;
 import com.linuxbox.enkive.exception.CannotTransferMessageContentException;
 import com.linuxbox.util.StringUtils;
 
-/**
- * @author lee
- * 
- */
 public class MessageImpl extends AbstractMessage implements Message {
 	private final static Log logger = LogFactory
 			.getLog("com.linuxbox.enkive.message");
@@ -53,6 +49,9 @@ public class MessageImpl extends AbstractMessage implements Message {
 
 	public MessageImpl() {
 		super();
+		//Set a config that is as lenient as possible
+		//We want to parse all messages that come through,
+		//not throw out any that do not adhere to standards
 		config = new MimeConfig();
 		config.setStrictParsing(false);
 		config.setMaxLineLen(-1);
