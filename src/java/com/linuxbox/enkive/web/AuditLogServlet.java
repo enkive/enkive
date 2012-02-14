@@ -1,3 +1,22 @@
+/*******************************************************************************
+ * Copyright 2012 The Linux Box Corporation.
+ * 
+ * This file is part of Enkive CE (Community Edition).
+ * 
+ * Enkive CE is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of
+ * the License, or (at your option) any later version.
+ * 
+ * Enkive CE is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Affero General Public
+ * License along with Enkive CE. If not, see
+ * <http://www.gnu.org/licenses/>.
+ ******************************************************************************/
 package com.linuxbox.enkive.web;
 
 import static com.linuxbox.enkive.web.WebConstants.DETAILED_LOCAL_DATE_FORMAT;
@@ -118,7 +137,8 @@ public class AuditLogServlet extends EnkiveServlet {
 				DETAILED_LOCAL_DATE_FORMAT.format(entry.getTimestamp()));
 		entryObject.put(EVENT_CODE_KEY, String.valueOf(entry.getEventCode()));
 		entryObject.put(USER_NAME_KEY, entry.getUserName());
-		entryObject.put(DATE_NUMBER_KEY, String.valueOf(entry.getTimestamp().getTime()));
+		entryObject.put(DATE_NUMBER_KEY,
+				String.valueOf(entry.getTimestamp().getTime()));
 		entryObject.put(DESCRIPTION_KEY, buildDescription(entry));
 
 		return entryObject;
