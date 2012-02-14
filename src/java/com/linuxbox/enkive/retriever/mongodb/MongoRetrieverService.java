@@ -18,7 +18,6 @@
  * <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-
 package com.linuxbox.enkive.retriever.mongodb;
 
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.BOUNDARY_ID;

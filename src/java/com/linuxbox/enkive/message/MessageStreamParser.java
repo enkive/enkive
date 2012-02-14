@@ -18,7 +18,6 @@
  * <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-
 package com.linuxbox.enkive.message;
 
 import org.apache.james.mime4j.stream.MimeConfig;

@@ -18,7 +18,6 @@
  * <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-
 package com.linuxbox.enkive.web.search;
 
 import java.io.BufferedReader;

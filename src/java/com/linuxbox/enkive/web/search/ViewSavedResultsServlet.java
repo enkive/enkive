@@ -18,7 +18,6 @@
  * <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-
 package com.linuxbox.enkive.web.search;
 
 import static com.linuxbox.enkive.web.WebConstants.DATA_TAG;

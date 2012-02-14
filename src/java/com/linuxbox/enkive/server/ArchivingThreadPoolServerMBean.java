@@ -18,7 +18,6 @@
  * <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-
 package com.linuxbox.enkive.server;
 
 public interface ArchivingThreadPoolServerMBean extends ThreadPoolServerMBean {
