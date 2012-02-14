@@ -39,6 +39,7 @@ import com.linuxbox.enkive.archiver.exceptions.FailedToEmergencySaveException;
 import com.linuxbox.enkive.archiver.exceptions.MessageArchivingServiceException;
 import com.linuxbox.enkive.audit.AuditService;
 import com.linuxbox.enkive.audit.AuditServiceException;
+import com.linuxbox.enkive.audit.AuditTrailException;
 import com.linuxbox.enkive.docstore.DocStoreService;
 import com.linuxbox.enkive.message.Message;
 

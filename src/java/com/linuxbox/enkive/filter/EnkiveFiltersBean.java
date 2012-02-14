@@ -20,6 +20,29 @@
 
 package com.linuxbox.enkive.filter;
 
+import static com.linuxbox.enkive.filter.EnkiveFilterConstants.FilterDefinitionConstants.ACTION;
+import static com.linuxbox.enkive.filter.EnkiveFilterConstants.FilterDefinitionConstants.ADDRESS;
+import static com.linuxbox.enkive.filter.EnkiveFilterConstants.FilterDefinitionConstants.ALLOW;
+import static com.linuxbox.enkive.filter.EnkiveFilterConstants.FilterDefinitionConstants.COMPARISON;
+import static com.linuxbox.enkive.filter.EnkiveFilterConstants.FilterDefinitionConstants.CONTAINS;
+import static com.linuxbox.enkive.filter.EnkiveFilterConstants.FilterDefinitionConstants.DATE;
+import static com.linuxbox.enkive.filter.EnkiveFilterConstants.FilterDefinitionConstants.DEFAULT_ACTION;
+import static com.linuxbox.enkive.filter.EnkiveFilterConstants.FilterDefinitionConstants.DENY;
+import static com.linuxbox.enkive.filter.EnkiveFilterConstants.FilterDefinitionConstants.DOES_NOT_CONTAIN;
+import static com.linuxbox.enkive.filter.EnkiveFilterConstants.FilterDefinitionConstants.DOES_NOT_MATCH;
+import static com.linuxbox.enkive.filter.EnkiveFilterConstants.FilterDefinitionConstants.ENABLED;
+import static com.linuxbox.enkive.filter.EnkiveFilterConstants.FilterDefinitionConstants.FILTER;
+import static com.linuxbox.enkive.filter.EnkiveFilterConstants.FilterDefinitionConstants.FILTER_TRUE;
+import static com.linuxbox.enkive.filter.EnkiveFilterConstants.FilterDefinitionConstants.FLOAT;
+import static com.linuxbox.enkive.filter.EnkiveFilterConstants.FilterDefinitionConstants.HEADER;
+import static com.linuxbox.enkive.filter.EnkiveFilterConstants.FilterDefinitionConstants.INTEGER;
+import static com.linuxbox.enkive.filter.EnkiveFilterConstants.FilterDefinitionConstants.IS_GREATER_THAN;
+import static com.linuxbox.enkive.filter.EnkiveFilterConstants.FilterDefinitionConstants.IS_LESS_THAN;
+import static com.linuxbox.enkive.filter.EnkiveFilterConstants.FilterDefinitionConstants.MATCHES;
+import static com.linuxbox.enkive.filter.EnkiveFilterConstants.FilterDefinitionConstants.TEXT;
+import static com.linuxbox.enkive.filter.EnkiveFilterConstants.FilterDefinitionConstants.TYPE;
+import static com.linuxbox.enkive.filter.EnkiveFilterConstants.FilterDefinitionConstants.VALUE;
+
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -40,8 +63,9 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import static com.linuxbox.enkive.filter.EnkiveFilterConstants.*;
-import static com.linuxbox.enkive.filter.EnkiveFilterConstants.FilterDefinitionConstants.*;
+import com.linuxbox.enkive.filter.EnkiveFilterConstants.FilterAction;
+import com.linuxbox.enkive.filter.EnkiveFilterConstants.FilterComparator;
+import com.linuxbox.enkive.filter.EnkiveFilterConstants.FilterType;
 import com.linuxbox.enkive.message.Message;
 
 public class EnkiveFiltersBean {

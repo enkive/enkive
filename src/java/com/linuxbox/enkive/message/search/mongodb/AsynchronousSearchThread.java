@@ -35,9 +35,9 @@ import com.linuxbox.enkive.docsearch.DocSearchQueryService;
 import com.linuxbox.enkive.message.search.exception.MessageSearchException;
 import com.linuxbox.enkive.permissions.PermissionService;
 import com.linuxbox.enkive.workspace.SearchResult;
-import com.linuxbox.enkive.workspace.WorkspaceService;
 import com.linuxbox.enkive.workspace.SearchResult.Status;
 import com.linuxbox.enkive.workspace.WorkspaceException;
+import com.linuxbox.enkive.workspace.WorkspaceService;
 import com.mongodb.Mongo;
 
 public class AsynchronousSearchThread extends
