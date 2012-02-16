@@ -127,10 +127,12 @@ public class IndriDocSearchQueryService extends AbstractDocSearchQueryService {
 
 	@Override
 	public void shutdown() throws DocSearchException {
-		LOGGER.trace("starting shutdown of IndriDocSearchQueryService");
+		if (LOGGER.isTraceEnabled())
+			LOGGER.trace("starting shutdown of IndriDocSearchQueryService");
 		queryEnvironmentManager.forceQueryEnvironmentRefresh();
 		queryEnvironmentManager = null;
-		LOGGER.trace("finished shutdown of IndriDocSearchQueryService");
+		if (LOGGER.isTraceEnabled())
+			LOGGER.trace("finished shutdown of IndriDocSearchQueryService");
 	}
 
 	@Override
@@ -141,10 +143,12 @@ public class IndriDocSearchQueryService extends AbstractDocSearchQueryService {
 
 			if (!rawSearch) {
 				query = composeQuery(rawQuery).toString();
-				LOGGER.trace("query \"" + rawQuery + "\" became Indri query \""
-						+ query + "\"");
+				if (LOGGER.isTraceEnabled())
+					LOGGER.trace("query \"" + rawQuery
+							+ "\" became Indri query \"" + query + "\"");
 			} else {
-				LOGGER.trace("using raw query \"" + query + "\"");
+				if (LOGGER.isTraceEnabled())
+					LOGGER.trace("using raw query \"" + query + "\"");
 			}
 
 			final ScoredExtentResult[] results;

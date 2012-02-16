@@ -34,7 +34,7 @@ import com.linuxbox.enkive.message.MessageSummary;
 import com.linuxbox.enkive.web.WebConstants;
 
 public class SearchResultsBuilder {
-	protected static final Log logger = LogFactory
+	protected static final Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.webscripts.search");
 
 	public static String getJSONString(MessageSummary messageSummary)

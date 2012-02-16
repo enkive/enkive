@@ -54,7 +54,9 @@ public interface AuditService {
 	int USER_LOGS_IN = 301;
 	int USER_LOGS_OUT = 302;
 	int MESSAGE_RETRIEVED = 311;
+	int ATTACHMENT_RETRIEVED = 312;
 	int SEARCH_PERFORMED = 321;
+	int SEARCH_EXPORTED = 322;
 
 	// ARCHIVAL EVENTS -- require no privileges or handled by policy-driven code
 	int MESSAGE_ARCHIVED = 401;

@@ -51,7 +51,7 @@ public abstract class AbstractSearchWebScript extends AbstractJsonServlet {
 	static private final DateFormat ISO_8601_DATE_FORMAT = new SimpleDateFormat(
 			"yyyy-MM-dd");
 
-	protected static final Log logger = LogFactory
+	protected static final Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.webscripts");
 
 	// formats to try parsing dates in; attempted in the order given

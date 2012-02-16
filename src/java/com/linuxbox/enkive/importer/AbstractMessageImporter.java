@@ -109,14 +109,17 @@ public abstract class AbstractMessageImporter {
 			try {
 				writer.close();
 			} catch (IOException e) {
-				LOGGER.error("Error closing message importer writer", e);
+				if (LOGGER.isErrorEnabled())
+					LOGGER.error("Error closing message importer writer", e);
 			}
 		}
 		if (socket != null) {
 			try {
 				socket.close();
 			} catch (IOException e) {
-				LOGGER.error("Could not close message importer write socket", e);
+				if (LOGGER.isErrorEnabled())
+					LOGGER.error(
+							"Could not close message importer write socket", e);
 			}
 		}
 	}

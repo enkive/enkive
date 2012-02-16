@@ -33,7 +33,7 @@ import com.linuxbox.enkive.mailprocessor.ThreadedProcessor;
 public abstract class AbstractSocketServer implements EnkiveServer {
 	// protected static final int LISTEN_BACKLOG = 10;
 	protected int LISTEN_BACKLOG;
-	protected static Log logger = LogFactory
+	protected static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.server");
 
 	protected final int port;
@@ -52,7 +52,8 @@ public abstract class AbstractSocketServer implements EnkiveServer {
 		serverThread = new Thread(this);
 		serverThread.setName(serviceName + " server");
 		serverThread.start();
-		logger.trace(serviceName + " server started");
+		if (LOGGER.isTraceEnabled())
+			LOGGER.trace(serviceName + " server started");
 	}
 
 	public void shutdownServer() {
@@ -66,8 +67,8 @@ public abstract class AbstractSocketServer implements EnkiveServer {
 		} finally {
 			serverSocket = null;
 		}
-
-		logger.trace(serviceName + " server shutdown initiated");
+		if (LOGGER.isTraceEnabled())
+			LOGGER.trace(serviceName + " server shutdown initiated");
 
 		if (serverThread != null) {
 			try {
@@ -76,8 +77,8 @@ public abstract class AbstractSocketServer implements EnkiveServer {
 				// empty
 			}
 		}
-
-		logger.trace(serviceName + " server shutdown completed");
+		if (LOGGER.isTraceEnabled())
+			LOGGER.trace(serviceName + " server shutdown completed");
 	}
 
 	public boolean hasShutdown() {
@@ -103,22 +104,26 @@ public abstract class AbstractSocketServer implements EnkiveServer {
 				sessionSocket.setTcpNoDelay(true);
 
 				createAndStartProcessor(sessionSocket);
-
-				logger.trace(serviceName + " processor/session started");
+				if (LOGGER.isTraceEnabled())
+					LOGGER.trace(serviceName + " processor/session started");
 			}
 		} catch (SocketException e) {
 			// will get a SocketException when the server socket is closed
-			// logger.debug("SocketException", e); catch it separately so it
+			// LOGGER.debug("SocketException", e); catch it separately so it
 			// isn't caught below in the catch for general exceptions
 			if (!hasSocket) {
-				logger.error("unexpected socket exception", e);
+				if (LOGGER.isErrorEnabled())
+					LOGGER.error("unexpected socket exception", e);
 			}
 		} catch (Exception e) {
-			logger.error("Error running server or launching session.", e);
+			if (LOGGER.isErrorEnabled())
+				LOGGER.error("Error running server or launching session.", e);
 		} catch (Throwable e) {
-			logger.fatal("Unexpected error in server thread.", e);
+			if (LOGGER.isFatalEnabled())
+				LOGGER.fatal("Unexpected error in server thread.", e);
 		} finally {
-			logger.trace(serviceName + " server has left run loop");
+			if (LOGGER.isTraceEnabled())
+				LOGGER.trace(serviceName + " server has left run loop");
 		}
 
 		shutdownProcessors();

@@ -58,9 +58,9 @@ public class SaveSearchWebScript extends EnkiveServlet {
 			SearchResult result = workspaceService.getSearchResult(searchId);
 			result.setSaved(true);
 			workspaceService.saveSearchResult(result);
-
-			LOGGER.debug("saved search at id " + searchId + " with name \""
-					+ nameOfSavedSearch + "\"");
+			if (LOGGER.isDebugEnabled())
+				LOGGER.debug("saved search at id " + searchId + " with name \""
+						+ nameOfSavedSearch + "\"");
 		} catch (WorkspaceException e) {
 			respondError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, null,
 					res);

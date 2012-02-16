@@ -85,10 +85,12 @@ public class AsynchronousSearchThread extends
 			} catch (MessageSearchException e) {
 				searchResult.setStatus(Status.UNKNOWN);
 				workspaceService.saveSearchResult(searchResult);
-				logger.error("Could not complete message search", e);
+				if (LOGGER.isErrorEnabled())
+					LOGGER.error("Could not complete message search", e);
 			}
 		} catch (WorkspaceException e) {
-			logger.error("Could not complete message search", e);
+			if (LOGGER.isErrorEnabled())
+				LOGGER.error("Could not complete message search", e);
 		} finally {
 			SecurityContextHolder.clearContext();
 		}

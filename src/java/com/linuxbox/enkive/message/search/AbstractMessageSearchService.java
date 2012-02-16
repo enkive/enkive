@@ -31,6 +31,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.scheduling.annotation.Async;
 
 import com.linuxbox.enkive.audit.AuditService;
+import com.linuxbox.enkive.audit.AuditServiceException;
 import com.linuxbox.enkive.authentication.AuthenticationException;
 import com.linuxbox.enkive.authentication.AuthenticationService;
 import com.linuxbox.enkive.docsearch.DocSearchQueryService;
@@ -83,6 +84,20 @@ public abstract class AbstractMessageSearchService implements
 		} catch (AuthenticationException e) {
 			throw new MessageSearchException(
 					"Could not get authenticated user for search", e);
+		} finally {
+			try {
+				auditService.addEvent(AuditService.SEARCH_PERFORMED,
+						authenticationService.getUserName(), fields.toString());
+				// FIXME : shouldn't we set the response here, so if the audit
+				// trail cannot be altered then the user cannot get the search
+				// results (i.e., the user cannot perform an un-audited search)?
+			} catch (AuditServiceException e) {
+				if (LOGGER.isErrorEnabled())
+					LOGGER.error("could not audit user search request", e);
+			} catch (AuthenticationException e) {
+				if (LOGGER.isErrorEnabled())
+					LOGGER.error("could not get user for audit log", e);
+			}
 		}
 	}
 
@@ -97,7 +112,8 @@ public abstract class AbstractMessageSearchService implements
 						try {
 							result = search(fields);
 						} catch (MessageSearchException e) {
-							LOGGER.warn("Error Searching for message", e);
+							if (LOGGER.isWarnEnabled())
+								LOGGER.warn("Error Searching for message", e);
 						}
 						return result;
 					}

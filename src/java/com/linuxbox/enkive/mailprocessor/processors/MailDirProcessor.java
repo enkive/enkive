@@ -85,7 +85,8 @@ public class MailDirProcessor extends AbstractMailProcessor {
 			// check for closed socket / end-of-stream
 			if (character < 0) {
 				if (!addresses.isEmpty() || !address.isEmpty()) {
-					logger.error("MailDirProcessor: socket closed after reading address data");
+					if (LOGGER.isErrorEnabled())
+						LOGGER.error("MailDirProcessor: socket closed after reading address data");
 					throw new MessageIncompleteException(
 							"socket closed while reading address line");
 				}
@@ -157,9 +158,12 @@ public class MailDirProcessor extends AbstractMailProcessor {
 
 			// log anything unexpected
 			if (mailboxes.size() != 1) {
-				logger.error("Email address header " + headerTypeDescription
-						+ "(\"" + strippedAddress
-						+ "\") could not be parsed as a single email address.");
+				if (LOGGER.isErrorEnabled())
+					LOGGER.error("Email address header "
+							+ headerTypeDescription
+							+ "(\""
+							+ strippedAddress
+							+ "\") could not be parsed as a single email address.");
 			}
 
 			// return something reasonable if possible; null otherwise
@@ -171,9 +175,12 @@ public class MailDirProcessor extends AbstractMailProcessor {
 				return null;
 			}
 		} catch (ParseException e) {
-			logger.error("Email address header " + headerTypeDescription
-					+ "(\"" + strippedAddress
-					+ "\") could not be parsed as one or more email addresses.");
+			if (LOGGER.isWarnEnabled())
+				LOGGER.error("Email address header "
+						+ headerTypeDescription
+						+ "(\""
+						+ strippedAddress
+						+ "\") could not be parsed as one or more email addresses.");
 			return null;
 		}
 	}
@@ -186,8 +193,9 @@ public class MailDirProcessor extends AbstractMailProcessor {
 				if (address != null) {
 					message.setMailFrom(address);
 				} else {
-					logger.warn("did not get a FROM address from "
-							+ message.getFrom());
+					if (LOGGER.isWarnEnabled())
+						LOGGER.warn("did not get a FROM address from "
+								+ message.getFrom());
 				}
 			}
 

@@ -72,7 +72,7 @@ public class EnkiveFiltersBean {
 
 	public final static String ENKIVE_FILTERS_FILENAME = "enkive-filters.xml";
 
-	private final static Log logger = LogFactory
+	private final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.messagefilters");
 
 	protected int defaultAction = FilterAction.ALLOW;
@@ -83,7 +83,8 @@ public class EnkiveFiltersBean {
 	}
 
 	protected void startup() {
-		logger.trace("Loading Enkive filters");
+		if (LOGGER.isTraceEnabled())
+			LOGGER.trace("Loading Enkive filters");
 		try {
 			Resource res = new ClassPathResource(ENKIVE_FILTERS_FILENAME);
 
@@ -150,19 +151,23 @@ public class EnkiveFiltersBean {
 					filterSet.add(new EnkiveFilter(header.getTextContent(),
 							filterAction, filterType, value.getTextContent(),
 							filterComparator, defaultAction));
-					logger.info("Enkive filtering by header "
+					LOGGER.info("Enkive filtering by header "
 							+ header.getTextContent());
 				}
 			}
 			filterFile.close();
 		} catch (FileNotFoundException e) {
-			logger.fatal("Could not find enkive-filters.xml, Filters not initialized");
+			if (LOGGER.isFatalEnabled())
+				LOGGER.fatal("Could not find enkive-filters.xml, Filters not initialized");
 		} catch (IOException e) {
-			logger.fatal("Could not read file enkive-filters.xml, Filters not initialized");
+			if (LOGGER.isFatalEnabled())
+				LOGGER.fatal("Could not read file enkive-filters.xml, Filters not initialized");
 		} catch (ParserConfigurationException e) {
-			logger.fatal("Could not initialize parser for enkive-filters.xml, Filters not initialized");
+			if (LOGGER.isFatalEnabled())
+				LOGGER.fatal("Could not initialize parser for enkive-filters.xml, Filters not initialized");
 		} catch (SAXException e) {
-			logger.fatal("Could not parse enkive-filters.xml, Filters not initialized");
+			if (LOGGER.isFatalEnabled())
+				LOGGER.fatal("Could not parse enkive-filters.xml, Filters not initialized");
 		}
 
 	}
@@ -192,7 +197,7 @@ public class EnkiveFiltersBean {
 			}
 
 			if (archiveMessage == false) {
-				logger.trace("Message " + message.getMessageId()
+				LOGGER.trace("Message " + message.getMessageId()
 						+ " did not pass filter " + filter.getHeader());
 				break;
 			}

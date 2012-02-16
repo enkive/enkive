@@ -39,7 +39,7 @@ public class DeleteSearchWebScript extends EnkiveServlet {
 	 * 
 	 */
 	private static final long serialVersionUID = -184507901343376549L;
-	protected static final Log logger = LogFactory
+	protected static final Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.webscripts.search.saved");
 
 	public void doGet(HttpServletRequest req, HttpServletResponse res)
@@ -55,8 +55,8 @@ public class DeleteSearchWebScript extends EnkiveServlet {
 
 			workspaceService.deleteSearchResult(searchId);
 			workspaceService.saveWorkspace(workspace);
-
-			logger.debug("deleted search at id " + searchId);
+			if (LOGGER.isDebugEnabled())
+				LOGGER.debug("deleted search at id " + searchId);
 		} catch (WorkspaceException e) {
 			respondError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, null,
 					res);

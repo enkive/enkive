@@ -28,6 +28,8 @@ import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.AT
 
 import java.util.Collection;
 
+import com.linuxbox.enkive.audit.AuditService;
+import com.linuxbox.enkive.audit.AuditServiceException;
 import com.linuxbox.enkive.exception.CannotGetPermissionsException;
 import com.linuxbox.enkive.exception.CannotRetrieveException;
 import com.linuxbox.enkive.message.EncodedContentData;
@@ -56,9 +58,12 @@ public class PermissionsEnforcingMongoRetrieverService extends
 		try {
 			if (permService.isAdmin()
 					|| permService.canReadMessage(
-							permService.getCurrentUsername(), message))
+							permService.getCurrentUsername(), message)) {
+				auditService.addEvent(AuditService.MESSAGE_RETRIEVED,
+						permService.getCurrentUsername(),
+						"Message Retrieved - " + message.getId());
 				return message;
-			else
+			} else
 				throw new CannotRetrieveException(
 						permService.getCurrentUsername()
 								+ " does not have permission to retrieve message: "
@@ -67,6 +72,9 @@ public class PermissionsEnforcingMongoRetrieverService extends
 			throw new CannotRetrieveException(
 					"Could not get permissions for user to retrieve message: "
 							+ messageUUID, e);
+		} catch (AuditServiceException e) {
+			throw new CannotRetrieveException("Could not write to audit log ",
+					e);
 		}
 
 	}
@@ -74,9 +82,17 @@ public class PermissionsEnforcingMongoRetrieverService extends
 	@Override
 	public EncodedContentData retrieveAttachment(String attachmentUUID)
 			throws CannotRetrieveException {
-		if (canReadAttachment(permService.getCurrentUsername(), attachmentUUID))
+		if (canReadAttachment(permService.getCurrentUsername(), attachmentUUID)) {
+			try {
+				auditService.addEvent(AuditService.ATTACHMENT_RETRIEVED,
+						permService.getCurrentUsername(),
+						"Attachment Retrieved - " + attachmentUUID);
+			} catch (AuditServiceException e) {
+				throw new CannotRetrieveException(
+						"Could not write to audit log ", e);
+			}
 			return super.retrieveAttachment(attachmentUUID);
-		else
+		} else
 			throw new CannotRetrieveException();
 	}
 

@@ -98,7 +98,8 @@ public class MainConsole extends Main {
 		} catch (IOException e) {
 			shutdownReason = "received I/O exception on console: "
 					+ e.getMessage();
-			LOGGER.error(shutdownReason, e);
+			if (LOGGER.isErrorEnabled())
+				LOGGER.error(shutdownReason, e);
 		}
 	}
 

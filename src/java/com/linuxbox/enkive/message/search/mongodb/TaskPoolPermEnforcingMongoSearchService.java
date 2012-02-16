@@ -69,7 +69,8 @@ public class TaskPoolPermEnforcingMongoSearchService extends
 					.submit(searchResultId, searchCall);
 			return searchFuture;
 		} catch (Exception e) {
-			LOGGER.error("Error with asynchronous search", e);
+			if (LOGGER.isErrorEnabled())
+				LOGGER.error("Error with asynchronous search", e);
 		}
 		return null;
 	}

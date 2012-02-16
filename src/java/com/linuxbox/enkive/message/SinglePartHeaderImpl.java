@@ -32,7 +32,7 @@ import org.apache.james.mime4j.stream.MimeConfig;
 
 public class SinglePartHeaderImpl extends AbstractSinglePartHeader implements
 		SinglePartHeader {
-	private final static Log logger = LogFactory
+	private final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.message");
 
 	public SinglePartHeaderImpl() {
@@ -55,7 +55,8 @@ public class SinglePartHeaderImpl extends AbstractSinglePartHeader implements
 			builder.setMimeEntityConfig(config);
 			headers = builder.parseMessage(dataStream);
 		} catch (Exception e) {
-			logger.error("Could not parse headers for message", e);
+			if (LOGGER.isErrorEnabled())
+				LOGGER.error("Could not parse headers for message", e);
 		}
 
 		setContentDisposition(headers.getDispositionType());

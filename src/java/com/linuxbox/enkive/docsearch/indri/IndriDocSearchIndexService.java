@@ -196,7 +196,8 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 
 	@Override
 	public void subShutdown() throws DocSearchException {
-		LOGGER.trace("in IndriDocSearchIndexService::subShutdown");
+		if (LOGGER.isTraceEnabled())
+			LOGGER.trace("in IndriDocSearchIndexService::subShutdown");
 
 		if (indexEnvironment != null) {
 			try {
@@ -453,7 +454,8 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 	@Override
 	protected void doIndexDocument(String identifier)
 			throws DocSearchException, DocStoreException {
-		LOGGER.trace("starting to index " + identifier);
+		if (LOGGER.isTraceEnabled())
+			LOGGER.trace("starting to index " + identifier);
 
 		@SuppressWarnings("unused")
 		int docId;
@@ -480,8 +482,9 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 				docId = indexDocumentAsParsedDocument2(doc, identifier);
 				break;
 			default:
-				LOGGER.warn("IndriSearchService::INDEX_STORAGE storage strategy has unexpected "
-						+ "value; using size as determiner");
+				if (LOGGER.isWarnEnabled())
+					LOGGER.warn("IndriSearchService::INDEX_STORAGE storage strategy has unexpected "
+							+ "value; using size as determiner");
 				// falling through
 			case BY_SIZE:
 				if (doc.getEncodedSize() > DOC_SIZE_IN_MEMORY_LIMIT) {
@@ -495,8 +498,8 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 			// this will close the index environment and re-open it under
 			// certain conditions
 			indexPostProcessing();
-
-			LOGGER.info("indexed " + identifier);
+			if (LOGGER.isInfoEnabled())
+				LOGGER.info("indexed " + identifier);
 		} catch (DocStoreException e) {
 			throw e;
 		} catch (DocSearchException e) {
@@ -518,13 +521,15 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 	protected void doRemoveDocument(String identifier)
 			throws DocSearchException {
 		try {
-			LOGGER.trace("starting to remove " + identifier);
+			if (LOGGER.isTraceEnabled())
+				LOGGER.trace("starting to remove " + identifier);
 			int[] documentNumbers = lookupDocumentNumbers(identifier);
 
 			if (documentNumbers.length > 1) {
-				LOGGER.warn("removing multiple (" + documentNumbers.length
-						+ ") documents in the index with name \"" + identifier
-						+ "\"");
+				if (LOGGER.isWarnEnabled())
+					LOGGER.warn("removing multiple (" + documentNumbers.length
+							+ ") documents in the index with name \""
+							+ identifier + "\"");
 			}
 
 			// Save the last exception of possibly many to throw when finished
@@ -544,8 +549,8 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 			if (savedException != null) {
 				throw savedException;
 			}
-
-			LOGGER.info("removed " + identifier);
+			if (LOGGER.isInfoEnabled())
+				LOGGER.info("removed " + identifier);
 		} catch (DocSearchException e) {
 			throw e;
 		} catch (Exception e) {

@@ -50,7 +50,8 @@ public class MessageRetrieveServlet extends EnkiveServlet {
 
 		try {
 			final Message message = retriever.retrieve(messageId);
-			LOGGER.trace("retrieving message " + messageId);
+			if (LOGGER.isTraceEnabled())
+				LOGGER.trace("retrieving message " + messageId);
 
 			final ServletOutputStream outputStream = resp.getOutputStream();
 			BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(
@@ -58,7 +59,8 @@ public class MessageRetrieveServlet extends EnkiveServlet {
 			message.pushReconstitutedEmail(writer);
 			resp.flushBuffer();
 		} catch (CannotRetrieveException e) {
-			LOGGER.error("error retrieving message " + messageId, e);
+			if (LOGGER.isErrorEnabled())
+				LOGGER.error("error retrieving message " + messageId, e);
 			respondError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
 					"error retrieving message " + messageId
 							+ "; see server logs", resp);

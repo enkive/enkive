@@ -40,7 +40,7 @@ public class EnkiveFilter {
 	private static final SimpleDateFormat dateFormatter = new SimpleDateFormat(
 			"EEE, dd MMM yyyy HH:mm:ss Z");
 
-	private final static Log logger = LogFactory
+	private final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.filter");
 
 	private String header;
@@ -101,7 +101,8 @@ public class EnkiveFilter {
 			try {
 				matched = filterDate(value);
 			} catch (java.text.ParseException e) {
-				logger.warn("Could not parse Date for filtering", e);
+				if (LOGGER.isWarnEnabled())
+					LOGGER.warn("Could not parse Date for filtering", e);
 				matched = false;
 			}
 			break;
@@ -112,7 +113,8 @@ public class EnkiveFilter {
 			try {
 				matched = filterAddress(value);
 			} catch (ParseException e) {
-				logger.warn("Could not parse Address list for filtering", e);
+				if (LOGGER.isWarnEnabled())
+					LOGGER.warn("Could not parse Address list for filtering", e);
 				matched = false;
 			}
 			break;

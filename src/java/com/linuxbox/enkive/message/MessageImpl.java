@@ -42,7 +42,7 @@ import com.linuxbox.enkive.exception.CannotTransferMessageContentException;
 import com.linuxbox.util.StringUtils;
 
 public class MessageImpl extends AbstractMessage implements Message {
-	private final static Log logger = LogFactory
+	private final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.message");
 
 	private MimeConfig config;
@@ -225,7 +225,8 @@ public class MessageImpl extends AbstractMessage implements Message {
 		} catch (MimeIOException e) {
 			throw new BadMessageException(e);
 		}
-		logger.trace("Message " + this.messageId + "Successfully Parsed");
+		if (LOGGER.isTraceEnabled())
+			LOGGER.trace("Message " + this.messageId + "Successfully Parsed");
 	}
 
 	@Override

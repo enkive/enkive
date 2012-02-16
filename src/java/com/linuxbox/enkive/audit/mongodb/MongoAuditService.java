@@ -126,8 +126,9 @@ public class MongoAuditService implements AuditService {
 		final int indexCount = auditCollection.getIndexInfo().size();
 		// we expect 4 -- our 3 plus the default index on ObjectID
 		if (indexCount != 4) {
-			LOGGER.warn("the MongoAuditService may have extra indices (which could impact performance); expect 4 but have "
-					+ indexCount);
+			if (LOGGER.isWarnEnabled())
+				LOGGER.warn("the MongoAuditService may have extra indices (which could impact performance); expect 4 but have "
+						+ indexCount);
 		}
 	}
 
@@ -139,7 +140,8 @@ public class MongoAuditService implements AuditService {
 		if (createdMongo) {
 			mongo.close();
 		}
-		LOGGER.trace("shut down MongoAuditLogService");
+		if (LOGGER.isTraceEnabled())
+			LOGGER.trace("shut down MongoAuditLogService");
 	}
 
 	@Override

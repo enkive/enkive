@@ -37,7 +37,7 @@ public class CancelSearchWebScript extends EnkiveServlet {
 	 * 
 	 */
 	private static final long serialVersionUID = -5470654807862921133L;
-	protected static final Log logger = LogFactory
+	protected static final Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.webscripts.search.cancel");
 
 	public void doGet(HttpServletRequest req, HttpServletResponse res)
@@ -48,8 +48,8 @@ public class CancelSearchWebScript extends EnkiveServlet {
 			searchId = WebScriptUtils.cleanGetParameter(req, "searchid");
 			MessageSearchService searchService = getMessageSearchService();
 			searchService.cancelAsyncSearch(searchId);
-
-			logger.debug("cancelled search with id " + searchId);
+			if (LOGGER.isDebugEnabled())
+				LOGGER.debug("cancelled search with id " + searchId);
 		} catch (Exception e) {
 			respondError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, null,
 					res);

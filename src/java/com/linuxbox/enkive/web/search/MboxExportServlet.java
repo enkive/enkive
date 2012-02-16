@@ -34,9 +34,12 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.linuxbox.enkive.audit.AuditService;
+import com.linuxbox.enkive.audit.AuditServiceException;
 import com.linuxbox.enkive.exception.CannotRetrieveException;
 import com.linuxbox.enkive.exception.EnkiveServletException;
 import com.linuxbox.enkive.message.Message;
+import com.linuxbox.enkive.permissions.PermissionService;
 import com.linuxbox.enkive.retriever.MessageRetrieverService;
 import com.linuxbox.enkive.web.EnkiveServlet;
 import com.linuxbox.enkive.web.WebScriptUtils;
@@ -51,8 +54,10 @@ public class MboxExportServlet extends EnkiveServlet {
 	private static final long serialVersionUID = 8545266502891778574L;
 	protected WorkspaceService workspaceService;
 	protected MessageRetrieverService archiveService;
+	protected AuditService auditService;
+	protected PermissionService permService;
 
-	protected static final Log logger = LogFactory
+	protected static final Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.webscripts.search.export");
 
 	@Override
@@ -60,6 +65,8 @@ public class MboxExportServlet extends EnkiveServlet {
 		super.init(config);
 		this.workspaceService = getWorkspaceService();
 		this.archiveService = getMessageRetrieverService();
+		this.auditService = getAuditService();
+		this.permService = getPermissionService();
 	}
 
 	public void doGet(HttpServletRequest req, HttpServletResponse res)
@@ -97,10 +104,14 @@ public class MboxExportServlet extends EnkiveServlet {
 				} catch (CannotRetrieveException e) {
 					respondError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
 							null, res);
-					logger.error("Could not retrieve message with id"
-							+ messageId);
+					if (LOGGER.isErrorEnabled())
+						LOGGER.error("Could not retrieve message with id"
+								+ messageId);
 				}
 				writer.write("\r\n");
+				auditService.addEvent(AuditService.SEARCH_EXPORTED,
+						permService.getCurrentUsername(),
+						"Search Exported to mbox - ID:" + searchId);
 			}
 		} catch (WorkspaceException e) {
 			respondError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, null,
@@ -108,6 +119,10 @@ public class MboxExportServlet extends EnkiveServlet {
 			throw new EnkiveServletException(
 					"unable to access workspace or access search or result with id "
 							+ searchId);
+		} catch (AuditServiceException e) {
+			respondError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, null,
+					res);
+			throw new EnkiveServletException("Could not write to audit log");
 		}
 	}
 }

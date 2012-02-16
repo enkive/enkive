@@ -67,9 +67,10 @@ public abstract class RetryingAbstractMessageArchivingService extends
 				}
 			}
 		} catch (Exception e) {
-			logger.error(
-					"Could not archive Message " + message.getCleanMessageId(),
-					e);
+			if (LOGGER.isErrorEnabled())
+				LOGGER.error(
+						"Could not archive Message "
+								+ message.getCleanMessageId(), e);
 			emergencySave(message.getReconstitutedEmail());
 		}
 		return uuid;

@@ -46,7 +46,7 @@ import com.linuxbox.util.threadpool.ThreadAspects;
 public abstract class ArchivingThreadPoolServer extends ThreadPoolServer
 		implements ArchivingThreadPoolServerMBean, ThreadAspects,
 		ApplicationContextAware {
-	private final static Log logger = LogFactory
+	private final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.server");
 
 	protected static ApplicationContext applicationContext = null;
@@ -110,7 +110,9 @@ public abstract class ArchivingThreadPoolServer extends ThreadPoolServer
 	 */
 	@Override
 	public void beforeExecute(Thread thread, Runnable runnable) {
-		logger.trace("in beforeExecute for " + runnable.getClass().getName());
+		if (LOGGER.isTraceEnabled())
+			LOGGER.trace("in beforeExecute for "
+					+ runnable.getClass().getName());
 		if (runnable instanceof AbstractMailProcessor) {
 			final AbstractMailProcessor processor = (AbstractMailProcessor) runnable;
 			synchronized (liveProcessors) {
@@ -125,7 +127,8 @@ public abstract class ArchivingThreadPoolServer extends ThreadPoolServer
 	 */
 	@Override
 	public void afterExecute(Runnable runnable, Throwable throwable) {
-		logger.trace("in afterExecute for " + runnable.getClass().getName());
+		if (LOGGER.isTraceEnabled())
+			LOGGER.trace("in afterExecute for " + runnable.getClass().getName());
 		if (runnable instanceof AbstractMailProcessor) {
 			final AbstractMailProcessor processor = (AbstractMailProcessor) runnable;
 			synchronized (liveProcessors) {

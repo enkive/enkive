@@ -31,12 +31,13 @@ import org.apache.james.mime4j.stream.MimeConfig;
 
 public class MultiPartHeaderImpl extends AbstractMultiPartHeader implements
 		MultiPartHeader {
-	private final static Log logger = LogFactory
+	private final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.message");
 
 	@Override
 	public void parseHeaders(String someContentHeader) {
-		logger.error("unimplemented MultiPartHeaderImpl:parseHeaders is being called");
+		if (LOGGER.isErrorEnabled())
+			LOGGER.error("unimplemented MultiPartHeaderImpl:parseHeaders is being called");
 	}
 
 	@Override

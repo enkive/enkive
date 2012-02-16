@@ -86,7 +86,8 @@ public class MessageAttachmentDetailServlet extends EnkiveServlet {
 
 		} catch (CannotRetrieveException e) {
 			respondError(HttpServletResponse.SC_UNAUTHORIZED, null, resp);
-			LOGGER.error("Could not retrieve attachment");
+			if (LOGGER.isErrorEnabled())
+				LOGGER.error("Could not retrieve attachment");
 
 		}
 	}

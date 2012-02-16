@@ -81,8 +81,9 @@ public class QueryEnvironmentManager {
 				queryEnvironment = createQueryEnvironment();
 				createdAt = System.currentTimeMillis();
 				if (LOG_TIMINGS) {
-					LOGGER.trace("took " + (createdAt - now) / 1000.0
-							+ " seconds to create a QueryEnvironment");
+					if (LOGGER.isTraceEnabled())
+						LOGGER.trace("took " + (createdAt - now) / 1000.0
+								+ " seconds to create a QueryEnvironment");
 				}
 			}
 

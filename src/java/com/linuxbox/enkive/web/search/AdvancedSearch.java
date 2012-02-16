@@ -52,8 +52,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.linuxbox.enkive.audit.AuditService;
-import com.linuxbox.enkive.audit.AuditServiceException;
-import com.linuxbox.enkive.authentication.AuthenticationException;
 import com.linuxbox.enkive.authentication.AuthenticationService;
 import com.linuxbox.enkive.exception.CannotRetrieveException;
 import com.linuxbox.enkive.exception.EnkiveServletException;
@@ -91,14 +89,6 @@ public class AdvancedSearch extends AbstractSearchWebScript {
 			throws IOException {
 		JSONObject jsonData = new JSONObject();
 		JSONObject jsonResult = new JSONObject();
-		String querySummary = "UNKNOWN";
-
-		String searchingUser;
-		try {
-			searchingUser = authenticationService.getUserName();
-		} catch (AuthenticationException e) {
-			searchingUser = "UNKNOWN";
-		}
 
 		try {
 			// because of the JavaScript SpringSurf bridge we need to look out
@@ -152,7 +142,8 @@ public class AdvancedSearch extends AbstractSearchWebScript {
 			if (result != null) {
 				jsonData.put(SEARCH_ID_TAG, result.getId());
 				WebPageInfo pageInfo = new WebPageInfo();
-				logger.info("search results are complete");
+				if (LOGGER.isInfoEnabled())
+					LOGGER.info("search results are complete");
 
 				final List<MessageSummary> messageSummaries = archiveService
 						.retrieveSummary(result.getMessageIds());
@@ -170,31 +161,26 @@ public class AdvancedSearch extends AbstractSearchWebScript {
 
 				jsonResult.put(PAGING_LABEL, pageInfo.getPageJSON());
 			} else {
-				logger.info("search results are not ready yet");
+				if (LOGGER.isInfoEnabled())
+					LOGGER.info("search results are not ready yet");
 				jsonData.put(STATUS_ID_TAG, RUNNING_STATUS_VALUE);
 			}
 			jsonResult.put(DATA_TAG, jsonData);
 		} catch (JSONException e) {
-			logger.error("JSONException", e);
+			if (LOGGER.isErrorEnabled())
+				LOGGER.error("JSONException", e);
 			respondError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, null,
 					res);
 			throw new EnkiveServletException("Unable to serialize JSON");
 		} catch (CannotRetrieveException e) {
-			logger.fatal("could not retrieve message summaries from archive", e);
+			if (LOGGER.isFatalEnabled())
+				LOGGER.fatal(
+						"could not retrieve message summaries from archive", e);
 			respondError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, null,
 					res);
 			throw new EnkiveServletException("Unable to access repository");
 		} finally {
-			try {
-				auditService.addEvent(AuditService.SEARCH_PERFORMED,
-						searchingUser, querySummary);
-				// FIXME : shouldn't we set the response here, so if the audit
-				// trail cannot be altered then the user cannot get the search
-				// results (i.e., the user cannot perform an un-audited search)?
-			} catch (AuditServiceException e) {
-				logger.error("could not audit user search request", e);
-			}
-			setResponse(res, jsonResult); // FIXME : see above
+			setResponse(res, jsonResult);
 		}
 	}
 }

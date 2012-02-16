@@ -59,7 +59,7 @@ import com.mongodb.Mongo;
 
 public class MongoMessageSearchService extends AbstractMessageSearchService {
 
-	protected final static Log logger = LogFactory
+	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.searchService.mongodb");
 
 	protected Mongo m = null;
@@ -137,8 +137,9 @@ public class MongoMessageSearchService extends AbstractMessageSearchService {
 								.get(DATE_EARLIEST_PARAMETER));
 						dateQuery.put("$gte", dateEarliest);
 					} catch (ParseException e) {
-						logger.warn("Could not parse earliest date submitted to search - "
-								+ fields.get(DATE_EARLIEST_PARAMETER));
+						if (LOGGER.isWarnEnabled())
+							LOGGER.warn("Could not parse earliest date submitted to search - "
+									+ fields.get(DATE_EARLIEST_PARAMETER));
 					}
 				}
 				if (fields.containsKey(DATE_LATEST_PARAMETER)
@@ -149,8 +150,9 @@ public class MongoMessageSearchService extends AbstractMessageSearchService {
 								.get(DATE_LATEST_PARAMETER));
 						dateQuery.put("$lte", dateLatest);
 					} catch (ParseException e) {
-						logger.warn("Could not parse latest date submitted to search - "
-								+ fields.get(DATE_LATEST_PARAMETER));
+						if (LOGGER.isWarnEnabled())
+							LOGGER.warn("Could not parse latest date submitted to search - "
+									+ fields.get(DATE_LATEST_PARAMETER));
 					}
 				}
 				query.put(DATE, dateQuery);

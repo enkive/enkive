@@ -90,7 +90,7 @@ import com.mongodb.MongoException;
 public class MongoArchivingService extends
 		RetryingAbstractMessageArchivingService {
 
-	private final static Log logger = LogFactory
+	private final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.archiveService.mongodb");
 
 	protected Mongo m = null;
@@ -148,7 +148,8 @@ public class MongoArchivingService extends
 		} catch (DocStoreException e) {
 			throw new CannotArchiveException(e);
 		}
-		logger.info(MessageLoggingText.MESSAGE_STORED_TEXT + messageUUID);
+		if (LOGGER.isInfoEnabled())
+			LOGGER.info(MessageLoggingText.MESSAGE_STORED_TEXT + messageUUID);
 		return messageUUID;
 	}
 
@@ -160,7 +161,9 @@ public class MongoArchivingService extends
 				.findOne(calculateMessageId(message));
 		if (messageObject != null) {
 			messageUUID = (String) messageObject.get(MESSAGE_UUID);
-			logger.info(MessageLoggingText.DUPLICATE_FOUND_TEXT + messageUUID);
+			if (LOGGER.isInfoEnabled())
+				LOGGER.info(MessageLoggingText.DUPLICATE_FOUND_TEXT
+						+ messageUUID);
 		}
 		return messageUUID;
 	}

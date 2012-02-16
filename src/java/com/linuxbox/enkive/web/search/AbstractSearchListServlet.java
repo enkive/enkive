@@ -54,7 +54,7 @@ public abstract class AbstractSearchListServlet extends EnkiveServlet {
 	 */
 	private static final long serialVersionUID = 5385773633334840889L;
 
-	protected static final Log logger = LogFactory
+	protected static final Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.webscripts");
 
 	WorkspaceService workspaceService;
@@ -67,7 +67,8 @@ public abstract class AbstractSearchListServlet extends EnkiveServlet {
 	public void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
 
-		logger.debug("Retrieving search list");
+		if (LOGGER.isDebugEnabled())
+			LOGGER.debug("Retrieving search list");
 		try {
 			WebPageInfo pageInfo = new WebPageInfo(
 					WebScriptUtils.cleanGetParameter(req,
@@ -80,9 +81,11 @@ public abstract class AbstractSearchListServlet extends EnkiveServlet {
 			jObject.put(WebPageInfo.PAGING_LABEL, pageInfo.getPageJSON());
 			String jsonString = jObject.toString();
 			resp.getWriter().write(jsonString);
-			logger.debug("Returned search list");
+			if (LOGGER.isDebugEnabled())
+				LOGGER.debug("Returned search list");
 		} catch (JSONException e) {
-			logger.error("Error retrieving search list", e);
+			if (LOGGER.isErrorEnabled())
+				LOGGER.error("Error retrieving search list", e);
 			respondError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, null,
 					resp);
 			throw new EnkiveServletException("Unable to serialize JSON");
@@ -137,14 +140,17 @@ public abstract class AbstractSearchListServlet extends EnkiveServlet {
 					searches.put(search);
 
 				} catch (JSONException e) {
-					logger.warn("error creating JSON object for search "
-							+ searchResult.getId());
+					if (LOGGER.isWarnEnabled())
+						LOGGER.warn("error creating JSON object for search "
+								+ searchResult.getId());
 				}
 			}
 		} catch (WorkspaceException e) {
-			logger.warn("error accessing workspace for retrieval of searches");
+			if (LOGGER.isWarnEnabled())
+				LOGGER.warn("error accessing workspace for retrieval of searches");
 		} catch (AuthenticationException e) {
-			logger.warn("error accessing workspace for retrieval of searches");
+			if (LOGGER.isWarnEnabled())
+				LOGGER.warn("error accessing workspace for retrieval of searches");
 		}
 
 		return searches;

@@ -46,7 +46,7 @@ import com.linuxbox.enkive.message.Message;
 public abstract class AbstractMessageArchivingService implements
 		MessageArchivingService {
 
-	protected final static Log logger = LogFactory
+	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.messageArchvingService");
 	private final static int EMERGENCY_SAVE_ATTEMPTS = 4;
 
@@ -97,9 +97,10 @@ public abstract class AbstractMessageArchivingService implements
 				uuid = storeMessage(message);
 			}
 		} catch (Exception e) {
-			logger.error(
-					"Could not archive Message " + message.getCleanMessageId(),
-					e);
+			if (LOGGER.isErrorEnabled())
+				LOGGER.error(
+						"Could not archive Message "
+								+ message.getCleanMessageId(), e);
 			emergencySave(message.getReconstitutedEmail());
 		}
 		return uuid;
@@ -164,7 +165,8 @@ public abstract class AbstractMessageArchivingService implements
 				messageSaved = true;
 
 		} else {
-			logger.warn("emergency save data is empty; nothing saved");
+			if (LOGGER.isWarnEnabled())
+				LOGGER.warn("emergency save data is empty; nothing saved");
 		}
 		return messageSaved;
 	}
@@ -229,7 +231,8 @@ public abstract class AbstractMessageArchivingService implements
 				out = new BufferedWriter(new OutputStreamWriter(fileStream));
 				out.write(messageData);
 
-				logger.info("Saved message to file: \"" + fileName + "\"");
+				if (LOGGER.isInfoEnabled())
+					LOGGER.info("Saved message to file: \"" + fileName + "\"");
 				return filePath;
 			} finally {
 				if (lock != null) {
@@ -237,7 +240,8 @@ public abstract class AbstractMessageArchivingService implements
 				}
 			}
 		} catch (IOException e) {
-			logger.fatal("Emergency save to disk failed. ", e);
+			if (LOGGER.isFatalEnabled())
+				LOGGER.fatal("Emergency save to disk failed. ", e);
 			throw new FailedToEmergencySaveException(e);
 		} finally {
 			try {
@@ -247,8 +251,9 @@ public abstract class AbstractMessageArchivingService implements
 					fileStream.close();
 				}
 			} catch (IOException e) {
-				logger.warn("could not close emergency save file \"" + filePath
-						+ "\".");
+				if (LOGGER.isWarnEnabled())
+					LOGGER.warn("could not close emergency save file \""
+							+ filePath + "\".");
 			}
 		}
 	}

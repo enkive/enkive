@@ -54,16 +54,19 @@ public class GetPermissionsServlet extends EnkiveServlet {
 			try {
 				resp.getWriter().write(jsonResultString);
 			} catch (IOException e) {
-				LOGGER.error("Could not write JSON response");
+				if (LOGGER.isErrorEnabled())
+					LOGGER.error("Could not write JSON response");
 			}
 		} catch (JSONException e) {
 			respondError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, null,
 					resp);
-			LOGGER.error("Could not serialize JSON", e);
+			if (LOGGER.isErrorEnabled())
+				LOGGER.error("Could not serialize JSON", e);
 		} catch (CannotGetPermissionsException e) {
 			respondError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, null,
 					resp);
-			LOGGER.error("Could not get user permissions", e);
+			if (LOGGER.isErrorEnabled())
+				LOGGER.error("Could not get user permissions", e);
 		}
 
 	}

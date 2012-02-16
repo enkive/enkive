@@ -68,7 +68,7 @@ public class ViewSavedResultsServlet extends EnkiveServlet {
 	 */
 	private static final long serialVersionUID = 1226107681645083623L;
 
-	protected static final Log logger = LogFactory
+	protected static final Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.webscripts.search.saved");
 
 	protected MessageRetrieverService archiveService;
@@ -94,8 +94,8 @@ public class ViewSavedResultsServlet extends EnkiveServlet {
 			JSONObject dataJSON = new JSONObject();
 			JSONObject jsonResult = new JSONObject();
 			dataJSON.put(SEARCH_ID_TAG, searchId);
-
-			logger.info("Loading " + searchId);
+			if (LOGGER.isInfoEnabled())
+				LOGGER.info("Loading " + searchId);
 
 			SearchResult searchResult = workspaceService
 					.getSearchResult(searchId);
@@ -110,8 +110,9 @@ public class ViewSavedResultsServlet extends EnkiveServlet {
 					jsonCriteria.put(parameter, value);
 				}
 			} catch (JSONException e) {
-				logger.error("could not return search criteria for search "
-						+ searchId, e);
+				if (LOGGER.isErrorEnabled())
+					LOGGER.error("could not return search criteria for search "
+							+ searchId, e);
 			}
 			dataJSON.put(QUERY_TAG, jsonCriteria);
 
@@ -136,13 +137,14 @@ public class ViewSavedResultsServlet extends EnkiveServlet {
 
 				dataJSON.put(RESULTS_TAG, jsonMessageSummaryList);
 			} catch (CannotRetrieveException e) {
-				logger.error("Could not access result message list", e);
+				if (LOGGER.isErrorEnabled())
+					LOGGER.error("Could not access result message list", e);
 				// throw new WebScriptException(
 				// "Could not access query result message list", e);
 			}
-
-			logger.debug("Returning saved search results for search id "
-					+ searchId);
+			if (LOGGER.isDebugEnabled())
+				LOGGER.debug("Returning saved search results for search id "
+						+ searchId);
 
 			jsonResult.put(DATA_TAG, dataJSON);
 			jsonResult.put(PAGING_LABEL, pageInfo.getPageJSON());
@@ -155,6 +157,8 @@ public class ViewSavedResultsServlet extends EnkiveServlet {
 			respondError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, null,
 					res);
 			throw new EnkiveServletException("Unable to serialize JSON", e);
+		} finally {
+
 		}
 	}
 }

@@ -37,7 +37,7 @@ public abstract class AbstractJsonServlet extends EnkiveServlet {
 	 * 
 	 */
 	private static final long serialVersionUID = -8772085078547445222L;
-	protected static final Log logger = LogFactory
+	protected static final Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.webscripts");
 
 	public AbstractJsonServlet() {
@@ -53,7 +53,8 @@ public abstract class AbstractJsonServlet extends EnkiveServlet {
 			}
 			errors.put(errorMessage);
 		} catch (JSONException e) {
-			logger.error("could not add error to JSON query result");
+			if (LOGGER.isErrorEnabled())
+				LOGGER.error("could not add error to JSON query result");
 		}
 	}
 
@@ -63,7 +64,8 @@ public abstract class AbstractJsonServlet extends EnkiveServlet {
 		try {
 			response.getWriter().write(jsonResultString);
 		} catch (IOException e) {
-			logger.error("Could not write webscript response");
+			if (LOGGER.isErrorEnabled())
+				LOGGER.error("Could not write webscript response");
 		}
 	}
 }

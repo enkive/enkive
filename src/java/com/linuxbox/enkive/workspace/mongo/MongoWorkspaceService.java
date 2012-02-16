@@ -46,6 +46,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.bson.types.ObjectId;
 
+import com.linuxbox.enkive.audit.AuditService;
 import com.linuxbox.enkive.workspace.AbstractWorkspaceService;
 import com.linuxbox.enkive.workspace.SearchQuery;
 import com.linuxbox.enkive.workspace.SearchResult;
@@ -69,8 +70,9 @@ public class MongoWorkspaceService extends AbstractWorkspaceService implements
 	protected DBCollection searchResultsColl;
 	protected DBCollection searchQueryColl;
 	protected DBCollection userWorkspacesColl;
+	protected AuditService auditService;
 
-	private final static Log logger = LogFactory
+	private final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.workspaces");
 
 	public MongoWorkspaceService(Mongo m, String dbName,
@@ -132,8 +134,9 @@ public class MongoWorkspaceService extends AbstractWorkspaceService implements
 			searchResultUUIDs.add((String) searchResultsIterator.next());
 
 		workspace.setSearchResultUUIDs(searchResultUUIDs);
-		logger.info("Retrieved Workspace " + workspace.getWorkspaceName()
-				+ " - " + workspace.getWorkspaceUUID());
+		if (LOGGER.isInfoEnabled())
+			LOGGER.info("Retrieved Workspace " + workspace.getWorkspaceName()
+					+ " - " + workspace.getWorkspaceUUID());
 		return workspace;
 	}
 
@@ -158,8 +161,9 @@ public class MongoWorkspaceService extends AbstractWorkspaceService implements
 		if (workspaceObject.getString(UUID) == null)
 			workspaceColl.insert(workspaceObject);
 
-		logger.info("Saved Workspace " + workspace.getWorkspaceName() + " - "
-				+ workspaceObject.getString(UUID));
+		if (LOGGER.isInfoEnabled())
+			LOGGER.info("Saved Workspace " + workspace.getWorkspaceName()
+					+ " - " + workspaceObject.getString(UUID));
 		return workspaceObject.getString(UUID);
 	}
 
@@ -187,7 +191,9 @@ public class MongoWorkspaceService extends AbstractWorkspaceService implements
 		if (searchQueryObject.getString(UUID) == null)
 			searchQueryColl.insert(searchQueryObject);
 
-		logger.info("Saved Search Query - " + searchQueryObject.getString(UUID));
+		if (LOGGER.isInfoEnabled())
+			LOGGER.info("Saved Search Query - "
+					+ searchQueryObject.getString(UUID));
 		return searchQueryObject.getString(UUID);
 
 	}
@@ -205,8 +211,9 @@ public class MongoWorkspaceService extends AbstractWorkspaceService implements
 		query.setCriteria(((BasicDBObject) queryObject.get(SEARCHCRITERIA))
 				.toMap());
 
-		logger.info("Retrieved Search Query " + query.getName() + " - "
-				+ query.getId());
+		if (LOGGER.isInfoEnabled())
+			LOGGER.info("Retrieved Search Query " + query.getName() + " - "
+					+ query.getId());
 		return query;
 	}
 
@@ -246,8 +253,9 @@ public class MongoWorkspaceService extends AbstractWorkspaceService implements
 		if (searchResultObject.getString(UUID) == null)
 			searchResultsColl.insert(searchResultObject);
 
-		logger.info("Saved Search Results - "
-				+ searchResultObject.getString(UUID));
+		if (LOGGER.isInfoEnabled())
+			LOGGER.info("Saved Search Results - "
+					+ searchResultObject.getString(UUID));
 		return searchResultObject.getString(UUID);
 
 	}
@@ -279,7 +287,8 @@ public class MongoWorkspaceService extends AbstractWorkspaceService implements
 		if (searchResultObject.get(SEARCHISSAVED) != null)
 			result.setSaved((Boolean) searchResultObject.get(SEARCHISSAVED));
 
-		logger.info("Retrieved Search Results - " + result.getId());
+		if (LOGGER.isInfoEnabled())
+			LOGGER.info("Retrieved Search Results - " + result.getId());
 		return result;
 	}
 
@@ -343,5 +352,13 @@ public class MongoWorkspaceService extends AbstractWorkspaceService implements
 				searchResults.add(getSearchResult(resultUUID));
 		}
 		return searchResults;
+	}
+
+	public AuditService getAuditService() {
+		return auditService;
+	}
+
+	public void setAuditService(AuditService auditService) {
+		this.auditService = auditService;
 	}
 }

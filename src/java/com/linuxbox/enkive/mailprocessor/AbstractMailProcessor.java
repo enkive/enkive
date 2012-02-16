@@ -60,7 +60,7 @@ import com.linuxbox.util.MBeanUtils;
 
 public abstract class AbstractMailProcessor implements ArchivingProcessor,
 		AbstractMailProcessorMBean {
-	protected final static Log logger = LogFactory
+	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.mailprocessor");
 
 	protected Socket socket;
@@ -115,7 +115,8 @@ public abstract class AbstractMailProcessor implements ArchivingProcessor,
 
 	@Override
 	public void initializeProcessor(AbstractSocketServer server, Socket socket) {
-		logger.trace("in initializeProcessor");
+		if (LOGGER.isTraceEnabled())
+			LOGGER.trace("in initializeProcessor");
 		this.server = server;
 		this.socket = socket;
 
@@ -126,7 +127,8 @@ public abstract class AbstractMailProcessor implements ArchivingProcessor,
 		try {
 			socket.setSoLinger(false, 0);
 		} catch (SocketException e) {
-			logger.debug("enkive session unable to set socket linger " + e);
+			if (LOGGER.isDebugEnabled())
+				LOGGER.debug("enkive session unable to set socket linger " + e);
 		}
 
 		if (isJmxEnabled()) {
@@ -134,21 +136,24 @@ public abstract class AbstractMailProcessor implements ArchivingProcessor,
 			String name = "Port " + socket.getPort();
 
 			mBeanName = MBeanUtils.registerMBean(this, type, name);
-			logger.trace("registered mbean " + mBeanName + " (" + type + "/"
-					+ name + ")");
+			if (LOGGER.isTraceEnabled())
+				LOGGER.trace("registered mbean " + mBeanName + " (" + type
+						+ "/" + name + ")");
 		}
 
 		initialized = true;
 	}
 
 	public void initiateStop() {
-		logger.trace("in stopProcessor");
+		if (LOGGER.isTraceEnabled())
+			LOGGER.trace("in stopProcessor");
 		closeInitiated = true;
 		closeSessionResources();
 		try {
 			archiver.shutdown();
 		} catch (MessageArchivingServiceException e) {
-			logger.error("Could not shutdown mail processor", e);
+			if (LOGGER.isErrorEnabled())
+				LOGGER.error("Could not shutdown mail processor", e);
 		}
 	}
 
@@ -190,18 +195,22 @@ public abstract class AbstractMailProcessor implements ArchivingProcessor,
 					throw e;
 				} catch (MessageIncompleteException e) {
 					processorState = ERROR_HANDLING;
-					logger.fatal(
-							"socket closed with only partial message read", e);
+					if (LOGGER.isFatalEnabled())
+						LOGGER.fatal(
+								"socket closed with only partial message read",
+								e);
 					archiver.emergencySave(e.getData(), true);
 					processingComplete = true;
 				} catch (BadMessageException e) {
 					processorState = ERROR_HANDLING;
-					logger.fatal("could not create message object to archive",
-							e);
+					if (LOGGER.isFatalEnabled())
+						LOGGER.fatal(
+								"could not create message object to archive", e);
 					archiver.emergencySave(data);
 				} catch (Exception e) {
 					processorState = ERROR_HANDLING;
-					logger.fatal("could not archive message", e);
+					if (LOGGER.isFatalEnabled())
+						LOGGER.fatal("could not archive message", e);
 					archiver.emergencySave(data);
 				}
 
@@ -217,33 +226,37 @@ public abstract class AbstractMailProcessor implements ArchivingProcessor,
 		} catch (Exception e) {
 			processorState = ERROR_HANDLING;
 			messageSaved = false;
-			logger.error("Message archival preparation failure", e);
+			if (LOGGER.isErrorEnabled())
+				LOGGER.error("Message archival preparation failure", e);
 			try {
 				auditService.addEvent(AuditService.MESSAGE_ARCHIVE_FAILURE,
 						AuditService.USER_SYSTEM,
 						"Failed in pre-archival steps");
 			} catch (AuditServiceException e2) {
-				logger.fatal("failure to audit archiving failure", e2);
+				LOGGER.fatal("failure to audit archiving failure", e2);
 			}
 		}
 
 		processorState = SHUTTING_DOWN;
 		if (!closeInitiated) {
-			logger.fatal("Shutting down mailprocessor");
+			if (LOGGER.isFatalEnabled())
+				LOGGER.fatal("Shutting down mailprocessor");
 			closeProcessor();
 			closeSessionResources();
 			try {
 				archiver.shutdown();
 			} catch (MessageArchivingServiceException e) {
-				logger.error("Could not shutdown archiver", e);
+				if (LOGGER.isErrorEnabled())
+					LOGGER.error("Could not shutdown archiver", e);
 			}
 			server.processorClosed(this);
 		}
-
-		logger.trace("closed session");
+		if (LOGGER.isTraceEnabled())
+			LOGGER.trace("closed session");
 
 		MBeanUtils.unregisterMBean(mBeanName);
-		logger.trace("unregistered mbean " + mBeanName);
+		if (LOGGER.isTraceEnabled())
+			LOGGER.trace("unregistered mbean " + mBeanName);
 	}
 
 	public String getProcessorState() {
@@ -268,7 +281,8 @@ public abstract class AbstractMailProcessor implements ArchivingProcessor,
 	}
 
 	protected void closeSessionResources() {
-		logger.trace("in closeSessionResources");
+		if (LOGGER.isTraceEnabled())
+			LOGGER.trace("in closeSessionResources");
 
 		if (socket != null) {
 			try {
@@ -285,7 +299,8 @@ public abstract class AbstractMailProcessor implements ArchivingProcessor,
 		try {
 			return new MessageImpl(data);
 		} catch (BadMessageException e) {
-			logger.error("unable to archive", e);
+			if (LOGGER.isErrorEnabled())
+				LOGGER.error("unable to archive", e);
 			throw new BadMessageException(e);
 		} catch (CannotTransferMessageContentException e) {
 			throw new BadMessageException(e);
@@ -301,12 +316,14 @@ public abstract class AbstractMailProcessor implements ArchivingProcessor,
 
 		if (archiveMessage) {
 			String messageUUID = archiver.storeOrFindMessage(message);
-			logger.info("Message: " + message.getCleanMessageId()
-					+ " successfully archived with UUID " + messageUUID);
+			if (LOGGER.isInfoEnabled())
+				LOGGER.info("Message: " + message.getCleanMessageId()
+						+ " successfully archived with UUID " + messageUUID);
 			messageSaved = true;
 		} else {
-			logger.info("Message Rejected:" + message.getMessageId()
-					+ " did not pass message filters");
+			if (LOGGER.isInfoEnabled())
+				LOGGER.info("Message Rejected:" + message.getMessageId()
+						+ " did not pass message filters");
 			messageSaved = true;
 		}
 	}

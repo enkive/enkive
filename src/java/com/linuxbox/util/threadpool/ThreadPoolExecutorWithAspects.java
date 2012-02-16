@@ -28,7 +28,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 public class ThreadPoolExecutorWithAspects extends ThreadPoolExecutor {
-	protected final static Log logger = LogFactory
+	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.mailprocessor");
 
 	private ThreadAspects threadAspects;

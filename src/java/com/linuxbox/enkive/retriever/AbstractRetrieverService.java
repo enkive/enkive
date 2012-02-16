@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import com.linuxbox.enkive.audit.AuditService;
 import com.linuxbox.enkive.docstore.DocStoreService;
 import com.linuxbox.enkive.exception.CannotRetrieveException;
 import com.linuxbox.enkive.message.MessageSummary;
@@ -32,6 +33,7 @@ public abstract class AbstractRetrieverService implements
 		MessageRetrieverService {
 
 	protected DocStoreService docStoreService;
+	protected AuditService auditService;
 
 	@Override
 	public List<MessageSummary> retrieveSummary(Collection<String> messageIds)
@@ -52,5 +54,13 @@ public abstract class AbstractRetrieverService implements
 
 	public void setDocStoreService(DocStoreService docStoreService) {
 		this.docStoreService = docStoreService;
+	}
+
+	public AuditService getAuditService() {
+		return auditService;
+	}
+
+	public void setAuditService(AuditService auditService) {
+		this.auditService = auditService;
 	}
 }

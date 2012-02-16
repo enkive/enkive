@@ -81,7 +81,7 @@ public class MongoRetrieverService extends AbstractRetrieverService {
 	protected Mongo m = null;
 	protected DB messageDb;
 	protected DBCollection messageColl;
-	private final static Log logger = LogFactory
+	private final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.retriever");
 
 	public MongoRetrieverService(Mongo m, String dbName, String collName) {
@@ -97,8 +97,8 @@ public class MongoRetrieverService extends AbstractRetrieverService {
 			Message message = new MessageImpl();
 			setMessageProperties(message, messageObject);
 			message.setContentHeader(makeContentHeader(messageObject));
-
-			logger.info("Message " + messageUUID + " retrieved");
+			if (LOGGER.isInfoEnabled())
+				LOGGER.info("Message " + messageUUID + " retrieved");
 
 			return message;
 		} catch (IOException e) {
