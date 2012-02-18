@@ -36,6 +36,7 @@ public abstract class AbstractMailboxImporter extends AbstractMessageImporter {
 	protected String rootDir;
 	protected Session session;
 	protected Folder root;
+	protected Store store;
 	protected int messageCount = 0;
 
 	AbstractMailboxImporter(String rootDir, String host, String port,
@@ -47,7 +48,7 @@ public abstract class AbstractMailboxImporter extends AbstractMessageImporter {
 				"gnu.mail.providers.mbox.MboxStore", "gnumail", "1");
 		session.addProvider(mboxProvider);
 
-		Store store = session.getStore(url);
+		store = session.getStore(url);
 		store.connect();
 		root = store.getDefaultFolder();
 	}
@@ -60,6 +61,7 @@ public abstract class AbstractMailboxImporter extends AbstractMessageImporter {
 
 	public void readMailDirectory(Folder folder) throws MessagingException,
 			IOException {
+		System.out.println(folder.getName());
 		folder.open(Folder.READ_ONLY);
 		for (Message m : folder.getMessages()) {
 			sendMessage(m);
@@ -68,9 +70,18 @@ public abstract class AbstractMailboxImporter extends AbstractMessageImporter {
 				System.out.print("," + messageCount / 100);
 			}
 		}
+		folder.close(false);
 	}
 
 	protected abstract void readAllMessages() throws MessagingException,
 			IOException;
+
+	public int getMessageCount() {
+		return messageCount;
+	}
+
+	public void setMessageCount(int messageCount) {
+		this.messageCount = messageCount;
+	}
 
 }

@@ -55,12 +55,12 @@ public class MailDirReader extends AbstractMailboxImporter {
 	@Override
 	public void readAllMessages() throws MessagingException, IOException {
 		System.out.print(messageCount);
-		readMailDirectory("INBOX");
+		readMailDirectory(store.getDefaultFolder());
 		// now process any subdirectories
 		String[] subDirs = listSubDirectories();
 		if (subDirs != null) {
-			for (String subDir : listSubDirectories()) {
-				readMailDirectory(subDir);
+			for (String subDir : subDirs) {
+				//readMailDirectory(subDir);
 			}
 		}
 	}
@@ -109,6 +109,7 @@ public class MailDirReader extends AbstractMailboxImporter {
 			reader.addIgnoreDirectory(".Trash");
 			reader.addIgnoreDirectory(".Trash.2011");
 			reader.addIgnoreDirectory(".Drafts");
+			reader.addIgnoreDirectory(".Junk");
 
 			reader.readAllMessages();
 			reader.closeWriter();
@@ -118,7 +119,7 @@ public class MailDirReader extends AbstractMailboxImporter {
 		} finally {
 			long elapsedTime = System.currentTimeMillis() - startTime;
 			System.out.println();
-			System.out.println(reader.messageCount + " messages processed in "
+			System.out.println(reader.getMessageCount() + " messages processed in "
 					+ TimeUnit.MILLISECONDS.toMinutes(elapsedTime)
 					+ " minutes "
 					+ (TimeUnit.MILLISECONDS.toSeconds(elapsedTime) % 60)
