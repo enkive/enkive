@@ -1,22 +1,22 @@
-/*
- *  Copyright 2010-2011 The Linux Box Corporation.
- *
- *  This file is part of Enkive CE (Community Edition).
- *
- *  Enkive CE is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU Affero General Public License as
- *  published by the Free Software Foundation, either version 3 of
- *  the License, or (at your option) any later version.
- *
- *  Enkive CE is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- *  GNU Affero General Public License for more details.
- *
- *  You should have received a copy of the GNU Affero General Public
- *  License along with Enkive CE. If not, see
- *  <http://www.gnu.org/licenses/>.
- */
+/*******************************************************************************
+ * Copyright 2012 The Linux Box Corporation.
+ * 
+ * This file is part of Enkive CE (Community Edition).
+ * 
+ * Enkive CE is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of
+ * the License, or (at your option) any later version.
+ * 
+ * Enkive CE is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Affero General Public
+ * License along with Enkive CE. If not, see
+ * <http://www.gnu.org/licenses/>.
+ ******************************************************************************/
 
 package com.linuxbox.enkive.audit.mongodb;
 
@@ -126,8 +126,9 @@ public class MongoAuditService implements AuditService {
 		final int indexCount = auditCollection.getIndexInfo().size();
 		// we expect 4 -- our 3 plus the default index on ObjectID
 		if (indexCount != 4) {
-			LOGGER.warn("the MongoAuditService may have extra indices (which could impact performance); expect 4 but have "
-					+ indexCount);
+			if (LOGGER.isWarnEnabled())
+				LOGGER.warn("the MongoAuditService may have extra indices (which could impact performance); expect 4 but have "
+						+ indexCount);
 		}
 	}
 
@@ -139,7 +140,8 @@ public class MongoAuditService implements AuditService {
 		if (createdMongo) {
 			mongo.close();
 		}
-		LOGGER.trace("shut down MongoAuditLogService");
+		if (LOGGER.isTraceEnabled())
+			LOGGER.trace("shut down MongoAuditLogService");
 	}
 
 	@Override

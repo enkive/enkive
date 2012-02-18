@@ -1,3 +1,22 @@
+/*******************************************************************************
+ * Copyright 2012 The Linux Box Corporation.
+ * 
+ * This file is part of Enkive CE (Community Edition).
+ * 
+ * Enkive CE is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of
+ * the License, or (at your option) any later version.
+ * 
+ * Enkive CE is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Affero General Public
+ * License along with Enkive CE. If not, see
+ * <http://www.gnu.org/licenses/>.
+ ******************************************************************************/
 package com.linuxbox.enkive.archiver.mongodb;
 
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.BOUNDARY_ID;
@@ -68,9 +87,10 @@ import com.mongodb.DBObject;
 import com.mongodb.Mongo;
 import com.mongodb.MongoException;
 
-public class MongoArchivingService extends RetryingAbstractMessageArchivingService {
+public class MongoArchivingService extends
+		RetryingAbstractMessageArchivingService {
 
-	private final static Log logger = LogFactory
+	private final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.archiveService.mongodb");
 
 	protected Mongo m = null;
@@ -128,7 +148,8 @@ public class MongoArchivingService extends RetryingAbstractMessageArchivingServi
 		} catch (DocStoreException e) {
 			throw new CannotArchiveException(e);
 		}
-		logger.info(MessageLoggingText.MESSAGE_STORED_TEXT + messageUUID);
+		if (LOGGER.isInfoEnabled())
+			LOGGER.info(MessageLoggingText.MESSAGE_STORED_TEXT + messageUUID);
 		return messageUUID;
 	}
 
@@ -140,7 +161,9 @@ public class MongoArchivingService extends RetryingAbstractMessageArchivingServi
 				.findOne(calculateMessageId(message));
 		if (messageObject != null) {
 			messageUUID = (String) messageObject.get(MESSAGE_UUID);
-			logger.info(MessageLoggingText.DUPLICATE_FOUND_TEXT + messageUUID);
+			if (LOGGER.isInfoEnabled())
+				LOGGER.info(MessageLoggingText.DUPLICATE_FOUND_TEXT
+						+ messageUUID);
 		}
 		return messageUUID;
 	}

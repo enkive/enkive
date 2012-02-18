@@ -1,22 +1,22 @@
-/*
- *  Copyright 2010 The Linux Box Corporation.
- *
- *  This file is part of Enkive CE (Community Edition).
- *
- *  Enkive CE is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU Affero General Public License as
- *  published by the Free Software Foundation, either version 3 of
- *  the License, or (at your option) any later version.
- *
- *  Enkive CE is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- *  GNU Affero General Public License for more details.
- *
- *  You should have received a copy of the GNU Affero General Public
- *  License along with Enkive CE. If not, see
- *  <http://www.gnu.org/licenses/>.
- */
+/*******************************************************************************
+ * Copyright 2012 The Linux Box Corporation.
+ * 
+ * This file is part of Enkive CE (Community Edition).
+ * 
+ * Enkive CE is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of
+ * the License, or (at your option) any later version.
+ * 
+ * Enkive CE is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Affero General Public
+ * License along with Enkive CE. If not, see
+ * <http://www.gnu.org/licenses/>.
+ ******************************************************************************/
 
 package com.linuxbox.enkive.filter;
 
@@ -40,7 +40,7 @@ public class EnkiveFilter {
 	private static final SimpleDateFormat dateFormatter = new SimpleDateFormat(
 			"EEE, dd MMM yyyy HH:mm:ss Z");
 
-	private final static Log logger = LogFactory
+	private final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.filter");
 
 	private String header;
@@ -101,7 +101,8 @@ public class EnkiveFilter {
 			try {
 				matched = filterDate(value);
 			} catch (java.text.ParseException e) {
-				logger.warn("Could not parse Date for filtering", e);
+				if (LOGGER.isWarnEnabled())
+					LOGGER.warn("Could not parse Date for filtering", e);
 				matched = false;
 			}
 			break;
@@ -112,7 +113,8 @@ public class EnkiveFilter {
 			try {
 				matched = filterAddress(value);
 			} catch (ParseException e) {
-				logger.warn("Could not parse Address list for filtering", e);
+				if (LOGGER.isWarnEnabled())
+					LOGGER.warn("Could not parse Address list for filtering", e);
 				matched = false;
 			}
 			break;

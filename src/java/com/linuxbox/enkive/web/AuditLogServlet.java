@@ -1,3 +1,22 @@
+/*******************************************************************************
+ * Copyright 2012 The Linux Box Corporation.
+ * 
+ * This file is part of Enkive CE (Community Edition).
+ * 
+ * Enkive CE is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of
+ * the License, or (at your option) any later version.
+ * 
+ * Enkive CE is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Affero General Public
+ * License along with Enkive CE. If not, see
+ * <http://www.gnu.org/licenses/>.
+ ******************************************************************************/
 package com.linuxbox.enkive.web;
 
 import static com.linuxbox.enkive.web.WebConstants.DETAILED_LOCAL_DATE_FORMAT;
@@ -80,9 +99,11 @@ public class AuditLogServlet extends EnkiveServlet {
 				jsonResponse.put(WebPageInfo.PAGING_LABEL,
 						pageInfo.getPageJSON());
 				auditService.addEvent(AuditService.AUDIT_LOG_QUERY,
-						AuditService.USER_SYSTEM, resultsString);
+						getPermissionService().getCurrentUsername(),
+						resultsString);
 			} catch (AuditServiceException e) {
-				LOGGER.error("error creating audit entry ", e);
+				if (LOGGER.isErrorEnabled())
+					LOGGER.error("error creating audit entry ", e);
 				resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
 						"error creating audit entry " + "; see server logs");
 
@@ -92,7 +113,8 @@ public class AuditLogServlet extends EnkiveServlet {
 			}
 
 		} catch (JSONException e) {
-			LOGGER.error("JSONException", e);
+			if (LOGGER.isErrorEnabled())
+				LOGGER.error("JSONException", e);
 			resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
 					"error transcribing audit trail entries to JSON; see server logs");
 		} finally {
@@ -101,7 +123,8 @@ public class AuditLogServlet extends EnkiveServlet {
 			try {
 				resp.getWriter().write(jsonResultString);
 			} catch (IOException e) {
-				LOGGER.error("Could not write JSON response");
+				if (LOGGER.isErrorEnabled())
+					LOGGER.error("Could not write JSON response");
 			}
 
 		}
@@ -118,7 +141,8 @@ public class AuditLogServlet extends EnkiveServlet {
 				DETAILED_LOCAL_DATE_FORMAT.format(entry.getTimestamp()));
 		entryObject.put(EVENT_CODE_KEY, String.valueOf(entry.getEventCode()));
 		entryObject.put(USER_NAME_KEY, entry.getUserName());
-		entryObject.put(DATE_NUMBER_KEY, String.valueOf(entry.getTimestamp().getTime()));
+		entryObject.put(DATE_NUMBER_KEY,
+				String.valueOf(entry.getTimestamp().getTime()));
 		entryObject.put(DESCRIPTION_KEY, buildDescription(entry));
 
 		return entryObject;

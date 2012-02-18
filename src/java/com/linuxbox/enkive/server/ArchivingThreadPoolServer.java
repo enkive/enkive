@@ -1,22 +1,22 @@
-/*
- *  Copyright 2010 The Linux Box Corporation.
- *
- *  This file is part of Enkive CE (Community Edition).
- *
- *  Enkive CE is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU Affero General Public License as
- *  published by the Free Software Foundation, either version 3 of
- *  the License, or (at your option) any later version.
- *
- *  Enkive CE is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- *  GNU Affero General Public License for more details.
- *
- *  You should have received a copy of the GNU Affero General Public
- *  License along with Enkive CE. If not, see
- *  <http://www.gnu.org/licenses/>.
- */
+/*******************************************************************************
+ * Copyright 2012 The Linux Box Corporation.
+ * 
+ * This file is part of Enkive CE (Community Edition).
+ * 
+ * Enkive CE is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of
+ * the License, or (at your option) any later version.
+ * 
+ * Enkive CE is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Affero General Public
+ * License along with Enkive CE. If not, see
+ * <http://www.gnu.org/licenses/>.
+ ******************************************************************************/
 
 package com.linuxbox.enkive.server;
 
@@ -46,7 +46,7 @@ import com.linuxbox.util.threadpool.ThreadAspects;
 public abstract class ArchivingThreadPoolServer extends ThreadPoolServer
 		implements ArchivingThreadPoolServerMBean, ThreadAspects,
 		ApplicationContextAware {
-	private final static Log logger = LogFactory
+	private final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.server");
 
 	protected static ApplicationContext applicationContext = null;
@@ -110,7 +110,9 @@ public abstract class ArchivingThreadPoolServer extends ThreadPoolServer
 	 */
 	@Override
 	public void beforeExecute(Thread thread, Runnable runnable) {
-		logger.trace("in beforeExecute for " + runnable.getClass().getName());
+		if (LOGGER.isTraceEnabled())
+			LOGGER.trace("in beforeExecute for "
+					+ runnable.getClass().getName());
 		if (runnable instanceof AbstractMailProcessor) {
 			final AbstractMailProcessor processor = (AbstractMailProcessor) runnable;
 			synchronized (liveProcessors) {
@@ -125,7 +127,8 @@ public abstract class ArchivingThreadPoolServer extends ThreadPoolServer
 	 */
 	@Override
 	public void afterExecute(Runnable runnable, Throwable throwable) {
-		logger.trace("in afterExecute for " + runnable.getClass().getName());
+		if (LOGGER.isTraceEnabled())
+			LOGGER.trace("in afterExecute for " + runnable.getClass().getName());
 		if (runnable instanceof AbstractMailProcessor) {
 			final AbstractMailProcessor processor = (AbstractMailProcessor) runnable;
 			synchronized (liveProcessors) {

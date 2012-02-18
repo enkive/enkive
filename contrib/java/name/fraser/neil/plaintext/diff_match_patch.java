@@ -1150,7 +1150,7 @@ public class diff_match_patch {
 						&& ((pre_ins && pre_del && post_ins && post_del) || ((lastequality
 								.length() < Diff_EditCost / 2) && ((pre_ins ? 1
 								: 0) + (pre_del ? 1 : 0) + (post_ins ? 1 : 0) + (post_del ? 1
-								: 0)) == 3))) {
+									: 0)) == 3))) {
 					// System.out.println("Splitting: '" + lastequality + "'");
 					// Walk back to offending equality.
 					while (thisDiff != equalities.lastElement()) {

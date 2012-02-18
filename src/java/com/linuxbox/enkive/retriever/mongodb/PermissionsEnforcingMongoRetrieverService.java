@@ -1,3 +1,22 @@
+/*******************************************************************************
+ * Copyright 2012 The Linux Box Corporation.
+ * 
+ * This file is part of Enkive CE (Community Edition).
+ * 
+ * Enkive CE is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of
+ * the License, or (at your option) any later version.
+ * 
+ * Enkive CE is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Affero General Public
+ * License along with Enkive CE. If not, see
+ * <http://www.gnu.org/licenses/>.
+ ******************************************************************************/
 package com.linuxbox.enkive.retriever.mongodb;
 
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.CC;
@@ -9,6 +28,8 @@ import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.AT
 
 import java.util.Collection;
 
+import com.linuxbox.enkive.audit.AuditService;
+import com.linuxbox.enkive.audit.AuditServiceException;
 import com.linuxbox.enkive.exception.CannotGetPermissionsException;
 import com.linuxbox.enkive.exception.CannotRetrieveException;
 import com.linuxbox.enkive.message.EncodedContentData;
@@ -37,9 +58,12 @@ public class PermissionsEnforcingMongoRetrieverService extends
 		try {
 			if (permService.isAdmin()
 					|| permService.canReadMessage(
-							permService.getCurrentUsername(), message))
+							permService.getCurrentUsername(), message)) {
+				auditService.addEvent(AuditService.MESSAGE_RETRIEVED,
+						permService.getCurrentUsername(),
+						"Message Retrieved - " + message.getId());
 				return message;
-			else
+			} else
 				throw new CannotRetrieveException(
 						permService.getCurrentUsername()
 								+ " does not have permission to retrieve message: "
@@ -48,6 +72,9 @@ public class PermissionsEnforcingMongoRetrieverService extends
 			throw new CannotRetrieveException(
 					"Could not get permissions for user to retrieve message: "
 							+ messageUUID, e);
+		} catch (AuditServiceException e) {
+			throw new CannotRetrieveException("Could not write to audit log ",
+					e);
 		}
 
 	}
@@ -55,9 +82,17 @@ public class PermissionsEnforcingMongoRetrieverService extends
 	@Override
 	public EncodedContentData retrieveAttachment(String attachmentUUID)
 			throws CannotRetrieveException {
-		if (canReadAttachment(permService.getCurrentUsername(), attachmentUUID))
+		if (canReadAttachment(permService.getCurrentUsername(), attachmentUUID)) {
+			try {
+				auditService.addEvent(AuditService.ATTACHMENT_RETRIEVED,
+						permService.getCurrentUsername(),
+						"Attachment Retrieved - " + attachmentUUID);
+			} catch (AuditServiceException e) {
+				throw new CannotRetrieveException(
+						"Could not write to audit log ", e);
+			}
 			return super.retrieveAttachment(attachmentUUID);
-		else
+		} else
 			throw new CannotRetrieveException();
 	}
 

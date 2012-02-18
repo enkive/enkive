@@ -14,18 +14,21 @@
 	<property name="lib.dir" value="${project.dir}/lib" />
 	<property name="contrib.dir" value="${project.dir}/contrib" />
 	<property name="jetty.dir" value="${project.dir}/jetty" />
+	<property name="webapps.dir" value="${jetty.dir}/webapps" />
 	<property name="package.file.jar" value="${build.dir}/${project.name}.jar" />
 	<property name="package.file.zip" value="${build.dir}/${project.name}-${enkive.version}.zip" />
-		
-		
+
+	<property name="ediscovery.dir" value="../Ediscovery" />
+	<property name="enkive-socket-filter.dir" value="../Enkive-Socket-Filter" />
+
 	<path id="classpath.lib">
 		<fileset dir="${lib.dir}" includes="**/*.jar" />
 	</path>
-	
+
 	<path id="contribpath.lib">
 		<fileset dir="${contrib.dir}/java" />
 	</path>
-	
+
 	<target name="clean" description="Removes all generated files">
 		<delete dir="${build.dir}" />
 		<delete dir="${bin.dir}" />
@@ -43,11 +46,10 @@
 		<delete file="${build.dir}/data/emergencySaveMessages" />
 		<mkdir dir="${build.dir}/data/emergencySaveMessages" />
 	</target>
-	
+
 	<target name="compile" depends="setup" description="Compiles src to ${bin.dir}">
 		<mkdir dir="${bin.dir}" />
-		<javac srcdir="${source.dir}/java; ${contrib.dir}/java" destdir="${bin.dir}"  
-			source="1.5" target="1.5" debug="on" fork="yes" deprecation="on">
+		<javac srcdir="${source.dir}/java; ${contrib.dir}/java" destdir="${bin.dir}" source="1.5" target="1.5" debug="on" fork="yes" deprecation="on">
 			<classpath refid="classpath.lib" />
 			<exclude name="${contrib.dir}/java" />
 		</javac>
@@ -58,7 +60,7 @@
 			<fileset dir="${source.dir}/java" excludes="**/*.java" />
 		</copy>
 	</target>
-	
+
 	<target name="package-jar" depends="compile" description="Jars up the compiled classes into ${package.file.jar}">
 		<delete file="${package.file.jar}" />
 		<jar destfile="${package.file.jar}">
@@ -66,8 +68,8 @@
 			<fileset dir="${bin.dir}" includes="name/**" />
 		</jar>
 	</target>
-	
-	<target name="package" depends="package-jar" description="Creates a zip called ${package.file.zip} ">
+
+	<target name="package" depends="package-jar, Build Ediscovery" description="Creates a zip called ${package.file.zip} ">
 
 		<delete file="${package.file.zip}" />
 		<zip destfile="${package.file.zip}" update="true">
@@ -78,7 +80,15 @@
 			<zipfileset dir="${scripts.dir}" prefix="${label}/scripts" excludesfile="${scripts.dir}/enkive" />
 			<zipfileset dir="${lib.dir}" prefix="${label}/lib" excludes="src/**, javadoc/**" />
 			<zipfileset dir="${build.dir}/data" prefix="${label}/data" />
+			<zipfileset dir="${enkive-socket-filter.dir}" includes="Makefile, README.txt, src/" prefix="${label}/utilities/enkive-socket-filter/" />
 		</zip>
 	</target>
-	
+
+	<target name="Build Ediscovery">
+		<delete file="${webapps.dir}/ediscovery.war" />
+		<subant target="deploy-war" buildpath="${ediscovery.dir}">
+			<property name="ediscovery.war" value="${webapps.dir}" />
+		</subant>
+	</target>
+
 </project>

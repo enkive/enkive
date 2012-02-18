@@ -1,3 +1,22 @@
+/*******************************************************************************
+ * Copyright 2012 The Linux Box Corporation.
+ * 
+ * This file is part of Enkive CE (Community Edition).
+ * 
+ * Enkive CE is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of
+ * the License, or (at your option) any later version.
+ * 
+ * Enkive CE is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Affero General Public
+ * License along with Enkive CE. If not, see
+ * <http://www.gnu.org/licenses/>.
+ ******************************************************************************/
 package com.linuxbox.enkive.message.search.mongodb;
 
 import java.util.Date;
@@ -16,9 +35,9 @@ import com.linuxbox.enkive.docsearch.DocSearchQueryService;
 import com.linuxbox.enkive.message.search.exception.MessageSearchException;
 import com.linuxbox.enkive.permissions.PermissionService;
 import com.linuxbox.enkive.workspace.SearchResult;
-import com.linuxbox.enkive.workspace.WorkspaceService;
 import com.linuxbox.enkive.workspace.SearchResult.Status;
 import com.linuxbox.enkive.workspace.WorkspaceException;
+import com.linuxbox.enkive.workspace.WorkspaceService;
 import com.mongodb.Mongo;
 
 public class AsynchronousSearchThread extends
@@ -66,10 +85,12 @@ public class AsynchronousSearchThread extends
 			} catch (MessageSearchException e) {
 				searchResult.setStatus(Status.UNKNOWN);
 				workspaceService.saveSearchResult(searchResult);
-				logger.error("Could not complete message search", e);
+				if (LOGGER.isErrorEnabled())
+					LOGGER.error("Could not complete message search", e);
 			}
 		} catch (WorkspaceException e) {
-			logger.error("Could not complete message search", e);
+			if (LOGGER.isErrorEnabled())
+				LOGGER.error("Could not complete message search", e);
 		} finally {
 			SecurityContextHolder.clearContext();
 		}

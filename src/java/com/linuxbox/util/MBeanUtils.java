@@ -1,22 +1,22 @@
-/*
- *  Copyright 2010 The Linux Box Corporation.
- *
- *  This file is part of Enkive CE (Community Edition).
- *
- *  Enkive CE is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU Affero General Public License as
- *  published by the Free Software Foundation, either version 3 of
- *  the License, or (at your option) any later version.
- *
- *  Enkive CE is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- *  GNU Affero General Public License for more details.
- *
- *  You should have received a copy of the GNU Affero General Public
- *  License along with Enkive CE. If not, see
- *  <http://www.gnu.org/licenses/>.
- */
+/*******************************************************************************
+ * Copyright 2012 The Linux Box Corporation.
+ * 
+ * This file is part of Enkive CE (Community Edition).
+ * 
+ * Enkive CE is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of
+ * the License, or (at your option) any later version.
+ * 
+ * Enkive CE is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Affero General Public
+ * License along with Enkive CE. If not, see
+ * <http://www.gnu.org/licenses/>.
+ ******************************************************************************/
 
 package com.linuxbox.util;
 
@@ -35,7 +35,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 public class MBeanUtils {
-	private final static Log logger = LogFactory.getLog("com.linuxbox.util");
+	private final static Log LOGGER = LogFactory.getLog("com.linuxbox.util");
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static ObjectName registerMBean(Object mBean, Class mBeanInterface,
@@ -45,7 +45,8 @@ public class MBeanUtils {
 					mBeanInterface);
 			return registerMBean(standardMBean, type, name, null);
 		} catch (NotCompliantMBeanException e) {
-			logger.error("noncompliant mbean", e);
+			if (LOGGER.isErrorEnabled())
+				LOGGER.error("noncompliant mbean", e);
 		}
 
 		return null;
@@ -75,13 +76,17 @@ public class MBeanUtils {
 			server.registerMBean(mBean, objName);
 			return objName;
 		} catch (InstanceAlreadyExistsException e) {
-			logger.warn("tried to re-register mbean", e);
+			if (LOGGER.isWarnEnabled())
+				LOGGER.warn("tried to re-register mbean", e);
 		} catch (MBeanRegistrationException e) {
-			logger.error("could not register mbean", e);
+			if (LOGGER.isErrorEnabled())
+				LOGGER.error("could not register mbean", e);
 		} catch (NotCompliantMBeanException e) {
-			logger.error("noncompliant mbean", e);
+			if (LOGGER.isErrorEnabled())
+				LOGGER.error("noncompliant mbean", e);
 		} catch (MalformedObjectNameException e) {
-			logger.error("noncompliant mbean name", e);
+			if (LOGGER.isErrorEnabled())
+				LOGGER.error("noncompliant mbean name", e);
 		}
 
 		return null;
@@ -96,9 +101,11 @@ public class MBeanUtils {
 			MBeanServer server = ManagementFactory.getPlatformMBeanServer();
 			server.unregisterMBean(name);
 		} catch (MBeanRegistrationException e) {
-			logger.error("could not unregister mbean " + name, e);
+			if (LOGGER.isErrorEnabled())
+				LOGGER.error("could not unregister mbean " + name, e);
 		} catch (InstanceNotFoundException e) {
-			logger.error("could not find mbean " + name, e);
+			if (LOGGER.isErrorEnabled())
+				LOGGER.error("could not find mbean " + name, e);
 		}
 	}
 }

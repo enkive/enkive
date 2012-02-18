@@ -1,22 +1,22 @@
-/*
- *  Copyright 2010 The Linux Box Corporation.
- *
- *  This file is part of Enkive CE (Community Edition).
- *
- *  Enkive CE is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU Affero General Public License as
- *  published by the Free Software Foundation, either version 3 of
- *  the License, or (at your option) any later version.
- *
- *  Enkive CE is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- *  GNU Affero General Public License for more details.
- *
- *  You should have received a copy of the GNU Affero General Public
- *  License along with Enkive CE. If not, see
- *  <http://www.gnu.org/licenses/>.
- */
+/*******************************************************************************
+ * Copyright 2012 The Linux Box Corporation.
+ * 
+ * This file is part of Enkive CE (Community Edition).
+ * 
+ * Enkive CE is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of
+ * the License, or (at your option) any later version.
+ * 
+ * Enkive CE is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Affero General Public
+ * License along with Enkive CE. If not, see
+ * <http://www.gnu.org/licenses/>.
+ ******************************************************************************/
 
 package com.linuxbox.enkive.web;
 
@@ -37,7 +37,7 @@ public abstract class AbstractJsonServlet extends EnkiveServlet {
 	 * 
 	 */
 	private static final long serialVersionUID = -8772085078547445222L;
-	protected static final Log logger = LogFactory
+	protected static final Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.webscripts");
 
 	public AbstractJsonServlet() {
@@ -53,7 +53,8 @@ public abstract class AbstractJsonServlet extends EnkiveServlet {
 			}
 			errors.put(errorMessage);
 		} catch (JSONException e) {
-			logger.error("could not add error to JSON query result");
+			if (LOGGER.isErrorEnabled())
+				LOGGER.error("could not add error to JSON query result");
 		}
 	}
 
@@ -63,7 +64,8 @@ public abstract class AbstractJsonServlet extends EnkiveServlet {
 		try {
 			response.getWriter().write(jsonResultString);
 		} catch (IOException e) {
-			logger.error("Could not write webscript response");
+			if (LOGGER.isErrorEnabled())
+				LOGGER.error("Could not write webscript response");
 		}
 	}
 }

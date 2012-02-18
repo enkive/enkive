@@ -1,3 +1,22 @@
+/*******************************************************************************
+ * Copyright 2012 The Linux Box Corporation.
+ * 
+ * This file is part of Enkive CE (Community Edition).
+ * 
+ * Enkive CE is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of
+ * the License, or (at your option) any later version.
+ * 
+ * Enkive CE is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Affero General Public
+ * License along with Enkive CE. If not, see
+ * <http://www.gnu.org/licenses/>.
+ ******************************************************************************/
 package com.linuxbox.enkive.web;
 
 import java.io.BufferedWriter;
@@ -31,7 +50,8 @@ public class MessageRetrieveServlet extends EnkiveServlet {
 
 		try {
 			final Message message = retriever.retrieve(messageId);
-			LOGGER.trace("retrieving message " + messageId);
+			if (LOGGER.isTraceEnabled())
+				LOGGER.trace("retrieving message " + messageId);
 
 			final ServletOutputStream outputStream = resp.getOutputStream();
 			BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(
@@ -39,7 +59,8 @@ public class MessageRetrieveServlet extends EnkiveServlet {
 			message.pushReconstitutedEmail(writer);
 			resp.flushBuffer();
 		} catch (CannotRetrieveException e) {
-			LOGGER.error("error retrieving message " + messageId, e);
+			if (LOGGER.isErrorEnabled())
+				LOGGER.error("error retrieving message " + messageId, e);
 			respondError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
 					"error retrieving message " + messageId
 							+ "; see server logs", resp);

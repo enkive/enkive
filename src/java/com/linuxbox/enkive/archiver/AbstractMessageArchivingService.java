@@ -1,3 +1,22 @@
+/*******************************************************************************
+ * Copyright 2012 The Linux Box Corporation.
+ * 
+ * This file is part of Enkive CE (Community Edition).
+ * 
+ * Enkive CE is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of
+ * the License, or (at your option) any later version.
+ * 
+ * Enkive CE is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Affero General Public
+ * License along with Enkive CE. If not, see
+ * <http://www.gnu.org/licenses/>.
+ ******************************************************************************/
 package com.linuxbox.enkive.archiver;
 
 import java.io.BufferedWriter;
@@ -20,13 +39,14 @@ import com.linuxbox.enkive.archiver.exceptions.FailedToEmergencySaveException;
 import com.linuxbox.enkive.archiver.exceptions.MessageArchivingServiceException;
 import com.linuxbox.enkive.audit.AuditService;
 import com.linuxbox.enkive.audit.AuditServiceException;
+import com.linuxbox.enkive.audit.AuditTrailException;
 import com.linuxbox.enkive.docstore.DocStoreService;
 import com.linuxbox.enkive.message.Message;
 
 public abstract class AbstractMessageArchivingService implements
 		MessageArchivingService {
 
-	protected final static Log logger = LogFactory
+	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.messageArchvingService");
 	private final static int EMERGENCY_SAVE_ATTEMPTS = 4;
 
@@ -77,7 +97,10 @@ public abstract class AbstractMessageArchivingService implements
 				uuid = storeMessage(message);
 			}
 		} catch (Exception e) {
-			logger.error("Could not archive Message " + message.getCleanMessageId(), e);
+			if (LOGGER.isErrorEnabled())
+				LOGGER.error(
+						"Could not archive Message "
+								+ message.getCleanMessageId(), e);
 			emergencySave(message.getReconstitutedEmail());
 		}
 		return uuid;
@@ -142,7 +165,8 @@ public abstract class AbstractMessageArchivingService implements
 				messageSaved = true;
 
 		} else {
-			logger.warn("emergency save data is empty; nothing saved");
+			if (LOGGER.isWarnEnabled())
+				LOGGER.warn("emergency save data is empty; nothing saved");
 		}
 		return messageSaved;
 	}
@@ -207,7 +231,8 @@ public abstract class AbstractMessageArchivingService implements
 				out = new BufferedWriter(new OutputStreamWriter(fileStream));
 				out.write(messageData);
 
-				logger.info("Saved message to file: \"" + fileName + "\"");
+				if (LOGGER.isInfoEnabled())
+					LOGGER.info("Saved message to file: \"" + fileName + "\"");
 				return filePath;
 			} finally {
 				if (lock != null) {
@@ -215,7 +240,8 @@ public abstract class AbstractMessageArchivingService implements
 				}
 			}
 		} catch (IOException e) {
-			logger.fatal("Emergency save to disk failed. ", e);
+			if (LOGGER.isFatalEnabled())
+				LOGGER.fatal("Emergency save to disk failed. ", e);
 			throw new FailedToEmergencySaveException(e);
 		} finally {
 			try {
@@ -225,8 +251,9 @@ public abstract class AbstractMessageArchivingService implements
 					fileStream.close();
 				}
 			} catch (IOException e) {
-				logger.warn("could not close emergency save file \"" + filePath
-						+ "\".");
+				if (LOGGER.isWarnEnabled())
+					LOGGER.warn("could not close emergency save file \""
+							+ filePath + "\".");
 			}
 		}
 	}

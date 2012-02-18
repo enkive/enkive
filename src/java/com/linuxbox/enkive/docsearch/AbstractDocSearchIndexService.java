@@ -1,3 +1,22 @@
+/*******************************************************************************
+ * Copyright 2012 The Linux Box Corporation.
+ * 
+ * This file is part of Enkive CE (Community Edition).
+ * 
+ * Enkive CE is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of
+ * the License, or (at your option) any later version.
+ * 
+ * Enkive CE is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Affero General Public
+ * License along with Enkive CE. If not, see
+ * <http://www.gnu.org/licenses/>.
+ ******************************************************************************/
 package com.linuxbox.enkive.docsearch;
 
 import static com.linuxbox.enkive.docstore.DocStoreConstants.QUEUE_ENTRY_INDEX_DOCUMENT;
@@ -31,9 +50,6 @@ public abstract class AbstractDocSearchIndexService implements
 	 * that are un-indexed and index them. If it finds there are currently no
 	 * un-indexed documents, it will go to sleep for a little and then try
 	 * again.
-	 * 
-	 * @author ivancich
-	 * 
 	 */
 	class IndexPullingThread extends Thread {
 		InterruptableSleeper sleeper;
@@ -48,13 +64,15 @@ public abstract class AbstractDocSearchIndexService implements
 
 		void markAsErrorIndexing(String documentId, Throwable exception) {
 			try {
-				LOGGER.error("Unable to index document: " + documentId,
-						exception);
+				if (LOGGER.isErrorEnabled())
+					LOGGER.error("Unable to index document: " + documentId,
+							exception);
 				docStoreService.markAsErrorIndexing(documentId);
 			} catch (DocStoreException e) {
-				LOGGER.error(
-						"Unable to mark document as having indexing error: "
-								+ documentId, e);
+				if (LOGGER.isErrorEnabled())
+					LOGGER.error(
+							"Unable to mark document as having indexing error: "
+									+ documentId, e);
 			}
 		}
 
@@ -62,11 +80,14 @@ public abstract class AbstractDocSearchIndexService implements
 			status = Status.STOPPING;
 			sleeper.interrupt();
 			try {
-				LOGGER.trace("waiting for indexing thread to finish up");
+				if (LOGGER.isTraceEnabled())
+					LOGGER.trace("waiting for indexing thread to finish up");
 				this.join(maximumToWait);
-				LOGGER.trace("indexing thread finished up");
+				if (LOGGER.isTraceEnabled())
+					LOGGER.trace("indexing thread finished up");
 			} catch (InterruptedException e) {
-				LOGGER.warn("IndexPullingThread interrupted", e);
+				if (LOGGER.isWarnEnabled())
+					LOGGER.warn("IndexPullingThread interrupted", e);
 			}
 		}
 
@@ -88,7 +109,8 @@ public abstract class AbstractDocSearchIndexService implements
 							break;
 						}
 					} catch (QueueServiceException e) {
-						LOGGER.error("could not access indexer queue", e);
+						if (LOGGER.isErrorEnabled())
+							LOGGER.error("could not access indexer queue", e);
 						break;
 					}
 
@@ -108,7 +130,8 @@ public abstract class AbstractDocSearchIndexService implements
 						try {
 							doIndexDocument(documentId);
 						} catch (Exception e) {
-							LOGGER.warn("got exception while indexing", e);
+							if (LOGGER.isWarnEnabled())
+								LOGGER.warn("got exception while indexing", e);
 							markAsErrorIndexing(documentId, e);
 							error = true;
 						}
@@ -117,15 +140,17 @@ public abstract class AbstractDocSearchIndexService implements
 						try {
 							doRemoveDocument(documentId);
 						} catch (Exception e) {
-							LOGGER.error(
-									"got exception while trying to remove \""
-											+ documentId + "\"", e);
+							if (LOGGER.isErrorEnabled())
+								LOGGER.error(
+										"got exception while trying to remove \""
+												+ documentId + "\"", e);
 							error = true;
 						}
 						break;
 					default:
-						LOGGER.error("could not interpret note of \""
-								+ entry.getNote() + "\"");
+						if (LOGGER.isErrorEnabled())
+							LOGGER.error("could not interpret note of \""
+									+ entry.getNote() + "\"");
 					}
 
 					try {
@@ -135,8 +160,9 @@ public abstract class AbstractDocSearchIndexService implements
 							indexerQueueService.finishEntry(entry);
 						}
 					} catch (QueueServiceException e) {
-						LOGGER.error("could note finalize indexer queue entry (\""
-								+ documentId + "\" / " + note + ")");
+						if (LOGGER.isErrorEnabled())
+							LOGGER.error("could note finalize indexer queue entry (\""
+									+ documentId + "\" / " + note + ")");
 					} finally {
 						if (LOGGER.isTraceEnabled()) {
 							final long endTime = System.currentTimeMillis();
@@ -260,7 +286,8 @@ public abstract class AbstractDocSearchIndexService implements
 
 	@Override
 	public final void shutdown() throws DocSearchException {
-		LOGGER.trace("starting shutdown of DocSearchIndexService");
+		if (LOGGER.isTraceEnabled())
+			LOGGER.trace("starting shutdown of DocSearchIndexService");
 
 		// first I shut down my index pulling thread if I have one
 		synchronized (this) {
@@ -275,7 +302,8 @@ public abstract class AbstractDocSearchIndexService implements
 		subShutdown();
 
 		// then I shut down anything else
-		LOGGER.trace("finished shutdown of DocSearchIndexService");
+		if (LOGGER.isTraceEnabled())
+			LOGGER.trace("finished shutdown of DocSearchIndexService");
 	}
 
 	@Override

@@ -1,24 +1,47 @@
-/*
- *  Copyright 2010 The Linux Box Corporation.
- *
- *  This file is part of Enkive CE (Community Edition).
- *
- *  Enkive CE is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU Affero General Public License as
- *  published by the Free Software Foundation, either version 3 of
- *  the License, or (at your option) any later version.
- *
- *  Enkive CE is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- *  GNU Affero General Public License for more details.
- *
- *  You should have received a copy of the GNU Affero General Public
- *  License along with Enkive CE. If not, see
- *  <http://www.gnu.org/licenses/>.
- */
+/*******************************************************************************
+ * Copyright 2012 The Linux Box Corporation.
+ * 
+ * This file is part of Enkive CE (Community Edition).
+ * 
+ * Enkive CE is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of
+ * the License, or (at your option) any later version.
+ * 
+ * Enkive CE is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Affero General Public
+ * License along with Enkive CE. If not, see
+ * <http://www.gnu.org/licenses/>.
+ ******************************************************************************/
 
 package com.linuxbox.enkive.filter;
+
+import static com.linuxbox.enkive.filter.EnkiveFilterConstants.FilterDefinitionConstants.ACTION;
+import static com.linuxbox.enkive.filter.EnkiveFilterConstants.FilterDefinitionConstants.ADDRESS;
+import static com.linuxbox.enkive.filter.EnkiveFilterConstants.FilterDefinitionConstants.ALLOW;
+import static com.linuxbox.enkive.filter.EnkiveFilterConstants.FilterDefinitionConstants.COMPARISON;
+import static com.linuxbox.enkive.filter.EnkiveFilterConstants.FilterDefinitionConstants.CONTAINS;
+import static com.linuxbox.enkive.filter.EnkiveFilterConstants.FilterDefinitionConstants.DATE;
+import static com.linuxbox.enkive.filter.EnkiveFilterConstants.FilterDefinitionConstants.DEFAULT_ACTION;
+import static com.linuxbox.enkive.filter.EnkiveFilterConstants.FilterDefinitionConstants.DENY;
+import static com.linuxbox.enkive.filter.EnkiveFilterConstants.FilterDefinitionConstants.DOES_NOT_CONTAIN;
+import static com.linuxbox.enkive.filter.EnkiveFilterConstants.FilterDefinitionConstants.DOES_NOT_MATCH;
+import static com.linuxbox.enkive.filter.EnkiveFilterConstants.FilterDefinitionConstants.ENABLED;
+import static com.linuxbox.enkive.filter.EnkiveFilterConstants.FilterDefinitionConstants.FILTER;
+import static com.linuxbox.enkive.filter.EnkiveFilterConstants.FilterDefinitionConstants.FILTER_TRUE;
+import static com.linuxbox.enkive.filter.EnkiveFilterConstants.FilterDefinitionConstants.FLOAT;
+import static com.linuxbox.enkive.filter.EnkiveFilterConstants.FilterDefinitionConstants.HEADER;
+import static com.linuxbox.enkive.filter.EnkiveFilterConstants.FilterDefinitionConstants.INTEGER;
+import static com.linuxbox.enkive.filter.EnkiveFilterConstants.FilterDefinitionConstants.IS_GREATER_THAN;
+import static com.linuxbox.enkive.filter.EnkiveFilterConstants.FilterDefinitionConstants.IS_LESS_THAN;
+import static com.linuxbox.enkive.filter.EnkiveFilterConstants.FilterDefinitionConstants.MATCHES;
+import static com.linuxbox.enkive.filter.EnkiveFilterConstants.FilterDefinitionConstants.TEXT;
+import static com.linuxbox.enkive.filter.EnkiveFilterConstants.FilterDefinitionConstants.TYPE;
+import static com.linuxbox.enkive.filter.EnkiveFilterConstants.FilterDefinitionConstants.VALUE;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -40,15 +63,16 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import static com.linuxbox.enkive.filter.EnkiveFilterConstants.*;
-import static com.linuxbox.enkive.filter.EnkiveFilterConstants.FilterDefinitionConstants.*;
+import com.linuxbox.enkive.filter.EnkiveFilterConstants.FilterAction;
+import com.linuxbox.enkive.filter.EnkiveFilterConstants.FilterComparator;
+import com.linuxbox.enkive.filter.EnkiveFilterConstants.FilterType;
 import com.linuxbox.enkive.message.Message;
 
 public class EnkiveFiltersBean {
 
 	public final static String ENKIVE_FILTERS_FILENAME = "enkive-filters.xml";
-	
-	private final static Log logger = LogFactory
+
+	private final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.messagefilters");
 
 	protected int defaultAction = FilterAction.ALLOW;
@@ -59,7 +83,8 @@ public class EnkiveFiltersBean {
 	}
 
 	protected void startup() {
-		logger.trace("Loading Enkive filters");
+		if (LOGGER.isTraceEnabled())
+			LOGGER.trace("Loading Enkive filters");
 		try {
 			Resource res = new ClassPathResource(ENKIVE_FILTERS_FILENAME);
 
@@ -91,17 +116,17 @@ public class EnkiveFiltersBean {
 					if (((Element) value).getAttribute(TYPE).toLowerCase()
 							.equals(INTEGER))
 						filterType = FilterType.INTEGER;
-					else if (((Element) value).getAttribute(TYPE)
-							.toLowerCase().equals(TEXT))
+					else if (((Element) value).getAttribute(TYPE).toLowerCase()
+							.equals(TEXT))
 						filterType = FilterType.STRING;
-					else if (((Element) value).getAttribute(TYPE)
-							.toLowerCase().equals(ADDRESS))
+					else if (((Element) value).getAttribute(TYPE).toLowerCase()
+							.equals(ADDRESS))
 						filterType = FilterType.ADDRESS;
-					else if (((Element) value).getAttribute(TYPE)
-							.toLowerCase().equals(FLOAT))
+					else if (((Element) value).getAttribute(TYPE).toLowerCase()
+							.equals(FLOAT))
 						filterType = FilterType.FLOAT;
-					else if (((Element) value).getAttribute(TYPE)
-							.toLowerCase().equals(DATE))
+					else if (((Element) value).getAttribute(TYPE).toLowerCase()
+							.equals(DATE))
 						filterType = FilterType.DATE;
 
 					if (((Element) value).getAttribute(COMPARISON)
@@ -126,19 +151,23 @@ public class EnkiveFiltersBean {
 					filterSet.add(new EnkiveFilter(header.getTextContent(),
 							filterAction, filterType, value.getTextContent(),
 							filterComparator, defaultAction));
-					logger.info("Enkive filtering by header "
+					LOGGER.info("Enkive filtering by header "
 							+ header.getTextContent());
 				}
 			}
 			filterFile.close();
 		} catch (FileNotFoundException e) {
-			logger.fatal("Could not find enkive-filters.xml, Filters not initialized");
+			if (LOGGER.isFatalEnabled())
+				LOGGER.fatal("Could not find enkive-filters.xml, Filters not initialized");
 		} catch (IOException e) {
-			logger.fatal("Could not read file enkive-filters.xml, Filters not initialized");
+			if (LOGGER.isFatalEnabled())
+				LOGGER.fatal("Could not read file enkive-filters.xml, Filters not initialized");
 		} catch (ParserConfigurationException e) {
-			logger.fatal("Could not initialize parser for enkive-filters.xml, Filters not initialized");
+			if (LOGGER.isFatalEnabled())
+				LOGGER.fatal("Could not initialize parser for enkive-filters.xml, Filters not initialized");
 		} catch (SAXException e) {
-			logger.fatal("Could not parse enkive-filters.xml, Filters not initialized");
+			if (LOGGER.isFatalEnabled())
+				LOGGER.fatal("Could not parse enkive-filters.xml, Filters not initialized");
 		}
 
 	}
@@ -168,7 +197,7 @@ public class EnkiveFiltersBean {
 			}
 
 			if (archiveMessage == false) {
-				logger.trace("Message " + message.getMessageId()
+				LOGGER.trace("Message " + message.getMessageId()
 						+ " did not pass filter " + filter.getHeader());
 				break;
 			}
