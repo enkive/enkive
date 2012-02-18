@@ -39,7 +39,7 @@ import static com.linuxbox.enkive.filter.EnkiveFilterConstants.FilterDefinitionC
 import static com.linuxbox.enkive.filter.EnkiveFilterConstants.FilterDefinitionConstants.IS_GREATER_THAN;
 import static com.linuxbox.enkive.filter.EnkiveFilterConstants.FilterDefinitionConstants.IS_LESS_THAN;
 import static com.linuxbox.enkive.filter.EnkiveFilterConstants.FilterDefinitionConstants.MATCHES;
-import static com.linuxbox.enkive.filter.EnkiveFilterConstants.FilterDefinitionConstants.TEXT;
+import static com.linuxbox.enkive.filter.EnkiveFilterConstants.FilterDefinitionConstants.STRING;
 import static com.linuxbox.enkive.filter.EnkiveFilterConstants.FilterDefinitionConstants.TYPE;
 import static com.linuxbox.enkive.filter.EnkiveFilterConstants.FilterDefinitionConstants.VALUE;
 
@@ -73,7 +73,7 @@ public class EnkiveFiltersBean {
 	public final static String ENKIVE_FILTERS_FILENAME = "enkive-filters.xml";
 
 	private final static Log LOGGER = LogFactory
-			.getLog("com.linuxbox.enkive.messagefilters");
+			.getLog("com.linuxbox.enkive.message.filters");
 
 	protected int defaultAction = FilterAction.ALLOW;
 	protected Set<EnkiveFilter> filterSet;
@@ -117,7 +117,7 @@ public class EnkiveFiltersBean {
 							.equals(INTEGER))
 						filterType = FilterType.INTEGER;
 					else if (((Element) value).getAttribute(TYPE).toLowerCase()
-							.equals(TEXT))
+							.equals(STRING))
 						filterType = FilterType.STRING;
 					else if (((Element) value).getAttribute(TYPE).toLowerCase()
 							.equals(ADDRESS))
@@ -150,9 +150,10 @@ public class EnkiveFiltersBean {
 
 					filterSet.add(new EnkiveFilter(header.getTextContent(),
 							filterAction, filterType, value.getTextContent(),
-							filterComparator, defaultAction));
-					LOGGER.info("Enkive filtering by header "
-							+ header.getTextContent());
+							filterComparator));
+					if (LOGGER.isTraceEnabled())
+						LOGGER.info("Enkive filtering by header "
+								+ header.getTextContent());
 				}
 			}
 			filterFile.close();
@@ -184,22 +185,39 @@ public class EnkiveFiltersBean {
 				archiveMessage = true;
 			else if (defaultAction == FilterAction.DENY)
 				archiveMessage = false;
-		}
+		} else {
+			boolean filterMatch = false;
+			for (EnkiveFilter filter : filterSet) {
+				try {
+					String value = message.getParsedHeader()
+							.getField(filter.getHeader()).getBody().toString()
+							.trim();
+					filterMatch = filter.filter(value);
+					if (filterMatch) {
+						if (defaultAction == FilterAction.ALLOW
+								&& filter.getFilterAction() == FilterAction.DENY) {
+							archiveMessage = false;
+							if (LOGGER.isTraceEnabled())
+								LOGGER.trace("Message "
+										+ message.getMessageId()
+										+ " did not pass filter "
+										+ filter.getHeader() + " with value " + value);
+							break;
+						} else if (defaultAction == FilterAction.DENY
+								&& filter.getFilterAction() == FilterAction.ALLOW) {
+							archiveMessage = true;
+							if (LOGGER.isTraceEnabled())
+								LOGGER.trace("Message "
+										+ message.getMessageId()
+										+ " allowed by filter "
+										+ filter.getHeader() + " with value " + value);
+							break;
+						}
+					}
 
-		for (EnkiveFilter filter : filterSet) {
-			try {
-				String value = message.getParsedHeader()
-						.getField(filter.getHeader()).getBody().toString()
-						.trim();
-				archiveMessage = filter.filter(value);
-			} catch (Exception e) {
-				// do nothing
-			}
-
-			if (archiveMessage == false) {
-				LOGGER.trace("Message " + message.getMessageId()
-						+ " did not pass filter " + filter.getHeader());
-				break;
+				} catch (Exception e) {
+					// do nothing
+				}
 			}
 		}
 		return archiveMessage;

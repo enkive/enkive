@@ -87,6 +87,7 @@
 		<constructor-arg type="java.lang.String"
 			value="${enkive.messagestore.collection.name}" />
 		<property name="docStoreService" ref="DocStoreService" />
+		<property name="auditService" ref="AuditLogService" />
 	</bean>
 
 	<bean id="MessageSearchService"

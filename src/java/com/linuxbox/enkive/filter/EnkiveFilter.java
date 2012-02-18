@@ -30,7 +30,6 @@ import org.apache.james.mime4j.dom.address.Address;
 import org.apache.james.mime4j.dom.address.AddressList;
 import org.apache.james.mime4j.field.address.ParseException;
 
-import com.linuxbox.enkive.filter.EnkiveFilterConstants.FilterAction;
 import com.linuxbox.enkive.filter.EnkiveFilterConstants.FilterComparator;
 import com.linuxbox.enkive.filter.EnkiveFilterConstants.FilterType;
 import com.linuxbox.enkive.message.AddressParser;
@@ -48,7 +47,6 @@ public class EnkiveFilter {
 	private int filterType;
 	private int filterComparator;
 	private String filterValue;
-	private int defaultAction;
 
 	private EnkiveFilter(String header, int filterType) {
 		this.header = header;
@@ -56,12 +54,11 @@ public class EnkiveFilter {
 	}
 
 	public EnkiveFilter(String header, int filterAction, int filterType,
-			String filterValue, int filterComparator, int defaultAction) {
+			String filterValue, int filterComparator) {
 		this(header, filterType);
 		this.filterAction = filterAction;
 		this.filterValue = filterValue;
 		this.filterComparator = filterComparator;
-		this.defaultAction = defaultAction;
 	}
 
 	public void setHeader(String header) {
@@ -119,25 +116,19 @@ public class EnkiveFilter {
 			}
 			break;
 		}
-		if (matched && filterAction == FilterAction.ALLOW)
-			return true;
-		else if (matched && filterAction == FilterAction.DENY)
-			return false;
-		else if (defaultAction == FilterAction.DENY)
-			return false;
-		else
-			return true;
+		return matched;
 	}
 
 	private boolean filterString(String value) {
 		boolean matched = false;
 		switch (filterComparator) {
 		case FilterComparator.MATCHES:
-			if (value.equals(filterValue))
+			if (value.trim().equals(filterValue)){
 				matched = true;
+			}
 			break;
 		case FilterComparator.DOES_NOT_MATCH:
-			if (!value.equals(filterValue))
+			if (!value.trim().equals(filterValue))
 				matched = true;
 			break;
 		case FilterComparator.CONTAINS:

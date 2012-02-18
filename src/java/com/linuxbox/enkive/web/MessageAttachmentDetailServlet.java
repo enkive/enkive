@@ -66,30 +66,35 @@ public class MessageAttachmentDetailServlet extends EnkiveServlet {
 						|| attachment.getFilename().isEmpty()) {
 					filename = "Message Body";
 				}
+				attachmentObject.put("filename", filename);
+				attachmentObject.put("UUID", attachmentUUID);
+				attachments.put(attachmentObject);
 
-				try {
-					attachmentObject.put("filename", filename);
-					attachmentObject.put("UUID", attachmentUUID);
-					attachments.put(attachmentObject);
-
-					JSONObject jObject = new JSONObject();
-					jObject.put(WebConstants.DATA_TAG, attachments);
-					String jsonString = jObject.toString();
-					resp.getWriter().write(jsonString);
-				} catch (JSONException e) {
-					respondError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
-							null, resp);
-					throw new CannotRetrieveException(
-							"could not create JSON for message attachment", e);
-				}
 			}
+			try {
 
+				JSONObject jObject = new JSONObject();
+				jObject.put(WebConstants.DATA_TAG, attachments);
+				String jsonString = jObject.toString();
+				resp.getWriter().write(jsonString);
+			} catch (JSONException e) {
+				respondError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+						null, resp);
+				throw new CannotRetrieveException(
+						"could not create JSON for message attachment", e);
+			}
 		} catch (CannotRetrieveException e) {
 			respondError(HttpServletResponse.SC_UNAUTHORIZED, null, resp);
 			if (LOGGER.isErrorEnabled())
 				LOGGER.error("Could not retrieve attachment");
 
+		} catch (JSONException e) {
+			respondError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, null,
+					resp);
+			if (LOGGER.isErrorEnabled())
+				LOGGER.error("Could not retrieve attachment");
 		}
+
 	}
 
 }

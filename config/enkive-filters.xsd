@@ -5,7 +5,7 @@
 <xs:element name="defaultAction">
 	<xs:simpleType>
 	    <xs:restriction base="xs:string">
-	      <xs:enumeration value="accept"/>
+	      <xs:enumeration value="allow"/>
 	      <xs:enumeration value="deny"/>
 	    </xs:restriction>
     </xs:simpleType>

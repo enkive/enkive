@@ -35,7 +35,7 @@ public class EnkiveFilterConstants {
 		public static final String VALUE = "value";
 		public static final String TYPE = "type";
 		public static final String INTEGER = "integer";
-		public static final String TEXT = "text";
+		public static final String STRING = "string";
 		public static final String ADDRESS = "address";
 		public static final String FLOAT = "float";
 		public static final String DATE = "date";
