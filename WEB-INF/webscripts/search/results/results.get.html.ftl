@@ -49,17 +49,29 @@
 					        ${message.date}
 					    </td>
 					    <td style="white-space: nowrap">
-					    	<#list message.sender as sender>
-					        	${sender}
-					        </#list>
+					    	<#if message.sender??>
+					    		<#list message.sender as sender>
+					        		${sender}
+					        	</#list>
+					        <#else>
+					        	&nbsp;
+					        </#if>
 					    </td>
 					    <td style="white-space: nowrap">
-					      	<#list message.recipients as recipient>
-					        	${recipient}<br />
-					        </#list>
+					    	<#if message.recipients??>
+					      		<#list message.recipients as recipient>
+					        		${recipient}<br />
+					        	</#list>
+					        <#else>
+					        	&nbsp;
+					        </#if>
 					    </td>
 					    <td>
-					        ${message.subject}
+					    	<#if message.subject??>
+					        	${message.subject}
+					        <#else>
+					        	&nbsp;
+					        </#if>
 					    </td>
 					  </tr>
 					</#list>
