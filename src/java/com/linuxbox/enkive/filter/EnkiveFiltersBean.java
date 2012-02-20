@@ -201,7 +201,8 @@ public class EnkiveFiltersBean {
 								LOGGER.trace("Message "
 										+ message.getMessageId()
 										+ " did not pass filter "
-										+ filter.getHeader() + " with value " + value);
+										+ filter.getHeader() + " with value "
+										+ value);
 							break;
 						} else if (defaultAction == FilterAction.DENY
 								&& filter.getFilterAction() == FilterAction.ALLOW) {
@@ -210,13 +211,18 @@ public class EnkiveFiltersBean {
 								LOGGER.trace("Message "
 										+ message.getMessageId()
 										+ " allowed by filter "
-										+ filter.getHeader() + " with value " + value);
+										+ filter.getHeader() + " with value "
+										+ value);
 							break;
 						}
 					}
 
 				} catch (Exception e) {
-					// do nothing
+					archiveMessage = true;
+					if (LOGGER.isWarnEnabled())
+						LOGGER.warn(
+								"Misconfigured filter - " + filter.getHeader()
+										+ " - message being archived.", e);
 				}
 			}
 		}
