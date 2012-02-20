@@ -82,6 +82,6 @@
 			<attribute name="javadoc_location" value="jar:platform:/resource/enkive2/lib/javadoc/apache-mime4j-storage-0.7.1-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="lib/mongo-2.7.2.jar"/>
+	<classpathentry kind="lib" path="lib/mongo-2.7.3.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
