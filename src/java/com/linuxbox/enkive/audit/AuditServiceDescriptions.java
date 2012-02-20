@@ -26,6 +26,7 @@ import static com.linuxbox.enkive.audit.AuditService.MESSAGE_ARCHIVE_FAILURE;
 import static com.linuxbox.enkive.audit.AuditService.MESSAGE_EMERGENCY_SAVED;
 import static com.linuxbox.enkive.audit.AuditService.MESSAGE_PURGED;
 import static com.linuxbox.enkive.audit.AuditService.MESSAGE_RETRIEVED;
+import static com.linuxbox.enkive.audit.AuditService.ATTACHMENT_RETRIEVED;
 import static com.linuxbox.enkive.audit.AuditService.SEARCH_PERFORMED;
 import static com.linuxbox.enkive.audit.AuditService.SYSTEM_SHUTDOWN;
 import static com.linuxbox.enkive.audit.AuditService.SYSTEM_STARTUP;
@@ -70,6 +71,8 @@ public class AuditServiceDescriptions {
 
 		descriptions.put(MESSAGE_RETRIEVED, new EventDescription(
 				"message retrieved", "message id"));
+		descriptions.put(ATTACHMENT_RETRIEVED, new EventDescription(
+				"attachment retrieved retrieved", "attachment retrieved id"));
 		descriptions.put(MESSAGE_ARCHIVED, new EventDescription(
 				"message archived", "message id"));
 		descriptions.put(MESSAGE_EMERGENCY_SAVED, new EventDescription(

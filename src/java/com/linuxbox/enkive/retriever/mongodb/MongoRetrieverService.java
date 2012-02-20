@@ -95,6 +95,7 @@ public class MongoRetrieverService extends AbstractRetrieverService {
 		try {
 			DBObject messageObject = messageColl.findOne(messageUUID);
 			Message message = new MessageImpl();
+			message.setId(messageUUID);
 			setMessageProperties(message, messageObject);
 			message.setContentHeader(makeContentHeader(messageObject));
 			if (LOGGER.isInfoEnabled())
