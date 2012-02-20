@@ -126,7 +126,7 @@ public class ViewSavedResultsServlet extends EnkiveServlet {
 				List<MessageSummary> messageSummaries = archiveService
 						.retrieveSummary((List<String>) pageInfo
 								.getSubList(messageIds));
-				pageInfo.setTotal(messageIds.size());
+				pageInfo.setItemTotal(messageIds.size());
 				dataJSON.put(WebConstants.STATUS_ID_TAG,
 						searchResult.getStatus());
 

@@ -131,7 +131,7 @@ public class WebPageInfo {
 		return total;
 	}
 
-	public void setTotal(long itemTotal) {
+	public void setItemTotal(long itemTotal) {
 		this.itemTotal = itemTotal;
 	}
 

@@ -58,7 +58,7 @@ public class MailDirReader extends AbstractMailboxImporter {
 		String[] subDirs = listSubDirectories();
 		if (subDirs != null) {
 			for (String subDir : subDirs) {
-				//readMailDirectory(subDir);
+				readMailDirectory(subDir);
 			}
 		}
 	}

@@ -148,7 +148,7 @@ public class AdvancedSearch extends AbstractSearchWebScript {
 				final List<MessageSummary> messageSummaries = archiveService
 						.retrieveSummary(result.getMessageIds());
 
-				pageInfo.setTotal(messageSummaries.size());
+				pageInfo.setItemTotal(messageSummaries.size());
 				@SuppressWarnings("unchecked")
 				final JSONArray jsonMessageSummary = SearchResultsBuilder
 						.getMessageListJSON((List<MessageSummary>) pageInfo

@@ -79,10 +79,11 @@ public class AuditLogServlet extends EnkiveServlet {
 				resultsObject.put(AUDIT_ENTRIES_KEY, resultsArray);
 
 				long auditEntryCount = auditService.getAuditEntryCount();
+
 				resultsObject.put(AUDIT_TRAIL_SIZE_KEY, auditEntryCount);
 
 				List<AuditEntry> results = auditService.getMostRecentByPage(
-						pageInfo.getPageSize(), pageInfo.getPagePos());
+						pageInfo.getPageSize(), pageInfo.getPagePos() - 1);
 				for (AuditEntry entry : results) {
 					resultsArray.put(createAuditEntryJSONObject(entry));
 				}
@@ -95,7 +96,7 @@ public class AuditLogServlet extends EnkiveServlet {
 				} else {
 					resultsString = "no entries retrieved";
 				}
-				pageInfo.setTotal(auditEntryCount);
+				pageInfo.setItemTotal(auditEntryCount);
 				jsonResponse.put(WebPageInfo.PAGING_LABEL,
 						pageInfo.getPageJSON());
 				auditService.addEvent(AuditService.AUDIT_LOG_QUERY,

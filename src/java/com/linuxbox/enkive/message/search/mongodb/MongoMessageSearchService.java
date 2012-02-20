@@ -25,6 +25,7 @@ import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.FROM;
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.MAIL_FROM;
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.RCPT_TO;
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.SUBJECT;
+import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.MESSAGE_ID;
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.TO;
 import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.ATTACHMENT_ID_LIST;
 import static com.linuxbox.enkive.search.Constants.CONTENT_PARAMETER;
@@ -34,6 +35,7 @@ import static com.linuxbox.enkive.search.Constants.NUMERIC_SEARCH_FORMAT;
 import static com.linuxbox.enkive.search.Constants.RECIPIENT_PARAMETER;
 import static com.linuxbox.enkive.search.Constants.SENDER_PARAMETER;
 import static com.linuxbox.enkive.search.Constants.SUBJECT_PARAMETER;
+import static com.linuxbox.enkive.search.Constants.MESSAGE_ID_PARAMETER;
 
 import java.text.ParseException;
 import java.util.Date;
@@ -160,6 +162,10 @@ public class MongoMessageSearchService extends AbstractMessageSearchService {
 				Pattern subjectRegex = Pattern.compile(fields.get(searchField),
 						Pattern.CASE_INSENSITIVE);
 				query.put(SUBJECT, subjectRegex);
+			} else if (searchField.equals(MESSAGE_ID_PARAMETER)) {
+				Pattern messageIdRegex = Pattern.compile(fields.get(searchField),
+						Pattern.CASE_INSENSITIVE);
+				query.put(MESSAGE_ID, messageIdRegex);
 			} else if (searchField.equals(CONTENT_PARAMETER)) {
 				try {
 					List<String> attachments = docSearchService.search(fields

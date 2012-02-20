@@ -101,7 +101,7 @@ public abstract class AbstractSearchListServlet extends EnkiveServlet {
 							.getUserName());
 			List<SearchResult> searchResults = getSearches(workspace);
 
-			pageInfo.setTotal(searchResults.size());
+			pageInfo.setItemTotal(searchResults.size());
 			@SuppressWarnings("unchecked")
 			List<SearchResult> searchesSublist = (List<SearchResult>) pageInfo
 					.getSubList(searchResults);
