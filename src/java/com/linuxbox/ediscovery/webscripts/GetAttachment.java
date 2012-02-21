@@ -32,12 +32,12 @@ import org.springframework.extensions.webscripts.ScriptRemoteConnector;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 import org.springframework.extensions.webscripts.WebScriptResponse;
 import org.springframework.extensions.webscripts.connector.Response;
+import org.springframework.extensions.webscripts.connector.ResponseStatus;
 
 public class GetAttachment extends AbstractWebScript {
 
 	public static String ATTACHMENT_RETRIEVE_REST_URL = "/attachment/retrieve?attachmentid=";
-	
-	
+
 	@Override
 	public void execute(WebScriptRequest req, WebScriptResponse res)
 			throws IOException {
@@ -62,21 +62,31 @@ public class GetAttachment extends AbstractWebScript {
 		Response resp = connector.call(ATTACHMENT_RETRIEVE_REST_URL
 				+ req.getParameterValues("attachmentid")[0]);
 
-		res.setStatus(resp.getStatus().getCode());
-        for (String key : resp.getStatus().getHeaders().keySet()) {
-                res.setHeader(key, resp.getStatus().getHeaders().get(key));
-        }
+		System.out.println(resp.getStatus().getCode());
+		if (resp.getStatus().getCode() == ResponseStatus.STATUS_FORBIDDEN) {
+			res.setStatus(resp.getStatus().getCode());
+			BufferedWriter resWriter = new BufferedWriter(res.getWriter());
+			resWriter.write("You must be logged in to download attachments");
+			resWriter.flush();
+			resWriter.close();
 
-		BufferedInputStream attachmentStream = new BufferedInputStream(
-				resp.getResponseStream());
-		BufferedWriter resWriter = new BufferedWriter(res.getWriter());
-		int read;
-		while ((read = attachmentStream.read()) != -1)
-			resWriter.write(read);
+		} else {
+			res.setStatus(resp.getStatus().getCode());
+			for (String key : resp.getStatus().getHeaders().keySet()) {
+				res.setHeader(key, resp.getStatus().getHeaders().get(key));
+			}
 
-		resWriter.flush();
-		resWriter.close();
-		attachmentStream.close();
+			BufferedInputStream attachmentStream = new BufferedInputStream(
+					resp.getResponseStream());
+			BufferedWriter resWriter = new BufferedWriter(res.getWriter());
+			int read;
+			while ((read = attachmentStream.read()) != -1)
+				resWriter.write(read);
+
+			resWriter.flush();
+			resWriter.close();
+			attachmentStream.close();
+		}
 	}
 
 }

@@ -24,8 +24,11 @@ import java.util.Map;
 
 import org.springframework.extensions.config.RemoteConfigElement.ConnectorDescriptor;
 import org.springframework.extensions.webscripts.connector.ConnectorContext;
+import org.springframework.extensions.webscripts.connector.EndpointManager;
 import org.springframework.extensions.webscripts.connector.HttpConnector;
 import org.springframework.extensions.webscripts.connector.RemoteClient;
+import org.springframework.extensions.webscripts.connector.Response;
+import org.springframework.extensions.webscripts.connector.ResponseStatus;
 
 public class EnkiveConnector extends HttpConnector {
 
@@ -34,16 +37,65 @@ public class EnkiveConnector extends HttpConnector {
 	}
 
 	@Override
+	public Response call(String uri, ConnectorContext context) {
+
+		Response response;
+		if (EndpointManager.allowConnect(this.endpoint)) {
+			EnkiveRemoteClient remoteClient = initRemoteClient(context);
+
+			// call client and process response
+			response = remoteClient.call(uri);
+			if (!remoteClient.isAuthenticated()) {
+				ResponseStatus status = new ResponseStatus();
+				status.setCode(ResponseStatus.STATUS_FORBIDDEN);
+				response = new Response(status);
+			} else
+				processResponse(remoteClient, response);
+
+		} else {
+			ResponseStatus status = new ResponseStatus();
+			status.setCode(ResponseStatus.STATUS_INTERNAL_SERVER_ERROR);
+			response = new Response(status);
+		}
+		return response;
+	}
+
+	@Override
 	protected void applyRequestAuthentication(RemoteClient remoteClient,
 			ConnectorContext context) {
-		
-		if(getConnectorSession() != null){
-			Map<String, String> cookies = new HashMap<String,String>();
-			for(String key : getConnectorSession().getCookieNames()){
+
+		if (getConnectorSession() != null) {
+			Map<String, String> cookies = new HashMap<String, String>();
+			for (String key : getConnectorSession().getCookieNames()) {
 				cookies.put(key, getConnectorSession().getCookie(key));
 			}
 			remoteClient.setCookies(cookies);
 		}
+
+		Map<String, String> headers = new HashMap<String, String>(8);
+		if (context != null) {
+			headers.putAll(context.getHeaders());
+		}
+		if (headers.size() != 0) {
+			remoteClient.setRequestProperties(headers);
+		}
+	}
+
+	protected EnkiveRemoteClient initRemoteClient(ConnectorContext context) {
+
+		// create a remote client
+		EnkiveRemoteClient remoteClient = new EnkiveRemoteClient(getEndpoint());
+		remoteClient
+				.setEnkiveAuthenticationUrl(EnkiveAuthenticator.ENKIVE_LOGIN_URL);
+		// configure the client
+		if (context != null) {
+			remoteClient.setRequestContentType(context.getContentType());
+			remoteClient.setRequestMethod(context.getMethod());
+		}
+
+		applyRequestAuthentication(remoteClient, context);
+
+		return remoteClient;
 	}
 
 }

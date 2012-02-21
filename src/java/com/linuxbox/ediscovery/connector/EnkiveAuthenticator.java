@@ -41,6 +41,7 @@ public class EnkiveAuthenticator extends AbstractAuthenticator {
 
 	public final static String ENKIVE_SESSION_TICKET = "JSESSIONID";
 	public final static String ENKIVE_AUTHENTICATION_URL = "/j_spring_security_check";
+	public final static String ENKIVE_LOGIN_URL = "/spring_security_login";
 	public final static String ENKIVE_LOGIN_USERNAME_FIELD = "j_username";
 	public final static String ENKIVE_LOGIN_PASSWORD_FIELD = "j_password";
 
