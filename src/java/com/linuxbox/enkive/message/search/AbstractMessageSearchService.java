@@ -88,9 +88,6 @@ public abstract class AbstractMessageSearchService implements
 			try {
 				auditService.addEvent(AuditService.SEARCH_PERFORMED,
 						authenticationService.getUserName(), fields.toString());
-				// FIXME : shouldn't we set the response here, so if the audit
-				// trail cannot be altered then the user cannot get the search
-				// results (i.e., the user cannot perform an un-audited search)?
 			} catch (AuditServiceException e) {
 				if (LOGGER.isErrorEnabled())
 					LOGGER.error("could not audit user search request", e);

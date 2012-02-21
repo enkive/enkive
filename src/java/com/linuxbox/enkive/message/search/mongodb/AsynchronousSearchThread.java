@@ -30,6 +30,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextImpl;
 
 import com.linuxbox.enkive.audit.AuditService;
+import com.linuxbox.enkive.audit.AuditServiceException;
+import com.linuxbox.enkive.authentication.AuthenticationException;
 import com.linuxbox.enkive.authentication.AuthenticationService;
 import com.linuxbox.enkive.docsearch.DocSearchQueryService;
 import com.linuxbox.enkive.message.search.exception.MessageSearchException;
@@ -92,6 +94,16 @@ public class AsynchronousSearchThread extends
 			if (LOGGER.isErrorEnabled())
 				LOGGER.error("Could not complete message search", e);
 		} finally {
+			try {
+				auditService.addEvent(AuditService.SEARCH_PERFORMED,
+						authenticationService.getUserName(), fields.toString());
+			} catch (AuditServiceException e) {
+				if (LOGGER.isErrorEnabled())
+					LOGGER.error("could not audit user search request", e);
+			} catch (AuthenticationException e) {
+				if (LOGGER.isErrorEnabled())
+					LOGGER.error("could not get user for audit log", e);
+			}
 			SecurityContextHolder.clearContext();
 		}
 
