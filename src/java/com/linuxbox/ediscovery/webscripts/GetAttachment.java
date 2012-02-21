@@ -62,7 +62,6 @@ public class GetAttachment extends AbstractWebScript {
 		Response resp = connector.call(ATTACHMENT_RETRIEVE_REST_URL
 				+ req.getParameterValues("attachmentid")[0]);
 
-		System.out.println(resp.getStatus().getCode());
 		if (resp.getStatus().getCode() == ResponseStatus.STATUS_FORBIDDEN) {
 			res.setStatus(resp.getStatus().getCode());
 			BufferedWriter resWriter = new BufferedWriter(res.getWriter());

@@ -1,4 +1,12 @@
-<#if !firstRun?? && result.data.status == "running">
+<#if status.code != 200>
+	<#-- Do Nothing -->
+
+<#elseif emptySearch??>
+	<p>
+		<b>You must fill in a search field</b>
+	</p>
+
+<#elseif !firstRun?? && result.data.status == "running">
 	<p>
 		<b>Your search has not yet returned results</b><br />
 		When the search is complete, it will appear in the recent search list.

@@ -19,65 +19,81 @@
  ******************************************************************************/
 package com.linuxbox.ediscovery.webscripts;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.extensions.webscripts.AbstractWebScript;
-import org.springframework.extensions.webscripts.ScriptContent;
 import org.springframework.extensions.webscripts.ScriptProcessor;
+import org.springframework.extensions.webscripts.ScriptRemote;
+import org.springframework.extensions.webscripts.ScriptRemoteConnector;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 import org.springframework.extensions.webscripts.WebScriptResponse;
-
+import org.springframework.extensions.webscripts.connector.Response;
+import org.springframework.extensions.webscripts.connector.ResponseStatus;
 
 public class ExportMbox extends AbstractWebScript {
+
+	public static String MBOX_RETRIEVE_REST_URL = "/search/export/mbox?searchid=";
+	public static String EDISCOVERY_RECENT_SEARCH_URL = "/ediscovery/search/recent/view?searchid=";
 
 	@Override
 	public void execute(WebScriptRequest req, WebScriptResponse res)
 			throws IOException {
-		res.setContentType("text/plain");
-		res.setHeader("Content-disposition", "attachment; filename=export.mbox");
 
-		Map<String, Object> model = new HashMap<String, Object>();
-		
 		ScriptDetails script = getExecuteScript(req.getContentType());
-        Map<String, Object> scriptModel = createScriptParameters(req, res, script, model);
+		Map<String, Object> model = new HashMap<String, Object>();
+		Map<String, Object> scriptModel = createScriptParameters(req, res,
+				script, model);
+		Map<String, Object> returnModel = new HashMap<String, Object>();
+		scriptModel.put("model", returnModel);
+		executeScript(script.getContent(), scriptModel);
 
-        // add return model allowing script to add items to template model
-        Map<String, Object> returnModel = new HashMap<String, Object>();
-        scriptModel.put("model", returnModel);
-        executeScript(script.getContent(), scriptModel);
-        mergeScriptModelIntoTemplateModel(script.getContent(), returnModel, model);
-		
-		Map<String, Object> templateModel = createTemplateParameters(req, res, model);
-		
-		String templatePath = getDescription().getId() + "." + req.getFormat();
-        // render response according to requested format
-        renderTemplate(templatePath, templateModel, res.getWriter());
-		
+		ScriptProcessor scriptProcessor = getContainer()
+				.getScriptProcessorRegistry().getScriptProcessor(
+						script.getContent());
+
+		ScriptRemote remote = (ScriptRemote) scriptProcessor
+				.unwrapValue(scriptModel.get("remote"));
+
+		ScriptRemoteConnector connector = remote.connect("enkive");
+
+		Response resp = connector.call(MBOX_RETRIEVE_REST_URL
+				+ req.getParameterValues("searchid")[0]);
+
+		if (resp.getStatus().getCode() == ResponseStatus.STATUS_FORBIDDEN) {
+			System.out.println("HERE");
+			res.setContentType("text/plain");
+			res.setStatus(ResponseStatus.STATUS_MOVED_TEMPORARILY);
+			res.setHeader(
+					"Location",
+					EDISCOVERY_RECENT_SEARCH_URL
+							+ req.getParameterValues("searchid")[0]);
+			// BufferedWriter resWriter = new BufferedWriter(res.getWriter());
+			// resWriter.write("You must be logged in to download mbox exports");
+			// resWriter.flush();
+			// resWriter.close();
+		} else {
+			res.setContentType("text/plain");
+			res.setHeader("Content-disposition",
+					"attachment; filename=export.mbox");
+			res.setStatus(resp.getStatus().getCode());
+			for (String key : resp.getStatus().getHeaders().keySet()) {
+				res.setHeader(key, resp.getStatus().getHeaders().get(key));
+			}
+
+			BufferedInputStream mboxStream = new BufferedInputStream(
+					resp.getResponseStream());
+			BufferedWriter resWriter = new BufferedWriter(res.getWriter());
+			int read;
+			while ((read = mboxStream.read()) != -1)
+				resWriter.write(read);
+
+			resWriter.flush();
+			resWriter.close();
+			mboxStream.close();
+		}
 	}
-	
-    /**
-     * Merge script generated model into template-ready model
-     *
-     * @param scriptContent    script content
-     * @param scriptModel      script model
-     * @param templateModel    template model
-     */
-    private void mergeScriptModelIntoTemplateModel(ScriptContent scriptContent, Map<String, Object> scriptModel, Map<String, Object> templateModel)
-    {
-        // determine script processor
-        ScriptProcessor scriptProcessor = getContainer().getScriptProcessorRegistry().getScriptProcessor(scriptContent);
-        if (scriptProcessor != null)
-        {
-            for (Map.Entry<String, Object> entry : scriptModel.entrySet())
-            {
-                // retrieve script model value
-                Object value = entry.getValue();
-                Object templateValue = scriptProcessor.unwrapValue(value);
-                templateModel.put(entry.getKey(), templateValue);
-            }
-        }
-    }
-	
 }
