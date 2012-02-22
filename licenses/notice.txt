@@ -1,0 +1,42 @@
+Portions of this product distribution require certain copyright or
+other notices to be included with the product distribution.  These
+notice may also appear in individual source files.
+
+Because Alfresco is included in this product, please see
+3rd-party/alfresco-license.txt and 3rd-party/alfresco-notice.txt as
+well as other files within the 3rd-party directory.
+
+This product also includes software developed by The Apache Software Foundation 
+(http://www.apache.org/).
+
+This product also includes software developed by The Free Software Foundation 
+(http://www.fsf.org/).
+
+GNU Java Activation Framework (JAF)
+  Copyright 2004 The Free Software Foundation
+
+Apache JAMES Mime4j
+  Copyright 2004-2009 The Apache Software Foundation
+
+Apache Commons Codec
+  Copyright 2002-2009 The Apache Software Foundation
+
+  Copyright (C) 2002 Kevin Atkinson (kevina@gnu.org). Verbatim copying
+  and distribution of this entire article is permitted in any medium,
+  provided this notice is preserved.
+
+Commons Logging
+  Copyright 2001-2007 The Apache Software Foundation
+
+  This product includes/uses software(s) developed by 'an unknown organization'
+    - Unnamed - avalon-framework:avalon-framework:jar:4.1.3
+    - Unnamed - log4j:log4j:jar:1.2.12
+    - Unnamed - logkit:logkit:jar:1.0.1
+
+GNU JavaMail
+  Copyright(C) 2002 The Free Software Foundation
+
+GNU inetlib
+  Copyright (C) 2004 The Free Software Foundation
+
+All rights reserved.
