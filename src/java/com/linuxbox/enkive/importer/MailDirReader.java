@@ -27,12 +27,12 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import javax.mail.MessagingException;
+import javax.mail.Provider;
 import javax.mail.URLName;
 
 public class MailDirReader extends AbstractMailboxImporter {
 
 	private Set<String> ignoreDirectories;
-	public int messageCount = 0;
 
 	static {
 		try {
@@ -46,18 +46,16 @@ public class MailDirReader extends AbstractMailboxImporter {
 			throws MessagingException, IOException {
 		super(rootDir, host, port, new URLName("maildir://" + rootDir));
 		ignoreDirectories = new HashSet<String>();
-
-		System.setProperty("user.home", rootDir);
 	}
 
 	@Override
 	public void readAllMessages() throws MessagingException, IOException {
-		System.out.print(messageCount);
 		readMailDirectory(store.getDefaultFolder());
 		// now process any subdirectories
 		String[] subDirs = listSubDirectories();
 		if (subDirs != null) {
 			for (String subDir : subDirs) {
+				System.out.println(subDir);
 				readMailDirectory(subDir);
 			}
 		}
@@ -104,10 +102,8 @@ public class MailDirReader extends AbstractMailboxImporter {
 		try {
 			reader = new MailDirReader(path, host, portString);
 			reader.setWriter();
-			reader.addIgnoreDirectory(".Trash");
-			reader.addIgnoreDirectory(".Trash.2011");
+
 			reader.addIgnoreDirectory(".Drafts");
-			reader.addIgnoreDirectory(".Junk");
 
 			reader.readAllMessages();
 			reader.closeWriter();
@@ -117,11 +113,21 @@ public class MailDirReader extends AbstractMailboxImporter {
 		} finally {
 			long elapsedTime = System.currentTimeMillis() - startTime;
 			System.out.println();
-			System.out.println(reader.getMessageCount() + " messages processed in "
+			System.out.println(reader.getMessageCount()
+					+ " messages processed in "
 					+ TimeUnit.MILLISECONDS.toMinutes(elapsedTime)
 					+ " minutes "
 					+ (TimeUnit.MILLISECONDS.toSeconds(elapsedTime) % 60)
 					+ " seconds");
 		}
+	}
+
+	@Override
+	protected void setupSession() {
+		Provider maildirProvider = new Provider(Provider.Type.STORE, "maildir",
+				"gnu.mail.providers.maildir.MaildirStore", "gnumail", "1");
+
+		session.addProvider(maildirProvider);
+		System.setProperty("user.home", rootDir);
 	}
 }

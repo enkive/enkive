@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 import javax.mail.MessagingException;
+import javax.mail.Provider;
 import javax.mail.URLName;
 
 public class MboxReader extends AbstractMailboxImporter {
@@ -39,6 +40,7 @@ public class MboxReader extends AbstractMailboxImporter {
 	MboxReader(String rootDir, String host, String port)
 			throws MessagingException, IOException {
 		super(rootDir, host, port, new URLName(new String("mbox://" + rootDir)));
+
 	}
 
 	@Override
@@ -74,11 +76,19 @@ public class MboxReader extends AbstractMailboxImporter {
 		} finally {
 			long elapsedTime = System.currentTimeMillis() - startTime;
 			System.out.println();
-			System.out.println(reader.messageCount + " messages processed in "
+			System.out.println(reader.getMessageCount()
+					+ " messages processed in "
 					+ TimeUnit.MILLISECONDS.toMinutes(elapsedTime)
 					+ " minutes "
 					+ (TimeUnit.MILLISECONDS.toSeconds(elapsedTime) % 60)
 					+ " seconds");
 		}
+	}
+
+	@Override
+	protected void setupSession() {
+		Provider mboxProvider = new Provider(Provider.Type.STORE, "mbox",
+				"gnu.mail.providers.mbox.MboxStore", "gnumail", "1");
+		session.addProvider(mboxProvider);
 	}
 }

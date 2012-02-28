@@ -25,7 +25,6 @@ import java.net.UnknownHostException;
 import javax.mail.Folder;
 import javax.mail.Message;
 import javax.mail.MessagingException;
-import javax.mail.Provider;
 import javax.mail.Session;
 import javax.mail.Store;
 import javax.mail.URLName;
@@ -36,16 +35,14 @@ public abstract class AbstractMailboxImporter extends AbstractMessageImporter {
 	protected Session session;
 	protected Folder root;
 	protected Store store;
-	protected int messageCount = 0;
 
 	AbstractMailboxImporter(String rootDir, String host, String port,
 			URLName url) throws UnknownHostException, MessagingException {
 		super(host, port);
 		this.rootDir = rootDir + "/";
 		session = Session.getDefaultInstance(System.getProperties());
-		Provider mboxProvider = new Provider(Provider.Type.STORE, "mbox",
-				"gnu.mail.providers.mbox.MboxStore", "gnumail", "1");
-		session.addProvider(mboxProvider);
+
+		setupSession();
 
 		store = session.getStore(url);
 		store.connect();
@@ -60,27 +57,21 @@ public abstract class AbstractMailboxImporter extends AbstractMessageImporter {
 
 	public void readMailDirectory(Folder folder) throws MessagingException,
 			IOException {
-		System.out.println(folder.getName());
+		System.out.println(folder.getName() + " - Starting - " + folder.getMessageCount() + " Messages");
 		folder.open(Folder.READ_ONLY);
 		for (Message m : folder.getMessages()) {
 			sendMessage(m);
-			messageCount++;
 			if (messageCount % 100 == 0) {
-				System.out.print("," + messageCount / 100);
+				System.out.println(messageCount + " Messages Sent");
 			}
 		}
 		folder.close(false);
+		System.out.println(folder.getName() + " - Finished");
 	}
 
 	protected abstract void readAllMessages() throws MessagingException,
 			IOException;
 
-	public int getMessageCount() {
-		return messageCount;
-	}
-
-	public void setMessageCount(int messageCount) {
-		this.messageCount = messageCount;
-	}
+	protected abstract void setupSession();
 
 }

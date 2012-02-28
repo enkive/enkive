@@ -56,11 +56,15 @@ public class FileDirReader extends AbstractMessageImporter implements Runnable {
 	// Process only files in dir
 	public void sendAllFiles(File dir) throws IOException, MessagingException {
 		if (dir.isDirectory()) {
+			System.out.println(dir.getAbsolutePath() + " - Started");
 			for (File file : dir.listFiles()) {
 				if (file.isFile()) {
 					sendMessage(file);
+				} else {
+					sendAllFiles(file);
 				}
 			}
+			System.out.println(dir.getAbsolutePath() + " - Finished without error");
 		}
 	}
 
@@ -70,7 +74,6 @@ public class FileDirReader extends AbstractMessageImporter implements Runnable {
 			setWriter();
 			System.out.println(rootDir.getName() + " - Started");
 			sendAllFiles(rootDir);
-			System.out.println(rootDir.getName() + " - Finished without error");
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (MessagingException e) {
@@ -85,5 +88,6 @@ public class FileDirReader extends AbstractMessageImporter implements Runnable {
 			IOException {
 		FileDirReader reader = new FileDirReader(args[0], args[1], args[2]);
 		reader.run();
+		System.out.println(reader.getMessageCount() + " Messages imported");
 	}
 }

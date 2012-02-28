@@ -50,6 +50,7 @@ public abstract class AbstractMessageImporter {
 	protected InetAddress host;
 	protected int port;
 	Socket socket = null;
+	protected int messageCount = 0;
 
 	AbstractMessageImporter(String host, String port)
 			throws UnknownHostException {
@@ -95,6 +96,7 @@ public abstract class AbstractMessageImporter {
 		}
 		writer.write(END_OF_STREAM_INDICATOR + "\r\n");
 		writer.flush();
+		messageCount++;
 	}
 
 	protected void setWriter() throws IOException {
@@ -122,6 +124,14 @@ public abstract class AbstractMessageImporter {
 							"Could not close message importer write socket", e);
 			}
 		}
+	}
+
+	public int getMessageCount() {
+		return messageCount;
+	}
+
+	public void setMessageCount(int messageCount) {
+		this.messageCount = messageCount;
 	}
 
 }
