@@ -10,6 +10,7 @@
 	<property name="contrib.bin.dir" value="${project.dir}/bin" />
 	<property name="source.dir" value="${project.dir}/src" />
 	<property name="config.dir" value="${project.dir}/config" />
+	<property name="licenses.dir" value="${project.dir}/licenses" />
 	<property name="scripts.dir" value="${project.dir}/scripts" />
 	<property name="lib.dir" value="${project.dir}/lib" />
 	<property name="contrib.dir" value="${project.dir}/contrib" />
@@ -76,6 +77,7 @@
 			<zipfileset file="${package.file.jar}" prefix="${label}" />
 			<zipfileset file="${scripts.dir}/enkive" prefix="${label}" />
 			<zipfileset dir="${config.dir}" prefix="${label}/config" />
+			<zipfileset dir="${licenses.dir}" prefix="${label}/licenses" />
 			<zipfileset dir="${jetty.dir}" prefix="${label}/jetty" />
 			<zipfileset dir="${scripts.dir}" prefix="${label}/scripts" excludesfile="${scripts.dir}/enkive" />
 			<zipfileset dir="${lib.dir}" prefix="${label}/lib" excludes="src/**, javadoc/**" />
