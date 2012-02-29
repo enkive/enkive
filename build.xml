@@ -73,20 +73,16 @@
 
 	<target name="package" depends="package-jar, build-ediscovery" description="Creates a zip called ${package.file.tar.gz} ">
 
-		<delete file="${package.file.zip}" />
-		<zip destfile="${package.file.zip}" update="true">
-			<zipfileset file="${package.file.jar}" prefix="${label}" />
-			<zipfileset file="${scripts.dir}/enkive" prefix="${label}" />
-			<zipfileset dir="${config.dir}" prefix="${label}/config" />
-			<zipfileset dir="${licenses.dir}" prefix="${label}/licenses" />
-			<zipfileset dir="${jetty.dir}" prefix="${label}/jetty" />
-			<zipfileset dir="${lib.dir}" prefix="${label}/lib" excludes="src/**, javadoc/**" />
-			<zipfileset dir="${build.dir}/data" prefix="${label}/data" />
-			<zipfileset dir="${enkive-socket-filter.dir}" includes="Makefile, README.txt, src/" prefix="${label}/support/filters/postfix/enkive-socket-filter/" />
-		</zip>
-		
+		<delete file="${package.file.tar.gz}" />
 		<tar destfile="${package.file.tar.gz}" compression="gzip">
-		  <zipfileset src="${package.file.zip}"/>
+			<tarfileset file="${package.file.jar}" prefix="${label}" />
+			<tarfileset file="${scripts.dir}/enkive" prefix="${label}" />
+			<tarfileset dir="${config.dir}" prefix="${label}/config" />
+			<tarfileset dir="${licenses.dir}" prefix="${label}/licenses" />
+			<tarfileset dir="${jetty.dir}" prefix="${label}/jetty" />
+			<tarfileset dir="${lib.dir}" prefix="${label}/lib" excludes="src/**, javadoc/**" />
+			<tarfileset dir="${build.dir}/data" prefix="${label}/data" />
+			<tarfileset dir="${enkive-socket-filter.dir}" includes="Makefile, README.txt, src/" prefix="${label}/support/filters/postfix/enkive-socket-filter/" />
 		</tar>
 		
 	</target>
