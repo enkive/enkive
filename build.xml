@@ -71,7 +71,7 @@
 		</jar>
 	</target>
 
-	<target name="package" depends="package-jar, Build Ediscovery" description="Creates a zip called ${package.file.tar.gz} ">
+	<target name="package" depends="package-jar, build-ediscovery" description="Creates a zip called ${package.file.tar.gz} ">
 
 		<delete file="${package.file.zip}" />
 		<zip destfile="${package.file.zip}" update="true">
@@ -91,10 +91,10 @@
 		
 	</target>
 
-	<target name="Build Ediscovery">
+	<target name="build-ediscovery">
 		<delete file="${webapps.dir}/ediscovery.war" />
 		<subant target="deploy-war" buildpath="${ediscovery.dir}">
-			<property name="ediscovery.war" value="${webapps.dir}" />
+			<property name="ediscovery.war" value="../Enkive/jetty/webapps/ediscovery.war" />
 		</subant>
 	</target>
 
