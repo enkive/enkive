@@ -77,13 +77,18 @@ public class MongoMessageSearchService extends AbstractMessageSearchService {
 	public Set<String> searchImpl(HashMap<String, String> fields)
 			throws MessageSearchException {
 		Set<String> messageIds = new HashSet<String>();
-
+		System.out.println("blah1");
 		BasicDBObject query = buildQueryObject(fields);
+		System.out.println("blah2");
 		DBCursor results = messageColl.find(query);
+		System.out.println("blah3");
+		System.out.println(results.count());
+		System.out.println("blah4");
 		while (results.hasNext()) {
 			DBObject message = results.next();
 			messageIds.add((String) message.get("_id"));
 		}
+		System.out.println("blah5");
 
 		return messageIds;
 	}
@@ -163,17 +168,21 @@ public class MongoMessageSearchService extends AbstractMessageSearchService {
 						Pattern.CASE_INSENSITIVE);
 				query.put(SUBJECT, subjectRegex);
 			} else if (searchField.equals(MESSAGE_ID_PARAMETER)) {
-				Pattern messageIdRegex = Pattern.compile(fields.get(searchField),
-						Pattern.CASE_INSENSITIVE);
+				Pattern messageIdRegex = Pattern.compile(
+						fields.get(searchField), Pattern.CASE_INSENSITIVE);
 				query.put(MESSAGE_ID, messageIdRegex);
 			} else if (searchField.equals(CONTENT_PARAMETER)) {
 				try {
 					List<String> attachments = docSearchService.search(fields
 							.get(searchField));
 					BasicDBList attachmentQuery = new BasicDBList();
-					for (String attachment : attachments)
+					if (attachments.isEmpty())
 						attachmentQuery.add(new BasicDBObject(
-								ATTACHMENT_ID_LIST, attachment));
+								ATTACHMENT_ID_LIST, ""));
+					else
+						for (String attachment : attachments)
+							attachmentQuery.add(new BasicDBObject(
+									ATTACHMENT_ID_LIST, attachment));
 					query.put("$or", attachmentQuery);
 					// Need to search attachment ids field here, separated by OR
 				} catch (DocSearchException e) {
