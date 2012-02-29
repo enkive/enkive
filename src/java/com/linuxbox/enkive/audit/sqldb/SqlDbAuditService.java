@@ -1,22 +1,22 @@
-/*
- *  Copyright 2010-2011 The Linux Box Corporation.
- *
- *  This file is part of Enkive CE (Community Edition).
- *
- *  Enkive CE is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU Affero General Public License as
- *  published by the Free Software Foundation, either version 3 of
- *  the License, or (at your option) any later version.
- *
- *  Enkive CE is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- *  GNU Affero General Public License for more details.
- *
- *  You should have received a copy of the GNU Affero General Public
- *  License along with Enkive CE. If not, see
- *  <http://www.gnu.org/licenses/>.
- */
+/*******************************************************************************
+ * Copyright 2012 The Linux Box Corporation.
+ * 
+ * This file is part of Enkive CE (Community Edition).
+ * 
+ * Enkive CE is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of
+ * the License, or (at your option) any later version.
+ * 
+ * Enkive CE is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Affero General Public
+ * License along with Enkive CE. If not, see
+ * <http://www.gnu.org/licenses/>.
+ ******************************************************************************/
 
 package com.linuxbox.enkive.audit.sqldb;
 
@@ -64,9 +64,12 @@ public class SqlDbAuditService implements AuditService {
 		descriptionColumnSize = -1;
 		try {
 			descriptionColumnSize = getDescriptionColumnSize();
-			LOGGER.info("description column size is " + descriptionColumnSize);
+			if (LOGGER.isInfoEnabled())
+				LOGGER.info("description column size is "
+						+ descriptionColumnSize);
 		} catch (AuditServiceException e) {
-			LOGGER.error("could not determine column size for description in events table");
+			if (LOGGER.isErrorEnabled())
+				LOGGER.error("could not determine column size for description in events table");
 		}
 	}
 
@@ -102,14 +105,16 @@ public class SqlDbAuditService implements AuditService {
 						resultSet.close();
 					}
 				} catch (SQLException e) {
-					LOGGER.error("cannot close result set", e);
+					if (LOGGER.isErrorEnabled())
+						LOGGER.error("cannot close result set", e);
 				}
 				try {
 					if (statement != null) {
 						statement.close();
 					}
 				} catch (SQLException e) {
-					LOGGER.error("cannot close statement", e);
+					if (LOGGER.isErrorEnabled())
+						LOGGER.error("cannot close statement", e);
 				}
 				try {
 					if (connection != null) {
@@ -283,7 +288,8 @@ public class SqlDbAuditService implements AuditService {
 				results.add(new AuditEntry(Integer.toString(id), timestamp,
 						eventCode, username, description));
 			} catch (SQLException e) {
-				LOGGER.error("Could not return audit entry", e);
+				if (LOGGER.isErrorEnabled())
+					LOGGER.error("Could not return audit entry", e);
 			}
 		}
 		return results;

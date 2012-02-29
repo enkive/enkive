@@ -1,3 +1,22 @@
+/*******************************************************************************
+ * Copyright 2012 The Linux Box Corporation.
+ * 
+ * This file is part of Enkive CE (Community Edition).
+ * 
+ * Enkive CE is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of
+ * the License, or (at your option) any later version.
+ * 
+ * Enkive CE is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Affero General Public
+ * License along with Enkive CE. If not, see
+ * <http://www.gnu.org/licenses/>.
+ ******************************************************************************/
 package com.linuxbox.enkive.docsearch.indri;
 
 import static com.linuxbox.enkive.docsearch.indri.IndriQueryComposer.composeQuery;
@@ -108,10 +127,12 @@ public class IndriDocSearchQueryService extends AbstractDocSearchQueryService {
 
 	@Override
 	public void shutdown() throws DocSearchException {
-		LOGGER.trace("starting shutdown of IndriDocSearchQueryService");
+		if (LOGGER.isTraceEnabled())
+			LOGGER.trace("starting shutdown of IndriDocSearchQueryService");
 		queryEnvironmentManager.forceQueryEnvironmentRefresh();
 		queryEnvironmentManager = null;
-		LOGGER.trace("finished shutdown of IndriDocSearchQueryService");
+		if (LOGGER.isTraceEnabled())
+			LOGGER.trace("finished shutdown of IndriDocSearchQueryService");
 	}
 
 	@Override
@@ -122,10 +143,12 @@ public class IndriDocSearchQueryService extends AbstractDocSearchQueryService {
 
 			if (!rawSearch) {
 				query = composeQuery(rawQuery).toString();
-				LOGGER.trace("query \"" + rawQuery + "\" became Indri query \""
-						+ query + "\"");
+				if (LOGGER.isTraceEnabled())
+					LOGGER.trace("query \"" + rawQuery
+							+ "\" became Indri query \"" + query + "\"");
 			} else {
-				LOGGER.trace("using raw query \"" + query + "\"");
+				if (LOGGER.isTraceEnabled())
+					LOGGER.trace("using raw query \"" + query + "\"");
 			}
 
 			final ScoredExtentResult[] results;

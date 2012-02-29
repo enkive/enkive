@@ -1,22 +1,22 @@
-/*
- *  Copyright 2010-2011 The Linux Box Corporation.
- *
- *  This file is part of Enkive CE (Community Edition).
- *
- *  Enkive CE is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU Affero General Public License as
- *  published by the Free Software Foundation, either version 3 of
- *  the License, or (at your option) any later version.
- *
- *  Enkive CE is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- *  GNU Affero General Public License for more details.
- *
- *  You should have received a copy of the GNU Affero General Public
- *  License along with Enkive CE. If not, see
- *  <http://www.gnu.org/licenses/>.
- */
+/*******************************************************************************
+ * Copyright 2012 The Linux Box Corporation.
+ * 
+ * This file is part of Enkive CE (Community Edition).
+ * 
+ * Enkive CE is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of
+ * the License, or (at your option) any later version.
+ * 
+ * Enkive CE is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Affero General Public
+ * License along with Enkive CE. If not, see
+ * <http://www.gnu.org/licenses/>.
+ ******************************************************************************/
 
 package com.linuxbox.enkive.audit;
 
@@ -26,6 +26,7 @@ import static com.linuxbox.enkive.audit.AuditService.MESSAGE_ARCHIVE_FAILURE;
 import static com.linuxbox.enkive.audit.AuditService.MESSAGE_EMERGENCY_SAVED;
 import static com.linuxbox.enkive.audit.AuditService.MESSAGE_PURGED;
 import static com.linuxbox.enkive.audit.AuditService.MESSAGE_RETRIEVED;
+import static com.linuxbox.enkive.audit.AuditService.ATTACHMENT_RETRIEVED;
 import static com.linuxbox.enkive.audit.AuditService.SEARCH_PERFORMED;
 import static com.linuxbox.enkive.audit.AuditService.SYSTEM_SHUTDOWN;
 import static com.linuxbox.enkive.audit.AuditService.SYSTEM_STARTUP;
@@ -70,6 +71,8 @@ public class AuditServiceDescriptions {
 
 		descriptions.put(MESSAGE_RETRIEVED, new EventDescription(
 				"message retrieved", "message id"));
+		descriptions.put(ATTACHMENT_RETRIEVED, new EventDescription(
+				"attachment retrieved retrieved", "attachment retrieved id"));
 		descriptions.put(MESSAGE_ARCHIVED, new EventDescription(
 				"message archived", "message id"));
 		descriptions.put(MESSAGE_EMERGENCY_SAVED, new EventDescription(

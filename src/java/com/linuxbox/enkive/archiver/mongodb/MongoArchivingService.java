@@ -1,3 +1,22 @@
+/*******************************************************************************
+ * Copyright 2012 The Linux Box Corporation.
+ * 
+ * This file is part of Enkive CE (Community Edition).
+ * 
+ * Enkive CE is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of
+ * the License, or (at your option) any later version.
+ * 
+ * Enkive CE is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Affero General Public
+ * License along with Enkive CE. If not, see
+ * <http://www.gnu.org/licenses/>.
+ ******************************************************************************/
 package com.linuxbox.enkive.archiver.mongodb;
 
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.BOUNDARY_ID;
@@ -19,18 +38,21 @@ import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.PREAMBLE;
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.RCPT_TO;
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.SUBJECT;
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.TO;
+import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.ARCHIVE_TIME;
 import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.ATTACHMENT_ID;
 import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.ATTACHMENT_ID_LIST;
 import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.CONTENT_HEADER;
 import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.CONTENT_HEADER_TYPE;
 import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.MESSAGE_UUID;
 import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.MULTIPART_HEADER_TYPE;
+import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.NESTED_MESSAGE_ID_LIST;
 import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.PART_HEADERS;
 import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.SINGLE_PART_HEADER_TYPE;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -38,12 +60,14 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.james.mime4j.MimeException;
 import org.apache.james.mime4j.codec.Base64InputStream;
 import org.apache.james.mime4j.codec.QuotedPrintableInputStream;
-import org.apache.james.mime4j.field.ContentTypeField;
+import org.apache.james.mime4j.dom.field.ContentTypeField;
 import org.apache.james.mime4j.util.MimeUtil;
 
-import com.linuxbox.enkive.archiver.AbstractMessageArchivingService;
 import com.linuxbox.enkive.archiver.MessageLoggingText;
+import com.linuxbox.enkive.archiver.RetryingAbstractMessageArchivingService;
 import com.linuxbox.enkive.archiver.exceptions.CannotArchiveException;
+import com.linuxbox.enkive.archiver.exceptions.FailedToEmergencySaveException;
+import com.linuxbox.enkive.audit.AuditServiceException;
 import com.linuxbox.enkive.docstore.Document;
 import com.linuxbox.enkive.docstore.StoreRequestResult;
 import com.linuxbox.enkive.docstore.exception.DocStoreException;
@@ -63,9 +87,10 @@ import com.mongodb.DBObject;
 import com.mongodb.Mongo;
 import com.mongodb.MongoException;
 
-public class MongoArchivingService extends AbstractMessageArchivingService {
+public class MongoArchivingService extends
+		RetryingAbstractMessageArchivingService {
 
-	private final static Log logger = LogFactory
+	private final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.archiveService.mongodb");
 
 	protected Mongo m = null;
@@ -81,13 +106,15 @@ public class MongoArchivingService extends AbstractMessageArchivingService {
 	}
 
 	@Override
-	public String storeMessage(Message message) throws CannotArchiveException {
+	public String storeMessage(Message message) throws CannotArchiveException,
+			FailedToEmergencySaveException, AuditServiceException {
 		String messageUUID = null;
 		attachment_ids = new ArrayList<String>();
 		nested_message_ids = new ArrayList<String>();
 		try {
 			BasicDBObject messageObject = new BasicDBObject();
 			messageObject.put(MESSAGE_UUID, calculateMessageId(message));
+			messageObject.put(ARCHIVE_TIME, new Date());
 			messageObject.put(ORIGINAL_HEADERS, message.getOriginalHeaders());
 			messageObject.put(MAIL_FROM, message.getMailFrom());
 			messageObject.put(RCPT_TO, message.getRcptTo());
@@ -113,7 +140,7 @@ public class MongoArchivingService extends AbstractMessageArchivingService {
 			messageObject.put(CONTENT_HEADER,
 					archiveContentHeader(contentHeader));
 			messageObject.put(ATTACHMENT_ID_LIST, attachment_ids);
-			messageObject.put(ATTACHMENT_ID_LIST, nested_message_ids);
+			messageObject.put(NESTED_MESSAGE_ID_LIST, nested_message_ids);
 			messageColl.insert(messageObject);
 			messageUUID = messageObject.getString(MESSAGE_UUID);
 		} catch (MongoException e) {
@@ -121,7 +148,8 @@ public class MongoArchivingService extends AbstractMessageArchivingService {
 		} catch (DocStoreException e) {
 			throw new CannotArchiveException(e);
 		}
-		logger.info(MessageLoggingText.MESSAGE_STORED_TEXT + messageUUID);
+		if (LOGGER.isInfoEnabled())
+			LOGGER.info(MessageLoggingText.MESSAGE_STORED_TEXT + messageUUID);
 		return messageUUID;
 	}
 
@@ -132,14 +160,17 @@ public class MongoArchivingService extends AbstractMessageArchivingService {
 		DBObject messageObject = messageColl
 				.findOne(calculateMessageId(message));
 		if (messageObject != null) {
-			messageUUID = (String) messageObject.get("_id");
-			logger.info(MessageLoggingText.DUPLICATE_FOUND_TEXT + messageUUID);
+			messageUUID = (String) messageObject.get(MESSAGE_UUID);
+			if (LOGGER.isInfoEnabled())
+				LOGGER.info(MessageLoggingText.DUPLICATE_FOUND_TEXT
+						+ messageUUID);
 		}
 		return messageUUID;
 	}
 
 	private BasicDBObject archiveContentHeader(ContentHeader contentHeader)
-			throws DocStoreException, CannotArchiveException {
+			throws DocStoreException, CannotArchiveException,
+			FailedToEmergencySaveException, AuditServiceException {
 		BasicDBObject headerObject = new BasicDBObject();
 		if (contentHeader.isMultipart()) {
 			MultiPartHeader multiPartHeader = (MultiPartHeader) contentHeader;
@@ -216,7 +247,8 @@ public class MongoArchivingService extends AbstractMessageArchivingService {
 	}
 
 	protected String storeNestedMessage(InputStream nestedMessage,
-			String contentTransferEncoding) throws CannotArchiveException {
+			String contentTransferEncoding) throws CannotArchiveException,
+			FailedToEmergencySaveException, AuditServiceException {
 		String nestedMessageUUID = "";
 		try {
 			Message subMessage;

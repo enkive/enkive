@@ -1,22 +1,22 @@
-/*
- *  Copyright 2010 The Linux Box Corporation.
- *
- *  This file is part of Enkive CE (Community Edition).
- *
- *  Enkive CE is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU Affero General Public License as
- *  published by the Free Software Foundation, either version 3 of
- *  the License, or (at your option) any later version.
- *
- *  Enkive CE is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- *  GNU Affero General Public License for more details.
- *
- *  You should have received a copy of the GNU Affero General Public
- *  License along with Enkive CE. If not, see
- *  <http://www.gnu.org/licenses/>.
- */
+/*******************************************************************************
+ * Copyright 2012 The Linux Box Corporation.
+ * 
+ * This file is part of Enkive CE (Community Edition).
+ * 
+ * Enkive CE is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of
+ * the License, or (at your option) any later version.
+ * 
+ * Enkive CE is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Affero General Public
+ * License along with Enkive CE. If not, see
+ * <http://www.gnu.org/licenses/>.
+ ******************************************************************************/
 
 package com.linuxbox.enkive.filter;
 
@@ -26,20 +26,20 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.james.mime4j.field.address.Address;
-import org.apache.james.mime4j.field.address.AddressList;
-import org.apache.james.mime4j.field.address.parser.ParseException;
+import org.apache.james.mime4j.dom.address.Address;
+import org.apache.james.mime4j.dom.address.AddressList;
+import org.apache.james.mime4j.field.address.ParseException;
 
-import com.linuxbox.enkive.filter.EnkiveFilterConstants.FilterAction;
 import com.linuxbox.enkive.filter.EnkiveFilterConstants.FilterComparator;
 import com.linuxbox.enkive.filter.EnkiveFilterConstants.FilterType;
+import com.linuxbox.enkive.message.AddressParser;
 
 public class EnkiveFilter {
 
 	private static final SimpleDateFormat dateFormatter = new SimpleDateFormat(
 			"EEE, dd MMM yyyy HH:mm:ss Z");
 
-	private final static Log logger = LogFactory
+	private final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.filter");
 
 	private String header;
@@ -47,7 +47,6 @@ public class EnkiveFilter {
 	private int filterType;
 	private int filterComparator;
 	private String filterValue;
-	private int defaultAction;
 
 	private EnkiveFilter(String header, int filterType) {
 		this.header = header;
@@ -55,12 +54,11 @@ public class EnkiveFilter {
 	}
 
 	public EnkiveFilter(String header, int filterAction, int filterType,
-			String filterValue, int filterComparator, int defaultAction) {
+			String filterValue, int filterComparator) {
 		this(header, filterType);
 		this.filterAction = filterAction;
 		this.filterValue = filterValue;
 		this.filterComparator = filterComparator;
-		this.defaultAction = defaultAction;
 	}
 
 	public void setHeader(String header) {
@@ -100,7 +98,8 @@ public class EnkiveFilter {
 			try {
 				matched = filterDate(value);
 			} catch (java.text.ParseException e) {
-				logger.warn("Could not parse Date for filtering", e);
+				if (LOGGER.isWarnEnabled())
+					LOGGER.warn("Could not parse Date for filtering", e);
 				matched = false;
 			}
 			break;
@@ -111,30 +110,25 @@ public class EnkiveFilter {
 			try {
 				matched = filterAddress(value);
 			} catch (ParseException e) {
-				logger.warn("Could not parse Address list for filtering", e);
+				if (LOGGER.isWarnEnabled())
+					LOGGER.warn("Could not parse Address list for filtering", e);
 				matched = false;
 			}
 			break;
 		}
-		if (matched && filterAction == FilterAction.ALLOW)
-			return true;
-		else if (matched && filterAction == FilterAction.DENY)
-			return false;
-		else if (defaultAction == FilterAction.DENY)
-			return false;
-		else
-			return true;
+		return matched;
 	}
 
 	private boolean filterString(String value) {
 		boolean matched = false;
 		switch (filterComparator) {
 		case FilterComparator.MATCHES:
-			if (value.equals(filterValue))
+			if (value.trim().equals(filterValue)){
 				matched = true;
+			}
 			break;
 		case FilterComparator.DOES_NOT_MATCH:
-			if (!value.equals(filterValue))
+			if (!value.trim().equals(filterValue))
 				matched = true;
 			break;
 		case FilterComparator.CONTAINS:
@@ -159,11 +153,11 @@ public class EnkiveFilter {
 
 		switch (filterComparator) {
 		case FilterComparator.MATCHES:
-			if (value.equals(filterValue))
+			if (dateValue.equals(dateFilterValue))
 				matched = true;
 			break;
 		case FilterComparator.DOES_NOT_MATCH:
-			if (!value.equals(filterValue))
+			if (!dateValue.equals(dateFilterValue))
 				matched = true;
 			break;
 		case FilterComparator.IS_GREATER_THAN:
@@ -235,8 +229,11 @@ public class EnkiveFilter {
 
 	private boolean filterAddress(String value) throws ParseException {
 		boolean matched = false;
-		AddressList addresses = AddressList.parse(value);
-		Address address = Address.parse(filterValue);
+
+		AddressParser parser = new AddressParser();
+
+		AddressList addresses = parser.parseAddressList(value);
+		Address address = parser.parseAddress(filterValue);
 
 		switch (filterComparator) {
 		case FilterComparator.MATCHES:

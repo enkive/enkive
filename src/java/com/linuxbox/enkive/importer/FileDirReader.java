@@ -1,23 +1,22 @@
-/*
- *  Copyright 2011 The Linux Box Corporation.
- *
- *  This file is part of Enkive CE (Community Edition).
- *
- *  Enkive CE is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU Affero General Public License as
- *  published by the Free Software Foundation, either version 3 of
- *  the License, or (at your option) any later version.
- *
- *  Enkive CE is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- *  GNU Affero General Public License for more details.
- *
- *  You should have received a copy of the GNU Affero General Public
- *  License along with Enkive CE. If not, see
- *  <http://www.gnu.org/licenses/>.
- */
-
+/*******************************************************************************
+ * Copyright 2012 The Linux Box Corporation.
+ * 
+ * This file is part of Enkive CE (Community Edition).
+ * 
+ * Enkive CE is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of
+ * the License, or (at your option) any later version.
+ * 
+ * Enkive CE is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Affero General Public
+ * License along with Enkive CE. If not, see
+ * <http://www.gnu.org/licenses/>.
+ ******************************************************************************/
 package com.linuxbox.enkive.importer;
 
 import java.io.File;
@@ -57,11 +56,15 @@ public class FileDirReader extends AbstractMessageImporter implements Runnable {
 	// Process only files in dir
 	public void sendAllFiles(File dir) throws IOException, MessagingException {
 		if (dir.isDirectory()) {
+			System.out.println(dir.getAbsolutePath() + " - Started");
 			for (File file : dir.listFiles()) {
 				if (file.isFile()) {
 					sendMessage(file);
+				} else {
+					sendAllFiles(file);
 				}
 			}
+			System.out.println(dir.getAbsolutePath() + " - Finished without error");
 		}
 	}
 
@@ -71,12 +74,9 @@ public class FileDirReader extends AbstractMessageImporter implements Runnable {
 			setWriter();
 			System.out.println(rootDir.getName() + " - Started");
 			sendAllFiles(rootDir);
-			System.out.println(rootDir.getName() + " - Finished without error");
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (MessagingException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} finally {
 			closeWriter();
@@ -88,5 +88,6 @@ public class FileDirReader extends AbstractMessageImporter implements Runnable {
 			IOException {
 		FileDirReader reader = new FileDirReader(args[0], args[1], args[2]);
 		reader.run();
+		System.out.println(reader.getMessageCount() + " Messages imported");
 	}
 }

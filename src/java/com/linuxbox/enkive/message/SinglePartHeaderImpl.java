@@ -1,22 +1,22 @@
-/*
- *  Copyright 2010 The Linux Box Corporation.
- *
- *  This file is part of Enkive CE (Community Edition).
- *
- *  Enkive CE is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU Affero General Public License as
- *  published by the Free Software Foundation, either version 3 of
- *  the License, or (at your option) any later version.
- *
- *  Enkive CE is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- *  GNU Affero General Public License for more details.
- *
- *  You should have received a copy of the GNU Affero General Public
- *  License along with Enkive CE. If not, see
- *  <http://www.gnu.org/licenses/>.
- */
+/*******************************************************************************
+ * Copyright 2012 The Linux Box Corporation.
+ * 
+ * This file is part of Enkive CE (Community Edition).
+ * 
+ * Enkive CE is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of
+ * the License, or (at your option) any later version.
+ * 
+ * Enkive CE is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Affero General Public
+ * License along with Enkive CE. If not, see
+ * <http://www.gnu.org/licenses/>.
+ ******************************************************************************/
 
 package com.linuxbox.enkive.message;
 
@@ -27,11 +27,12 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.james.mime4j.parser.MimeEntityConfig;
+import org.apache.james.mime4j.message.DefaultMessageBuilder;
+import org.apache.james.mime4j.stream.MimeConfig;
 
 public class SinglePartHeaderImpl extends AbstractSinglePartHeader implements
 		SinglePartHeader {
-	private final static Log logger = LogFactory
+	private final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.message");
 
 	public SinglePartHeaderImpl() {
@@ -40,20 +41,22 @@ public class SinglePartHeaderImpl extends AbstractSinglePartHeader implements
 
 	@Override
 	public void parseHeaders(String partHeaders) {
-		parseHeaders(partHeaders, new MimeEntityConfig());
+		parseHeaders(partHeaders, new MimeConfig());
 	}
 
 	@Override
-	public void parseHeaders(String partHeaders, MimeEntityConfig config) {
+	public void parseHeaders(String partHeaders, MimeConfig config) {
 		ByteArrayInputStream dataStream = new ByteArrayInputStream(
 				partHeaders.getBytes());
 
-		org.apache.james.mime4j.message.Message headers = new org.apache.james.mime4j.message.Message();
+		org.apache.james.mime4j.dom.Message headers = new org.apache.james.mime4j.message.MessageImpl();
 		try {
-			headers = new org.apache.james.mime4j.message.Message(dataStream,
-					config);
+			DefaultMessageBuilder builder = new org.apache.james.mime4j.message.DefaultMessageBuilder();
+			builder.setMimeEntityConfig(config);
+			headers = builder.parseMessage(dataStream);
 		} catch (Exception e) {
-			logger.error("Could not parse headers for message", e);
+			if (LOGGER.isErrorEnabled())
+				LOGGER.error("Could not parse headers for message", e);
 		}
 
 		setContentDisposition(headers.getDispositionType());

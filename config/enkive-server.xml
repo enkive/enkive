@@ -13,7 +13,8 @@
 		class="com.linuxbox.enkive.docstore.mongogrid.MongoGridDocStoreService">
 		<constructor-arg ref="Mongo" />
 		<constructor-arg type="java.lang.String" value="${enkive.docstore.db.name}" />
-		<constructor-arg type="java.lang.String" value="${enkive.docstore.fs.collection.name}" />
+		<constructor-arg type="java.lang.String"
+			value="${enkive.docstore.fs.collection.name}" />
 
 		<property name="documentLockingService" ref="DocLockService" />
 		<property name="indexerQueueService" ref="IndexerQueueService" />
@@ -73,16 +74,36 @@
 		<constructor-arg type="java.lang.String" value="${enkive.messagestore.db.name}" />
 		<constructor-arg type="java.lang.String"
 			value="${enkive.messagestore.collection.name}" />
+		<property name="auditService" ref="AuditLogService" />
 		<property name="docStoreService" ref="DocStoreService" />
+		<property name="emergencySaveRoot" value="${enkive.messagestore.emergencysave.root}" />
 	</bean>
-	
+
 	<bean id="MessageRetrieverService"
-		class="com.linuxbox.enkive.retriever.mongodb.MongoRetrieverService">
+		class="com.linuxbox.enkive.retriever.mongodb.PermissionsEnforcingMongoRetrieverService">
+		<constructor-arg ref="PermissionService" />
 		<constructor-arg ref="Mongo" />
 		<constructor-arg type="java.lang.String" value="${enkive.messagestore.db.name}" />
 		<constructor-arg type="java.lang.String"
 			value="${enkive.messagestore.collection.name}" />
 		<property name="docStoreService" ref="DocStoreService" />
+		<property name="auditService" ref="AuditLogService" />
+	</bean>
+
+	<bean id="MessageSearchService"
+		class="com.linuxbox.enkive.message.search.mongodb.TaskPoolPermEnforcingMongoSearchService">
+		<constructor-arg ref="PermissionService" />
+		<constructor-arg ref="Mongo" />
+		<constructor-arg type="java.lang.String" value="${enkive.messagestore.db.name}" />
+		<constructor-arg type="java.lang.String"
+			value="${enkive.messagestore.collection.name}" />
+		<constructor-arg value="${enkive.messageSearch.corePoolSize}" />
+		<constructor-arg value="${enkive.messageSearch.maxPoolSize}" />
+		<constructor-arg value="${enkive.messageSearch.keepAliveTime}" />
+		<property name="authenticationService" ref="AuthenticationService" />
+		<property name="workspaceService" ref="WorkspaceService" />
+		<property name="auditService" ref="AuditLogService" />
+		<property name="docSearchService" ref="DocSearchQueryService" />
 	</bean>
 
 	<bean id="ThreadPoolServerConfiguration"
@@ -105,7 +126,8 @@
 
 	<bean id="ConversionServer" class="com.linuxbox.enkive.server.ConversionServer"
 		init-method="startServer" destroy-method="shutdownServer">
-		<constructor-arg type="int" value="${enkive.server.conversion.port}" />
+		<constructor-arg type="int"
+			value="${enkive.server.conversion.port}" />
 		<constructor-arg ref="ThreadPoolServerConfiguration" />
 	</bean>
 
@@ -115,7 +137,6 @@
 		<property name="archiver" ref="MessageArchivingService" />
 		<property name="auditService" ref="AuditLogService" />
 		<property name="enkiveFilters" ref="EnkiveFilters" />
-		<property name="emergencySaveRoot" value="${enkive.messagestore.emergencysave.root}" />
 		<property name="jmxEnabled" value="${enkive.jmx.enabled}" />
 	</bean>
 
@@ -125,14 +146,38 @@
 		<property name="archiver" ref="MessageArchivingService" />
 		<property name="auditService" ref="AuditLogService" />
 		<property name="enkiveFilters" ref="EnkiveFilters" />
-		<property name="emergencySaveRoot" value="${enkive.messagestore.emergencysave.root}" />
 		<property name="jmxEnabled" value="${enkive.jmx.enabled}" />
 	</bean>
 
-	<bean id="AuditLogService" class="com.linuxbox.enkive.audit.mongodb.MongoAuditService">
+	<bean id="AuditLogService" class="com.linuxbox.enkive.audit.mongodb.PermissionsEnforcingMongoAuditService">
+		<constructor-arg ref="PermissionService" />
 		<constructor-arg ref="Mongo" />
 		<constructor-arg value="${enkive.queueservice.db.name}" />
 		<constructor-arg value="auditLog" />
+	</bean>
+
+	<bean id="AuthenticationService"
+		class="com.linuxbox.enkive.authentication.SpringSecurityAuthenticationService">
+	</bean>
+	
+	<bean id="PermissionService"
+		class="com.linuxbox.enkive.permissions.SpringContextPermissionService">
+	</bean>
+
+	<bean id="WorkspaceService"
+		class="com.linuxbox.enkive.workspace.mongo.PermissionsEnforcingMongoWorkspaceService">
+		<constructor-arg ref="PermissionService" />
+		<constructor-arg ref="Mongo" />
+		<constructor-arg type="java.lang.String" value="${enkive.workspace.db.name}" />
+		<constructor-arg type="java.lang.String"
+			value="${enkive.workspaces.collection.name}" />
+		<constructor-arg type="java.lang.String"
+			value="${enkive.workspace.search.results.collection.name}" />
+		<constructor-arg type="java.lang.String"
+			value="${enkive.workspace.search.queries.collection.name}" />
+		<constructor-arg type="java.lang.String"
+			value="${enkive.workspace.userWorkspaces.collection.name}" />
+		<property name="authenticationService" ref="AuthenticationService" />
 	</bean>
 
 	<!-- Create a Mongo shared by various services; that way if the MongoDB 

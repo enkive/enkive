@@ -1,22 +1,22 @@
-/*
- *  Copyright 2010 The Linux Box Corporation.
- *
- *  This file is part of Enkive CE (Community Edition).
- *
- *  Enkive CE is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU Affero General Public License as
- *  published by the Free Software Foundation, either version 3 of
- *  the License, or (at your option) any later version.
- *
- *  Enkive CE is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- *  GNU Affero General Public License for more details.
- *
- *  You should have received a copy of the GNU Affero General Public
- *  License along with Enkive CE. If not, see
- *  <http://www.gnu.org/licenses/>.
- */
+/*******************************************************************************
+ * Copyright 2012 The Linux Box Corporation.
+ * 
+ * This file is part of Enkive CE (Community Edition).
+ * 
+ * Enkive CE is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of
+ * the License, or (at your option) any later version.
+ * 
+ * Enkive CE is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Affero General Public
+ * License along with Enkive CE. If not, see
+ * <http://www.gnu.org/licenses/>.
+ ******************************************************************************/
 
 package com.linuxbox.enkive.retriever.mongodb;
 
@@ -69,7 +69,6 @@ import com.linuxbox.enkive.message.MultiPartHeader;
 import com.linuxbox.enkive.message.MultiPartHeaderImpl;
 import com.linuxbox.enkive.message.SinglePartHeader;
 import com.linuxbox.enkive.message.SinglePartHeaderImpl;
-import com.linuxbox.enkive.message.Utility;
 import com.linuxbox.enkive.retriever.AbstractRetrieverService;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
@@ -82,7 +81,7 @@ public class MongoRetrieverService extends AbstractRetrieverService {
 	protected Mongo m = null;
 	protected DB messageDb;
 	protected DBCollection messageColl;
-	private final static Log logger = LogFactory
+	private final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.retriever");
 
 	public MongoRetrieverService(Mongo m, String dbName, String collName) {
@@ -95,12 +94,12 @@ public class MongoRetrieverService extends AbstractRetrieverService {
 	public Message retrieve(String messageUUID) throws CannotRetrieveException {
 		try {
 			DBObject messageObject = messageColl.findOne(messageUUID);
-			System.out.println(messageUUID);
 			Message message = new MessageImpl();
+			message.setId(messageUUID);
 			setMessageProperties(message, messageObject);
 			message.setContentHeader(makeContentHeader(messageObject));
-
-			logger.info("Message " + messageUUID + " retrieved");
+			if (LOGGER.isInfoEnabled())
+				LOGGER.info("Message " + messageUUID + " retrieved");
 
 			return message;
 		} catch (IOException e) {
@@ -135,10 +134,7 @@ public class MongoRetrieverService extends AbstractRetrieverService {
 
 		result.setRcptTo((List<String>) messageObject.get(RCPT_TO));
 
-		final String from = (String) messageObject.get(FROM);
-		final String fromNoBrackets = Utility
-				.stripBracketsFromFromAddress(from);
-		result.setFrom(fromNoBrackets);
+		result.setFrom((List<String>) messageObject.get(FROM));
 
 		result.setTo((List<String>) messageObject.get(TO));
 

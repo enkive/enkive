@@ -1,3 +1,22 @@
+/*******************************************************************************
+ * Copyright 2012 The Linux Box Corporation.
+ * 
+ * This file is part of Enkive CE (Community Edition).
+ * 
+ * Enkive CE is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of
+ * the License, or (at your option) any later version.
+ * 
+ * Enkive CE is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Affero General Public
+ * License along with Enkive CE. If not, see
+ * <http://www.gnu.org/licenses/>.
+ ******************************************************************************/
 package com.linuxbox.enkive.docstore;
 
 import java.io.ByteArrayInputStream;
@@ -128,7 +147,6 @@ public abstract class AbstractDocStoreService implements DocStoreService {
 		// don't expect this to happen often if at all, but doing so makes
 		// everything else easier
 		messageDigest.update(getFileTypeEncodingDigestPrime(document));
-
 		byte[] inMemoryBuffer = new byte[inMemoryLimit];
 		try {
 			InputStream originalInputStream = document
@@ -214,8 +232,10 @@ public abstract class AbstractDocStoreService implements DocStoreService {
 					} catch (QueueServiceException e) {
 						// TODO should we throw an exception out or is logging
 						// the problem enough?
-						LOGGER.error(
-								"could not add removal of document to queue", e);
+						if (LOGGER.isErrorEnabled())
+							LOGGER.error(
+									"could not add removal of document to queue",
+									e);
 					}
 				}
 

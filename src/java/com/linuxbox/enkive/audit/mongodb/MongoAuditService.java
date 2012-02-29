@@ -1,22 +1,22 @@
-/*
- *  Copyright 2010-2011 The Linux Box Corporation.
- *
- *  This file is part of Enkive CE (Community Edition).
- *
- *  Enkive CE is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU Affero General Public License as
- *  published by the Free Software Foundation, either version 3 of
- *  the License, or (at your option) any later version.
- *
- *  Enkive CE is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- *  GNU Affero General Public License for more details.
- *
- *  You should have received a copy of the GNU Affero General Public
- *  License along with Enkive CE. If not, see
- *  <http://www.gnu.org/licenses/>.
- */
+/*******************************************************************************
+ * Copyright 2012 The Linux Box Corporation.
+ * 
+ * This file is part of Enkive CE (Community Edition).
+ * 
+ * Enkive CE is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of
+ * the License, or (at your option) any later version.
+ * 
+ * Enkive CE is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Affero General Public
+ * License along with Enkive CE. If not, see
+ * <http://www.gnu.org/licenses/>.
+ ******************************************************************************/
 
 package com.linuxbox.enkive.audit.mongodb;
 
@@ -126,8 +126,9 @@ public class MongoAuditService implements AuditService {
 		final int indexCount = auditCollection.getIndexInfo().size();
 		// we expect 4 -- our 3 plus the default index on ObjectID
 		if (indexCount != 4) {
-			LOGGER.warn("the MongoAuditService may have extra indices (which could impact performance); expect 4 but have "
-					+ indexCount);
+			if (LOGGER.isWarnEnabled())
+				LOGGER.warn("the MongoAuditService may have extra indices (which could impact performance); expect 4 but have "
+						+ indexCount);
 		}
 	}
 
@@ -139,7 +140,8 @@ public class MongoAuditService implements AuditService {
 		if (createdMongo) {
 			mongo.close();
 		}
-		LOGGER.trace("shut down MongoAuditLogService");
+		if (LOGGER.isTraceEnabled())
+			LOGGER.trace("shut down MongoAuditLogService");
 	}
 
 	@Override
@@ -173,7 +175,7 @@ public class MongoAuditService implements AuditService {
 	}
 
 	@Override
-	public AuditEntry getEvent(String identifier) {
+	public AuditEntry getEvent(String identifier) throws AuditServiceException {
 		final ObjectId idObject = ObjectId.massageToObjectId(identifier);
 		final QueryBuilder queryBuilder = QueryBuilder.start(
 				MongoDBConstants.OBJECT_ID_KEY).is(idObject);
@@ -193,10 +195,11 @@ public class MongoAuditService implements AuditService {
 	 *            all results must occur ON or AFTER this timestamp
 	 * @param endTime
 	 *            all results must occur BEFORE this timestamp
+	 * @throws AuditServiceException
 	 */
 	@Override
 	public List<AuditEntry> search(Integer eventCode, String userIdentifier,
-			Date startTime, Date endTime) {
+			Date startTime, Date endTime) throws AuditServiceException {
 		final QueryBuilder qb = QueryBuilder.start();
 		String indexHint = TIMESTAMP_INDEX;
 
@@ -225,14 +228,15 @@ public class MongoAuditService implements AuditService {
 	}
 
 	@Override
-	public List<AuditEntry> getMostRecentByPage(int perPage, int pagesToSkip) {
+	public List<AuditEntry> getMostRecentByPage(int perPage, int pagesToSkip)
+			throws AuditServiceException {
 		final DBCursor cursor = auditCollection.find().sort(DATE_BACKWARD_SORT)
 				.skip(perPage * pagesToSkip).limit(perPage);
 		return dbCursortoAuditEntryList(cursor);
 	}
 
 	@Override
-	public long getAuditEntryCount() {
+	public long getAuditEntryCount() throws AuditServiceException {
 		return auditCollection.count();
 	}
 

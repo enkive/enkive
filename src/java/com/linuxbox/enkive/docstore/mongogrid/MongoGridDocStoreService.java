@@ -1,3 +1,22 @@
+/*******************************************************************************
+ * Copyright 2012 The Linux Box Corporation.
+ * 
+ * This file is part of Enkive CE (Community Edition).
+ * 
+ * Enkive CE is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of
+ * the License, or (at your option) any later version.
+ * 
+ * Enkive CE is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Affero General Public
+ * License along with Enkive CE. If not, see
+ * <http://www.gnu.org/licenses/>.
+ ******************************************************************************/
 package com.linuxbox.enkive.docstore.mongogrid;
 
 import static com.linuxbox.enkive.docstore.mongogrid.Constants.BINARY_ENCODING_KEY;
@@ -51,7 +70,6 @@ import com.mongodb.gridfs.GridFSInputFile;
  */
 
 public class MongoGridDocStoreService extends AbstractDocStoreService {
-	@SuppressWarnings("unused")
 	private final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.docstore.mongogrid");
 
@@ -155,7 +173,6 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 		if (file == null) {
 			throw new DocumentNotFoundException(identifier);
 		}
-
 		return new MongoGridDocument(file);
 	}
 
@@ -173,13 +190,11 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 						"could not acquire lock to store document \""
 								+ identifier + "\"");
 			}
-
 			try {
 				if (fileExists(identifier)) {
 					return new StoreRequestResultImpl(identifier, true,
 							shardKey);
 				}
-
 				GridFSInputFile newFile = gridFS
 						.createFile(new ByteArrayInputStream(data, 0, length));
 				newFile.setFilename(identifier);
@@ -191,12 +206,13 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 					throw new DocStoreException(
 							"file saved to GridFS did not validate", e);
 				}
-
 				return new StoreRequestResultImpl(identifier, false, shardKey);
 			} finally {
 				documentLockingService.releaseLock(identifier);
 			}
 		} catch (Exception e) {
+			if (LOGGER.isErrorEnabled())
+				LOGGER.error("Could not save document to gridfs", e);
 			throw new DocStoreException(e);
 		}
 	}
@@ -356,7 +372,7 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 	 */
 	boolean fileExists(String identifier) {
 		DBObject query = new BasicDBObject(Constants.FILENAME_KEY, identifier);
-		DBObject result = filesCollection.findOne(query, RETRIEVE_OBJECT_ID);
+		DBObject result = filesCollection.findOne(query);
 		return result != null;
 	}
 

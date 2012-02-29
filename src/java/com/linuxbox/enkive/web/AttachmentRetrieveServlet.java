@@ -1,3 +1,22 @@
+/*******************************************************************************
+ * Copyright 2012 The Linux Box Corporation.
+ * 
+ * This file is part of Enkive CE (Community Edition).
+ * 
+ * Enkive CE is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of
+ * the License, or (at your option) any later version.
+ * 
+ * Enkive CE is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Affero General Public
+ * License along with Enkive CE. If not, see
+ * <http://www.gnu.org/licenses/>.
+ ******************************************************************************/
 package com.linuxbox.enkive.web;
 
 import java.io.IOException;
@@ -10,7 +29,6 @@ import javax.servlet.http.HttpServletResponse;
 import com.linuxbox.enkive.exception.CannotRetrieveException;
 import com.linuxbox.enkive.exception.CannotTransferMessageContentException;
 import com.linuxbox.enkive.message.EncodedContentData;
-import com.linuxbox.enkive.message.Message;
 import com.linuxbox.enkive.retriever.MessageRetrieverService;
 
 public class AttachmentRetrieveServlet extends EnkiveServlet {
@@ -24,47 +42,39 @@ public class AttachmentRetrieveServlet extends EnkiveServlet {
 	public void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
 
-		final String messageId = req.getParameter("message_id");
+		String attachmentUUID = req.getParameter("attachmentid");
 		final MessageRetrieverService retriever = getMessageRetrieverService();
 
 		try {
+			EncodedContentData attachment = retriever
+					.retrieveAttachment(attachmentUUID);
 
-			final Message message = retriever.retrieve(messageId);
-
-			for (String attachmentUUID : message.getContentHeader()
-					.getAttachmentUUIDs()) {
-
-				EncodedContentData attachment = retriever
-						.retrieveAttachment(attachmentUUID);
-
-				String filename = attachment.getFilename();
-				if (attachment.getFilename() == null
-						|| attachment.getFilename().isEmpty()) {
-					filename = "Message Body";
-				} else {
-					try {
-						filename = "filename=" + attachment.getFilename();
-						resp.setContentType(attachment.getMimeType());
-						resp.setCharacterEncoding("utf-8");
-						resp.setHeader("Content-disposition", "attachment;  "
-								+ filename);
-						attachment
-								.transferBinaryContent(resp.getOutputStream());
-					} catch (CannotTransferMessageContentException e) {
-						LOGGER.error("error transferring attachment message "
-								+ messageId, e);
-						resp.sendError(
-								HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
-								"error transferring attachment message "
-										+ messageId + "; see server logs");
-					}
-				}
+			String filename = attachment.getFilename();
+			if (attachment.getFilename() == null
+					|| attachment.getFilename().isEmpty()) {
+				filename = "Message Body";
+			}
+			try {
+				filename = "filename=" + filename;
+				resp.setContentType(attachment.getMimeType());
+				resp.setCharacterEncoding("utf-8");
+				resp.setHeader("Content-disposition", "attachment;  "
+						+ filename);
+				attachment.transferBinaryContent(resp.getOutputStream());
+			} catch (CannotTransferMessageContentException e) {
+				if (LOGGER.isErrorEnabled())
+					LOGGER.error("error transferring attachment  "
+							+ attachmentUUID, e);
+				resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+						"error transferring attachment " + attachmentUUID
+								+ "; see server logs");
 			}
 
 		} catch (CannotRetrieveException e) {
-			LOGGER.error("error retrieving message " + messageId, e);
+			if (LOGGER.isErrorEnabled())
+				LOGGER.error("error retrieving attachment " + attachmentUUID, e);
 			resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
-					"error retrieving message " + messageId
+					"error retrieving attachment " + attachmentUUID
 							+ "; see server logs");
 
 		}

@@ -1,0 +1,55 @@
+Portions of this product distribution require certain copyright or
+other notices to be included with the product distribution.  These
+notice may also appear in individual source files.
+
+This product also includes software developed by The Apache Software Foundation 
+	(http://www.apache.org/).
+
+This product also includes software developed by The Free Software Foundation 
+	(http://www.fsf.org/).
+
+This product also includes software developed by SpringSource 
+	(http://www.springsource.org/).
+
+This product also includes software developed by Google
+	(http://code.google.com/p/google-diff-match-patch/)
+
+GNU Java Activation Framework (JAF)
+  Copyright 2004 The Free Software Foundation
+
+Apache JAMES Mime4j
+  Copyright 2004-2009 The Apache Software Foundation
+
+Apache Commons Codec
+  Copyright 2002-2009 The Apache Software Foundation
+
+  Copyright (C) 2002 Kevin Atkinson (kevina@gnu.org). Verbatim copying
+  and distribution of this entire article is permitted in any medium,
+  provided this notice is preserved.
+
+Apache Tika
+
+Commons Logging
+  Copyright 2001-2007 The Apache Software Foundation
+
+Commons Daemon
+
+Commons Lang
+
+GNU JavaMail
+  Copyright(C) 2002 The Free Software Foundation
+
+GNU inetlib
+  Copyright (C) 2004 The Free Software Foundation
+  
+SpringSource Spring Framework
+ 
+SpringSource Spring Security
+
+Google Diff Match Patch
+	Copyright 2006 Google Inc.
+
+Jetty Web Container
+	Copyright 1995-2009 Mort Bay Consulting Pty Ltd.
+
+All rights reserved.

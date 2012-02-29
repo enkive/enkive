@@ -1,23 +1,22 @@
-/*
- *  Copyright 2011 The Linux Box Corporation.
- *
- *  This file is part of Enkive CE (Community Edition).
- *
- *  Enkive CE is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU Affero General Public License as
- *  published by the Free Software Foundation, either version 3 of
- *  the License, or (at your option) any later version.
- *
- *  Enkive CE is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- *  GNU Affero General Public License for more details.
- *
- *  You should have received a copy of the GNU Affero General Public
- *  License along with Enkive CE. If not, see
- *  <http://www.gnu.org/licenses/>.
- */
-
+/*******************************************************************************
+ * Copyright 2012 The Linux Box Corporation.
+ * 
+ * This file is part of Enkive CE (Community Edition).
+ * 
+ * Enkive CE is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of
+ * the License, or (at your option) any later version.
+ * 
+ * Enkive CE is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Affero General Public
+ * License along with Enkive CE. If not, see
+ * <http://www.gnu.org/licenses/>.
+ ******************************************************************************/
 package com.linuxbox.enkive.mailprocessor.processors;
 
 import static com.linuxbox.enkive.mailprocessor.MailDirConstants.END_OF_STREAM_INDICATOR;
@@ -30,13 +29,13 @@ import java.io.InputStreamReader;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 
-import org.apache.james.mime4j.field.address.AddressList;
-import org.apache.james.mime4j.field.address.MailboxList;
-import org.apache.james.mime4j.field.address.parser.ParseException;
+import org.apache.james.mime4j.dom.address.MailboxList;
+import org.apache.james.mime4j.field.address.ParseException;
 
 import com.linuxbox.enkive.exception.SocketClosedException;
 import com.linuxbox.enkive.mailprocessor.AbstractMailProcessor;
 import com.linuxbox.enkive.mailprocessor.ProcessorState;
+import com.linuxbox.enkive.message.AddressParser;
 import com.linuxbox.enkive.message.Message;
 import com.linuxbox.enkive.message.Utility;
 
@@ -86,7 +85,8 @@ public class MailDirProcessor extends AbstractMailProcessor {
 			// check for closed socket / end-of-stream
 			if (character < 0) {
 				if (!addresses.isEmpty() || !address.isEmpty()) {
-					logger.error("MailDirProcessor: socket closed after reading address data");
+					if (LOGGER.isErrorEnabled())
+						LOGGER.error("MailDirProcessor: socket closed after reading address data");
 					throw new MessageIncompleteException(
 							"socket closed while reading address line");
 				}
@@ -153,14 +153,17 @@ public class MailDirProcessor extends AbstractMailProcessor {
 				.stripBracketsFromFromAddress(fullAddress);
 
 		try {
-			MailboxList mailboxes = AddressList.parse(strippedAddress)
-					.flatten();
+			MailboxList mailboxes = new AddressParser().parseAddressList(
+					strippedAddress).flatten();
 
 			// log anything unexpected
 			if (mailboxes.size() != 1) {
-				logger.error("Email address header " + headerTypeDescription
-						+ "(\"" + strippedAddress
-						+ "\") could not be parsed as a single email address.");
+				if (LOGGER.isErrorEnabled())
+					LOGGER.error("Email address header "
+							+ headerTypeDescription
+							+ "(\""
+							+ strippedAddress
+							+ "\") could not be parsed as a single email address.");
 			}
 
 			// return something reasonable if possible; null otherwise
@@ -172,9 +175,12 @@ public class MailDirProcessor extends AbstractMailProcessor {
 				return null;
 			}
 		} catch (ParseException e) {
-			logger.error("Email address header " + headerTypeDescription
-					+ "(\"" + strippedAddress
-					+ "\") could not be parsed as one or more email addresses.");
+			if (LOGGER.isWarnEnabled())
+				LOGGER.error("Email address header "
+						+ headerTypeDescription
+						+ "(\""
+						+ strippedAddress
+						+ "\") could not be parsed as one or more email addresses.");
 			return null;
 		}
 	}
@@ -182,12 +188,15 @@ public class MailDirProcessor extends AbstractMailProcessor {
 	@Override
 	protected Message postProcess(Message message) {
 		if (INFER_MAIL_FROM_AND_RCPT_TO) {
-			String address = parseOutAddress(message.getFrom(), "FROM");
-			if (address != null) {
-				message.setMailFrom(address);
-			} else {
-				logger.warn("did not get a FROM address from "
-						+ message.getFrom());
+			for (String unparsedAddress : message.getFrom()) {
+				String address = parseOutAddress(unparsedAddress, "FROM");
+				if (address != null) {
+					message.setMailFrom(address);
+				} else {
+					if (LOGGER.isWarnEnabled())
+						LOGGER.warn("did not get a FROM address from "
+								+ message.getFrom());
+				}
 			}
 
 			for (String unparsedAddress : message.getTo()) {

@@ -1,26 +1,27 @@
-/*
- *  Copyright 2010 The Linux Box Corporation.
- *
- *  This file is part of Enkive CE (Community Edition).
- *
- *  Enkive CE is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU Affero General Public License as
- *  published by the Free Software Foundation, either version 3 of
- *  the License, or (at your option) any later version.
- *
- *  Enkive CE is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- *  GNU Affero General Public License for more details.
- *
- *  You should have received a copy of the GNU Affero General Public
- *  License along with Enkive CE. If not, see
- *  <http://www.gnu.org/licenses/>.
- */
+/*******************************************************************************
+ * Copyright 2012 The Linux Box Corporation.
+ * 
+ * This file is part of Enkive CE (Community Edition).
+ * 
+ * Enkive CE is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of
+ * the License, or (at your option) any later version.
+ * 
+ * Enkive CE is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Affero General Public
+ * License along with Enkive CE. If not, see
+ * <http://www.gnu.org/licenses/>.
+ ******************************************************************************/
 
 package com.linuxbox.enkive.message;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -42,7 +43,7 @@ public abstract class AbstractMessageSummary implements MessageSummary {
 	protected String messageId;
 	protected String mailFrom;
 	protected List<String> rcptTo;
-	protected String from;
+	protected List<String> from;
 	protected List<String> to;
 	protected List<String> cc;
 	protected Date date;
@@ -50,6 +51,10 @@ public abstract class AbstractMessageSummary implements MessageSummary {
 
 	public AbstractMessageSummary() {
 		super();
+		rcptTo = new ArrayList<String>();
+		to = new ArrayList<String>();
+		cc = new ArrayList<String>();
+		from = new ArrayList<String>();
 	}
 
 	public String getId() {
@@ -149,7 +154,7 @@ public abstract class AbstractMessageSummary implements MessageSummary {
 	}
 
 	@Override
-	public String getFrom() {
+	public List<String> getFrom() {
 		return from;
 	}
 
@@ -174,8 +179,13 @@ public abstract class AbstractMessageSummary implements MessageSummary {
 	}
 
 	@Override
-	public void setFrom(String from) {
+	public void setFrom(List<String> from) {
 		this.from = from;
+	}
+
+	@Override
+	public void appendFrom(String from) {
+		this.from.add(from);
 	}
 
 	@Override
@@ -197,7 +207,7 @@ public abstract class AbstractMessageSummary implements MessageSummary {
 	}
 
 	public String getFromStr() {
-		return Utility.stripBracketsFromFromAddress(getFrom());
+		return StringUtils.collectionToCommaSeparatedString(getFrom());
 	}
 
 	public String getToStr() {

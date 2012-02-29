@@ -1,23 +1,22 @@
-/*
- *  Copyright 2011 The Linux Box Corporation.
- *
- *  This file is part of Enkive CE (Community Edition).
- *
- *  Enkive CE is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU Affero General Public License as
- *  published by the Free Software Foundation, either version 3 of
- *  the License, or (at your option) any later version.
- *
- *  Enkive CE is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- *  GNU Affero General Public License for more details.
- *
- *  You should have received a copy of the GNU Affero General Public
- *  License along with Enkive CE. If not, see
- *  <http://www.gnu.org/licenses/>.
- */
-
+/*******************************************************************************
+ * Copyright 2012 The Linux Box Corporation.
+ * 
+ * This file is part of Enkive CE (Community Edition).
+ * 
+ * Enkive CE is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of
+ * the License, or (at your option) any later version.
+ * 
+ * Enkive CE is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Affero General Public
+ * License along with Enkive CE. If not, see
+ * <http://www.gnu.org/licenses/>.
+ ******************************************************************************/
 package com.linuxbox.enkive.web;
 
 import java.text.DateFormat;
@@ -51,6 +50,7 @@ public interface WebConstants {
 	public static final String SEARCH_DATE_TAG = "searchDate";
 	public static final String SEARCH_PARAMETER_TAG = "parameter";
 	public static final String SEARCH_VALUE_TAG = "value";
+	public static final String SEARCH_IS_SAVED = "searchIsSaved";
 	public static final String ITEM_TOTAL_TAG = "itemTotal";
 
 	public static final String MESSAGE_ID_TAG = "messageId";
@@ -72,5 +72,6 @@ public interface WebConstants {
 	public static final String PERMISSION_ADDRESSES_TAG = "addresses";
 	public static final String PERMISSION_ADMIN_TAG = "admin";
 	public static final String PERMISSION_CAN_READ_ALL_TAG = "can_read_all";
+	public static final String USER_AUTHORITIES = "userAuthorities";
 
 }
