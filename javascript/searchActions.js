@@ -33,8 +33,10 @@ function stop_search(id) {
 						$('#main')
 								.load(
 										'/ediscovery/search/recent/main',
-										function() {
-
+										function(response, status, xhr) {
+										if (xhr.status == 403) {
+											location.reload();
+										} else {
 											$('.search_result')
 													.click(
 															function() {
@@ -46,7 +48,7 @@ function stop_search(id) {
 																			+ id;
 																}
 															});
-
+											}
 										});
 					});
 }
