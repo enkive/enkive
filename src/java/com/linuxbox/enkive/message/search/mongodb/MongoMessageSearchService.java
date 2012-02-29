@@ -77,19 +77,12 @@ public class MongoMessageSearchService extends AbstractMessageSearchService {
 	public Set<String> searchImpl(HashMap<String, String> fields)
 			throws MessageSearchException {
 		Set<String> messageIds = new HashSet<String>();
-		System.out.println("blah1");
 		BasicDBObject query = buildQueryObject(fields);
-		System.out.println("blah2");
 		DBCursor results = messageColl.find(query);
-		System.out.println("blah3");
-		System.out.println(results.count());
-		System.out.println("blah4");
 		while (results.hasNext()) {
 			DBObject message = results.next();
 			messageIds.add((String) message.get("_id"));
 		}
-		System.out.println("blah5");
-
 		return messageIds;
 	}
 
