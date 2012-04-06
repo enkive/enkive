@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="Enkive Email Archiver" default="package" basedir=".">
 
-	<property name="enkive.version" value="1.0" />
+	<property name="enkive.version" value="1.0-CE" />
 	<property name="project.dir" value="." />
 	<property name="label" value="enkive-${enkive.version}" />
 	<property name="project.name" value="enkive" />

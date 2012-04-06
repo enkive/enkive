@@ -83,5 +83,6 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/mongo-2.7.3.jar"/>
+	<classpathentry kind="lib" path="lib/quartz-1.8.6.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

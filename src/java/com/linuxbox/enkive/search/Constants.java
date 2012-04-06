@@ -32,6 +32,10 @@ public class Constants {
 	public static final String SUBJECT_PARAMETER = "subject";
 	public static final String MESSAGE_ID_PARAMETER = "messageId";
 	public static final String CONTENT_PARAMETER = "content";
+	public static final String LIMIT_PARAMETER = "limit";
+	
+	public static final String PERMISSIONS_SENDER_PARAMETER = "permissions_sender";
+	public static final String PERMISSIONS_RECIPIENT_PARAMETER = "permissions_recipient";
 
 	public static final DateFormat NUMERIC_SEARCH_FORMAT;
 

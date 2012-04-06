@@ -23,19 +23,22 @@ import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.CC;
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.DATE;
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.FROM;
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.MAIL_FROM;
+import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.MESSAGE_ID;
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.RCPT_TO;
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.SUBJECT;
-import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.MESSAGE_ID;
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.TO;
 import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.ATTACHMENT_ID_LIST;
 import static com.linuxbox.enkive.search.Constants.CONTENT_PARAMETER;
 import static com.linuxbox.enkive.search.Constants.DATE_EARLIEST_PARAMETER;
 import static com.linuxbox.enkive.search.Constants.DATE_LATEST_PARAMETER;
+import static com.linuxbox.enkive.search.Constants.LIMIT_PARAMETER;
+import static com.linuxbox.enkive.search.Constants.MESSAGE_ID_PARAMETER;
 import static com.linuxbox.enkive.search.Constants.NUMERIC_SEARCH_FORMAT;
+import static com.linuxbox.enkive.search.Constants.PERMISSIONS_RECIPIENT_PARAMETER;
+import static com.linuxbox.enkive.search.Constants.PERMISSIONS_SENDER_PARAMETER;
 import static com.linuxbox.enkive.search.Constants.RECIPIENT_PARAMETER;
 import static com.linuxbox.enkive.search.Constants.SENDER_PARAMETER;
 import static com.linuxbox.enkive.search.Constants.SUBJECT_PARAMETER;
-import static com.linuxbox.enkive.search.Constants.MESSAGE_ID_PARAMETER;
 
 import java.text.ParseException;
 import java.util.Date;
@@ -79,6 +82,17 @@ public class MongoMessageSearchService extends AbstractMessageSearchService {
 		Set<String> messageIds = new HashSet<String>();
 		BasicDBObject query = buildQueryObject(fields);
 		DBCursor results = messageColl.find(query);
+		if (fields.get(LIMIT_PARAMETER) != null
+				&& !fields.get(LIMIT_PARAMETER).isEmpty()
+				&& !fields.get(LIMIT_PARAMETER).trim().isEmpty()) {
+			try {
+				int limit = Integer.parseInt(fields.get(LIMIT_PARAMETER));
+				results.limit(limit);
+			} catch (NumberFormatException e) {
+				LOGGER.warn("Could not parse limit argument into integer - "
+						+ fields.get(LIMIT_PARAMETER), e);
+			}
+		}
 		while (results.hasNext()) {
 			DBObject message = results.next();
 			messageIds.add((String) message.get("_id"));
@@ -97,35 +111,97 @@ public class MongoMessageSearchService extends AbstractMessageSearchService {
 					|| fields.get(searchField).trim().isEmpty()) {
 				// Do Nothing
 			} else if (searchField.equals(SENDER_PARAMETER)
-					|| searchField.equals(RECIPIENT_PARAMETER)) {
+					|| searchField.equals(RECIPIENT_PARAMETER)
+					|| searchField.equals(PERMISSIONS_SENDER_PARAMETER)
+					|| searchField.equals(PERMISSIONS_RECIPIENT_PARAMETER)) {
 				BasicDBList addressesQuery = new BasicDBList();
+				BasicDBList searchAddressesQuery = new BasicDBList();
+				BasicDBList permissionAddressesQuery = new BasicDBList();
 				if (fields.containsKey(SENDER_PARAMETER)
 						&& fields.get(SENDER_PARAMETER) != null
 						&& !fields.get(SENDER_PARAMETER).isEmpty()) {
 					// Needs to match MAIL_FROM OR FROM
 					BasicDBList senderQuery = new BasicDBList();
-					senderQuery.add(new BasicDBObject(MAIL_FROM, fields
-							.get(SENDER_PARAMETER)));
-					senderQuery.add(new BasicDBObject(FROM, fields
-							.get(SENDER_PARAMETER)));
 
-					addressesQuery.add(new BasicDBObject("$or", senderQuery));
+					for (String address : fields.get(SENDER_PARAMETER).trim()
+							.split(";")) {
+
+						senderQuery.add(new BasicDBObject(MAIL_FROM, address
+								.trim()));
+						senderQuery
+								.add(new BasicDBObject(FROM, address.trim()));
+					}
+
+					searchAddressesQuery.add(new BasicDBObject("$or",
+							senderQuery));
 				}
 				if (fields.containsKey(RECIPIENT_PARAMETER)
 						&& fields.get(RECIPIENT_PARAMETER) != null
 						&& !fields.get(RECIPIENT_PARAMETER).isEmpty()) {
 					// Needs to match TO OR CC OR RCPTO
 					BasicDBList receiverQuery = new BasicDBList();
-					receiverQuery.add(new BasicDBObject(RCPT_TO, fields
-							.get(RECIPIENT_PARAMETER)));
-					receiverQuery.add(new BasicDBObject(TO, fields
-							.get(RECIPIENT_PARAMETER)));
-					receiverQuery.add(new BasicDBObject(CC, fields
-							.get(RECIPIENT_PARAMETER)));
 
-					addressesQuery.add(new BasicDBObject("$or", receiverQuery));
+					for (String address : fields.get(RECIPIENT_PARAMETER)
+							.trim().split(";")) {
+						receiverQuery.add(new BasicDBObject(RCPT_TO,
+								address));
+						receiverQuery.add(new BasicDBObject(TO,
+								address));
+						receiverQuery.add(new BasicDBObject(CC,
+								address));
+					}
+
+					searchAddressesQuery.add(new BasicDBObject("$or",
+							receiverQuery));
 				}
-				query.put("$and", addressesQuery);
+
+				if (fields.containsKey(PERMISSIONS_SENDER_PARAMETER)
+						&& fields.get(PERMISSIONS_SENDER_PARAMETER) != null
+						&& !fields.get(PERMISSIONS_SENDER_PARAMETER).isEmpty()) {
+					// Needs to match MAIL_FROM OR FROM
+					BasicDBList permissionsSenderQuery = new BasicDBList();
+
+					for (String address : fields
+							.get(PERMISSIONS_SENDER_PARAMETER).trim()
+							.split(";")) {
+
+						permissionsSenderQuery.add(new BasicDBObject(MAIL_FROM,
+								address.trim()));
+						permissionsSenderQuery.add(new BasicDBObject(FROM,
+								address.trim()));
+					}
+
+					permissionAddressesQuery.add(new BasicDBObject("$or",
+							permissionsSenderQuery));
+				}
+				if (fields.containsKey(PERMISSIONS_RECIPIENT_PARAMETER)
+						&& fields.get(PERMISSIONS_RECIPIENT_PARAMETER) != null
+						&& !fields.get(PERMISSIONS_RECIPIENT_PARAMETER)
+								.isEmpty()) {
+					// Needs to match TO OR CC OR RCPTO
+					BasicDBList permissionsReceiverQuery = new BasicDBList();
+
+					for (String address : fields
+							.get(PERMISSIONS_RECIPIENT_PARAMETER).trim()
+							.split(";")) {
+						permissionsReceiverQuery.add(new BasicDBObject(RCPT_TO, address));
+						permissionsReceiverQuery.add(new BasicDBObject(TO, address));
+						permissionsReceiverQuery.add(new BasicDBObject(CC, address));
+					}
+
+					permissionAddressesQuery.add(new BasicDBObject("$or",
+							permissionsReceiverQuery));
+				}
+				if (permissionAddressesQuery.isEmpty())
+					query.put("$or", searchAddressesQuery);
+				else if (searchAddressesQuery.isEmpty())
+					query.put("$or", permissionAddressesQuery);
+				else {
+					addressesQuery.add(new BasicDBObject("$or", searchAddressesQuery));
+					addressesQuery.add(new BasicDBObject("$or", permissionAddressesQuery));
+					query.put("$and", addressesQuery);
+				}
+
 			} else if (searchField.equals(DATE_EARLIEST_PARAMETER)
 					|| searchField.equals(DATE_LATEST_PARAMETER)) {
 				BasicDBObject dateQuery = new BasicDBObject();
@@ -184,6 +260,7 @@ public class MongoMessageSearchService extends AbstractMessageSearchService {
 				}
 			}
 		}
+		System.out.println(query.toString());
 		return query;
 	}
 

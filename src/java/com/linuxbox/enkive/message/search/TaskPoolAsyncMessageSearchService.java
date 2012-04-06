@@ -17,7 +17,7 @@
  * License along with Enkive CE. If not, see
  * <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package com.linuxbox.enkive.message.search.mongodb;
+package com.linuxbox.enkive.message.search;
 
 import java.util.HashMap;
 import java.util.concurrent.BlockingQueue;
@@ -26,27 +26,32 @@ import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import com.linuxbox.enkive.authentication.AuthenticationException;
+import com.linuxbox.enkive.authentication.AuthenticationService;
 import com.linuxbox.enkive.message.search.exception.MessageSearchException;
-import com.linuxbox.enkive.permissions.PermissionService;
 import com.linuxbox.enkive.workspace.SearchQuery;
 import com.linuxbox.enkive.workspace.SearchResult;
 import com.linuxbox.enkive.workspace.SearchResult.Status;
 import com.linuxbox.enkive.workspace.Workspace;
 import com.linuxbox.enkive.workspace.WorkspaceException;
+import com.linuxbox.enkive.workspace.WorkspaceService;
 import com.linuxbox.util.threadpool.CancellableProcessExecutor;
-import com.mongodb.Mongo;
 
-public class TaskPoolPermEnforcingMongoSearchService extends
-		PermissionEnforcingMongoSearchService {
+public class TaskPoolAsyncMessageSearchService implements MessageSearchService {
+
+	protected static final Log LOGGER = LogFactory
+			.getLog("com.linuxbox.enkive.message.search");
 
 	CancellableProcessExecutor searchExecutor;
+	MessageSearchService messageSearchService;
+	WorkspaceService workspaceService;
+	AuthenticationService authenticationService;
 
-	public TaskPoolPermEnforcingMongoSearchService(
-			PermissionService permService, Mongo m, String dbName,
-			String collName, int corePoolSize, int maxPoolSize,
+	public TaskPoolAsyncMessageSearchService(int corePoolSize, int maxPoolSize,
 			int keepAliveTime) {
-		super(permService, m, dbName, collName);
 		BlockingQueue<Runnable> queue = new LinkedBlockingQueue<Runnable>();
 		searchExecutor = new CancellableProcessExecutor(corePoolSize,
 				maxPoolSize, keepAliveTime, TimeUnit.SECONDS, queue);
@@ -59,9 +64,7 @@ public class TaskPoolPermEnforcingMongoSearchService extends
 		String searchResultId = createSearchResult(fields);
 
 		Callable<SearchResult> searchCall = new AsynchronousSearchThread(
-				fields, searchResultId, workspaceService,
-				authenticationService, auditService, docSearchService,
-				permService, m, messageDb.getName(), messageColl.getName());
+				fields, searchResultId, messageSearchService, workspaceService);
 
 		try {
 			@SuppressWarnings("unchecked")
@@ -89,7 +92,10 @@ public class TaskPoolPermEnforcingMongoSearchService extends
 
 			searchCancelled = searchExecutor.cancelSearch(searchResultId);
 
-			searchResult.setStatus(Status.CANCEL_REQUESTED);
+			if (searchCancelled)
+				searchResult.setStatus(Status.CANCELED);
+			else
+				searchResult.setStatus(Status.ERROR);
 			workspaceService.saveSearchResult(searchResult);
 		} catch (WorkspaceException e) {
 			throw new MessageSearchException("Could not mark search "
@@ -124,6 +130,38 @@ public class TaskPoolPermEnforcingMongoSearchService extends
 			throw new MessageSearchException(
 					"Could not get authenticated user for search", e);
 		}
+	}
+
+	@Override
+	public SearchResult search(HashMap<String, String> fields)
+			throws MessageSearchException {
+		return messageSearchService.search(fields);
+	}
+
+	public MessageSearchService getMessageSearchService() {
+		return messageSearchService;
+	}
+
+	public void setMessageSearchService(
+			MessageSearchService messageSearchService) {
+		this.messageSearchService = messageSearchService;
+	}
+
+	public WorkspaceService getWorkspaceService() {
+		return workspaceService;
+	}
+
+	public void setWorkspaceService(WorkspaceService workspaceService) {
+		this.workspaceService = workspaceService;
+	}
+
+	public AuthenticationService getAuthenticationService() {
+		return authenticationService;
+	}
+
+	public void setAuthenticationService(
+			AuthenticationService authenticationService) {
+		this.authenticationService = authenticationService;
 	}
 
 }

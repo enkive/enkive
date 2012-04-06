@@ -91,18 +91,33 @@
 	</bean>
 
 	<bean id="MessageSearchService"
-		class="com.linuxbox.enkive.message.search.mongodb.TaskPoolPermEnforcingMongoSearchService">
-		<constructor-arg ref="PermissionService" />
-		<constructor-arg ref="Mongo" />
-		<constructor-arg type="java.lang.String" value="${enkive.messagestore.db.name}" />
-		<constructor-arg type="java.lang.String"
-			value="${enkive.messagestore.collection.name}" />
+		class="com.linuxbox.enkive.message.search.TaskPoolAsyncMessageSearchService">
 		<constructor-arg value="${enkive.messageSearch.corePoolSize}" />
 		<constructor-arg value="${enkive.messageSearch.maxPoolSize}" />
 		<constructor-arg value="${enkive.messageSearch.keepAliveTime}" />
 		<property name="authenticationService" ref="AuthenticationService" />
 		<property name="workspaceService" ref="WorkspaceService" />
+		<property name="messageSearchService" ref="PermissionsEnforcingMessageSearchService" />
+	</bean>
+
+	<!-- <bean id="RetentionPolicyEnforcingMessageSearchService" class="com.linuxbox.enkive.message.search.RetentionPolicyEnforcingMessageSearchService"> 
+		<property name="messageRetentionPolicy" ref="MessageRetentionPolicy" /> <property 
+		name="messageSearchService" ref="PermissionsEnforcingMessageSearchService" 
+		/> </bean> -->
+	<bean id="PermissionsEnforcingMessageSearchService"
+		class="com.linuxbox.enkive.message.search.PermissionsEnforcingAuditLoggingMessageSearchService">
+		<property name="permService" ref="PermissionService" />
+		<property name="authenticationService" ref="AuthenticationService" />
+		<property name="messageSearchService" ref="SystemMessageSearchService" />
 		<property name="auditService" ref="AuditLogService" />
+	</bean>
+
+	<bean id="SystemMessageSearchService"
+		class="com.linuxbox.enkive.message.search.mongodb.MongoMessageSearchService">
+		<constructor-arg ref="Mongo" />
+		<constructor-arg type="java.lang.String" value="${enkive.messagestore.db.name}" />
+		<constructor-arg type="java.lang.String"
+			value="${enkive.messagestore.collection.name}" />
 		<property name="docSearchService" ref="DocSearchQueryService" />
 	</bean>
 
@@ -149,7 +164,8 @@
 		<property name="jmxEnabled" value="${enkive.jmx.enabled}" />
 	</bean>
 
-	<bean id="AuditLogService" class="com.linuxbox.enkive.audit.mongodb.PermissionsEnforcingMongoAuditService">
+	<bean id="AuditLogService"
+		class="com.linuxbox.enkive.audit.mongodb.PermissionsEnforcingMongoAuditService">
 		<constructor-arg ref="PermissionService" />
 		<constructor-arg ref="Mongo" />
 		<constructor-arg value="${enkive.queueservice.db.name}" />
@@ -159,7 +175,7 @@
 	<bean id="AuthenticationService"
 		class="com.linuxbox.enkive.authentication.SpringSecurityAuthenticationService">
 	</bean>
-	
+
 	<bean id="PermissionService"
 		class="com.linuxbox.enkive.permissions.SpringContextPermissionService">
 	</bean>
@@ -180,6 +196,24 @@
 		<property name="authenticationService" ref="AuthenticationService" />
 	</bean>
 
+	<!-- Scheduled Actions -->
+
+	<!-- Disable Message Retention Policy <bean name="MessageRetentionPolicy" 
+		class="com.linuxbox.enkive.message.retention.MessageRetentionPolicy"> <property 
+		name="retentionPolicyCriteria"> <map> <entry key="retentionPeriod" value="30" 
+		/> <entry key="limit" value="10" /> </map> </property> </bean> <bean name="MessageRetentionPolicyEnforcer" 
+		class="com.linuxbox.enkive.message.retention.mongodb.MongoMessageRetentionPolicyEnforcer"> 
+		<constructor-arg ref="SystemMessageSearchService" /> <property name="retentionPolicy" 
+		ref="MessageRetentionPolicy" /> </bean> <bean name="MessageRetentionJob" 
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean"> 
+		<property name="targetObject" ref="MessageRetentionPolicyEnforcer" /> <property 
+		name="targetMethod" value="enforceMessageRetentionPolicies" /> <property 
+		name="concurrent" value="false" /> </bean> <bean id="MessageRetentionTrigger" 
+		class="org.springframework.scheduling.quartz.CronTriggerBean"> <property 
+		name="jobDetail" ref="MessageRetentionJob" /> <property name="cronExpression" 
+		value="* * * * * ?" /> </bean> <bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean"> 
+		<property name="triggers"> <list> <ref bean="MessageRetentionTrigger" /> 
+		</list> </property> </bean> -->
 	<!-- Create a Mongo shared by various services; that way if the MongoDB 
 		lives on another server or a unique port, that can be configured once. -->
 

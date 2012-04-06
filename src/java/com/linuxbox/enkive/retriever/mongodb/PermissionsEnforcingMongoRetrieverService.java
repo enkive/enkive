@@ -98,7 +98,7 @@ public class PermissionsEnforcingMongoRetrieverService extends
 
 	protected boolean canReadAttachment(String userId, String attachmentUUID)
 			throws CannotRetrieveException {
-
+		System.out.println("attachment perm 1");
 		try {
 			if (permService.isAdmin())
 				return true;
@@ -109,25 +109,17 @@ public class PermissionsEnforcingMongoRetrieverService extends
 		BasicDBObject query = new BasicDBObject();
 
 		// Needs to match MAIL_FROM OR FROM
-		BasicDBList senderQuery = new BasicDBList();
-
+		BasicDBList addressQuery = new BasicDBList();
 		Collection<String> addresses = permService.canReadAddresses(userId);
 		for (String address : addresses) {
-			senderQuery.add(new BasicDBObject(MAIL_FROM, address));
-			senderQuery.add(new BasicDBObject(FROM, address));
+			addressQuery.add(new BasicDBObject(MAIL_FROM, address));
+			addressQuery.add(new BasicDBObject(FROM, address));
+			addressQuery.add(new BasicDBObject(RCPT_TO, address));
+			addressQuery.add(new BasicDBObject(TO, address));
+			addressQuery.add(new BasicDBObject(CC, address));
 		}
-		query.put("$or", senderQuery);
-
-		BasicDBList receiverQuery = new BasicDBList();
-
-		for (String address : addresses) {
-			receiverQuery.add(new BasicDBObject(RCPT_TO, address));
-			receiverQuery.add(new BasicDBObject(TO, address));
-			receiverQuery.add(new BasicDBObject(CC, address));
-		}
-		query.put("$or", receiverQuery);
+		query.put("$or", addressQuery);
 		query.put(ATTACHMENT_ID_LIST, attachmentUUID);
-
 		DBCursor results = messageColl.find(query);
 		if (results.size() > 0)
 			return true;

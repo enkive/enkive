@@ -82,7 +82,7 @@ public class EnkiveServlet extends HttpServlet {
 	}
 
 	public MessageSearchService getMessageSearchService() {
-		return appContext.getBean(MessageSearchService.class);
+		return appContext.getBean("MessageSearchService", MessageSearchService.class);
 	}
 
 	public PermissionService getPermissionService() {

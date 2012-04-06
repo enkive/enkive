@@ -29,7 +29,8 @@ import com.linuxbox.enkive.workspace.SearchResult;
 public interface MessageSearchService {
 
 	/**
-	 * Perform a search and return a set of message identifiers that match.
+	 * Perform a search for a user and return a populated SearchResult object.
+	 * This search function stores results in a workspace and stores audit log events.
 	 * 
 	 * @param fields
 	 * 
