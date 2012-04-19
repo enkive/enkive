@@ -17,7 +17,6 @@
  * License along with Enkive CE. If not, see
  * <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-
 /**
  * TODO This test needs to be updated to use the enkivefilterbean and read in a test filter xml file.
  */
@@ -30,6 +29,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.Calendar;
+import java.util.HashSet;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -45,17 +45,20 @@ import com.linuxbox.enkive.message.MessageImpl;
 public class EnkiveFilterTest {
 
 	protected static Message message;
+	protected static EnkiveFiltersBean enkiveFilterBean;
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		InputStream filestream = new FileInputStream(new File(
-				TestingConstants.TEST_MESSAGE_DIRECTORY + "/basic-plain.msg"));
+				TestingConstants.TEST_MESSAGE_DIRECTORY
+						+ "/filterTest/basic-plain.msg"));
 		message = new MessageImpl(filestream);
 		Calendar date = Calendar.getInstance();
 		date.set(1997, 2, 11, 14, 0, 0);
 
 		message.setDate(date.getTime());
 		filestream.close();
+		enkiveFilterBean = new EnkiveFiltersBean();
 	}
 
 	@AfterClass
@@ -72,17 +75,20 @@ public class EnkiveFilterTest {
 	public void tearDown() throws Exception {
 
 	}
-/**
+
 	@Test
 	public void testIntegerLessThanAllow() {
 		EnkiveFilter filter = new EnkiveFilter("x-filter-test-int-flag",
 				EnkiveFilterConstants.FilterAction.ALLOW,
 				EnkiveFilterConstants.FilterType.FLOAT, "3",
-				EnkiveFilterConstants.FilterComparator.IS_LESS_THAN,
-				EnkiveFilterConstants.FilterAction.DENY);
+				EnkiveFilterConstants.FilterComparator.IS_LESS_THAN);
 
-		assertTrue(filter.filter(message.getParsedHeader()
-				.getField("x-filter-test-int-flag").getBody()));
+		HashSet<EnkiveFilter> filterSet = new HashSet<EnkiveFilter>();
+		filterSet.add(filter);
+		enkiveFilterBean.setFilterSet(filterSet);
+		enkiveFilterBean
+				.setDefaultAction(EnkiveFilterConstants.FilterAction.DENY);
+		assertTrue(enkiveFilterBean.filterMessage(message));
 	}
 
 	@Test
@@ -90,11 +96,13 @@ public class EnkiveFilterTest {
 		EnkiveFilter filter = new EnkiveFilter("x-filter-test-int-flag",
 				EnkiveFilterConstants.FilterAction.DENY,
 				EnkiveFilterConstants.FilterType.FLOAT, "3",
-				EnkiveFilterConstants.FilterComparator.IS_LESS_THAN,
-				EnkiveFilterConstants.FilterAction.ALLOW);
-
-		assertFalse(filter.filter(message.getParsedHeader()
-				.getField("x-filter-test-int-flag").getBody()));
+				EnkiveFilterConstants.FilterComparator.IS_LESS_THAN);
+		HashSet<EnkiveFilter> filterSet = new HashSet<EnkiveFilter>();
+		filterSet.add(filter);
+		enkiveFilterBean.setFilterSet(filterSet);
+		enkiveFilterBean
+				.setDefaultAction(EnkiveFilterConstants.FilterAction.ALLOW);
+		assertFalse(enkiveFilterBean.filterMessage(message));
 	}
 
 	@Test
@@ -102,11 +110,13 @@ public class EnkiveFilterTest {
 		EnkiveFilter filter = new EnkiveFilter("x-filter-test-int-flag",
 				EnkiveFilterConstants.FilterAction.ALLOW,
 				EnkiveFilterConstants.FilterType.FLOAT, "1",
-				EnkiveFilterConstants.FilterComparator.IS_GREATER_THAN,
-				EnkiveFilterConstants.FilterAction.DENY);
-
-		assertTrue(filter.filter(message.getParsedHeader()
-				.getField("x-filter-test-int-flag").getBody()));
+				EnkiveFilterConstants.FilterComparator.IS_GREATER_THAN);
+		HashSet<EnkiveFilter> filterSet = new HashSet<EnkiveFilter>();
+		filterSet.add(filter);
+		enkiveFilterBean.setFilterSet(filterSet);
+		enkiveFilterBean
+				.setDefaultAction(EnkiveFilterConstants.FilterAction.DENY);
+		assertTrue(enkiveFilterBean.filterMessage(message));
 	}
 
 	@Test
@@ -114,11 +124,13 @@ public class EnkiveFilterTest {
 		EnkiveFilter filter = new EnkiveFilter("x-filter-test-int-flag",
 				EnkiveFilterConstants.FilterAction.DENY,
 				EnkiveFilterConstants.FilterType.FLOAT, "1",
-				EnkiveFilterConstants.FilterComparator.IS_GREATER_THAN,
-				EnkiveFilterConstants.FilterAction.ALLOW);
-
-		assertFalse(filter.filter(message.getParsedHeader()
-				.getField("x-filter-test-int-flag").getBody()));
+				EnkiveFilterConstants.FilterComparator.IS_GREATER_THAN);
+		HashSet<EnkiveFilter> filterSet = new HashSet<EnkiveFilter>();
+		filterSet.add(filter);
+		enkiveFilterBean.setFilterSet(filterSet);
+		enkiveFilterBean
+				.setDefaultAction(EnkiveFilterConstants.FilterAction.ALLOW);
+		assertFalse(enkiveFilterBean.filterMessage(message));
 	}
 
 	@Test
@@ -126,11 +138,14 @@ public class EnkiveFilterTest {
 		EnkiveFilter filter = new EnkiveFilter("x-filter-test-int-flag",
 				EnkiveFilterConstants.FilterAction.ALLOW,
 				EnkiveFilterConstants.FilterType.FLOAT, "2",
-				EnkiveFilterConstants.FilterComparator.MATCHES,
-				EnkiveFilterConstants.FilterAction.DENY);
+				EnkiveFilterConstants.FilterComparator.MATCHES);
+		HashSet<EnkiveFilter> filterSet = new HashSet<EnkiveFilter>();
+		filterSet.add(filter);
+		enkiveFilterBean.setFilterSet(filterSet);
+		enkiveFilterBean
+				.setDefaultAction(EnkiveFilterConstants.FilterAction.DENY);
+		assertTrue(enkiveFilterBean.filterMessage(message));
 
-		assertTrue(filter.filter(message.getParsedHeader()
-				.getField("x-filter-test-int-flag").getBody()));
 	}
 
 	@Test
@@ -138,11 +153,13 @@ public class EnkiveFilterTest {
 		EnkiveFilter filter = new EnkiveFilter("x-filter-test-int-flag",
 				EnkiveFilterConstants.FilterAction.DENY,
 				EnkiveFilterConstants.FilterType.FLOAT, "2",
-				EnkiveFilterConstants.FilterComparator.MATCHES,
-				EnkiveFilterConstants.FilterAction.ALLOW);
-
-		assertFalse(filter.filter(message.getParsedHeader()
-				.getField("x-filter-test-int-flag").getBody()));
+				EnkiveFilterConstants.FilterComparator.MATCHES);
+		HashSet<EnkiveFilter> filterSet = new HashSet<EnkiveFilter>();
+		filterSet.add(filter);
+		enkiveFilterBean.setFilterSet(filterSet);
+		enkiveFilterBean
+				.setDefaultAction(EnkiveFilterConstants.FilterAction.ALLOW);
+		assertFalse(enkiveFilterBean.filterMessage(message));
 	}
 
 	@Test
@@ -150,11 +167,14 @@ public class EnkiveFilterTest {
 		EnkiveFilter filter = new EnkiveFilter("x-filter-test-int-flag",
 				EnkiveFilterConstants.FilterAction.ALLOW,
 				EnkiveFilterConstants.FilterType.FLOAT, "1",
-				EnkiveFilterConstants.FilterComparator.DOES_NOT_MATCH,
-				EnkiveFilterConstants.FilterAction.DENY);
+				EnkiveFilterConstants.FilterComparator.DOES_NOT_MATCH);
+		HashSet<EnkiveFilter> filterSet = new HashSet<EnkiveFilter>();
+		filterSet.add(filter);
+		enkiveFilterBean.setFilterSet(filterSet);
+		enkiveFilterBean
+				.setDefaultAction(EnkiveFilterConstants.FilterAction.DENY);
+		assertTrue(enkiveFilterBean.filterMessage(message));
 
-		assertTrue(filter.filter(message.getParsedHeader()
-				.getField("x-filter-test-int-flag").getBody()));
 	}
 
 	@Test
@@ -162,11 +182,14 @@ public class EnkiveFilterTest {
 		EnkiveFilter filter = new EnkiveFilter("x-filter-test-int-flag",
 				EnkiveFilterConstants.FilterAction.DENY,
 				EnkiveFilterConstants.FilterType.FLOAT, "1",
-				EnkiveFilterConstants.FilterComparator.DOES_NOT_MATCH,
-				EnkiveFilterConstants.FilterAction.ALLOW);
+				EnkiveFilterConstants.FilterComparator.DOES_NOT_MATCH);
+		HashSet<EnkiveFilter> filterSet = new HashSet<EnkiveFilter>();
+		filterSet.add(filter);
+		enkiveFilterBean.setFilterSet(filterSet);
+		enkiveFilterBean
+				.setDefaultAction(EnkiveFilterConstants.FilterAction.ALLOW);
+		assertFalse(enkiveFilterBean.filterMessage(message));
 
-		assertFalse(filter.filter(message.getParsedHeader()
-				.getField("x-filter-test-int-flag").getBody()));
 	}
 
 	@Test
@@ -174,11 +197,14 @@ public class EnkiveFilterTest {
 		EnkiveFilter filter = new EnkiveFilter("x-filter-test-float-flag",
 				EnkiveFilterConstants.FilterAction.ALLOW,
 				EnkiveFilterConstants.FilterType.FLOAT, "3.0",
-				EnkiveFilterConstants.FilterComparator.IS_LESS_THAN,
-				EnkiveFilterConstants.FilterAction.DENY);
+				EnkiveFilterConstants.FilterComparator.IS_LESS_THAN);
+		HashSet<EnkiveFilter> filterSet = new HashSet<EnkiveFilter>();
+		filterSet.add(filter);
+		enkiveFilterBean.setFilterSet(filterSet);
+		enkiveFilterBean
+				.setDefaultAction(EnkiveFilterConstants.FilterAction.DENY);
+		assertTrue(enkiveFilterBean.filterMessage(message));
 
-		assertTrue(filter.filter(message.getParsedHeader()
-				.getField("x-filter-test-float-flag").getBody()));
 	}
 
 	@Test
@@ -186,11 +212,14 @@ public class EnkiveFilterTest {
 		EnkiveFilter filter = new EnkiveFilter("x-filter-test-float-flag",
 				EnkiveFilterConstants.FilterAction.DENY,
 				EnkiveFilterConstants.FilterType.FLOAT, "3.0",
-				EnkiveFilterConstants.FilterComparator.IS_LESS_THAN,
-				EnkiveFilterConstants.FilterAction.ALLOW);
+				EnkiveFilterConstants.FilterComparator.IS_LESS_THAN);
 
-		assertFalse(filter.filter(message.getParsedHeader()
-				.getField("x-filter-test-float-flag").getBody()));
+		HashSet<EnkiveFilter> filterSet = new HashSet<EnkiveFilter>();
+		filterSet.add(filter);
+		enkiveFilterBean.setFilterSet(filterSet);
+		enkiveFilterBean
+				.setDefaultAction(EnkiveFilterConstants.FilterAction.ALLOW);
+		assertFalse(enkiveFilterBean.filterMessage(message));
 	}
 
 	@Test
@@ -198,11 +227,14 @@ public class EnkiveFilterTest {
 		EnkiveFilter filter = new EnkiveFilter("x-filter-test-float-flag",
 				EnkiveFilterConstants.FilterAction.ALLOW,
 				EnkiveFilterConstants.FilterType.FLOAT, "1.0",
-				EnkiveFilterConstants.FilterComparator.IS_GREATER_THAN,
-				EnkiveFilterConstants.FilterAction.DENY);
+				EnkiveFilterConstants.FilterComparator.IS_GREATER_THAN);
+		HashSet<EnkiveFilter> filterSet = new HashSet<EnkiveFilter>();
+		filterSet.add(filter);
+		enkiveFilterBean.setFilterSet(filterSet);
+		enkiveFilterBean
+				.setDefaultAction(EnkiveFilterConstants.FilterAction.DENY);
+		assertTrue(enkiveFilterBean.filterMessage(message));
 
-		assertTrue(filter.filter(message.getParsedHeader()
-				.getField("x-filter-test-float-flag").getBody()));
 	}
 
 	@Test
@@ -210,11 +242,14 @@ public class EnkiveFilterTest {
 		EnkiveFilter filter = new EnkiveFilter("x-filter-test-float-flag",
 				EnkiveFilterConstants.FilterAction.DENY,
 				EnkiveFilterConstants.FilterType.FLOAT, "1.0",
-				EnkiveFilterConstants.FilterComparator.IS_GREATER_THAN,
-				EnkiveFilterConstants.FilterAction.ALLOW);
+				EnkiveFilterConstants.FilterComparator.IS_GREATER_THAN);
 
-		assertFalse(filter.filter(message.getParsedHeader()
-				.getField("x-filter-test-float-flag").getBody()));
+		HashSet<EnkiveFilter> filterSet = new HashSet<EnkiveFilter>();
+		filterSet.add(filter);
+		enkiveFilterBean.setFilterSet(filterSet);
+		enkiveFilterBean
+				.setDefaultAction(EnkiveFilterConstants.FilterAction.ALLOW);
+		assertFalse(enkiveFilterBean.filterMessage(message));
 	}
 
 	@Test
@@ -222,11 +257,13 @@ public class EnkiveFilterTest {
 		EnkiveFilter filter = new EnkiveFilter("x-filter-test-float-flag",
 				EnkiveFilterConstants.FilterAction.ALLOW,
 				EnkiveFilterConstants.FilterType.FLOAT, "2.0",
-				EnkiveFilterConstants.FilterComparator.MATCHES,
-				EnkiveFilterConstants.FilterAction.DENY);
-
-		assertTrue(filter.filter(message.getParsedHeader()
-				.getField("x-filter-test-float-flag").getBody()));
+				EnkiveFilterConstants.FilterComparator.MATCHES);
+		HashSet<EnkiveFilter> filterSet = new HashSet<EnkiveFilter>();
+		filterSet.add(filter);
+		enkiveFilterBean.setFilterSet(filterSet);
+		enkiveFilterBean
+				.setDefaultAction(EnkiveFilterConstants.FilterAction.DENY);
+		assertTrue(enkiveFilterBean.filterMessage(message));
 	}
 
 	@Test
@@ -234,11 +271,14 @@ public class EnkiveFilterTest {
 		EnkiveFilter filter = new EnkiveFilter("x-filter-test-float-flag",
 				EnkiveFilterConstants.FilterAction.DENY,
 				EnkiveFilterConstants.FilterType.FLOAT, "2.0",
-				EnkiveFilterConstants.FilterComparator.MATCHES,
-				EnkiveFilterConstants.FilterAction.ALLOW);
+				EnkiveFilterConstants.FilterComparator.MATCHES);
 
-		assertFalse(filter.filter(message.getParsedHeader()
-				.getField("x-filter-test-float-flag").getBody()));
+		HashSet<EnkiveFilter> filterSet = new HashSet<EnkiveFilter>();
+		filterSet.add(filter);
+		enkiveFilterBean.setFilterSet(filterSet);
+		enkiveFilterBean
+				.setDefaultAction(EnkiveFilterConstants.FilterAction.ALLOW);
+		assertFalse(enkiveFilterBean.filterMessage(message));
 	}
 
 	@Test
@@ -246,11 +286,13 @@ public class EnkiveFilterTest {
 		EnkiveFilter filter = new EnkiveFilter("x-filter-test-float-flag",
 				EnkiveFilterConstants.FilterAction.ALLOW,
 				EnkiveFilterConstants.FilterType.FLOAT, "2.1",
-				EnkiveFilterConstants.FilterComparator.DOES_NOT_MATCH,
-				EnkiveFilterConstants.FilterAction.DENY);
-
-		assertTrue(filter.filter(message.getParsedHeader()
-				.getField("x-filter-test-float-flag").getBody()));
+				EnkiveFilterConstants.FilterComparator.DOES_NOT_MATCH);
+		HashSet<EnkiveFilter> filterSet = new HashSet<EnkiveFilter>();
+		filterSet.add(filter);
+		enkiveFilterBean.setFilterSet(filterSet);
+		enkiveFilterBean
+				.setDefaultAction(EnkiveFilterConstants.FilterAction.DENY);
+		assertTrue(enkiveFilterBean.filterMessage(message));
 	}
 
 	@Test
@@ -258,11 +300,14 @@ public class EnkiveFilterTest {
 		EnkiveFilter filter = new EnkiveFilter("x-filter-test-float-flag",
 				EnkiveFilterConstants.FilterAction.DENY,
 				EnkiveFilterConstants.FilterType.FLOAT, "2.1",
-				EnkiveFilterConstants.FilterComparator.DOES_NOT_MATCH,
-				EnkiveFilterConstants.FilterAction.ALLOW);
+				EnkiveFilterConstants.FilterComparator.DOES_NOT_MATCH);
 
-		assertFalse(filter.filter(message.getParsedHeader()
-				.getField("x-filter-test-float-flag").getBody()));
+		HashSet<EnkiveFilter> filterSet = new HashSet<EnkiveFilter>();
+		filterSet.add(filter);
+		enkiveFilterBean.setFilterSet(filterSet);
+		enkiveFilterBean
+				.setDefaultAction(EnkiveFilterConstants.FilterAction.ALLOW);
+		assertFalse(enkiveFilterBean.filterMessage(message));
 	}
 
 	@Test
@@ -271,9 +316,13 @@ public class EnkiveFilterTest {
 				EnkiveFilterConstants.FilterAction.ALLOW,
 				EnkiveFilterConstants.FilterType.DATE,
 				"Wed, 11 Feb 1999 12:52:00 -0500",
-				EnkiveFilterConstants.FilterComparator.IS_LESS_THAN,
-				EnkiveFilterConstants.FilterAction.DENY);
-		assertTrue(filter.filter(message.getDateStr()));
+				EnkiveFilterConstants.FilterComparator.IS_LESS_THAN);
+		HashSet<EnkiveFilter> filterSet = new HashSet<EnkiveFilter>();
+		filterSet.add(filter);
+		enkiveFilterBean.setFilterSet(filterSet);
+		enkiveFilterBean
+				.setDefaultAction(EnkiveFilterConstants.FilterAction.DENY);
+		assertTrue(enkiveFilterBean.filterMessage(message));
 	}
 
 	@Test
@@ -282,10 +331,14 @@ public class EnkiveFilterTest {
 				EnkiveFilterConstants.FilterAction.DENY,
 				EnkiveFilterConstants.FilterType.DATE,
 				"Wed, 11 Feb 1999 12:52:00 -0500",
-				EnkiveFilterConstants.FilterComparator.IS_LESS_THAN,
-				EnkiveFilterConstants.FilterAction.ALLOW);
+				EnkiveFilterConstants.FilterComparator.IS_LESS_THAN);
 
-		assertFalse(filter.filter(message.getDateStr()));
+		HashSet<EnkiveFilter> filterSet = new HashSet<EnkiveFilter>();
+		filterSet.add(filter);
+		enkiveFilterBean.setFilterSet(filterSet);
+		enkiveFilterBean
+				.setDefaultAction(EnkiveFilterConstants.FilterAction.ALLOW);
+		assertFalse(enkiveFilterBean.filterMessage(message));
 	}
 
 	@Test
@@ -294,10 +347,13 @@ public class EnkiveFilterTest {
 				EnkiveFilterConstants.FilterAction.ALLOW,
 				EnkiveFilterConstants.FilterType.DATE,
 				"Wed, 11 Feb 1996 12:50:00 -0500",
-				EnkiveFilterConstants.FilterComparator.IS_GREATER_THAN,
-				EnkiveFilterConstants.FilterAction.DENY);
-
-		assertTrue(filter.filter(message.getDateStr()));
+				EnkiveFilterConstants.FilterComparator.IS_GREATER_THAN);
+		HashSet<EnkiveFilter> filterSet = new HashSet<EnkiveFilter>();
+		filterSet.add(filter);
+		enkiveFilterBean.setFilterSet(filterSet);
+		enkiveFilterBean
+				.setDefaultAction(EnkiveFilterConstants.FilterAction.DENY);
+		assertTrue(enkiveFilterBean.filterMessage(message));
 	}
 
 	@Test
@@ -306,10 +362,14 @@ public class EnkiveFilterTest {
 				EnkiveFilterConstants.FilterAction.DENY,
 				EnkiveFilterConstants.FilterType.DATE,
 				"Wed, 11 Feb 1996 12:00:00 -0500",
-				EnkiveFilterConstants.FilterComparator.IS_GREATER_THAN,
-				EnkiveFilterConstants.FilterAction.ALLOW);
+				EnkiveFilterConstants.FilterComparator.IS_GREATER_THAN);
 
-		assertFalse(filter.filter(message.getDateStr()));
+		HashSet<EnkiveFilter> filterSet = new HashSet<EnkiveFilter>();
+		filterSet.add(filter);
+		enkiveFilterBean.setFilterSet(filterSet);
+		enkiveFilterBean
+				.setDefaultAction(EnkiveFilterConstants.FilterAction.ALLOW);
+		assertFalse(enkiveFilterBean.filterMessage(message));
 	}
 
 	@Test
@@ -318,10 +378,13 @@ public class EnkiveFilterTest {
 				EnkiveFilterConstants.FilterAction.ALLOW,
 				EnkiveFilterConstants.FilterType.DATE,
 				"Tue, 11 Mar 1997 14:00:00 -0500",
-				EnkiveFilterConstants.FilterComparator.MATCHES,
-				EnkiveFilterConstants.FilterAction.DENY);
-
-		assertTrue(filter.filter(message.getDateStr()));
+				EnkiveFilterConstants.FilterComparator.MATCHES);
+		HashSet<EnkiveFilter> filterSet = new HashSet<EnkiveFilter>();
+		filterSet.add(filter);
+		enkiveFilterBean.setFilterSet(filterSet);
+		enkiveFilterBean
+				.setDefaultAction(EnkiveFilterConstants.FilterAction.DENY);
+		assertTrue(enkiveFilterBean.filterMessage(message));
 	}
 
 	@Test
@@ -330,10 +393,14 @@ public class EnkiveFilterTest {
 				EnkiveFilterConstants.FilterAction.DENY,
 				EnkiveFilterConstants.FilterType.DATE,
 				"Tue, 11 Mar 1997 14:00:00 -0500",
-				EnkiveFilterConstants.FilterComparator.MATCHES,
-				EnkiveFilterConstants.FilterAction.ALLOW);
+				EnkiveFilterConstants.FilterComparator.MATCHES);
 
-		assertFalse(filter.filter(message.getDateStr()));
+		HashSet<EnkiveFilter> filterSet = new HashSet<EnkiveFilter>();
+		filterSet.add(filter);
+		enkiveFilterBean.setFilterSet(filterSet);
+		enkiveFilterBean
+				.setDefaultAction(EnkiveFilterConstants.FilterAction.ALLOW);
+		assertFalse(enkiveFilterBean.filterMessage(message));
 	}
 
 	@Test
@@ -342,10 +409,13 @@ public class EnkiveFilterTest {
 				EnkiveFilterConstants.FilterAction.ALLOW,
 				EnkiveFilterConstants.FilterType.DATE,
 				"Wed, 11 Feb 1998 12:50:00 -0500",
-				EnkiveFilterConstants.FilterComparator.DOES_NOT_MATCH,
-				EnkiveFilterConstants.FilterAction.DENY);
-
-		assertTrue(filter.filter(message.getDateStr()));
+				EnkiveFilterConstants.FilterComparator.DOES_NOT_MATCH);
+		HashSet<EnkiveFilter> filterSet = new HashSet<EnkiveFilter>();
+		filterSet.add(filter);
+		enkiveFilterBean.setFilterSet(filterSet);
+		enkiveFilterBean
+				.setDefaultAction(EnkiveFilterConstants.FilterAction.DENY);
+		assertTrue(enkiveFilterBean.filterMessage(message));
 	}
 
 	@Test
@@ -354,10 +424,14 @@ public class EnkiveFilterTest {
 				EnkiveFilterConstants.FilterAction.DENY,
 				EnkiveFilterConstants.FilterType.DATE,
 				"Wed, 11 Feb 1998 12:50:00 -0500",
-				EnkiveFilterConstants.FilterComparator.DOES_NOT_MATCH,
-				EnkiveFilterConstants.FilterAction.ALLOW);
+				EnkiveFilterConstants.FilterComparator.DOES_NOT_MATCH);
 
-		assertFalse(filter.filter(message.getDateStr()));
+		HashSet<EnkiveFilter> filterSet = new HashSet<EnkiveFilter>();
+		filterSet.add(filter);
+		enkiveFilterBean.setFilterSet(filterSet);
+		enkiveFilterBean
+				.setDefaultAction(EnkiveFilterConstants.FilterAction.ALLOW);
+		assertFalse(enkiveFilterBean.filterMessage(message));
 	}
 
 	@Test
@@ -365,10 +439,13 @@ public class EnkiveFilterTest {
 		EnkiveFilter filter = new EnkiveFilter("Subject",
 				EnkiveFilterConstants.FilterAction.ALLOW,
 				EnkiveFilterConstants.FilterType.STRING, "Simple Subject",
-				EnkiveFilterConstants.FilterComparator.MATCHES,
-				EnkiveFilterConstants.FilterAction.DENY);
-
-		assertTrue(filter.filter(message.getSubject()));
+				EnkiveFilterConstants.FilterComparator.MATCHES);
+		HashSet<EnkiveFilter> filterSet = new HashSet<EnkiveFilter>();
+		filterSet.add(filter);
+		enkiveFilterBean.setFilterSet(filterSet);
+		enkiveFilterBean
+				.setDefaultAction(EnkiveFilterConstants.FilterAction.DENY);
+		assertTrue(enkiveFilterBean.filterMessage(message));
 	}
 
 	@Test
@@ -376,10 +453,14 @@ public class EnkiveFilterTest {
 		EnkiveFilter filter = new EnkiveFilter("Subject",
 				EnkiveFilterConstants.FilterAction.DENY,
 				EnkiveFilterConstants.FilterType.STRING, "Simple Subject",
-				EnkiveFilterConstants.FilterComparator.MATCHES,
-				EnkiveFilterConstants.FilterAction.ALLOW);
+				EnkiveFilterConstants.FilterComparator.MATCHES);
 
-		assertFalse(filter.filter(message.getSubject()));
+		HashSet<EnkiveFilter> filterSet = new HashSet<EnkiveFilter>();
+		filterSet.add(filter);
+		enkiveFilterBean.setFilterSet(filterSet);
+		enkiveFilterBean
+				.setDefaultAction(EnkiveFilterConstants.FilterAction.ALLOW);
+		assertFalse(enkiveFilterBean.filterMessage(message));
 	}
 
 	@Test
@@ -388,10 +469,13 @@ public class EnkiveFilterTest {
 				EnkiveFilterConstants.FilterAction.ALLOW,
 				EnkiveFilterConstants.FilterType.STRING,
 				"This is not the subject",
-				EnkiveFilterConstants.FilterComparator.DOES_NOT_MATCH,
-				EnkiveFilterConstants.FilterAction.DENY);
-
-		assertTrue(filter.filter(message.getSubject()));
+				EnkiveFilterConstants.FilterComparator.DOES_NOT_MATCH);
+		HashSet<EnkiveFilter> filterSet = new HashSet<EnkiveFilter>();
+		filterSet.add(filter);
+		enkiveFilterBean.setFilterSet(filterSet);
+		enkiveFilterBean
+				.setDefaultAction(EnkiveFilterConstants.FilterAction.DENY);
+		assertTrue(enkiveFilterBean.filterMessage(message));
 	}
 
 	@Test
@@ -400,10 +484,14 @@ public class EnkiveFilterTest {
 				EnkiveFilterConstants.FilterAction.DENY,
 				EnkiveFilterConstants.FilterType.STRING,
 				"This is not the subject",
-				EnkiveFilterConstants.FilterComparator.DOES_NOT_MATCH,
-				EnkiveFilterConstants.FilterAction.ALLOW);
+				EnkiveFilterConstants.FilterComparator.DOES_NOT_MATCH);
 
-		assertFalse(filter.filter(message.getSubject()));
+		HashSet<EnkiveFilter> filterSet = new HashSet<EnkiveFilter>();
+		filterSet.add(filter);
+		enkiveFilterBean.setFilterSet(filterSet);
+		enkiveFilterBean
+				.setDefaultAction(EnkiveFilterConstants.FilterAction.ALLOW);
+		assertFalse(enkiveFilterBean.filterMessage(message));
 	}
 
 	@Test
@@ -411,10 +499,13 @@ public class EnkiveFilterTest {
 		EnkiveFilter filter = new EnkiveFilter("Subject",
 				EnkiveFilterConstants.FilterAction.ALLOW,
 				EnkiveFilterConstants.FilterType.STRING, "subject",
-				EnkiveFilterConstants.FilterComparator.CONTAINS,
-				EnkiveFilterConstants.FilterAction.DENY);
-
-		assertTrue(filter.filter(message.getSubject()));
+				EnkiveFilterConstants.FilterComparator.CONTAINS);
+		HashSet<EnkiveFilter> filterSet = new HashSet<EnkiveFilter>();
+		filterSet.add(filter);
+		enkiveFilterBean.setFilterSet(filterSet);
+		enkiveFilterBean
+				.setDefaultAction(EnkiveFilterConstants.FilterAction.DENY);
+		assertTrue(enkiveFilterBean.filterMessage(message));
 	}
 
 	@Test
@@ -422,10 +513,14 @@ public class EnkiveFilterTest {
 		EnkiveFilter filter = new EnkiveFilter("Subject",
 				EnkiveFilterConstants.FilterAction.DENY,
 				EnkiveFilterConstants.FilterType.STRING, "subject",
-				EnkiveFilterConstants.FilterComparator.CONTAINS,
-				EnkiveFilterConstants.FilterAction.ALLOW);
+				EnkiveFilterConstants.FilterComparator.CONTAINS);
 
-		assertFalse(filter.filter(message.getSubject()));
+		HashSet<EnkiveFilter> filterSet = new HashSet<EnkiveFilter>();
+		filterSet.add(filter);
+		enkiveFilterBean.setFilterSet(filterSet);
+		enkiveFilterBean
+				.setDefaultAction(EnkiveFilterConstants.FilterAction.ALLOW);
+		assertFalse(enkiveFilterBean.filterMessage(message));
 	}
 
 	@Test
@@ -433,10 +528,13 @@ public class EnkiveFilterTest {
 		EnkiveFilter filter = new EnkiveFilter("Subject",
 				EnkiveFilterConstants.FilterAction.ALLOW,
 				EnkiveFilterConstants.FilterType.STRING, "notthesubject",
-				EnkiveFilterConstants.FilterComparator.DOES_NOT_CONTAIN,
-				EnkiveFilterConstants.FilterAction.DENY);
-
-		assertTrue(filter.filter(message.getSubject()));
+				EnkiveFilterConstants.FilterComparator.DOES_NOT_CONTAIN);
+		HashSet<EnkiveFilter> filterSet = new HashSet<EnkiveFilter>();
+		filterSet.add(filter);
+		enkiveFilterBean.setFilterSet(filterSet);
+		enkiveFilterBean
+				.setDefaultAction(EnkiveFilterConstants.FilterAction.DENY);
+		assertTrue(enkiveFilterBean.filterMessage(message));
 	}
 
 	@Test
@@ -444,10 +542,14 @@ public class EnkiveFilterTest {
 		EnkiveFilter filter = new EnkiveFilter("Subject",
 				EnkiveFilterConstants.FilterAction.DENY,
 				EnkiveFilterConstants.FilterType.STRING, "notthesubject",
-				EnkiveFilterConstants.FilterComparator.DOES_NOT_CONTAIN,
-				EnkiveFilterConstants.FilterAction.ALLOW);
+				EnkiveFilterConstants.FilterComparator.DOES_NOT_CONTAIN);
 
-		assertFalse(filter.filter(message.getSubject()));
+		HashSet<EnkiveFilter> filterSet = new HashSet<EnkiveFilter>();
+		filterSet.add(filter);
+		enkiveFilterBean.setFilterSet(filterSet);
+		enkiveFilterBean
+				.setDefaultAction(EnkiveFilterConstants.FilterAction.ALLOW);
+		assertFalse(enkiveFilterBean.filterMessage(message));
 	}
 
 	@Test
@@ -455,10 +557,13 @@ public class EnkiveFilterTest {
 		EnkiveFilter filter = new EnkiveFilter("From",
 				EnkiveFilterConstants.FilterAction.ALLOW,
 				EnkiveFilterConstants.FilterType.ADDRESS, "foo@example.com",
-				EnkiveFilterConstants.FilterComparator.MATCHES,
-				EnkiveFilterConstants.FilterAction.DENY);
-
-		assertTrue(filter.filter(message.getFromStr()));
+				EnkiveFilterConstants.FilterComparator.MATCHES);
+		HashSet<EnkiveFilter> filterSet = new HashSet<EnkiveFilter>();
+		filterSet.add(filter);
+		enkiveFilterBean.setFilterSet(filterSet);
+		enkiveFilterBean
+				.setDefaultAction(EnkiveFilterConstants.FilterAction.DENY);
+		assertTrue(enkiveFilterBean.filterMessage(message));
 	}
 
 	@Test
@@ -466,10 +571,14 @@ public class EnkiveFilterTest {
 		EnkiveFilter filter = new EnkiveFilter("From",
 				EnkiveFilterConstants.FilterAction.DENY,
 				EnkiveFilterConstants.FilterType.ADDRESS, "foo@example.com",
-				EnkiveFilterConstants.FilterComparator.MATCHES,
-				EnkiveFilterConstants.FilterAction.ALLOW);
+				EnkiveFilterConstants.FilterComparator.MATCHES);
 
-		assertFalse(filter.filter(message.getFromStr()));
+		HashSet<EnkiveFilter> filterSet = new HashSet<EnkiveFilter>();
+		filterSet.add(filter);
+		enkiveFilterBean.setFilterSet(filterSet);
+		enkiveFilterBean
+				.setDefaultAction(EnkiveFilterConstants.FilterAction.ALLOW);
+		assertFalse(enkiveFilterBean.filterMessage(message));
 	}
 
 	@Test
@@ -477,10 +586,13 @@ public class EnkiveFilterTest {
 		EnkiveFilter filter = new EnkiveFilter("To",
 				EnkiveFilterConstants.FilterAction.ALLOW,
 				EnkiveFilterConstants.FilterType.ADDRESS, "foo@example.com",
-				EnkiveFilterConstants.FilterComparator.DOES_NOT_MATCH,
-				EnkiveFilterConstants.FilterAction.DENY);
-
-		assertTrue(filter.filter(message.getToStr()));
+				EnkiveFilterConstants.FilterComparator.DOES_NOT_MATCH);
+		HashSet<EnkiveFilter> filterSet = new HashSet<EnkiveFilter>();
+		filterSet.add(filter);
+		enkiveFilterBean.setFilterSet(filterSet);
+		enkiveFilterBean
+				.setDefaultAction(EnkiveFilterConstants.FilterAction.DENY);
+		assertTrue(enkiveFilterBean.filterMessage(message));
 	}
 
 	@Test
@@ -488,10 +600,14 @@ public class EnkiveFilterTest {
 		EnkiveFilter filter = new EnkiveFilter("To",
 				EnkiveFilterConstants.FilterAction.DENY,
 				EnkiveFilterConstants.FilterType.ADDRESS, "foo@example.com",
-				EnkiveFilterConstants.FilterComparator.DOES_NOT_MATCH,
-				EnkiveFilterConstants.FilterAction.ALLOW);
+				EnkiveFilterConstants.FilterComparator.DOES_NOT_MATCH);
 
-		assertFalse(filter.filter(message.getToStr()));
+		HashSet<EnkiveFilter> filterSet = new HashSet<EnkiveFilter>();
+		filterSet.add(filter);
+		enkiveFilterBean.setFilterSet(filterSet);
+		enkiveFilterBean
+				.setDefaultAction(EnkiveFilterConstants.FilterAction.ALLOW);
+		assertFalse(enkiveFilterBean.filterMessage(message));
 	}
 
 	@Test
@@ -500,9 +616,13 @@ public class EnkiveFilterTest {
 				EnkiveFilterConstants.FilterAction.ALLOW,
 				EnkiveFilterConstants.FilterType.ADDRESS,
 				"recipient1@example.com",
-				EnkiveFilterConstants.FilterComparator.CONTAINS,
-				EnkiveFilterConstants.FilterAction.DENY);
-		assertTrue(filter.filter(message.getCcStr()));
+				EnkiveFilterConstants.FilterComparator.CONTAINS);
+		HashSet<EnkiveFilter> filterSet = new HashSet<EnkiveFilter>();
+		filterSet.add(filter);
+		enkiveFilterBean.setFilterSet(filterSet);
+		enkiveFilterBean
+				.setDefaultAction(EnkiveFilterConstants.FilterAction.DENY);
+		assertTrue(enkiveFilterBean.filterMessage(message));
 	}
 
 	@Test
@@ -511,9 +631,13 @@ public class EnkiveFilterTest {
 				EnkiveFilterConstants.FilterAction.DENY,
 				EnkiveFilterConstants.FilterType.ADDRESS,
 				"recipient1@example.com",
-				EnkiveFilterConstants.FilterComparator.CONTAINS,
-				EnkiveFilterConstants.FilterAction.ALLOW);
-		assertFalse(filter.filter(message.getCcStr()));
+				EnkiveFilterConstants.FilterComparator.CONTAINS);
+		HashSet<EnkiveFilter> filterSet = new HashSet<EnkiveFilter>();
+		filterSet.add(filter);
+		enkiveFilterBean.setFilterSet(filterSet);
+		enkiveFilterBean
+				.setDefaultAction(EnkiveFilterConstants.FilterAction.ALLOW);
+		assertFalse(enkiveFilterBean.filterMessage(message));
 	}
 
 	@Test
@@ -522,9 +646,13 @@ public class EnkiveFilterTest {
 				EnkiveFilterConstants.FilterAction.ALLOW,
 				EnkiveFilterConstants.FilterType.ADDRESS,
 				"notarecipient@example.com",
-				EnkiveFilterConstants.FilterComparator.DOES_NOT_CONTAIN,
-				EnkiveFilterConstants.FilterAction.DENY);
-		assertTrue(filter.filter(message.getCcStr()));
+				EnkiveFilterConstants.FilterComparator.DOES_NOT_CONTAIN);
+		HashSet<EnkiveFilter> filterSet = new HashSet<EnkiveFilter>();
+		filterSet.add(filter);
+		enkiveFilterBean.setFilterSet(filterSet);
+		enkiveFilterBean
+				.setDefaultAction(EnkiveFilterConstants.FilterAction.DENY);
+		assertTrue(enkiveFilterBean.filterMessage(message));
 	}
 
 	@Test
@@ -533,9 +661,13 @@ public class EnkiveFilterTest {
 				EnkiveFilterConstants.FilterAction.DENY,
 				EnkiveFilterConstants.FilterType.ADDRESS,
 				"notarecipient@example.com",
-				EnkiveFilterConstants.FilterComparator.DOES_NOT_CONTAIN,
-				EnkiveFilterConstants.FilterAction.ALLOW);
-		assertFalse(filter.filter(message.getCcStr()));
+				EnkiveFilterConstants.FilterComparator.DOES_NOT_CONTAIN);
+		HashSet<EnkiveFilter> filterSet = new HashSet<EnkiveFilter>();
+		filterSet.add(filter);
+		enkiveFilterBean.setFilterSet(filterSet);
+		enkiveFilterBean
+				.setDefaultAction(EnkiveFilterConstants.FilterAction.ALLOW);
+		assertFalse(enkiveFilterBean.filterMessage(message));
 	}
-	*/
+
 }

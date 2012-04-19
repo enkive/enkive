@@ -17,7 +17,6 @@
  * License along with Enkive CE. If not, see
  * <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-
 package com.linuxbox.enkive.filter;
 
 import static com.linuxbox.enkive.filter.EnkiveFilterConstants.FilterDefinitionConstants.ACTION;
@@ -189,9 +188,13 @@ public class EnkiveFiltersBean {
 			boolean filterMatch = false;
 			for (EnkiveFilter filter : filterSet) {
 				try {
-					String value = message.getParsedHeader()
-							.getField(filter.getHeader()).getBody().toString()
-							.trim();
+					String value = "";
+					if (filter.getFilterType() == EnkiveFilterConstants.FilterType.DATE)
+						value = message.getDateStr();
+					else
+						value = message.getParsedHeader()
+								.getField(filter.getHeader()).getBody()
+								.toString().trim();
 					filterMatch = filter.filter(value);
 					if (filterMatch) {
 						if (defaultAction == FilterAction.ALLOW
@@ -227,5 +230,21 @@ public class EnkiveFiltersBean {
 			}
 		}
 		return archiveMessage;
+	}
+
+	public Set<EnkiveFilter> getFilterSet() {
+		return filterSet;
+	}
+
+	public void setFilterSet(Set<EnkiveFilter> filterSet) {
+		this.filterSet = filterSet;
+	}
+
+	public int getDefaultAction() {
+		return defaultAction;
+	}
+
+	public void setDefaultAction(int defaultAction) {
+		this.defaultAction = defaultAction;
 	}
 }

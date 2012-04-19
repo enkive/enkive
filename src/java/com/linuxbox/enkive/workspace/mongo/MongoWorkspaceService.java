@@ -361,4 +361,20 @@ public class MongoWorkspaceService extends AbstractWorkspaceService implements
 	public void setAuditService(AuditService auditService) {
 		this.auditService = auditService;
 	}
+
+	@Override
+	public Collection<Workspace> getUserWorkspaces(String userId)
+			throws WorkspaceException {
+		ArrayList<Workspace> workspaceList = new ArrayList<Workspace>();
+		DBObject workspaceObject = userWorkspacesColl.findOne(userId);
+		BasicDBList workspaces = (BasicDBList) workspaceObject
+				.get(MongoWorkspaceConstants.WORKSPACELIST);
+		Iterator<Object> workspacesIterator = workspaces.iterator();
+		while (workspacesIterator.hasNext()) {
+			Workspace workspace = getWorkspace((String) workspacesIterator
+					.next());
+			workspaceList.add(workspace);
+		}
+		return workspaceList;
+	}
 }

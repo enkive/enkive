@@ -66,7 +66,8 @@ public class EnkiveServlet extends HttpServlet {
 	}
 
 	public MessageRetrieverService getMessageRetrieverService() {
-		return appContext.getBean(MessageRetrieverService.class);
+		return appContext.getBean("MessageRetrieverService",
+				MessageRetrieverService.class);
 	}
 
 	public AuditService getAuditService() {
@@ -78,11 +79,12 @@ public class EnkiveServlet extends HttpServlet {
 	}
 
 	public WorkspaceService getWorkspaceService() {
-		return appContext.getBean(WorkspaceService.class);
+		return appContext.getBean("WorkspaceService", WorkspaceService.class);
 	}
 
 	public MessageSearchService getMessageSearchService() {
-		return appContext.getBean("MessageSearchService", MessageSearchService.class);
+		return appContext.getBean("MessageSearchService",
+				MessageSearchService.class);
 	}
 
 	public PermissionService getPermissionService() {

@@ -17,7 +17,6 @@
  * License along with Enkive CE. If not, see
  * <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-
 package com.linuxbox.enkive.web.search;
 
 import java.io.IOException;
@@ -148,9 +147,17 @@ public abstract class AbstractSearchListServlet extends EnkiveServlet {
 		} catch (WorkspaceException e) {
 			if (LOGGER.isWarnEnabled())
 				LOGGER.warn("error accessing workspace for retrieval of searches");
+			if (LOGGER.isDebugEnabled())
+				LOGGER.debug(
+						"error accessing workspace for retrieval of searches",
+						e);
 		} catch (AuthenticationException e) {
 			if (LOGGER.isWarnEnabled())
 				LOGGER.warn("error accessing workspace for retrieval of searches");
+			if (LOGGER.isDebugEnabled())
+				LOGGER.debug(
+						"error accessing workspace for retrieval of searches",
+						e);
 		}
 
 		return searches;

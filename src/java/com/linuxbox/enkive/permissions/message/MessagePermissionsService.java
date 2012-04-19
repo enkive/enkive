@@ -17,18 +17,16 @@
  * License along with Enkive CE. If not, see
  * <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package com.linuxbox.enkive;
+/*
+ * 
+ */
+package com.linuxbox.enkive.permissions.message;
 
-public interface TestingConstants {
+import java.util.Collection;
 
-	String TEST_MESSAGE_DIRECTORY = "test/data/unitTestData";
-	String TEST_EMERGENCY_SAVE_ROOT = "test/emergencySaveFiles";
+public interface MessagePermissionsService {
 
-	String MONGODB_TEST_DATABASE = "enkive-test";
-	String MONGODB_TEST_MESSAGES_COLLECTION = "messages-test";
-	String MONGODB_TEST_DOCUMENTS_COLLECTION = "documents-test";
-	String MONGODB_TEST_LOCK_COLLECTION = "lock-test";
-	String MONGODB_TEST_AUDIT_COLLECTION = "audit-test";
-	String MONGODB_TEST_QUEUE_COLLECTION = "queue-test";
+	public boolean canReadAttachment(Collection<String> addresses,
+			String attachmentId);
 
 }

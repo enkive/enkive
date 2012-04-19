@@ -23,6 +23,7 @@ import java.util.Collection;
 
 import com.linuxbox.enkive.exception.CannotGetPermissionsException;
 import com.linuxbox.enkive.message.Message;
+import com.linuxbox.enkive.message.MessageSummary;
 
 public interface PermissionService {
 
@@ -34,6 +35,12 @@ public interface PermissionService {
 			throws CannotGetPermissionsException;
 
 	public boolean canReadMessage(String userId, Message message)
+			throws CannotGetPermissionsException;
+
+	public boolean canReadMessage(String userId, MessageSummary message)
+			throws CannotGetPermissionsException;
+
+	public boolean canReadAttachment(String userId, String attachmentId)
 			throws CannotGetPermissionsException;
 
 	public Collection<String> canReadAddresses(String userId);

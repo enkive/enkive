@@ -19,7 +19,12 @@
  ******************************************************************************/
 package com.linuxbox.enkive.archiver;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -27,16 +32,28 @@ public class ArchiverUtils {
 
 	public static Collection<Object[]> getAllTestFiles(File dir) {
 		Collection<Object[]> files = new ArrayList<Object[]>();
-		if (dir.isDirectory()) {
-			for (File file : dir.listFiles()) {
-				if (file.isFile()) {
-					files.add(new File[] { file });
-				} else {
-					return getAllTestFiles(file);
-				}
+		for (File file : dir.listFiles()) {
+			if (file.isFile()) {
+				files.add(new File[] { file });
+			} else {
+				files.addAll(getAllTestFiles(file));
 			}
 		}
 		return files;
+	}
+
+	public static String readMessage(InputStream inputStream)
+			throws IOException {
+		StringBuffer message = new StringBuffer();
+		InputStreamReader reader = new InputStreamReader(inputStream);
+
+		Reader in = new BufferedReader(reader);
+		int ch;
+		while ((ch = in.read()) > -1) {
+			message.append((char) ch);
+		}
+		in.close();
+		return message.toString();
 	}
 
 }

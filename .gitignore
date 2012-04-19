@@ -5,3 +5,4 @@ build.properties
 log/*
 *.log
 indri/*
+jetty/webapps/ediscovery.war

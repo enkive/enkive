@@ -67,15 +67,11 @@ public class EnkiveDaemon implements Daemon {
 
 	@Override
 	public void destroy() {
-		// TODO Auto-generated method stub
 
 	}
 
-	/**
-	 * @param args
-	 */
 	public static void main(String[] args) {
-		System.out.println("Main");
+		System.out.println("Starting Enkive...");
 
 	}
 

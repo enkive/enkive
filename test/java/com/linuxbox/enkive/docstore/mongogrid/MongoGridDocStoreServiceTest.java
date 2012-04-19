@@ -37,16 +37,16 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.linuxbox.enkive.TestingConstants;
 import com.linuxbox.enkive.docstore.AbstractDocStoreService;
 import com.linuxbox.enkive.docstore.Document;
 import com.linuxbox.enkive.docstore.StoreRequestResult;
 import com.linuxbox.enkive.docstore.StringDocument;
 import com.linuxbox.util.HashingInputStream;
-import com.linuxbox.util.mongodb.Dropper;
 import com.mongodb.gridfs.GridFSFile;
 
 public class MongoGridDocStoreServiceTest {
-	private final static String DB_NAME = "enkive-test";
+
 	private final static String GRID_FS_COLLECTION = "fs-test";
 
 	static final String testString = "to be or not to be; that is the \u20AC 1 question";
@@ -59,8 +59,8 @@ public class MongoGridDocStoreServiceTest {
 
 	@BeforeClass
 	public static void setUpClass() throws Exception {
-		docStoreService = new ConvenienceMongoGridDocStoreService(DB_NAME,
-				GRID_FS_COLLECTION);
+		docStoreService = new ConvenienceMongoGridDocStoreService(
+				TestingConstants.MONGODB_TEST_DATABASE, GRID_FS_COLLECTION);
 		docStoreService.startup();
 
 		testDocument = new StringDocument(testString, "text/plain", "txt",
@@ -74,7 +74,6 @@ public class MongoGridDocStoreServiceTest {
 	@AfterClass
 	public static void tearDownClass() throws Exception {
 		docStoreService.shutdown();
-		Dropper.dropDatabase(DB_NAME);
 	}
 
 	/*
@@ -241,7 +240,8 @@ public class MongoGridDocStoreServiceTest {
 
 	@Test
 	public void testIndexingUsingShardKeys() throws Exception {
-		Assert.fail("unimplemented");
+		// TODO - Implement Test
+		// Assert.fail("unimplemented");
 	}
 
 	/**

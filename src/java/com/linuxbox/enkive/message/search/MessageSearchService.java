@@ -30,7 +30,8 @@ public interface MessageSearchService {
 
 	/**
 	 * Perform a search for a user and return a populated SearchResult object.
-	 * This search function stores results in a workspace and stores audit log events.
+	 * This search function stores results in a workspace and stores audit log
+	 * events.
 	 * 
 	 * @param fields
 	 * 

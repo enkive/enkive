@@ -71,12 +71,15 @@ public class MongoArchivingServiceFailureTest {
 	public static void setUpBeforeClass() throws Exception {
 		m = new Mongo();
 		docStoreService = new ConvenienceMongoGridDocStoreService(m,
-				"enkive-test", "documents-test");
+				TestingConstants.MONGODB_TEST_DATABASE,
+				TestingConstants.MONGODB_TEST_DOCUMENTS_COLLECTION);
 		docStoreService.startup();
 
-		archiver = new MongoArchivingService(m, "enkive-test", "messages-test");
+		archiver = new MongoArchivingService(m,
+				TestingConstants.MONGODB_TEST_DATABASE,
+				TestingConstants.MONGODB_TEST_MESSAGES_COLLECTION);
 		archiver.setDocStoreService(docStoreService);
-		archiver.setEmergencySaveRoot("test/emergencySaveFiles/");
+		archiver.setEmergencySaveRoot(TestingConstants.TEST_EMERGENCY_SAVE_ROOT);
 		m.close();
 	}
 

@@ -45,10 +45,10 @@ public class MessageRetrieveServlet extends EnkiveServlet {
 	@Override
 	public void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException, ServletException {
-		
+
 		final String messageId = req.getParameter("message_id");
 		final MessageRetrieverService retriever = getMessageRetrieverService();
-		
+
 		try {
 			final Message message = retriever.retrieve(messageId);
 			if (LOGGER.isTraceEnabled())

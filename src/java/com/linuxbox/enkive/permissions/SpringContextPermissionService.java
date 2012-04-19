@@ -28,8 +28,12 @@ import org.springframework.util.CollectionUtils;
 
 import com.linuxbox.enkive.exception.CannotGetPermissionsException;
 import com.linuxbox.enkive.message.Message;
+import com.linuxbox.enkive.message.MessageSummary;
+import com.linuxbox.enkive.permissions.message.MessagePermissionsService;
 
 public class SpringContextPermissionService implements PermissionService {
+
+	MessagePermissionsService messagePermissionService;
 
 	@Override
 	public String getCurrentUsername() {
@@ -43,6 +47,26 @@ public class SpringContextPermissionService implements PermissionService {
 
 	@Override
 	public boolean canReadMessage(String userId, Message message)
+			throws CannotGetPermissionsException {
+		if (isAdmin())
+			return true;
+
+		Collection<String> canReadAddresses = canReadAddresses(userId);
+		Collection<String> addressesInMessage = new HashSet<String>();
+		addressesInMessage.addAll(message.getTo());
+		addressesInMessage.addAll(message.getCc());
+		addressesInMessage.addAll(message.getBcc());
+		addressesInMessage.addAll(message.getFrom());
+		addressesInMessage.add(message.getMailFrom());
+		addressesInMessage.addAll(message.getRcptTo());
+
+		return CollectionUtils
+				.containsAny(addressesInMessage, canReadAddresses);
+
+	}
+
+	@Override
+	public boolean canReadMessage(String userId, MessageSummary message)
 			throws CannotGetPermissionsException {
 		if (isAdmin())
 			return true;
@@ -78,4 +102,24 @@ public class SpringContextPermissionService implements PermissionService {
 		}
 		return authorityStrings;
 	}
+
+	public MessagePermissionsService getMessagePermissionService() {
+		return messagePermissionService;
+	}
+
+	public void setMessagePermissionService(
+			MessagePermissionsService messagePermissionService) {
+		this.messagePermissionService = messagePermissionService;
+	}
+
+	@Override
+	public boolean canReadAttachment(String userId, String attachmentId)
+			throws CannotGetPermissionsException {
+		if (isAdmin())
+			return true;
+		else
+			return messagePermissionService.canReadAttachment(
+					canReadAddresses(userId), attachmentId);
+	}
+
 }

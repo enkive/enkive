@@ -24,6 +24,7 @@ import java.util.Date;
 
 import com.linuxbox.util.lockservice.LockAcquisitionException;
 import com.linuxbox.util.lockservice.LockReleaseException;
+import com.mongodb.BasicDBObject;
 import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
@@ -96,7 +97,7 @@ public class MongoLockService extends AbstractRetryingLockService {
 	}
 
 	public void startup() {
-		// empty
+		lockCollection.remove(new BasicDBObject());
 	}
 
 	public void shutdown() {

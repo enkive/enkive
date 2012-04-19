@@ -21,14 +21,10 @@ package com.linuxbox.enkive.retriever.mongodb;
 
 import static org.junit.Assert.assertEquals;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.util.ArrayList;
 import java.util.Collection;
 
 import org.junit.After;
@@ -41,6 +37,7 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 import com.linuxbox.enkive.TestingConstants;
+import com.linuxbox.enkive.archiver.ArchiverUtils;
 import com.linuxbox.enkive.archiver.mongodb.MongoArchivingService;
 import com.linuxbox.enkive.docstore.DocStoreService;
 import com.linuxbox.enkive.docstore.mongogrid.ConvenienceMongoGridDocStoreService;
@@ -73,24 +70,26 @@ public class MongoRetrieverServiceTest {
 	public static void setUpBeforeClass() throws Exception {
 		m = new Mongo();
 		docStoreService = new ConvenienceMongoGridDocStoreService(m,
-				"enkive-test", "documents-test");
+				TestingConstants.MONGODB_TEST_DATABASE,
+				TestingConstants.MONGODB_TEST_DOCUMENTS_COLLECTION);
 		docStoreService.startup();
 
-		retriever = new MongoRetrieverService(m, "enkive-test", "messages-test");
+		retriever = new MongoRetrieverService(m,
+				TestingConstants.MONGODB_TEST_DATABASE,
+				TestingConstants.MONGODB_TEST_MESSAGES_COLLECTION);
 		retriever.setDocStoreService(docStoreService);
 	}
 
 	@AfterClass
 	public static void tearDownAfterClass() throws Exception {
 		docStoreService.shutdown();
-
 		m.close();
 	}
 
 	@Before
 	public void setUp() throws Exception {
 		InputStream filestream = new FileInputStream(file);
-		this.messageString = readMessage(filestream);
+		this.messageString = ArchiverUtils.readMessage(filestream);
 		filestream.close();
 		filestream = new FileInputStream(file);
 		Message message = new MessageImpl(filestream);
@@ -111,31 +110,7 @@ public class MongoRetrieverServiceTest {
 	}
 
 	private static Collection<Object[]> getAllTestFiles(File dir) {
-		Collection<Object[]> files = new ArrayList<Object[]>();
-		if (dir.isDirectory()) {
-			for (File file : dir.listFiles()) {
-				if (file.isFile()) {
-					files.add(new File[] { file });
-				} else {
-					return getAllTestFiles(file);
-				}
-			}
-		}
-		return files;
-	}
-
-	private static String readMessage(InputStream inputStream)
-			throws IOException {
-		StringBuffer message = new StringBuffer();
-		InputStreamReader reader = new InputStreamReader(inputStream);
-
-		Reader in = new BufferedReader(reader);
-		int ch;
-		while ((ch = in.read()) > -1) {
-			message.append((char) ch);
-		}
-		in.close();
-		return message.toString();
+		return ArchiverUtils.getAllTestFiles(dir);
 	}
 
 }

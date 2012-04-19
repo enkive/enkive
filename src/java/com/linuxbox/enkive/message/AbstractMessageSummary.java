@@ -17,7 +17,6 @@
  * License along with Enkive CE. If not, see
  * <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-
 package com.linuxbox.enkive.message;
 
 import java.text.SimpleDateFormat;
@@ -90,18 +89,21 @@ public abstract class AbstractMessageSummary implements MessageSummary {
 
 	@Override
 	public String getCleanMessageId() {
-		StringBuffer sb = new StringBuffer(messageId);
+		if (messageId != null) {
+			StringBuffer sb = new StringBuffer(messageId);
 
-		if (sb.length() > 0 && sb.charAt(0) == '<') {
-			sb.deleteCharAt(0);
-		}
+			if (sb.length() > 0 && sb.charAt(0) == '<') {
+				sb.deleteCharAt(0);
+			}
 
-		int lastIndex = sb.length() - 1;
-		if (sb.length() > 0 && sb.charAt(lastIndex) == '>') {
-			sb.deleteCharAt(lastIndex);
-		}
+			int lastIndex = sb.length() - 1;
+			if (sb.length() > 0 && sb.charAt(lastIndex) == '>') {
+				sb.deleteCharAt(lastIndex);
+			}
 
-		return sb.toString();
+			return sb.toString();
+		} else
+			return "";
 	}
 
 	@Override

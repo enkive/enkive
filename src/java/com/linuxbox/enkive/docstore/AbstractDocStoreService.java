@@ -227,6 +227,7 @@ public abstract class AbstractDocStoreService implements DocStoreService {
 
 				if (result) {
 					try {
+						indexerQueueService.dequeue(identifier);
 						indexerQueueService.enqueue(identifier, shardKey,
 								DocStoreConstants.QUEUE_ENTRY_REMOVE_DOCUMENT);
 					} catch (QueueServiceException e) {

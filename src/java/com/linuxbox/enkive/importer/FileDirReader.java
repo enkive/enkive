@@ -64,7 +64,8 @@ public class FileDirReader extends AbstractMessageImporter implements Runnable {
 					sendAllFiles(file);
 				}
 			}
-			System.out.println(dir.getAbsolutePath() + " - Finished without error");
+			System.out.println(dir.getAbsolutePath()
+					+ " - Finished without error");
 		}
 	}
 

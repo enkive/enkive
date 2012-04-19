@@ -32,15 +32,12 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.linuxbox.enkive.TestingConstants;
 import com.linuxbox.util.queueservice.QueueEntry;
 import com.linuxbox.util.queueservice.QueueServiceException;
-import com.mongodb.DB;
-import com.mongodb.DBCollection;
 import com.mongodb.Mongo;
 
 public class MongoQueueServiceTest {
-	private static final String DB_NAME = "test-enkive";
-	private static final String DB_COLLECTION = "test-queue-service";
 
 	private static Mongo mongo;
 	private static MongoQueueService service;
@@ -48,17 +45,15 @@ public class MongoQueueServiceTest {
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		mongo = new Mongo();
-		service = new MongoQueueService(mongo, DB_NAME, DB_COLLECTION);
+		service = new MongoQueueService(mongo,
+				TestingConstants.MONGODB_TEST_DATABASE,
+				TestingConstants.MONGODB_TEST_QUEUE_COLLECTION);
 		service.startup();
 	}
 
 	@AfterClass
 	public static void tearDownAfterClass() throws Exception {
 		service.shutdown();
-
-		DB db = mongo.getDB(DB_NAME);
-		db.dropDatabase();
-
 		mongo.close();
 	}
 
@@ -69,9 +64,7 @@ public class MongoQueueServiceTest {
 
 	@After
 	public void tearDown() throws Exception {
-		DB db = mongo.getDB(DB_NAME);
-		DBCollection coll = db.getCollection(DB_COLLECTION);
-		coll.drop();
+
 	}
 
 	@Test

@@ -83,8 +83,8 @@ public interface MessageArchivingService {
 			throws FailedToEmergencySaveException, AuditServiceException;
 
 	/**
-	 * Removes a message from the store. Note that this method does not remove
-	 * attachments.
+	 * Removes a message from the store. This method will remove attachments
+	 * utilizing the underlying Document Storage Service's removal method.
 	 * 
 	 * @param messageUUID
 	 * @return boolean reflecting success or failure of deletion

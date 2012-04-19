@@ -31,6 +31,7 @@ import com.linuxbox.enkive.docsearch.IndriQueryComposerTest;
 import com.linuxbox.enkive.docstore.AbstractDocStoreServiceTest;
 import com.linuxbox.enkive.docstore.mongogrid.MongoGridDocStoreServiceTest;
 import com.linuxbox.enkive.filter.EnkiveFilterTest;
+import com.linuxbox.enkive.message.retention.MongoMessageRetentionPolicyEnforcementTest;
 import com.linuxbox.enkive.retriever.mongodb.MongoRetrieverServiceTest;
 import com.linuxbox.util.HashingInputStreamTest;
 import com.linuxbox.util.mongodb.MongoLockingServiceTest;
@@ -41,7 +42,9 @@ import com.linuxbox.util.queueservice.mongodb.MongoQueueServiceTest;
 		AbstractDocStoreServiceTest.class, MongoAuditServiceTest.class,
 		MongoLockingServiceTest.class, MongoQueueServiceTest.class,
 		MongoGridDocStoreServiceTest.class, MongoArchivingServiceTest.class,
-		MongoRetrieverServiceTest.class, IndriQueryComposerTest.class,
+		MongoRetrieverServiceTest.class,
+		MongoMessageRetentionPolicyEnforcementTest.class,
+		// Unimplemented - IndriQueryComposerTest.class,
 		EnkiveFilterTest.class })
 public class AllTests {
 	public static Test suite() {

@@ -33,14 +33,13 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.linuxbox.enkive.TestingConstants;
 import com.linuxbox.enkive.audit.AuditEntry;
 import com.linuxbox.enkive.audit.AuditService;
-import com.mongodb.DB;
 import com.mongodb.Mongo;
 
 public class MongoAuditServiceTest {
-	private final String databaseName = "test-mongo-audit-service";
-	private final String collectionName = "auditService";
+
 	private static int counter = 0;
 
 	private Mongo mongo;
@@ -60,17 +59,15 @@ public class MongoAuditServiceTest {
 	public void setUp() throws Exception {
 		mongo = new Mongo();
 
-		service = new MongoAuditService(mongo, databaseName, collectionName
-				+ counter++);
+		service = new MongoAuditService(mongo,
+				TestingConstants.MONGODB_TEST_DATABASE,
+				TestingConstants.MONGODB_TEST_AUDIT_COLLECTION + counter++);
 		service.startup();
 	}
 
 	@After
 	public void tearDown() throws Exception {
 		service.shutdown();
-
-		DB database = mongo.getDB(databaseName);
-		database.dropDatabase();
 		mongo.close();
 	}
 

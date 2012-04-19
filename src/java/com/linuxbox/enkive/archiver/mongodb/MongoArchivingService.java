@@ -63,8 +63,8 @@ import org.apache.james.mime4j.codec.QuotedPrintableInputStream;
 import org.apache.james.mime4j.dom.field.ContentTypeField;
 import org.apache.james.mime4j.util.MimeUtil;
 
+import com.linuxbox.enkive.archiver.AbstractMessageArchivingService;
 import com.linuxbox.enkive.archiver.MessageLoggingText;
-import com.linuxbox.enkive.archiver.RetryingAbstractMessageArchivingService;
 import com.linuxbox.enkive.archiver.exceptions.CannotArchiveException;
 import com.linuxbox.enkive.archiver.exceptions.FailedToEmergencySaveException;
 import com.linuxbox.enkive.audit.AuditServiceException;
@@ -83,12 +83,13 @@ import com.linuxbox.enkive.message.docstore.ContentDataDocument;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
+import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.Mongo;
 import com.mongodb.MongoException;
+import com.mongodb.WriteResult;
 
-public class MongoArchivingService extends
-		RetryingAbstractMessageArchivingService {
+public class MongoArchivingService extends AbstractMessageArchivingService {
 
 	private final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.archiveService.mongodb");
@@ -111,9 +112,12 @@ public class MongoArchivingService extends
 		String messageUUID = null;
 		attachment_ids = new ArrayList<String>();
 		nested_message_ids = new ArrayList<String>();
+
+		String messageId = calculateMessageId(message);
+
 		try {
 			BasicDBObject messageObject = new BasicDBObject();
-			messageObject.put(MESSAGE_UUID, calculateMessageId(message));
+			messageObject.put(MESSAGE_UUID, messageId);
 			messageObject.put(ARCHIVE_TIME, new Date());
 			messageObject.put(ORIGINAL_HEADERS, message.getOriginalHeaders());
 			messageObject.put(MAIL_FROM, message.getMailFrom());
@@ -143,6 +147,7 @@ public class MongoArchivingService extends
 			messageObject.put(NESTED_MESSAGE_ID_LIST, nested_message_ids);
 			messageColl.insert(messageObject);
 			messageUUID = messageObject.getString(MESSAGE_UUID);
+
 		} catch (MongoException e) {
 			throw new CannotArchiveException(e);
 		} catch (DocStoreException e) {
@@ -235,15 +240,37 @@ public class MongoArchivingService extends
 		return headerObject;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public boolean removeMessage(String messageUUID) {
-		try {
+		if (!messageReferencedAsNestedMessage(messageUUID)) {
 			DBObject messageObject = messageColl.findOne(messageUUID);
-			messageColl.remove(messageObject);
-		} catch (MongoException e) {
+
+			// Get list of attachments and handle them
+			List<String> attachmentIds = (List<String>) messageObject
+					.get(ATTACHMENT_ID_LIST);
+			for (String attachmentId : attachmentIds) {
+				try {
+					if (!attachmentReferencedByMultipleMessages(attachmentId)) {
+						docStoreService.removeWithRetries(attachmentId, 1, 0);
+					} else
+						LOGGER.info("Attachment referenced by more than one message, not removing: "
+								+ attachmentId);
+				} catch (DocStoreException e) {
+					LOGGER.warn("Could not remove attachment: " + attachmentId,
+							e);
+				}
+				// Remove message object
+			}
+			WriteResult result = messageColl.remove(messageObject);
+			LOGGER.info("Message Removed: " + messageUUID);
+			return result.getLastError().ok();
+
+		} else {
+			LOGGER.info("Message referenced by more than one message as nested message, not removing: "
+					+ messageUUID);
 			return false;
 		}
-		return true;
 	}
 
 	protected String storeNestedMessage(InputStream nestedMessage,
@@ -276,6 +303,20 @@ public class MongoArchivingService extends
 					"Could not parse embedded message/rfc822", e);
 		}
 		return nestedMessageUUID;
+	}
+
+	private boolean attachmentReferencedByMultipleMessages(String attachmentId) {
+		BasicDBObject attachmentQuery = new BasicDBObject(ATTACHMENT_ID_LIST,
+				attachmentId);
+		DBCursor results = messageColl.find(attachmentQuery);
+		return (results.size() > 1);
+	}
+
+	private boolean messageReferencedAsNestedMessage(String messageId) {
+		BasicDBObject nestedMessageQuery = new BasicDBObject(
+				NESTED_MESSAGE_ID_LIST, messageId);
+		DBCursor results = messageColl.find(nestedMessageQuery);
+		return (results.size() > 1);
 	}
 
 	@Override

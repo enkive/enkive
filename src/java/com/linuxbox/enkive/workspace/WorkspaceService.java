@@ -19,6 +19,7 @@
  ******************************************************************************/
 package com.linuxbox.enkive.workspace;
 
+import java.util.Collection;
 import java.util.List;
 
 public interface WorkspaceService extends WorkspaceServiceMBean {
@@ -29,6 +30,9 @@ public interface WorkspaceService extends WorkspaceServiceMBean {
 	Workspace getActiveWorkspace(String userId) throws WorkspaceException;
 
 	Workspace getWorkspace(String workspaceUUID) throws WorkspaceException;
+
+	Collection<Workspace> getUserWorkspaces(String userId)
+			throws WorkspaceException;
 
 	String saveWorkspace(Workspace workspace) throws WorkspaceException;
 

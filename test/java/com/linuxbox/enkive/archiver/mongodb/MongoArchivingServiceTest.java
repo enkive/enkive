@@ -40,11 +40,15 @@ import com.linuxbox.enkive.TestingConstants;
 import com.linuxbox.enkive.archiver.ArchiverUtils;
 import com.linuxbox.enkive.archiver.exceptions.CannotArchiveException;
 import com.linuxbox.enkive.archiver.exceptions.FailedToEmergencySaveException;
+import com.linuxbox.enkive.audit.AuditService;
 import com.linuxbox.enkive.audit.AuditServiceException;
+import com.linuxbox.enkive.audit.mongodb.MongoAuditService;
 import com.linuxbox.enkive.docstore.DocStoreService;
 import com.linuxbox.enkive.docstore.mongogrid.ConvenienceMongoGridDocStoreService;
 import com.linuxbox.enkive.message.Message;
 import com.linuxbox.enkive.message.MessageImpl;
+import com.linuxbox.util.lockservice.LockService;
+import com.linuxbox.util.lockservice.mongodb.MongoLockService;
 import com.mongodb.Mongo;
 
 @RunWith(Parameterized.class)
@@ -53,6 +57,8 @@ public class MongoArchivingServiceTest {
 	static Mongo m;
 	static MongoArchivingService archiver;
 	static DocStoreService docStoreService;
+	static AuditService auditService;
+	static LockService lockService;
 
 	private File file;
 	private Message message;
@@ -71,11 +77,24 @@ public class MongoArchivingServiceTest {
 	public static void setUpBeforeClass() throws Exception {
 		m = new Mongo();
 		docStoreService = new ConvenienceMongoGridDocStoreService(m,
-				"enkive-test", "documents-test");
+				TestingConstants.MONGODB_TEST_DATABASE,
+				TestingConstants.MONGODB_TEST_DOCUMENTS_COLLECTION);
 		docStoreService.startup();
 
-		archiver = new MongoArchivingService(m, "enkive-test", "messages-test");
+		lockService = new MongoLockService(m,
+				TestingConstants.MONGODB_TEST_DATABASE,
+				TestingConstants.MONGODB_TEST_LOCK_COLLECTION);
+		lockService.startup();
+
+		auditService = new MongoAuditService(m,
+				TestingConstants.MONGODB_TEST_DATABASE,
+				TestingConstants.MONGODB_TEST_AUDIT_COLLECTION);
+
+		archiver = new MongoArchivingService(m,
+				TestingConstants.MONGODB_TEST_DATABASE,
+				TestingConstants.MONGODB_TEST_MESSAGES_COLLECTION);
 		archiver.setDocStoreService(docStoreService);
+		archiver.setAuditService(auditService);
 	}
 
 	@Before
@@ -93,6 +112,7 @@ public class MongoArchivingServiceTest {
 	@AfterClass
 	public static void tearDownAfterClass() throws Exception {
 		docStoreService.shutdown();
+		lockService.shutdown();
 		m.close();
 	}
 
@@ -100,7 +120,6 @@ public class MongoArchivingServiceTest {
 	public void testMessageStore() throws CannotArchiveException,
 			FailedToEmergencySaveException, AuditServiceException, IOException {
 		String messageUUID = archiver.storeOrFindMessage(message);
-		System.out.println(messageUUID);
 		assertEquals("Identifiers should be the same",
 				archiver.findMessage(message), messageUUID);
 	}

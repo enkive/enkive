@@ -32,15 +32,13 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.linuxbox.enkive.TestingConstants;
 import com.linuxbox.util.lockservice.LockReleaseException;
 import com.linuxbox.util.lockservice.mongodb.MongoLockService;
 import com.linuxbox.util.lockservice.mongodb.MongoLockService.LockRequestFailure;
-import com.mongodb.DB;
 import com.mongodb.Mongo;
 
 public class MongoLockingServiceTest {
-	private static final String databaseName = "test-mongo-locking-service";
-	private static final String collectionName = "lockingService";
 
 	private static Mongo mongo;
 	private static MongoLockService service;
@@ -49,16 +47,15 @@ public class MongoLockingServiceTest {
 	public static void setUpBeforeClass() throws Exception {
 		mongo = new Mongo();
 
-		service = new MongoLockService(mongo, databaseName, collectionName);
+		service = new MongoLockService(mongo,
+				TestingConstants.MONGODB_TEST_DATABASE,
+				TestingConstants.MONGODB_TEST_LOCK_COLLECTION);
 		service.startup();
 	}
 
 	@AfterClass
 	public static void tearDownAfterClass() throws Exception {
 		service.shutdown();
-
-		DB database = mongo.getDB(databaseName);
-		database.dropDatabase();
 		mongo.close();
 	}
 

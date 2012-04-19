@@ -143,12 +143,9 @@ public class MongoMessageSearchService extends AbstractMessageSearchService {
 
 					for (String address : fields.get(RECIPIENT_PARAMETER)
 							.trim().split(";")) {
-						receiverQuery.add(new BasicDBObject(RCPT_TO,
-								address));
-						receiverQuery.add(new BasicDBObject(TO,
-								address));
-						receiverQuery.add(new BasicDBObject(CC,
-								address));
+						receiverQuery.add(new BasicDBObject(RCPT_TO, address));
+						receiverQuery.add(new BasicDBObject(TO, address));
+						receiverQuery.add(new BasicDBObject(CC, address));
 					}
 
 					searchAddressesQuery.add(new BasicDBObject("$or",
@@ -184,9 +181,12 @@ public class MongoMessageSearchService extends AbstractMessageSearchService {
 					for (String address : fields
 							.get(PERMISSIONS_RECIPIENT_PARAMETER).trim()
 							.split(";")) {
-						permissionsReceiverQuery.add(new BasicDBObject(RCPT_TO, address));
-						permissionsReceiverQuery.add(new BasicDBObject(TO, address));
-						permissionsReceiverQuery.add(new BasicDBObject(CC, address));
+						permissionsReceiverQuery.add(new BasicDBObject(RCPT_TO,
+								address));
+						permissionsReceiverQuery.add(new BasicDBObject(TO,
+								address));
+						permissionsReceiverQuery.add(new BasicDBObject(CC,
+								address));
 					}
 
 					permissionAddressesQuery.add(new BasicDBObject("$or",
@@ -197,8 +197,10 @@ public class MongoMessageSearchService extends AbstractMessageSearchService {
 				else if (searchAddressesQuery.isEmpty())
 					query.put("$or", permissionAddressesQuery);
 				else {
-					addressesQuery.add(new BasicDBObject("$or", searchAddressesQuery));
-					addressesQuery.add(new BasicDBObject("$or", permissionAddressesQuery));
+					addressesQuery.add(new BasicDBObject("$or",
+							searchAddressesQuery));
+					addressesQuery.add(new BasicDBObject("$or",
+							permissionAddressesQuery));
 					query.put("$and", addressesQuery);
 				}
 
@@ -260,7 +262,6 @@ public class MongoMessageSearchService extends AbstractMessageSearchService {
 				}
 			}
 		}
-		System.out.println(query.toString());
 		return query;
 	}
 

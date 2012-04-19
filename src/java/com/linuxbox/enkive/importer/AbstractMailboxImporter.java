@@ -57,7 +57,8 @@ public abstract class AbstractMailboxImporter extends AbstractMessageImporter {
 
 	public void readMailDirectory(Folder folder) throws MessagingException,
 			IOException {
-		System.out.println(folder.getName() + " - Starting - " + folder.getMessageCount() + " Messages");
+		System.out.println(folder.getName() + " - Starting - "
+				+ folder.getMessageCount() + " Messages");
 		folder.open(Folder.READ_ONLY);
 		for (Message m : folder.getMessages()) {
 			sendMessage(m);
