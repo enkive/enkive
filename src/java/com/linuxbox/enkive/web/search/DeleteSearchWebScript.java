@@ -17,7 +17,6 @@
  * License along with Enkive CE. If not, see
  * <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-
 package com.linuxbox.enkive.web.search;
 
 import java.io.IOException;

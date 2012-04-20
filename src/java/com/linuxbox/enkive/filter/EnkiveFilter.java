@@ -17,7 +17,6 @@
  * License along with Enkive CE. If not, see
  * <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-
 package com.linuxbox.enkive.filter;
 
 import java.text.SimpleDateFormat;
@@ -123,7 +122,7 @@ public class EnkiveFilter {
 		boolean matched = false;
 		switch (filterComparator) {
 		case FilterComparator.MATCHES:
-			if (value.trim().equals(filterValue)){
+			if (value.trim().equals(filterValue)) {
 				matched = true;
 			}
 			break;

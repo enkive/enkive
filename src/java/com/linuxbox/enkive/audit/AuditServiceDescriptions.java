@@ -17,16 +17,15 @@
  * License along with Enkive CE. If not, see
  * <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-
 package com.linuxbox.enkive.audit;
 
+import static com.linuxbox.enkive.audit.AuditService.ATTACHMENT_RETRIEVED;
 import static com.linuxbox.enkive.audit.AuditService.AUDIT_LOG_QUERY;
 import static com.linuxbox.enkive.audit.AuditService.MESSAGE_ARCHIVED;
 import static com.linuxbox.enkive.audit.AuditService.MESSAGE_ARCHIVE_FAILURE;
 import static com.linuxbox.enkive.audit.AuditService.MESSAGE_EMERGENCY_SAVED;
 import static com.linuxbox.enkive.audit.AuditService.MESSAGE_PURGED;
 import static com.linuxbox.enkive.audit.AuditService.MESSAGE_RETRIEVED;
-import static com.linuxbox.enkive.audit.AuditService.ATTACHMENT_RETRIEVED;
 import static com.linuxbox.enkive.audit.AuditService.SEARCH_PERFORMED;
 import static com.linuxbox.enkive.audit.AuditService.SYSTEM_SHUTDOWN;
 import static com.linuxbox.enkive.audit.AuditService.SYSTEM_STARTUP;

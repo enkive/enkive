@@ -27,7 +27,6 @@ import org.junit.runners.Suite;
 
 import com.linuxbox.enkive.archiver.mongodb.MongoArchivingServiceTest;
 import com.linuxbox.enkive.audit.mongodb.MongoAuditServiceTest;
-import com.linuxbox.enkive.docsearch.IndriQueryComposerTest;
 import com.linuxbox.enkive.docstore.AbstractDocStoreServiceTest;
 import com.linuxbox.enkive.docstore.mongogrid.MongoGridDocStoreServiceTest;
 import com.linuxbox.enkive.filter.EnkiveFilterTest;

@@ -22,6 +22,9 @@
  */
 package com.linuxbox.enkive.message.search;
 
+import static com.linuxbox.enkive.search.Constants.PERMISSIONS_RECIPIENT_PARAMETER;
+import static com.linuxbox.enkive.search.Constants.PERMISSIONS_SENDER_PARAMETER;
+
 import java.util.Collection;
 import java.util.HashMap;
 
@@ -29,8 +32,6 @@ import com.linuxbox.enkive.exception.CannotGetPermissionsException;
 import com.linuxbox.enkive.message.search.exception.MessageSearchException;
 import com.linuxbox.enkive.permissions.PermissionService;
 import com.linuxbox.enkive.workspace.SearchResult;
-
-import static com.linuxbox.enkive.search.Constants.*;
 
 public class PermissionsEnforcingAuditLoggingMessageSearchService extends
 		AuditLoggingMessageSearchService {

@@ -231,7 +231,7 @@
 		class="com.linuxbox.enkive.message.retention.MessageRetentionPolicy">
 		<property name="retentionPolicyCriteria">
 			<map>
-				<entry key="retentionPeriod" value="30" />
+				<entry key="retentionPeriod" value="${enkive.message.retentionPeriod}" />
 				<entry key="limit" value="10" />
 			</map>
 		</property>
@@ -259,7 +259,8 @@
 	<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
 		<property name="triggers">
 			<list>
-  				<ref bean="MessageRetentionTrigger" />
+				<!-- Uncomment the next line to enable message retention policy -->
+  				<!-- <ref bean="MessageRetentionTrigger" /> -->
 			</list>
 		</property>
 	</bean>

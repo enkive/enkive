@@ -51,7 +51,7 @@ public abstract class AbstractMessageSearchService implements
 		result.setMessageIds(searchImpl(fields));
 		result.setTimestamp(new Date());
 		result.setStatus(Status.COMPLETE);
-		
+
 		return result;
 	}
 

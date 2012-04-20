@@ -60,7 +60,7 @@ public class AsynchronousSearchThread implements Callable<SearchResult> {
 
 	@Override
 	public SearchResult call() {
-		
+
 		SearchResult searchResult = null;
 		try {
 			SecurityContext ctx = new SecurityContextImpl();
@@ -70,13 +70,14 @@ public class AsynchronousSearchThread implements Callable<SearchResult> {
 			searchResult = workspaceService.getSearchResult(searchResultId);
 			try {
 				markSearchResultRunning(searchResult);
-				SearchResult tmpSearchResult = messageSearchService.search(fields);
+				SearchResult tmpSearchResult = messageSearchService
+						.search(fields);
 				searchResult.setMessageIds(tmpSearchResult.getMessageIds());
 				searchResult.setTimestamp(tmpSearchResult.getTimestamp());
 				searchResult.setExecutedBy(tmpSearchResult.getExecutedBy());
 				searchResult.setStatus(Status.COMPLETE);
 				workspaceService.saveSearchResult(searchResult);
-				
+
 			} catch (MessageSearchException e) {
 				searchResult.setStatus(Status.UNKNOWN);
 				workspaceService.saveSearchResult(searchResult);
