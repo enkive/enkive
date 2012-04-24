@@ -29,6 +29,7 @@ import com.linuxbox.enkive.archiver.MessageArchivingService;
 import com.linuxbox.enkive.message.search.MessageSearchService;
 import com.linuxbox.enkive.message.search.exception.MessageSearchException;
 import com.linuxbox.enkive.workspace.SearchResult;
+import static com.linuxbox.enkive.message.retention.Constants.RETENTION_PERIOD;
 
 public class MessageRetentionPolicyEnforcer {
 
@@ -46,15 +47,17 @@ public class MessageRetentionPolicyEnforcer {
 	public void enforceMessageRetentionPolicies() {
 		try {
 			SearchResult result;
-			do {
-				result = searchService.search(retentionPolicy
-						.retentionPolicyCriteriaToSearchFields());
-				for (String messageId : result.getMessageIds()) {
-					messageArchivingService.removeMessage(messageId);
-					LOGGER.info("Message Removed by retention policy: "
-							+ messageId);
-				}
-			} while (result.getMessageIds().size() > 0);
+			if (Integer.parseInt(retentionPolicy.getRetentionPolicyCriteria().get(
+					RETENTION_PERIOD)) > 0)
+				do {
+					result = searchService.search(retentionPolicy
+							.retentionPolicyCriteriaToSearchFields());
+					for (String messageId : result.getMessageIds()) {
+						messageArchivingService.removeMessage(messageId);
+						LOGGER.info("Message Removed by retention policy: "
+								+ messageId);
+					}
+				} while (result.getMessageIds().size() > 0);
 
 		} catch (MessageSearchException e) {
 			LOGGER.warn(
