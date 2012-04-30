@@ -20,6 +20,9 @@
 
 package com.linuxbox.enkive;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.List;
 import java.util.Map;
 
@@ -42,11 +45,30 @@ import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 
 public class MongoDBIndexManager {
+	/**
+	 * The set of services that might have MongoDB indices.
+	 */
 	static final Service[] SERVICES = {
 			new Service("DocLockService", LockService.class),
 			new Service("AuditLogService", AuditService.class),
 			new Service("DocStoreService", DocStoreService.class),
 			new Service("IndexerQueueService", QueueService.class), };
+
+	static final String[] CONFIG_FILES = { "enkive-server.xml" };
+
+	static final BufferedReader in = new BufferedReader(new InputStreamReader(
+			System.in));
+
+	/**
+	 * Thrown when the user has decided to quit.
+	 * 
+	 * @author eric
+	 * 
+	 */
+	static class QuitException extends Exception {
+		private static final long serialVersionUID = 6931399708421895460L;
+		// empty
+	}
 
 	static class Service {
 		String name;
@@ -58,17 +80,19 @@ public class MongoDBIndexManager {
 		}
 	}
 
-	static final String[] CONFIG_FILES = { "enkive-server.xml" };
-
 	public static void main(String[] args) {
 		final AbstractApplicationContext context = new ClassPathXmlApplicationContext(
 				CONFIG_FILES);
 		context.registerShutdownHook();
 
-		for (Service service : SERVICES) {
-			final Object theService = context.getBean(service.name,
-					service.klass);
-			checkService(service.name, theService);
+		try {
+			for (Service service : SERVICES) {
+				final Object theService = context.getBean(service.name,
+						service.klass);
+				checkService(service.name, theService);
+			}
+		} catch (QuitException e) {
+			System.out.println("Quitting a user request...");
 		}
 
 		context.close();
@@ -95,20 +119,70 @@ public class MongoDBIndexManager {
 		}
 	}
 
-	public static void matchIndexes(List<IndexDescription> preferredIndexes,
-			List<DBObject> actualIndexes) {
+	public static void matchIndexes(MongoIndexable service,
+			List<IndexDescription> preferredIndexes,
+			List<DBObject> actualIndexes) throws QuitException {
+		/*
+		 * Whether to give user opportunity to create index when one isn't
+		 * found.
+		 */
+		boolean reportOnly = false;
+
 		preferred: for (IndexDescription pref : preferredIndexes) {
 			for (DBObject actual : actualIndexes) {
 				if (indexesMatch(pref, actual)) {
-					System.out.println("index \"" + pref.getName() + "\" exists");
+					System.out.println("Index \"" + pref.getName()
+							+ "\" exists.");
 					continue preferred;
 				}
 			}
-			System.out.println("index \"" + pref.getName() + "\" does not exist");
+
+			try {
+				while (true) {
+					System.out.println("Index \"" + pref.getName()
+							+ "\" does not appear to exist.");
+					if (reportOnly) {
+						break;
+					}
+
+					System.out.print("Would you like to "
+							+ "(c)reate it in the background, "
+							+ "(c!)reate it in the foreground, "
+							+ "(s)kip it, "
+							+ "(r)eport on other indices without prompt, or "
+							+ "(q)uit this program? ");
+
+					String input = in.readLine();
+
+					if (input.equalsIgnoreCase("c")) {
+						ensureIndex(service.getCollection(), pref, true);
+						break;
+					} else if (input.equalsIgnoreCase("c!")) {
+						ensureIndex(service.getCollection(), pref, false);
+						break;
+					} else if (input.equalsIgnoreCase("s")) {
+						break;
+					} else if (input.equalsIgnoreCase("r")) {
+						reportOnly = true;
+						break;
+					} else if (input.equalsIgnoreCase("q")) {
+						throw new QuitException();
+					} else {
+						System.out.println("I do not understand \"" + input
+								+ "\".");
+					}
+				}
+			} catch (IOException e) {
+				System.err.println("Error: " + e.getLocalizedMessage());
+				System.err
+						.println("Switching into report-only mode for remainder of run.");
+				reportOnly = true;
+			}
 		}
 	}
 
-	public static void checkService(String name, Object service) {
+	public static void checkService(String name, Object service)
+			throws QuitException {
 		if (!(service instanceof MongoIndexable)) {
 			System.out.println(name + " is not a MongoDB indexable service.");
 			return;
@@ -120,7 +194,7 @@ public class MongoDBIndexManager {
 				.getPreferredIndexes();
 		List<DBObject> actualIndexes = indexable.getIndexInfo();
 
-		matchIndexes(preferredIndexes, actualIndexes);
+		matchIndexes(indexable, preferredIndexes, actualIndexes);
 	}
 
 	/*
