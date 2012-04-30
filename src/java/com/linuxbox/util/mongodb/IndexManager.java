@@ -1,0 +1,180 @@
+/*******************************************************************************
+ * Copyright 2012 The Linux Box Corporation.
+ * 
+ * This file is part of Enkive CE (Community Edition).
+ * 
+ * Enkive CE is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of
+ * the License, or (at your option) any later version.
+ * 
+ * Enkive CE is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Affero General Public
+ * License along with Enkive CE. If not, see
+ * <http://www.gnu.org/licenses/>.
+ ******************************************************************************/
+
+package com.linuxbox.util.mongodb;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.beans.factory.config.ConstructorArgumentValues;
+import org.springframework.beans.factory.config.ConstructorArgumentValues.ValueHolder;
+import org.springframework.beans.factory.xml.XmlBeanFactory;
+import org.springframework.context.support.AbstractApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.core.io.ClassPathResource;
+
+import com.linuxbox.enkive.audit.AuditService;
+import com.linuxbox.enkive.docstore.DocStoreService;
+import com.linuxbox.util.lockservice.LockService;
+import com.linuxbox.util.mongodb.MongoIndexable.IndexDescription;
+import com.linuxbox.util.queueservice.QueueService;
+import com.mongodb.BasicDBObjectBuilder;
+import com.mongodb.DBCollection;
+import com.mongodb.DBObject;
+
+public class IndexManager {
+	static final Service[] SERVICES = {
+			new Service("DocLockService", LockService.class),
+			new Service("AuditLogService", AuditService.class),
+			new Service("DocStoreService", DocStoreService.class),
+			new Service("IndexerQueueService", QueueService.class), };
+
+	static class Service {
+		String name;
+		Class<?> klass;
+
+		public Service(String name, Class<?> klass) {
+			this.name = name;
+			this.klass = klass;
+		}
+	}
+
+	static final String[] CONFIG_FILES = { "enkive-server.xml" };
+
+	public static void main(String[] args) {
+		final AbstractApplicationContext context = new ClassPathXmlApplicationContext(
+				CONFIG_FILES);
+		context.registerShutdownHook();
+
+		for (Service service : SERVICES) {
+			final Object theService = context.getBean(service.name,
+					service.klass);
+			checkService(service.name, theService);
+		}
+
+		context.close();
+	}
+
+	public static boolean indexesMatch(IndexDescription pref, DBObject actual) {
+		DBObject actualKey = (DBObject) actual.get("key");
+		return pref.description.equals(actualKey);
+	}
+
+	public static void ensureIndex(DBCollection collection,
+			IndexDescription desiredIndex, boolean inBackground) {
+		final DBObject options = BasicDBObjectBuilder.start()
+				.add("name", desiredIndex.getName())
+				.add("unique", desiredIndex.isUnique())
+				.add("background", inBackground).get();
+		collection.ensureIndex(desiredIndex.getDescription(), options);
+	}
+
+	public static void ensureIndexes(DBCollection collection,
+			List<IndexDescription> desiredIndexes, boolean inBackground) {
+		for (IndexDescription index : desiredIndexes) {
+			ensureIndex(collection, index, inBackground);
+		}
+	}
+
+	public static void matchIndexes(List<IndexDescription> preferredIndexes,
+			List<DBObject> actualIndexes) {
+		preferred: for (IndexDescription pref : preferredIndexes) {
+			for (DBObject actual : actualIndexes) {
+				if (indexesMatch(pref, actual)) {
+					System.out.println("index \"" + pref.name + "\" exists");
+					continue preferred;
+				}
+			}
+			System.out.println("index \"" + pref.name + "\" does not exist");
+		}
+	}
+
+	public static void checkService(String name, Object service) {
+		if (!(service instanceof MongoIndexable)) {
+			System.out.println(name + " is not MongoIndexable.");
+			return;
+		}
+
+		MongoIndexable indexable = (MongoIndexable) service;
+
+		List<IndexDescription> preferredIndexes = indexable
+				.getPreferredIndexes();
+		List<DBObject> actualIndexes = indexable.getIndexInfo();
+
+		matchIndexes(preferredIndexes, actualIndexes);
+	}
+
+	/*
+	 * This function contains some experiments to determine whether it would be
+	 * able to get the key information about a service without actually
+	 * instantiating it. That way we could potentially look up the database and
+	 * collection that a given service used and talk to MongoDB directly without
+	 * every using the overhead to instantiate the actual service.
+	 */
+	@SuppressWarnings("unused")
+	private static void unusedExperiments() {
+		XmlBeanFactory beanFactory = new XmlBeanFactory(new ClassPathResource(
+				"enkive-server.xml"));
+		// XmlBeanDefinitionReader beanReader = new XmlBeanDefinitionReader(
+		// beanFactory);
+		// beanReader.loadBeanDefinitions("enkive-server.xml");
+		final int count = beanFactory.getBeanDefinitionCount();
+		System.out.println("Found " + count + " beans.");
+		final String[] beanNames = beanFactory.getBeanDefinitionNames();
+		for (String s : beanNames) {
+			System.out.println(s);
+		}
+
+		// beanFactory.preInstantiateSingletons();
+
+		BeanDefinition def = beanFactory.getBeanDefinition("DocLockService");
+
+		System.out.println(def.getAttribute("server"));
+		// System.out.println(def.getAttribute("port"));
+		// System.out.println(def.getAttribute("database"));
+		// System.out.println(def.getAttribute("collection"));
+
+		for (String an : def.attributeNames()) {
+			System.out.println("attribute name: " + an);
+		}
+
+		ConstructorArgumentValues cavs = def.getConstructorArgumentValues();
+		System.out.println("constructor has " + cavs.getArgumentCount()
+				+ " arguments");
+		Map<Integer, ValueHolder> m = cavs.getIndexedArgumentValues();
+		System.out.println("indexed arguments of length " + m.size());
+		List<ValueHolder> l = cavs.getGenericArgumentValues();
+		System.out.println("generic arguments of length " + l.size());
+
+		int count2 = 0;
+		for (ValueHolder vh : l) {
+			System.out.println(count2);
+			System.out.println("    " + vh.getName());
+			System.out.println("    " + vh.getType());
+			System.out.println("    " + vh.getSource());
+			System.out.println("    " + vh.getValue());
+			System.out.println("    " + vh.getConvertedValue());
+			++count2;
+		}
+
+		System.out.println("done");
+	}
+}

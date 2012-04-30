@@ -24,17 +24,22 @@ import static com.linuxbox.util.mongodb.MongoDBConstants.OBJECT_ID_KEY;
 
 import java.net.UnknownHostException;
 import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.bson.types.BSONTimestamp;
 import org.bson.types.ObjectId;
 
+import com.linuxbox.util.mongodb.MongoIndexable;
+import com.linuxbox.util.mongodb.MongoIndexable.IndexDescription;
 import com.linuxbox.util.queueservice.AbstractQueueEntry;
 import com.linuxbox.util.queueservice.QueueEntry;
 import com.linuxbox.util.queueservice.QueueService;
 import com.linuxbox.util.queueservice.QueueServiceException;
 import com.mongodb.BasicDBObject;
+import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
@@ -44,7 +49,7 @@ import com.mongodb.QueryBuilder;
 import com.mongodb.WriteConcern;
 import com.mongodb.WriteResult;
 
-public class MongoQueueService implements QueueService {
+public class MongoQueueService implements QueueService, MongoIndexable {
 	protected static final Log LOGGER = LogFactory
 			.getLog("com.linuxbox.util.queueservice.mongodb");
 
@@ -108,25 +113,7 @@ public class MongoQueueService implements QueueService {
 		// see comments on def'n of CALL_ENSURE_INDEX_ON_INIT to see why it's
 		// done conditionally
 		if (CALL_ENSURE_INDEX_ON_INIT) {
-			// For MongoDB multi-key indexes to work the most efficiently, the
-			// queried fields should appear before the sorting fields in the
-			// indexes.
-
-			// This index is used for finding the earliest entry with a given
-			// status.
-			final DBObject statusTimestampIndex = new BasicDBObject(
-					STATUS_FIELD, 1).append(CREATED_AT_FIELD, 1);
-			queueCollection.ensureIndex(statusTimestampIndex,
-					"statusTimestampIndex");
-
-			// This index is used for finding the earliest entry with a given
-			// status
-			// and identifier.
-			final DBObject statusIdentifierTimestampIndex = new BasicDBObject(
-					STATUS_FIELD, 1).append(IDENTIFIER_FIELD, 1).append(
-					CREATED_AT_FIELD, 1);
-			queueCollection.ensureIndex(statusIdentifierTimestampIndex,
-					"statusIdentifierTimestampIndex");
+			// see class IndexManager
 		}
 
 		// Make sure data is written out to disk before operation is complete.
@@ -254,5 +241,45 @@ public class MongoQueueService implements QueueService {
 			super(enqueuedAt, identifier, note, shardKey);
 			this.mongoID = mongoID;
 		}
+	}
+
+	@Override
+	public List<DBObject> getIndexInfo() {
+		return queueCollection.getIndexInfo();
+	}
+
+	@Override
+	public List<IndexDescription> getPreferredIndexes() {
+		LinkedList<IndexDescription> result = new LinkedList<IndexDescription>();
+
+		// For MongoDB multi-key indexes to work the most efficiently, the
+		// queried fields should appear before the sorting fields in the
+		// indexes.
+
+		// This index is used for finding the earliest entry with a given
+		// status.
+		final DBObject statusTimestampIndex = new BasicDBObject(STATUS_FIELD, 1)
+				.append(CREATED_AT_FIELD, 1);
+		IndexDescription id1 = new IndexDescription("statusTimestampIndex",
+				statusTimestampIndex, false);
+		result.add(id1);
+
+		// This index is used for finding the earliest entry with a given
+		// status
+		// and identifier.
+		final DBObject statusIdentifierTimestampIndex = new BasicDBObject(
+				STATUS_FIELD, 1).append(IDENTIFIER_FIELD, 1).append(
+				CREATED_AT_FIELD, 1);
+		IndexDescription id2 = new IndexDescription(
+				"statusIdentifierTimestampIndex",
+				statusIdentifierTimestampIndex, false);
+		result.add(id2);
+
+		return result;
+	}
+
+	@Override
+	public DBCollection getCollection() {
+		return queueCollection;
 	}
 }
