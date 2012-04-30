@@ -19,6 +19,8 @@
  ******************************************************************************/
 package com.linuxbox.util.lockservice.mongodb;
 
+import static com.linuxbox.util.mongodb.MongoDBConstants.CALL_ENSURE_INDEX_ON_INIT;
+
 import java.net.UnknownHostException;
 import java.util.Date;
 
@@ -87,13 +89,18 @@ public class MongoLockService extends AbstractRetryingLockService {
 
 		lockCollection.setWriteConcern(WriteConcern.FSYNC_SAFE);
 
-		// We want the identifier index to be unique, as that's how we
-		// atomically detect when someone tries to create an already-existing
-		// lock record
-		final boolean mustBeUnique = true;
-		DBObject lockIndex = BasicDBObjectBuilder.start()
-				.add(LOCK_IDENTIFIER_KEY, 1).get();
-		lockCollection.ensureIndex(lockIndex, "lockIndex", mustBeUnique);
+		// see comments on def'n of CALL_ENSURE_INDEX_ON_INIT to see why it's
+		// done conditionally
+		if (CALL_ENSURE_INDEX_ON_INIT) {
+			// We want the identifier index to be unique, as that's how we
+			// atomically detect when someone tries to create an
+			// already-existing
+			// lock record
+			final boolean mustBeUnique = true;
+			DBObject lockIndex = BasicDBObjectBuilder.start()
+					.add(LOCK_IDENTIFIER_KEY, 1).get();
+			lockCollection.ensureIndex(lockIndex, "lockIndex", mustBeUnique);
+		}
 	}
 
 	public void startup() {

@@ -19,6 +19,8 @@
  ******************************************************************************/
 package com.linuxbox.enkive.audit.mongodb;
 
+import static com.linuxbox.util.mongodb.MongoDBConstants.CALL_ENSURE_INDEX_ON_INIT;
+
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -98,20 +100,24 @@ public class MongoAuditService implements AuditService {
 		this.mongoDB = mongo.getDB(database);
 		this.auditCollection = mongoDB.getCollection(collection);
 
-		// For MongoDB multi-key indexes to work the most efficiently, the
-		// queried fields should appear before the sorting fields in the
-		// indexes.
+		// see comments on def'n of CALL_ENSURE_INDEX_ON_INIT to see why it's
+		// done conditionally
+		if (CALL_ENSURE_INDEX_ON_INIT) {
+			// For MongoDB multi-key indexes to work the most efficiently, the
+			// queried fields should appear before the sorting fields in the
+			// indexes.
 
-		final DBObject whenIndex = new BasicDBObject(TIMESTAMP_FIELD, -1);
-		auditCollection.ensureIndex(whenIndex, TIMESTAMP_INDEX);
+			final DBObject whenIndex = new BasicDBObject(TIMESTAMP_FIELD, -1);
+			auditCollection.ensureIndex(whenIndex, TIMESTAMP_INDEX);
 
-		final DBObject whatWhenIndex = new BasicDBObject(CODE_FIELD, 1).append(
-				TIMESTAMP_FIELD, -1);
-		auditCollection.ensureIndex(whatWhenIndex, CODE_TIMESTAMP_INDEX);
+			final DBObject whatWhenIndex = new BasicDBObject(CODE_FIELD, 1)
+					.append(TIMESTAMP_FIELD, -1);
+			auditCollection.ensureIndex(whatWhenIndex, CODE_TIMESTAMP_INDEX);
 
-		final DBObject whoWhenIndex = new BasicDBObject(USERNAME_FIELD, 1)
-				.append(TIMESTAMP_FIELD, -1);
-		auditCollection.ensureIndex(whoWhenIndex, USER_TIMESTAMP_INDEX);
+			final DBObject whoWhenIndex = new BasicDBObject(USERNAME_FIELD, 1)
+					.append(TIMESTAMP_FIELD, -1);
+			auditCollection.ensureIndex(whoWhenIndex, USER_TIMESTAMP_INDEX);
+		}
 
 		// TODO: do we (will we) need a who, what, when index, so we can select
 		// by who/what and sort by when?

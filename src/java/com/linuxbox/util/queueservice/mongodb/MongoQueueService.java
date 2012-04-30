@@ -19,6 +19,7 @@
  ******************************************************************************/
 package com.linuxbox.util.queueservice.mongodb;
 
+import static com.linuxbox.util.mongodb.MongoDBConstants.CALL_ENSURE_INDEX_ON_INIT;
 import static com.linuxbox.util.mongodb.MongoDBConstants.OBJECT_ID_KEY;
 
 import java.net.UnknownHostException;
@@ -104,24 +105,29 @@ public class MongoQueueService implements QueueService {
 		this.mongoDB = mongo.getDB(database);
 		this.queueCollection = mongoDB.getCollection(collection);
 
-		// For MongoDB multi-key indexes to work the most efficiently, the
-		// queried fields should appear before the sorting fields in the
-		// indexes.
+		// see comments on def'n of CALL_ENSURE_INDEX_ON_INIT to see why it's
+		// done conditionally
+		if (CALL_ENSURE_INDEX_ON_INIT) {
+			// For MongoDB multi-key indexes to work the most efficiently, the
+			// queried fields should appear before the sorting fields in the
+			// indexes.
 
-		// This index is used for finding the earliest entry with a given
-		// status.
-		final DBObject statusTimestampIndex = new BasicDBObject(STATUS_FIELD, 1)
-				.append(CREATED_AT_FIELD, 1);
-		queueCollection.ensureIndex(statusTimestampIndex,
-				"statusTimestampIndex");
+			// This index is used for finding the earliest entry with a given
+			// status.
+			final DBObject statusTimestampIndex = new BasicDBObject(
+					STATUS_FIELD, 1).append(CREATED_AT_FIELD, 1);
+			queueCollection.ensureIndex(statusTimestampIndex,
+					"statusTimestampIndex");
 
-		// This index is used for finding the earliest entry with a given status
-		// and identifier.
-		final DBObject statusIdentifierTimestampIndex = new BasicDBObject(
-				STATUS_FIELD, 1).append(IDENTIFIER_FIELD, 1).append(
-				CREATED_AT_FIELD, 1);
-		queueCollection.ensureIndex(statusIdentifierTimestampIndex,
-				"statusIdentifierTimestampIndex");
+			// This index is used for finding the earliest entry with a given
+			// status
+			// and identifier.
+			final DBObject statusIdentifierTimestampIndex = new BasicDBObject(
+					STATUS_FIELD, 1).append(IDENTIFIER_FIELD, 1).append(
+					CREATED_AT_FIELD, 1);
+			queueCollection.ensureIndex(statusIdentifierTimestampIndex,
+					"statusIdentifierTimestampIndex");
+		}
 
 		// Make sure data is written out to disk before operation is complete.
 		queueCollection.setWriteConcern(WriteConcern.FSYNC_SAFE);

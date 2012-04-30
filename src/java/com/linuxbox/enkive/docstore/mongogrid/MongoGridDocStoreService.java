@@ -27,6 +27,7 @@ import static com.linuxbox.enkive.docstore.mongogrid.Constants.INDEX_STATUS_KEY;
 import static com.linuxbox.enkive.docstore.mongogrid.Constants.INDEX_STATUS_QUERY;
 import static com.linuxbox.enkive.docstore.mongogrid.Constants.INDEX_TIMESTAMP_KEY;
 import static com.linuxbox.enkive.docstore.mongogrid.Constants.INDEX_TIMESTAMP_QUERY;
+import static com.linuxbox.util.mongodb.MongoDBConstants.CALL_ENSURE_INDEX_ON_INIT;
 import static com.linuxbox.util.mongodb.MongoDBConstants.FILENAME_KEY;
 import static com.linuxbox.util.mongodb.MongoDBConstants.GRID_FS_FILES_COLLECTION_SUFFIX;
 import static com.linuxbox.util.mongodb.MongoDBConstants.OBJECT_ID_KEY;
@@ -127,24 +128,28 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 
 		filesCollection = gridFS.getDB().getCollection(
 				bucketName + GRID_FS_FILES_COLLECTION_SUFFIX);
+		
+		// see comments on def'n of CALL_ENSURE_INDEX_ON_INIT to see why it's
+		// done conditionally
+		if (CALL_ENSURE_INDEX_ON_INIT) {
+			/*
+			 * NOTE: we DO NOT NEED a filename index, because by default GridFS
+			 * will create an index on filename and upload date. You can
+			 * efficiently query on compound indexes if the key searched for
+			 * come before those that are not, which is true in this case.
+			 * 
+			 * DBObject filenameIndex = BasicDBObjectBuilder.start()
+			 * .add(FILENAME_KEY, 1).get();
+			 * filesCollection.ensureIndex(filenameIndex);
+			 */
 
-		/*
-		 * NOTE: we DO NOT NEED a filename index, because by default GridFS will
-		 * create an index on filename and upload date. You can efficiently
-		 * query on compound indexes if the key searched for come before those
-		 * that are not, which is true in this case.
-		 * 
-		 * DBObject filenameIndex = BasicDBObjectBuilder.start()
-		 * .add(FILENAME_KEY, 1).get();
-		 * filesCollection.ensureIndex(filenameIndex);
-		 */
-
-		// be sure to put status before timestamp, because it's more likely
-		// we'll search on just status rather than on just timestamp
-		DBObject searchIndexingIndex = BasicDBObjectBuilder.start()
-				.add(INDEX_STATUS_KEY, 1).add(INDEX_TIMESTAMP_KEY, 1).get();
-		filesCollection.ensureIndex(searchIndexingIndex, "indexingStatusIndex",
-				false);
+			// be sure to put status before timestamp, because it's more likely
+			// we'll search on just status rather than on just timestamp
+			DBObject searchIndexingIndex = BasicDBObjectBuilder.start()
+					.add(INDEX_STATUS_KEY, 1).add(INDEX_TIMESTAMP_KEY, 1).get();
+			filesCollection.ensureIndex(searchIndexingIndex,
+					"indexingStatusIndex", false);
+		}
 
 		// insure data is written to disk
 		filesCollection.setWriteConcern(WriteConcern.FSYNC_SAFE);
