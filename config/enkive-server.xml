@@ -182,7 +182,7 @@
 		class="com.linuxbox.enkive.audit.mongodb.PermissionsEnforcingMongoAuditService">
 		<constructor-arg ref="PermissionService" />
 		<constructor-arg ref="Mongo" />
-		<constructor-arg value="${enkive.queueservice.db.name}" />
+		<constructor-arg value="${enkive.auditlogservice.db.name}" />
 		<constructor-arg value="auditLog" />
 	</bean>
 
