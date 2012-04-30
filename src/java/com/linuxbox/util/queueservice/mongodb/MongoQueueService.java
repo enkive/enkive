@@ -113,7 +113,7 @@ public class MongoQueueService implements QueueService, MongoIndexable {
 		// see comments on def'n of CALL_ENSURE_INDEX_ON_INIT to see why it's
 		// done conditionally
 		if (CALL_ENSURE_INDEX_ON_INIT) {
-			// see class IndexManager
+			// see class com.linuxbox.enkive.MongoDBIndexManager
 		}
 
 		// Make sure data is written out to disk before operation is complete.

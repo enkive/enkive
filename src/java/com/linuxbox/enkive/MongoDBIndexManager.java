@@ -18,7 +18,7 @@
  * <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-package com.linuxbox.util.mongodb;
+package com.linuxbox.enkive;
 
 import java.util.List;
 import java.util.Map;
@@ -34,13 +34,14 @@ import org.springframework.core.io.ClassPathResource;
 import com.linuxbox.enkive.audit.AuditService;
 import com.linuxbox.enkive.docstore.DocStoreService;
 import com.linuxbox.util.lockservice.LockService;
+import com.linuxbox.util.mongodb.MongoIndexable;
 import com.linuxbox.util.mongodb.MongoIndexable.IndexDescription;
 import com.linuxbox.util.queueservice.QueueService;
 import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 
-public class IndexManager {
+public class MongoDBIndexManager {
 	static final Service[] SERVICES = {
 			new Service("DocLockService", LockService.class),
 			new Service("AuditLogService", AuditService.class),
@@ -75,7 +76,7 @@ public class IndexManager {
 
 	public static boolean indexesMatch(IndexDescription pref, DBObject actual) {
 		DBObject actualKey = (DBObject) actual.get("key");
-		return pref.description.equals(actualKey);
+		return pref.getDescription().equals(actualKey);
 	}
 
 	public static void ensureIndex(DBCollection collection,
@@ -99,17 +100,17 @@ public class IndexManager {
 		preferred: for (IndexDescription pref : preferredIndexes) {
 			for (DBObject actual : actualIndexes) {
 				if (indexesMatch(pref, actual)) {
-					System.out.println("index \"" + pref.name + "\" exists");
+					System.out.println("index \"" + pref.getName() + "\" exists");
 					continue preferred;
 				}
 			}
-			System.out.println("index \"" + pref.name + "\" does not exist");
+			System.out.println("index \"" + pref.getName() + "\" does not exist");
 		}
 	}
 
 	public static void checkService(String name, Object service) {
 		if (!(service instanceof MongoIndexable)) {
-			System.out.println(name + " is not MongoIndexable.");
+			System.out.println(name + " is not a MongoDB indexable service.");
 			return;
 		}
 
