@@ -198,19 +198,20 @@ public abstract class AbstractMailProcessor implements ArchivingProcessor,
 						LOGGER.fatal(
 								"socket closed with only partial message read",
 								e);
-					archiver.emergencySave(e.getData(), true);
+					messageSaved = archiver.emergencySave(e.getData(), true);
 					processingComplete = true;
 				} catch (BadMessageException e) {
 					processorState = ERROR_HANDLING;
 					if (LOGGER.isFatalEnabled())
 						LOGGER.fatal(
 								"could not create message object to archive", e);
-					archiver.emergencySave(data);
+					messageSaved = archiver.emergencySave(data);
 				} catch (Exception e) {
 					processorState = ERROR_HANDLING;
 					if (LOGGER.isFatalEnabled())
 						LOGGER.fatal("could not archive message", e);
 					archiver.emergencySave(data);
+					messageSaved = false;
 				}
 
 				processorState = IDLE;

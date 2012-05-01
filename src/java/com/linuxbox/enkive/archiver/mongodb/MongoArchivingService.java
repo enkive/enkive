@@ -315,8 +315,10 @@ public class MongoArchivingService extends AbstractMessageArchivingService {
 	private boolean messageReferencedAsNestedMessage(String messageId) {
 		BasicDBObject nestedMessageQuery = new BasicDBObject(
 				NESTED_MESSAGE_ID_LIST, messageId);
+		System.out.println(nestedMessageQuery.toString());
 		DBCursor results = messageColl.find(nestedMessageQuery);
-		return (results.size() > 1);
+		//return (results.size() > 0);
+		return true;
 	}
 
 	@Override

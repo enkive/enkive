@@ -250,9 +250,45 @@
 		<property name="targetMethod" value="enforceMessageRetentionPolicies" />
 		<property name="concurrent" value="false" />
 	</bean>
- 
+
 	<bean id="MessageRetentionTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
 		<property name="jobDetail" ref="MessageRetentionJob" />
+		<property name="cronExpression" value="10 * * * * ?" />
+	</bean>
+
+	<!-- Statistics Gathering related beans -->
+	<bean id="MessageArchiveStatisticsService"
+		class="com.linuxbox.enkive.statistics.message.MongoMessageStatisticsService">
+		<constructor-arg ref="Mongo" />
+		<constructor-arg type="java.lang.String" value="${enkive.messagestore.db.name}" />
+		<constructor-arg type="java.lang.String"
+			value="${enkive.messagestore.collection.name}" />
+	</bean>
+
+	<bean id="StatisticsGatherer" class="com.linuxbox.enkive.statistics.StatisticsGatherer">
+		<constructor-arg>
+			<map>
+				<entry key="MessageArchiveStatisticsService" value-ref="MessageArchiveStatisticsService" />
+			</map>
+		</constructor-arg>
+	</bean>
+
+	<bean id="StatisticsEmailer" class="com.linuxbox.enkive.statistics.StatisticsReportEmailer">
+		<constructor-arg ref="StatisticsGatherer" />
+		<property name="to" value="lee@linuxbox.com" />
+		<property name="from" value="lee@linuxbox.com" />
+		<property name="mailHost" value="thunderbeast.private.linuxbox.com" />
+	</bean>
+
+	<bean id="StatisticsEmailerJob"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject" ref="StatisticsEmailer" />
+		<property name="targetMethod" value="sendReport" />
+		<property name="concurrent" value="false" />
+	</bean>
+
+	<bean id="StatisticsEmailerTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail" ref="StatisticsEmailerJob" />
 		<property name="cronExpression" value="10 * * * * ?" />
 	</bean>
 
@@ -260,7 +296,8 @@
 		<property name="triggers">
 			<list>
 				<!-- Uncomment the next line to enable message retention policy -->
-  				<!-- <ref bean="MessageRetentionTrigger" /> -->
+				<!-- <ref bean="MessageRetentionTrigger" /> -->
+				<ref bean="StatisticsEmailerTrigger" />
 			</list>
 		</property>
 	</bean>
