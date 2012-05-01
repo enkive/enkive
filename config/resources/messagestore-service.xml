@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd"
+	default-init-method="startup" default-destroy-method="shutdown">
+
+	<bean id="MessageArchivingService"
+		class="com.linuxbox.enkive.archiver.ThreadSafeMessageArchivingService">
+		<property name="lockService" ref="DocLockService" />
+		<property name="messageArchivingService" ref="MongoMessageArchivingService" />
+	</bean>
+
+	<bean id="MongoMessageArchivingService"
+		class="com.linuxbox.enkive.archiver.mongodb.MongoArchivingService">
+		<constructor-arg ref="Mongo" />
+		<constructor-arg type="java.lang.String" value="${enkive.messagestore.db.name}" />
+		<constructor-arg type="java.lang.String"
+			value="${enkive.messagestore.collection.name}" />
+		<property name="auditService" ref="AuditLogService" />
+		<property name="docStoreService" ref="DocStoreService" />
+		<property name="emergencySaveRoot" value="${enkive.messagestore.emergencysave.root}" />
+	</bean>
+
+	<bean id="MessageRetrieverService"
+		class="com.linuxbox.enkive.retriever.PermissionsEnforcingMessageRetrieverService">
+		<property name="permService" ref="PermissionService" />
+		<property name="retrieverService" ref="MongoMessageRetrieverService" />
+		<property name="auditService" ref="AuditLogService" />
+	</bean>
+
+	<bean id="MongoMessageRetrieverService"
+		class="com.linuxbox.enkive.retriever.mongodb.MongoRetrieverService">
+		<constructor-arg ref="Mongo" />
+		<constructor-arg type="java.lang.String" value="${enkive.messagestore.db.name}" />
+		<constructor-arg type="java.lang.String"
+			value="${enkive.messagestore.collection.name}" />
+		<property name="docStoreService" ref="DocStoreService" />
+		<property name="auditService" ref="AuditLogService" />
+	</bean>
+
+	<bean id="MessageSearchService"
+		class="com.linuxbox.enkive.message.search.TaskPoolAsyncMessageSearchService">
+		<constructor-arg value="${enkive.messageSearch.corePoolSize}" />
+		<constructor-arg value="${enkive.messageSearch.maxPoolSize}" />
+		<constructor-arg value="${enkive.messageSearch.keepAliveTime}" />
+		<property name="authenticationService" ref="AuthenticationService" />
+		<property name="workspaceService" ref="WorkspaceService" />
+		<property name="messageSearchService" ref="RetentionPolicyEnforcingMessageSearchService" />
+	</bean>
+
+	<bean id="RetentionPolicyEnforcingMessageSearchService"
+		class="com.linuxbox.enkive.message.search.RetentionPolicyEnforcingMessageSearchService">
+		<property name="messageRetentionPolicy" ref="MessageRetentionPolicy" />
+		<property name="messageSearchService" ref="PermissionsEnforcingMessageSearchService" />
+	</bean>
+
+	<bean id="PermissionsEnforcingMessageSearchService"
+		class="com.linuxbox.enkive.message.search.PermissionsEnforcingAuditLoggingMessageSearchService">
+		<property name="permService" ref="PermissionService" />
+		<property name="authenticationService" ref="AuthenticationService" />
+		<property name="messageSearchService" ref="SystemMessageSearchService" />
+		<property name="auditService" ref="AuditLogService" />
+	</bean>
+
+	<bean id="SystemMessageSearchService"
+		class="com.linuxbox.enkive.message.search.mongodb.MongoMessageSearchService">
+		<constructor-arg ref="Mongo" />
+		<constructor-arg type="java.lang.String" value="${enkive.messagestore.db.name}" />
+		<constructor-arg type="java.lang.String"
+			value="${enkive.messagestore.collection.name}" />
+		<property name="docSearchService" ref="DocSearchQueryService" />
+	</bean>
+</beans>
+	
