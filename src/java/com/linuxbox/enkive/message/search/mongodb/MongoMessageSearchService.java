@@ -41,6 +41,7 @@ import static com.linuxbox.enkive.search.Constants.SENDER_PARAMETER;
 import static com.linuxbox.enkive.search.Constants.SUBJECT_PARAMETER;
 
 import java.text.ParseException;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -231,8 +232,14 @@ public class MongoMessageSearchService extends AbstractMessageSearchService {
 						&& fields.get(DATE_LATEST_PARAMETER) != null
 						&& !fields.get(DATE_LATEST_PARAMETER).isEmpty()) {
 					try {
-						Date dateLatest = NUMERIC_SEARCH_FORMAT.parse(fields
+					/*	Date dateLatest = NUMERIC_SEARCH_FORMAT.parse(fields
 								.get(DATE_LATEST_PARAMETER));
+						dateQuery.put("$lte", dateLatest);
+					*/  Calendar c = Calendar.getInstance();
+						c.setTime(NUMERIC_SEARCH_FORMAT.parse(fields
+							.get(DATE_LATEST_PARAMETER)));
+						c.add(Calendar.DATE, 1);
+						Date dateLatest = c.getTime();
 						dateQuery.put("$lte", dateLatest);
 					} catch (ParseException e) {
 						if (LOGGER.isWarnEnabled())
