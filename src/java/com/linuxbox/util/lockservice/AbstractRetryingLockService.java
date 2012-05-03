@@ -17,10 +17,8 @@
  * License along with Enkive CE. If not, see
  * <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package com.linuxbox.util.lockservice.mongodb;
+package com.linuxbox.util.lockservice;
 
-import com.linuxbox.util.lockservice.LockAcquisitionException;
-import com.linuxbox.util.lockservice.LockService;
 
 public abstract class AbstractRetryingLockService implements LockService {
 	@Override

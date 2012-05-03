@@ -26,6 +26,7 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.linuxbox.util.lockservice.AbstractRetryingLockService;
 import com.linuxbox.util.lockservice.LockAcquisitionException;
 import com.linuxbox.util.lockservice.LockReleaseException;
 import com.linuxbox.util.mongodb.MongoIndexable;
