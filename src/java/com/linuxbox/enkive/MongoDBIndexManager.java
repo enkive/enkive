@@ -58,6 +58,13 @@ public class MongoDBIndexManager {
 
 	static final BufferedReader in = new BufferedReader(new InputStreamReader(
 			System.in));
+	
+	/**
+	 * Whether to give user opportunity to create index when one isn't
+	 * found.
+	 */
+	static boolean reportOnly = false;
+
 
 	/**
 	 * Thrown when the user has decided to quit.
@@ -126,16 +133,10 @@ public class MongoDBIndexManager {
 	public static void matchIndexes(MongoIndexable service,
 			List<IndexDescription> preferredIndexes,
 			List<DBObject> actualIndexes) throws QuitException {
-		/*
-		 * Whether to give user opportunity to create index when one isn't
-		 * found.
-		 */
-		boolean reportOnly = false;
-
 		preferred: for (IndexDescription pref : preferredIndexes) {
 			for (DBObject actual : actualIndexes) {
 				if (indexesMatch(pref, actual)) {
-					System.out.println("Index \"" + pref.getName()
+					System.out.println("    Index \"" + pref.getName()
 							+ "\" exists.");
 					continue preferred;
 				}
@@ -143,20 +144,22 @@ public class MongoDBIndexManager {
 
 			try {
 				while (true) {
-					System.out.println("Index \"" + pref.getName()
+					System.out.println("*** Index \"" + pref.getName()
 							+ "\" does not appear to exist.");
 					if (reportOnly) {
 						break;
 					}
 
-					System.out.println("Options:");
-					System.out.println("    (c)reate index in the background");
-					System.out.println("    (c!)reate index in the foreground");
-					System.out.println("    (s)kip this index");
+					System.out.println("        Options:");
 					System.out
-							.println("    (r)eport on other indexes without further prompts");
-					System.out.println("    (q)uit this program");
-					System.out.print("Your choice: ");
+							.println("            (c)reate index in the background");
+					System.out
+							.println("            (c!)reate index in the foreground");
+					System.out.println("            (s)kip this index");
+					System.out
+							.println("            (r)eport on other indexes without further prompts");
+					System.out.println("            (q)uit this program");
+					System.out.print("        Your choice: ");
 
 					String input = in.readLine();
 
@@ -174,8 +177,10 @@ public class MongoDBIndexManager {
 					} else if (input.equalsIgnoreCase("q")) {
 						throw new QuitException();
 					} else {
-						System.out.println("I do not understand \"" + input
-								+ "\".");
+						System.out.println();
+						System.out.println("    *** ERROR: unknown choice \""
+								+ input + "\".");
+						System.out.println();
 					}
 				}
 			} catch (IOException e) {
