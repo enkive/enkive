@@ -91,8 +91,10 @@ public class MongoDBIndexManager {
 						service.klass);
 				checkService(service.name, theService);
 			}
+
+			System.out.println("Done; all indexes checked.");
 		} catch (QuitException e) {
-			System.out.println("Quitting a user request...");
+			System.out.println("Quitting at user request.");
 		}
 
 		context.close();
@@ -147,12 +149,14 @@ public class MongoDBIndexManager {
 						break;
 					}
 
-					System.out.print("Would you like to "
-							+ "(c)reate it in the background, "
-							+ "(c!)reate it in the foreground, "
-							+ "(s)kip it, "
-							+ "(r)eport on other indices without prompt, or "
-							+ "(q)uit this program? ");
+					System.out.println("Options:");
+					System.out.println("    (c)reate index in the background");
+					System.out.println("    (c!)reate index in the foreground");
+					System.out.println("    (s)kip this index");
+					System.out
+							.println("    (r)eport on other indexes without further prompts");
+					System.out.println("    (q)uit this program");
+					System.out.print("Your choice: ");
 
 					String input = in.readLine();
 
@@ -194,6 +198,8 @@ public class MongoDBIndexManager {
 			System.out.println(name + " is not a MongoDB indexable service.");
 			return;
 		}
+
+		System.out.println("Checking indexes for " + name + "....");
 
 		MongoIndexable indexable = (MongoIndexable) service;
 
