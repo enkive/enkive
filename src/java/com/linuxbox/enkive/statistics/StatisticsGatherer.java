@@ -35,6 +35,7 @@ public class StatisticsGatherer {
 					.next();
 			results.append(pair.getKey(), pair.getValue().getStatisticsJSON());
 		}
+		System.out.println(results.toString());
 		return results;
 	}
 

@@ -256,6 +256,11 @@
 		<property name="cronExpression" value="10 * * * * ?" />
 	</bean>
 
+	<!-- String to Date Transformation Tool -->
+	<bean id="dateFormat" class="java.text.SimpleDateFormat">
+		<constructor-arg value="yyyy-MM-dd:kk.mm.ss.SSS" />
+	</bean>
+	
 	<!-- Statistics Gathering related beans -->
 	<bean id="MessageArchiveStatisticsService"
 		class="com.linuxbox.enkive.statistics.message.MongoMessageStatisticsService">
@@ -264,11 +269,58 @@
 		<constructor-arg type="java.lang.String"
 			value="${enkive.messagestore.collection.name}" />
 	</bean>
+	
+	<bean id="DetailedMessageArchiveService"
+		class="com.linuxbox.enkive.statistics.StatisticsMsgEntries">
+		<property name="searchService" ref="SystemMessageSearchService" />
+		<constructor-arg type="java.lang.String"
+			value="2001-11-18" />
+		<constructor-arg type="java.lang.String"
+			value="2001-11-18" />
+	</bean>
 
+	<bean id="AttachmentMessageArchiveService"
+		class="com.linuxbox.enkive.statistics.StatisticsMongoAttachments">
+		<constructor-arg ref="Mongo" />
+		<constructor-arg type="java.lang.String" value="${enkive.messagestore.db.name}" />
+		<property name = "upper">
+			<bean factory-bean="dateFormat" factory-method="parse">
+				<constructor-arg value= "2012-04-26:20.44.31.025" />
+			</bean>
+		</property>
+		
+		<property name = "lower">
+			<bean factory-bean="dateFormat" factory-method="parse">
+				<constructor-arg value= "2012-04-26:00.44.31.025" />
+			</bean>
+		</property>
+	</bean>
+	
+	<bean id="DatabaseMessageArchiveService"
+		class="com.linuxbox.enkive.statistics.StatisticsMongoDBProperties">
+		<constructor-arg ref="Mongo" />
+		<constructor-arg type="java.lang.String" value="${enkive.messagestore.db.name}" />
+	</bean>
+	
+	<bean id="CollectionMessageArchiveService"
+		class="com.linuxbox.enkive.statistics.StatisticsMongoCollectionProperties">
+		<constructor-arg ref="Mongo" />
+		<constructor-arg type="java.lang.String" value="${enkive.messagestore.db.name}" />
+	</bean>
+	
+	<bean id="RuntimeMessageArchiveService"
+		class="com.linuxbox.enkive.statistics.StatisticsRuntimeProperties">
+	</bean>
+	
 	<bean id="StatisticsGatherer" class="com.linuxbox.enkive.statistics.StatisticsGatherer">
 		<constructor-arg>
 			<map>
 				<entry key="MessageArchiveStatisticsService" value-ref="MessageArchiveStatisticsService" />
+				<entry key="DetailedMessageArchiveService" value-ref="DetailedMessageArchiveService" />
+				<entry key="AttachmentMessageArchiveService" value-ref="AttachmentMessageArchiveService" />
+				<entry key="DatabaseMessageArchiveService" value-ref="DatabaseMessageArchiveService" />
+				<entry key="CollectionMessageArchiveService" value-ref="CollectionMessageArchiveService" />
+				<entry key="RuntimeMessageArchiveService" value-ref="RuntimeMessageArchiveService" />
 			</map>
 		</constructor-arg>
 	</bean>
