@@ -215,7 +215,9 @@ public class MongoLockService extends AbstractRetryingLockService implements
 		return result;
 	}
 
-	public DBCollection getCollection() {
-		return lockCollection;
+	@Override
+	public void ensureIndex(DBObject index, DBObject options)
+			throws MongoException {
+		lockCollection.ensureIndex(index, options);
 	}
 }

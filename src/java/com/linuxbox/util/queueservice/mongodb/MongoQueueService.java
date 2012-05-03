@@ -33,13 +33,11 @@ import org.bson.types.BSONTimestamp;
 import org.bson.types.ObjectId;
 
 import com.linuxbox.util.mongodb.MongoIndexable;
-import com.linuxbox.util.mongodb.MongoIndexable.IndexDescription;
 import com.linuxbox.util.queueservice.AbstractQueueEntry;
 import com.linuxbox.util.queueservice.QueueEntry;
 import com.linuxbox.util.queueservice.QueueService;
 import com.linuxbox.util.queueservice.QueueServiceException;
 import com.mongodb.BasicDBObject;
-import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
@@ -279,7 +277,8 @@ public class MongoQueueService implements QueueService, MongoIndexable {
 	}
 
 	@Override
-	public DBCollection getCollection() {
-		return queueCollection;
+	public void ensureIndex(DBObject index, DBObject options)
+			throws MongoException {
+		queueCollection.ensureIndex(index, options);
 	}
 }

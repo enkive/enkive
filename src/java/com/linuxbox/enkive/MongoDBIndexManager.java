@@ -41,8 +41,8 @@ import com.linuxbox.util.mongodb.MongoIndexable;
 import com.linuxbox.util.mongodb.MongoIndexable.IndexDescription;
 import com.linuxbox.util.queueservice.QueueService;
 import com.mongodb.BasicDBObjectBuilder;
-import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
+import com.mongodb.MongoException;
 
 public class MongoDBIndexManager {
 	/**
@@ -103,19 +103,21 @@ public class MongoDBIndexManager {
 		return pref.getDescription().equals(actualKey);
 	}
 
-	public static void ensureIndex(DBCollection collection,
-			IndexDescription desiredIndex, boolean inBackground) {
+	public static void ensureIndex(MongoIndexable service,
+			IndexDescription desiredIndex, boolean inBackground)
+			throws MongoException {
 		final DBObject options = BasicDBObjectBuilder.start()
 				.add("name", desiredIndex.getName())
 				.add("unique", desiredIndex.isUnique())
 				.add("background", inBackground).get();
-		collection.ensureIndex(desiredIndex.getDescription(), options);
+		service.ensureIndex(desiredIndex.getDescription(), options);
 	}
 
-	public static void ensureIndexes(DBCollection collection,
-			List<IndexDescription> desiredIndexes, boolean inBackground) {
+	public static void ensureIndexes(MongoIndexable service,
+			List<IndexDescription> desiredIndexes, boolean inBackground)
+			throws MongoException {
 		for (IndexDescription index : desiredIndexes) {
-			ensureIndex(collection, index, inBackground);
+			ensureIndex(service, index, inBackground);
 		}
 	}
 
@@ -155,10 +157,10 @@ public class MongoDBIndexManager {
 					String input = in.readLine();
 
 					if (input.equalsIgnoreCase("c")) {
-						ensureIndex(service.getCollection(), pref, true);
+						ensureIndex(service, pref, true);
 						break;
 					} else if (input.equalsIgnoreCase("c!")) {
-						ensureIndex(service.getCollection(), pref, false);
+						ensureIndex(service, pref, false);
 						break;
 					} else if (input.equalsIgnoreCase("s")) {
 						break;
@@ -173,6 +175,11 @@ public class MongoDBIndexManager {
 					}
 				}
 			} catch (IOException e) {
+				System.err.println("Error: " + e.getLocalizedMessage());
+				System.err
+						.println("Switching into report-only mode for remainder of run.");
+				reportOnly = true;
+			} catch (MongoException e) {
 				System.err.println("Error: " + e.getLocalizedMessage());
 				System.err
 						.println("Switching into report-only mode for remainder of run.");

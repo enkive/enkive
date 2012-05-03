@@ -451,18 +451,18 @@ public class MongoGridDocStoreService extends AbstractDocStoreService implements
 
 	@Override
 	public List<DBObject> getIndexInfo() {
-	return filesCollection.getIndexInfo();
+		return filesCollection.getIndexInfo();
 	}
 
 	@Override
 	public List<IndexDescription> getPreferredIndexes() {
-		LinkedList<IndexDescription> result = new LinkedList<IndexDescription>();
+		List<IndexDescription> result = new LinkedList<IndexDescription>();
 
 		/*
-		 * NOTE: we DO NOT NEED a filename index, because by default GridFS
-		 * will create an index on filename and upload date. You can
-		 * efficiently query on compound indexes if the key searched for
-		 * come before those that are not, which is true in this case.
+		 * NOTE: we DO NOT NEED a filename index, because by default GridFS will
+		 * create an index on filename and upload date. You can efficiently
+		 * query on compound indexes if the key searched for come before those
+		 * that are not, which is true in this case.
 		 * 
 		 * DBObject filenameIndex = BasicDBObjectBuilder.start()
 		 * .add(FILENAME_KEY, 1).get();
@@ -473,15 +473,16 @@ public class MongoGridDocStoreService extends AbstractDocStoreService implements
 		// we'll search on just status rather than on just timestamp
 		DBObject searchIndexingIndex = BasicDBObjectBuilder.start()
 				.add(INDEX_STATUS_KEY, 1).add(INDEX_TIMESTAMP_KEY, 1).get();
-		IndexDescription id1 = new IndexDescription("indexingStatusIndex", searchIndexingIndex,
-				false);
+		IndexDescription id1 = new IndexDescription("indexingStatusIndex",
+				searchIndexingIndex, false);
 		result.add(id1);
 
 		return result;
 	}
 
 	@Override
-	public DBCollection getCollection() {
-		return filesCollection;
+	public void ensureIndex(DBObject index, DBObject options)
+			throws MongoException {
+		filesCollection.ensureIndex(index, options);
 	}
 }

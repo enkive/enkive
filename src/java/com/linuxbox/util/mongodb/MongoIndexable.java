@@ -22,8 +22,8 @@ package com.linuxbox.util.mongodb;
 
 import java.util.List;
 
-import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
+import com.mongodb.MongoException;
 
 /**
  * This interface can be applied to a service with a MongoDB back-end, allowing
@@ -62,6 +62,7 @@ public interface MongoIndexable {
 	public List<DBObject> getIndexInfo();
 
 	public List<IndexDescription> getPreferredIndexes();
-	
-	public DBCollection getCollection();
+
+	public void ensureIndex(DBObject index, DBObject options)
+			throws MongoException;
 }

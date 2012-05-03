@@ -312,7 +312,7 @@ public class MongoAuditService implements AuditService, MongoIndexable {
 	}
 
 	@Override
-	public DBCollection getCollection() {
-		return auditCollection;
+	public void ensureIndex(DBObject index, DBObject options) throws MongoException {
+		auditCollection.ensureIndex(index, options);
 	}
 }
