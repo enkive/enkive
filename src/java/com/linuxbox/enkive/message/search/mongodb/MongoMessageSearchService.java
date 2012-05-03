@@ -130,8 +130,7 @@ public class MongoMessageSearchService extends AbstractMessageSearchService {
 								Pattern.CASE_INSENSITIVE);
 						senderQuery.add(new BasicDBObject(MAIL_FROM,
 								addressRegex));
-						senderQuery
-								.add(new BasicDBObject(FROM, addressRegex));
+						senderQuery.add(new BasicDBObject(FROM, addressRegex));
 					}
 
 					searchAddressesQuery.add(new BasicDBObject("$or",
@@ -232,12 +231,9 @@ public class MongoMessageSearchService extends AbstractMessageSearchService {
 						&& fields.get(DATE_LATEST_PARAMETER) != null
 						&& !fields.get(DATE_LATEST_PARAMETER).isEmpty()) {
 					try {
-					/*	Date dateLatest = NUMERIC_SEARCH_FORMAT.parse(fields
-								.get(DATE_LATEST_PARAMETER));
-						dateQuery.put("$lte", dateLatest);
-					*/  Calendar c = Calendar.getInstance();
+						Calendar c = Calendar.getInstance();
 						c.setTime(NUMERIC_SEARCH_FORMAT.parse(fields
-							.get(DATE_LATEST_PARAMETER)));
+								.get(DATE_LATEST_PARAMETER)));
 						c.add(Calendar.DATE, 1);
 						Date dateLatest = c.getTime();
 						dateQuery.put("$lte", dateLatest);

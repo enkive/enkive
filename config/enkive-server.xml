@@ -5,55 +5,11 @@
 	default-init-method="startup" default-destroy-method="shutdown">
 
 	<import resource="enkive-properties.xml" />
+	<import resource="resources/*-service.xml" />
 
 	<bean id="EnkiveFilters" class="com.linuxbox.enkive.filter.EnkiveFiltersBean">
 	</bean>
 
-	<bean id="DocStoreService"
-		class="com.linuxbox.enkive.docstore.mongogrid.MongoGridDocStoreService">
-		<constructor-arg ref="Mongo" />
-		<constructor-arg type="java.lang.String" value="${enkive.docstore.db.name}" />
-		<constructor-arg type="java.lang.String"
-			value="${enkive.docstore.fs.collection.name}" />
-
-		<property name="documentLockingService" ref="DocLockService" />
-		<property name="indexerQueueService" ref="IndexerQueueService" />
-		<property name="inMemoryLimit" value="${enkive.docstore.buffersize}" />
-	</bean>
-
-	<bean id="DocSearchIndexService"
-		class="com.linuxbox.enkive.docsearch.indri.IndriDocSearchIndexService">
-		<constructor-arg ref="DocStoreService" />
-		<constructor-arg ref="ContentAnalyzer" />
-		<constructor-arg value="${enkive.docsearch.index.indri.index}" />
-		<constructor-arg value="${enkive.docsearch.index.indri.tmp}" />
-		<constructor-arg value="${enkive.docsearch.index.indri.repoll.ms}" />
-
-		<property name="indexEnvironmentDocLimit" value="${enkive.docsearch.index.indri.envDocLimit}" />
-		<property name="indexEnvironmentRefreshInterval"
-			value="${enkive.docsearch.index.indri.indexRefreshingInterval}" />
-		<property name="indexEnvironmentMemory" value="${enkive.docsearch.index.indri.memory}" />
-		<property name="indexerQueueService" ref="IndexerQueueService" />
-		<property name="queryEnvironmentRefreshInterval"
-			value="${enkive.docsearch.index.indri.queryRefreshingInterval}" />
-		<property name="documentLockingService" ref="DocLockService" />
-
-		<!-- control index sharding -->
-		<property name="shardingHelper" ref="IndexShardingHelper" />
-		<!-- NOTE: to turn off indexing, change the value below from 0 to -1 -->
-		<property name="shardIndex" value="0" />
-	</bean>
-
-	<bean id="DocSearchQueryService"
-		class="com.linuxbox.enkive.docsearch.indri.IndriDocSearchQueryService">
-		<property name="indexPathsString" value="${enkive.docsearch.query.indri.indexPaths}" />
-		<property name="indexServersString" value="${enkive.docsearch.query.indri.indexServers}" />
-		<property name="queryEnvironmentRefreshInterval"
-			value="${enkive.docsearch.query.indri.refreshInterval}" />
-	</bean>
-
-	<bean id="ContentAnalyzer"
-		class="com.linuxbox.enkive.docsearch.contentanalyzer.tika.TikaContentAnalyzer" />
 
 	<bean id="DocLockService" class="com.linuxbox.util.lockservice.mongodb.MongoLockService">
 		<constructor-arg ref="Mongo" />
@@ -66,73 +22,6 @@
 		<constructor-arg ref="Mongo" />
 		<constructor-arg value="${enkive.queueservice.db.name}" />
 		<constructor-arg value="queueService" />
-	</bean>
-
-	<bean id="MessageArchivingService"
-		class="com.linuxbox.enkive.archiver.ThreadSafeMessageArchivingService">
-		<property name="lockService" ref="DocLockService" />
-		<property name="messageArchivingService" ref="MongoMessageArchivingService" />
-	</bean>
-
-	<bean id="MongoMessageArchivingService"
-		class="com.linuxbox.enkive.archiver.mongodb.MongoArchivingService">
-		<constructor-arg ref="Mongo" />
-		<constructor-arg type="java.lang.String" value="${enkive.messagestore.db.name}" />
-		<constructor-arg type="java.lang.String"
-			value="${enkive.messagestore.collection.name}" />
-		<property name="auditService" ref="AuditLogService" />
-		<property name="docStoreService" ref="DocStoreService" />
-		<property name="emergencySaveRoot" value="${enkive.messagestore.emergencysave.root}" />
-	</bean>
-
-	<bean id="MessageRetrieverService"
-		class="com.linuxbox.enkive.retriever.PermissionsEnforcingMessageRetrieverService">
-		<property name="permService" ref="PermissionService" />
-		<property name="retrieverService" ref="MongoMessageRetrieverService" />
-		<property name="auditService" ref="AuditLogService" />
-	</bean>
-
-	<bean id="MongoMessageRetrieverService"
-		class="com.linuxbox.enkive.retriever.mongodb.MongoRetrieverService">
-		<constructor-arg ref="Mongo" />
-		<constructor-arg type="java.lang.String" value="${enkive.messagestore.db.name}" />
-		<constructor-arg type="java.lang.String"
-			value="${enkive.messagestore.collection.name}" />
-		<property name="docStoreService" ref="DocStoreService" />
-		<property name="auditService" ref="AuditLogService" />
-	</bean>
-
-	<bean id="MessageSearchService"
-		class="com.linuxbox.enkive.message.search.TaskPoolAsyncMessageSearchService">
-		<constructor-arg value="${enkive.messageSearch.corePoolSize}" />
-		<constructor-arg value="${enkive.messageSearch.maxPoolSize}" />
-		<constructor-arg value="${enkive.messageSearch.keepAliveTime}" />
-		<property name="authenticationService" ref="AuthenticationService" />
-		<property name="workspaceService" ref="WorkspaceService" />
-		<property name="messageSearchService" ref="RetentionPolicyEnforcingMessageSearchService" />
-	</bean>
-
-	<bean id="RetentionPolicyEnforcingMessageSearchService"
-		class="com.linuxbox.enkive.message.search.RetentionPolicyEnforcingMessageSearchService">
-		<property name="messageRetentionPolicy" ref="MessageRetentionPolicy" />
-		<property name="messageSearchService" ref="PermissionsEnforcingMessageSearchService" />
-	</bean>
-
-	<bean id="PermissionsEnforcingMessageSearchService"
-		class="com.linuxbox.enkive.message.search.PermissionsEnforcingAuditLoggingMessageSearchService">
-		<property name="permService" ref="PermissionService" />
-		<property name="authenticationService" ref="AuthenticationService" />
-		<property name="messageSearchService" ref="SystemMessageSearchService" />
-		<property name="auditService" ref="AuditLogService" />
-	</bean>
-
-	<bean id="SystemMessageSearchService"
-		class="com.linuxbox.enkive.message.search.mongodb.MongoMessageSearchService">
-		<constructor-arg ref="Mongo" />
-		<constructor-arg type="java.lang.String" value="${enkive.messagestore.db.name}" />
-		<constructor-arg type="java.lang.String"
-			value="${enkive.messagestore.collection.name}" />
-		<property name="docSearchService" ref="DocSearchQueryService" />
 	</bean>
 
 	<bean id="ThreadPoolServerConfiguration"
@@ -210,7 +99,6 @@
 		<property name="permissionService" ref="PermissionService" />
 	</bean>
 
-
 	<bean id="MongoWorkspaceService"
 		class="com.linuxbox.enkive.workspace.mongo.MongoWorkspaceService">
 		<constructor-arg ref="Mongo" />
@@ -256,100 +144,12 @@
 		<property name="cronExpression" value="10 * * * * ?" />
 	</bean>
 
-	<!-- String to Date Transformation Tool -->
-	<bean id="dateFormat" class="java.text.SimpleDateFormat">
-		<constructor-arg value="yyyy-MM-dd:kk.mm.ss.SSS" />
-	</bean>
-	
-	<!-- Statistics Gathering related beans -->
-	<bean id="MessageArchiveStatisticsService"
-		class="com.linuxbox.enkive.statistics.message.MongoMessageStatisticsService">
-		<constructor-arg ref="Mongo" />
-		<constructor-arg type="java.lang.String" value="${enkive.messagestore.db.name}" />
-		<constructor-arg type="java.lang.String"
-			value="${enkive.messagestore.collection.name}" />
-	</bean>
-	
-	<bean id="DetailedMessageArchiveService"
-		class="com.linuxbox.enkive.statistics.StatisticsMsgEntries">
-		<property name="searchService" ref="SystemMessageSearchService" />
-		<constructor-arg type="java.lang.String"
-			value="2001-11-18" />
-		<constructor-arg type="java.lang.String"
-			value="2001-11-18" />
-	</bean>
-
-	<bean id="AttachmentMessageArchiveService"
-		class="com.linuxbox.enkive.statistics.StatisticsMongoAttachments">
-		<constructor-arg ref="Mongo" />
-		<constructor-arg type="java.lang.String" value="${enkive.messagestore.db.name}" />
-		<property name = "upper">
-			<bean factory-bean="dateFormat" factory-method="parse">
-				<constructor-arg value= "2012-04-26:20.44.31.025" />
-			</bean>
-		</property>
-		
-		<property name = "lower">
-			<bean factory-bean="dateFormat" factory-method="parse">
-				<constructor-arg value= "2012-04-26:00.44.31.025" />
-			</bean>
-		</property>
-	</bean>
-	
-	<bean id="DatabaseMessageArchiveService"
-		class="com.linuxbox.enkive.statistics.StatisticsMongoDBProperties">
-		<constructor-arg ref="Mongo" />
-		<constructor-arg type="java.lang.String" value="${enkive.messagestore.db.name}" />
-	</bean>
-	
-	<bean id="CollectionMessageArchiveService"
-		class="com.linuxbox.enkive.statistics.StatisticsMongoCollectionProperties">
-		<constructor-arg ref="Mongo" />
-		<constructor-arg type="java.lang.String" value="${enkive.messagestore.db.name}" />
-	</bean>
-	
-	<bean id="RuntimeMessageArchiveService"
-		class="com.linuxbox.enkive.statistics.StatisticsRuntimeProperties">
-	</bean>
-	
-	<bean id="StatisticsGatherer" class="com.linuxbox.enkive.statistics.StatisticsGatherer">
-		<constructor-arg>
-			<map>
-				<entry key="MessageArchiveStatisticsService" value-ref="MessageArchiveStatisticsService" />
-				<entry key="DetailedMessageArchiveService" value-ref="DetailedMessageArchiveService" />
-				<entry key="AttachmentMessageArchiveService" value-ref="AttachmentMessageArchiveService" />
-				<entry key="DatabaseMessageArchiveService" value-ref="DatabaseMessageArchiveService" />
-				<entry key="CollectionMessageArchiveService" value-ref="CollectionMessageArchiveService" />
-				<entry key="RuntimeMessageArchiveService" value-ref="RuntimeMessageArchiveService" />
-			</map>
-		</constructor-arg>
-	</bean>
-
-	<bean id="StatisticsEmailer" class="com.linuxbox.enkive.statistics.StatisticsReportEmailer">
-		<constructor-arg ref="StatisticsGatherer" />
-		<property name="to" value="lee@linuxbox.com" />
-		<property name="from" value="lee@linuxbox.com" />
-		<property name="mailHost" value="thunderbeast.private.linuxbox.com" />
-	</bean>
-
-	<bean id="StatisticsEmailerJob"
-		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
-		<property name="targetObject" ref="StatisticsEmailer" />
-		<property name="targetMethod" value="sendReport" />
-		<property name="concurrent" value="false" />
-	</bean>
-
-	<bean id="StatisticsEmailerTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
-		<property name="jobDetail" ref="StatisticsEmailerJob" />
-		<property name="cronExpression" value="10 * * * * ?" />
-	</bean>
-
 	<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
 		<property name="triggers">
 			<list>
 				<!-- Uncomment the next line to enable message retention policy -->
 				<!-- <ref bean="MessageRetentionTrigger" /> -->
-				<ref bean="StatisticsEmailerTrigger" />
+				<ref bean="StatisticsReportTrigger" />
 			</list>
 		</property>
 	</bean>

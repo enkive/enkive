@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd"
+	default-init-method="startup" default-destroy-method="shutdown">
+
+	<bean id="DocStoreService"
+		class="com.linuxbox.enkive.docstore.mongogrid.MongoGridDocStoreService">
+		<constructor-arg ref="Mongo" />
+		<constructor-arg type="java.lang.String" value="${enkive.docstore.db.name}" />
+		<constructor-arg type="java.lang.String"
+			value="${enkive.docstore.fs.collection.name}" />
+
+		<property name="documentLockingService" ref="DocLockService" />
+		<property name="indexerQueueService" ref="IndexerQueueService" />
+		<property name="inMemoryLimit" value="${enkive.docstore.buffersize}" />
+	</bean>
+
+	<bean id="DocSearchIndexService"
+		class="com.linuxbox.enkive.docsearch.indri.IndriDocSearchIndexService">
+		<constructor-arg ref="DocStoreService" />
+		<constructor-arg ref="ContentAnalyzer" />
+		<constructor-arg value="${enkive.docsearch.index.indri.index}" />
+		<constructor-arg value="${enkive.docsearch.index.indri.tmp}" />
+		<constructor-arg value="${enkive.docsearch.index.indri.repoll.ms}" />
+
+		<property name="indexEnvironmentDocLimit" value="${enkive.docsearch.index.indri.envDocLimit}" />
+		<property name="indexEnvironmentRefreshInterval"
+			value="${enkive.docsearch.index.indri.indexRefreshingInterval}" />
+		<property name="indexEnvironmentMemory" value="${enkive.docsearch.index.indri.memory}" />
+		<property name="indexerQueueService" ref="IndexerQueueService" />
+		<property name="queryEnvironmentRefreshInterval"
+			value="${enkive.docsearch.index.indri.queryRefreshingInterval}" />
+		<property name="documentLockingService" ref="DocLockService" />
+
+		<!-- control index sharding -->
+		<property name="shardingHelper" ref="IndexShardingHelper" />
+		<!-- NOTE: to turn off indexing, change the value below from 0 to -1 -->
+		<property name="shardIndex" value="0" />
+	</bean>
+
+	<bean id="DocSearchQueryService"
+		class="com.linuxbox.enkive.docsearch.indri.IndriDocSearchQueryService">
+		<property name="indexPathsString" value="${enkive.docsearch.query.indri.indexPaths}" />
+		<property name="indexServersString" value="${enkive.docsearch.query.indri.indexServers}" />
+		<property name="queryEnvironmentRefreshInterval"
+			value="${enkive.docsearch.query.indri.refreshInterval}" />
+	</bean>
+
+	<bean id="ContentAnalyzer"
+		class="com.linuxbox.enkive.docsearch.contentanalyzer.tika.TikaContentAnalyzer" />
+		
+</beans>

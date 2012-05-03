@@ -71,8 +71,7 @@ public class StatisticsReportEmailer {
 			message.setText(buildReport());
 
 			// Send message
-			//Transport.send(message);
-			System.out.println(buildReport());
+			Transport.send(message);
 		} catch (MessagingException mex) {
 			mex.printStackTrace();
 		}
