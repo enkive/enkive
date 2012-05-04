@@ -52,12 +52,12 @@ public abstract class AbstractMessageImporter {
 	Socket socket = null;
 	protected int messageCount = 0;
 
-	AbstractMessageImporter(String host, String port)
+	public AbstractMessageImporter(String host, String port)
 			throws UnknownHostException {
 		this(InetAddress.getByName(host), Integer.parseInt(port));
 	}
 
-	AbstractMessageImporter(InetAddress host, int port) {
+	public AbstractMessageImporter(InetAddress host, int port) {
 		this.host = host;
 		this.port = port;
 	}
