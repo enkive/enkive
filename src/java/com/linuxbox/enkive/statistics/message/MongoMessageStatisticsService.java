@@ -1,16 +1,18 @@
 package com.linuxbox.enkive.statistics.message;
 
-import static com.linuxbox.enkive.statistics.StatisticsConstants.ARCHIVE_SIZE;
+import static com.linuxbox.enkive.statistics.StatsConstants.ARCHIVE_SIZE;
+
+import java.util.Map;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.linuxbox.enkive.statistics.StatisticsService;
+import com.linuxbox.enkive.statistics.StatsService;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.Mongo;
 
-public class MongoMessageStatisticsService implements StatisticsService {
+public class MongoMessageStatisticsService implements StatsService {
 
 	protected Mongo m = null;
 	protected DB messageDb;
@@ -29,4 +31,8 @@ public class MongoMessageStatisticsService implements StatisticsService {
 		return result;
 	}
 
+	public JSONObject getStatisticsJSON(Map<String,String> map) throws JSONException{
+		//TODO: Implement
+		return getStatisticsJSON();
+	}
 }

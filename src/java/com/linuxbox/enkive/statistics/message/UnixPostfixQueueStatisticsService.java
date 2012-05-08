@@ -1,18 +1,19 @@
 package com.linuxbox.enkive.statistics.message;
 
-import static com.linuxbox.enkive.statistics.StatisticsConstants.QUEUE_LENGTH;
-import static com.linuxbox.enkive.statistics.StatisticsConstants.STATISTIC_CHECK_ERROR;
+import static com.linuxbox.enkive.statistics.StatsConstants.QUEUE_LENGTH;
+import static com.linuxbox.enkive.statistics.StatsConstants.STATISTIC_CHECK_ERROR;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Map;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.linuxbox.enkive.statistics.StatisticsService;
+import com.linuxbox.enkive.statistics.StatsService;
 
-public class UnixPostfixQueueStatisticsService implements StatisticsService {
+public class UnixPostfixQueueStatisticsService implements StatsService {
 
 	// public static String POSTFIX_QUEUE_COMMAND = "postqueue -p";
 	public static String POSTQUEUE_OUTPUT_MANIPULATOR_PIPELINE = " | grep Requests | cut -d' ' -f 5";
@@ -38,5 +39,10 @@ public class UnixPostfixQueueStatisticsService implements StatisticsService {
 		// Output should be just what we need if it was cut correctly
 		String output = bri.readLine();
 		return Integer.parseInt(output);
+	}
+	
+	public JSONObject getStatisticsJSON(Map<String,String> map) throws JSONException{
+		//TODO: Implement
+		return getStatisticsJSON();
 	}
 }

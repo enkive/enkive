@@ -5,23 +5,56 @@
 	default-init-method="startup" default-destroy-method="shutdown">
 
 	<!-- Statistics Gathering related beans -->
-	<bean id="MessageArchiveStatisticsService"
+	<bean id="MsgStatsService"
 		class="com.linuxbox.enkive.statistics.message.MongoMessageStatisticsService">
 		<constructor-arg ref="Mongo" />
 		<constructor-arg type="java.lang.String" value="${enkive.messagestore.db.name}" />
 		<constructor-arg type="java.lang.String"
 			value="${enkive.messagestore.collection.name}" />
 	</bean>
+	
+	<bean id="DetailedMsgStatsService"
+		class="com.linuxbox.enkive.statistics.StatsMsgEntries">
+		<property name="searchService" ref="SystemMessageSearchService" />
+	</bean>
 
-	<bean id="StatisticsGatherer" class="com.linuxbox.enkive.statistics.StatisticsGatherer">
+	<bean id="AttachmentStatsService"
+		class="com.linuxbox.enkive.statistics.StatsMongoAttachments">
+		<constructor-arg ref="Mongo" />
+		<constructor-arg type="java.lang.String" value="${enkive.messagestore.db.name}" />
+		<constructor-arg type="java.lang.String" value="${enkive.docstore.fs.collection.name}" />
+	</bean>
+	
+	<bean id="DatabaseStatsService"
+		class="com.linuxbox.enkive.statistics.StatsMongoDBProperties">
+		<constructor-arg ref="Mongo" />
+		<constructor-arg type="java.lang.String" value="${enkive.messagestore.db.name}" />
+	</bean>
+	
+	<bean id="CollectionStatsService"
+		class="com.linuxbox.enkive.statistics.StatsMongoCollectionProperties">
+		<constructor-arg ref="Mongo" />
+		<constructor-arg type="java.lang.String" value="${enkive.messagestore.db.name}" />
+	</bean>
+	
+	<bean id="RuntimeStatsService"
+		class="com.linuxbox.enkive.statistics.StatsRuntimeProperties">
+	</bean>
+
+	<bean id="StatisticsGatherer" class="com.linuxbox.enkive.statistics.StatsGatherer">
 		<constructor-arg>
 			<map>
-				<entry key="MessageArchiveStatisticsService" value-ref="MessageArchiveStatisticsService" />
+				<entry key="MsgStatsService" value-ref="MsgStatsService" />
+				<entry key="DetailedMsgStatsService" value-ref="DetailedMsgStatsService" />
+				<entry key="AttachmentStatsService" value-ref="AttachmentStatsService" />
+				<entry key="DatabaseStatsService" value-ref="DatabaseStatsService" />
+				<entry key="CollectionStatsService" value-ref="CollectionStatsService" />
+				<entry key="RuntimeStatsService" value-ref="RuntimeStatsService" />
 			</map>
 		</constructor-arg>
 	</bean>
 
-	<bean id="StatisticsEmailer" class="com.linuxbox.enkive.statistics.StatisticsReportEmailer">
+	<bean id="StatisticsEmailer" class="com.linuxbox.enkive.statistics.StatsReportEmailer">
 		<constructor-arg ref="StatisticsGatherer" />
 		<property name="to" value="lee@linuxbox.com" />
 		<property name="from" value="lee@linuxbox.com" />
@@ -29,7 +62,7 @@
 	</bean>
 
 	<bean id="StatisticsWriter"
-		class="com.linuxbox.enkive.statistics.StatisticsReportLogWriter">
+		class="com.linuxbox.enkive.statistics.StatsReportLogWriter">
 		<constructor-arg ref="StatisticsGatherer" />
 	</bean>
 

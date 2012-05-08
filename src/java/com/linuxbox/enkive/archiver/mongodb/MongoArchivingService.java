@@ -316,6 +316,7 @@ public class MongoArchivingService extends AbstractMessageArchivingService {
 		BasicDBObject nestedMessageQuery = new BasicDBObject(
 				NESTED_MESSAGE_ID_LIST, messageId);
 		System.out.println(nestedMessageQuery.toString());
+		@SuppressWarnings("unused")
 		DBCursor results = messageColl.find(nestedMessageQuery);
 		//return (results.size() > 0);
 		return true;

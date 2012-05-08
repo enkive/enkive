@@ -32,6 +32,11 @@ import com.linuxbox.enkive.docstore.mongogrid.MongoGridDocStoreServiceTest;
 import com.linuxbox.enkive.filter.EnkiveFilterTest;
 import com.linuxbox.enkive.message.retention.MongoMessageRetentionPolicyEnforcementTest;
 import com.linuxbox.enkive.retriever.mongodb.MongoRetrieverServiceTest;
+import com.linuxbox.enkive.teststats.StatsMongoAttachTest;
+import com.linuxbox.enkive.teststats.StatsMongoCollTest;
+import com.linuxbox.enkive.teststats.StatsMongoDBTest;
+import com.linuxbox.enkive.teststats.StatsMsgEntriesTest;
+import com.linuxbox.enkive.teststats.StatsRuntimeTest;
 import com.linuxbox.util.HashingInputStreamTest;
 import com.linuxbox.util.mongodb.MongoLockingServiceTest;
 import com.linuxbox.util.queueservice.mongodb.MongoQueueServiceTest;
@@ -41,8 +46,10 @@ import com.linuxbox.util.queueservice.mongodb.MongoQueueServiceTest;
 		AbstractDocStoreServiceTest.class, MongoAuditServiceTest.class,
 		MongoLockingServiceTest.class, MongoQueueServiceTest.class,
 		MongoGridDocStoreServiceTest.class, MongoArchivingServiceTest.class,
-		MongoRetrieverServiceTest.class,
-		MongoMessageRetentionPolicyEnforcementTest.class,
+		StatsMongoDBTest.class, StatsMongoCollTest.class,
+		StatsMsgEntriesTest.class, StatsRuntimeTest.class,
+		StatsMongoAttachTest.class, MongoRetrieverServiceTest.class,
+		MongoMessageRetentionPolicyEnforcementTest.class, //has problems (infinite loop problems)
 		// Unimplemented - IndriQueryComposerTest.class,
 		EnkiveFilterTest.class })
 public class AllTests {
