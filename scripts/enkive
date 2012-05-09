@@ -8,14 +8,24 @@
 # processname: enkive
 #
 
-ENKIVE_OWNER=`whoami`
-ENKIVE_HOME=`pwd`
-ENKIVE_LOG_PATH=$ENKIVE_HOME/data/logs
-ENKIVE_PID_FILE=$ENKIVE_HOME/data/enkive.pid
-ENKIVE_CLASSPATH=$ENKIVE_HOME/enkive.jar:$ENKIVE_HOME/lib/*:$ENKIVE_HOME/lib/spring/*:$ENKIVE_HOME/config/
+
+# system administrator likely wants to edit the following variables
+
+ENKIVE_OWNER=$(whoami)
+ENKIVE_HOME=$(pwd)
 JSVC=/usr/local/bin/jsvc
 JAVA_HOME=/usr/lib/jvm/java-openjdk
-INDRI_SO_PATH=/usr/local/lib/
+INDRI_SO_PATH=/usr/local/lib
+
+
+# system administrator may not (or may) want to edit the following
+
+ENKIVE_LOG_PATH=$ENKIVE_HOME/data/logs
+ENKIVE_PID_FILE=$ENKIVE_HOME/data/enkive.pid
+ENKIVE_CLASSPATH=$ENKIVE_HOME/enkive.jar:$ENKIVE_HOME/lib/*:$ENKIVE_HOME/lib/spring/*:$ENKIVE_HOME/config
+
+
+# the following should likely not be edited
 
 RETVAL=0
 
@@ -27,6 +37,7 @@ start() {
         sleep 2
         echo
 }
+
 stop() {
 		cd $ENKIVE_HOME
         echo -n "Stopping Enkive: "
@@ -48,7 +59,7 @@ case "$1" in
         start
         ;;
   *)
-    	echo $"Usage: enkive {start|stop|restart}"
+        echo "Usage: $0 {start|stop|restart}"
         RETVAL=1
 esac
 

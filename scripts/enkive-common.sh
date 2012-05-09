@@ -18,10 +18,10 @@
 JAVA_HOME=/opt/java
 
 # path to the top level of enkive
-ENKIVE_HOME=/home/eric/enkive/workspace/enkive2
+ENKIVE_HOME=/opt/enkive
 
 # path to directory that contains file "libindri_jni.so"
-INDRI_SO_PATH=/home/eric/enkive/indri/lib
+INDRI_SO_PATH=/usr/local/lib
 
 
 # TESTING OF THE ABOVE
