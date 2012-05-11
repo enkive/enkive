@@ -25,9 +25,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.ConstructorArgumentValues;
 import org.springframework.beans.factory.config.ConstructorArgumentValues.ValueHolder;
@@ -47,6 +50,9 @@ import com.mongodb.DBObject;
 import com.mongodb.MongoException;
 
 public class MongoDBIndexManager {
+	protected static final Log LOGGER = LogFactory
+			.getLog("com.linuxbox.enkive");
+
 	/**
 	 * The set of services that might have MongoDB indices.
 	 */
@@ -56,8 +62,15 @@ public class MongoDBIndexManager {
 			new Service("DocStoreService", DocStoreService.class),
 			new Service("IndexerQueueService", QueueService.class), };
 
+	/**
+	 * The xml file to use if we need to build our own beans.
+	 */
 	static final String[] CONFIG_FILES = { "enkive-server.xml" };
 
+	/**
+	 * How many documents are allowed in a collection if we automatically ensure
+	 * that the index exists.
+	 */
 	static public final long MAX_DOCS_FOR_AUTO_ENSURE_INDEX = 100;
 
 	/**
@@ -66,21 +79,18 @@ public class MongoDBIndexManager {
 	AbstractApplicationContext context;
 
 	/**
-	 * Whether to give user opportunity to create index when one isn't found.
+	 * Basic constructor.
+	 * 
+	 * @param context
 	 */
-	boolean reportOnly = false;
-	
 	public MongoDBIndexManager(AbstractApplicationContext context) {
 		this.context = context;
 	}
 
 	/**
 	 * Thrown when the user has decided to quit.
-	 * 
-	 * @author eric
-	 * 
 	 */
-	class QuitException extends Exception {
+	static class QuitException extends Exception {
 		private static final long serialVersionUID = 6931399708421895460L;
 		// empty
 	}
@@ -103,13 +113,14 @@ public class MongoDBIndexManager {
 		public void hasIndex(IndexDescription pref);
 
 		public void doesNotHaveIndex(MongoIndexable service,
-				IndexDescription pref) throws QuitException;
+				String serviceName, IndexDescription pref) throws QuitException;
 	}
 
 	class ConsoleIndexActions implements IndexActions {
 		BufferedReader in;
 		PrintStream out;
 		PrintStream err;
+		boolean reportOnly = false;
 
 		public ConsoleIndexActions(InputStream input, PrintStream output,
 				PrintStream error) {
@@ -136,7 +147,7 @@ public class MongoDBIndexManager {
 
 		@Override
 		public void doesNotHaveIndex(MongoIndexable service,
-				IndexDescription pref) throws QuitException {
+				String serviceName, IndexDescription pref) throws QuitException {
 			try {
 				while (true) {
 					out.println("*** Index \"" + pref.getName()
@@ -190,13 +201,25 @@ public class MongoDBIndexManager {
 	class AutoIndexActions implements IndexActions {
 		final long maxCount;
 
+		List<UnavailableIndex> unavailableIndexes = new LinkedList<UnavailableIndex>();
+
+		class UnavailableIndex {
+			String serviceName;
+			String indexName;
+
+			UnavailableIndex(String serviceName, String indexName) {
+				this.serviceName = serviceName;
+				this.indexName = indexName;
+			}
+		}
+
 		public AutoIndexActions(long maxCount) {
 			this.maxCount = maxCount;
 		}
 
 		@Override
 		public void notMongoIndexable(String name) {
-			// empty
+			LOGGER.debug(name + " is not MongoIndexable");
 		}
 
 		@Override
@@ -206,14 +229,23 @@ public class MongoDBIndexManager {
 
 		@Override
 		public void hasIndex(IndexDescription pref) {
-			// empty
+			LOGGER.debug(pref.getName() + " already exists");
 		}
 
 		@Override
 		public void doesNotHaveIndex(MongoIndexable service,
-				IndexDescription pref) {
-			if (service.getDocumentCount() <= maxCount) {
+				String serviceName, IndexDescription pref) {
+			final long count = service.getDocumentCount();
+			final String combinedName = serviceName + ":" + pref.getName();
+			LOGGER.debug(combinedName + " does not exist; collection has "
+					+ count + " documents");
+			if (count <= maxCount) {
+				LOGGER.info("creating " + combinedName + " in background");
 				ensureIndex(service, pref, true);
+			} else {
+				unavailableIndexes.add(new UnavailableIndex(serviceName, pref
+						.getName()));
+				LOGGER.debug("will not create " + combinedName);
 			}
 		}
 	}
@@ -241,7 +273,7 @@ public class MongoDBIndexManager {
 	}
 
 	void matchIndexes(IndexActions actions, MongoIndexable service,
-			List<IndexDescription> preferredIndexes,
+			String serviceName, List<IndexDescription> preferredIndexes,
 			List<DBObject> actualIndexes) throws QuitException {
 		preferred: for (IndexDescription pref : preferredIndexes) {
 			for (DBObject actual : actualIndexes) {
@@ -250,17 +282,18 @@ public class MongoDBIndexManager {
 					continue preferred;
 				}
 			}
-			actions.doesNotHaveIndex(service, pref);
+			actions.doesNotHaveIndex(service, serviceName, pref);
 		}
 	}
 
-	void doCheckService(IndexActions actions, MongoIndexable indexable)
-			throws QuitException {
+	void doCheckService(IndexActions actions, MongoIndexable indexable,
+			String serviceName) throws QuitException {
 		List<IndexDescription> preferredIndexes = indexable
 				.getPreferredIndexes();
 		List<DBObject> actualIndexes = indexable.getIndexInfo();
 
-		matchIndexes(actions, indexable, preferredIndexes, actualIndexes);
+		matchIndexes(actions, indexable, serviceName, preferredIndexes,
+				actualIndexes);
 	}
 
 	void checkService(IndexActions actions, String name, Object service)
@@ -272,7 +305,7 @@ public class MongoDBIndexManager {
 
 		actions.checkingIntro(name);
 		MongoIndexable indexable = (MongoIndexable) service;
-		doCheckService(actions, indexable);
+		doCheckService(actions, indexable, name);
 	}
 
 	/*
@@ -331,9 +364,8 @@ public class MongoDBIndexManager {
 		System.out.println("done");
 	}
 
-	public void runCheckAndAutoEnsure() {
-		AutoIndexActions actions = new AutoIndexActions(
-				MAX_DOCS_FOR_AUTO_ENSURE_INDEX);
+	public void runCheckAndAutoEnsure(long maxDocuments) {
+		AutoIndexActions actions = new AutoIndexActions(maxDocuments);
 		try {
 			for (Service service : SERVICES) {
 				final Object theService = context.getBean(service.name,
@@ -342,6 +374,26 @@ public class MongoDBIndexManager {
 			}
 		} catch (QuitException e) {
 			// empty
+		}
+
+		if (!actions.unavailableIndexes.isEmpty()) {
+			boolean first = true;
+			StringBuffer list = new StringBuffer();
+
+			for (AutoIndexActions.UnavailableIndex ui : actions.unavailableIndexes) {
+				if (!first) {
+					list.append(", ");
+				} else {
+					first = false;
+				}
+				list.append(ui.serviceName + ":" + ui.indexName);
+			}
+
+			LOGGER.warn("Please run Enkive's MongoDB index tool; Enkive's MongoDB is missing "
+					+ actions.unavailableIndexes.size()
+					+ " index(es) ["
+					+ list
+					+ "]");
 		}
 	}
 
@@ -362,15 +414,22 @@ public class MongoDBIndexManager {
 		}
 	}
 
-	public static void checkAndAutoEnsure(AbstractApplicationContext context) {
+	public static void checkAndAutoEnsureMongoIndexes(
+			AbstractApplicationContext context, long maxDocuments) {
 		MongoDBIndexManager manager = new MongoDBIndexManager(context);
-		manager.runCheckAndAutoEnsure();
+		manager.runCheckAndAutoEnsure(maxDocuments);
+	}
+
+	public static void checkAndAutoEnsureMongoIndexes(
+			AbstractApplicationContext context) {
+		checkAndAutoEnsureMongoIndexes(context, MAX_DOCS_FOR_AUTO_ENSURE_INDEX);
 	}
 
 	public static void main(String[] args) {
 		final AbstractApplicationContext context = new ClassPathXmlApplicationContext(
 				CONFIG_FILES);
 		context.registerShutdownHook();
+
 		new MongoDBIndexManager(context).runConsole();
 
 		context.close();

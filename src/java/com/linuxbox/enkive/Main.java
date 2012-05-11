@@ -60,6 +60,8 @@ public abstract class Main {
 
 			auditService.addEvent(AuditService.SYSTEM_STARTUP, USER,
 					DESCRIPTION);
+			
+			MongoDBIndexManager.checkAndAutoEnsureMongoIndexes(context);
 
 			doEventLoop(context);
 
