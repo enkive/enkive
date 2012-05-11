@@ -294,25 +294,29 @@ public class MongoAuditService implements AuditService, MongoIndexable {
 				false);
 		result.add(id1);
 
-
-		final DBObject whatWhenIndex = new BasicDBObject(CODE_FIELD, 1)
-				.append(TIMESTAMP_FIELD, -1);
-		IndexDescription id2 = new IndexDescription(CODE_TIMESTAMP_INDEX, whatWhenIndex,
-				false);
+		final DBObject whatWhenIndex = new BasicDBObject(CODE_FIELD, 1).append(
+				TIMESTAMP_FIELD, -1);
+		IndexDescription id2 = new IndexDescription(CODE_TIMESTAMP_INDEX,
+				whatWhenIndex, false);
 		result.add(id2);
 
-		
 		final DBObject whoWhenIndex = new BasicDBObject(USERNAME_FIELD, 1)
 				.append(TIMESTAMP_FIELD, -1);
-		IndexDescription id3 = new IndexDescription(USER_TIMESTAMP_INDEX, whoWhenIndex,
-				false);
+		IndexDescription id3 = new IndexDescription(USER_TIMESTAMP_INDEX,
+				whoWhenIndex, false);
 		result.add(id3);
 
 		return result;
 	}
 
 	@Override
-	public void ensureIndex(DBObject index, DBObject options) throws MongoException {
+	public void ensureIndex(DBObject index, DBObject options)
+			throws MongoException {
 		auditCollection.ensureIndex(index, options);
+	}
+
+	@Override
+	public long getDocumentCount() throws MongoException {
+		return auditCollection.count();
 	}
 }

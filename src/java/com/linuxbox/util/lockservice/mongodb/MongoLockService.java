@@ -220,4 +220,9 @@ public class MongoLockService extends AbstractRetryingLockService implements
 			throws MongoException {
 		lockCollection.ensureIndex(index, options);
 	}
+	
+	@Override
+	public long getDocumentCount() throws MongoException {
+		return lockCollection.count();
+	}
 }

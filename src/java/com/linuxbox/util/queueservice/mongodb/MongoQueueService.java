@@ -281,4 +281,9 @@ public class MongoQueueService implements QueueService, MongoIndexable {
 			throws MongoException {
 		queueCollection.ensureIndex(index, options);
 	}
+
+	@Override
+	public long getDocumentCount() throws MongoException {
+		return queueCollection.count();
+	}
 }

@@ -485,4 +485,9 @@ public class MongoGridDocStoreService extends AbstractDocStoreService implements
 			throws MongoException {
 		filesCollection.ensureIndex(index, options);
 	}
+	
+	@Override
+	public long getDocumentCount() throws MongoException {
+		return filesCollection.count();
+	}
 }

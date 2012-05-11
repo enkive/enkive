@@ -65,4 +65,6 @@ public interface MongoIndexable {
 
 	public void ensureIndex(DBObject index, DBObject options)
 			throws MongoException;
+
+	public long getDocumentCount() throws MongoException;
 }

@@ -22,7 +22,9 @@ package com.linuxbox.enkive;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.PrintStream;
 import java.util.List;
 import java.util.Map;
 
@@ -56,15 +58,21 @@ public class MongoDBIndexManager {
 
 	static final String[] CONFIG_FILES = { "enkive-server.xml" };
 
-	static final BufferedReader in = new BufferedReader(new InputStreamReader(
-			System.in));
-	
-	/**
-	 * Whether to give user opportunity to create index when one isn't
-	 * found.
-	 */
-	static boolean reportOnly = false;
+	static public final long MAX_DOCS_FOR_AUTO_ENSURE_INDEX = 100;
 
+	/**
+	 * The application context that we're using.
+	 */
+	AbstractApplicationContext context;
+
+	/**
+	 * Whether to give user opportunity to create index when one isn't found.
+	 */
+	boolean reportOnly = false;
+	
+	public MongoDBIndexManager(AbstractApplicationContext context) {
+		this.context = context;
+	}
 
 	/**
 	 * Thrown when the user has decided to quit.
@@ -72,7 +80,7 @@ public class MongoDBIndexManager {
 	 * @author eric
 	 * 
 	 */
-	static class QuitException extends Exception {
+	class QuitException extends Exception {
 		private static final long serialVersionUID = 6931399708421895460L;
 		// empty
 	}
@@ -87,79 +95,63 @@ public class MongoDBIndexManager {
 		}
 	}
 
-	public static void main(String[] args) {
-		final AbstractApplicationContext context = new ClassPathXmlApplicationContext(
-				CONFIG_FILES);
-		context.registerShutdownHook();
+	interface IndexActions {
+		public void notMongoIndexable(String name);
 
-		try {
-			for (Service service : SERVICES) {
-				final Object theService = context.getBean(service.name,
-						service.klass);
-				checkService(service.name, theService);
-			}
+		public void checkingIntro(String name);
 
-			System.out.println("Done; all indexes checked.");
-		} catch (QuitException e) {
-			System.out.println("Quitting at user request.");
+		public void hasIndex(IndexDescription pref);
+
+		public void doesNotHaveIndex(MongoIndexable service,
+				IndexDescription pref) throws QuitException;
+	}
+
+	class ConsoleIndexActions implements IndexActions {
+		BufferedReader in;
+		PrintStream out;
+		PrintStream err;
+
+		public ConsoleIndexActions(InputStream input, PrintStream output,
+				PrintStream error) {
+			this.in = new BufferedReader(new InputStreamReader(input));
+			this.out = output;
+			this.err = error;
 		}
 
-		context.close();
-	}
-
-	public static boolean indexesMatch(IndexDescription pref, DBObject actual) {
-		DBObject actualKey = (DBObject) actual.get("key");
-		return pref.getDescription().equals(actualKey);
-	}
-
-	public static void ensureIndex(MongoIndexable service,
-			IndexDescription desiredIndex, boolean inBackground)
-			throws MongoException {
-		final DBObject options = BasicDBObjectBuilder.start()
-				.add("name", desiredIndex.getName())
-				.add("unique", desiredIndex.isUnique())
-				.add("background", inBackground).get();
-		service.ensureIndex(desiredIndex.getDescription(), options);
-	}
-
-	public static void ensureIndexes(MongoIndexable service,
-			List<IndexDescription> desiredIndexes, boolean inBackground)
-			throws MongoException {
-		for (IndexDescription index : desiredIndexes) {
-			ensureIndex(service, index, inBackground);
+		@Override
+		public void notMongoIndexable(String name) {
+			System.out.println(name + " is not a MongoDB indexable service.");
 		}
-	}
 
-	public static void matchIndexes(MongoIndexable service,
-			List<IndexDescription> preferredIndexes,
-			List<DBObject> actualIndexes) throws QuitException {
-		preferred: for (IndexDescription pref : preferredIndexes) {
-			for (DBObject actual : actualIndexes) {
-				if (indexesMatch(pref, actual)) {
-					System.out.println("    Index \"" + pref.getName()
-							+ "\" exists.");
-					continue preferred;
-				}
-			}
+		@Override
+		public void checkingIntro(String name) {
+			System.out.println("Checking indexes for " + name + "....");
+		}
 
+		@Override
+		public void hasIndex(IndexDescription pref) {
+			System.out.println("    Index \"" + pref.getName() + "\" exists.");
+
+		}
+
+		@Override
+		public void doesNotHaveIndex(MongoIndexable service,
+				IndexDescription pref) throws QuitException {
 			try {
 				while (true) {
-					System.out.println("*** Index \"" + pref.getName()
+					out.println("*** Index \"" + pref.getName()
 							+ "\" does not appear to exist.");
 					if (reportOnly) {
 						break;
 					}
 
-					System.out.println("        Options:");
-					System.out
-							.println("            (c)reate index in the background");
-					System.out
-							.println("            (c!)reate index in the foreground");
-					System.out.println("            (s)kip this index");
-					System.out
-							.println("            (r)eport on other indexes without further prompts");
-					System.out.println("            (q)uit this program");
-					System.out.print("        Your choice: ");
+					out.println("        Options:");
+					out.println("            (c)reate index in the background");
+					out.println("            (c!)reate index in the foreground");
+					out.println("            (s)kip this index");
+					out.println("            (r)eport on other indexes without further prompts");
+					out.println("            (q)uit this program");
+					out.print("        Your choice: ");
 
 					String input = in.readLine();
 
@@ -177,42 +169,110 @@ public class MongoDBIndexManager {
 					} else if (input.equalsIgnoreCase("q")) {
 						throw new QuitException();
 					} else {
-						System.out.println();
-						System.out.println("    *** ERROR: unknown choice \""
-								+ input + "\".");
-						System.out.println();
+						out.println();
+						err.println("    *** ERROR: unknown choice \"" + input
+								+ "\".");
+						out.println();
 					}
 				}
 			} catch (IOException e) {
-				System.err.println("Error: " + e.getLocalizedMessage());
-				System.err
-						.println("Switching into report-only mode for remainder of run.");
+				err.println("Error: " + e.getLocalizedMessage());
+				err.println("Switching into report-only mode for remainder of run.");
 				reportOnly = true;
 			} catch (MongoException e) {
-				System.err.println("Error: " + e.getLocalizedMessage());
-				System.err
-						.println("Switching into report-only mode for remainder of run.");
+				err.println("Error: " + e.getLocalizedMessage());
+				err.println("Switching into report-only mode for remainder of run.");
 				reportOnly = true;
 			}
 		}
 	}
 
-	public static void checkService(String name, Object service)
-			throws QuitException {
-		if (!(service instanceof MongoIndexable)) {
-			System.out.println(name + " is not a MongoDB indexable service.");
-			return;
+	class AutoIndexActions implements IndexActions {
+		final long maxCount;
+
+		public AutoIndexActions(long maxCount) {
+			this.maxCount = maxCount;
 		}
 
-		System.out.println("Checking indexes for " + name + "....");
+		@Override
+		public void notMongoIndexable(String name) {
+			// empty
+		}
 
-		MongoIndexable indexable = (MongoIndexable) service;
+		@Override
+		public void checkingIntro(String name) {
+			// empty
+		}
 
+		@Override
+		public void hasIndex(IndexDescription pref) {
+			// empty
+		}
+
+		@Override
+		public void doesNotHaveIndex(MongoIndexable service,
+				IndexDescription pref) {
+			if (service.getDocumentCount() <= maxCount) {
+				ensureIndex(service, pref, true);
+			}
+		}
+	}
+
+	boolean indexesMatch(IndexDescription pref, DBObject actual) {
+		DBObject actualKey = (DBObject) actual.get("key");
+		return pref.getDescription().equals(actualKey);
+	}
+
+	void ensureIndex(MongoIndexable service, IndexDescription desiredIndex,
+			boolean inBackground) throws MongoException {
+		final DBObject options = BasicDBObjectBuilder.start()
+				.add("name", desiredIndex.getName())
+				.add("unique", desiredIndex.isUnique())
+				.add("background", inBackground).get();
+		service.ensureIndex(desiredIndex.getDescription(), options);
+	}
+
+	void ensureIndexes(MongoIndexable service,
+			List<IndexDescription> desiredIndexes, boolean inBackground)
+			throws MongoException {
+		for (IndexDescription index : desiredIndexes) {
+			ensureIndex(service, index, inBackground);
+		}
+	}
+
+	void matchIndexes(IndexActions actions, MongoIndexable service,
+			List<IndexDescription> preferredIndexes,
+			List<DBObject> actualIndexes) throws QuitException {
+		preferred: for (IndexDescription pref : preferredIndexes) {
+			for (DBObject actual : actualIndexes) {
+				if (indexesMatch(pref, actual)) {
+					actions.hasIndex(pref);
+					continue preferred;
+				}
+			}
+			actions.doesNotHaveIndex(service, pref);
+		}
+	}
+
+	void doCheckService(IndexActions actions, MongoIndexable indexable)
+			throws QuitException {
 		List<IndexDescription> preferredIndexes = indexable
 				.getPreferredIndexes();
 		List<DBObject> actualIndexes = indexable.getIndexInfo();
 
-		matchIndexes(indexable, preferredIndexes, actualIndexes);
+		matchIndexes(actions, indexable, preferredIndexes, actualIndexes);
+	}
+
+	void checkService(IndexActions actions, String name, Object service)
+			throws QuitException {
+		if (!(service instanceof MongoIndexable)) {
+			actions.notMongoIndexable(name);
+			return;
+		}
+
+		actions.checkingIntro(name);
+		MongoIndexable indexable = (MongoIndexable) service;
+		doCheckService(actions, indexable);
 	}
 
 	/*
@@ -269,5 +329,50 @@ public class MongoDBIndexManager {
 		}
 
 		System.out.println("done");
+	}
+
+	public void runCheckAndAutoEnsure() {
+		AutoIndexActions actions = new AutoIndexActions(
+				MAX_DOCS_FOR_AUTO_ENSURE_INDEX);
+		try {
+			for (Service service : SERVICES) {
+				final Object theService = context.getBean(service.name,
+						service.klass);
+				checkService(actions, service.name, theService);
+			}
+		} catch (QuitException e) {
+			// empty
+		}
+	}
+
+	public void runConsole() {
+		try {
+			ConsoleIndexActions actions = new ConsoleIndexActions(System.in,
+					System.out, System.err);
+
+			for (Service service : SERVICES) {
+				final Object theService = context.getBean(service.name,
+						service.klass);
+				checkService(actions, service.name, theService);
+			}
+
+			System.out.println("Done; all indexes checked.");
+		} catch (QuitException e) {
+			System.out.println("Quitting at user request.");
+		}
+	}
+
+	public static void checkAndAutoEnsure(AbstractApplicationContext context) {
+		MongoDBIndexManager manager = new MongoDBIndexManager(context);
+		manager.runCheckAndAutoEnsure();
+	}
+
+	public static void main(String[] args) {
+		final AbstractApplicationContext context = new ClassPathXmlApplicationContext(
+				CONFIG_FILES);
+		context.registerShutdownHook();
+		new MongoDBIndexManager(context).runConsole();
+
+		context.close();
 	}
 }
