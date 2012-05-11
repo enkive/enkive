@@ -49,6 +49,20 @@ import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DBObject;
 import com.mongodb.MongoException;
 
+/**
+ * This class tries to determine whether all preferred MongoDB indexes for a
+ * given service exist. And if a given index does not exist, it can be created.
+ * The core code has to be shared by two different functions. One is a
+ * command-line tool to manage indexes. The other is during start-up. The
+ * developers of MongoDB have indicated it's bad practice simply to call
+ * ensure_index during start-up, as creating an index could take quite a while,
+ * and if it's created in the foreground, the DB is otherwise unusable while the
+ * index is being created. So we provide a menu-based system administration tool
+ * that will analyze the indexes and offer to create (ensure) any that are
+ * missing. Also, to simply system administration, when Enkive starts up, it can
+ * check for missing indexes and create those if there are sufficiently few
+ * documents (so it won't take very long).
+ */
 public class MongoDBIndexManager {
 	protected static final Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive");
@@ -63,7 +77,7 @@ public class MongoDBIndexManager {
 			new Service("IndexerQueueService", QueueService.class), };
 
 	/**
-	 * The xml file to use if we need to build our own beans.
+	 * The xml file to use if we need to build our own beans and context.
 	 */
 	static final String[] CONFIG_FILES = { "enkive-server.xml" };
 
@@ -74,7 +88,7 @@ public class MongoDBIndexManager {
 	static public final long MAX_DOCS_FOR_AUTO_ENSURE_INDEX = 100;
 
 	/**
-	 * The application context that we're using.
+	 * The application context we're using.
 	 */
 	AbstractApplicationContext context;
 
@@ -105,43 +119,69 @@ public class MongoDBIndexManager {
 		}
 	}
 
+	/**
+	 * We want the index checking code to be run both as a console-based tool
+	 * and as part of the start-up of the system. So this interface describes
+	 * the methods that will define the different actions in these two
+	 * circumstances.
+	 */
 	interface IndexActions {
+		/**
+		 * Called if a service is not MongoIndexable.
+		 */
 		public void notMongoIndexable(String name);
 
-		public void checkingIntro(String name);
+		/**
+		 * Called if a service is MongoIndexable.
+		 */
+		public void isMongoIndexable(String name);
 
+		/**
+		 * Called if a service has a preferred index.
+		 */
 		public void hasIndex(IndexDescription pref);
 
+		/**
+		 * Called if a service does not have a preferred index.
+		 */
 		public void doesNotHaveIndex(MongoIndexable service,
 				String serviceName, IndexDescription pref) throws QuitException;
 	}
 
+	/**
+	 * These are the actions that the console tool will use.
+	 */
 	class ConsoleIndexActions implements IndexActions {
 		BufferedReader in;
 		PrintStream out;
 		PrintStream err;
-		boolean reportOnly = false;
+
+		/**
+		 * Whether in report-only mode -- no further queries made to the user.
+		 */
+		boolean reportOnly;
 
 		public ConsoleIndexActions(InputStream input, PrintStream output,
 				PrintStream error) {
 			this.in = new BufferedReader(new InputStreamReader(input));
 			this.out = output;
 			this.err = error;
+			reportOnly = false;
 		}
 
 		@Override
 		public void notMongoIndexable(String name) {
-			System.out.println(name + " is not a MongoDB indexable service.");
+			out.println(name + " is not a MongoDB indexable service.");
 		}
 
 		@Override
-		public void checkingIntro(String name) {
-			System.out.println("Checking indexes for " + name + "....");
+		public void isMongoIndexable(String name) {
+			out.println("Checking indexes for " + name + "....");
 		}
 
 		@Override
 		public void hasIndex(IndexDescription pref) {
-			System.out.println("    Index \"" + pref.getName() + "\" exists.");
+			out.println("    Index \"" + pref.getName() + "\" exists.");
 
 		}
 
@@ -223,7 +263,7 @@ public class MongoDBIndexManager {
 		}
 
 		@Override
-		public void checkingIntro(String name) {
+		public void isMongoIndexable(String name) {
 			// empty
 		}
 
@@ -250,11 +290,19 @@ public class MongoDBIndexManager {
 		}
 	}
 
+	/**
+	 * Returns true if the preferred index matches the index found.
+	 */
 	boolean indexesMatch(IndexDescription pref, DBObject actual) {
 		DBObject actualKey = (DBObject) actual.get("key");
 		return pref.getDescription().equals(actualKey);
 	}
 
+	/**
+	 * Run the MongoDB ensure_index function on the service provided, creating
+	 * the index provided. Can be ensured in the foreground or background
+	 * depending on value of background.
+	 */
 	void ensureIndex(MongoIndexable service, IndexDescription desiredIndex,
 			boolean inBackground) throws MongoException {
 		final DBObject options = BasicDBObjectBuilder.start()
@@ -264,17 +312,15 @@ public class MongoDBIndexManager {
 		service.ensureIndex(desiredIndex.getDescription(), options);
 	}
 
-	void ensureIndexes(MongoIndexable service,
-			List<IndexDescription> desiredIndexes, boolean inBackground)
-			throws MongoException {
-		for (IndexDescription index : desiredIndexes) {
-			ensureIndex(service, index, inBackground);
-		}
-	}
+	/**
+	 * Given a service, find out both its preferred indexes and the indexes it
+	 * actually has. Handle any of the missing preferred indexes accordingly.
+	 */
+	void doCheckService(IndexActions actions, MongoIndexable service,
+			String serviceName) throws QuitException {
+		List<IndexDescription> preferredIndexes = service.getPreferredIndexes();
+		List<DBObject> actualIndexes = service.getIndexInfo();
 
-	void matchIndexes(IndexActions actions, MongoIndexable service,
-			String serviceName, List<IndexDescription> preferredIndexes,
-			List<DBObject> actualIndexes) throws QuitException {
 		preferred: for (IndexDescription pref : preferredIndexes) {
 			for (DBObject actual : actualIndexes) {
 				if (indexesMatch(pref, actual)) {
@@ -286,16 +332,10 @@ public class MongoDBIndexManager {
 		}
 	}
 
-	void doCheckService(IndexActions actions, MongoIndexable indexable,
-			String serviceName) throws QuitException {
-		List<IndexDescription> preferredIndexes = indexable
-				.getPreferredIndexes();
-		List<DBObject> actualIndexes = indexable.getIndexInfo();
-
-		matchIndexes(actions, indexable, serviceName, preferredIndexes,
-				actualIndexes);
-	}
-
+	/**
+	 * See if a service is or is not MongoIndexable. If it is, check its
+	 * indexes.
+	 */
 	void checkService(IndexActions actions, String name, Object service)
 			throws QuitException {
 		if (!(service instanceof MongoIndexable)) {
@@ -303,8 +343,9 @@ public class MongoDBIndexManager {
 			return;
 		}
 
-		actions.checkingIntro(name);
+		actions.isMongoIndexable(name);
 		MongoIndexable indexable = (MongoIndexable) service;
+
 		doCheckService(actions, indexable, name);
 	}
 
@@ -364,7 +405,7 @@ public class MongoDBIndexManager {
 		System.out.println("done");
 	}
 
-	public void runCheckAndAutoEnsure(long maxDocuments) {
+	void runCheckAndAutoEnsure(long maxDocuments) {
 		AutoIndexActions actions = new AutoIndexActions(maxDocuments);
 		try {
 			for (Service service : SERVICES) {
@@ -397,7 +438,7 @@ public class MongoDBIndexManager {
 		}
 	}
 
-	public void runConsole() {
+	void runConsole() {
 		try {
 			ConsoleIndexActions actions = new ConsoleIndexActions(System.in,
 					System.out, System.err);
