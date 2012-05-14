@@ -19,11 +19,14 @@ public class MongodbMessageRetentionPolicyEnforcer extends
 			HashMap<String, String> retentionPolicyCriteria = retentionPolicy
 					.getRetentionPolicyCriteria();
 			retentionPolicyCriteria.remove(LIMIT_PARAMETER);
+			retentionPolicy.setRetentionPolicyCriteria(retentionPolicyCriteria);
 			for (String messageId : mongoSearchService
-					.searchImpl(retentionPolicyCriteria)) {
+					.searchImpl(retentionPolicy.retentionPolicyCriteriaToSearchFields())) {
 				if (messageArchivingService.removeMessage(messageId))
 					LOGGER.info("Message Removed by retention policy: "
 							+ messageId);
+				if (this.shutdown)
+					break;
 			}
 		} catch (MessageSearchException e) {
 			LOGGER.warn(
@@ -31,5 +34,4 @@ public class MongodbMessageRetentionPolicyEnforcer extends
 					e);
 		}
 	}
-
 }

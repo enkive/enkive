@@ -52,7 +52,8 @@ public class MessageRetentionPolicy {
 					.get(RETENTION_PERIOD);
 			int retentionPeriod = Integer.parseInt(retentionPeriodString);
 			Calendar retentionCal = Calendar.getInstance();
-			retentionCal.add(Calendar.DATE, (-1 * retentionPeriod));
+			// Add a day here since we're using the latest date parameter
+			retentionCal.add(Calendar.DATE, (-1 * (retentionPeriod + 1)));
 			Date retentionDate = retentionCal.getTime();
 			retentionSearchFields.put(DATE_LATEST_PARAMETER,
 					NUMERIC_SEARCH_FORMAT.format(retentionDate));

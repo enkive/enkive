@@ -36,6 +36,8 @@ public class MessageRetentionPolicyEnforcer {
 	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.messageRetentionPolicyEnforcer");
 
+	protected boolean shutdown = false;
+	
 	protected MessageSearchService searchService;
 	protected MessageArchivingService messageArchivingService;
 	protected MessageRetentionPolicy retentionPolicy;
@@ -45,6 +47,7 @@ public class MessageRetentionPolicyEnforcer {
 	}
 
 	public void enforceMessageRetentionPolicies() {
+
 		try {
 			SearchResult result;
 			if (Integer.parseInt(retentionPolicy.getRetentionPolicyCriteria()
@@ -69,7 +72,6 @@ public class MessageRetentionPolicyEnforcer {
 			throws MessageSearchException {
 		return searchService.search(retentionPolicy
 				.retentionPolicyCriteriaToSearchFields());
-
 	}
 
 	public MessageSearchService getSearchService() {
@@ -97,4 +99,8 @@ public class MessageRetentionPolicyEnforcer {
 		this.messageArchivingService = messageArchivingService;
 	}
 
+	public void shutdown(){
+		this.shutdown = true;
+	}
+	
 }

@@ -7,9 +7,7 @@
 	<import resource="enkive-properties.xml" />
 	<import resource="resources/*-service.xml" />
 
-	<bean id="EnkiveFilters" class="com.linuxbox.enkive.filter.EnkiveFiltersBean">
-	</bean>
-
+	<bean id="EnkiveFilters" class="com.linuxbox.enkive.filter.EnkiveFiltersBean" />
 
 	<bean id="DocLockService" class="com.linuxbox.util.lockservice.mongodb.MongoLockService">
 		<constructor-arg ref="Mongo" />
@@ -126,7 +124,7 @@
 	</bean>
 
 	<bean name="MessageRetentionPolicyEnforcer"
-		class="com.linuxbox.enkive.message.retention.MessageRetentionPolicyEnforcer">
+		class="com.linuxbox.enkive.message.retention.mongodb.MongodbMessageRetentionPolicyEnforcer">
 		<property name="searchService" ref="SystemMessageSearchService" />
 		<property name="retentionPolicy" ref="MessageRetentionPolicy" />
 		<property name="messageArchivingService" ref="MessageArchivingService" />
@@ -141,15 +139,15 @@
 
 	<bean id="MessageRetentionTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
 		<property name="jobDetail" ref="MessageRetentionJob" />
-		<property name="cronExpression" value="10 * * * * ?" />
+		<property name="cronExpression" value="0 0 3 * * ?" />
 	</bean>
 
 	<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
 		<property name="triggers">
 			<list>
 				<!-- Uncomment the next line to enable message retention policy -->
-				<!-- <ref bean="MessageRetentionTrigger" /> -->
-				<ref bean="StatisticsReportTrigger" />
+				<!-- <ref bean="MessageRetentionTrigger" />  -->
+				<!-- <ref bean="StatisticsReportTrigger" /> -->
 			</list>
 		</property>
 	</bean>

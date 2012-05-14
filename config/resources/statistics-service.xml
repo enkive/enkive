@@ -42,7 +42,7 @@
 
 	<bean id="StatisticsReportTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
 		<property name="jobDetail" ref="StatisticsWriterJob" />
-		<property name="cronExpression" value="10 * * * * ?" />
+		<property name="cronExpression" value="0 0 3 * * ?" />
 	</bean>
 
 </beans>

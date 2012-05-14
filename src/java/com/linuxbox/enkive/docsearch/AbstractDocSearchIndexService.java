@@ -189,7 +189,7 @@ public abstract class AbstractDocSearchIndexService implements
 	private final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.docsearch");
 
-	private static final long MAX_SHUTTING_DOWN_WAIT = 30000;
+	private static final long MAX_SHUTTING_DOWN_WAIT = 60000;
 
 	/**
 	 * The document storage service we're feeding off of.

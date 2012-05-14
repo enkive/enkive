@@ -267,7 +267,7 @@ public class MongoArchivingService extends AbstractMessageArchivingService {
 			return result.getLastError().ok();
 
 		} else {
-			LOGGER.info("Message referenced by more than one message as nested message, not removing: "
+			LOGGER.info("Message referenced as nested message, not removing: "
 					+ messageUUID);
 			return false;
 		}
@@ -315,10 +315,8 @@ public class MongoArchivingService extends AbstractMessageArchivingService {
 	private boolean messageReferencedAsNestedMessage(String messageId) {
 		BasicDBObject nestedMessageQuery = new BasicDBObject(
 				NESTED_MESSAGE_ID_LIST, messageId);
-		System.out.println(nestedMessageQuery.toString());
 		DBCursor results = messageColl.find(nestedMessageQuery);
-		//return (results.size() > 0);
-		return true;
+		return (results.size() > 0);
 	}
 
 	@Override
