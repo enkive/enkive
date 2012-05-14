@@ -199,7 +199,7 @@ public class MongoLockService extends AbstractRetryingLockService implements
 
 	@Override
 	public List<IndexDescription> getPreferredIndexes() {
-		LinkedList<IndexDescription> result = new LinkedList<IndexDescription>();
+		List<IndexDescription> result = new LinkedList<IndexDescription>();
 
 		/*
 		 * We want the identifier index to be unique, as that's how we
@@ -220,7 +220,7 @@ public class MongoLockService extends AbstractRetryingLockService implements
 			throws MongoException {
 		lockCollection.ensureIndex(index, options);
 	}
-	
+
 	@Override
 	public long getDocumentCount() throws MongoException {
 		return lockCollection.count();

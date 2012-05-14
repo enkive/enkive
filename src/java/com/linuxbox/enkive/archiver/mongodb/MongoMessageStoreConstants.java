@@ -20,7 +20,6 @@
 package com.linuxbox.enkive.archiver.mongodb;
 
 public interface MongoMessageStoreConstants {
-
 	String MESSAGE_UUID = "_id";
 	String ARCHIVE_TIME = "archive_time";
 	String ATTACHMENT_ID = "attachment_id";
@@ -31,5 +30,6 @@ public interface MongoMessageStoreConstants {
 	String MULTIPART_HEADER_TYPE = "multiPartHeader";
 	String SINGLE_PART_HEADER_TYPE = "singlePartHeader";
 	String PART_HEADERS = "partHeaders";
-
+	String ATTACHMENT_ID_INDEX = "attachment_id_index";
+	String NESTED_MESSAGE_ID_INDEX = "nested_msg_id_index";
 }

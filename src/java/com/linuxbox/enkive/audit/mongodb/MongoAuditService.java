@@ -283,7 +283,7 @@ public class MongoAuditService implements AuditService, MongoIndexable {
 
 	@Override
 	public List<IndexDescription> getPreferredIndexes() {
-		LinkedList<IndexDescription> result = new LinkedList<IndexDescription>();
+		List<IndexDescription> result = new LinkedList<IndexDescription>();
 
 		// For MongoDB multi-key indexes to work the most efficiently, the
 		// queried fields should appear before the sorting fields in the

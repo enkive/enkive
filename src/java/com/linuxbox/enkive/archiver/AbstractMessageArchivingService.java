@@ -133,7 +133,8 @@ public abstract class AbstractMessageArchivingService implements
 	}
 
 	/**
-	 * Convenience method assumes the message is not incomplete.
+	 * Convenience method assumes the message is not incomplete (i.e., the
+	 * message is complete).
 	 * 
 	 * @param data
 	 * @throws FailedToEmergencySaveException
