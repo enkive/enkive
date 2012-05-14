@@ -82,6 +82,7 @@
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/mongo-2.7.3.jar"/>
 	<classpathentry kind="lib" path="lib/quartz-1.8.6.jar"/>
+	<classpathentry kind="lib" path="lib/freemarker-2.3.18.jar"/>
 	<classpathentry kind="var" path="ENKIVE_JAVA/lib/tools.jar"/>
 	<classpathentry kind="var" path="ENKIVE_JAVA/lib/dt.jar"/>
 	<classpathentry kind="output" path="bin"/>

@@ -161,7 +161,7 @@ public abstract class AbstractMessageArchivingService implements
 			final String fileName = saveToDisk(data, messageIsIncomplete);
 			auditService.addEvent(AuditService.MESSAGE_EMERGENCY_SAVED,
 					AuditService.USER_SYSTEM, fileName);
-			if (!fileName.isEmpty())
+			if (!fileName.isEmpty() && !messageIsIncomplete)
 				messageSaved = true;
 
 		} else {

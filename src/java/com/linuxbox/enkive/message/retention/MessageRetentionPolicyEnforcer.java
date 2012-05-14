@@ -36,6 +36,8 @@ public class MessageRetentionPolicyEnforcer {
 	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.messageRetentionPolicyEnforcer");
 
+	protected boolean shutdown = false;
+	
 	protected MessageSearchService searchService;
 	protected MessageArchivingService messageArchivingService;
 	protected MessageRetentionPolicy retentionPolicy;
@@ -45,17 +47,17 @@ public class MessageRetentionPolicyEnforcer {
 	}
 
 	public void enforceMessageRetentionPolicies() {
+
 		try {
 			SearchResult result;
-			if (Integer.parseInt(retentionPolicy.getRetentionPolicyCriteria().get(
-					RETENTION_PERIOD)) > 0)
+			if (Integer.parseInt(retentionPolicy.getRetentionPolicyCriteria()
+					.get(RETENTION_PERIOD)) > 0)
 				do {
-					result = searchService.search(retentionPolicy
-							.retentionPolicyCriteriaToSearchFields());
+					result = getMessagesForDeletion();
 					for (String messageId : result.getMessageIds()) {
-						messageArchivingService.removeMessage(messageId);
-						LOGGER.info("Message Removed by retention policy: "
-								+ messageId);
+						if (messageArchivingService.removeMessage(messageId))
+							LOGGER.info("Message Removed by retention policy: "
+									+ messageId);
 					}
 				} while (result.getMessageIds().size() > 0);
 
@@ -64,6 +66,12 @@ public class MessageRetentionPolicyEnforcer {
 					"Error searching for messages while enforcing retention policy",
 					e);
 		}
+	}
+
+	protected SearchResult getMessagesForDeletion()
+			throws MessageSearchException {
+		return searchService.search(retentionPolicy
+				.retentionPolicyCriteriaToSearchFields());
 	}
 
 	public MessageSearchService getSearchService() {
@@ -91,4 +99,8 @@ public class MessageRetentionPolicyEnforcer {
 		this.messageArchivingService = messageArchivingService;
 	}
 
+	public void shutdown(){
+		this.shutdown = true;
+	}
+	
 }

@@ -126,11 +126,11 @@ public class MongoMessageSearchService extends AbstractMessageSearchService {
 
 					for (String address : fields.get(SENDER_PARAMETER).trim()
 							.split(";")) {
-
-						senderQuery.add(new BasicDBObject(MAIL_FROM, address
-								.trim()));
-						senderQuery
-								.add(new BasicDBObject(FROM, address.trim()));
+						Pattern addressRegex = Pattern.compile(address.trim(),
+								Pattern.CASE_INSENSITIVE);
+						senderQuery.add(new BasicDBObject(MAIL_FROM,
+								addressRegex));
+						senderQuery.add(new BasicDBObject(FROM, addressRegex));
 					}
 
 					searchAddressesQuery.add(new BasicDBObject("$or",
@@ -144,9 +144,12 @@ public class MongoMessageSearchService extends AbstractMessageSearchService {
 
 					for (String address : fields.get(RECIPIENT_PARAMETER)
 							.trim().split(";")) {
-						receiverQuery.add(new BasicDBObject(RCPT_TO, address));
-						receiverQuery.add(new BasicDBObject(TO, address));
-						receiverQuery.add(new BasicDBObject(CC, address));
+						Pattern addressRegex = Pattern.compile(address.trim(),
+								Pattern.CASE_INSENSITIVE);
+						receiverQuery.add(new BasicDBObject(RCPT_TO,
+								addressRegex));
+						receiverQuery.add(new BasicDBObject(TO, addressRegex));
+						receiverQuery.add(new BasicDBObject(CC, addressRegex));
 					}
 
 					searchAddressesQuery.add(new BasicDBObject("$or",
@@ -162,11 +165,12 @@ public class MongoMessageSearchService extends AbstractMessageSearchService {
 					for (String address : fields
 							.get(PERMISSIONS_SENDER_PARAMETER).trim()
 							.split(";")) {
-
+						Pattern addressRegex = Pattern.compile(address.trim(),
+								Pattern.CASE_INSENSITIVE);
 						permissionsSenderQuery.add(new BasicDBObject(MAIL_FROM,
-								address.trim()));
+								addressRegex));
 						permissionsSenderQuery.add(new BasicDBObject(FROM,
-								address.trim()));
+								addressRegex));
 					}
 
 					permissionAddressesQuery.add(new BasicDBObject("$or",
@@ -182,12 +186,14 @@ public class MongoMessageSearchService extends AbstractMessageSearchService {
 					for (String address : fields
 							.get(PERMISSIONS_RECIPIENT_PARAMETER).trim()
 							.split(";")) {
+						Pattern addressRegex = Pattern.compile(address,
+								Pattern.CASE_INSENSITIVE);
 						permissionsReceiverQuery.add(new BasicDBObject(RCPT_TO,
-								address));
+								addressRegex));
 						permissionsReceiverQuery.add(new BasicDBObject(TO,
-								address));
+								addressRegex));
 						permissionsReceiverQuery.add(new BasicDBObject(CC,
-								address));
+								addressRegex));
 					}
 
 					permissionAddressesQuery.add(new BasicDBObject("$or",
@@ -225,12 +231,9 @@ public class MongoMessageSearchService extends AbstractMessageSearchService {
 						&& fields.get(DATE_LATEST_PARAMETER) != null
 						&& !fields.get(DATE_LATEST_PARAMETER).isEmpty()) {
 					try {
-					/*	Date dateLatest = NUMERIC_SEARCH_FORMAT.parse(fields
-								.get(DATE_LATEST_PARAMETER));
-						dateQuery.put("$lte", dateLatest);
-					*/  Calendar c = Calendar.getInstance();
+						Calendar c = Calendar.getInstance();
 						c.setTime(NUMERIC_SEARCH_FORMAT.parse(fields
-							.get(DATE_LATEST_PARAMETER)));
+								.get(DATE_LATEST_PARAMETER)));
 						c.add(Calendar.DATE, 1);
 						Date dateLatest = c.getTime();
 						dateQuery.put("$lte", dateLatest);

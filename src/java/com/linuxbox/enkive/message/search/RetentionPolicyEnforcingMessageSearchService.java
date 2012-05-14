@@ -92,7 +92,8 @@ public class RetentionPolicyEnforcingMessageSearchService implements
 				.getRetentionPolicyCriteria();
 
 		if (retentionFields.get(RETENTION_PERIOD) != null
-				&& !retentionFields.get(RETENTION_PERIOD).isEmpty()) {
+				&& !retentionFields.get(RETENTION_PERIOD).isEmpty()
+				&& Integer.parseInt(retentionFields.get(RETENTION_PERIOD)) > 0) {
 
 			String retentionPeriodString = retentionFields
 					.get(RETENTION_PERIOD);
