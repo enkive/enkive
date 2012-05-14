@@ -51,11 +51,11 @@
 
 	<target name="compile" depends="setup" description="Compiles src to ${bin.dir}">
 		<mkdir dir="${bin.dir}" />
-		<javac srcdir="${source.dir}/java; ${contrib.dir}/java" destdir="${bin.dir}" source="1.5" target="1.5" debug="on" fork="yes" deprecation="on">
+		<javac srcdir="${source.dir}/java; ${contrib.dir}/java" destdir="${bin.dir}" source="1.5" target="1.5" debug="on" fork="yes" deprecation="on" includeantruntime="false">
 			<classpath refid="classpath.lib" />
 			<exclude name="${contrib.dir}/java" />
 		</javac>
-		<javac srcdir="${contrib.dir}/java" destdir="${contrib.bin.dir}" source="1.5" target="1.5" debug="on" fork="yes" deprecation="on">
+		<javac srcdir="${contrib.dir}/java" destdir="${contrib.bin.dir}" source="1.5" target="1.5" debug="on" fork="yes" deprecation="on" includeantruntime="false">
 		</javac>
 		<!-- copy in non-compiled files like props if needed -->
 		<copy todir="${bin.dir}">
@@ -72,11 +72,10 @@
 	</target>
 
 	<target name="package" depends="package-jar, build-ediscovery" description="Creates a zip called ${package.file.tar.gz} ">
-
 		<delete file="${package.file.tar.gz}" />
 		<tar destfile="${package.file.tar.gz}" compression="gzip">
 			<tarfileset file="${package.file.jar}" prefix="${label}" />
-			<tarfileset file="${scripts.dir}/enkive" prefix="${label}" />
+			<tarfileset dir="${scripts.dir}" prefix="${label}/scripts" />
 			<tarfileset dir="${config.dir}" prefix="${label}/config" />
 			<tarfileset dir="${licenses.dir}" prefix="${label}/licenses" />
 			<tarfileset dir="${jetty.dir}" prefix="${label}/jetty" />
@@ -84,7 +83,6 @@
 			<tarfileset dir="${build.dir}/data" prefix="${label}/data" />
 			<tarfileset dir="${enkive-socket-filter.dir}" includes="Makefile, README.txt, src/" prefix="${label}/support/filters/postfix/enkive-socket-filter/" />
 		</tar>
-		
 	</target>
 
 	<target name="build-ediscovery">

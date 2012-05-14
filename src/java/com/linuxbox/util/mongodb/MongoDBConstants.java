@@ -30,4 +30,13 @@ public interface MongoDBConstants {
 	String MIME_TYPE_KEY = "contentType";
 	String GRID_FS_FILES_COLLECTION_SUFFIX = ".files";
 	String GRID_FS_CHUNKS_COLLECTION_SUFFIX = ".chunks";
+
+	// Calling ensureIndex launch can be a bad idea if the index needs to be
+	// created; it could stop the system from running for hours (or days). A
+	// better practice is to run ensureIndex as part of system administration,
+	// choosing when to run it and whether to run it in the background. Rather
+	// than completely delete the orignal code that called ensureIndex, we'll
+	// just put it in a conditional on this constant. That way, the expectations
+	// are at least documented.
+	boolean CALL_ENSURE_INDEX_ON_INIT = false;
 }

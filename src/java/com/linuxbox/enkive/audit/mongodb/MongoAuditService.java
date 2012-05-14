@@ -19,9 +19,12 @@
  ******************************************************************************/
 package com.linuxbox.enkive.audit.mongodb;
 
+import static com.linuxbox.util.mongodb.MongoDBConstants.CALL_ENSURE_INDEX_ON_INIT;
+
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -33,6 +36,7 @@ import com.linuxbox.enkive.audit.AuditEntry;
 import com.linuxbox.enkive.audit.AuditService;
 import com.linuxbox.enkive.audit.AuditServiceException;
 import com.linuxbox.util.mongodb.MongoDBConstants;
+import com.linuxbox.util.mongodb.MongoIndexable;
 import com.linuxbox.util.queueservice.QueueServiceException;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
@@ -45,7 +49,7 @@ import com.mongodb.QueryBuilder;
 import com.mongodb.WriteConcern;
 import com.mongodb.WriteResult;
 
-public class MongoAuditService implements AuditService {
+public class MongoAuditService implements AuditService, MongoIndexable {
 	protected static final Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.audit.mongodb");
 
@@ -98,20 +102,11 @@ public class MongoAuditService implements AuditService {
 		this.mongoDB = mongo.getDB(database);
 		this.auditCollection = mongoDB.getCollection(collection);
 
-		// For MongoDB multi-key indexes to work the most efficiently, the
-		// queried fields should appear before the sorting fields in the
-		// indexes.
-
-		final DBObject whenIndex = new BasicDBObject(TIMESTAMP_FIELD, -1);
-		auditCollection.ensureIndex(whenIndex, TIMESTAMP_INDEX);
-
-		final DBObject whatWhenIndex = new BasicDBObject(CODE_FIELD, 1).append(
-				TIMESTAMP_FIELD, -1);
-		auditCollection.ensureIndex(whatWhenIndex, CODE_TIMESTAMP_INDEX);
-
-		final DBObject whoWhenIndex = new BasicDBObject(USERNAME_FIELD, 1)
-				.append(TIMESTAMP_FIELD, -1);
-		auditCollection.ensureIndex(whoWhenIndex, USER_TIMESTAMP_INDEX);
+		// see comments on def'n of CALL_ENSURE_INDEX_ON_INIT to see why it's
+		// done conditionally
+		if (CALL_ENSURE_INDEX_ON_INIT) {
+			// see class com.linuxbox.enkive.MongoDBIndexManager
+		}
 
 		// TODO: do we (will we) need a who, what, when index, so we can select
 		// by who/what and sort by when?
@@ -279,5 +274,49 @@ public class MongoAuditService implements AuditService {
 		final AuditEntry auditEntry = new AuditEntry(objectId, entryDate,
 				entryCode, user, description);
 		return auditEntry;
+	}
+
+	@Override
+	public List<DBObject> getIndexInfo() {
+		return auditCollection.getIndexInfo();
+	}
+
+	@Override
+	public List<IndexDescription> getPreferredIndexes() {
+		LinkedList<IndexDescription> result = new LinkedList<IndexDescription>();
+
+		// For MongoDB multi-key indexes to work the most efficiently, the
+		// queried fields should appear before the sorting fields in the
+		// indexes.
+
+		final DBObject whenIndex = new BasicDBObject(TIMESTAMP_FIELD, -1);
+		IndexDescription id1 = new IndexDescription(TIMESTAMP_INDEX, whenIndex,
+				false);
+		result.add(id1);
+
+		final DBObject whatWhenIndex = new BasicDBObject(CODE_FIELD, 1).append(
+				TIMESTAMP_FIELD, -1);
+		IndexDescription id2 = new IndexDescription(CODE_TIMESTAMP_INDEX,
+				whatWhenIndex, false);
+		result.add(id2);
+
+		final DBObject whoWhenIndex = new BasicDBObject(USERNAME_FIELD, 1)
+				.append(TIMESTAMP_FIELD, -1);
+		IndexDescription id3 = new IndexDescription(USER_TIMESTAMP_INDEX,
+				whoWhenIndex, false);
+		result.add(id3);
+
+		return result;
+	}
+
+	@Override
+	public void ensureIndex(DBObject index, DBObject options)
+			throws MongoException {
+		auditCollection.ensureIndex(index, options);
+	}
+
+	@Override
+	public long getDocumentCount() throws MongoException {
+		return auditCollection.count();
 	}
 }
