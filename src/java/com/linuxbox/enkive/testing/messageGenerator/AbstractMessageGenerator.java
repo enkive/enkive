@@ -37,6 +37,7 @@ public abstract class AbstractMessageGenerator implements MessageGenerator {
 			
 			// Now set the actual message
 			message.setText(generateMessageBody());
+			
 			return message;
 		} catch (AddressException e) {
 			// TODO Auto-generated catch block
