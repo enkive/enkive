@@ -41,7 +41,9 @@
 		class="com.linuxbox.enkive.statistics.StatsRuntimeProperties">
 	</bean>
 
-	<bean id="StatisticsGatherer" class="com.linuxbox.enkive.statistics.StatsGatherer">
+	<bean id="StatisticsGatherer" class="com.linuxbox.enkive.statistics.mongodb.MongoStatsCollectionService">
+		<constructor-arg ref="Mongo" />
+		<constructor-arg type="java.lang.String" value="${enkive.messagestore.db.name}" />
 		<constructor-arg>
 			<map>
 				<entry key="MsgStatsService" value-ref="MsgStatsService" />
@@ -73,8 +75,15 @@
 		<property name="concurrent" value="false" />
 	</bean>
 
+	<bean id="StatisticsStorageJob"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject" ref="StatisticsGatherer" />
+		<property name="targetMethod" value="storeData" />
+		<property name="concurrent" value="false" />
+	</bean>
+
 	<bean id="StatisticsReportTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
-		<property name="jobDetail" ref="StatisticsWriterJob" />
+		<property name="jobDetail" ref="StatisticsStorageJob" />
 		<property name="cronExpression" value="10 * * * * ?" />
 	</bean>
 

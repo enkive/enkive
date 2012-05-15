@@ -33,10 +33,8 @@ public class StatsGatherer {
 		while (iterator.hasNext()) {
 			Map.Entry<String, StatsService> pair = (Map.Entry<String, StatsService>) iterator
 					.next();
-			results.append(pair.getKey(), pair.getValue().getStatisticsJSON());
+			results.put(pair.getKey(), pair.getValue().getStatisticsJSON());
 		}
-		System.out.println(results.toString());
 		return results;
 	}
-
 }

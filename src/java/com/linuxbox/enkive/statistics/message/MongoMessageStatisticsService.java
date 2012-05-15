@@ -1,7 +1,7 @@
 package com.linuxbox.enkive.statistics.message;
 
 import static com.linuxbox.enkive.statistics.StatsConstants.ARCHIVE_SIZE;
-
+import static com.linuxbox.enkive.statistics.StatsConstants.*;
 import java.util.Map;
 
 import org.json.JSONException;
@@ -23,11 +23,12 @@ public class MongoMessageStatisticsService implements StatsService {
 		messageDb = m.getDB(dbName);
 		messageColl = messageDb.getCollection(collName);
 	}
-
+	
 	@Override
 	public JSONObject getStatisticsJSON() throws JSONException {
 		JSONObject result = new JSONObject();
-		result.append(ARCHIVE_SIZE, messageColl.count());
+		result.put(STAT_TIME_STAMP, System.currentTimeMillis());
+		result.put(ARCHIVE_SIZE, messageColl.count());
 		return result;
 	}
 

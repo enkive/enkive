@@ -54,7 +54,7 @@ public class StatsMongoCollTest {
 			m = new Mongo();
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
-			System.exit(0);
+			System.exit(0);	
 		} catch (MongoException e) {
 			e.printStackTrace();
 			System.exit(0);

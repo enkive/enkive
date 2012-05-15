@@ -4,7 +4,7 @@ import static com.linuxbox.enkive.statistics.StatsConstants.THIRTY_DAYS;
 
 import java.util.Date;
 import java.util.Map;
-
+import static com.linuxbox.enkive.statistics.StatsConstants.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.JSONObject;
@@ -54,7 +54,7 @@ public class StatsMongoAttachments implements StatsService {
 		return query;
 	}
 
-	public BasicDBObject getAvgAttachSize() {
+	public double getAvgAttachSize() {
 		DBCollection coll = db.getCollection(collectionName);
 		DBCursor cursor = coll.find(makeDateQuery());
 		double avgAttach;
@@ -70,10 +70,10 @@ public class StatsMongoAttachments implements StatsService {
 			avgAttach = -1;
 			LOGGER.warn("Empty Collection used in getAvgAttachSize()");
 		}
-		return new BasicDBObject("AvgAttachSize", avgAttach);
+		return avgAttach;
 	}
 
-	public BasicDBObject getMaxAttachSize() {
+	public long getMaxAttachSize() {
 		DBCollection coll = db.getCollection(collectionName);
 		DBCursor cursor = coll.find();
 		long max = -1;
@@ -87,23 +87,20 @@ public class StatsMongoAttachments implements StatsService {
 		} else {
 			LOGGER.warn("Empty Collection used in getMaxAttachSize()");
 		}
-		
-		return new BasicDBObject("MaxAttachSize", max);
+		return  max;
 	}
 	
 	public JSONObject getStatisticsJSON() {
 		long currTime = System.currentTimeMillis();
-		 
 		
 		//default sets dates to previous thirty days
 		setUpper(new Date(currTime));
 		setLower(new Date(currTime-THIRTY_DAYS));
 		
-		BasicDBObject avgStat = getAvgAttachSize();
-		BasicDBObject maxStat = getMaxAttachSize();
 		BasicDBObject stats = new BasicDBObject();
-		stats.put("avgStat", avgStat);
-		stats.put("maxStat", maxStat);
+		stats.put(STAT_AVG_ATTACH, getAvgAttachSize());
+		stats.put(STAT_MAX_ATTACH, getMaxAttachSize());
+		stats.put(STAT_TIME_STAMP, System.currentTimeMillis());
 		JSONObject result = new JSONObject(stats);
 		return result;
 	}

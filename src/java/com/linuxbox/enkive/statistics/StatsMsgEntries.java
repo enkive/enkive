@@ -17,7 +17,7 @@ import org.json.JSONObject;
 
 import com.linuxbox.enkive.message.search.MessageSearchService;
 import com.linuxbox.enkive.message.search.exception.MessageSearchException;
-
+import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIME_STAMP;
 public class StatsMsgEntries implements StatsService {
 	MessageSearchService searchService;
 	protected final static Log LOGGER = LogFactory
@@ -78,10 +78,12 @@ public class StatsMsgEntries implements StatsService {
 		setLower(l);
 		
 		try {
-			result.put(STAT_NUM_ENTRIES, numEntries());
+			result.put(STAT_TIME_STAMP, System.currentTimeMillis());
+			result.put(STAT_NUM_ENTRIES, numEntries());	
 		} catch (JSONException e) {
 			LOGGER.warn("JSONException in EntriesBetween", e);
 		}
+		
 		return result;
 	}
 

@@ -12,7 +12,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.linuxbox.enkive.statistics.StatsMongoAttachments;
-import com.mongodb.BasicDBObject;
 import com.mongodb.Mongo;
 import com.mongodb.MongoException;
 import com.linuxbox.enkive.TestingConstants;
@@ -47,38 +46,32 @@ public class StatsMongoAttachTest {
 
 	@Test
 	public void testAvgNonZero() throws UnknownHostException, MongoException {
-		double avg = ((Double)attach.getAvgAttachSize().get("AvgAttachSize")).doubleValue();
+		double avg = attach.getAvgAttachSize();
 		assertTrue("in testAvgNonZero() (avg = " + avg + ")", avg != 0.0);
 	}
 	
 	@Test
 	public void testMaxNonZero() throws UnknownHostException, MongoException {
-		BasicDBObject a = attach.getMaxAttachSize();
-		Double maximum = a.getDouble("MaxAttachSize");
-		double max = maximum.doubleValue();
+		double max = attach.getMaxAttachSize();
 		assertTrue("in testMaxNonZero() (max = " + max + ")", max != 0.0);
 	}
 	
 	@Test
 	public void testAvgGTZero() throws UnknownHostException, MongoException {
-		double avg = ((Double)attach.getAvgAttachSize().get("AvgAttachSize")).doubleValue();
+		double avg = attach.getAvgAttachSize();
 		assertTrue("in testAvgGTZero() (avg = " + avg + ")", avg > 0.0);
 	}
 	
 	@Test
 	public void testMaxGTZero() throws UnknownHostException, MongoException {
-		BasicDBObject a = attach.getMaxAttachSize();
-		Double maximum = a.getDouble("MaxAttachSize");
-		double max = maximum.doubleValue();
-		assertTrue("in testMaxGTZero() (max = " + max + ")", max > 0.0);
+		long max = attach.getMaxAttachSize();
+		assertTrue("in testMaxGTZero() (max = " + max + ")", max > 0);
 	}
 	
 	@Test
 	public void testAvgLTEMax() throws UnknownHostException, MongoException {
-		double avg = ((Double)attach.getAvgAttachSize().get("AvgAttachSize")).doubleValue();
-		BasicDBObject a = attach.getMaxAttachSize();
-		Double maximum = a.getDouble("MaxAttachSize");
-		double max = maximum.doubleValue();
+		double avg = attach.getAvgAttachSize();
+		long max = attach.getMaxAttachSize(); 
 		assertTrue("in testAvgLTEMax() (avg = " + avg + ":max = " + max + ")", avg <= max);
 	}
 	

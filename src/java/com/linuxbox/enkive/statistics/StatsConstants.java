@@ -8,6 +8,10 @@ public interface StatsConstants {
 	public static String STATISTIC_CHECK_ERROR = "CheckError";
 	
 //key names
+	//Attachments
+	public static String STAT_MAX_ATTACH = "maxStat";
+	public static String STAT_AVG_ATTACH = "avgStat";
+	
 	//DBs only
 	public static String STAT_FILE_SIZE = "fileSize";
 	public static String STAT_NUM_COLLECTIONS = "numCollections";
@@ -26,6 +30,7 @@ public interface StatsConstants {
 	//DBs & Colls
 	public static String STAT_NAME = "name";
 	public static String STAT_TYPE = "type";//runtime also has a 'type' field
+	public static String STAT_TIME = "time";
 	public static String STAT_NUM_OBJS = "numObjs";
 	public static String STAT_DATA_SIZE = "dataSize";
 	public static String STAT_NUM_INDEX = "numIndexes";
@@ -39,11 +44,16 @@ public interface StatsConstants {
 	
 	//ErrorKey
 	public static String STAT_ERROR = "ERROR";
+	
+	public static String STAT_STORAGE_COLLECTION = "statistics";
+	public static String STAT_SERVICE_NAME = "serviceName";
+	public static String STAT_TIME_STAMP = "timeStamp";
 //end of keynames
 	
 	
 	//misc
 	public static long THIRTY_DAYS = 2592000000L;//millisecond value of 30 days
-	//don't forget  MM starts index at jan = 01 (not 00)
+	//don't forget  MM starts index at jan = 01 (not 00)!
 	public static SimpleDateFormat SIMPLE_DATE = new SimpleDateFormat("yyyy-MM-dd");
+	
 }

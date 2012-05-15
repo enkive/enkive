@@ -21,7 +21,7 @@ import org.json.JSONObject;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.Mongo;
-
+import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIME_STAMP;
 public class StatsMongoDBProperties implements StatsService{
 	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.statistics.mongodb");
@@ -48,12 +48,12 @@ public class StatsMongoDBProperties implements StatsService{
 		stats.put(STAT_TOTAL_INDEX_SIZE, temp.get("indexSize"));
 		stats.put(STAT_NUM_EXTENT,temp.get("numExtents"));
 		stats.put(STAT_FILE_SIZE, temp.get("fileSize"));
+		stats.put(STAT_TIME_STAMP, System.currentTimeMillis());
 		return stats;
 	}
 	
 	public JSONObject getStatisticsJSON(){
-		BasicDBObject stats = getStats();
-		JSONObject result = new JSONObject(stats);
+		JSONObject result = new JSONObject(getStats());
 		return result;
 	}
 	
