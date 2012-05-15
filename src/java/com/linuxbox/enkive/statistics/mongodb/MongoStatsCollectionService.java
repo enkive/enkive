@@ -52,10 +52,21 @@ public class MongoStatsCollectionService extends StatsGatherer {
 	String serviceName;
 	Map<String, StatsService> statisticsServices;
 	
-
+	public MongoStatsCollectionService(){
+		try {
+			m = new Mongo();
+		} catch (UnknownHostException e) {
+			LOGGER.fatal("Mongo has failed: Unknown Host", e);
+		} catch (MongoException e) {
+			LOGGER.fatal("Mongo has failed: Mongo Execption", e);
+		}
+		db = m.getDB("enkive");
+		statisticsServices = new HashMap<String, StatsService>();
+		coll = db.getCollection(STAT_STORAGE_COLLECTION);
+	}
+	
 	public MongoStatsCollectionService(Mongo mongo, String dbName) {
 		m = mongo;
-		System.out.println("dbName: " + dbName);
 		db = m.getDB(dbName);
 		statisticsServices = new HashMap<String, StatsService>();
 		coll = db.getCollection(STAT_STORAGE_COLLECTION);
@@ -323,6 +334,6 @@ public class MongoStatsCollectionService extends StatsGatherer {
 		System.out.println("data2: " + data2);
 		System.out.println("data3: " + data3);
 		System.out.println("...finished.");
-		coll.drop();
+//		coll.drop();
 	}
 }
