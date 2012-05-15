@@ -55,13 +55,15 @@ public abstract class Main {
 		context.registerShutdownHook();
 
 		try {
-			AuditService auditService = context.getBean("AuditLogService",
+			final AuditService auditService = context.getBean("AuditLogService",
 					AuditService.class);
 
 			auditService.addEvent(AuditService.SYSTEM_STARTUP, USER,
 					DESCRIPTION);
-			
-			MongoDBIndexManager.checkAndAutoEnsureMongoIndexes(context);
+
+			final MongoDBIndexManager mongoIndexManager = context
+					.getBean(MongoDBIndexManager.class);
+			mongoIndexManager.runCheckAndAutoEnsure();
 
 			doEventLoop(context);
 
