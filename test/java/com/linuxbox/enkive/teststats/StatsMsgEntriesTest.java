@@ -11,7 +11,7 @@ import org.junit.Test;
 import com.linuxbox.enkive.TestingConstants;
 import com.linuxbox.enkive.docsearch.indri.IndriDocSearchQueryService;
 import com.linuxbox.enkive.message.search.mongodb.MongoMessageSearchService;
-import com.linuxbox.enkive.statistics.StatsMsgEntries;
+import com.linuxbox.enkive.statistics.gathering.StatsMsgEntries;
 import com.mongodb.Mongo;
 
 public class StatsMsgEntriesTest {

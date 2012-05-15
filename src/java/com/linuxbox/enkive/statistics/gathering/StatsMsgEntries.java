@@ -1,4 +1,4 @@
-package com.linuxbox.enkive.statistics;
+package com.linuxbox.enkive.statistics.gathering;
 
 import static com.linuxbox.enkive.search.Constants.DATE_EARLIEST_PARAMETER;
 import static com.linuxbox.enkive.search.Constants.DATE_LATEST_PARAMETER;
@@ -18,7 +18,6 @@ import org.json.JSONObject;
 
 import com.linuxbox.enkive.message.search.MessageSearchService;
 import com.linuxbox.enkive.message.search.exception.MessageSearchException;
-import com.linuxbox.enkive.statistics.gathering.StatsGatherer;
 
 public class StatsMsgEntries implements StatsGatherer {
 	// NOAH: I'd rather this searchService be called something like

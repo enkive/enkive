@@ -15,7 +15,6 @@ import org.apache.commons.logging.LogFactory;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.linuxbox.enkive.statistics.StatsMsgEntries;
 import com.linuxbox.enkive.statistics.StatsService;
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;

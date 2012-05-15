@@ -20,13 +20,13 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import com.linuxbox.enkive.statistics.StatsMsgEntries;
 import com.linuxbox.enkive.statistics.gathering.MongoMessageStatisticsService;
 import com.linuxbox.enkive.statistics.gathering.MongoStatsCollectionService;
 import com.linuxbox.enkive.statistics.gathering.StatsGatherer;
 import com.linuxbox.enkive.statistics.gathering.StatsMongoAttachments;
 import com.linuxbox.enkive.statistics.gathering.StatsMongoCollectionProperties;
 import com.linuxbox.enkive.statistics.gathering.StatsMongoDBProperties;
+import com.linuxbox.enkive.statistics.gathering.StatsMsgEntries;
 import com.linuxbox.enkive.statistics.gathering.StatsRuntimeProperties;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
