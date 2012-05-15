@@ -1,4 +1,4 @@
-package com.linuxbox.enkive.statistics;
+package com.linuxbox.enkive.statistics.gathering;
 
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_AVG_OBJ_SIZE;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_DATA_SIZE;
@@ -8,6 +8,7 @@ import static com.linuxbox.enkive.statistics.StatsConstants.STAT_NUM_COLLECTIONS
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_NUM_EXTENT;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_NUM_INDEX;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_NUM_OBJS;
+import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIME_STAMP;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TOTAL_INDEX_SIZE;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TOTAL_SIZE;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TYPE;
@@ -21,22 +22,22 @@ import org.json.JSONObject;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.Mongo;
-import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIME_STAMP;
-public class StatsMongoDBProperties implements StatsService{
+
+public class StatsMongoDBProperties implements StatsGatherer {
 	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.statistics.mongodb");
-	
+
 	protected Mongo m;
 	protected DB db;
-	
+
 	public StatsMongoDBProperties(Mongo m, String dbName) {
 		this.m = m;
 		db = m.getDB(dbName);
 	}
-	
+
 	public BasicDBObject getStats() {
 		BasicDBObject stats = new BasicDBObject();
-		BasicDBObject temp  = db.getStats();
+		BasicDBObject temp = db.getStats();
 		stats.put(STAT_TYPE, "database");
 		stats.put(STAT_NAME, db.getName());
 		stats.put(STAT_NUM_COLLECTIONS, temp.get("collections"));
@@ -46,19 +47,19 @@ public class StatsMongoDBProperties implements StatsService{
 		stats.put(STAT_TOTAL_SIZE, temp.get("storageSize"));
 		stats.put(STAT_NUM_INDEX, temp.get("indexes"));
 		stats.put(STAT_TOTAL_INDEX_SIZE, temp.get("indexSize"));
-		stats.put(STAT_NUM_EXTENT,temp.get("numExtents"));
+		stats.put(STAT_NUM_EXTENT, temp.get("numExtents"));
 		stats.put(STAT_FILE_SIZE, temp.get("fileSize"));
 		stats.put(STAT_TIME_STAMP, System.currentTimeMillis());
 		return stats;
 	}
-	
-	public JSONObject getStatisticsJSON(){
+
+	public JSONObject getStatisticsJSON() {
 		JSONObject result = new JSONObject(getStats());
 		return result;
 	}
-	
-	public JSONObject getStatisticsJSON(Map<String,String> map){
-		//TODO: Implement
+
+	public JSONObject getStatisticsJSON(Map<String, String> map) {
+		// TODO: Implement
 		return getStatisticsJSON();
 	}
 }

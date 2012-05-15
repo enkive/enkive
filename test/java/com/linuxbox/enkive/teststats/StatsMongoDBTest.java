@@ -21,7 +21,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.linuxbox.enkive.statistics.StatsMongoDBProperties;
+import com.linuxbox.enkive.statistics.gathering.StatsMongoDBProperties;
 import com.mongodb.BasicDBObject;
 import com.mongodb.Mongo;
 

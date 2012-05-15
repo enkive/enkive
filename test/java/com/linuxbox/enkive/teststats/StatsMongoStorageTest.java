@@ -20,14 +20,14 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import com.linuxbox.enkive.statistics.StatsMongoAttachments;
-import com.linuxbox.enkive.statistics.StatsMongoCollectionProperties;
-import com.linuxbox.enkive.statistics.StatsMongoDBProperties;
 import com.linuxbox.enkive.statistics.StatsMsgEntries;
-import com.linuxbox.enkive.statistics.StatsRuntimeProperties;
-import com.linuxbox.enkive.statistics.StatsService;
-import com.linuxbox.enkive.statistics.message.MongoMessageStatisticsService;
-import com.linuxbox.enkive.statistics.mongodb.MongoStatsCollectionService;
+import com.linuxbox.enkive.statistics.gathering.MongoMessageStatisticsService;
+import com.linuxbox.enkive.statistics.gathering.MongoStatsCollectionService;
+import com.linuxbox.enkive.statistics.gathering.StatsGatherer;
+import com.linuxbox.enkive.statistics.gathering.StatsMongoAttachments;
+import com.linuxbox.enkive.statistics.gathering.StatsMongoCollectionProperties;
+import com.linuxbox.enkive.statistics.gathering.StatsMongoDBProperties;
+import com.linuxbox.enkive.statistics.gathering.StatsRuntimeProperties;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.Mongo;
@@ -42,7 +42,7 @@ public class StatsMongoStorageTest {
 	private static DBCollection coll;
 	private static String statTypeName;
 	
-	public StatsMongoStorageTest(HashMap<String, StatsService> map) throws JSONException {
+	public StatsMongoStorageTest(HashMap<String, StatsGatherer> map) throws JSONException {
 		statTypeName = map.keySet().iterator().next();
 		stats = map.get(statTypeName).getStatisticsJSON();
 		storageTester = new MongoStatsCollectionService(m, TestingConstants.MONGODB_TEST_DATABASE, map);
@@ -62,19 +62,19 @@ public class StatsMongoStorageTest {
 		db = m.getDB(TestingConstants.MONGODB_TEST_DATABASE);
 		coll = db.getCollection(STAT_STORAGE_COLLECTION);
 		
-		StatsService dbProp = new StatsMongoDBProperties(m, TestingConstants.MONGODB_TEST_DATABASE);
-		StatsService collProp = new StatsMongoCollectionProperties(m, TestingConstants.MONGODB_TEST_DATABASE);
-		StatsService runProp = new StatsRuntimeProperties();
-		StatsService msgProp = new StatsMsgEntries();		
-		StatsService attProp = new StatsMongoAttachments(m, TestingConstants.MONGODB_TEST_DATABASE, TestingConstants.MONGODB_TEST_DOCUMENTS_COLLECTION);
-		StatsService msgStatProp = new MongoMessageStatisticsService(m, TestingConstants.MONGODB_TEST_DATABASE, TestingConstants.MONGODB_TEST_MESSAGES_COLLECTION);
+		StatsGatherer dbProp = new StatsMongoDBProperties(m, TestingConstants.MONGODB_TEST_DATABASE);
+		StatsGatherer collProp = new StatsMongoCollectionProperties(m, TestingConstants.MONGODB_TEST_DATABASE);
+		StatsGatherer runProp = new StatsRuntimeProperties();
+		StatsGatherer msgProp = new StatsMsgEntries();		
+		StatsGatherer attProp = new StatsMongoAttachments(m, TestingConstants.MONGODB_TEST_DATABASE, TestingConstants.MONGODB_TEST_DOCUMENTS_COLLECTION);
+		StatsGatherer msgStatProp = new MongoMessageStatisticsService(m, TestingConstants.MONGODB_TEST_DATABASE, TestingConstants.MONGODB_TEST_MESSAGES_COLLECTION);
 		
-		HashMap<String, StatsService> map1 = new HashMap<String, StatsService>();
-		HashMap<String, StatsService> map2 = new HashMap<String, StatsService>();
-		HashMap<String, StatsService> map3 = new HashMap<String, StatsService>();
-		HashMap<String, StatsService> map4 = new HashMap<String, StatsService>();
-		HashMap<String, StatsService> map5 = new HashMap<String, StatsService>();
-		HashMap<String, StatsService> map6 = new HashMap<String, StatsService>();
+		HashMap<String, StatsGatherer> map1 = new HashMap<String, StatsGatherer>();
+		HashMap<String, StatsGatherer> map2 = new HashMap<String, StatsGatherer>();
+		HashMap<String, StatsGatherer> map3 = new HashMap<String, StatsGatherer>();
+		HashMap<String, StatsGatherer> map4 = new HashMap<String, StatsGatherer>();
+		HashMap<String, StatsGatherer> map5 = new HashMap<String, StatsGatherer>();
+		HashMap<String, StatsGatherer> map6 = new HashMap<String, StatsGatherer>();
 		
 		map1.put("DatabaseStatsService", dbProp);
 		map2.put("CollStatsService", collProp);

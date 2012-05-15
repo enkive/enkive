@@ -8,7 +8,8 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.linuxbox.enkive.statistics.StatsRuntimeProperties;
+import com.linuxbox.enkive.statistics.gathering.StatsRuntimeProperties;
+
 import static com.linuxbox.enkive.statistics.StatsConstants.*;
 import com.mongodb.BasicDBObject;
 
