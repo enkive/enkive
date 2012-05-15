@@ -20,81 +20,57 @@
 package com.linuxbox.enkive.web;
 
 import java.io.IOException;
+import java.text.ParseException;
+import java.util.Date;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import static com.linuxbox.enkive.search.Constants.*;
 
 import com.linuxbox.enkive.exception.CannotRetrieveException;
-import com.linuxbox.enkive.message.EncodedContentData;
-import com.linuxbox.enkive.message.Message;
-import com.linuxbox.enkive.retriever.MessageRetrieverService;
+import com.linuxbox.enkive.statistics.mongodb.MongoStatsCollectionService;
 
-public class MessageAttachmentDetailServlet extends EnkiveServlet {
-	private static final long serialVersionUID = 7489338160172966335L;
-
-	@Override
-	public void init(ServletConfig config) throws ServletException {
-		super.init(config);
-	}
+public class StatsServlet extends EnkiveServlet {
+	private static final long serialVersionUID = 7062366416188559812L;
 
 	public void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
-
-		final String messageId = req.getParameter("message_id");
-		final MessageRetrieverService retriever = getMessageRetrieverService();
-		
+		final MongoStatsCollectionService retriever = new MongoStatsCollectionService();
+		JSONObject statistics = new JSONObject();
 		try {
-			final Message message = retriever.retrieve(messageId);
-
-			JSONArray attachments = new JSONArray();
-
-			for (String attachmentUUID : message.getContentHeader()
-					.getAttachmentUUIDs()) {
-
-				EncodedContentData attachment = retriever
-						.retrieveAttachment(attachmentUUID);
-				JSONObject attachmentObject = new JSONObject();
-
-				String filename = attachment.getFilename();
-				if (attachment.getFilename() == null
-						|| attachment.getFilename().isEmpty()) {
-					filename = "Message Body";
-				}
-				attachmentObject.put("filename", filename);
-				attachmentObject.put("UUID", attachmentUUID);
-				attachments.put(attachmentObject);
-
-			}
-			try {
-
+			Date upperDate = NUMERIC_SEARCH_FORMAT.parse(req.getParameter("upperDate"));
+			Date lowerDate = NUMERIC_SEARCH_FORMAT.parse(req.getParameter("lowerDate"));
+			if(upperDate != null && lowerDate != null)
+				statistics = retriever.retrieveStats(lowerDate.getTime(), upperDate.getTime());
+			else
+				statistics = retriever.retrieveStats();
+			try{
 				JSONObject jObject = new JSONObject();
-				jObject.put(WebConstants.DATA_TAG, attachments);
-				String jsonString = jObject.toString();
-				resp.getWriter().write(jsonString);
-			} catch (JSONException e) {
+				jObject.put(WebConstants.DATA_TAG, statistics);
+				resp.getWriter().write(jObject.toString());
+			}
+			catch (JSONException e) {
 				respondError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
 						null, resp);
 				throw new CannotRetrieveException(
 						"could not create JSON for message attachment", e);
 			}
+		}
+		catch (ParseException e) {
+			System.out.println("Parse exception");
+			System.exit(0);
 		} catch (CannotRetrieveException e) {
 			respondError(HttpServletResponse.SC_UNAUTHORIZED, null, resp);
 			if (LOGGER.isErrorEnabled())
-				LOGGER.error("Could not retrieve attachment");
-
-		} catch (JSONException e) {
-			respondError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, null,
-					resp);
-			if (LOGGER.isErrorEnabled())
-				LOGGER.error("Could not retrieve attachment");
+				LOGGER.error("Could not retrieve stats");
+		} catch (JSONException e){
+			System.out.println("JSONException e");
+			System.exit(0);
 		}
-
 	}
-
 }
