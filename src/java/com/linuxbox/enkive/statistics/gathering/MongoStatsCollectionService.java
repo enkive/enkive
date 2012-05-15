@@ -1,4 +1,4 @@
-package com.linuxbox.enkive.statistics.mongodb;
+package com.linuxbox.enkive.statistics.gathering;
 
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_SERVICE_NAME;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_STORAGE_COLLECTION;
@@ -15,14 +15,8 @@ import org.apache.commons.logging.LogFactory;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.linuxbox.enkive.statistics.StatsGatherer;
-import com.linuxbox.enkive.statistics.StatsMongoAttachments;
-import com.linuxbox.enkive.statistics.StatsMongoCollectionProperties;
-import com.linuxbox.enkive.statistics.StatsMongoDBProperties;
 import com.linuxbox.enkive.statistics.StatsMsgEntries;
-import com.linuxbox.enkive.statistics.StatsRuntimeProperties;
 import com.linuxbox.enkive.statistics.StatsService;
-import com.linuxbox.enkive.statistics.message.MongoMessageStatisticsService;
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
@@ -42,7 +36,7 @@ import com.mongodb.util.JSON;
  * & retrieve all longs as longs. I'm not sure how to do that so a big
  * improvement for the statistics package would be to figure that out.
  */
-public class MongoStatsCollectionService extends StatsGatherer {
+public class MongoStatsCollectionService extends StatsService {
 	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.statistics.mongodb");
 
@@ -50,19 +44,19 @@ public class MongoStatsCollectionService extends StatsGatherer {
 	private static DB db;
 	private static DBCollection coll;
 	String serviceName;
-	Map<String, StatsService> statisticsServices;
+	Map<String, StatsGatherer> statisticsServices;
 	
 
 	public MongoStatsCollectionService(Mongo mongo, String dbName) {
 		m = mongo;
 		System.out.println("dbName: " + dbName);
 		db = m.getDB(dbName);
-		statisticsServices = new HashMap<String, StatsService>();
+		statisticsServices = new HashMap<String, StatsGatherer>();
 		coll = db.getCollection(STAT_STORAGE_COLLECTION);
 	}
 
 	public MongoStatsCollectionService(Mongo mongo, String dbName,
-			HashMap<String, StatsService> statisticsServices) {
+			HashMap<String, StatsGatherer> statisticsServices) {
 		m = mongo;
 		db = m.getDB(dbName);
 		this.statisticsServices = statisticsServices;
@@ -70,21 +64,21 @@ public class MongoStatsCollectionService extends StatsGatherer {
 	}
 
 	public MongoStatsCollectionService(Mongo mongo, String dbName, String serviceName,
-			StatsService service) {
+			StatsGatherer service) {
 		m = mongo;
 		db = m.getDB(dbName);
 		this.serviceName = serviceName;
-		statisticsServices = new HashMap<String, StatsService>();
+		statisticsServices = new HashMap<String, StatsGatherer>();
 		statisticsServices.put(serviceName, service);
 		coll = db.getCollection(STAT_STORAGE_COLLECTION);
 	}
 
 	public JSONObject getStatisticsJSON() throws JSONException {
 		JSONObject results = new JSONObject();
-		Iterator<Entry<String, StatsService>> iterator = statisticsServices
+		Iterator<Entry<String, StatsGatherer>> iterator = statisticsServices
 				.entrySet().iterator();
 		while (iterator.hasNext()) {
-			Map.Entry<String, StatsService> pair = (Map.Entry<String, StatsService>) iterator
+			Map.Entry<String, StatsGatherer> pair = (Map.Entry<String, StatsGatherer>) iterator
 					.next();
 			results.append(pair.getKey(), pair.getValue().getStatisticsJSON());
 		}
@@ -280,13 +274,13 @@ public class MongoStatsCollectionService extends StatsGatherer {
 			e1.printStackTrace();
 			System.exit(0);
 		}
-		StatsService prop1 = new StatsMongoDBProperties(m, "enkive");
-		StatsService prop2 = new StatsMongoCollectionProperties(m, "enkive");
-		StatsService prop3 = new StatsRuntimeProperties();
-		StatsService prop4 = new StatsMsgEntries();
-		StatsService prop5 = new StatsMongoAttachments(m, "enkive", "fs");
-		StatsService prop6 = new MongoMessageStatisticsService(m, "enkive", "emailMessages");
-		HashMap<String, StatsService> map = new HashMap<String, StatsService>();
+		StatsGatherer prop1 = new StatsMongoDBProperties(m, "enkive");
+		StatsGatherer prop2 = new StatsMongoCollectionProperties(m, "enkive");
+		StatsGatherer prop3 = new StatsRuntimeProperties();
+		StatsGatherer prop4 = new StatsMsgEntries();
+		StatsGatherer prop5 = new StatsMongoAttachments(m, "enkive", "fs");
+		StatsGatherer prop6 = new MongoMessageStatisticsService(m, "enkive", "emailMessages");
+		HashMap<String, StatsGatherer> map = new HashMap<String, StatsGatherer>();
 		map.put("DatabaseStatsService", prop1);
 		map.put("CollectionStatsService", prop2);
 		map.put("RuntimeStatsService", prop3);

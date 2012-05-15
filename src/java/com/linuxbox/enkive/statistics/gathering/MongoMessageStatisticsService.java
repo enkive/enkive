@@ -1,4 +1,4 @@
-package com.linuxbox.enkive.statistics.message;
+package com.linuxbox.enkive.statistics.gathering;
 
 import static com.linuxbox.enkive.statistics.StatsConstants.ARCHIVE_SIZE;
 import static com.linuxbox.enkive.statistics.StatsConstants.*;
@@ -7,12 +7,11 @@ import java.util.Map;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.linuxbox.enkive.statistics.StatsService;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.Mongo;
 
-public class MongoMessageStatisticsService implements StatsService {
+public class MongoMessageStatisticsService implements StatsGatherer {
 
 	protected Mongo m = null;
 	protected DB messageDb;

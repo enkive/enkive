@@ -30,7 +30,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import com.linuxbox.enkive.statistics.StatsMongoCollectionProperties;
+import com.linuxbox.enkive.statistics.gathering.StatsMongoCollectionProperties;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.Mongo;

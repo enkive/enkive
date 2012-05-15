@@ -1,4 +1,4 @@
-package com.linuxbox.enkive.statistics;
+package com.linuxbox.enkive.statistics.gathering;
 
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_AVG_OBJ_SIZE;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_DATA_SIZE;
@@ -26,7 +26,7 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.Mongo;
 
-public class StatsMongoCollectionProperties implements StatsService {
+public class StatsMongoCollectionProperties implements StatsGatherer {
 	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.statistics.mongodb");
 

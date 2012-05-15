@@ -1,4 +1,4 @@
-package com.linuxbox.enkive.statistics.message;
+package com.linuxbox.enkive.statistics.gathering;
 
 import static com.linuxbox.enkive.statistics.StatsConstants.QUEUE_LENGTH;
 import static com.linuxbox.enkive.statistics.StatsConstants.STATISTIC_CHECK_ERROR;
@@ -11,9 +11,8 @@ import java.util.Map;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.linuxbox.enkive.statistics.StatsService;
 
-public class UnixPostfixQueueStatisticsService implements StatsService {
+public class UnixPostfixQueueStatisticsService implements StatsGatherer {
 
 	// public static String POSTFIX_QUEUE_COMMAND = "postqueue -p";
 	public static String POSTQUEUE_OUTPUT_MANIPULATOR_PIPELINE = " | grep Requests | cut -d' ' -f 5";

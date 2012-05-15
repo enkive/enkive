@@ -11,7 +11,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.linuxbox.enkive.statistics.StatsMongoAttachments;
+import com.linuxbox.enkive.statistics.gathering.StatsMongoAttachments;
 import com.mongodb.Mongo;
 import com.mongodb.MongoException;
 import com.linuxbox.enkive.TestingConstants;

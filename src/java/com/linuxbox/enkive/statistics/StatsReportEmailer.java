@@ -25,6 +25,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
@@ -34,12 +35,12 @@ public class StatsReportEmailer {
 	protected static final Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.statistics");
 
-	StatsGatherer statsGatherer;
+	StatsService statsGatherer;
 	String to;
 	String from;
 	String mailHost;
 
-	public StatsReportEmailer(StatsGatherer statsGatherer) {
+	public StatsReportEmailer(StatsService statsGatherer) {
 		this.statsGatherer = statsGatherer;
 	}
 

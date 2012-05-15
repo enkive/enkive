@@ -1,4 +1,4 @@
-package com.linuxbox.enkive.statistics;
+package com.linuxbox.enkive.statistics.gathering;
 
 import static com.linuxbox.enkive.statistics.StatsConstants.THIRTY_DAYS;
 
@@ -15,7 +15,7 @@ import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.Mongo;
 
-public class StatsMongoAttachments implements StatsService {
+public class StatsMongoAttachments implements StatsGatherer {
 	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.statistics.mongodb");
 	protected Mongo m;
