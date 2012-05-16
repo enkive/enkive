@@ -157,6 +157,62 @@ public class MongoStatsStorageService extends StatsService implements
 		return statsData;
 	}
 	
+	public List<DBObject> buildList() {
+		return coll.find().toArray();
+	}
+	
+	public List<DBObject> buildList(long lower, long upper) {
+		DBObject query = new BasicDBObject();
+		DBObject time = new BasicDBObject();
+		time.put("$lte", upper);
+		time.put("$gte", lower);
+		query.put(STAT_TIME_STAMP, time);
+		// System.out.println("query: " + query);
+		return coll.find(query).toArray();
+	}
+	
+	public List<DBObject> buildList(HashMap<String, String[]> hmap) {
+		if (hmap == null) {
+			System.out.println("HMAP IS Null");
+			return buildList();
+		}
+		
+		BasicDBObject query = new BasicDBObject();
+		BasicDBObject keyFilter = new BasicDBObject();
+		BasicDBList listKey = new BasicDBList();
+		for(String serviceName: hmap.keySet()){
+			Object temp = new BasicDBObject(STAT_SERVICE_NAME, serviceName);
+			listKey.add(temp);
+			String[] keys = hmap.get(serviceName);
+			if(keys != null) {
+				for(String key : keys)
+					keyFilter.put(key, 1);
+			}
+			if (!keyFilter.containsField(STAT_SERVICE_NAME))
+				keyFilter.put(STAT_SERVICE_NAME, 1);
+			if (!keyFilter.containsField(STAT_TIME_STAMP))
+				keyFilter.put(STAT_TIME_STAMP, 1);
+		}
+		query.put("$or", listKey.toArray());
+		return coll.find(query, keyFilter).toArray();
+	}
+	
+	public List<DBObject> buildList(HashMap<String, String[]> hMap,
+			long lower, long upper) {
+		List<DBObject> hMapList = buildList(hMap); 
+		List<DBObject> dateList = buildList(lower, upper);
+		List<DBObject> bothList = new LinkedList<DBObject>();
+		
+		for(DBObject dateDBObj: dateList){
+			for(DBObject mapDBObj: hMapList){
+				if(mapDBObj.get(STAT_SERVICE_NAME).equals(dateDBObj.get(STAT_SERVICE_NAME)) && mapDBObj.get(STAT_TIME_STAMP).equals(dateDBObj.get(STAT_TIME_STAMP)))
+					bothList.add(mapDBObj);
+			}
+		}
+		
+		return bothList;
+	}
+	
 	public Iterator<DBObject> buildIterator(long lower, long upper) {
 		DBObject query = new BasicDBObject();
 		DBObject time = new BasicDBObject();
@@ -294,6 +350,29 @@ public class MongoStatsStorageService extends StatsService implements
 		}
 		return allStats;
 	}
+	
+	public JSONObject retrieveStats(HashMap<String, String[]> hMap, Date lower,
+			Date upper) throws JSONException {
+		if(lower == null){
+			lower = new Date(0L);
+		}
+		if(upper == null){
+			upper = new Date(System.currentTimeMillis());
+		}
+		if(hMap == null){
+			retrieveStats(lower.getTime(), upper.getTime());
+		}
+		Iterator<DBObject> dataIter = buildIterator(hMap, lower.getTime(), upper.getTime());
+		JSONObject allStats = new JSONObject();
+		while (dataIter.hasNext()) {
+			DBObject entry = dataIter.next();
+			String entryServiceName = (String) entry.get(STAT_SERVICE_NAME);
+			entry.removeField(STAT_SERVICE_NAME);
+			allStats.put(entryServiceName, storageToJSON(entry));
+		}
+		return allStats;
+	}
+
 
 	// testing main() function
 	public static void main(String args[]) throws JSONException {

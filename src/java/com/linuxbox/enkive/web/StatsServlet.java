@@ -22,9 +22,8 @@ package com.linuxbox.enkive.web;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.Date;
+import java.util.HashMap;
 
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -43,17 +42,28 @@ public class StatsServlet extends EnkiveServlet {
 		final MongoStatsStorageService retriever = new MongoStatsStorageService();
 		JSONObject statistics = new JSONObject();
 		try {
-			if (req.getParameter("upperDate") != null
-					&& req.getParameter("lowerDate") != null) {
-				Date upperDate = NUMERIC_SEARCH_FORMAT.parse(req
+			Date upperDate = null;
+			Date lowerDate = null;
+			HashMap<String, String[]> hMap  = new HashMap<String, String[]>();
+			String[] serviceNames = null;
+			if (req.getParameter("upperDate") != null){
+				upperDate = NUMERIC_SEARCH_FORMAT.parse(req
 						.getParameter("upperDate"));
-				Date lowerDate = NUMERIC_SEARCH_FORMAT.parse(req
+			}
+			if(req.getParameter("lowerDate") != null) {
+				lowerDate = NUMERIC_SEARCH_FORMAT.parse(req
 						.getParameter("lowerDate"));
-				statistics = retriever.retrieveStats(lowerDate.getTime(),
-						upperDate.getTime());
-			} else
-				statistics = retriever.retrieveStats();
-
+			}
+			if(req.getParameterValues("serviceNames") != null){
+				serviceNames = req.getParameterValues("serviceNames");
+			}
+			
+			for(String serviceName: serviceNames){
+				hMap.put(serviceName, req.getParameterValues(serviceName));
+			}
+			
+			statistics = retriever.retrieveStats(hMap, lowerDate.getTime(), upperDate.getTime());
+			
 			try {
 				// JSONObject jObject = new JSONObject();
 				// jObject.put(WebConstants.DATA_TAG, statistics);
