@@ -8,7 +8,6 @@ import org.json.JSONObject;
 
 import com.linuxbox.enkive.statistics.gathering.StatsGatherer;
 
-
 public class StatsService {
 
 	Map<String, StatsGatherer> gatherers;
@@ -34,17 +33,8 @@ public class StatsService {
 		 * changed into the loop below. They're essentially equivalent except
 		 * the 2nd one is shorter and easier to read.
 		 */
-		// Iterator<Entry<String, StatsService>> iterator = statisticsServices
-		// .entrySet().iterator();
-		// while (iterator.hasNext()) {
-		// Map.Entry<String, StatsService> pair = (Map.Entry<String,
-		// StatsService>) iterator
-		// .next();
-		// results.put(pair.getKey(), pair.getValue().getStatisticsJSON());
-		// }
 
-		for (Map.Entry<String, StatsGatherer> pair : gatherers
-				.entrySet()) {
+		for (Map.Entry<String, StatsGatherer> pair : gatherers.entrySet()) {
 			results.put(pair.getKey(), pair.getValue().getStatisticsJSON());
 		}
 

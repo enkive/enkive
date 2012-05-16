@@ -22,7 +22,7 @@ public class MongoMessageStatisticsService implements StatsGatherer {
 		messageDb = m.getDB(dbName);
 		messageColl = messageDb.getCollection(collName);
 	}
-	
+
 	@Override
 	public JSONObject getStatisticsJSON() throws JSONException {
 		JSONObject result = new JSONObject();
@@ -31,8 +31,9 @@ public class MongoMessageStatisticsService implements StatsGatherer {
 		return result;
 	}
 
-	public JSONObject getStatisticsJSON(Map<String,String> map) throws JSONException{
-		//TODO: Implement
+	public JSONObject getStatisticsJSON(Map<String, String> map)
+			throws JSONException {
+		// TODO: Implement
 		return getStatisticsJSON();
 	}
 }

@@ -53,7 +53,7 @@ public class StatsMongoCollectionProperties implements StatsGatherer {
 	}
 
 	public BasicDBObject getStats(String collectionName) {
-		if (db.collectionExists(collectionName)) {	
+		if (db.collectionExists(collectionName)) {
 			BasicDBObject stats = new BasicDBObject();
 			BasicDBObject temp = db.getCollection(collectionName).getStats();
 			stats.put(STAT_TYPE, "collection");

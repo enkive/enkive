@@ -11,7 +11,6 @@ import java.util.Map;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-
 public class UnixPostfixQueueStatisticsService implements StatsGatherer {
 
 	// public static String POSTFIX_QUEUE_COMMAND = "postqueue -p";
@@ -39,9 +38,10 @@ public class UnixPostfixQueueStatisticsService implements StatsGatherer {
 		String output = bri.readLine();
 		return Integer.parseInt(output);
 	}
-	
-	public JSONObject getStatisticsJSON(Map<String,String> map) throws JSONException{
-		//TODO: Implement
+
+	public JSONObject getStatisticsJSON(Map<String, String> map)
+			throws JSONException {
+		// TODO: Implement
 		return getStatisticsJSON();
 	}
 }

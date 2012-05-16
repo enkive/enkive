@@ -33,42 +33,51 @@ import org.json.JSONObject;
 import static com.linuxbox.enkive.search.Constants.*;
 
 import com.linuxbox.enkive.exception.CannotRetrieveException;
-import com.linuxbox.enkive.statistics.mongodb.MongoStatsCollectionService;
+import com.linuxbox.enkive.statistics.storage.mongodb.MongoStatsStorageService;
 
 public class StatsServlet extends EnkiveServlet {
 	private static final long serialVersionUID = 7062366416188559812L;
 
 	public void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
-		final MongoStatsCollectionService retriever = new MongoStatsCollectionService();
+		final MongoStatsStorageService retriever = new MongoStatsStorageService();
 		JSONObject statistics = new JSONObject();
 		try {
-			Date upperDate = NUMERIC_SEARCH_FORMAT.parse(req.getParameter("upperDate"));
-			Date lowerDate = NUMERIC_SEARCH_FORMAT.parse(req.getParameter("lowerDate"));
-			if(upperDate != null && lowerDate != null)
-				statistics = retriever.retrieveStats(lowerDate.getTime(), upperDate.getTime());
-			else
+			if (req.getParameter("upperDate") != null
+					&& req.getParameter("lowerDate") != null) {
+				Date upperDate = NUMERIC_SEARCH_FORMAT.parse(req
+						.getParameter("upperDate"));
+				Date lowerDate = NUMERIC_SEARCH_FORMAT.parse(req
+						.getParameter("lowerDate"));
+				statistics = retriever.retrieveStats(lowerDate.getTime(),
+						upperDate.getTime());
+			} else
 				statistics = retriever.retrieveStats();
-			try{
-				JSONObject jObject = new JSONObject();
-				jObject.put(WebConstants.DATA_TAG, statistics);
-				resp.getWriter().write(jObject.toString());
-			}
-			catch (JSONException e) {
+
+			try {
+				// JSONObject jObject = new JSONObject();
+				// jObject.put(WebConstants.DATA_TAG, statistics);
+				resp.getWriter().write(statistics.toString());
+			} catch (IOException e) {
 				respondError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
 						null, resp);
 				throw new CannotRetrieveException(
 						"could not create JSON for message attachment", e);
 			}
-		}
-		catch (ParseException e) {
+			/*
+			 * catch (JSONException e) {
+			 * respondError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, null,
+			 * resp); throw new CannotRetrieveException(
+			 * "could not create JSON for message attachment", e);}
+			 */
+		} catch (ParseException e) {
 			System.out.println("Parse exception");
 			System.exit(0);
 		} catch (CannotRetrieveException e) {
 			respondError(HttpServletResponse.SC_UNAUTHORIZED, null, resp);
 			if (LOGGER.isErrorEnabled())
 				LOGGER.error("Could not retrieve stats");
-		} catch (JSONException e){
+		} catch (JSONException e) {
 			System.out.println("JSONException e");
 			System.exit(0);
 		}

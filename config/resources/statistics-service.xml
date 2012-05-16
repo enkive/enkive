@@ -6,7 +6,7 @@
 
 	<!-- Statistics Gathering related beans -->
 	<bean id="MsgStatsService"
-		class="com.linuxbox.enkive.statistics.message.MongoMessageStatisticsService">
+		class="com.linuxbox.enkive.statistics.gathering.MongoMessageStatisticsService">
 		<constructor-arg ref="Mongo" />
 		<constructor-arg type="java.lang.String" value="${enkive.messagestore.db.name}" />
 		<constructor-arg type="java.lang.String"
@@ -14,34 +14,34 @@
 	</bean>
 	
 	<bean id="DetailedMsgStatsService"
-		class="com.linuxbox.enkive.statistics.StatsMsgEntries">
+		class="com.linuxbox.enkive.statistics.gathering.StatsMsgEntries">
 		<property name="searchService" ref="SystemMessageSearchService" />
 	</bean>
 
 	<bean id="AttachmentStatsService"
-		class="com.linuxbox.enkive.statistics.StatsMongoAttachments">
+		class="com.linuxbox.enkive.statistics.gathering.StatsMongoAttachments">
 		<constructor-arg ref="Mongo" />
 		<constructor-arg type="java.lang.String" value="${enkive.messagestore.db.name}" />
 		<constructor-arg type="java.lang.String" value="${enkive.docstore.fs.collection.name}" />
 	</bean>
 	
 	<bean id="DatabaseStatsService"
-		class="com.linuxbox.enkive.statistics.StatsMongoDBProperties">
+		class="com.linuxbox.enkive.statistics.gathering.StatsMongoDBProperties">
 		<constructor-arg ref="Mongo" />
 		<constructor-arg type="java.lang.String" value="${enkive.messagestore.db.name}" />
 	</bean>
 	
 	<bean id="CollectionStatsService"
-		class="com.linuxbox.enkive.statistics.StatsMongoCollectionProperties">
+		class="com.linuxbox.enkive.statistics.gathering.StatsMongoCollectionProperties">
 		<constructor-arg ref="Mongo" />
 		<constructor-arg type="java.lang.String" value="${enkive.messagestore.db.name}" />
 	</bean>
 	
 	<bean id="RuntimeStatsService"
-		class="com.linuxbox.enkive.statistics.StatsRuntimeProperties">
+		class="com.linuxbox.enkive.statistics.gathering.StatsRuntimeProperties">
 	</bean>
 
-	<bean id="StatisticsGatherer" class="com.linuxbox.enkive.statistics.mongodb.MongoStatsCollectionService">
+	<bean id="StatisticsGatherer" class="com.linuxbox.enkive.statistics.storage.mongodb.MongoStatsStorageService">
 		<constructor-arg ref="Mongo" />
 		<constructor-arg type="java.lang.String" value="${enkive.messagestore.db.name}" />
 		<constructor-arg>

@@ -45,7 +45,7 @@ public enum Granularity {
 
 		return true;
 	}
-	
+
 	/**
 	 * Some testing code; are days of month and months 0-based or 1-based?
 	 * 

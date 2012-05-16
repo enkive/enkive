@@ -21,13 +21,13 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 import com.linuxbox.enkive.statistics.gathering.MongoMessageStatisticsService;
-import com.linuxbox.enkive.statistics.gathering.MongoStatsCollectionService;
 import com.linuxbox.enkive.statistics.gathering.StatsGatherer;
 import com.linuxbox.enkive.statistics.gathering.StatsMongoAttachments;
 import com.linuxbox.enkive.statistics.gathering.StatsMongoCollectionProperties;
 import com.linuxbox.enkive.statistics.gathering.StatsMongoDBProperties;
 import com.linuxbox.enkive.statistics.gathering.StatsMsgEntries;
 import com.linuxbox.enkive.statistics.gathering.StatsRuntimeProperties;
+import com.linuxbox.enkive.statistics.storage.mongodb.MongoStatsStorageService;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.Mongo;
@@ -35,7 +35,7 @@ import com.mongodb.MongoException;
 
 @RunWith(value = Parameterized.class)
 public class StatsMongoStorageTest {
-	private static MongoStatsCollectionService storageTester;
+	private static MongoStatsStorageService storageTester;
 	private static Mongo m;
 	private static JSONObject stats;
 	private static DB db;
@@ -45,7 +45,7 @@ public class StatsMongoStorageTest {
 	public StatsMongoStorageTest(HashMap<String, StatsGatherer> map) throws JSONException {
 		statTypeName = map.keySet().iterator().next();
 		stats = map.get(statTypeName).getStatisticsJSON();
-		storageTester = new MongoStatsCollectionService(m, TestingConstants.MONGODB_TEST_DATABASE, map);
+		storageTester = new MongoStatsStorageService(m, TestingConstants.MONGODB_TEST_DATABASE, map);
 	}
 
 	@Parameters

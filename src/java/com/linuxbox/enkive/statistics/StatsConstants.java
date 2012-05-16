@@ -8,7 +8,7 @@ public interface StatsConstants {
 	public static String STATISTIC_CHECK_ERROR = "CheckError";
 
 	// key names
-	
+
 	// Attachments
 	public static String STAT_MAX_ATTACH = "maxStat";
 	public static String STAT_AVG_ATTACH = "avgStat";

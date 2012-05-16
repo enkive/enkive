@@ -318,7 +318,7 @@ public class MongoArchivingService extends AbstractMessageArchivingService {
 		System.out.println(nestedMessageQuery.toString());
 		@SuppressWarnings("unused")
 		DBCursor results = messageColl.find(nestedMessageQuery);
-		//return (results.size() > 0);
+		// return (results.size() > 0);
 		return true;
 	}
 

@@ -20,9 +20,9 @@ public class StatsMongoAttachments implements StatsGatherer {
 			.getLog("com.linuxbox.enkive.statistics.mongodb");
 	protected Mongo m;
 	protected DB db;
-	protected Date lower, upper;//uploadDate
+	protected Date lower, upper;// uploadDate
 	protected String collectionName;
-	
+
 	public Date getLower() {
 		return lower;
 	}
@@ -62,7 +62,7 @@ public class StatsMongoAttachments implements StatsGatherer {
 			int count = cursor.size();
 			long total = 0;
 			while (cursor.hasNext()) {
-				long temp = ((Long)cursor.next().get("length")).longValue();
+				long temp = ((Long) cursor.next().get("length")).longValue();
 				total += temp;
 			}
 			avgAttach = (double) total / count;
@@ -79,24 +79,24 @@ public class StatsMongoAttachments implements StatsGatherer {
 		long max = -1;
 		if (cursor.hasNext()) {
 			while (cursor.hasNext()) {
-				long temp = ((Long)cursor.next().get("length")).longValue();
-				if(temp > max){
+				long temp = ((Long) cursor.next().get("length")).longValue();
+				if (temp > max) {
 					max = temp;
 				}
 			}
 		} else {
 			LOGGER.warn("Empty Collection used in getMaxAttachSize()");
 		}
-		return  max;
+		return max;
 	}
-	
+
 	public JSONObject getStatisticsJSON() {
 		long currTime = System.currentTimeMillis();
-		
-		//default sets dates to previous thirty days
+
+		// default sets dates to previous thirty days
 		setUpper(new Date(currTime));
-		setLower(new Date(currTime-THIRTY_DAYS));
-		
+		setLower(new Date(currTime - THIRTY_DAYS));
+
 		BasicDBObject stats = new BasicDBObject();
 		stats.put(STAT_AVG_ATTACH, getAvgAttachSize());
 		stats.put(STAT_MAX_ATTACH, getMaxAttachSize());
@@ -104,11 +104,11 @@ public class StatsMongoAttachments implements StatsGatherer {
 		JSONObject result = new JSONObject(stats);
 		return result;
 	}
-	
-	//sets the date--remove setting these in constructor
-	public JSONObject getStatisticsJSON(Map<String,String> map){
-		//TODO: Implement
+
+	// sets the date--remove setting these in constructor
+	public JSONObject getStatisticsJSON(Map<String, String> map) {
+		// TODO: Implement
 		return getStatisticsJSON();
 	}
-	
+
 }

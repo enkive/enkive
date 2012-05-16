@@ -48,7 +48,7 @@ public class MessageAttachmentDetailServlet extends EnkiveServlet {
 
 		final String messageId = req.getParameter("message_id");
 		final MessageRetrieverService retriever = getMessageRetrieverService();
-		
+
 		try {
 			final Message message = retriever.retrieve(messageId);
 
