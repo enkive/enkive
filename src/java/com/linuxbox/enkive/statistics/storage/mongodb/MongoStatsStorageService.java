@@ -302,10 +302,8 @@ public class MongoStatsStorageService extends StatsService implements
 
 	public JSONObject retrieveStats(long lower, long upper)
 			throws JSONException {
-		Iterator<DBObject> dataIter = buildIterator(lower, upper);
 		JSONObject allStats = new JSONObject();
-		while (dataIter.hasNext()) {
-			DBObject entry = dataIter.next();
+		for(DBObject entry: buildList(lower, upper)){
 			String entryServiceName = (String) entry.get(STAT_SERVICE_NAME);
 			entry.removeField(STAT_SERVICE_NAME);
 			allStats.put(entryServiceName, storageToJSON(entry));
@@ -314,10 +312,8 @@ public class MongoStatsStorageService extends StatsService implements
 	}
 
 	public JSONObject retrieveStats() throws JSONException {
-		Iterator<DBObject> dataIter = coll.find().iterator();
 		JSONObject allStats = new JSONObject();
-		while (dataIter.hasNext()) {
-			DBObject entry = dataIter.next();
+		for(DBObject entry: coll.find()){
 			String entryServiceName = (String) entry.get(STAT_SERVICE_NAME);
 			entry.removeField(STAT_SERVICE_NAME);
 			allStats.put(entryServiceName, storageToJSON(entry));
@@ -327,10 +323,8 @@ public class MongoStatsStorageService extends StatsService implements
 
 	public JSONObject retrieveStats(HashMap<String, String[]> hmap)
 			throws JSONException {
-		Iterator<DBObject> dataIter = buildIterator(hmap);
 		JSONObject allStats = new JSONObject();
-		while (dataIter.hasNext()) {
-			DBObject entry = dataIter.next();
+		for(DBObject entry: buildList(hmap)){
 			String entryServiceName = (String) entry.get(STAT_SERVICE_NAME);
 			entry.removeField(STAT_SERVICE_NAME);
 			allStats.put(entryServiceName, storageToJSON(entry));
@@ -340,10 +334,8 @@ public class MongoStatsStorageService extends StatsService implements
 
 	public JSONObject retrieveStats(HashMap<String, String[]> hmap, long lower,
 			long upper) throws JSONException {
-		Iterator<DBObject> dataIter = buildIterator(hmap, lower, upper);
 		JSONObject allStats = new JSONObject();
-		while (dataIter.hasNext()) {
-			DBObject entry = dataIter.next();
+		for(DBObject entry: buildList(hmap, lower, upper)){
 			String entryServiceName = (String) entry.get(STAT_SERVICE_NAME);
 			entry.removeField(STAT_SERVICE_NAME);
 			allStats.put(entryServiceName, storageToJSON(entry));
@@ -432,7 +424,7 @@ public class MongoStatsStorageService extends StatsService implements
 		System.out.println("data2: " + data2);
 		System.out.println("data3: " + data3);
 		System.out.println("...finished.");
-		// coll.drop();
+//		coll.drop();
 	}
 
 	@Override
