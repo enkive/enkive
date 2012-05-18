@@ -89,7 +89,7 @@ public class MongoDBIndexManager implements ApplicationContextAware {
 	long maxDocumentsForAutoEnsure = MAX_DOCS_FOR_AUTO_ENSURE_INDEX_DEFAULT;
 
 	/**
-	 * Basic constructor.
+	 * Default constructor.
 	 * 
 	 * @param context
 	 */
@@ -98,7 +98,9 @@ public class MongoDBIndexManager implements ApplicationContextAware {
 	}
 
 	/**
-	 * Constructor
+	 * If the creator wants to control the services checked, this constructor
+	 * should be used. Otherwise all services that implement MongoIndexable will
+	 * be checked.
 	 */
 	public MongoDBIndexManager(List<Object> services) {
 		this();
@@ -407,12 +409,12 @@ public class MongoDBIndexManager implements ApplicationContextAware {
 
 		System.out.println("done");
 	}
-	
+
 	public void loadServices() {
 		if (initialPotentialServices != null) {
 			for (Object o : initialPotentialServices) {
-				final String[] names = applicationContext
-						.getBeanNamesForType(o.getClass());
+				final String[] names = applicationContext.getBeanNamesForType(o
+						.getClass());
 				final String name = names.length == 1 ? names[0] : o.getClass()
 						.getSimpleName();
 
@@ -444,8 +446,7 @@ public class MongoDBIndexManager implements ApplicationContextAware {
 		AutoIndexActions actions = new AutoIndexActions(maxDocuments);
 		try {
 			loadServices();
-			for (Entry<String, Object> service : potentialServices
-					.entrySet()) {
+			for (Entry<String, Object> service : potentialServices.entrySet()) {
 				checkService(actions, service.getKey(), service.getValue());
 			}
 		} catch (QuitException e) {
@@ -479,8 +480,7 @@ public class MongoDBIndexManager implements ApplicationContextAware {
 			ConsoleIndexActions actions = new ConsoleIndexActions(System.in,
 					System.out, System.err);
 
-			for (Entry<String, Object> service : potentialServices
-					.entrySet()) {
+			for (Entry<String, Object> service : potentialServices.entrySet()) {
 				checkService(actions, service.getKey(), service.getValue());
 			}
 
@@ -494,8 +494,9 @@ public class MongoDBIndexManager implements ApplicationContextAware {
 		final AbstractApplicationContext context = new ClassPathXmlApplicationContext(
 				CONFIG_FILES);
 		context.registerShutdownHook();
-		
-		final MongoDBIndexManager indexManager = context.getBean(MongoDBIndexManager.class);
+
+		final MongoDBIndexManager indexManager = context
+				.getBean(MongoDBIndexManager.class);
 		indexManager.runConsole();
 
 		context.close();
