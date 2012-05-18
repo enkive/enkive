@@ -5,17 +5,7 @@
 	default-init-method="startup" default-destroy-method="shutdown">
 
 	<bean id="MongoDBIndexManager" class="com.linuxbox.enkive.MongoDBIndexManager">
-		<constructor-arg>
-			<!-- this list should contain all services that may be implemented in 
-				MongoDB; the MongoDBIndexManager will only interact with those that implement 
-				MongoIndexable -->
-			<list>
-				<ref bean="DocLockService" />
-				<ref bean="AuditLogService" />
-				<ref bean="DocStoreService" />
-				<ref bean="IndexerQueueService" />
-				<ref bean="MongoMessageArchivingService" />
-			</list>
-		</constructor-arg>
+		<property name="maxDocumentsForAutoEnsure"
+			value="${enkive.mongodbindexmanager.maxDocumentsForAutoEnsure}" />
 	</bean>
 </beans>
