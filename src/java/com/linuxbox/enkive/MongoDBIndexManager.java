@@ -77,13 +77,16 @@ public class MongoDBIndexManager implements ApplicationContextAware {
 	 * How many documents are allowed in a collection if we automatically ensure
 	 * that the index exists.
 	 */
-	static public final long MAX_DOCS_FOR_AUTO_ENSURE_INDEX = 100;
+	static public final long MAX_DOCS_FOR_AUTO_ENSURE_INDEX_DEFAULT = 100;
 
 	/**
 	 * The application context we're using.
 	 */
+	ApplicationContext applicationContext;
+
 	List<Object> initialPotentialServices;
-	Map<String, Object> allPotentialServices2;
+	Map<String, Object> potentialServices;
+	long maxDocumentsForAutoEnsure = MAX_DOCS_FOR_AUTO_ENSURE_INDEX_DEFAULT;
 
 	/**
 	 * Basic constructor.
@@ -91,7 +94,7 @@ public class MongoDBIndexManager implements ApplicationContextAware {
 	 * @param context
 	 */
 	public MongoDBIndexManager() {
-		allPotentialServices2 = new HashMap<String, Object>();
+		potentialServices = new HashMap<String, Object>();
 	}
 
 	/**
@@ -341,6 +344,14 @@ public class MongoDBIndexManager implements ApplicationContextAware {
 		doCheckService(actions, indexable, name);
 	}
 
+	public long getMaxDocumentsForAutoEnsure() {
+		return maxDocumentsForAutoEnsure;
+	}
+
+	public void setMaxDocumentsForAutoEnsure(long maxDocumentsForAutoEnsure) {
+		this.maxDocumentsForAutoEnsure = maxDocumentsForAutoEnsure;
+	}
+
 	/*
 	 * This function contains some experiments to determine whether it would be
 	 * able to get the key information about a service without actually
@@ -396,39 +407,44 @@ public class MongoDBIndexManager implements ApplicationContextAware {
 
 		System.out.println("done");
 	}
-
-	@Override
-	public void setApplicationContext(ApplicationContext context)
-			throws BeansException {
+	
+	public void loadServices() {
 		if (initialPotentialServices != null) {
 			for (Object o : initialPotentialServices) {
-				final String[] names = context
+				final String[] names = applicationContext
 						.getBeanNamesForType(o.getClass());
 				final String name = names.length == 1 ? names[0] : o.getClass()
 						.getSimpleName();
 
-				allPotentialServices2.put(name, o);
+				potentialServices.put(name, o);
 			}
 			initialPotentialServices.clear();
 			initialPotentialServices = null;
 		} else {
-			Map<String, MongoIndexable> mongoIndexableBeans = context
+			Map<String, MongoIndexable> mongoIndexableBeans = applicationContext
 					.getBeansOfType(MongoIndexable.class);
 			for (Entry<String, MongoIndexable> p : mongoIndexableBeans
 					.entrySet()) {
-				allPotentialServices2.put(p.getKey(), p.getValue());
+				potentialServices.put(p.getKey(), p.getValue());
 			}
 		}
 	}
 
+	@Override
+	public void setApplicationContext(ApplicationContext context)
+			throws BeansException {
+		this.applicationContext = context;
+	}
+
 	public void runCheckAndAutoEnsure() {
-		runCheckAndAutoEnsure(MAX_DOCS_FOR_AUTO_ENSURE_INDEX);
+		runCheckAndAutoEnsure(MAX_DOCS_FOR_AUTO_ENSURE_INDEX_DEFAULT);
 	}
 
 	public void runCheckAndAutoEnsure(long maxDocuments) {
 		AutoIndexActions actions = new AutoIndexActions(maxDocuments);
 		try {
-			for (Entry<String, Object> service : allPotentialServices2
+			loadServices();
+			for (Entry<String, Object> service : potentialServices
 					.entrySet()) {
 				checkService(actions, service.getKey(), service.getValue());
 			}
@@ -459,10 +475,11 @@ public class MongoDBIndexManager implements ApplicationContextAware {
 
 	void runConsole() {
 		try {
+			loadServices();
 			ConsoleIndexActions actions = new ConsoleIndexActions(System.in,
 					System.out, System.err);
 
-			for (Entry<String, Object> service : allPotentialServices2
+			for (Entry<String, Object> service : potentialServices
 					.entrySet()) {
 				checkService(actions, service.getKey(), service.getValue());
 			}
@@ -477,11 +494,8 @@ public class MongoDBIndexManager implements ApplicationContextAware {
 		final AbstractApplicationContext context = new ClassPathXmlApplicationContext(
 				CONFIG_FILES);
 		context.registerShutdownHook();
-
-		final MongoDBIndexManager indexManager = context
-				.getBean(MongoDBIndexManager.class);
-		context.addApplicationListener(this);
-
+		
+		final MongoDBIndexManager indexManager = context.getBean(MongoDBIndexManager.class);
 		indexManager.runConsole();
 
 		context.close();
