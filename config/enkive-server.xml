@@ -146,7 +146,7 @@
 		<property name="triggers">
 			<list>
 				<!-- Uncomment the next line to enable message retention policy -->
-				<!-- <ref bean="MessageRetentionTrigger" />  -->
+				<!-- <ref bean="MessageRetentionTrigger" /> -->
 				<!-- <ref bean="StatisticsReportTrigger" /> -->
 			</list>
 		</property>
@@ -165,4 +165,8 @@
 	</bean>
 
 	<bean id="ApplicationContextProvider" class="com.linuxbox.util.spring.ApplicationContextProvider" />
+
+	<!-- Makes sure all beans with PostConstruct or PreDestroy annotations get called appropriately -->
+	<bean id="CommonAnnotationBeanPostProcessor"
+		class="org.springframework.context.annotation.CommonAnnotationBeanPostProcessor" />
 </beans>
