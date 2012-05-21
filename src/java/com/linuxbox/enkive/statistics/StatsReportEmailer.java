@@ -116,33 +116,38 @@ public class StatsReportEmailer {
 
 	private String buildReportWithTemplate() throws IOException,
 			TemplateException, URISyntaxException, StatsGatherException {
-		Configuration cfg = new Configuration();
+/*		Configuration cfg = new Configuration();
 		File templatesDirectory = new File("config/templates");
 		cfg.setDirectoryForTemplateLoading(templatesDirectory);
 
 		Map<String, Object> root = new HashMap<String, Object>();
 		root.put("date", new Date());
-		//TODO: Fix all this broken stuff
-		//Map<String, Object> statistics = statsGatherer.gatherStatistics();
-		/*
-		 * for (String serviceName : JSONObject.getNames(statistics)) {
-		 * Map<String, String> service = new HashMap<String, String>();
-		 * Set<Map<String, Object>> serviceStatistics = statistics.entrySet();
-		 * //JSONArray serviceStatistics = statistics.getJSONArray(serviceName);
-		 * 
-		 * for (int i = 0; i < serviceStatistics.length(); i++) { JSONObject
-		 * statistic = serviceStatistics.getJSONObject(i); for (String
-		 * statisticName : JSONObject.getNames(statistic)) {
-		 * service.put(statisticName, statistic.getString(statisticName)); } }
-		 * root.put(serviceName, service); } // Create the hash for
-		 * ``latestProduct'' Template temp =
-		 * cfg.getTemplate("StatisticsEmailTemplate.ftl");
-		 * 
-		 * ByteArrayOutputStream os = new ByteArrayOutputStream(); Writer out =
-		 * new OutputStreamWriter(os); temp.process(root, out); out.flush();
-		 * return os.toString();
-		 */
-		return "Hello World";
+		// TODO: need to convert to using maps & sets rather than JSON
+		 Map<String, Object> statistics = statsGatherer.gatherStatistics();
+
+		for (String serviceName : JSONObject.getNames(statistics)) {
+			Map<String, String> service = new HashMap<String, String>();
+			Set<Map<String, Object>> serviceStatistics = statistics.entrySet();
+			 JSONArray serviceStatistics = statistics.getJSONArray(serviceName);
+
+			for (int i = 0; i < serviceStatistics.length(); i++) {
+				JSONObject statistic = serviceStatistics.getJSONObject(i);
+				for (String statisticName : JSONObject.getNames(statistic)) {
+					service.put(statisticName,
+							statistic.getString(statisticName));
+				}
+			}
+			root.put(serviceName, service);
+		} // Create the hash for ``latestProduct''
+		Template temp = cfg.getTemplate("StatisticsEmailTemplate.ftl");
+
+		ByteArrayOutputStream os = new ByteArrayOutputStream();
+		Writer out = new OutputStreamWriter(os);
+		temp.process(root, out);
+		out.flush();
+		return os.toString();
+*/
+		return "hello world";
 	}
 
 }

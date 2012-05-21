@@ -62,8 +62,13 @@ public class StatsMongoCollTest {
 		collStats = new StatsMongoCollectionProperties(m, TestingConstants.MONGODB_TEST_DATABASE);
 		allStats = collStats.getStatistics();
 		List<Object[]> data = new ArrayList<Object[]>();
+		System.out.println("Not testing the following empty DB's: ");
 		for(String name : db.getCollectionNames()){
 			if(db.getCollection(name).count() > 0){
+				if(name.startsWith("$")){
+					name = name.replaceFirst("$", "-");
+				}
+				name = name.replace('.', '-');
 				Object[] thing = { name };
 				data.add(thing);
 			}
@@ -85,11 +90,6 @@ public class StatsMongoCollTest {
 	@After
 	public void tearDown() throws Exception {
 	}
-
-	@Test 
-	public void pushTest() {
-		System.out.println(collName);
-	}
 	
 	@Test
 	public void typeTest() {
@@ -107,8 +107,12 @@ public class StatsMongoCollTest {
 	public void nameTest() {
 		Map<String, Object> obj = (Map<String, Object>) allStats.get(collName);
 		String name = (String) obj.get(STAT_NAME);
+		if(name.startsWith("$")){
+			name = name.replaceFirst("$", "-");
+		}
+		name = name.replace('.', '-');
 		assertNotNull("in " + collName + " (name = null)", name);
-		assertTrue("in " + collName + "(name = " + name + ")",
+		assertTrue("in " + collName + "(name = " + name + ") vs (collName = " + collName,
 				name.compareTo(collName) == 0);
 	}
 

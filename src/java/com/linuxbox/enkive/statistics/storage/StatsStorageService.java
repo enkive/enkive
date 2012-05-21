@@ -1,6 +1,5 @@
 package com.linuxbox.enkive.statistics.storage;
 
-import java.util.Date;
 import java.util.Map;
 import java.util.Set;
 
@@ -25,8 +24,7 @@ public interface StatsStorageService {
 	 * @param data
 	 * @throws StatsStorageException
 	 */
-	void storeStatistics(String service, Date timestamp,
-			Map<String, Object> data) throws StatsStorageException;
+	void storeStatistics(String service, Map<String, Object> data) throws StatsStorageException;
 	
-	void storeStatistics(Set<Map<String, Object>> dataSet);
+	void storeStatistics(Set<Map<String, Object>> dataSet) throws StatsStorageException;
 }

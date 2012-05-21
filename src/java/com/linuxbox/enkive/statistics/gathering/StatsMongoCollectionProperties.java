@@ -66,7 +66,12 @@ public class StatsMongoCollectionProperties extends StatsAbstractGatherer {
 	public Map<String, Object> getStatistics() {
 		Map<String, Object> collStats = new HashMap<String, Object>();
 		for(String collName : db.getCollectionNames()) {
-			collStats.put(collName, getStats(collName));
+			String key = collName;
+			if(collName.startsWith("$")){
+				collName = collName.replaceFirst("$", "-");
+			}
+			collName = collName.replace('.', '-');
+			collStats.put(collName, getStats(key));
 		}
 		collStats.put(STAT_TIME_STAMP, System.currentTimeMillis());
 		

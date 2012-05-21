@@ -2,6 +2,8 @@ package com.linuxbox.enkive.teststats;
 
 import static org.junit.Assert.*;
 
+import java.util.Map;
+
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -11,11 +13,10 @@ import org.junit.Test;
 import com.linuxbox.enkive.statistics.gathering.StatsRuntimeProperties;
 
 import static com.linuxbox.enkive.statistics.StatsConstants.*;
-import com.mongodb.BasicDBObject;
 
 public class StatsRuntimeTest {
 	protected static StatsRuntimeProperties rtStat = new StatsRuntimeProperties();
-	protected static BasicDBObject stats;
+	protected static Map<String, Object> stats;
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {

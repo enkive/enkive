@@ -7,10 +7,9 @@ import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIME_STAMP;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.HashMap;
 import java.util.Map;
 
-public class UnixPostfixQueueStatisticsService implements StatsGatherer {
+public class UnixPostfixQueueStatisticsService extends StatsAbstractGatherer implements StatsGatherer {
 
 	// public static String POSTFIX_QUEUE_COMMAND = "postqueue -p";
 	public static String POSTQUEUE_OUTPUT_MANIPULATOR_PIPELINE = " | grep Requests | cut -d' ' -f 5";

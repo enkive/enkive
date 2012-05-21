@@ -15,7 +15,7 @@ public class StatsReportLogWriter {
 	}
 
 	public void logReport() {
-		LOGGER.info(statsGatherer.gatherData());
+		LOGGER.info(statsGatherer.gatherData(null));
 	}
 
 }

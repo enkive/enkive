@@ -62,15 +62,6 @@ public class MongoStatsRetrievalService extends AbstractStatsService implements 
 		coll = db.getCollection(STAT_STORAGE_COLLECTION);
 	}
 
-	private Map<String, Object> storageToMap(DBObject entryData) {
-		Map<String, Object> statsData = new HashMap<String, Object>();
-		for (String key : entryData.keySet()) {
-			statsData.put(key, entryData.get(key));
-		}
-
-		return statsData;
-	}
-
 	private Set<DBObject> buildSet() {
 		Set<DBObject> result = new HashSet<DBObject>();		
 		result.addAll(coll.find().toArray());
@@ -138,12 +129,9 @@ public class MongoStatsRetrievalService extends AbstractStatsService implements 
 	@Override
 	public Set<Map<String,Object>> queryStatistics()
 			throws StatsRetrievalException {
-		Set<Map<String, Object>> allStats = new HashSet<Map<String, Object>>();
+		Set<Map<String, Object>> allStats = createSet();
 		for (DBObject entry : buildSet()) {
-			String entryServiceName = (String) entry.get(STAT_SERVICE_NAME);
-			entry.removeField(STAT_SERVICE_NAME);
-			Map<String, Object> map = new HashMap<String, Object>();
-			map.put(entryServiceName, storageToMap(entry));
+			Map<String, Object> map = entry.toMap();
 			allStats.add(map);
 		}
 		return allStats;
@@ -157,10 +145,7 @@ public class MongoStatsRetrievalService extends AbstractStatsService implements 
 		
 		Set<Map<String, Object>> allStats = new HashSet<Map<String, Object>>();
 		for (DBObject entry : buildSet(stats)) {
-			String entryServiceName = (String) entry.get(STAT_SERVICE_NAME);
-			entry.removeField(STAT_SERVICE_NAME);
-			Map<String, Object> map = new HashMap<String, Object>();
-			map.put(entryServiceName, storageToMap(entry));
+			Map<String, Object> map = entry.toMap();
 			allStats.add(map);
 		}
 		return allStats;
@@ -170,17 +155,8 @@ public class MongoStatsRetrievalService extends AbstractStatsService implements 
 	public Set<Map<String,Object>> queryStatistics(Date startingTimestamp, Date endingTimestamp)
 			throws StatsRetrievalException {
 		Set<Map<String, Object>> allStats = new HashSet<Map<String, Object>>();
-		if(startingTimestamp == null){
-			startingTimestamp = new Date(0L);
-		}
-		if(endingTimestamp == null){
-			endingTimestamp = new Date();
-		}
 		for (DBObject entry : buildSet(startingTimestamp.getTime(), endingTimestamp.getTime())) {
-			String entryServiceName = (String) entry.get(STAT_SERVICE_NAME);
-			entry.removeField(STAT_SERVICE_NAME);
-			Map<String, Object> map = new HashMap<String, Object>();
-			map.put(entryServiceName, storageToMap(entry));
+			Map<String, Object> map = entry.toMap();
 			allStats.add(map);
 		}
 		return allStats;
@@ -190,21 +166,18 @@ public class MongoStatsRetrievalService extends AbstractStatsService implements 
 	public Set<Map<String,Object>> queryStatistics(Map<String, String[]> stats,
 			Date startingTimestamp, Date endingTimestamp)
 			throws StatsRetrievalException {
-		if(stats == null)
-			return queryStatistics(startingTimestamp, endingTimestamp);
-		
-		Set<Map<String, Object>> allStats = new HashSet<Map<String, Object>>();
 		if(startingTimestamp == null){
 			startingTimestamp = new Date(0L);
 		}
 		if(endingTimestamp == null){
 			endingTimestamp = new Date();
 		}
+		if(stats == null)
+			return queryStatistics(startingTimestamp, endingTimestamp);
+		
+		Set<Map<String, Object>> allStats = new HashSet<Map<String, Object>>();
 		for (DBObject entry : buildSet(stats, startingTimestamp.getTime(), endingTimestamp.getTime())) {
-			String entryServiceName = (String) entry.get(STAT_SERVICE_NAME);
-			entry.removeField(STAT_SERVICE_NAME);
-			Map<String, Object> map = new HashMap<String, Object>();
-			map.put(entryServiceName, storageToMap(entry));
+			Map<String, Object> map = entry.toMap();
 			allStats.add(map);
 		}
 		return allStats;
@@ -218,7 +191,7 @@ public class MongoStatsRetrievalService extends AbstractStatsService implements 
 		String[] names = {"_id", "numCollections", "dataSize", "timeStamp", "avgStat", "maxStat"};
 		services.put("DatabaseStatsService", names);
 		services.put("AttachmentsStatsService", names);
-		Date lower = new Date(1337198505000L);
+		Date lower = new Date(0L);//1337198505000L);
 		Date upper = new Date();
 		System.out.println("\nretriever.queryStatistics()");
 		for(Map<String, Object> map : retriever.queryStatistics()){

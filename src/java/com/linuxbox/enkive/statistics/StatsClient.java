@@ -7,6 +7,7 @@ import java.util.Set;
 import com.linuxbox.enkive.statistics.gathering.StatsGatherService;
 import com.linuxbox.enkive.statistics.retrieval.StatsRetrievalException;
 import com.linuxbox.enkive.statistics.retrieval.StatsRetrievalService;
+import com.linuxbox.enkive.statistics.storage.StatsStorageException;
 import com.linuxbox.enkive.statistics.storage.StatsStorageService;
 
 public class StatsClient {
@@ -28,7 +29,12 @@ public class StatsClient {
 	}
 
 	public void storeData(Set<Map<String, Object>> set) {
-		storageService.storeStatistics(set);
+		try {
+			storageService.storeStatistics(set);
+		} catch (StatsStorageException e) {
+			//TODO: handle this
+			System.exit(0);
+		}
 	}
 
 	public Set<Map<String, Object>> gatherData(Map<String, String[]> map) {
