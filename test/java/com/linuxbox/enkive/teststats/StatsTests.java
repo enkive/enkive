@@ -32,7 +32,7 @@ import com.linuxbox.enkive.docstore.mongogrid.MongoGridDocStoreServiceTest;
 @Suite.SuiteClasses({ StatsMongoAttachTest.class,
 		MongoGridDocStoreServiceTest.class, MongoArchivingServiceTest.class,
 		StatsMongoCollTest.class, StatsMongoDBTest.class,
-		StatsMsgEntriesTest.class, StatsRuntimeTest.class, StatsMongoStorageTest.class})
+		StatsMsgEntriesTest.class, StatsRuntimeTest.class, StatsMongoClientTest.class})
 public class StatsTests {
 	public static Test suite() {
 		TestSuite suite = new TestSuite(StatsTests.class.getName());

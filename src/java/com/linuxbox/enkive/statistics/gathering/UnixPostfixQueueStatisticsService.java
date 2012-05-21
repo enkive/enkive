@@ -2,14 +2,13 @@ package com.linuxbox.enkive.statistics.gathering;
 
 import static com.linuxbox.enkive.statistics.StatsConstants.QUEUE_LENGTH;
 import static com.linuxbox.enkive.statistics.StatsConstants.STATISTIC_CHECK_ERROR;
+import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIME_STAMP;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.HashMap;
 import java.util.Map;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 public class UnixPostfixQueueStatisticsService implements StatsGatherer {
 
@@ -18,12 +17,12 @@ public class UnixPostfixQueueStatisticsService implements StatsGatherer {
 	public static String POSTFIX_QUEUE_COMMAND = "cat /tmp/test.txt";
 
 	@Override
-	public JSONObject getStatisticsJSON() throws JSONException {
-		JSONObject result = new JSONObject();
+	public Map<String, Object> getStatistics() {
+		Map<String, Object> result = createMap();
 		try {
-			result.append(QUEUE_LENGTH, getQueueLength());
+			result.put(QUEUE_LENGTH, getQueueLength());
 		} catch (IOException e) {
-			result.append(QUEUE_LENGTH + STATISTIC_CHECK_ERROR, e.toString());
+			result.put(QUEUE_LENGTH + STATISTIC_CHECK_ERROR, e.toString());
 		}
 		return result;
 	}
@@ -39,9 +38,17 @@ public class UnixPostfixQueueStatisticsService implements StatsGatherer {
 		return Integer.parseInt(output);
 	}
 
-	public JSONObject getStatisticsJSON(Map<String, String> map)
-			throws JSONException {
-		// TODO: Implement
-		return getStatisticsJSON();
+	public Map<String, Object> getStatistics(String[] keys) {
+		if (keys == null)
+			return getStatistics();
+		Map<String, Object> stats = getStatistics();
+		Map<String, Object> selectedStats = createMap();
+		for (String key : keys) {
+			if (stats.get(key) != null)
+				selectedStats.put(key, stats.get(key));
+		}
+		selectedStats.put(STAT_TIME_STAMP, System.currentTimeMillis());
+
+		return selectedStats;
 	}
 }

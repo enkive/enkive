@@ -7,19 +7,19 @@ import static com.linuxbox.enkive.statistics.StatsConstants.STAT_NUM_ENTRIES;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIME_STAMP;
 import static com.linuxbox.enkive.statistics.StatsConstants.THIRTY_DAYS;
 
+import java.net.UnknownHostException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import com.linuxbox.enkive.message.search.MessageSearchService;
 import com.linuxbox.enkive.message.search.exception.MessageSearchException;
+import com.mongodb.MongoException;
 
-public class StatsMsgEntries implements StatsGatherer {
+public class StatsMsgEntries extends StatsAbstractGatherer {
 	// NOAH: I'd rather this searchService be called something like
 	// msgSearchService, so we know what's being searched. Also, the Refactor
 	// menu's Rename... item can do this automatically.
@@ -76,8 +76,8 @@ public class StatsMsgEntries implements StatsGatherer {
 		return result;
 	}
 
-	public JSONObject getStatisticsJSON() {
-		JSONObject result = new JSONObject();
+	public Map<String, Object> getStatistics() {
+		Map<String, Object> result = createMap();
 		long currTime = System.currentTimeMillis();
 		Date currDate = new Date(currTime);
 		Date prevDate = new Date(currTime - THIRTY_DAYS);
@@ -88,19 +88,10 @@ public class StatsMsgEntries implements StatsGatherer {
 		setUpper(u);
 		setLower(l);
 
-		try {
-			result.put(STAT_TIME_STAMP, System.currentTimeMillis());
-			result.put(STAT_NUM_ENTRIES, numEntries());
-		} catch (JSONException e) {
-			LOGGER.warn("JSONException in EntriesBetween", e);
-		}
+		result.put(STAT_TIME_STAMP, System.currentTimeMillis());
+		result.put(STAT_NUM_ENTRIES, numEntries());
 
 		return result;
-	}
-
-	public JSONObject getStatisticsJSON(Map<String, String> map) {
-		// TODO: Implement
-		return getStatisticsJSON();
 	}
 
 	// required for spring to work
@@ -110,5 +101,12 @@ public class StatsMsgEntries implements StatsGatherer {
 
 	public void setSearchService(MessageSearchService searchService) {
 		this.searchService = searchService;
+	}
+	
+	public static void main(String args[]) throws UnknownHostException, MongoException{
+		StatsMsgEntries msgEntries = new StatsMsgEntries();
+		System.out.println(msgEntries.getStatistics());
+		String[] keys = {};
+		System.out.println(msgEntries.getStatistics(keys));
 	}
 }

@@ -30,7 +30,7 @@ public interface TestingConstants {
 	String MONGODB_TEST_LOCK_COLLECTION = "lock-test";
 	String MONGODB_TEST_AUDIT_COLLECTION = "audit-test";
 	String MONGODB_TEST_QUEUE_COLLECTION = "queue-test";
-	String MONGODB_TEST_FSFILES_COLLECTION = "documents-test.files";
+	String MONGODB_TEST_FSFILES_COLLECTION = "documents-test";
 	String MONGODB_TEST_CHUNKS_COLLECTION = "documents-test.chunks";
 
 }

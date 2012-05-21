@@ -32,6 +32,7 @@ import org.json.JSONObject;
 import static com.linuxbox.enkive.search.Constants.*;
 
 import com.linuxbox.enkive.exception.CannotRetrieveException;
+import com.linuxbox.enkive.retriever.mongodb.MongoRetrieverService;
 import com.linuxbox.enkive.statistics.storage.mongodb.MongoStatsStorageService;
 
 public class StatsServlet extends EnkiveServlet {
@@ -39,31 +40,33 @@ public class StatsServlet extends EnkiveServlet {
 
 	public void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
-		final MongoStatsStorageService retriever = new MongoStatsStorageService();
+	/*
+		final MongoRetrieverService retriever = new MongoRetrieverService();
 		JSONObject statistics = new JSONObject();
 		try {
 			Date upperDate = null;
 			Date lowerDate = null;
-			HashMap<String, String[]> hMap  = new HashMap<String, String[]>();
+			HashMap<String, String[]> hMap = new HashMap<String, String[]>();
 			String[] serviceNames = null;
-			if (req.getParameter("upperDate") != null){
+			if (req.getParameter("upperDate") != null) {
 				upperDate = NUMERIC_SEARCH_FORMAT.parse(req
 						.getParameter("upperDate"));
 			}
-			if(req.getParameter("lowerDate") != null) {
+			if (req.getParameter("lowerDate") != null) {
 				lowerDate = NUMERIC_SEARCH_FORMAT.parse(req
 						.getParameter("lowerDate"));
 			}
-			if(req.getParameterValues("serviceNames") != null){
+			if (req.getParameterValues("serviceNames") != null) {
 				serviceNames = req.getParameterValues("serviceNames");
 			}
-			
-			for(String serviceName: serviceNames){
+
+			for (String serviceName : serviceNames) {
 				hMap.put(serviceName, req.getParameterValues(serviceName));
 			}
-			
-			statistics = retriever.retrieveStats(hMap, lowerDate.getTime(), upperDate.getTime());
-			
+
+			statistics = retriever.retrieveStats(hMap, lowerDate.getTime(),
+					upperDate.getTime());
+
 			try {
 				// JSONObject jObject = new JSONObject();
 				// jObject.put(WebConstants.DATA_TAG, statistics);
@@ -74,12 +77,12 @@ public class StatsServlet extends EnkiveServlet {
 				throw new CannotRetrieveException(
 						"could not create JSON for message attachment", e);
 			}
-			/*
+			
 			 * catch (JSONException e) {
 			 * respondError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, null,
 			 * resp); throw new CannotRetrieveException(
 			 * "could not create JSON for message attachment", e);}
-			 */
+			 
 		} catch (ParseException e) {
 			System.out.println("Parse exception");
 			System.exit(0);
@@ -91,5 +94,6 @@ public class StatsServlet extends EnkiveServlet {
 			System.out.println("JSONException e");
 			System.exit(0);
 		}
+	*/
 	}
 }

@@ -15,18 +15,18 @@ import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TOTAL_SIZE;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TYPE;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_ERROR;
 
-import java.util.Iterator;
+import java.net.UnknownHostException;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.json.JSONObject;
 
-import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.Mongo;
+import com.mongodb.MongoException;
 
-public class StatsMongoCollectionProperties implements StatsGatherer {
+public class StatsMongoCollectionProperties extends StatsAbstractGatherer {
 	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.statistics.mongodb");
 
@@ -38,24 +38,10 @@ public class StatsMongoCollectionProperties implements StatsGatherer {
 		db = m.getDB(dbName);
 	}
 
-	public BasicDBObject getAllStats() {
-		Iterator<String> collNames = db.getCollectionNames().iterator();
-		BasicDBObject allCollStats = new BasicDBObject();
-		while (collNames.hasNext()) {
-			String collName = collNames.next();
-			allCollStats.put(collName, getStats(collName));
-		}
-		// NOTE: stat time is on upper level because I don't think we need the
-		// precision of tracking it for every single collection's data (they
-		// are all close enough to call them the same anyway)
-		allCollStats.put(STAT_TIME_STAMP, System.currentTimeMillis());
-		return allCollStats;
-	}
-
-	public BasicDBObject getStats(String collectionName) {
+	private Map<String, Object> getStats(String collectionName) {
 		if (db.collectionExists(collectionName)) {
-			BasicDBObject stats = new BasicDBObject();
-			BasicDBObject temp = db.getCollection(collectionName).getStats();
+			Map<String, Object> stats = createMap();
+			Map<String, Object> temp = db.getCollection(collectionName).getStats();
 			stats.put(STAT_TYPE, "collection");
 			stats.put(STAT_NAME, collectionName);
 			stats.put(STAT_NS, temp.get("ns"));
@@ -71,17 +57,45 @@ public class StatsMongoCollectionProperties implements StatsGatherer {
 			return stats;
 		} else {
 			LOGGER.warn("Collection " + collectionName + " does not exist");
-			return new BasicDBObject(STAT_ERROR, "Empty");
+			Map<String, Object> errMap = createMap();
+			errMap.put(STAT_ERROR,  "Empty");
+			return errMap;
 		}
 	}
 
-	public JSONObject getStatisticsJSON() {
-		JSONObject result = new JSONObject(getAllStats());
-		return result;
+	public Map<String, Object> getStatistics() {
+		Map<String, Object> collStats = new HashMap<String, Object>();
+		for(String collName : db.getCollectionNames()) {
+			collStats.put(collName, getStats(collName));
+		}
+		collStats.put(STAT_TIME_STAMP, System.currentTimeMillis());
+		
+		return collStats;
 	}
 
-	public JSONObject getStatisticsJSON(Map<String, String> map) {
-		// TODO: Implement
-		return getStatisticsJSON();
+	//overwrites the abstract b/c collections are stored embedded
+	public Map<String, Object> getStatistics(String[] keys) {
+		if (keys == null)
+			return getStatistics();
+		Map<String, Object> selectedStats = createMap();
+		for (String collName : db.getCollectionNames()) {
+			Map<String, Object> stats = getStats(collName);
+			Map<String, Object> temp  = createMap();
+			for(String key: keys){
+				if (stats.get(key) != null)
+					temp.put(key, stats.get(key));
+			}
+			selectedStats.put(collName, temp);
+		}
+		selectedStats.put(STAT_TIME_STAMP, System.currentTimeMillis());
+
+		return selectedStats;
+	}
+	
+	public static void main(String args[]) throws UnknownHostException, MongoException{
+		StatsMongoCollectionProperties collProps = new StatsMongoCollectionProperties(new Mongo(), "enkive");
+		System.out.println(collProps.getStatistics());
+		String[] keys = {STAT_TYPE, STAT_NAME, STAT_DATA_SIZE, };
+		System.out.println(collProps.getStatistics(keys));
 	}
 }

@@ -11,6 +11,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -25,6 +26,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.linuxbox.enkive.statistics.gathering.StatsGatherException;
+
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
@@ -34,12 +37,12 @@ public class StatsReportEmailer {
 	protected static final Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.statistics");
 
-	StatsService statsGatherer;
+	StatsClient statsGatherer;
 	String to;
 	String from;
 	String mailHost;
 
-	public StatsReportEmailer(StatsService statsGatherer) {
+	public StatsReportEmailer(StatsClient statsGatherer) {
 		this.statsGatherer = statsGatherer;
 	}
 
@@ -112,35 +115,34 @@ public class StatsReportEmailer {
 	}
 
 	private String buildReportWithTemplate() throws IOException,
-			TemplateException, JSONException, URISyntaxException {
+			TemplateException, URISyntaxException, StatsGatherException {
 		Configuration cfg = new Configuration();
 		File templatesDirectory = new File("config/templates");
 		cfg.setDirectoryForTemplateLoading(templatesDirectory);
 
 		Map<String, Object> root = new HashMap<String, Object>();
 		root.put("date", new Date());
-		JSONObject statistics = statsGatherer.getStatisticsJSON();
-		for (String serviceName : JSONObject.getNames(statistics)) {
-			Map<String, String> service = new HashMap<String, String>();
-			JSONArray serviceStatistics = statistics.getJSONArray(serviceName);
-
-			for (int i = 0; i < serviceStatistics.length(); i++) {
-				JSONObject statistic = serviceStatistics.getJSONObject(i);
-				for (String statisticName : JSONObject.getNames(statistic)) {
-					service.put(statisticName,
-							statistic.getString(statisticName));
-				}
-			}
-			root.put(serviceName, service);
-		}
-		// Create the hash for ``latestProduct''
-		Template temp = cfg.getTemplate("StatisticsEmailTemplate.ftl");
-
-		ByteArrayOutputStream os = new ByteArrayOutputStream();
-		Writer out = new OutputStreamWriter(os);
-		temp.process(root, out);
-		out.flush();
-		return os.toString();
+		//TODO: Fix all this broken stuff
+		//Map<String, Object> statistics = statsGatherer.gatherStatistics();
+		/*
+		 * for (String serviceName : JSONObject.getNames(statistics)) {
+		 * Map<String, String> service = new HashMap<String, String>();
+		 * Set<Map<String, Object>> serviceStatistics = statistics.entrySet();
+		 * //JSONArray serviceStatistics = statistics.getJSONArray(serviceName);
+		 * 
+		 * for (int i = 0; i < serviceStatistics.length(); i++) { JSONObject
+		 * statistic = serviceStatistics.getJSONObject(i); for (String
+		 * statisticName : JSONObject.getNames(statistic)) {
+		 * service.put(statisticName, statistic.getString(statisticName)); } }
+		 * root.put(serviceName, service); } // Create the hash for
+		 * ``latestProduct'' Template temp =
+		 * cfg.getTemplate("StatisticsEmailTemplate.ftl");
+		 * 
+		 * ByteArrayOutputStream os = new ByteArrayOutputStream(); Writer out =
+		 * new OutputStreamWriter(os); temp.process(root, out); out.flush();
+		 * return os.toString();
+		 */
+		return "Hello World";
 	}
 
 }

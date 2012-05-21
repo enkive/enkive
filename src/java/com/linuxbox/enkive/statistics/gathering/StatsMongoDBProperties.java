@@ -13,17 +13,18 @@ import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TOTAL_INDEX_SIZ
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TOTAL_SIZE;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TYPE;
 
+import java.net.UnknownHostException;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.json.JSONObject;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.Mongo;
+import com.mongodb.MongoException;
 
-public class StatsMongoDBProperties implements StatsGatherer {
+public class StatsMongoDBProperties extends StatsAbstractGatherer {
 	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.statistics.mongodb");
 
@@ -53,13 +54,14 @@ public class StatsMongoDBProperties implements StatsGatherer {
 		return stats;
 	}
 
-	public JSONObject getStatisticsJSON() {
-		JSONObject result = new JSONObject(getStats());
-		return result;
+	public Map<String, Object> getStatistics() {
+		return getStats();
 	}
-
-	public JSONObject getStatisticsJSON(Map<String, String> map) {
-		// TODO: Implement
-		return getStatisticsJSON();
+	
+	public static void main(String args[]) throws UnknownHostException, MongoException{
+		StatsMongoDBProperties dbProps = new StatsMongoDBProperties(new Mongo(), "enkive");
+		System.out.println(dbProps.getStatistics());
+		String[] keys = {STAT_TYPE, STAT_NAME, STAT_NUM_OBJS, STAT_FILE_SIZE};
+		System.out.println(dbProps.getStatistics(keys));
 	}
 }
