@@ -344,15 +344,16 @@ public class MongoArchivingService extends AbstractMessageArchivingService
 		List<IndexDescription> result = new LinkedList<IndexDescription>();
 
 		final DBObject whenIndex = new BasicDBObject(ATTACHMENT_ID_LIST, 1);
-		IndexDescription id1 = new IndexDescription(ATTACHMENT_ID_INDEX, whenIndex,
-				false);
+		IndexDescription id1 = new IndexDescription(ATTACHMENT_ID_INDEX,
+				whenIndex, false);
 		result.add(id1);
 
-		final DBObject whatWhenIndex = new BasicDBObject(NESTED_MESSAGE_ID_LIST, 1);
+		final DBObject whatWhenIndex = new BasicDBObject(
+				NESTED_MESSAGE_ID_LIST, 1);
 		IndexDescription id2 = new IndexDescription(NESTED_MESSAGE_ID_INDEX,
 				whatWhenIndex, false);
 		result.add(id2);
-		
+
 		return result;
 	}
 

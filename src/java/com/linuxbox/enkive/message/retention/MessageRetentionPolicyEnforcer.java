@@ -22,6 +22,8 @@
  */
 package com.linuxbox.enkive.message.retention;
 
+import static com.linuxbox.enkive.message.retention.Constants.RETENTION_PERIOD;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -29,7 +31,6 @@ import com.linuxbox.enkive.archiver.MessageArchivingService;
 import com.linuxbox.enkive.message.search.MessageSearchService;
 import com.linuxbox.enkive.message.search.exception.MessageSearchException;
 import com.linuxbox.enkive.workspace.SearchResult;
-import static com.linuxbox.enkive.message.retention.Constants.RETENTION_PERIOD;
 
 public class MessageRetentionPolicyEnforcer {
 
@@ -37,7 +38,7 @@ public class MessageRetentionPolicyEnforcer {
 			.getLog("com.linuxbox.enkive.messageRetentionPolicyEnforcer");
 
 	protected boolean shutdown = false;
-	
+
 	protected MessageSearchService searchService;
 	protected MessageArchivingService messageArchivingService;
 	protected MessageRetentionPolicy retentionPolicy;
@@ -99,8 +100,8 @@ public class MessageRetentionPolicyEnforcer {
 		this.messageArchivingService = messageArchivingService;
 	}
 
-	public void shutdown(){
+	public void shutdown() {
 		this.shutdown = true;
 	}
-	
+
 }

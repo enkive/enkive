@@ -19,7 +19,6 @@
  ******************************************************************************/
 package com.linuxbox.util.lockservice;
 
-
 public abstract class AbstractRetryingLockService implements LockService {
 	@Override
 	public boolean lockWithRetries(String identifier, Object notation,

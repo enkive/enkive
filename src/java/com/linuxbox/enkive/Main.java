@@ -55,8 +55,8 @@ public abstract class Main {
 		context.registerShutdownHook();
 
 		try {
-			final AuditService auditService = context.getBean("AuditLogService",
-					AuditService.class);
+			final AuditService auditService = context.getBean(
+					"AuditLogService", AuditService.class);
 
 			auditService.addEvent(AuditService.SYSTEM_STARTUP, USER,
 					DESCRIPTION);
