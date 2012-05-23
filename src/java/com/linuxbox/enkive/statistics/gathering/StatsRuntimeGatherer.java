@@ -14,7 +14,7 @@ import java.util.Map;
 public class StatsRuntimeGatherer extends AbstractGatherer {
 
 	public StatsRuntimeGatherer() {
-		setAttributes();
+//		setAttributes();
 	}
 
 	public Map<String, Object> getStats() {
@@ -29,7 +29,7 @@ public class StatsRuntimeGatherer extends AbstractGatherer {
 	}
 
 	public Map<String, Object> getStatistics() {
-		attributes.incrementTime();
+//	attributes.incrementTime();
 		return getStats();
 	}
 

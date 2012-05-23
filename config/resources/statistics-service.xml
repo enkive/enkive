@@ -3,19 +3,31 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd"
 	default-init-method="startup" default-destroy-method="shutdown">
-
+	
 	<!-- Statistics Gathering related beans -->
+	<context:annotation-config/>
+    <bean class="com.linuxbox.enkive.statistics.gathering.GathererConfigBean"/>
+	
+	<bean id="StatisticsStorer" class="com.linuxbox.enkive.statistics.storage.mongodb.MongoStatsStorageService">
+		<constructor-arg ref="Mongo" />
+		<constructor-arg type="java.lang.String" value="${enkive.messagestore.db.name}" />
+	</bean>
+	
 	<bean id="MsgStatsService"
 		class="com.linuxbox.enkive.statistics.gathering.StatsMongoMsgGatherer">
 		<constructor-arg ref="Mongo" />
 		<constructor-arg type="java.lang.String" value="${enkive.messagestore.db.name}" />
 		<constructor-arg type="java.lang.String"
 			value="${enkive.messagestore.collection.name}" />
+		<property name="storageService" ref="StatisticsStorer" />
+		<property name="schedule" value="10 * * * * ?" />
 	</bean>
 	
 	<bean id="DetailedMsgStatsService"
 		class="com.linuxbox.enkive.statistics.gathering.StatsMsgSearchGatherer">
 		<property name="searchService" ref="SystemMessageSearchService" />
+		<property name="storageService" ref="StatisticsStorer" />
+		<property name="schedule" value="10 * * * * ?" />
 	</bean>
 
 	<bean id="AttachmentStatsService"
@@ -23,22 +35,30 @@
 		<constructor-arg ref="Mongo" />
 		<constructor-arg type="java.lang.String" value="${enkive.messagestore.db.name}" />
 		<constructor-arg type="java.lang.String" value="${enkive.docstore.fs.collection.name}" />
+		<property name="storageService" ref="StatisticsStorer" />
+		<property name="schedule" value="10 * * * * ?" />
 	</bean>
 	
 	<bean id="DatabaseStatsService"
 		class="com.linuxbox.enkive.statistics.gathering.StatsMongoDBGatherer">
 		<constructor-arg ref="Mongo" />
 		<constructor-arg type="java.lang.String" value="${enkive.messagestore.db.name}" />
+		<property name="storageService" ref="StatisticsStorer" />
+		<property name="schedule" value="10 * * * * ?" />
 	</bean>
 	
 	<bean id="CollectionStatsService"
 		class="com.linuxbox.enkive.statistics.gathering.StatsMongoCollectionGatherer">
 		<constructor-arg ref="Mongo" />
 		<constructor-arg type="java.lang.String" value="${enkive.messagestore.db.name}" />
+		<property name="storageService" ref="StatisticsStorer" />
+		<property name="schedule" value="10 * * * * ?" />
 	</bean>
 	
 	<bean id="RuntimeStatsService"
 		class="com.linuxbox.enkive.statistics.gathering.StatsRuntimeGatherer">
+		<property name="storageService" ref="StatisticsStorer" />
+		<property name="schedule" value="10 * * * * ?" />
 	</bean>
 
 	<bean id="StatisticsGatherer" class="com.linuxbox.enkive.statistics.services.StatsGathererService">
@@ -52,11 +72,6 @@
 				<entry key="RuntimeStatsService" value-ref="RuntimeStatsService" />
 			</map>
 		</constructor-arg>
-	</bean>
-
-	<bean id="StatisticsStorer" class="com.linuxbox.enkive.statistics.storage.mongodb.MongoStatsStorageService">
-		<constructor-arg ref="Mongo" />
-		<constructor-arg type="java.lang.String" value="${enkive.messagestore.db.name}" />
 	</bean>
 	
 	<bean id="StatisticsRetriever" class="com.linuxbox.enkive.statistics.retrieval.mongodb.MongoStatsRetrievalService">
@@ -98,8 +113,7 @@
 
 	<bean id="StatisticsReportTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
 		<property name="jobDetail" ref="StatisticsStorageJob" />
-		<property name="cronExpression" value="10 * * * * ?" />
+		<property name="cronExpression" value="0,10,20,30,40,50 * * * * ?" />
 	</bean>
-
 </beans>
 	

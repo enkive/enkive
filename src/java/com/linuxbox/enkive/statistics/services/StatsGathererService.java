@@ -55,13 +55,13 @@ public class StatsGathererService extends AbstractService {
 
 		Set<Map<String, Object>> statsSet = createSet();
 		for (String name : map.keySet()) {
-			long attributeTime = statsGatherers.get(name).attributes
-					.getNextRunTime();
+//			long attributeTime = statsGatherers.get(name).attributes
+//					.getNextRunTime();
 			long currTime = System.currentTimeMillis();
 			// if not time skip that one
-			if (attributeTime > currTime) {
-				continue;
-			}
+//			if (attributeTime > currTime) {
+//				continue;
+//			}
 			Map<String, Object> temp = createMap();
 			if (map.get(name) != null)
 				temp.put(name,

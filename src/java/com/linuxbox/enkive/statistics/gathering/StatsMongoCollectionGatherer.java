@@ -36,7 +36,7 @@ public class StatsMongoCollectionGatherer extends AbstractGatherer {
 	public StatsMongoCollectionGatherer(Mongo m, String dbName) {
 		this.m = m;
 		db = m.getDB(dbName);
-		setAttributes();
+//		setAttributes();
 	}
 
 	private Map<String, Object> getStats(String collectionName) {
@@ -77,7 +77,7 @@ public class StatsMongoCollectionGatherer extends AbstractGatherer {
 		}
 		collStats.put(STAT_TIME_STAMP, System.currentTimeMillis());
 
-		attributes.incrementTime();
+//		attributes.incrementTime();
 		return collStats;
 	}
 
@@ -97,7 +97,7 @@ public class StatsMongoCollectionGatherer extends AbstractGatherer {
 		}
 		selectedStats.put(STAT_TIME_STAMP, System.currentTimeMillis());
 
-		attributes.incrementTime();
+//		attributes.incrementTime();
 		return selectedStats;
 	}
 

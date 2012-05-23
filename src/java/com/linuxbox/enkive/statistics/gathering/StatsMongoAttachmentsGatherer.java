@@ -49,7 +49,7 @@ public class StatsMongoAttachmentsGatherer extends AbstractGatherer {
 		this.m = m;
 		db = m.getDB(dbName);
 		collectionName = coll + ".files";
-		setAttributes();
+//		setAttributes();
 	}
 
 	private Map<String, Object> makeDateQuery() {
@@ -108,7 +108,7 @@ public class StatsMongoAttachmentsGatherer extends AbstractGatherer {
 		stats.put(STAT_AVG_ATTACH, getAvgAttachSize());
 		stats.put(STAT_MAX_ATTACH, getMaxAttachSize());
 		stats.put(STAT_TIME_STAMP, System.currentTimeMillis());
-		attributes.incrementTime();
+//		attributes.incrementTime();
 		return stats;
 	}
 

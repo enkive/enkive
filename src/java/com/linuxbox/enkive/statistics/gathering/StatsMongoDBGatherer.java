@@ -34,7 +34,7 @@ public class StatsMongoDBGatherer extends AbstractGatherer {
 	public StatsMongoDBGatherer(Mongo m, String dbName) {
 		this.m = m;
 		db = m.getDB(dbName);
-		setAttributes();
+//		setAttributes();
 	}
 
 	public BasicDBObject getStats() {
@@ -56,7 +56,7 @@ public class StatsMongoDBGatherer extends AbstractGatherer {
 	}
 
 	public Map<String, Object> getStatistics() {
-		attributes.incrementTime();
+//		attributes.incrementTime();
 		return getStats();
 	}
 

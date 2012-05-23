@@ -17,7 +17,7 @@ public class UnixPostfixQueueStatisticsService extends AbstractGatherer
 	public static String POSTFIX_QUEUE_COMMAND = "cat /tmp/test.txt";
 
 	public UnixPostfixQueueStatisticsService() {
-		setAttributes();
+//		setAttributes();
 	}
 
 	@Override
@@ -28,7 +28,7 @@ public class UnixPostfixQueueStatisticsService extends AbstractGatherer
 		} catch (IOException e) {
 			result.put(QUEUE_LENGTH + STATISTIC_CHECK_ERROR, e.toString());
 		}
-		attributes.incrementTime();
+//		attributes.incrementTime();
 		return result;
 	}
 
@@ -54,7 +54,7 @@ public class UnixPostfixQueueStatisticsService extends AbstractGatherer
 		}
 		selectedStats.put(STAT_TIME_STAMP, System.currentTimeMillis());
 
-		attributes.incrementTime();
+//		attributes.incrementTime();
 		return selectedStats;
 	}
 }

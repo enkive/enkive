@@ -22,7 +22,7 @@ public class StatsMongoMsgGatherer extends AbstractGatherer {
 		this.m = m;
 		messageDb = m.getDB(dbName);
 		messageColl = messageDb.getCollection(collName);
-		setAttributes();
+//		setAttributes();
 	}
 
 	@Override
@@ -30,7 +30,7 @@ public class StatsMongoMsgGatherer extends AbstractGatherer {
 		Map<String, Object> result = new HashMap<String, Object>();
 		result.put(STAT_TIME_STAMP, System.currentTimeMillis());
 		result.put(ARCHIVE_SIZE, messageColl.count());
-		attributes.incrementTime();
+//		attributes.incrementTime();
 		return result;
 	}
 

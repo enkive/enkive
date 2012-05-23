@@ -28,7 +28,7 @@ public class StatsMsgSearchGatherer extends AbstractGatherer {
 	MessageSearchService searchService;
 
 	public StatsMsgSearchGatherer() {
-		setAttributes();
+//		setAttributes();
 	}
 
 	// NOAH: the log does not match the package this is actually in
@@ -70,7 +70,7 @@ public class StatsMsgSearchGatherer extends AbstractGatherer {
 		long currTime = System.currentTimeMillis();
 		Date currDate = new Date(currTime);
 		Date prevDate = new Date(currTime - THIRTY_DAYS);
-		attributes.incrementTime();
+//		attributes.incrementTime();
 		return getStatistics(prevDate, currDate);
 	}
 
@@ -85,7 +85,7 @@ public class StatsMsgSearchGatherer extends AbstractGatherer {
 
 		result.put(STAT_TIME_STAMP, System.currentTimeMillis());
 		result.put(STAT_NUM_ENTRIES, numEntries(lowerDate, upperDate));
-		attributes.incrementTime();
+//		attributes.incrementTime();
 		return result;
 	}
 
