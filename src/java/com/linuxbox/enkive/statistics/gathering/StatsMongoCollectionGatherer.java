@@ -42,7 +42,8 @@ public class StatsMongoCollectionGatherer extends AbstractGatherer {
 	private Map<String, Object> getStats(String collectionName) {
 		if (db.collectionExists(collectionName)) {
 			Map<String, Object> stats = createMap();
-			Map<String, Object> temp = db.getCollection(collectionName).getStats();
+			Map<String, Object> temp = db.getCollection(collectionName)
+					.getStats();
 			stats.put(STAT_TYPE, "collection");
 			stats.put(STAT_NAME, collectionName);
 			stats.put(STAT_NS, temp.get("ns"));
@@ -59,51 +60,53 @@ public class StatsMongoCollectionGatherer extends AbstractGatherer {
 		} else {
 			LOGGER.warn("Collection " + collectionName + " does not exist");
 			Map<String, Object> errMap = createMap();
-			errMap.put(STAT_ERROR,  "Empty");
+			errMap.put(STAT_ERROR, "Empty");
 			return errMap;
 		}
 	}
 
 	public Map<String, Object> getStatistics() {
 		Map<String, Object> collStats = new HashMap<String, Object>();
-		for(String collName : db.getCollectionNames()) {
+		for (String collName : db.getCollectionNames()) {
 			String key = collName;
-			if(collName.startsWith("$")){
+			if (collName.startsWith("$")) {
 				collName = collName.replaceFirst("$", "-");
 			}
 			collName = collName.replace('.', '-');
 			collStats.put(collName, getStats(key));
 		}
 		collStats.put(STAT_TIME_STAMP, System.currentTimeMillis());
-		
+
 		attributes.incrementTime();
 		return collStats;
 	}
 
-	//overwrites the abstract b/c collections are stored embedded
+	// overwrites the abstract b/c collections are stored embedded
 	public Map<String, Object> getStatistics(String[] keys) {
 		if (keys == null)
 			return getStatistics();
 		Map<String, Object> selectedStats = createMap();
 		for (String collName : db.getCollectionNames()) {
 			Map<String, Object> stats = getStats(collName);
-			Map<String, Object> temp  = createMap();
-			for(String key: keys){
+			Map<String, Object> temp = createMap();
+			for (String key : keys) {
 				if (stats.get(key) != null)
 					temp.put(key, stats.get(key));
 			}
 			selectedStats.put(collName, temp);
 		}
 		selectedStats.put(STAT_TIME_STAMP, System.currentTimeMillis());
-		
+
 		attributes.incrementTime();
 		return selectedStats;
 	}
-	
-	public static void main(String args[]) throws UnknownHostException, MongoException{
-		StatsMongoCollectionGatherer collProps = new StatsMongoCollectionGatherer(new Mongo(), "enkive");
+
+	public static void main(String args[]) throws UnknownHostException,
+			MongoException {
+		StatsMongoCollectionGatherer collProps = new StatsMongoCollectionGatherer(
+				new Mongo(), "enkive");
 		System.out.println(collProps.getStatistics());
-		String[] keys = {STAT_TYPE, STAT_NAME, STAT_DATA_SIZE, };
+		String[] keys = { STAT_TYPE, STAT_NAME, STAT_DATA_SIZE, };
 		System.out.println(collProps.getStatistics(keys));
 	}
 }

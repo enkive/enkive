@@ -10,12 +10,12 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.linuxbox.enkive.statistics.gathering.StatsRuntimeProperties;
+import com.linuxbox.enkive.statistics.gathering.StatsRuntimeGatherer;
 
 import static com.linuxbox.enkive.statistics.StatsConstants.*;
 
 public class StatsRuntimeTest {
-	protected static StatsRuntimeProperties rtStat = new StatsRuntimeProperties();
+	protected static StatsRuntimeGatherer rtStat = new StatsRuntimeGatherer();
 	protected static Map<String, Object> stats;
 
 	@BeforeClass

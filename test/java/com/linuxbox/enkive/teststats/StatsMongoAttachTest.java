@@ -11,13 +11,13 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.linuxbox.enkive.statistics.gathering.StatsMongoAttachments;
+import com.linuxbox.enkive.statistics.gathering.StatsMongoAttachmentsGatherer;
 import com.mongodb.Mongo;
 import com.mongodb.MongoException;
 import com.linuxbox.enkive.TestingConstants;
 
 public class StatsMongoAttachTest {
-	protected static StatsMongoAttachments attach;
+	protected static StatsMongoAttachmentsGatherer attach;
 	/*
 	private static String dbName = STAT_DB_NAME;
 	private static String collName = STAT_FSFILE_NAME;//"fs.files";
@@ -25,7 +25,7 @@ public class StatsMongoAttachTest {
 	*/
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		attach = new StatsMongoAttachments(new Mongo(), TestingConstants.MONGODB_TEST_DATABASE, TestingConstants.MONGODB_TEST_FSFILES_COLLECTION);
+		attach = new StatsMongoAttachmentsGatherer(new Mongo(), TestingConstants.MONGODB_TEST_DATABASE, TestingConstants.MONGODB_TEST_FSFILES_COLLECTION);
 		Date upper = new Date(2335451471025L);
 		Date lower = new Date(0335451471025L);
 		attach.setUpper(upper);
@@ -74,21 +74,4 @@ public class StatsMongoAttachTest {
 		long max = attach.getMaxAttachSize(); 
 		assertTrue("in testAvgLTEMax() (avg = " + avg + ":max = " + max + ")", avg <= max);
 	}
-	
-	//should it be true that avg is less than chunk average because chunks take more?
-	//NO: if you had really big files = lots of chunks but chunks are pieces of files
-	//so that would mean fileAvg > chunkAvg
-	//CONCLUSION: this test is fundamentally broken but could be re-worked
-	/*
-	@Test
-	public void testLTEChunkAvg() throws UnknownHostException, MongoException{
-		double chunkAvg = ((Double)((BasicDBObject)(new Mongo()).getDB(STAT_DB_NAME)
-			.getCollection(STAT_CHUNK_NAME).getStats()).get("avgObjSize")).doubleValue();
-		double fileAvg  = ((Double)attach.getAvgAttachSize().get("AvgAttachSize")).doubleValue();
-		System.out.println("chunk avg: " + chunkAvg);
-		System.out.println("fileAvg: " + fileAvg);
-		
-		assertTrue(fileAvg <= chunkAvg);
-	}
-	*/
 }

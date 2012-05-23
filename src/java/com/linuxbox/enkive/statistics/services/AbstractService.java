@@ -6,12 +6,11 @@ import java.util.Map;
 import java.util.Set;
 
 public abstract class AbstractService {
-	public static Set<Map<String, Object>> createSet(){
+	public static Set<Map<String, Object>> createSet() {
 		return new HashSet<Map<String, Object>>();
 	}
-	
-	public static Map<String, Object> createMap(){
+
+	public static Map<String, Object> createMap() {
 		return new HashMap<String, Object>();
 	}
 }
-	

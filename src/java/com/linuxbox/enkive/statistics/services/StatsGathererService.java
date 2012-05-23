@@ -36,10 +36,10 @@ public class StatsGathererService extends AbstractService {
 	}
 
 	// all stats
-	public void addGatherer(String name, AbstractGatherer gatherer){
+	public void addGatherer(String name, AbstractGatherer gatherer) {
 		statsGatherers.put(name, gatherer);
 	}
-	
+
 	public Set<Map<String, Object>> gatherStats() {
 		return gatherStats(null);
 	}
@@ -48,22 +48,24 @@ public class StatsGathererService extends AbstractService {
 	public Set<Map<String, Object>> gatherStats(Map<String, String[]> map) {
 		if (map == null) {
 			map = new HashMap<String, String[]>();
-			for(String str : statsGatherers.keySet()){
-				map.put(str,  null);
+			for (String str : statsGatherers.keySet()) {
+				map.put(str, null);
 			}
 		}
-		
+
 		Set<Map<String, Object>> statsSet = createSet();
 		for (String name : map.keySet()) {
-			long attributeTime = statsGatherers.get(name).attributes.getNextRunTime();
+			long attributeTime = statsGatherers.get(name).attributes
+					.getNextRunTime();
 			long currTime = System.currentTimeMillis();
-			if(attributeTime > currTime){
-				System.out.println("OMG LOL WTF! " + name);
+			// if not time skip that one
+			if (attributeTime > currTime) {
 				continue;
 			}
 			Map<String, Object> temp = createMap();
 			if (map.get(name) != null)
-				temp.put(name, statsGatherers.get(name).getStatistics(map.get(name)));
+				temp.put(name,
+						statsGatherers.get(name).getStatistics(map.get(name)));
 			else
 				temp.put(name, statsGatherers.get(name).getStatistics());
 			statsSet.add(temp);
@@ -71,26 +73,31 @@ public class StatsGathererService extends AbstractService {
 		return statsSet;
 	}
 
-	public static void main(String args[]) throws UnknownHostException, MongoException{
-		StatsRuntimeGatherer runProps   = new StatsRuntimeGatherer();
-		StatsMongoAttachmentsGatherer attachProps = new StatsMongoAttachmentsGatherer(new Mongo(), "enkive", "fs");
-		StatsMongoDBGatherer dbProps    = new StatsMongoDBGatherer(new Mongo(), "enkive");
-		StatsMongoCollectionGatherer collProps = new StatsMongoCollectionGatherer(new Mongo(), "enkive");
-		
+	public static void main(String args[]) throws UnknownHostException,
+			MongoException {
+		StatsRuntimeGatherer runProps = new StatsRuntimeGatherer();
+		StatsMongoAttachmentsGatherer attachProps = new StatsMongoAttachmentsGatherer(
+				new Mongo(), "enkive", "fs");
+		StatsMongoDBGatherer dbProps = new StatsMongoDBGatherer(new Mongo(),
+				"enkive");
+		StatsMongoCollectionGatherer collProps = new StatsMongoCollectionGatherer(
+				new Mongo(), "enkive");
+
 		Map<String, AbstractGatherer> gatherers = new HashMap<String, AbstractGatherer>();
 		gatherers.put("runProps", runProps);
 		gatherers.put("attachProps", attachProps);
 		gatherers.put("dbProps", dbProps);
 		gatherers.put("collProps", collProps);
-		
-		String[] keys = {STAT_TYPE, STAT_NAME, STAT_DATA_SIZE, STAT_AVG_ATTACH, STAT_FREE_MEMORY };
-		
+
+		String[] keys = { STAT_TYPE, STAT_NAME, STAT_DATA_SIZE,
+				STAT_AVG_ATTACH, STAT_FREE_MEMORY };
+
 		Map<String, String[]> serviceKeys = new HashMap<String, String[]>();
 		serviceKeys.put("runProps", keys);
 		serviceKeys.put("attachProps", keys);
 		serviceKeys.put("dbProps", keys);
 		serviceKeys.put("collProps", keys);
-		
+
 		StatsGathererService service = new StatsGathererService(gatherers);
 		System.out.println(service.gatherStats(null));
 	}

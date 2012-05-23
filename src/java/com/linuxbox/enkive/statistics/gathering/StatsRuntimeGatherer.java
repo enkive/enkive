@@ -13,10 +13,10 @@ import java.util.Map;
 
 public class StatsRuntimeGatherer extends AbstractGatherer {
 
-	public StatsRuntimeGatherer(){
+	public StatsRuntimeGatherer() {
 		setAttributes();
 	}
-	
+
 	public Map<String, Object> getStats() {
 		Map<String, Object> stats = createMap();
 		Runtime runtime = Runtime.getRuntime();
@@ -32,11 +32,12 @@ public class StatsRuntimeGatherer extends AbstractGatherer {
 		attributes.incrementTime();
 		return getStats();
 	}
-	
-	public static void main(String args[]){
+
+	public static void main(String args[]) {
 		StatsRuntimeGatherer runProps = new StatsRuntimeGatherer();
 		System.out.println(runProps.getStatistics());
-		String[] keys = {STAT_TYPE, STAT_NAME, STAT_DATA_SIZE, STAT_TOTAL_MEMORY, STAT_FREE_MEMORY };
+		String[] keys = { STAT_TYPE, STAT_NAME, STAT_DATA_SIZE,
+				STAT_TOTAL_MEMORY, STAT_FREE_MEMORY };
 		System.out.println(runProps.getStatistics(keys));
 	}
 }

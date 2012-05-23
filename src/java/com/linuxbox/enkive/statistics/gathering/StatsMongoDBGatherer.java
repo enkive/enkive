@@ -59,11 +59,13 @@ public class StatsMongoDBGatherer extends AbstractGatherer {
 		attributes.incrementTime();
 		return getStats();
 	}
-	
-	public static void main(String args[]) throws UnknownHostException, MongoException{
-		StatsMongoDBGatherer dbProps = new StatsMongoDBGatherer(new Mongo(), "enkive");
+
+	public static void main(String args[]) throws UnknownHostException,
+			MongoException {
+		StatsMongoDBGatherer dbProps = new StatsMongoDBGatherer(new Mongo(),
+				"enkive");
 		System.out.println(dbProps.getStatistics());
-		String[] keys = {STAT_TYPE, STAT_NAME, STAT_NUM_OBJS, STAT_FILE_SIZE};
+		String[] keys = { STAT_TYPE, STAT_NAME, STAT_NUM_OBJS, STAT_FILE_SIZE };
 		System.out.println(dbProps.getStatistics(keys));
 	}
 }

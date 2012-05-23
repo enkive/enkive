@@ -26,7 +26,9 @@ public interface StatsStorageService {
 	 * @param data
 	 * @throws StatsStorageException
 	 */
-	void storeStatistics(String service, Map<String, Object> data) throws StatsStorageException;
-	
-	void storeStatistics(Set<Map<String, Object>> dataSet) throws StatsStorageException;
+	void storeStatistics(String service, Map<String, Object> data)
+			throws StatsStorageException;
+
+	void storeStatistics(Set<Map<String, Object>> dataSet)
+			throws StatsStorageException;
 }

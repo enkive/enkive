@@ -111,11 +111,13 @@ public class StatsMongoAttachmentsGatherer extends AbstractGatherer {
 		attributes.incrementTime();
 		return stats;
 	}
-	
-	public static void main(String args[]) throws UnknownHostException, MongoException{
-		StatsMongoAttachmentsGatherer attachProps = new StatsMongoAttachmentsGatherer(new Mongo(), "enkive", "fs");
+
+	public static void main(String args[]) throws UnknownHostException,
+			MongoException {
+		StatsMongoAttachmentsGatherer attachProps = new StatsMongoAttachmentsGatherer(
+				new Mongo(), "enkive", "fs");
 		System.out.println(attachProps.getStatistics());
-		String[] keys = {STAT_TYPE, STAT_NAME, STAT_DATA_SIZE, STAT_AVG_ATTACH };
+		String[] keys = { STAT_TYPE, STAT_NAME, STAT_DATA_SIZE, STAT_AVG_ATTACH };
 		System.out.println(attachProps.getStatistics(keys));
 	}
 

@@ -9,11 +9,16 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Map;
 
-public class UnixPostfixQueueStatisticsService extends StatsAbstractGatherer implements StatsGatherer {
+public class UnixPostfixQueueStatisticsService extends AbstractGatherer
+		implements GathererInterface {
 
 	// public static String POSTFIX_QUEUE_COMMAND = "postqueue -p";
 	public static String POSTQUEUE_OUTPUT_MANIPULATOR_PIPELINE = " | grep Requests | cut -d' ' -f 5";
 	public static String POSTFIX_QUEUE_COMMAND = "cat /tmp/test.txt";
+
+	public UnixPostfixQueueStatisticsService() {
+		setAttributes();
+	}
 
 	@Override
 	public Map<String, Object> getStatistics() {
@@ -23,6 +28,7 @@ public class UnixPostfixQueueStatisticsService extends StatsAbstractGatherer imp
 		} catch (IOException e) {
 			result.put(QUEUE_LENGTH + STATISTIC_CHECK_ERROR, e.toString());
 		}
+		attributes.incrementTime();
 		return result;
 	}
 
@@ -48,6 +54,7 @@ public class UnixPostfixQueueStatisticsService extends StatsAbstractGatherer imp
 		}
 		selectedStats.put(STAT_TIME_STAMP, System.currentTimeMillis());
 
+		attributes.incrementTime();
 		return selectedStats;
 	}
 }

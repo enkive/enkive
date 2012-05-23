@@ -22,28 +22,29 @@ import javax.mail.internet.MimeMessage;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
-import com.linuxbox.enkive.statistics.gathering.StatsGatherException;
+import com.linuxbox.enkive.statistics.gathering.GathererException;
+import com.linuxbox.enkive.statistics.retrieval.StatsRetrievalException;
+import com.linuxbox.enkive.statistics.services.StatsGathererService;
 
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
+
+import static com.linuxbox.enkive.statistics.StatsConstants.*;
 
 public class StatsReportEmailer {
 
 	protected static final Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.statistics");
 
-	StatsClient statsGatherer;
+	StatsGathererService gatherer;
 	String to;
 	String from;
 	String mailHost;
 
-	public StatsReportEmailer(StatsClient statsGatherer) {
-		this.statsGatherer = statsGatherer;
+	public StatsReportEmailer(StatsGathererService gather) {
+		this.gatherer = gather;
 	}
 
 	public void sendReport(Collection<String> addresses) {
@@ -115,30 +116,34 @@ public class StatsReportEmailer {
 	}
 
 	private String buildReportWithTemplate() throws IOException,
-			TemplateException, URISyntaxException, StatsGatherException {
-/*		Configuration cfg = new Configuration();
+			TemplateException, URISyntaxException, GathererException,
+			StatsRetrievalException {
+		Configuration cfg = new Configuration();
 		File templatesDirectory = new File("config/templates");
 		cfg.setDirectoryForTemplateLoading(templatesDirectory);
 
 		Map<String, Object> root = new HashMap<String, Object>();
 		root.put("date", new Date());
 		// TODO: need to convert to using maps & sets rather than JSON
-		 Map<String, Object> statistics = statsGatherer.gatherStatistics();
+		Set<Map<String, Object>> statistics = gatherer.gatherStats();
 
-		for (String serviceName : JSONObject.getNames(statistics)) {
-			Map<String, String> service = new HashMap<String, String>();
-			Set<Map<String, Object>> serviceStatistics = statistics.entrySet();
-			 JSONArray serviceStatistics = statistics.getJSONArray(serviceName);
-
-			for (int i = 0; i < serviceStatistics.length(); i++) {
-				JSONObject statistic = serviceStatistics.getJSONObject(i);
-				for (String statisticName : JSONObject.getNames(statistic)) {
-					service.put(statisticName,
-							statistic.getString(statisticName));
-				}
-			}
-			root.put(serviceName, service);
-		} // Create the hash for ``latestProduct''
+		for (Map<String, Object> map : statistics) {
+			HashMap<String, Object> hMap = new HashMap<String, Object>(map);
+			root.put((String) map.get(STAT_SERVICE_NAME), hMap.toString());
+		}
+		/*
+		 * for (String serviceName : JSONObject.getNames(statistics)) {
+		 * Map<String, String> service = new HashMap<String, String>();
+		 * Set<Map<String, Object>> serviceStatistics = statistics.entrySet();
+		 * Map<String, Object> serviceStatistics[] =
+		 * statistics.toArray(serviceName);
+		 * 
+		 * for (int i = 0; i < serviceStatistics.length(); i++) { JSONObject
+		 * statistic = serviceStatistics.getJSONObject(i); for (String
+		 * statisticName : JSONObject.getNames(statistic)) {
+		 * service.put(statisticName, statistic.getString(statisticName)); } }
+		 * root.put(serviceName, service); }
+		 */// Create the hash for ``latestProduct''
 		Template temp = cfg.getTemplate("StatisticsEmailTemplate.ftl");
 
 		ByteArrayOutputStream os = new ByteArrayOutputStream();
@@ -146,8 +151,6 @@ public class StatsReportEmailer {
 		temp.process(root, out);
 		out.flush();
 		return os.toString();
-*/
-		return "hello world";
 	}
 
 }

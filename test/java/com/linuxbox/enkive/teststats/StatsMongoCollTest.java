@@ -29,7 +29,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import com.linuxbox.enkive.statistics.gathering.StatsMongoCollectionProperties;
+import com.linuxbox.enkive.statistics.gathering.StatsMongoCollectionGatherer;
 import com.mongodb.DB;
 import com.mongodb.Mongo;
 import com.mongodb.MongoException;
@@ -37,7 +37,7 @@ import com.mongodb.MongoException;
 @SuppressWarnings("unchecked")
 @RunWith(value = Parameterized.class)
 public class StatsMongoCollTest {
-	private static StatsMongoCollectionProperties collStats;
+	private static StatsMongoCollectionGatherer collStats;
 	private static Map<String, Object> allStats;
 	private static DB db;
 	private String collName;
@@ -59,7 +59,7 @@ public class StatsMongoCollTest {
 			System.exit(0);
 		}
 		db = m.getDB(TestingConstants.MONGODB_TEST_DATABASE);
-		collStats = new StatsMongoCollectionProperties(m, TestingConstants.MONGODB_TEST_DATABASE);
+		collStats = new StatsMongoCollectionGatherer(m, TestingConstants.MONGODB_TEST_DATABASE);
 		allStats = collStats.getStatistics();
 		List<Object[]> data = new ArrayList<Object[]>();
 		System.out.println("Not testing the following empty DB's: ");

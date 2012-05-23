@@ -21,19 +21,19 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.linuxbox.enkive.statistics.gathering.StatsMongoDBProperties;
+import com.linuxbox.enkive.statistics.gathering.StatsMongoDBGatherer;
 import com.mongodb.BasicDBObject;
 import com.mongodb.Mongo;
 
 public class StatsMongoDBTest {
-	private static StatsMongoDBProperties dbStats;
+	private static StatsMongoDBGatherer dbStats;
 	private static BasicDBObject allStats;
 	private static Mongo m;
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		m = new Mongo();
-		dbStats = new StatsMongoDBProperties(m, TestingConstants.MONGODB_TEST_DATABASE);
+		dbStats = new StatsMongoDBGatherer(m, TestingConstants.MONGODB_TEST_DATABASE);
 		allStats = dbStats.getStats();
 	}
 

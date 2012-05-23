@@ -6,7 +6,7 @@
 
 	<!-- Statistics Gathering related beans -->
 	<bean id="MsgStatsService"
-		class="com.linuxbox.enkive.statistics.gathering.MongoMessageStatisticsService">
+		class="com.linuxbox.enkive.statistics.gathering.StatsMongoMsgGatherer">
 		<constructor-arg ref="Mongo" />
 		<constructor-arg type="java.lang.String" value="${enkive.messagestore.db.name}" />
 		<constructor-arg type="java.lang.String"
@@ -14,34 +14,34 @@
 	</bean>
 	
 	<bean id="DetailedMsgStatsService"
-		class="com.linuxbox.enkive.statistics.gathering.StatsMsgEntries">
+		class="com.linuxbox.enkive.statistics.gathering.StatsMsgSearchGatherer">
 		<property name="searchService" ref="SystemMessageSearchService" />
 	</bean>
 
 	<bean id="AttachmentStatsService"
-		class="com.linuxbox.enkive.statistics.gathering.StatsMongoAttachments">
+		class="com.linuxbox.enkive.statistics.gathering.StatsMongoAttachmentsGatherer">
 		<constructor-arg ref="Mongo" />
 		<constructor-arg type="java.lang.String" value="${enkive.messagestore.db.name}" />
 		<constructor-arg type="java.lang.String" value="${enkive.docstore.fs.collection.name}" />
 	</bean>
 	
 	<bean id="DatabaseStatsService"
-		class="com.linuxbox.enkive.statistics.gathering.StatsMongoDBProperties">
+		class="com.linuxbox.enkive.statistics.gathering.StatsMongoDBGatherer">
 		<constructor-arg ref="Mongo" />
 		<constructor-arg type="java.lang.String" value="${enkive.messagestore.db.name}" />
 	</bean>
 	
 	<bean id="CollectionStatsService"
-		class="com.linuxbox.enkive.statistics.gathering.StatsMongoCollectionProperties">
+		class="com.linuxbox.enkive.statistics.gathering.StatsMongoCollectionGatherer">
 		<constructor-arg ref="Mongo" />
 		<constructor-arg type="java.lang.String" value="${enkive.messagestore.db.name}" />
 	</bean>
 	
 	<bean id="RuntimeStatsService"
-		class="com.linuxbox.enkive.statistics.gathering.StatsRuntimeProperties">
+		class="com.linuxbox.enkive.statistics.gathering.StatsRuntimeGatherer">
 	</bean>
 
-	<bean id="StatisticsGatherer" class="com.linuxbox.enkive.statistics.storage.mongodb.StatsGatherService">
+	<bean id="StatisticsGatherer" class="com.linuxbox.enkive.statistics.services.StatsGathererService">
 		<constructor-arg>
 			<map>
 				<entry key="MsgStatsService" value-ref="MsgStatsService" />
@@ -52,6 +52,22 @@
 				<entry key="RuntimeStatsService" value-ref="RuntimeStatsService" />
 			</map>
 		</constructor-arg>
+	</bean>
+
+	<bean id="StatisticsStorer" class="com.linuxbox.enkive.statistics.storage.mongodb.MongoStatsStorageService">
+		<constructor-arg ref="Mongo" />
+		<constructor-arg type="java.lang.String" value="${enkive.messagestore.db.name}" />
+	</bean>
+	
+	<bean id="StatisticsRetriever" class="com.linuxbox.enkive.statistics.retrieval.mongodb.MongoStatsRetrievalService">
+		<constructor-arg ref="Mongo" />
+		<constructor-arg type="java.lang.String" value="${enkive.messagestore.db.name}" />
+	</bean>
+	
+	<bean id="StatisticsClient" class="com.linuxbox.enkive.statistics.services.StatsClient">
+		<constructor-arg ref="StatisticsGatherer" />
+		<constructor-arg ref="StatisticsStorer" />
+		<constructor-arg ref="StatisticsRetriever" />
 	</bean>
 
 	<bean id="StatisticsEmailer" class="com.linuxbox.enkive.statistics.StatsReportEmailer">
@@ -75,8 +91,8 @@
 
 	<bean id="StatisticsStorageJob"
 		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
-		<property name="targetObject" ref="StatisticsGatherer" />
-		<property name="targetMethod" value="storeData" />
+		<property name="targetObject" ref="StatisticsClient" />
+		<property name="targetMethod" value="gatherAndStoreData" />
 		<property name="concurrent" value="false" />
 	</bean>
 

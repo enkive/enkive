@@ -33,7 +33,7 @@ import com.linuxbox.enkive.docstore.mongogrid.MongoGridDocStoreServiceTest;
 		MongoGridDocStoreServiceTest.class, MongoArchivingServiceTest.class,
 		StatsMongoCollTest.class, StatsMongoDBTest.class,
 		StatsMsgEntriesTest.class, StatsRuntimeTest.class,
-		StatsMongoClientTest.class })
+		StatsMongoStorageAndRetrievalTest.class })
 public class StatsTests {
 	public static Test suite() {
 		TestSuite suite = new TestSuite(StatsTests.class.getName());

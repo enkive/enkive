@@ -27,10 +27,10 @@ public class StatsMsgSearchGatherer extends AbstractGatherer {
 	// menu's Rename... item can do this automatically.
 	MessageSearchService searchService;
 
-	public StatsMsgSearchGatherer(){
+	public StatsMsgSearchGatherer() {
 		setAttributes();
 	}
-	
+
 	// NOAH: the log does not match the package this is actually in
 	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.statistics.mongodb");
@@ -66,7 +66,7 @@ public class StatsMsgSearchGatherer extends AbstractGatherer {
 	}
 
 	public Map<String, Object> getStatistics() {
-	
+
 		long currTime = System.currentTimeMillis();
 		Date currDate = new Date(currTime);
 		Date prevDate = new Date(currTime - THIRTY_DAYS);
@@ -78,8 +78,10 @@ public class StatsMsgSearchGatherer extends AbstractGatherer {
 	public Map<String, Object> getStatistics(Date startDate, Date endDate) {
 		Map<String, Object> result = createMap();
 		// create value strings for current date and 30-days previous
-		String lowerDate = new StringBuilder(SIMPLE_DATE.format(startDate)).toString();
-		String upperDate = new StringBuilder(SIMPLE_DATE.format(endDate)).toString();
+		String lowerDate = new StringBuilder(SIMPLE_DATE.format(startDate))
+				.toString();
+		String upperDate = new StringBuilder(SIMPLE_DATE.format(endDate))
+				.toString();
 
 		result.put(STAT_TIME_STAMP, System.currentTimeMillis());
 		result.put(STAT_NUM_ENTRIES, numEntries(lowerDate, upperDate));

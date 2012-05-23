@@ -15,18 +15,18 @@ public interface StatsConstants {
 
 	// DBs only
 	public static String STAT_FILE_SIZE = "fileSize";
-	public static String STAT_NUM_COLLECTIONS = "numCollections";
+	public static String STAT_NUM_COLLECTIONS = "numColls";
 
 	// Colls only
 	public static String STAT_NS = "ns";
 	public static String STAT_INDEX_SIZES = "indexSizes";
-	public static String STAT_LAST_EXTENT_SIZE = "lastExtentSize";
+	public static String STAT_LAST_EXTENT_SIZE = "lastExSz";
 
 	// Runtime only
-	public static String STAT_MAX_MEMORY = "maxMemory";
-	public static String STAT_FREE_MEMORY = "freeMemory";
-	public static String STAT_TOTAL_MEMORY = "totalMemory";
-	public static String STAT_PROCESSORS = "availableProcessors";
+	public static String STAT_MAX_MEMORY = "maxMem";
+	public static String STAT_FREE_MEMORY = "freeMem";
+	public static String STAT_TOTAL_MEMORY = "totalMem";
+	public static String STAT_PROCESSORS = "processors";
 
 	// DBs & Colls
 	public static String STAT_NAME = "name";
@@ -34,14 +34,14 @@ public interface StatsConstants {
 	public static String STAT_TIME = "time";
 	public static String STAT_NUM_OBJS = "numObjs";
 	public static String STAT_DATA_SIZE = "dataSize";
-	public static String STAT_NUM_INDEX = "numIndexes";
-	public static String STAT_NUM_EXTENT = "numExtents";
-	public static String STAT_TOTAL_SIZE = "storageSize";
+	public static String STAT_NUM_INDEX = "numIndex";
+	public static String STAT_NUM_EXTENT = "numExtent";
+	public static String STAT_TOTAL_SIZE = "totalSize";
 	public static String STAT_AVG_OBJ_SIZE = "avgObjSize";
-	public static String STAT_TOTAL_INDEX_SIZE = "totalIndexSize";
+	public static String STAT_TOTAL_INDEX_SIZE = "indexSize";
 
 	// MsgEntries
-	public static String STAT_NUM_ENTRIES = "NumOfEntries";
+	public static String STAT_NUM_ENTRIES = "numEntries";
 
 	// ErrorKey
 	public static String STAT_ERROR = "ERROR";

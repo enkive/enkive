@@ -15,16 +15,16 @@ import org.junit.Test;
 import com.linuxbox.enkive.TestingConstants;
 import com.linuxbox.enkive.docsearch.indri.IndriDocSearchQueryService;
 import com.linuxbox.enkive.message.search.mongodb.MongoMessageSearchService;
-import com.linuxbox.enkive.statistics.gathering.MsgEntriesGatherer;
+import com.linuxbox.enkive.statistics.gathering.StatsMsgSearchGatherer;
 import com.mongodb.Mongo;
 
 public class StatsMsgEntriesTest {
 
-	private static MsgEntriesGatherer msgEntries;
+	private static StatsMsgSearchGatherer msgEntries;
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		msgEntries = new MsgEntriesGatherer();
+		msgEntries = new StatsMsgSearchGatherer();
 		MongoMessageSearchService searchService;
 		searchService = new MongoMessageSearchService(new Mongo(),
 				TestingConstants.MONGODB_TEST_DATABASE,

@@ -28,7 +28,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletResponse;
-
+import com.linuxbox.enkive.statistics.services.StatsClient;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.context.ApplicationContext;
@@ -89,6 +89,10 @@ public class EnkiveServlet extends HttpServlet {
 
 	public PermissionService getPermissionService() {
 		return appContext.getBean(PermissionService.class);
+	}
+	
+	public StatsClient getStatsClient() {
+		return appContext.getBean("StatisticsClient", StatsClient.class);
 	}
 
 	/**

@@ -49,6 +49,7 @@ public enum Granularity {
 	/**
 	 * Some testing code; are days of month and months 0-based or 1-based?
 	 * Answer: 1 based I believe
+	 * 
 	 * @param args
 	 */
 	public static void main(String[] args) {
