@@ -6,6 +6,6 @@ import org.quartz.JobExecutionException;
 import java.util.*;
 public class CronJob implements Job {
   public void execute(JobExecutionContext arg0) throws JobExecutionException {
-  System.out.println("Testing: time is  :"+new Date());
+  System.out.println("Testing: Date  :"+new Date());
   }
 }
