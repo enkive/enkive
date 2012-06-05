@@ -23,22 +23,23 @@ import com.linuxbox.enkive.statistics.storage.StatsStorageException;
 
 public abstract class AbstractGatherer extends AbstractService implements
 		GathererInterface, Job {
-	public GathererAttributes attributes;
-	public String schedule;
+//	public GathererAttributes attributes;
+	public String schedule = "0/5 * * * * ?"; //default every 5 seconds
 	public StatsStorageService storageService;
-	public CronTriggerBean cronTrigger;
-	public MethodInvokingJobDetailFactoryBean jobDetailFactory;
+//	public CronTriggerBean cronTrigger;
+//	public MethodInvokingJobDetailFactoryBean jobDetailFactory;
 	protected String serviceName;
 	
-	public void execute(JobExecutionContext arg0) throws JobExecutionException {
-		System.out.println(serviceName + ": time is_:"+new Date());
+	public void execute(JobExecutionContext arg0) throws JobExecutionException{
+		System.out.println(serviceName + " " + getStatistics());
 		try {
 			storeStats();
 		} catch (StatsStorageException e) {
-			System.out.println("storageException in abstract gather " + serviceName);
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
+	
 	public void setServiceName(String serviceName){
 		this.serviceName = serviceName;
 	}

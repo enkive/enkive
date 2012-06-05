@@ -13,7 +13,10 @@ import java.util.Map;
 import static com.linuxbox.enkive.statistics.StatsConstants.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.quartz.JobExecutionContext;
+import org.quartz.JobExecutionException;
 
+import com.linuxbox.enkive.statistics.storage.StatsStorageException;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
@@ -28,7 +31,7 @@ public class StatsMongoAttachmentsGatherer extends AbstractGatherer {
 	protected DB db;
 	protected Date lower, upper;// uploadDate
 	protected String collectionName;
-
+	
 	public Date getLower() {
 		return lower;
 	}
@@ -45,11 +48,25 @@ public class StatsMongoAttachmentsGatherer extends AbstractGatherer {
 		this.upper = upper;
 	}
 
+	public StatsMongoAttachmentsGatherer(){
+		try {
+			this.m = new Mongo();
+		} catch (UnknownHostException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (MongoException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		db = m.getDB("enkive");
+		collectionName = "fs.files";
+	}
+	
 	public StatsMongoAttachmentsGatherer(Mongo m, String dbName, String coll) {
 		this.m = m;
 		db = m.getDB(dbName);
 		collectionName = coll + ".files";
-//		setAttributes();
+		setSchedule("0/15 * * * * ?");
 	}
 
 	private Map<String, Object> makeDateQuery() {
@@ -108,7 +125,6 @@ public class StatsMongoAttachmentsGatherer extends AbstractGatherer {
 		stats.put(STAT_AVG_ATTACH, getAvgAttachSize());
 		stats.put(STAT_MAX_ATTACH, getMaxAttachSize());
 		stats.put(STAT_TIME_STAMP, System.currentTimeMillis());
-//		attributes.incrementTime();
 		return stats;
 	}
 

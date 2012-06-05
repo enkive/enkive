@@ -1,4 +1,4 @@
-package com.linuxbox.enkive.statistics.services;
+	package com.linuxbox.enkive.statistics.services;
 
 import static com.linuxbox.enkive.statistics.StatsConstants.*;
 
@@ -14,6 +14,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.quartz.CronTrigger;
 import org.quartz.JobDetail;
+import org.quartz.JobExecutionContext;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.SchedulerFactory;
@@ -39,16 +40,27 @@ public class StatsGathererService extends AbstractService {
 	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.statistics.mongodb");
 	Map<String, AbstractGatherer> statsGatherers = null;
-
-	public StatsGathererService(Map<String, AbstractGatherer> statsGatherers) {
+	
+	public void setUp() throws SchedulerException, ParseException{
+		sf=new StdSchedulerFactory();
+	  	sched=sf.getScheduler();
+	  	gatherStats(null);
+	  	sched.start();
+	}
+	
+	public StatsGathererService() throws SchedulerException, ParseException {
+		setUp();
+	}
+	
+	public StatsGathererService(Map<String, AbstractGatherer> statsGatherers) throws SchedulerException, ParseException {
 		this.statsGatherers = statsGatherers;
-		this.StatsGathererService();
+		setUp();
 	}
 
-	public StatsGathererService(String serviceName, AbstractGatherer service) {
+	public StatsGathererService(String serviceName, AbstractGatherer service) throws SchedulerException, ParseException {
 		statsGatherers = new HashMap<String, AbstractGatherer>();
 		statsGatherers.put(serviceName, service);
-		StatsGathererService();
+		setUp();
 	}
 
 	// all stats
@@ -56,57 +68,25 @@ public class StatsGathererService extends AbstractService {
 		statsGatherers.put(name, gatherer);
 	}
 
-	public Set<Map<String, Object>> gatherStats() {
-//		return gatherStats(null);
-		return null;
+	public Set<Map<String, Object>> gatherStats() throws ParseException, SchedulerException {
+		return gatherStats(null);
 	}
-	
-	public StatsGathererService() throws Exception {
-		sf=new StdSchedulerFactory();
-	  	sched=sf.getScheduler();
-	  	CronTrigger ct=new CronTrigger("cronTrigger","group2","0/5 * * * * ?");
-	  	gatherStats(null);
-	  	sched.start();
-	}
-	  
-	// designated services & keys
+	 
 	public Set<Map<String, Object>> gatherStats(Map<String, String[]> map) throws ParseException, SchedulerException {
-		
+		//if no map given create one that is for all the known gatherers
 		if (map == null) {
 			map = new HashMap<String, String[]>();
 			for (String str : statsGatherers.keySet()) {
 				map.put(str, null);
 			}
 		}
+		
 		for(String name : map.keySet()){
-//			GathererConfigBean configBean = new GathererConfigBean();
-//			configBean.createBean(name, statsGatherers.get(name), "storeStats");
-			JobDetail jd = new JobDetail(name, "group1", AbstractGatherer.class);
-			CronTrigger ct = new CronTrigger(name+"trig", "group2", "0/5 * * * * ?");
+			JobDetail jd = new JobDetail(name+"Job", "jobs", statsGatherers.get(name).getClass());
+			System.out.println(statsGatherers.get(name).getClass() + " " + statsGatherers.get(name).getSchedule());
+			CronTrigger ct = new CronTrigger(name+"Trigger", "triggers", statsGatherers.get(name).getSchedule());
 			sched.scheduleJob(jd,ct);
-/*			JobDetail job = null;
-			try {
-				job = configBean.createJobDetail(name, statsGatherers.get(name), "storeStats");
-			} catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (NoSuchMethodException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			
-			if(job == null){
-				System.out.println("enkive caught fire");
-				System.exit(0);
-			}
-			
-			try {
-				configBean.createTrigger(name, job, statsGatherers.get(name).getSchedule());
-			} catch (ParseException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-*/		}
+		}
 
 /*
 		Set<Map<String, Object>> statsSet = createSet();
@@ -157,8 +137,9 @@ public class StatsGathererService extends AbstractService {
 		
 		try{ 
 			StatsGathererService service = new StatsGathererService(gatherers);			  
-		 }catch(Exception e){}
-		
-		//System.out.println(service.gatherStats(null));
+		 }catch(Exception e){
+			 System.exit(0);
+			 //TODO: handle this
+		 }
 	}
 }

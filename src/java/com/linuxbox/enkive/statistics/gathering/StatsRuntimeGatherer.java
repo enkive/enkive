@@ -9,12 +9,20 @@ import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIME_STAMP;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TOTAL_MEMORY;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TYPE;
 
+import java.util.Date;
 import java.util.Map;
+
+import org.quartz.JobExecutionContext;
+import org.quartz.JobExecutionException;
 
 public class StatsRuntimeGatherer extends AbstractGatherer {
 
+	public void execute(JobExecutionContext arg0) throws JobExecutionException {
+		System.out.println(getStatistics());
+	}
+	
 	public StatsRuntimeGatherer() {
-//		setAttributes();
+		setSchedule("0/1 * * * * ?");
 	}
 
 	public Map<String, Object> getStats() {
@@ -29,7 +37,6 @@ public class StatsRuntimeGatherer extends AbstractGatherer {
 	}
 
 	public Map<String, Object> getStatistics() {
-//	attributes.incrementTime();
 		return getStats();
 	}
 

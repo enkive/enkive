@@ -21,6 +21,8 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.quartz.JobExecutionContext;
+import org.quartz.JobExecutionException;
 
 import com.mongodb.DB;
 import com.mongodb.Mongo;
@@ -33,10 +35,27 @@ public class StatsMongoCollectionGatherer extends AbstractGatherer {
 	protected Mongo m;
 	protected DB db;
 
+	public void execute(JobExecutionContext arg0) throws JobExecutionException {
+		System.out.println(getStatistics());
+	}
+	
+	public StatsMongoCollectionGatherer(){
+		try {
+			this.m = new Mongo();
+		} catch (UnknownHostException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (MongoException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		db = m.getDB("enkive");
+	}
+	
 	public StatsMongoCollectionGatherer(Mongo m, String dbName) {
 		this.m = m;
 		db = m.getDB(dbName);
-//		setAttributes();
+		setSchedule("0/20 * * * * ?");
 	}
 
 	private Map<String, Object> getStats(String collectionName) {

@@ -14,29 +14,50 @@ import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TOTAL_SIZE;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TYPE;
 
 import java.net.UnknownHostException;
+import java.util.Date;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.quartz.JobExecutionContext;
+import org.quartz.JobExecutionException;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.Mongo;
 import com.mongodb.MongoException;
 
-public class StatsMongoDBGatherer extends AbstractGatherer {
+public class StatsMongoDBGatherer extends AbstractGatherer {	
 	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.statistics.mongodb");
 
 	protected Mongo m;
 	protected DB db;
 
+	public StatsMongoDBGatherer(){
+		try {
+			this.m = new Mongo();
+		} catch (UnknownHostException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (MongoException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		setSchedule("0/10 * * * * ?");
+		db = m.getDB("enkive");
+	}
+	
 	public StatsMongoDBGatherer(Mongo m, String dbName) {
 		this.m = m;
 		db = m.getDB(dbName);
-//		setAttributes();
+		setSchedule("0/10 * * * * ?");
 	}
 
+	public void execute(JobExecutionContext arg0) throws JobExecutionException {
+		System.out.println("Date: " + new Date());
+	}
+	
 	public BasicDBObject getStats() {
 		BasicDBObject stats = new BasicDBObject();
 		BasicDBObject temp = db.getStats();

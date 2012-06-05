@@ -15,6 +15,8 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.quartz.JobExecutionContext;
+import org.quartz.JobExecutionException;
 
 import com.linuxbox.enkive.message.search.MessageSearchService;
 import com.linuxbox.enkive.message.search.exception.MessageSearchException;
@@ -26,7 +28,10 @@ public class StatsMsgSearchGatherer extends AbstractGatherer {
 	// msgSearchService, so we know what's being searched. Also, the Refactor
 	// menu's Rename... item can do this automatically.
 	MessageSearchService searchService;
-
+	
+	public void execute(JobExecutionContext arg0) throws JobExecutionException {
+		System.out.println(getStatistics());
+	}
 	public StatsMsgSearchGatherer() {
 //		setAttributes();
 	}

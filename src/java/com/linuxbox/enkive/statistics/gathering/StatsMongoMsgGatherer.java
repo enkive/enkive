@@ -7,6 +7,9 @@ import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.quartz.JobExecutionContext;
+import org.quartz.JobExecutionException;
+
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.Mongo;
@@ -18,6 +21,10 @@ public class StatsMongoMsgGatherer extends AbstractGatherer {
 	protected DB messageDb;
 	protected DBCollection messageColl;
 
+	public void execute(JobExecutionContext arg0) throws JobExecutionException {
+		System.out.println(getStatistics());
+	}
+	
 	public StatsMongoMsgGatherer(Mongo m, String dbName, String collName) {
 		this.m = m;
 		messageDb = m.getDB(dbName);

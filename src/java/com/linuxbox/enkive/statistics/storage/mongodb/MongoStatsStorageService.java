@@ -4,12 +4,14 @@ import static com.linuxbox.enkive.statistics.StatsConstants.STAT_SERVICE_NAME;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_STORAGE_COLLECTION;
 
 import java.net.UnknownHostException;
+import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.quartz.SchedulerException;
 
 import com.linuxbox.enkive.statistics.gathering.StatsMongoMsgGatherer;
 import com.linuxbox.enkive.statistics.gathering.GathererException;
@@ -87,7 +89,7 @@ public class MongoStatsStorageService extends AbstractService implements
 	}
 
 	public static void main(String args[]) throws UnknownHostException,
-			MongoException, GathererException, StatsStorageException {
+			MongoException, GathererException, StatsStorageException, SchedulerException, ParseException {
 		MongoStatsStorageService storage = new MongoStatsStorageService();
 		AbstractGatherer dbProp = new StatsMongoDBGatherer(m, "enkive");
 		AbstractGatherer collProp = new StatsMongoCollectionGatherer(m,

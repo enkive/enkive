@@ -13,12 +13,7 @@ import org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean;
 
 @Configuration	
 public class GathererConfigBean {
-	@Bean
-	public JobDetailBean createBean(String serviceName, Object service, String method ){
-		System.out.println(serviceName + " " + service + " " + method);
-		return new JobDetailBean();
-	}
-	/*private String service;
+	private String service;
 	private String method;
 	private String schedule;
 	private Object obj;
@@ -40,28 +35,24 @@ public class GathererConfigBean {
 	public void setJobDetail(JobDetail job){
 		this.job = job;
 	}
-
+	
 	@Bean
 	public MethodInvokingJobDetailFactoryBean createMethodInvokingJobDetail() throws ClassNotFoundException, NoSuchMethodException{
 		MethodInvokingJobDetailFactoryBean jobDetailFactory = new MethodInvokingJobDetailFactoryBean();
 		jobDetailFactory.setBeanName(service + "Bean");
-		jobDetailFactory.setName(service + "Job");
-		jobDetailFactory.setGroup(service + "Group");
-		jobDetailFactory.setConcurrent(true);
-		System.out.println("obj" + obj);
 		jobDetailFactory.setTargetObject(obj);
+		jobDetailFactory.setTargetMethod(method);
+		jobDetailFactory.setConcurrent(false);
+		jobDetailFactory.afterPropertiesSet();
+		
 		if(obj == null)
 			System.out.println("OBJ is NULL");
-		//System.out.println(obj.getClass());
-		//jobDetailFactory.setTargetClass(obj.getClass());
-		jobDetailFactory.setTargetMethod(method);
-		jobDetailFactory.afterPropertiesSet();
-		System.out.println("IsSingleton: " + jobDetailFactory.isSingleton());
+		
 		return jobDetailFactory;
 	}
 	
-	public JobDetail createJobDetail() throws ClassNotFoundException, NoSuchMethodException{
-		return (JobDetail) createMethodInvokingJobDetail().getObject();
+	public MethodInvokingJobDetailFactoryBean createJobDetail() throws ClassNotFoundException, NoSuchMethodException {
+		return createMethodInvokingJobDetail();
 	}
 	
 	@Bean
@@ -76,8 +67,14 @@ public class GathererConfigBean {
 	public CronTrigger createTrigger() throws ParseException{
 		return createTriggerBean();
 	}
-	*/
-/*	@Bean
+/*	
+  
+  	@Bean
+	public JobDetailBean createBean(String serviceName, Object service, String method ){
+		System.out.println(serviceName + " " + service + " " + method);
+		return new JobDetailBean();
+	}
+	@Bean
 	public MethodInvokingJobDetailFactoryBean createMethodInvokingJobDetail(String service, Object obj, String method) throws ClassNotFoundException, NoSuchMethodException{
 		MethodInvokingJobDetailFactoryBean jobDetailFactory = new MethodInvokingJobDetailFactoryBean();
 		jobDetailFactory.setBeanName(service + "Bean");
@@ -108,3 +105,4 @@ public class GathererConfigBean {
 	}
 */
 }
+

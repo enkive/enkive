@@ -1,8 +1,11 @@
 package com.linuxbox.enkive.statistics.services;
 
+import java.text.ParseException;
 import java.util.Date;
 import java.util.Map;
 import java.util.Set;
+
+import org.quartz.SchedulerException;
 
 import com.linuxbox.enkive.statistics.retrieval.StatsRetrievalException;
 import com.linuxbox.enkive.statistics.storage.StatsStorageException;
@@ -19,7 +22,7 @@ public class StatsClient {
 	}
 	
 	// TODO: add attributes checking
-	public Set<Map<String, Object>> gatherData() {
+	public Set<Map<String, Object>> gatherData() throws ParseException, SchedulerException {
 		return gathererService.gatherStats();
 	}
 
@@ -28,7 +31,7 @@ public class StatsClient {
 		storageService.storeStatistics(set);
 	}
 
-	public void gatherAndStoreData() throws StatsStorageException {
+	public void gatherAndStoreData() throws StatsStorageException, ParseException, SchedulerException {
 		storeData(gatherData());
 	}
 	

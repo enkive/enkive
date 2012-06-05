@@ -9,9 +9,15 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Map;
 
+import org.quartz.JobExecutionContext;
+import org.quartz.JobExecutionException;
+
 public class UnixPostfixQueueStatisticsService extends AbstractGatherer
 		implements GathererInterface {
 
+	public void execute(JobExecutionContext arg0) throws JobExecutionException {
+		System.out.println(getStatistics());
+	}
 	// public static String POSTFIX_QUEUE_COMMAND = "postqueue -p";
 	public static String POSTQUEUE_OUTPUT_MANIPULATOR_PIPELINE = " | grep Requests | cut -d' ' -f 5";
 	public static String POSTFIX_QUEUE_COMMAND = "cat /tmp/test.txt";
