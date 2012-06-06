@@ -144,7 +144,7 @@
 		<property name="cronExpression" value="10 * * * * ?" />
 	</bean>
 
-	<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+	<bean id="ScheduledJobsBean" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
 		<property name="triggers">
 			<list>
 				<!-- Uncomment the next line to enable message retention policy -->

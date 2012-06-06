@@ -74,7 +74,7 @@ public class StatsGathererService extends AbstractService {
 	 
 	public Set<Map<String, Object>> gatherStats(Map<String, String[]> map) throws ParseException, SchedulerException {
 		//if no map given create one that is for all the known gatherers
-		if (map == null) {
+	/*	if (map == null) {
 			map = new HashMap<String, String[]>();
 			for (String str : statsGatherers.keySet()) {
 				map.put(str, null);
@@ -87,7 +87,7 @@ public class StatsGathererService extends AbstractService {
 			CronTrigger ct = new CronTrigger(name+"Trigger", "triggers", statsGatherers.get(name).getSchedule());
 			sched.scheduleJob(jd,ct);
 		}
-
+	*/
 /*
 		Set<Map<String, Object>> statsSet = createSet();
 		for (String name : map.keySet()) {

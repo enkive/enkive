@@ -29,13 +29,6 @@ public class StatsMsgSearchGatherer extends AbstractGatherer {
 	// menu's Rename... item can do this automatically.
 	MessageSearchService searchService;
 	
-	public void execute(JobExecutionContext arg0) throws JobExecutionException {
-		System.out.println(getStatistics());
-	}
-	public StatsMsgSearchGatherer() {
-//		setAttributes();
-	}
-
 	// NOAH: the log does not match the package this is actually in
 	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.statistics.mongodb");

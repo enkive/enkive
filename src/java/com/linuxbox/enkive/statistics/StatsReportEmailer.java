@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.net.URISyntaxException;
+import java.text.ParseException;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -22,6 +23,7 @@ import javax.mail.internet.MimeMessage;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.quartz.SchedulerException;
 
 import com.linuxbox.enkive.statistics.gathering.GathererException;
 import com.linuxbox.enkive.statistics.retrieval.StatsRetrievalException;
@@ -117,7 +119,7 @@ public class StatsReportEmailer {
 
 	private String buildReportWithTemplate() throws IOException,
 			TemplateException, URISyntaxException, GathererException,
-			StatsRetrievalException {
+			StatsRetrievalException, ParseException, SchedulerException {
 		Configuration cfg = new Configuration();
 		File templatesDirectory = new File("config/templates");
 		cfg.setDirectoryForTemplateLoading(templatesDirectory);

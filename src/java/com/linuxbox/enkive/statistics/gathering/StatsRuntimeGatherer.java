@@ -16,15 +16,6 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
 public class StatsRuntimeGatherer extends AbstractGatherer {
-
-	public void execute(JobExecutionContext arg0) throws JobExecutionException {
-		System.out.println(getStatistics());
-	}
-	
-	public StatsRuntimeGatherer() {
-		setSchedule("0/1 * * * * ?");
-	}
-
 	public Map<String, Object> getStats() {
 		Map<String, Object> stats = createMap();
 		Runtime runtime = Runtime.getRuntime();

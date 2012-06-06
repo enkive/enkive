@@ -28,7 +28,8 @@ public class StatsClient {
 
 	public void storeData(Set<Map<String, Object>> set)
 			throws StatsStorageException {
-		storageService.storeStatistics(set);
+		System.out.println("Don't do that! (StatsClient-storeData())");
+//		storageService.storeStatistics(set);
 	}
 
 	public void gatherAndStoreData() throws StatsStorageException, ParseException, SchedulerException {

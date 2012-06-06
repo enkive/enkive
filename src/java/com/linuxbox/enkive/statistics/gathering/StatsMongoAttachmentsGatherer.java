@@ -47,26 +47,11 @@ public class StatsMongoAttachmentsGatherer extends AbstractGatherer {
 	public void setUpper(Date upper) {
 		this.upper = upper;
 	}
-
-	public StatsMongoAttachmentsGatherer(){
-		try {
-			this.m = new Mongo();
-		} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (MongoException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		db = m.getDB("enkive");
-		collectionName = "fs.files";
-	}
 	
 	public StatsMongoAttachmentsGatherer(Mongo m, String dbName, String coll) {
 		this.m = m;
 		db = m.getDB(dbName);
 		collectionName = coll + ".files";
-		setSchedule("0/15 * * * * ?");
 	}
 
 	private Map<String, Object> makeDateQuery() {

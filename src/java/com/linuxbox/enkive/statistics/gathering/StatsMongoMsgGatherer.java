@@ -21,15 +21,10 @@ public class StatsMongoMsgGatherer extends AbstractGatherer {
 	protected DB messageDb;
 	protected DBCollection messageColl;
 
-	public void execute(JobExecutionContext arg0) throws JobExecutionException {
-		System.out.println(getStatistics());
-	}
-	
 	public StatsMongoMsgGatherer(Mongo m, String dbName, String collName) {
 		this.m = m;
 		messageDb = m.getDB(dbName);
 		messageColl = messageDb.getCollection(collName);
-//		setAttributes();
 	}
 
 	@Override
@@ -37,7 +32,6 @@ public class StatsMongoMsgGatherer extends AbstractGatherer {
 		Map<String, Object> result = new HashMap<String, Object>();
 		result.put(STAT_TIME_STAMP, System.currentTimeMillis());
 		result.put(ARCHIVE_SIZE, messageColl.count());
-//		attributes.incrementTime();
 		return result;
 	}
 

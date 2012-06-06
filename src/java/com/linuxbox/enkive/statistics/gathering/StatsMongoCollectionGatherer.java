@@ -34,28 +34,10 @@ public class StatsMongoCollectionGatherer extends AbstractGatherer {
 
 	protected Mongo m;
 	protected DB db;
-
-	public void execute(JobExecutionContext arg0) throws JobExecutionException {
-		System.out.println(getStatistics());
-	}
-	
-	public StatsMongoCollectionGatherer(){
-		try {
-			this.m = new Mongo();
-		} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (MongoException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		db = m.getDB("enkive");
-	}
 	
 	public StatsMongoCollectionGatherer(Mongo m, String dbName) {
 		this.m = m;
 		db = m.getDB(dbName);
-		setSchedule("0/20 * * * * ?");
 	}
 
 	private Map<String, Object> getStats(String collectionName) {
@@ -95,8 +77,6 @@ public class StatsMongoCollectionGatherer extends AbstractGatherer {
 			collStats.put(collName, getStats(key));
 		}
 		collStats.put(STAT_TIME_STAMP, System.currentTimeMillis());
-
-//		attributes.incrementTime();
 		return collStats;
 	}
 
