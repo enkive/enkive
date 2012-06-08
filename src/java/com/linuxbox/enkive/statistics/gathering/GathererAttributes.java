@@ -3,23 +3,25 @@ package com.linuxbox.enkive.statistics.gathering;
 import java.util.Map;
 
 public class GathererAttributes {
-	private int interval;//minutes
-	private START start;
-	private Map<String, Object> defaultMap;
+	protected String serviceName;
+	protected String schedule;
+	protected Map<String, String> keys;
 	
-	public enum START{
-		ONE, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE, TEN, ELEVEN, TWELVE,
-		ONEP, TWOP, THREEP, FOURP, FIVEP, SIXP, SEVENP, EIGHTP, NINEP, TENP, ELEVENP, TWELVEP
+	public GathererAttributes(String serviceName, String schedule, Map<String, String> keys){
+		this.serviceName = serviceName;
+		this.schedule = schedule;
+		this.keys = keys;
 	}
 	
-	public GathererAttributes(int interval, START start, Map<String, Object> map) {
-		this.interval = interval;//fraction of hour
-		this.start = start;
-		defaultMap = map;
+	public String getName(){
+		return serviceName;
 	}
-
-	public Map<String, Object> getDefaultMap() {
-		return defaultMap;
+	
+	public String getSchedule(){
+		return schedule;
 	}
-
+	
+	public Map<String, String> getKeys(){
+		return keys;
+	}
 }

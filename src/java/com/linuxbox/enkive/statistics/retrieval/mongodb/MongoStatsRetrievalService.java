@@ -114,7 +114,7 @@ public class MongoStatsRetrievalService extends AbstractService implements
 		Set<DBObject> hMapSet = buildSet(hMap);
 		Set<DBObject> dateSet = buildSet(lower, upper);
 		Set<DBObject> bothSet = new HashSet<DBObject>();
-		
+
 		for (DBObject dateDBObj : dateSet) {
 			for (DBObject mapDBObj : hMapSet) {
 				if (mapDBObj.get(STAT_SERVICE_NAME).equals(
@@ -130,7 +130,7 @@ public class MongoStatsRetrievalService extends AbstractService implements
 	// assuming statName is service name
 	@Override
 	public Set<Map<String, Object>> queryStatistics()
-			throws StatsRetrievalException {	
+			throws StatsRetrievalException {
 		return queryStatistics(null, null, null);
 	}
 
@@ -156,7 +156,7 @@ public class MongoStatsRetrievalService extends AbstractService implements
 		if (endingTimestamp == null) {
 			endingTimestamp = new Date();
 		}
-		
+
 		Set<Map<String, Object>> allStats = new HashSet<Map<String, Object>>();
 		for (DBObject entry : buildSet(stats, startingTimestamp.getTime(),
 				endingTimestamp.getTime())) {
@@ -166,6 +166,13 @@ public class MongoStatsRetrievalService extends AbstractService implements
 		}
 		return allStats;
 	}
+	
+	public void remove(Set<Map<String, Object>> deletionSet) throws StatsRetrievalException{
+		for(Map<String, Object> map: deletionSet){
+			coll.remove((DBObject)map);
+		}
+	}
+	
 
 	public static void main(String args[]) throws StatsRetrievalException {
 		System.out.println("Starting Retrieval Test: ");

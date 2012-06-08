@@ -236,7 +236,8 @@ public class MongoMessageSearchService extends AbstractMessageSearchService {
 								.get(DATE_LATEST_PARAMETER)));
 						c.add(Calendar.DATE, 1);
 						Date dateLatest = c.getTime();
-						dateQuery.put("$lte", dateLatest);
+						//TODO: Make sure lt is what we want
+						dateQuery.put("$lt", dateLatest);
 					} catch (ParseException e) {
 						if (LOGGER.isWarnEnabled())
 							LOGGER.warn("Could not parse latest date submitted to search - "

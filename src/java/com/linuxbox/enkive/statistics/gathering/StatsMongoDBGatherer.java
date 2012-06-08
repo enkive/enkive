@@ -14,32 +14,46 @@ import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TOTAL_SIZE;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TYPE;
 
 import java.net.UnknownHostException;
-import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.Mongo;
 import com.mongodb.MongoException;
 
-public class StatsMongoDBGatherer extends AbstractGatherer {	
+public class StatsMongoDBGatherer extends AbstractGatherer {
 	protected final static Log LOGGER = LogFactory
-			.getLog("com.linuxbox.enkive.statistics.mongodb");
+			.getLog("com.linuxbox.enkive.statistics.gathering");
 
 	protected Mongo m;
 	protected DB db;
 
-	public StatsMongoDBGatherer(Mongo m, String dbName) {
+	public StatsMongoDBGatherer(Mongo m, String dbName, String serviceName, String schedule) {
 		this.m = m;
 		db = m.getDB(dbName);
-		setSchedule("0/10 * * * * ?");
+		Map<String, String> keys = new HashMap<String, String>();
+		keys.put(STAT_TYPE, null);
+		keys.put(STAT_NAME, null);
+		keys.put(STAT_NUM_COLLECTIONS, null);
+		keys.put(STAT_NUM_OBJS, "AVG");
+		keys.put(STAT_AVG_OBJ_SIZE, "AVG");
+		keys.put(STAT_DATA_SIZE, "AVG");
+		keys.put(STAT_TOTAL_SIZE, "AVG");
+		keys.put(STAT_NUM_INDEX, "AVG");
+		keys.put(STAT_TOTAL_INDEX_SIZE, "AVG");
+		keys.put(STAT_NUM_EXTENT, "AVG");
+		keys.put(STAT_FILE_SIZE, "AVG");
+		keys.put(STAT_TIME_STAMP, "AVG");
+		
+		attributes = new GathererAttributes(serviceName, schedule, keys);
 	}
-	
+
 	public BasicDBObject getStats() {
 		BasicDBObject stats = new BasicDBObject();
 		BasicDBObject temp = db.getStats();
@@ -65,7 +79,7 @@ public class StatsMongoDBGatherer extends AbstractGatherer {
 	public static void main(String args[]) throws UnknownHostException,
 			MongoException {
 		StatsMongoDBGatherer dbProps = new StatsMongoDBGatherer(new Mongo(),
-				"enkive");
+				"enkive", "hi", "*");
 		System.out.println(dbProps.getStatistics());
 		String[] keys = { STAT_TYPE, STAT_NAME, STAT_NUM_OBJS, STAT_FILE_SIZE };
 		System.out.println(dbProps.getStatistics(keys));

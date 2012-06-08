@@ -1,4 +1,4 @@
-	package com.linuxbox.enkive.statistics.services;
+package com.linuxbox.enkive.statistics.services;
 
 import static com.linuxbox.enkive.statistics.StatsConstants.*;
 
@@ -8,24 +8,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import com.linuxbox.enkive.archiver.schedule_detete_when_done.*;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.quartz.CronTrigger;
-import org.quartz.JobDetail;
-import org.quartz.JobExecutionContext;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.SchedulerFactory;
 import org.quartz.impl.StdSchedulerFactory;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.scheduling.quartz.CronTriggerBean;
-import org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean;
 
 import com.linuxbox.enkive.statistics.gathering.AbstractGatherer;
-import com.linuxbox.enkive.statistics.gathering.GathererConfigBean;
 import com.linuxbox.enkive.statistics.gathering.StatsMongoAttachmentsGatherer;
 import com.linuxbox.enkive.statistics.gathering.StatsMongoCollectionGatherer;
 import com.linuxbox.enkive.statistics.gathering.StatsMongoDBGatherer;
@@ -33,92 +23,89 @@ import com.linuxbox.enkive.statistics.gathering.StatsRuntimeGatherer;
 import com.mongodb.Mongo;
 import com.mongodb.MongoException;
 
-@Configuration
 public class StatsGathererService extends AbstractService {
 	SchedulerFactory sf;
 	Scheduler sched;
 	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.statistics.mongodb");
-	Map<String, AbstractGatherer> statsGatherers = null;
-	
-	public void setUp() throws SchedulerException, ParseException{
-		sf=new StdSchedulerFactory();
-	  	sched=sf.getScheduler();
-	  	gatherStats(null);
-	  	sched.start();
+	protected Map<String, AbstractGatherer> statsGatherers = null;
+
+	public void setUp() throws SchedulerException, ParseException {
+		sf = new StdSchedulerFactory();
+		sched = sf.getScheduler();
+		gatherStats(null);
+		sched.start();
 	}
-	
+
 	public StatsGathererService() throws SchedulerException, ParseException {
 		setUp();
 	}
-	
-	public StatsGathererService(Map<String, AbstractGatherer> statsGatherers) throws SchedulerException, ParseException {
+
+	public StatsGathererService(Map<String, AbstractGatherer> statsGatherers)
+			throws SchedulerException, ParseException {
 		this.statsGatherers = statsGatherers;
 		setUp();
 	}
 
-	public StatsGathererService(String serviceName, AbstractGatherer service) throws SchedulerException, ParseException {
+	public StatsGathererService(String serviceName, AbstractGatherer service)
+			throws SchedulerException, ParseException {
 		statsGatherers = new HashMap<String, AbstractGatherer>();
 		statsGatherers.put(serviceName, service);
 		setUp();
 	}
 
-	// all stats
+	public Map<String, AbstractGatherer> getStatsGatherers(){
+		return statsGatherers;
+	}
 	public void addGatherer(String name, AbstractGatherer gatherer) {
 		statsGatherers.put(name, gatherer);
 	}
 
-	public Set<Map<String, Object>> gatherStats() throws ParseException, SchedulerException {
+	public void removeGatherer(String name) {
+		statsGatherers.remove(name);
+	}
+
+	public Set<Map<String, Object>> gatherStats() throws ParseException,
+			SchedulerException {
 		return gatherStats(null);
 	}
-	 
-	public Set<Map<String, Object>> gatherStats(Map<String, String[]> map) throws ParseException, SchedulerException {
-		//if no map given create one that is for all the known gatherers
-	/*	if (map == null) {
-			map = new HashMap<String, String[]>();
-			for (String str : statsGatherers.keySet()) {
-				map.put(str, null);
-			}
-		}
-		
-		for(String name : map.keySet()){
-			JobDetail jd = new JobDetail(name+"Job", "jobs", statsGatherers.get(name).getClass());
-			System.out.println(statsGatherers.get(name).getClass() + " " + statsGatherers.get(name).getSchedule());
-			CronTrigger ct = new CronTrigger(name+"Trigger", "triggers", statsGatherers.get(name).getSchedule());
-			sched.scheduleJob(jd,ct);
-		}
-	*/
-/*
-		Set<Map<String, Object>> statsSet = createSet();
-		for (String name : map.keySet()) {
-//			long attributeTime = statsGatherers.get(name).attributes
-//					.getNextRunTime();
-			long currTime = System.currentTimeMillis();
-			// if not time skip that one
-//			if (attributeTime > currTime) {
-//				continue;
-//			}
-			Map<String, Object> temp = createMap();
-			if (map.get(name) != null)
-				temp.put(name,
-						statsGatherers.get(name).getStatistics(map.get(name)));
-			else
-				temp.put(name, statsGatherers.get(name).getStatistics());
-			statsSet.add(temp);
-		}
-		return statsSet;
-*/		return null;
+
+	public Set<Map<String, Object>> gatherStats(Map<String, String[]> map)
+			throws ParseException, SchedulerException {
+		// if no map given create one that is for all the known gatherers
+		/*
+		 * if (map == null) { map = new HashMap<String, String[]>(); for (String
+		 * str : statsGatherers.keySet()) { map.put(str, null); } }
+		 * 
+		 * for(String name : map.keySet()){ JobDetail jd = new
+		 * JobDetail(name+"Job", "jobs", statsGatherers.get(name).getClass());
+		 * System.out.println(statsGatherers.get(name).getClass() + " " +
+		 * statsGatherers.get(name).getSchedule()); CronTrigger ct = new
+		 * CronTrigger(name+"Trigger", "triggers",
+		 * statsGatherers.get(name).getSchedule()); sched.scheduleJob(jd,ct); }
+		 */
+		/*
+		 * Set<Map<String, Object>> statsSet = createSet(); for (String name :
+		 * map.keySet()) { // long attributeTime =
+		 * statsGatherers.get(name).attributes // .getNextRunTime(); long
+		 * currTime = System.currentTimeMillis(); // if not time skip that one
+		 * // if (attributeTime > currTime) { // continue; // } Map<String,
+		 * Object> temp = createMap(); if (map.get(name) != null) temp.put(name,
+		 * statsGatherers.get(name).getStatistics(map.get(name))); else
+		 * temp.put(name, statsGatherers.get(name).getStatistics());
+		 * statsSet.add(temp); } return statsSet;
+		 */return null;
 	}
 
 	public static void main(String args[]) throws UnknownHostException,
 			MongoException {
 		StatsRuntimeGatherer runProps = new StatsRuntimeGatherer();
 		StatsMongoAttachmentsGatherer attachProps = new StatsMongoAttachmentsGatherer(
-				new Mongo(), "enkive", "fs");
+				new Mongo(), "enkive", "fs", "AttachName", "cronExpress");
 		StatsMongoDBGatherer dbProps = new StatsMongoDBGatherer(new Mongo(),
-				"enkive");
+				"enkive", "attachName", "cronexpress");
 		StatsMongoCollectionGatherer collProps = new StatsMongoCollectionGatherer(
-				new Mongo(), "enkive");
+				new Mongo(), "enkive", "collName", "cronExpression");
 
 		Map<String, AbstractGatherer> gatherers = new HashMap<String, AbstractGatherer>();
 		gatherers.put("runProps", runProps);
@@ -134,12 +121,13 @@ public class StatsGathererService extends AbstractService {
 		serviceKeys.put("attachProps", keys);
 		serviceKeys.put("dbProps", keys);
 		serviceKeys.put("collProps", keys);
-		
-		try{ 
-			StatsGathererService service = new StatsGathererService(gatherers);			  
-		 }catch(Exception e){
-			 System.exit(0);
-			 //TODO: handle this
-		 }
+
+		try {
+			@SuppressWarnings("unused")
+			StatsGathererService service = new StatsGathererService(gatherers);
+		} catch (Exception e) {
+			System.exit(0);
+			// TODO: handle this
+		}
 	}
 }

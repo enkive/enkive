@@ -6,6 +6,7 @@ import java.util.Set;
 import com.linuxbox.enkive.statistics.storage.StatsStorageException;
 
 /*
+ * TODO:
  * NOAH: I don't know if we want to have statistics w/ different
  * granularity -- hourly, daily, monthly, annually. I created a
  * Granularity enum (the forgotten sibling of class and interface)

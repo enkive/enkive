@@ -10,13 +10,12 @@ import static com.linuxbox.enkive.statistics.StatsConstants.THIRTY_DAYS;
 import java.net.UnknownHostException;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
 
 import com.linuxbox.enkive.message.search.MessageSearchService;
 import com.linuxbox.enkive.message.search.exception.MessageSearchException;
@@ -24,15 +23,16 @@ import com.linuxbox.enkive.workspace.SearchResult;
 import com.mongodb.MongoException;
 
 public class StatsMsgSearchGatherer extends AbstractGatherer {
-	// NOAH: I'd rather this searchService be called something like
-	// msgSearchService, so we know what's being searched. Also, the Refactor
-	// menu's Rename... item can do this automatically.
 	MessageSearchService searchService;
-	
-	// NOAH: the log does not match the package this is actually in
 	protected final static Log LOGGER = LogFactory
-			.getLog("com.linuxbox.enkive.statistics.mongodb");
-
+			.getLog("com.linuxbox.enkive.statistics.gathering");
+	
+	public StatsMsgSearchGatherer(String serviceName, String schedule) {
+		Map<String, String> keys = new HashMap<String, String>();
+		keys.put(STAT_NUM_ENTRIES, "AVG");
+		attributes = new GathererAttributes(serviceName, schedule, keys);
+	}
+	
 	protected int numEntries(String dateEarliest, String dateLatest) {
 		HashMap<String, String> hmap = new HashMap<String, String>();
 		hmap.put(DATE_EARLIEST_PARAMETER, dateEarliest);
@@ -68,7 +68,6 @@ public class StatsMsgSearchGatherer extends AbstractGatherer {
 		long currTime = System.currentTimeMillis();
 		Date currDate = new Date(currTime);
 		Date prevDate = new Date(currTime - THIRTY_DAYS);
-//		attributes.incrementTime();
 		return getStatistics(prevDate, currDate);
 	}
 
@@ -83,7 +82,6 @@ public class StatsMsgSearchGatherer extends AbstractGatherer {
 
 		result.put(STAT_TIME_STAMP, System.currentTimeMillis());
 		result.put(STAT_NUM_ENTRIES, numEntries(lowerDate, upperDate));
-//		attributes.incrementTime();
 		return result;
 	}
 
@@ -98,7 +96,7 @@ public class StatsMsgSearchGatherer extends AbstractGatherer {
 
 	public static void main(String args[]) throws UnknownHostException,
 			MongoException {
-		StatsMsgSearchGatherer msgEntries = new StatsMsgSearchGatherer();
+		StatsMsgSearchGatherer msgEntries = new StatsMsgSearchGatherer("name", "0/5 * * * ?");
 		System.out.println(msgEntries.getStatistics());
 		String[] keys = {};
 		System.out.println(msgEntries.getStatistics(keys));

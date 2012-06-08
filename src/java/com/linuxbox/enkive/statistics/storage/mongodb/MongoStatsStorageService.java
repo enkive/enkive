@@ -89,16 +89,17 @@ public class MongoStatsStorageService extends AbstractService implements
 	}
 
 	public static void main(String args[]) throws UnknownHostException,
-			MongoException, GathererException, StatsStorageException, SchedulerException, ParseException {
+			MongoException, GathererException, StatsStorageException,
+			SchedulerException, ParseException {
 		MongoStatsStorageService storage = new MongoStatsStorageService();
-		AbstractGatherer dbProp = new StatsMongoDBGatherer(m, "enkive");
+		AbstractGatherer dbProp = new StatsMongoDBGatherer(m, "enkive", "SERVICENAME", "CRONEXPRESSION");
 		AbstractGatherer collProp = new StatsMongoCollectionGatherer(m,
-				"enkive");
+				"enkive", "SERVICENAME", "CRONEXPRESSION");
 		AbstractGatherer runProp = new StatsRuntimeGatherer();
 		AbstractGatherer attProp = new StatsMongoAttachmentsGatherer(m,
-				"enkive", STAT_STORAGE_COLLECTION);
+				"enkive", STAT_STORAGE_COLLECTION, "SERVICENAME", "CRONEXPRESSION");
 		AbstractGatherer msgStatProp = new StatsMongoMsgGatherer(m, "enkive",
-				STAT_STORAGE_COLLECTION);
+				STAT_STORAGE_COLLECTION, "SERVICENAME", "CRONEXPRESSION");
 
 		HashMap<String, AbstractGatherer> map = new HashMap<String, AbstractGatherer>();
 

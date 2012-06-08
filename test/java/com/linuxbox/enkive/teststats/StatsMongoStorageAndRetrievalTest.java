@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 import com.linuxbox.enkive.TestingConstants;
 
 import java.net.UnknownHostException;
+import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -18,6 +19,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
+import org.quartz.SchedulerException;
 
 import com.linuxbox.enkive.docsearch.indri.IndriDocSearchQueryService;
 import com.linuxbox.enkive.message.search.mongodb.MongoMessageSearchService;
@@ -51,7 +53,7 @@ public class StatsMongoStorageAndRetrievalTest {
 	private static String statTypeName;
 	
 	@SuppressWarnings("unchecked")
-	public StatsMongoStorageAndRetrievalTest(HashMap<String, AbstractGatherer> map) throws GathererException {
+	public StatsMongoStorageAndRetrievalTest(HashMap<String, AbstractGatherer> map) throws GathererException, SchedulerException, ParseException {
 		retrievalTester = new MongoStatsRetrievalService(m, TestingConstants.MONGODB_TEST_DATABASE);
 		storageTester = new MongoStatsStorageService(m, TestingConstants.MONGODB_TEST_DATABASE);
 		gatherTester = new StatsGathererService(map);

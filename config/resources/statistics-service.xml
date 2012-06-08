@@ -6,7 +6,6 @@
 	
 	<!-- Statistics Gathering related beans -->
 	<context:annotation-config />
-    <bean class="com.linuxbox.enkive.statistics.gathering.GathererConfigBean"/>
 	
 	<bean id="StatisticsStorer" class="com.linuxbox.enkive.statistics.storage.mongodb.MongoStatsStorageService">
 		<constructor-arg ref="Mongo" />
@@ -17,21 +16,20 @@
 		class="com.linuxbox.enkive.statistics.gathering.StatsMongoMsgGatherer">
 		<constructor-arg ref="Mongo" />
 		<constructor-arg type="java.lang.String" value="${enkive.messagestore.db.name}" />
-		<constructor-arg type="java.lang.String"
-			value="${enkive.messagestore.collection.name}" />
+		<constructor-arg type="java.lang.String" value="${enkive.messagestore.collection.name}" />
+		<constructor-arg name="serviceName" value="MsgStatsService"/>
+		<constructor-arg name="schedule" value="0/5 * * * * ?" />
 		<property name="scheduler" ref="ScheduledJobsBean" />
-		<property name="serviceName" value="MsgStatsService"/>
 		<property name="storageService" ref="StatisticsStorer" />
-		<property name="schedule" value="0/5 * * * * ?" />
 	</bean>
 	
 	<bean id="DetailedMsgStatsService"
 		class="com.linuxbox.enkive.statistics.gathering.StatsMsgSearchGatherer">
+		<constructor-arg name="serviceName" value="DetailedMsgStatsService"/>
+		<constructor-arg name="schedule" value="0/5 * * * * ?" />
 		<property name="scheduler" ref="ScheduledJobsBean" />
-		<property name="serviceName" value="DetailedMsgStatsService"/>
 		<property name="searchService" ref="SystemMessageSearchService" />
 		<property name="storageService" ref="StatisticsStorer" />
-		<property name="schedule" value="0/5 * * * * ?" />
 	</bean>
 
 	<bean id="AttachmentStatsService"
@@ -39,50 +37,50 @@
 		<constructor-arg ref="Mongo" />
 		<constructor-arg type="java.lang.String" value="${enkive.messagestore.db.name}" />
 		<constructor-arg type="java.lang.String" value="${enkive.docstore.fs.collection.name}" />
+		<constructor-arg name="serviceName" value="AttachmentStatsService"/>
+		<constructor-arg name="schedule" value="0/5 * * * * ?" />
 		<property name="scheduler" ref="ScheduledJobsBean" />
-		<property name="serviceName" value="AttachmentStatsService"/>
 		<property name="storageService" ref="StatisticsStorer" />
-		<property name="schedule" value="0/5 * * * * ?" />
 	</bean>
 	
 	<bean id="DatabaseStatsService"
 		class="com.linuxbox.enkive.statistics.gathering.StatsMongoDBGatherer">
 		<constructor-arg ref="Mongo" />
 		<constructor-arg type="java.lang.String" value="${enkive.messagestore.db.name}" />
+		<constructor-arg name="serviceName" value="DatabaseStatsService"/>
+		<constructor-arg name="schedule" value="0/5 * * * * ?" />
 		<property name="scheduler" ref="ScheduledJobsBean" />
-		<property name="serviceName" value="DBStatsService"/>
 		<property name="storageService" ref="StatisticsStorer" />
-		<property name="schedule" value="0/5 * * * * ?" />
 	</bean>
 	
 	<bean id="CollectionStatsService"
 		class="com.linuxbox.enkive.statistics.gathering.StatsMongoCollectionGatherer">
 		<constructor-arg ref="Mongo" />
 		<constructor-arg type="java.lang.String" value="${enkive.messagestore.db.name}" />
+		<constructor-arg name="serviceName" value="CollectionStatsService"/>
+		<constructor-arg name="schedule" value="0/5 * * * * ?" />
 		<property name="scheduler" ref="ScheduledJobsBean" />
-		<property name="serviceName" value="CollStatsService"/>
 		<property name="storageService" ref="StatisticsStorer" />
-		<property name="schedule" value="0/5 * * * * ?" />
 	</bean>
 	
 	<bean id="RuntimeStatsService"
 		class="com.linuxbox.enkive.statistics.gathering.StatsRuntimeGatherer">
+		<constructor-arg name="serviceName" value="RuntimeStatsService"/>
+		<constructor-arg name="schedule" value="0/5 * * * * ?" />
 		<property name="scheduler" ref="ScheduledJobsBean" />
-		<property name="serviceName" value="RuntimeStatsService"/>
 		<property name="storageService" ref="StatisticsStorer" />
-		<property name="schedule" value="0/5 * * * * ?" />
 	</bean>
 
 	<bean id="StatisticsGatherer" class="com.linuxbox.enkive.statistics.services.StatsGathererService">
 		<constructor-arg>
 			<map>
-	<!--			<entry key="MsgStatsService" value-ref="MsgStatsService" />
+				<entry key="MsgStatsService" value-ref="MsgStatsService" />
 				<entry key="DetailedMsgStatsService" value-ref="DetailedMsgStatsService" />
 				<entry key="AttachmentStatsService" value-ref="AttachmentStatsService" />
 				<entry key="DatabaseStatsService" value-ref="DatabaseStatsService" />
 				<entry key="CollectionStatsService" value-ref="CollectionStatsService" />
 				<entry key="RuntimeStatsService" value-ref="RuntimeStatsService" />
-	-->		</map>
+			</map>
 		</constructor-arg>
 	</bean>
 	
@@ -115,7 +113,15 @@
 		<property name="targetMethod" value="logReport" />
 		<property name="concurrent" value="false" />
 	</bean>
-
+	
+	<bean id="hourlyConsolidator"
+		class="com.linuxbox.enkive.statistics.granularity.AbstractGrain">
+		<property name="client" ref="StatisticsClient" />
+		<property name="scheduler" ref="ScheduledJobsBean" />
+		<property name="time" value="hourly" />
+	</bean>
+	
+<!--
 	<bean id="StatisticsStorageJob"
 		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
 		<property name="targetObject" ref="StatisticsClient" />
@@ -125,7 +131,8 @@
 
 	<bean id="StatisticsReportTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
 		<property name="jobDetail" ref="StatisticsStorageJob" />
-		<property name="cronExpression" value="10 * * * * ?" />
+		<property name="cronExpression" value="* * * * 1 ?" />
 	</bean>
+-->
 </beans>
 	

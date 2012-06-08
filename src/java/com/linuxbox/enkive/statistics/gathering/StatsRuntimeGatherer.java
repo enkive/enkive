@@ -9,13 +9,21 @@ import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIME_STAMP;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TOTAL_MEMORY;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TYPE;
 
-import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
-
 public class StatsRuntimeGatherer extends AbstractGatherer {
+	
+	public StatsRuntimeGatherer(String serviceName, String schedule){
+		Map<String, String> keys = new HashMap<String, String>();
+		keys.put(STAT_MAX_MEMORY, "MAX");
+		keys.put(STAT_FREE_MEMORY, "AVG");
+		keys.put(STAT_TOTAL_MEMORY, "AVG");
+		keys.put(STAT_PROCESSORS, "AVG");
+		keys.put(STAT_TIME_STAMP, "AVG");
+		attributes = new GathererAttributes(serviceName, schedule, keys);
+	}
+	
 	public Map<String, Object> getStats() {
 		Map<String, Object> stats = createMap();
 		Runtime runtime = Runtime.getRuntime();
@@ -32,7 +40,7 @@ public class StatsRuntimeGatherer extends AbstractGatherer {
 	}
 
 	public static void main(String args[]) {
-		StatsRuntimeGatherer runProps = new StatsRuntimeGatherer();
+		StatsRuntimeGatherer runProps = new StatsRuntimeGatherer("SERVICENAME", "CRONEXPRESSION");
 		System.out.println(runProps.getStatistics());
 		String[] keys = { STAT_TYPE, STAT_NAME, STAT_DATA_SIZE,
 				STAT_TOTAL_MEMORY, STAT_FREE_MEMORY };

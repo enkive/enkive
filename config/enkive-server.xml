@@ -149,7 +149,7 @@
 			<list>
 				<!-- Uncomment the next line to enable message retention policy -->
 				<!-- <ref bean="MessageRetentionTrigger" /> -->
-				<ref bean="StatisticsReportTrigger" />
+				<!-- <ref bean="StatisticsReportTrigger" /> -->
 			</list>
 		</property>
 	</bean>

@@ -9,14 +9,14 @@ import static com.linuxbox.enkive.statistics.StatsConstants.THIRTY_DAYS;
 import java.net.UnknownHostException;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
+
 import static com.linuxbox.enkive.statistics.StatsConstants.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
 
-import com.linuxbox.enkive.statistics.storage.StatsStorageException;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
@@ -26,12 +26,12 @@ import com.mongodb.MongoException;
 
 public class StatsMongoAttachmentsGatherer extends AbstractGatherer {
 	protected final static Log LOGGER = LogFactory
-			.getLog("com.linuxbox.enkive.statistics.mongodb");
+			.getLog("com.linuxbox.enkive.statistics.gathering");
 	protected Mongo m;
 	protected DB db;
 	protected Date lower, upper;// uploadDate
 	protected String collectionName;
-	
+
 	public Date getLower() {
 		return lower;
 	}
@@ -48,10 +48,16 @@ public class StatsMongoAttachmentsGatherer extends AbstractGatherer {
 		this.upper = upper;
 	}
 	
-	public StatsMongoAttachmentsGatherer(Mongo m, String dbName, String coll) {
+	public StatsMongoAttachmentsGatherer(Mongo m, String dbName, String coll, String serviceName, String schedule) {
 		this.m = m;
 		db = m.getDB(dbName);
 		collectionName = coll + ".files";
+		Map<String, String> keys = new HashMap<String, String>();
+		keys.put(STAT_AVG_ATTACH, "AVG");
+		keys.put(STAT_MAX_ATTACH, "MAX");
+		keys.put(STAT_TIME_STAMP, "AVG");
+		keys.put(STAT_NAME, null);
+		attributes = new GathererAttributes(serviceName, schedule, keys);
 	}
 
 	private Map<String, Object> makeDateQuery() {
@@ -116,7 +122,7 @@ public class StatsMongoAttachmentsGatherer extends AbstractGatherer {
 	public static void main(String args[]) throws UnknownHostException,
 			MongoException {
 		StatsMongoAttachmentsGatherer attachProps = new StatsMongoAttachmentsGatherer(
-				new Mongo(), "enkive", "fs");
+				new Mongo(), "enkive", "fs", "name", "cron");
 		System.out.println(attachProps.getStatistics());
 		String[] keys = { STAT_TYPE, STAT_NAME, STAT_DATA_SIZE, STAT_AVG_ATTACH };
 		System.out.println(attachProps.getStatistics(keys));

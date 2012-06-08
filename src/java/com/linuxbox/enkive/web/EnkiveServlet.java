@@ -90,7 +90,7 @@ public class EnkiveServlet extends HttpServlet {
 	public PermissionService getPermissionService() {
 		return appContext.getBean(PermissionService.class);
 	}
-	
+
 	public StatsClient getStatsClient() {
 		return appContext.getBean("StatisticsClient", StatsClient.class);
 	}
