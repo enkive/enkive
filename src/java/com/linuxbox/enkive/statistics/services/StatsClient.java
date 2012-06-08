@@ -8,10 +8,10 @@ import java.util.Set;
 
 import org.quartz.SchedulerException;
 
-import com.linuxbox.enkive.statistics.gathering.AbstractGatherer;
 import com.linuxbox.enkive.statistics.gathering.GathererAttributes;
+import com.linuxbox.enkive.statistics.gathering.GathererInterface;
 import com.linuxbox.enkive.statistics.retrieval.StatsRetrievalException;
-//TODO: statsClient must handle all the exeptions
+
 public class StatsClient {
 	protected StatsGathererService gathererService;
 	protected StatsStorageService storageService;
@@ -64,7 +64,7 @@ public class StatsClient {
 	}
 	
 	public Set<GathererAttributes> getAttributes(){
-		Map<String, AbstractGatherer> gatherers = gathererService.getStatsGatherers();
+		Map<String, GathererInterface> gatherers = gathererService.getStatsGatherers();
 		Set<GathererAttributes> attributeSet = new HashSet<GathererAttributes>();
 		for(String name: gathererNames()){
 			GathererAttributes attribute = gatherers.get(name).getAttributes();

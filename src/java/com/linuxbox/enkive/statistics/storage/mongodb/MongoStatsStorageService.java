@@ -15,7 +15,7 @@ import org.quartz.SchedulerException;
 
 import com.linuxbox.enkive.statistics.gathering.StatsMongoMsgGatherer;
 import com.linuxbox.enkive.statistics.gathering.GathererException;
-import com.linuxbox.enkive.statistics.gathering.AbstractGatherer;
+import com.linuxbox.enkive.statistics.gathering.GathererInterface;
 import com.linuxbox.enkive.statistics.gathering.StatsMongoAttachmentsGatherer;
 import com.linuxbox.enkive.statistics.gathering.StatsMongoCollectionGatherer;
 import com.linuxbox.enkive.statistics.gathering.StatsMongoDBGatherer;
@@ -92,16 +92,16 @@ public class MongoStatsStorageService extends AbstractService implements
 			MongoException, GathererException, StatsStorageException,
 			SchedulerException, ParseException {
 		MongoStatsStorageService storage = new MongoStatsStorageService();
-		AbstractGatherer dbProp = new StatsMongoDBGatherer(m, "enkive", "SERVICENAME", "CRONEXPRESSION");
-		AbstractGatherer collProp = new StatsMongoCollectionGatherer(m,
+		GathererInterface dbProp = new StatsMongoDBGatherer(m, "enkive", "SERVICENAME", "CRONEXPRESSION");
+		GathererInterface collProp = new StatsMongoCollectionGatherer(m,
 				"enkive", "SERVICENAME", "CRONEXPRESSION");
-		AbstractGatherer runProp = new StatsRuntimeGatherer();
-		AbstractGatherer attProp = new StatsMongoAttachmentsGatherer(m,
+		GathererInterface runProp = new StatsRuntimeGatherer("SERVICENAME", "CRONEXPRESSION");
+		GathererInterface attProp = new StatsMongoAttachmentsGatherer(m,
 				"enkive", STAT_STORAGE_COLLECTION, "SERVICENAME", "CRONEXPRESSION");
-		AbstractGatherer msgStatProp = new StatsMongoMsgGatherer(m, "enkive",
+		GathererInterface msgStatProp = new StatsMongoMsgGatherer(m, "enkive",
 				STAT_STORAGE_COLLECTION, "SERVICENAME", "CRONEXPRESSION");
 
-		HashMap<String, AbstractGatherer> map = new HashMap<String, AbstractGatherer>();
+		HashMap<String, GathererInterface> map = new HashMap<String, GathererInterface>();
 
 		map.put("DatabaseStatsService", dbProp);
 		map.put("CollStatsService", collProp);

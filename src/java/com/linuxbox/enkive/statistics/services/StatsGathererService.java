@@ -15,7 +15,7 @@ import org.quartz.SchedulerException;
 import org.quartz.SchedulerFactory;
 import org.quartz.impl.StdSchedulerFactory;
 
-import com.linuxbox.enkive.statistics.gathering.AbstractGatherer;
+import com.linuxbox.enkive.statistics.gathering.GathererInterface;
 import com.linuxbox.enkive.statistics.gathering.StatsMongoAttachmentsGatherer;
 import com.linuxbox.enkive.statistics.gathering.StatsMongoCollectionGatherer;
 import com.linuxbox.enkive.statistics.gathering.StatsMongoDBGatherer;
@@ -28,7 +28,7 @@ public class StatsGathererService extends AbstractService {
 	Scheduler sched;
 	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.statistics.mongodb");
-	protected Map<String, AbstractGatherer> statsGatherers = null;
+	protected Map<String, GathererInterface> statsGatherers = null;
 
 	public void setUp() throws SchedulerException, ParseException {
 		sf = new StdSchedulerFactory();
@@ -41,23 +41,23 @@ public class StatsGathererService extends AbstractService {
 		setUp();
 	}
 
-	public StatsGathererService(Map<String, AbstractGatherer> statsGatherers)
+	public StatsGathererService(Map<String, GathererInterface> statsGatherers)
 			throws SchedulerException, ParseException {
 		this.statsGatherers = statsGatherers;
 		setUp();
 	}
 
-	public StatsGathererService(String serviceName, AbstractGatherer service)
+	public StatsGathererService(String serviceName, GathererInterface service)
 			throws SchedulerException, ParseException {
-		statsGatherers = new HashMap<String, AbstractGatherer>();
+		statsGatherers = new HashMap<String, GathererInterface>();
 		statsGatherers.put(serviceName, service);
 		setUp();
 	}
 
-	public Map<String, AbstractGatherer> getStatsGatherers(){
+	public Map<String, GathererInterface> getStatsGatherers(){
 		return statsGatherers;
 	}
-	public void addGatherer(String name, AbstractGatherer gatherer) {
+	public void addGatherer(String name, GathererInterface gatherer) {
 		statsGatherers.put(name, gatherer);
 	}
 
@@ -99,7 +99,7 @@ public class StatsGathererService extends AbstractService {
 
 	public static void main(String args[]) throws UnknownHostException,
 			MongoException {
-		StatsRuntimeGatherer runProps = new StatsRuntimeGatherer();
+		StatsRuntimeGatherer runProps = new StatsRuntimeGatherer("SERVICENAME", "CRONEXPRESSION");
 		StatsMongoAttachmentsGatherer attachProps = new StatsMongoAttachmentsGatherer(
 				new Mongo(), "enkive", "fs", "AttachName", "cronExpress");
 		StatsMongoDBGatherer dbProps = new StatsMongoDBGatherer(new Mongo(),
@@ -107,7 +107,7 @@ public class StatsGathererService extends AbstractService {
 		StatsMongoCollectionGatherer collProps = new StatsMongoCollectionGatherer(
 				new Mongo(), "enkive", "collName", "cronExpression");
 
-		Map<String, AbstractGatherer> gatherers = new HashMap<String, AbstractGatherer>();
+		Map<String, GathererInterface> gatherers = new HashMap<String, GathererInterface>();
 		gatherers.put("runProps", runProps);
 		gatherers.put("attachProps", attachProps);
 		gatherers.put("dbProps", dbProps);
