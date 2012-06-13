@@ -69,7 +69,7 @@ public class MongoStatsRetrievalService extends AbstractService implements
 		DBObject query = new BasicDBObject();
 		DBObject time = new BasicDBObject();
 		time.put("$gte", lower);
-		time.put("$lte", upper);
+		time.put("$lt", upper);
 		query.put(STAT_TIME_STAMP, time);
 		Set<DBObject> result = new HashSet<DBObject>();
 		result.addAll(coll.find(query).toArray());
@@ -169,7 +169,7 @@ public class MongoStatsRetrievalService extends AbstractService implements
 	
 	public void remove(Set<Map<String, Object>> deletionSet) throws StatsRetrievalException{
 		for(Map<String, Object> map: deletionSet){
-			coll.remove((DBObject)map);
+			coll.remove(new BasicDBObject(map));
 		}
 	}
 	

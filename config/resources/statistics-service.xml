@@ -114,13 +114,13 @@
 		<property name="concurrent" value="false" />
 	</bean>
 	
-	<bean id="hourlyConsolidator"
-		class="com.linuxbox.enkive.statistics.granularity.AbstractGrain">
-		<property name="client" ref="StatisticsClient" />
-		<property name="scheduler" ref="ScheduledJobsBean" />
-		<property name="time" value="hourly" />
+	<bean id="GrainRunner"
+		class="com.linuxbox.enkive.statistics.granularity.GrainRunner">
+		<constructor-arg name="client" ref="StatisticsClient" />
+		<constructor-arg name="scheduler" ref="ScheduledJobsBean" />
+		<constructor-arg name="schedule" value="0 * * * * ?" />
 	</bean>
-	
+
 <!--
 	<bean id="StatisticsStorageJob"
 		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">

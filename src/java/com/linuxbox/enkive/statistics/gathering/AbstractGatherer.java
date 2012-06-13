@@ -24,6 +24,10 @@ public abstract class AbstractGatherer extends AbstractService implements
 	public void setStorageService(StatsStorageService storageService) {
 		this.storageService = storageService;
 	}
+	
+	public void setScheduler(Scheduler scheduler){
+		this.scheduler = scheduler;
+	}
 
 	@PostConstruct
 	public void init() throws Exception {
@@ -44,7 +48,6 @@ public abstract class AbstractGatherer extends AbstractService implements
 
 		// add to schedule defined in spring xml
 		scheduler.scheduleJob((JobDetail) jobDetail.getObject(), trigger);
-
 	}
 
 	public GathererAttributes getAttributes(){

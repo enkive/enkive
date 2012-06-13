@@ -29,7 +29,7 @@ public interface StatsConstants {
 	public static String STAT_PROCESSORS = "processors";
 
 	// DBs & Colls
-	public static String STAT_NAME = "name";
+	public static String STAT_NAME = "dbName";
 	public static String STAT_TYPE = "type";// runtime also has a 'type' field
 	public static String STAT_TIME = "time";
 	public static String STAT_NUM_OBJS = "numObjs";

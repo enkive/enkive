@@ -1,6 +1,7 @@
 package com.linuxbox.enkive.statistics.gathering;
 
 import java.util.Map;
+import static com.linuxbox.enkive.statistics.StatsConstants.*;
 
 public class GathererAttributes {
 	protected String serviceName;
@@ -11,6 +12,8 @@ public class GathererAttributes {
 		this.serviceName = serviceName;
 		this.schedule = schedule;
 		this.keys = keys;
+		keys.put(STAT_SERVICE_NAME, null);
+		keys.put(STAT_TIME_STAMP, "AVG");
 	}
 	
 	public String getName(){
