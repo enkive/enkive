@@ -55,9 +55,16 @@ public class GrainRunner {
 			new DayGrain(client);
 		}
 		
+		if(Granularity.WEEK.isMatch()){
+			System.out.println("WEEK RETURNED TRUE");
+			new WeekGrain(client);
+		}
+		
 		if(Granularity.MONTH.isMatch()){
 			System.out.println("MONTH RETURNED TRUE");
 			new MonthGrain(client);
-		}	
+		}
+		
+		
 	}
 }

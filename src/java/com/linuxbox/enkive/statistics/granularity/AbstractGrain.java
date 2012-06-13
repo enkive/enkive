@@ -30,22 +30,90 @@ public abstract class AbstractGrain implements Grain{
 		consolidateData();
 	}
 	
-	public abstract void setFilterString();
+	protected abstract void setFilterString();
 	
-	private boolean hasError(Object obj){
-		if(obj instanceof Integer){
-			if((Integer)obj < 0)
+	protected abstract void setDates();
+	
+	private boolean hasError(Object map.get(statName)){
+		if(map.get(statName) instanceof Integer){
+			if((Integer)map.get(statName) < 0)
 				return true;
 		}
-		else if(obj instanceof Long){
-			if((Long)obj < 0)
+		else if(map.get(statName) instanceof Long){
+			if((Long)map.get(statName) < 0)
 				return true;
 		}
-		else if(obj instanceof Double){
-			if((Double)obj < 0)
+		else if(map.get(statName) instanceof Double){
+			if((Double)map.get(statName) < 0)
 				return true;
 		}
 		return false;
+	}
+	
+	private Object getResult(Object result, Map<String, Object> map, String statName, String method){
+		Object obj = map.get(statName);
+		
+		if(method == null){
+			return result;
+		}
+		
+		if(result == null){
+			if(map.get(statName) instanceof Integer){
+				result = (Integer)map.get(statName);
+			}
+			else if(map.get(statName) instanceof Long){
+				result = (Long)map.get(statName);
+			}
+			else if(map.get(statName) instanceof Double){
+				result = (Double)map.get(statName);
+			}
+			return result;
+		}
+		
+		if(map.get(statName) instanceof Integer){
+			if(method.equals(GRAIN_ADD)){
+				result = (Integer)result + (Integer)map.get(statName);
+			}
+			if(method.equals(GRAIN_MAX)){
+				if((Integer)result < (Integer)map.get(statName))
+					result = map.get(statName);
+			}
+			if(method.equals(GRAIN_MIN)){
+				if((Integer)result > (Integer)map.get(statName))
+					result = map.get(statName);
+			}
+			if(method.equals(GRAIN_AVG)){
+				result = (Integer)result + (Integer)map.get(statName);
+			}
+		}
+		else if(map.get(statName) instanceof Long){
+			if(method.equals("ADD") || method.equals("AVG")){
+				result = (Long)result + (Long)map.get(statName);
+			}
+			if(method.equals("MAX")){
+				if((Long)result < (Long)map.get(statName))
+					result = map.get(statName);
+			}
+			if(method.equals("MIN")){
+				if((Long)result > (Long)map.get(statName))
+					result = map.get(statName);
+			}
+		}
+		else if(map.get(statName) instanceof Double){
+			if(method.equals("ADD") || method.equals("AVG")){
+				result = (Double)result + (Double)map.get(statName);
+			}
+			if(method.equals("MAX")){
+				if((Double)result < (Double)map.get(statName))
+					result = map.get(statName);
+			}
+			if(method.equals("MIN")){
+				if((Double)result > (Double)map.get(statName))
+					result = map.get(statName);
+			}
+		}
+		
+		return result;
 	}
 	
 	private Object add(String statName, Set<Map<String,Object>> data){
@@ -61,12 +129,7 @@ public abstract class AbstractGrain implements Grain{
 				first = false;
 			}
 			else{
-				if(result instanceof Integer)
-					result = (Integer)result + (Integer)map.get(statName);
-				else if(result instanceof Long)
-					result = (Long)result + (Long)map.get(statName);
-				else if(result instanceof Double)
-					result = (Double)result + (Double)map.get(statName);
+				result = getResult(result, map.get(statName), GRAIN_ADD);
 			}	
 		}
 		return result;
@@ -85,18 +148,7 @@ public abstract class AbstractGrain implements Grain{
 				first = false;
 			}
 			else{
-				if(result instanceof Integer){
-					if((Integer)result < (Integer)map.get(statName));
-						result = map.get(statName);
-				}
-				else if(result instanceof Long){
-					if((Long)result < (Long)map.get(statName));
-						result = map.get(statName);
-				}
-				else if(result instanceof Double){
-					if((Double)result < (Double)map.get(statName));
-						result = map.get(statName);
-				}
+				result = getResult(result, map.get(statName), GRAIN_MAX);
 			}	
 		}	
 		return result;
@@ -132,16 +184,8 @@ public abstract class AbstractGrain implements Grain{
 				counter+=weight;
 			}
 			else{
-				if(result instanceof Integer){
-					result = (Integer)result + (Integer)map.get(statName)*weight;
-				}
-				else if(result instanceof Long){
-					result = (Long)result + (Long)map.get(statName)*weight;
-				}
-				else if(result instanceof Double){
-					result = (Double)result + (Double)map.get(statName)*weight;
-				}
-				counter++;
+				result = getResult(result, map.get(statName), GRAIN_AVG);
+				counter+=weight;
 			}	
 		}
 		
@@ -193,8 +237,6 @@ public abstract class AbstractGrain implements Grain{
 		return result;
 	}
 	
-	protected abstract void setDates();
-	
 	protected int findWeight(Set<Map<String, Object>> serviceData){
 		int weight = 0;
 		for(Map<String, Object> map: serviceData){
@@ -213,7 +255,7 @@ public abstract class AbstractGrain implements Grain{
 	    //1. query the database for all stats between dates
 		Set<Map<String, Object>> data = client.queryStatistics(null, startDate, endDate);
 		if(!data.isEmpty()){
-		//2. build set for each service
+		//2. build set for each service (filter by service name)
 		    Set<Map<String,Object>> storageData = new HashSet<Map<String,Object>>();
 			for(GathererAttributes attribute: client.getAttributes()){
 				String name = attribute.getName();
@@ -223,12 +265,12 @@ public abstract class AbstractGrain implements Grain{
 					Map<String, Object> newGrain = makeSnapshot(attribute, serviceData);
 					newGrain.put(GRAIN_TYPE, grainType);
 					newGrain.put(GRAIN_WEIGHT, findWeight(serviceData));
-				//4. store the snapshot
 					storageData.add(newGrain);
 				}
 			}
 			System.out.println("consolidateData()-storagedata: " + storageData);
-//TODO:			client.storeData(data);			
+			//4. store the snapshot
+			client.storeData(storageData);			
 		}
 	}
 }

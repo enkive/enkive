@@ -1,20 +1,23 @@
 package com.linuxbox.enkive.statistics.granularity;
 
+import static com.linuxbox.enkive.statistics.granularity.Grain_Constants.GRAIN_DAY;
+import static com.linuxbox.enkive.statistics.granularity.Grain_Constants.GRAIN_HOUR;
+
 import java.util.Calendar;
 
 import com.linuxbox.enkive.statistics.services.StatsClient;
-
 import static com.linuxbox.enkive.statistics.granularity.Grain_Constants.*;
-public class DayGrain extends AbstractGrain {
-	
-	public DayGrain(StatsClient client){
+
+public class WeekGrain extends AbstractGrain{
+
+	public WeekGrain(StatsClient client){
 		this.client = client;
 		start();
 	}
 	
 	public void setFilterString(){
-		filterString = GRAIN_HOUR;
-		grainType= GRAIN_DAY;
+		filterString = GRAIN_DAY;
+		grainType= GRAIN_WEEK;
 	}
 	
 	public void setDates(){
@@ -23,8 +26,9 @@ public class DayGrain extends AbstractGrain {
 		cal.set(Calendar.SECOND, 0);
 		cal.set(Calendar.MINUTE, 0);
 		cal.set(Calendar.HOUR, 0);
+		cal.set(Calendar.DATE, Calendar.SUNDAY);
 		endDate = cal.getTime();
-		cal.add(Calendar.DATE, -1);
+		cal.add(Calendar.DATE, -7);
 		startDate = cal.getTime();
 	}
 }
