@@ -6,13 +6,13 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import javax.annotation.PostConstruct;
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
 import static com.linuxbox.enkive.statistics.StatsConstants.*;
 
 import com.linuxbox.enkive.statistics.gathering.GathererAttributes;
 import com.linuxbox.enkive.statistics.services.StatsClient;
-import static com.linuxbox.enkive.statistics.granularity.Grain_Constants.*;
+import static com.linuxbox.enkive.statistics.granularity.GrainConstants.*;
 
 public abstract class AbstractGrain implements Grain{
 	protected StatsClient client;
@@ -24,9 +24,9 @@ public abstract class AbstractGrain implements Grain{
 	public void start(){
 		setFilterString();
 		setDates();
-		System.out.println("ActualDate: " + new Date(System.currentTimeMillis()));
-	    System.out.println("StartDate: " + startDate);
-	    System.out.println("EndDate: " + endDate);
+//		System.out.println("ActualDate: " + new Date(System.currentTimeMillis()));
+//	    System.out.println("StartDate: " + startDate);
+//	    System.out.println("EndDate: " + endDate);
 		consolidateData();
 	}
 	
@@ -34,172 +34,81 @@ public abstract class AbstractGrain implements Grain{
 	
 	protected abstract void setDates();
 	
-	private boolean hasError(Object map.get(statName)){
-		if(map.get(statName) instanceof Integer){
-			if((Integer)map.get(statName) < 0)
-				return true;
+	//TODO null exception handling?
+	private Object injectType(Object example, double value){
+		Object result = null;
+		if(example instanceof Integer){
+			result = (int)value;
 		}
-		else if(map.get(statName) instanceof Long){
-			if((Long)map.get(statName) < 0)
-				return true;
+		else if(example instanceof Long){
+			result = (long)value;
 		}
-		else if(map.get(statName) instanceof Double){
-			if((Double)map.get(statName) < 0)
-				return true;
-		}
-		return false;
-	}
-	
-	private Object getResult(Object result, Map<String, Object> map, String statName, String method){
-		Object obj = map.get(statName);
-		
-		if(method == null){
-			return result;
+		else if(example instanceof Double){
+			result = value;
 		}
 		
-		if(result == null){
-			if(map.get(statName) instanceof Integer){
-				result = (Integer)map.get(statName);
-			}
-			else if(map.get(statName) instanceof Long){
-				result = (Long)map.get(statName);
-			}
-			else if(map.get(statName) instanceof Double){
-				result = (Double)map.get(statName);
-			}
-			return result;
-		}
-		
-		if(map.get(statName) instanceof Integer){
-			if(method.equals(GRAIN_ADD)){
-				result = (Integer)result + (Integer)map.get(statName);
-			}
-			if(method.equals(GRAIN_MAX)){
-				if((Integer)result < (Integer)map.get(statName))
-					result = map.get(statName);
-			}
-			if(method.equals(GRAIN_MIN)){
-				if((Integer)result > (Integer)map.get(statName))
-					result = map.get(statName);
-			}
-			if(method.equals(GRAIN_AVG)){
-				result = (Integer)result + (Integer)map.get(statName);
-			}
-		}
-		else if(map.get(statName) instanceof Long){
-			if(method.equals("ADD") || method.equals("AVG")){
-				result = (Long)result + (Long)map.get(statName);
-			}
-			if(method.equals("MAX")){
-				if((Long)result < (Long)map.get(statName))
-					result = map.get(statName);
-			}
-			if(method.equals("MIN")){
-				if((Long)result > (Long)map.get(statName))
-					result = map.get(statName);
-			}
-		}
-		else if(map.get(statName) instanceof Double){
-			if(method.equals("ADD") || method.equals("AVG")){
-				result = (Double)result + (Double)map.get(statName);
-			}
-			if(method.equals("MAX")){
-				if((Double)result < (Double)map.get(statName))
-					result = map.get(statName);
-			}
-			if(method.equals("MIN")){
-				if((Double)result > (Double)map.get(statName))
-					result = map.get(statName);
-			}
-		}
+//		if(result == null)
+//			System.out.println("injectType not working-example: " + example);
 		
 		return result;
 	}
 	
-	private Object add(String statName, Set<Map<String,Object>> data){
-		Object result = null;
-		boolean first = true;
+	private Object getStat(String statName, String method, Set<Map<String, Object>> data){
+		DescriptiveStatistics statsMaker = new DescriptiveStatistics();
+		int totalWeight = 0;
+		Object temp = null;
 		for(Map<String, Object> map: data){
-			if(hasError(map.get(statName))){
-				continue;
+			temp = map.get(statName);
+			double input = -1;
+			
+			if(temp instanceof Integer){
+				input = (double)((Integer)temp).intValue();
+			}
+			else if(temp instanceof Long){
+				input = (double)((Long)temp).longValue();
+			}
+			else if(temp instanceof Double){
+				input = ((Double)temp).doubleValue();
 			}
 			
-			if(first){
-				result = map.get(statName);
-				first = false;
+			if(input >= 0){
+				if(method.equals(GRAIN_AVG)){
+					Integer tempWeight = (Integer)map.get(GRAIN_WEIGHT);
+					if(tempWeight == null){
+						tempWeight = 1;
+					}
+					
+					totalWeight += tempWeight;
+//					System.out.println("tempWeight: " + tempWeight);
+//					System.out.println("totalWeight: " + totalWeight);
+					input = input * tempWeight;
+				}
+				
+				statsMaker.addValue(input);
 			}
-			else{
-				result = getResult(result, map.get(statName), GRAIN_ADD);
-			}	
 		}
-		return result;
-	}
-	
-	private Object max(String statName, Set<Map<String,Object>> data){
-		Object result = null;
-		boolean first = true;
-		for(Map<String, Object> map: data){
-			if(hasError(map.get(statName))){
-				continue;
-			}
-			
-			if(first){
-				result = map.get(statName);
-				first = false;
-			}
-			else{
-				result = getResult(result, map.get(statName), GRAIN_MAX);
-			}	
-		}	
-		return result;
-	}
-	
-	private Object avg(String statName, Set<Map<String,Object>> data){
-		Object result = null;
-		boolean first = true;
-		int counter = 0;
-		for(Map<String, Object> map: data){
-			int weight = 0;
-			if(hasError(map.get(statName))){			
-				continue;
-			}
-			
-			if(map.get(GRAIN_WEIGHT) == null)
-				weight = 1;
-			else
-				weight = (Integer)map.get(GRAIN_WEIGHT);
-			
-			if(first){
-				//TODO abstract this somehow? just pass in result & map and add/multi/etc.
-				if(map.get(statName) instanceof Integer){
-					result = (Integer)map.get(statName)*weight;
-				}
-				else if(map.get(statName) instanceof Long){
-					result = (Long)map.get(statName)*weight;
-				}
-				else if(map.get(statName) instanceof Double){
-					result = (Double)map.get(statName)*weight;
-				}
-				first = false;
-				counter+=weight;
-			}
-			else{
-				result = getResult(result, map.get(statName), GRAIN_AVG);
-				counter+=weight;
-			}	
+		if(method.equals(GRAIN_SUM)){
+			return injectType(temp, statsMaker.getSum());
+		}
+		if(method.equals(GRAIN_MAX)){
+			return injectType(temp, statsMaker.getMax());
+		}
+		if(method.equals(GRAIN_MIN)){
+			return injectType(temp, statsMaker.getMin());
+		}
+		if(method.equals(GRAIN_AVG)){
+/*			System.out.println("statName: " + statName);
+			System.out.println("totalWeightAVG: " + totalWeight);
+			System.out.println("tempAVG: " + temp);
+			System.out.println("tempClass: " + temp.getClass());
+*/			return injectType(temp, statsMaker.getSum()/totalWeight);
+		}
+		if(method.equals(GRAIN_STD_DEV)){
+			return injectType(temp, statsMaker.getStandardDeviation());
 		}
 		
-		if(result instanceof Integer){
-			return (Integer)result/counter;
-		}
-		if(result instanceof Long){
-			return (Long)result/counter;
-		}
-		if(result instanceof Double){
-			return (Double)result/counter;
-		}
-		
-		return new Integer(-1); 
+//		System.out.println("getStat-null-vals: " + temp + " " + statName + " " + totalWeight + " " + method);
+		return null;
 	}
 	
 	private Set<Map<String,Object>> serviceFilter(String name, Set<Map<String, Object>> data){
@@ -220,17 +129,9 @@ public abstract class AbstractGrain implements Grain{
 		result.put(STAT_SERVICE_NAME, attribute.getName());
 		for(String key:attribute.getKeys().keySet()){
 			String call = attribute.getKeys().get(key);
-			if(call == null){
-				//do nothing
-			}
-			else if(call.equals("ADD")){
-				result.put(key, add(key, serviceData));
-			}
-			else if(call.equals("AVG")){
-				result.put(key, avg(key, serviceData));
-			}
-			else if(call.equals("MAX")){
-				result.put(key, max(key, serviceData));
+			if(call != null){
+//				System.out.println("makeSnapshot values: " + key + " " + call + " " + serviceData);
+				result.put(key, getStat(key, call, serviceData));
 			}
 			//TODO: make this method work for many stats
 		}
@@ -250,10 +151,11 @@ public abstract class AbstractGrain implements Grain{
 	}
 	
 	public void consolidateData(){
-		System.out.println("RUNNING consolidateData()");		
+//		System.out.println("RUNNING consolidateData()");		
 	    
 	    //1. query the database for all stats between dates
 		Set<Map<String, Object>> data = client.queryStatistics(null, startDate, endDate);
+//		System.out.println("consolidateData()-data: " + data);
 		if(!data.isEmpty()){
 		//2. build set for each service (filter by service name)
 		    Set<Map<String,Object>> storageData = new HashSet<Map<String,Object>>();
@@ -268,7 +170,7 @@ public abstract class AbstractGrain implements Grain{
 					storageData.add(newGrain);
 				}
 			}
-			System.out.println("consolidateData()-storagedata: " + storageData);
+//			System.out.println("consolidateData()-storagedata: " + storageData);
 			//4. store the snapshot
 			client.storeData(storageData);			
 		}

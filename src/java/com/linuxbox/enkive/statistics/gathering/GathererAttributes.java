@@ -2,7 +2,7 @@ package com.linuxbox.enkive.statistics.gathering;
 
 import java.util.Map;
 import static com.linuxbox.enkive.statistics.StatsConstants.*;
-
+import static com.linuxbox.enkive.statistics.granularity.GrainConstants.*;
 public class GathererAttributes {
 	protected String serviceName;
 	protected String schedule;
@@ -13,7 +13,7 @@ public class GathererAttributes {
 		this.schedule = schedule;
 		this.keys = keys;
 		keys.put(STAT_SERVICE_NAME, null);
-		keys.put(STAT_TIME_STAMP, "AVG");
+		keys.put(STAT_TIME_STAMP, GRAIN_AVG);
 	}
 	
 	public String getName(){

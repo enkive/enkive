@@ -15,9 +15,7 @@ import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TYPE;
 
 import java.net.UnknownHostException;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -26,7 +24,7 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.Mongo;
 import com.mongodb.MongoException;
-
+import static com.linuxbox.enkive.statistics.granularity.GrainConstants.*;
 public class StatsMongoDBGatherer extends AbstractGatherer {
 	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.statistics.gathering");
@@ -41,15 +39,15 @@ public class StatsMongoDBGatherer extends AbstractGatherer {
 		keys.put(STAT_TYPE, null);
 		keys.put(STAT_NAME, null);
 		keys.put(STAT_NUM_COLLECTIONS, null);
-		keys.put(STAT_NUM_OBJS, "AVG");
-		keys.put(STAT_AVG_OBJ_SIZE, "AVG");
-		keys.put(STAT_DATA_SIZE, "AVG");
-		keys.put(STAT_TOTAL_SIZE, "AVG");
-		keys.put(STAT_NUM_INDEX, "AVG");
-		keys.put(STAT_TOTAL_INDEX_SIZE, "AVG");
-		keys.put(STAT_NUM_EXTENT, "AVG");
-		keys.put(STAT_FILE_SIZE, "AVG");
-		keys.put(STAT_TIME_STAMP, "AVG");
+		keys.put(STAT_NUM_OBJS, GRAIN_AVG);
+		keys.put(STAT_AVG_OBJ_SIZE, GRAIN_AVG);
+		keys.put(STAT_DATA_SIZE, GRAIN_AVG);
+		keys.put(STAT_TOTAL_SIZE, GRAIN_AVG);
+		keys.put(STAT_NUM_INDEX, GRAIN_AVG);
+		keys.put(STAT_TOTAL_INDEX_SIZE, GRAIN_AVG);
+		keys.put(STAT_NUM_EXTENT, GRAIN_AVG);
+		keys.put(STAT_FILE_SIZE, GRAIN_AVG);
+		keys.put(STAT_TIME_STAMP, GRAIN_AVG);
 		
 		attributes = new GathererAttributes(serviceName, schedule, keys);
 	}

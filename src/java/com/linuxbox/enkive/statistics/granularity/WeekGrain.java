@@ -1,12 +1,12 @@
 package com.linuxbox.enkive.statistics.granularity;
 
-import static com.linuxbox.enkive.statistics.granularity.Grain_Constants.GRAIN_DAY;
-import static com.linuxbox.enkive.statistics.granularity.Grain_Constants.GRAIN_HOUR;
+import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_DAY;
+import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_HOUR;
 
 import java.util.Calendar;
 
 import com.linuxbox.enkive.statistics.services.StatsClient;
-import static com.linuxbox.enkive.statistics.granularity.Grain_Constants.*;
+import static com.linuxbox.enkive.statistics.granularity.GrainConstants.*;
 
 public class WeekGrain extends AbstractGrain{
 

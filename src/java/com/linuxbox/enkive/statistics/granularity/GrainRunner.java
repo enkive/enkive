@@ -24,7 +24,6 @@ public class GrainRunner {
 	
 	@PostConstruct
 	public void init() throws Exception{
-		System.out.println("GRAIN RUNNER RUNNING");
 		// create factory
 		MethodInvokingJobDetailFactoryBean jobDetail = new MethodInvokingJobDetailFactoryBean();
 		jobDetail.setTargetObject(this);
@@ -46,25 +45,19 @@ public class GrainRunner {
 	
 	public void run(){
 		if(Granularity.HOUR.isMatch()){
-			System.out.println("HOUR RETURNED TRUE");
 			new HourGrain(client);
 		}
 		
 		if(Granularity.DAY.isMatch()){
-			System.out.println("DAY RETURNED TRUE");
 			new DayGrain(client);
 		}
 		
 		if(Granularity.WEEK.isMatch()){
-			System.out.println("WEEK RETURNED TRUE");
 			new WeekGrain(client);
 		}
 		
 		if(Granularity.MONTH.isMatch()){
-			System.out.println("MONTH RETURNED TRUE");
 			new MonthGrain(client);
 		}
-		
-		
 	}
 }

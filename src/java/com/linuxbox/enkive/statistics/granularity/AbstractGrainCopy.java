@@ -19,7 +19,7 @@ import static com.linuxbox.enkive.statistics.StatsConstants.*;
 import com.linuxbox.enkive.statistics.gathering.GathererAttributes;
 import com.linuxbox.enkive.statistics.services.StatsClient;
 
-public class AbstractGrain {
+public class AbstractGrainCopy{
 	protected StatsClient client;
 	private String grainType = "HOUR";//default to hour
 	private Granularity grain;
@@ -49,11 +49,7 @@ public class AbstractGrain {
 	
 	@PostConstruct
 	public void init() throws Exception {		
-		if(grainType.equals("MIN")){
-			grain = Granularity.MIN;
-			schedule = "0 * * * * ?"; //1st second any minute
-		}
-		else if(grainType.equals("HOUR")){
+		if(grainType.equals("HOUR")){
 			grain = Granularity.HOUR;
 			schedule = "* 0 * * * ?"; //1st minute any hour
 		}
@@ -68,10 +64,6 @@ public class AbstractGrain {
 		else if(grainType.equals("MONTH")){
 			grain = Granularity.MONTH;
 			schedule = "* * * 1 * ?"; //1st of any month
-		}
-		else if(grainType.equals("YEAR")){
-			schedule = "* * * 1 1 ?"; //Jan 1st any year
-			grain = Granularity.YEAR;
 		}
 		//TODO jibberish handling
 		// create factory

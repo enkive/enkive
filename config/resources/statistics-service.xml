@@ -120,7 +120,19 @@
 		<constructor-arg name="scheduler" ref="ScheduledJobsBean" />
 		<constructor-arg name="schedule" value="0 * * * * ?" />
 	</bean>
-
+	
+	<bean id="RemovalRunner"
+		class="com.linuxbox.enkive.statistics.removal.Remove">
+		<constructor-arg name="client" ref="StatisticsClient" />
+		<constructor-arg name="scheduler" ref="ScheduledJobsBean" />
+		<constructor-arg name="schedule" value="0 * * * * ?" />	
+		<property name="rawBuff" value="1"/>
+		<property name="hrBuff" value="48"/>
+		<property name="dayBuff" value="30"/>	
+		<property name="wkBuff" value="10"/>
+		<property name="monthBuff" value="12"/>
+	</bean>
+	
 <!--
 	<bean id="StatisticsStorageJob"
 		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">

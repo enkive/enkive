@@ -1,19 +1,17 @@
 package com.linuxbox.enkive.statistics.gathering;
 
 import static com.linuxbox.enkive.statistics.StatsConstants.ARCHIVE_SIZE;
+import static com.linuxbox.enkive.statistics.granularity.GrainConstants.*;
 import static com.linuxbox.enkive.statistics.StatsConstants.*;
 
 import java.net.UnknownHostException;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.Mongo;
 import com.mongodb.MongoException;
-
 public class StatsMongoMsgGatherer extends AbstractGatherer {
 
 	protected Mongo m = null;
@@ -25,7 +23,7 @@ public class StatsMongoMsgGatherer extends AbstractGatherer {
 		messageDb = m.getDB(dbName);
 		messageColl = messageDb.getCollection(collName);
 		Map<String, String> keys = new HashMap<String, String>();
-		keys.put(ARCHIVE_SIZE, "AVG");
+		keys.put(ARCHIVE_SIZE, GRAIN_AVG);
 		attributes = new GathererAttributes(serviceName, schedule, keys);
 	}
 

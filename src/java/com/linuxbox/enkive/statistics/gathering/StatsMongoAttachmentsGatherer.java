@@ -5,13 +5,11 @@ import static com.linuxbox.enkive.statistics.StatsConstants.STAT_NAME;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIME_STAMP;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TYPE;
 import static com.linuxbox.enkive.statistics.StatsConstants.THIRTY_DAYS;
-
+import static com.linuxbox.enkive.statistics.granularity.GrainConstants.*;
 import java.net.UnknownHostException;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import static com.linuxbox.enkive.statistics.StatsConstants.*;
 import org.apache.commons.logging.Log;
@@ -53,9 +51,8 @@ public class StatsMongoAttachmentsGatherer extends AbstractGatherer {
 		db = m.getDB(dbName);
 		collectionName = coll + ".files";
 		Map<String, String> keys = new HashMap<String, String>();
-		keys.put(STAT_AVG_ATTACH, "AVG");
-		keys.put(STAT_MAX_ATTACH, "MAX");
-		keys.put(STAT_TIME_STAMP, "AVG");
+		keys.put(STAT_AVG_ATTACH, GRAIN_AVG);
+		keys.put(STAT_MAX_ATTACH, GRAIN_MAX);
 		keys.put(STAT_NAME, null);
 		attributes = new GathererAttributes(serviceName, schedule, keys);
 	}

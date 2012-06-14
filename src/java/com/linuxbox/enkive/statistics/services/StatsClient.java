@@ -11,6 +11,7 @@ import org.quartz.SchedulerException;
 import com.linuxbox.enkive.statistics.gathering.GathererAttributes;
 import com.linuxbox.enkive.statistics.gathering.GathererInterface;
 import com.linuxbox.enkive.statistics.retrieval.StatsRetrievalException;
+import com.linuxbox.enkive.statistics.storage.StatsStorageException;
 
 public class StatsClient {
 	protected StatsGathererService gathererService;
@@ -39,7 +40,14 @@ public class StatsClient {
 	}
 
 	public void storeData(Set<Map<String, Object>> set){
-		System.out.println("Don't do that! (StatsClient-storeData())");
+		System.out.println("DataStoredset:"+set);
+		try {
+			storageService.storeStatistics(set);
+		} catch (StatsStorageException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		System.out.println("DataStored:"+set);
 	}
 
 	public void gatherAndStoreData() {
@@ -47,7 +55,7 @@ public class StatsClient {
 	}
 
 	public Set<Map<String, Object>> queryStatistics(
-			Map<String, String[]> stats, Date startingTimestamp,
+			Map<String, Map<String, Object>> stats, Date startingTimestamp,
 			Date endingTimestamp) {
 		try {
 			return retrievalService.queryStatistics(stats, startingTimestamp,
@@ -73,7 +81,7 @@ public class StatsClient {
 		return attributeSet;
 	}
 	
-	public void remove(Set<Map<String, Object>> deletionSet){
+	public void remove(Set<Object> deletionSet){
 		try {
 			retrievalService.remove(deletionSet);
 		} catch (StatsRetrievalException e) {

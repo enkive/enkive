@@ -55,7 +55,7 @@ public abstract class AbstractGatherer extends AbstractService implements
 	}
 	
 	public void storeStats() throws StatsStorageException {
-		System.out.println(attributes.getName() + " was stored");
+//		System.out.println(attributes.getName() + " was stored");
 		storageService.storeStatistics(attributes.getName(), getStatistics());
 	}
 

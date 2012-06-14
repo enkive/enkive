@@ -10,7 +10,6 @@ import static com.linuxbox.enkive.statistics.StatsConstants.THIRTY_DAYS;
 import java.net.UnknownHostException;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -21,7 +20,7 @@ import com.linuxbox.enkive.message.search.MessageSearchService;
 import com.linuxbox.enkive.message.search.exception.MessageSearchException;
 import com.linuxbox.enkive.workspace.SearchResult;
 import com.mongodb.MongoException;
-
+import static com.linuxbox.enkive.statistics.granularity.GrainConstants.*;
 public class StatsMsgSearchGatherer extends AbstractGatherer {
 	MessageSearchService searchService;
 	protected final static Log LOGGER = LogFactory
@@ -29,7 +28,7 @@ public class StatsMsgSearchGatherer extends AbstractGatherer {
 	
 	public StatsMsgSearchGatherer(String serviceName, String schedule) {
 		Map<String, String> keys = new HashMap<String, String>();
-		keys.put(STAT_NUM_ENTRIES, "AVG");
+		keys.put(STAT_NUM_ENTRIES, GRAIN_AVG);
 		attributes = new GathererAttributes(serviceName, schedule, keys);
 	}
 	

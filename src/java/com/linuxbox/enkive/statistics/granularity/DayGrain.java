@@ -4,7 +4,7 @@ import java.util.Calendar;
 
 import com.linuxbox.enkive.statistics.services.StatsClient;
 
-import static com.linuxbox.enkive.statistics.granularity.Grain_Constants.*;
+import static com.linuxbox.enkive.statistics.granularity.GrainConstants.*;
 public class DayGrain extends AbstractGrain {
 	
 	public DayGrain(StatsClient client){

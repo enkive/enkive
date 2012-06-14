@@ -27,26 +27,18 @@ public enum Granularity {
 		final Calendar c = Calendar.getInstance();
 		
 		if (hour >= 0 && hour != c.get(Calendar.HOUR_OF_DAY)) {
-			System.out.print("hour fails: ");
-			System.out.println(hour + " vs " + c.get(Calendar.HOUR_OF_DAY));
 			return false;
 		}
 
 		if (dayOfMonth >= 0 && dayOfMonth != c.get(Calendar.DAY_OF_MONTH)) {
-			System.out.print("day fails: ");
-			System.out.println(dayOfMonth + " vs "
-					+ c.get(Calendar.DAY_OF_MONTH));
 			return false;
 		}
 		
 		if(week >= 0 && c.get(Calendar.DAY_OF_WEEK) != Calendar.SUNDAY && hour != c.get(Calendar.HOUR_OF_DAY)){
-			System.out.print("Week fails");
 			return false;
 		}
 
 		if (month >= 0 && month != c.get(Calendar.MONTH)) {
-			System.out.print("month fails: ");
-			System.out.println(month + " vs " + c.get(Calendar.MONTH));
 			return false;
 		}
 
