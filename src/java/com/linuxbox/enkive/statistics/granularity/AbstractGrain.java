@@ -46,10 +46,7 @@ public abstract class AbstractGrain implements Grain{
 		else if(example instanceof Double){
 			result = value;
 		}
-		
-//		if(result == null)
-//			System.out.println("injectType not working-example: " + example);
-		
+			
 		return result;
 	}
 	
@@ -111,25 +108,24 @@ public abstract class AbstractGrain implements Grain{
 		return null;
 	}
 	
-	private Set<Map<String,Object>> serviceFilter(String name, Set<Map<String, Object>> data){
-		Set<Map<String,Object>> result = new HashSet<Map<String, Object>>();
-		for(Map<String, Object> map: data){
-			String statName = (String)map.get(STAT_SERVICE_NAME);
-			//TODO: Figure out a way to not have the check for collectionstatsservice
-			if(statName.equals(name) && !statName.equals("CollectionStatsService")){
-				if((String)map.get(GRAIN_TYPE) == filterString)
-					result.add(map);
-			}
-		}
+	private Set<Map<String,Object>> serviceFilter(String name){
+		Map<String, Map<String, Object>> query = new HashMap<String, Map<String, Object>>();
+		Map<String, Object> keyVals = new HashMap<String, Object>();
+		keyVals.put(GRAIN_TYPE, filterString);
+		query.put(name, keyVals);
+		Set<Map<String,Object>> result = client.queryStatistics(query, startDate, endDate);
+		System.out.print(name + "serviceFilter: " + result + "\t\t");
+		System.out.println("query " + query);
 		return result;
 	}
 	
+//TODO: slow
 	private Map<String, Object> makeSnapshot(GathererAttributes attribute, Set<Map<String,Object>> serviceData){
 		Map<String, Object> result = new HashMap<String, Object>();
 		result.put(STAT_SERVICE_NAME, attribute.getName());
 		for(String key:attribute.getKeys().keySet()){
-			String call = attribute.getKeys().get(key);
-			if(call != null){
+			Set<String> call = attribute.getKeys().get(key);
+			for(String method, call){
 //				System.out.println("makeSnapshot values: " + key + " " + call + " " + serviceData);
 				result.put(key, getStat(key, call, serviceData));
 			}
@@ -152,16 +148,15 @@ public abstract class AbstractGrain implements Grain{
 	
 	public void consolidateData(){
 //		System.out.println("RUNNING consolidateData()");		
-	    
-	    //1. query the database for all stats between dates
-		Set<Map<String, Object>> data = client.queryStatistics(null, startDate, endDate);
-//		System.out.println("consolidateData()-data: " + data);
-		if(!data.isEmpty()){
-		//2. build set for each service (filter by service name)
+		//1. build set for each service (filter by service name)
 		    Set<Map<String,Object>> storageData = new HashSet<Map<String,Object>>();
 			for(GathererAttributes attribute: client.getAttributes()){
 				String name = attribute.getName();
-				Set<Map<String,Object>> serviceData = serviceFilter(name, data);
+				//TODO: Figure out a way to not have the check for collectionstatsservice
+				if(name == "CollectionStatsService"){
+					continue;
+				}
+				Set<Map<String,Object>> serviceData = serviceFilter(name);
 			//3. loop through that set to apply AVG, ADD, MAX, etc.
 				if(!serviceData.isEmpty()){
 					Map<String, Object> newGrain = makeSnapshot(attribute, serviceData);
@@ -169,7 +164,6 @@ public abstract class AbstractGrain implements Grain{
 					newGrain.put(GRAIN_WEIGHT, findWeight(serviceData));
 					storageData.add(newGrain);
 				}
-			}
 //			System.out.println("consolidateData()-storagedata: " + storageData);
 			//4. store the snapshot
 			client.storeData(storageData);			

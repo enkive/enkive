@@ -9,7 +9,6 @@ import java.util.Set;
 import org.quartz.SchedulerException;
 
 import com.linuxbox.enkive.statistics.gathering.GathererAttributes;
-import com.linuxbox.enkive.statistics.gathering.GathererInterface;
 import com.linuxbox.enkive.statistics.retrieval.StatsRetrievalException;
 import com.linuxbox.enkive.statistics.storage.StatsStorageException;
 
@@ -40,14 +39,12 @@ public class StatsClient {
 	}
 
 	public void storeData(Set<Map<String, Object>> set){
-		System.out.println("DataStoredset:"+set);
 		try {
 			storageService.storeStatistics(set);
 		} catch (StatsStorageException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		System.out.println("DataStored:"+set);
 	}
 
 	public void gatherAndStoreData() {
@@ -72,13 +69,15 @@ public class StatsClient {
 	}
 	
 	public Set<GathererAttributes> getAttributes(){
-		Map<String, GathererInterface> gatherers = gathererService.getStatsGatherers();
 		Set<GathererAttributes> attributeSet = new HashSet<GathererAttributes>();
 		for(String name: gathererNames()){
-			GathererAttributes attribute = gatherers.get(name).getAttributes();
-			attributeSet.add(attribute);
+			attributeSet.add(getAttributes(name));
 		}
 		return attributeSet;
+	}
+	
+	public GathererAttributes getAttributes(String serviceName){
+		return gathererService.getStatsGatherers(serviceName).get(serviceName).getAttributes();
 	}
 	
 	public void remove(Set<Object> deletionSet){

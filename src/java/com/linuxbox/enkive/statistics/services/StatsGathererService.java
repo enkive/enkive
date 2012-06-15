@@ -57,6 +57,13 @@ public class StatsGathererService extends AbstractService {
 	public Map<String, GathererInterface> getStatsGatherers(){
 		return statsGatherers;
 	}
+	
+	public Map<String, GathererInterface> getStatsGatherers(String name){
+		Map<String, GathererInterface> gathererMap = new HashMap<String, GathererInterface>();
+		gathererMap.put(name, statsGatherers.get(name));
+		return gathererMap;
+	}
+	
 	public void addGatherer(String name, GathererInterface gatherer) {
 		statsGatherers.put(name, gatherer);
 	}
@@ -69,7 +76,8 @@ public class StatsGathererService extends AbstractService {
 			SchedulerException {
 		return gatherStats(null);
 	}
-
+	
+//TODO figure something out
 	public Set<Map<String, Object>> gatherStats(Map<String, String[]> map)
 			throws ParseException, SchedulerException {
 		// if no map given create one that is for all the known gatherers

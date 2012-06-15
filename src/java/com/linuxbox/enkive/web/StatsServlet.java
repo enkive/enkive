@@ -20,6 +20,7 @@
 package com.linuxbox.enkive.web;
 
 import java.io.IOException;
+import static com.linuxbox.enkive.statistics.StatsConstants.*;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.HashMap;
@@ -35,7 +36,7 @@ import static com.linuxbox.enkive.search.Constants.*;
 
 import com.linuxbox.enkive.exception.CannotRetrieveException;
 import com.linuxbox.enkive.statistics.services.StatsClient;
-
+import com.linuxbox.enkive.statistics.gathering.GathererAttributes;
 public class StatsServlet extends EnkiveServlet {
 	final StatsClient retriever = getStatsClient();
 
@@ -55,27 +56,34 @@ public class StatsServlet extends EnkiveServlet {
 							.getParameter("lowerDate"));
 				}
 
-				String[] serviceNames = req.getParameterValues("serviceNames");
-				Map<String, String[]> map = new HashMap<String, String[]>();
+				String[] serviceNames = req.getParameterValues(STAT_SERVICE_NAME);
+				Map<String, Map<String, Object>> bigMap = new HashMap<String, Map<String, Object>>();
 
 				resp.getWriter().write("serviceNames: " + serviceNames + "\n");
 
-				if (serviceNames != null) {
-					for (String serviceName : serviceNames) {
-						resp.getWriter().write(
-								"serviceName: " + serviceName + "\n");
-						map.put(serviceName,
-								req.getParameterValues(serviceName));
+				for (String serviceName : serviceNames) {
+					resp.getWriter().write(
+							"serviceName: " + serviceName + "\n");
+					Map<String, Object> map = new HashMap<String, Object>();
+					GathererAttributes attribute = retriever.getAttributes(serviceName);
+					for(String statName: attribute.getKeys().keySet()){
+						map.put(statName, req.getParameter(serviceName));
 					}
+					bigMap.put(serviceName, map);	
 				}
 
-				resp.getWriter().write("map: " + map + "\n");
+				resp.getWriter().write("bigMap: " + bigMap + "\n");
 				// resp.getWriter().write("lowerDate: " + lowerDate + "\n");
 				// resp.getWriter().write("upperDate: " + upperDate + "\n");
 
-				Set<Map<String, Object>> stats = retriever.queryStatistics(map,
-						lowerDate, upperDate);
-
+				
+				Set<Map<String, Object>> stats;
+				if(bigMap.isEmpty()){
+					stats = retriever.queryStatistics(null, lowerDate, upperDate);
+				}
+				else{
+					stats = retriever.queryStatistics(bigMap, lowerDate, upperDate);
+				}
 				// resp.getWriter().write("stats: " + stats + "\n");
 
 				try {
