@@ -144,12 +144,17 @@ public abstract class AbstractGrain implements Grain{
 		result.put(STAT_SERVICE_NAME, attribute.getName());		
 		
 		for(String key: serviceData.iterator().next().keySet()){
-			if(!(key.equals(STAT_TIME_STAMP) && key.equals("_id") && key.equals(STAT_SERVICE_NAME) && serviceData == null)){
+			if(!(key.equals(STAT_TIME_STAMP) || key.equals("_id") || key.equals(STAT_SERVICE_NAME) || serviceData == null)){
 				Set<Map<String,Object>> collStats= new HashSet<Map<String,Object>>();
-				for(Map<String, Object> map: serviceData){
+				for(Map<String, Object> data: serviceData){
+					System.out.println("key: " + key);
+					System.out.println("data: " + data);
 					@SuppressWarnings("unchecked")//we know how it should be stored
-					Map<String, Object> statMap = (HashMap<String, Object>)map.get(key);
-					statMap.put(STAT_TIME_STAMP, map.get(STAT_TIME_STAMP));
+					Map<String, Object> statMap = (HashMap<String, Object>)data.get(key);
+					System.out.println("StatMap: " + statMap);
+					Object obj = data.get(STAT_TIME_STAMP);
+					if(obj != null)
+						statMap.put(STAT_TIME_STAMP, obj);
 					collStats.add(statMap);
 //					System.out.println("collStats" + collStats);
 				}
