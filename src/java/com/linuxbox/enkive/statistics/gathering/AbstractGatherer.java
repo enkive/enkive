@@ -2,7 +2,9 @@ package com.linuxbox.enkive.statistics.gathering;
 
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIME_STAMP;
 
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.PostConstruct;
 
@@ -21,6 +23,12 @@ public abstract class AbstractGatherer extends AbstractService implements
 	protected StatsStorageService storageService;
 	protected Scheduler scheduler;
 	
+	public AbstractGatherer(String serviceName, String schedule){
+		attributes = new GathererAttributes(serviceName, schedule, keyBuilder());
+	}
+	
+	protected abstract Map<String, Set<String>> keyBuilder();
+	
 	public void setStorageService(StatsStorageService storageService) {
 		this.storageService = storageService;
 	}
@@ -29,6 +37,14 @@ public abstract class AbstractGatherer extends AbstractService implements
 		this.scheduler = scheduler;
 	}
 
+	protected Set<String> setCreator(String ... methodTypes){
+		Set<String> result = new HashSet<String>();
+		for(String methodName: methodTypes){
+			result.add(methodName);
+		}
+		return result;
+	}
+	
 	@PostConstruct
 	public void init() throws Exception {
 		// create factory

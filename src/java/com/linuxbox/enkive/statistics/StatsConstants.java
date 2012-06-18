@@ -12,7 +12,9 @@ public interface StatsConstants {
 	// Attachments
 	public static String STAT_MAX_ATTACH = "maxStat";
 	public static String STAT_AVG_ATTACH = "avgStat";
-
+	public static String STAT_UPLOAD_DATE = "uploadDate";
+	public static String STAT_LENGTH = "length";
+	
 	// DBs only
 	public static String STAT_FILE_SIZE = "fileSize";
 	public static String STAT_NUM_COLLECTIONS = "numColls";
@@ -42,7 +44,7 @@ public interface StatsConstants {
 
 	// MsgEntries
 	public static String STAT_NUM_ENTRIES = "numEntries";
-
+	
 	// ErrorKey
 	public static String STAT_ERROR = "ERROR";
 
@@ -53,7 +55,6 @@ public interface StatsConstants {
 
 	// misc
 	public static long THIRTY_DAYS = 2592000000L;// millisecond value of 30 days
-	// don't forget MM starts index at jan = 01 (not 00)!
 	public static SimpleDateFormat SIMPLE_DATE = new SimpleDateFormat(
 			"yyyy-MM-dd");
 

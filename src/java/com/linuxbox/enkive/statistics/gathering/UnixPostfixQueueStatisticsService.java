@@ -4,12 +4,14 @@ import static com.linuxbox.enkive.statistics.StatsConstants.QUEUE_LENGTH;
 import static com.linuxbox.enkive.statistics.StatsConstants.STATISTIC_CHECK_ERROR;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIME_STAMP;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_NAME;
+import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_AVG;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -24,13 +26,20 @@ public class UnixPostfixQueueStatisticsService extends AbstractGatherer{
 	public static String POSTQUEUE_OUTPUT_MANIPULATOR_PIPELINE = " | grep Requests | cut -d' ' -f 5";
 	public static String POSTFIX_QUEUE_COMMAND = "cat /tmp/test.txt";
 
-	public UnixPostfixQueueStatisticsService(String serviceName, String Schedule) {
-		Map<String, String> keys = new HashMap<String, String>();
-		keys.put(QUEUE_LENGTH, "AVG");
-		keys.put(STAT_TIME_STAMP, "AVG");
-		keys.put(STAT_NAME, null);
+	public UnixPostfixQueueStatisticsService(String serviceName, String schedule) {
+		super(serviceName, schedule);	
 	}
-
+	
+	protected Map<String, Set<String>> keyBuilder(){
+		Map<String, Set<String>> keys = new HashMap<String, Set<String>>();
+		
+		Set<String> methods = setCreator(GRAIN_AVG);
+		keys.put(QUEUE_LENGTH, methods);
+		keys.put(STAT_TIME_STAMP, methods);
+		keys.put(STAT_NAME, null);
+		return keys;
+	}
+	
 	@Override
 	public Map<String, Object> getStatistics() {
 		Map<String, Object> result = createMap();

@@ -4,12 +4,15 @@ import static com.linuxbox.enkive.statistics.StatsConstants.STAT_DATA_SIZE;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_NAME;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIME_STAMP;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TYPE;
+import static com.linuxbox.enkive.statistics.StatsConstants.STAT_LENGTH;
+import static com.linuxbox.enkive.statistics.StatsConstants.STAT_UPLOAD_DATE;
 import static com.linuxbox.enkive.statistics.StatsConstants.THIRTY_DAYS;
 import static com.linuxbox.enkive.statistics.granularity.GrainConstants.*;
 import java.net.UnknownHostException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import static com.linuxbox.enkive.statistics.StatsConstants.*;
 import org.apache.commons.logging.Log;
@@ -47,22 +50,26 @@ public class StatsMongoAttachmentsGatherer extends AbstractGatherer {
 	}
 	
 	public StatsMongoAttachmentsGatherer(Mongo m, String dbName, String coll, String serviceName, String schedule) {
+		super(serviceName, schedule);
 		this.m = m;
 		db = m.getDB(dbName);
 		collectionName = coll + ".files";
-		Map<String, String> keys = new HashMap<String, String>();
-		keys.put(STAT_AVG_ATTACH, GRAIN_AVG);
-		keys.put(STAT_MAX_ATTACH, GRAIN_MAX);
-		keys.put(STAT_NAME, null);
-		attributes = new GathererAttributes(serviceName, schedule, keys);
 	}
 
+	protected Map<String, Set<String>>keyBuilder(){
+		Map<String, Set<String>> keys = new HashMap<String, Set<String>>();
+		keys.put(STAT_NAME, null);
+		keys.put(STAT_AVG_ATTACH, setCreator(GRAIN_AVG));
+		keys.put(STAT_MAX_ATTACH, setCreator(GRAIN_MAX));
+		return keys;
+	}
+	
 	private Map<String, Object> makeDateQuery() {
 		Map<String, Object> dateQuery = createMap();
 		dateQuery.put("$gte", lower);
 		dateQuery.put("$lte", upper);
 		Map<String, Object> query = createMap();
-		query.put("uploadDate", dateQuery);
+		query.put(STAT_UPLOAD_DATE, dateQuery);
 		return query;
 	}
 
@@ -91,7 +98,7 @@ public class StatsMongoAttachmentsGatherer extends AbstractGatherer {
 		long max = -1;
 		if (cursor.hasNext()) {
 			while (cursor.hasNext()) {
-				long temp = ((Long) cursor.next().get("length")).longValue();
+				long temp = ((Long) cursor.next().get(STAT_LENGTH)).longValue();
 				if (temp > max) {
 					max = temp;
 				}

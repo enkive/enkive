@@ -21,15 +21,20 @@ import com.linuxbox.enkive.message.search.exception.MessageSearchException;
 import com.linuxbox.enkive.workspace.SearchResult;
 import com.mongodb.MongoException;
 import static com.linuxbox.enkive.statistics.granularity.GrainConstants.*;
+
 public class StatsMsgSearchGatherer extends AbstractGatherer {
 	MessageSearchService searchService;
 	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.statistics.gathering");
 	
 	public StatsMsgSearchGatherer(String serviceName, String schedule) {
-		Map<String, String> keys = new HashMap<String, String>();
-		keys.put(STAT_NUM_ENTRIES, GRAIN_AVG);
-		attributes = new GathererAttributes(serviceName, schedule, keys);
+		super(serviceName, schedule);
+	}
+	
+	protected Map<String, Set<String>> keyBuilder(){
+		Map<String, Set<String>> keys = new HashMap<String, Set<String>>();
+		keys.put(STAT_NUM_ENTRIES, setCreator(GRAIN_AVG));
+		return keys;
 	}
 	
 	protected int numEntries(String dateEarliest, String dateLatest) {

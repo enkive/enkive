@@ -18,6 +18,7 @@ import static com.linuxbox.enkive.statistics.granularity.GrainConstants.*;
 import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -34,25 +35,33 @@ public class StatsMongoCollectionGatherer extends AbstractGatherer {
 	protected DB db;
 
 	public StatsMongoCollectionGatherer(Mongo m, String dbName, String serviceName, String schedule) {
+		super(serviceName, schedule);
 		this.m = m;
 		db = m.getDB(dbName);
-		Map<String, String> keys = new HashMap<String, String>();
-		keys.put(STAT_TIME_STAMP, GRAIN_AVG);
+	}
+	
+	protected Map<String, Set<String>> keyBuilder(){
+		Map<String, Set<String>> keys = new HashMap<String, Set<String>>();
 		keys.put(STAT_NAME, null);
 		keys.put(STAT_TYPE, null);
 		keys.put(STAT_NS, null);
-		keys.put(STAT_NUM_OBJS, GRAIN_AVG);
-		keys.put(STAT_AVG_OBJ_SIZE, GRAIN_AVG);
-		keys.put(STAT_DATA_SIZE, GRAIN_AVG);
-		keys.put(STAT_TOTAL_SIZE, GRAIN_AVG);
-		keys.put(STAT_NUM_EXTENT, GRAIN_AVG);
-		keys.put(STAT_LAST_EXTENT_SIZE, GRAIN_AVG);
-		keys.put(STAT_NUM_INDEX, GRAIN_AVG);
-		keys.put(STAT_TOTAL_INDEX_SIZE, GRAIN_AVG);
-		keys.put(STAT_INDEX_SIZES, GRAIN_AVG);
-		attributes = new GathererAttributes(serviceName, schedule, keys);
+		
+		Set<String> generic = setCreator(GRAIN_AVG, GRAIN_MAX, GRAIN_MIN);
+		
+		keys.put(STAT_TIME_STAMP, generic);
+		keys.put(STAT_NUM_OBJS, generic);
+		keys.put(STAT_AVG_OBJ_SIZE, generic);
+		keys.put(STAT_DATA_SIZE, generic);
+		keys.put(STAT_TOTAL_SIZE, generic);
+		keys.put(STAT_NUM_EXTENT, generic);
+		keys.put(STAT_LAST_EXTENT_SIZE, generic);
+		keys.put(STAT_NUM_INDEX, generic);
+		keys.put(STAT_TOTAL_INDEX_SIZE, generic);
+		keys.put(STAT_INDEX_SIZES, generic);
+		
+		return keys;
 	}
-
+	
 	private Map<String, Object> getStats(String collectionName) {
 		if (db.collectionExists(collectionName)) {
 			Map<String, Object> stats = createMap();

@@ -1,13 +1,12 @@
 package com.linuxbox.enkive.statistics.granularity;
 
 import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_DAY;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_HOUR;
 
 import java.util.Calendar;
 
 import com.linuxbox.enkive.statistics.services.StatsClient;
 import static com.linuxbox.enkive.statistics.granularity.GrainConstants.*;
-
+//TODO IMPLEMENT
 public class WeekGrain extends AbstractGrain{
 
 	public WeekGrain(StatsClient client){

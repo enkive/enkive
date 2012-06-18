@@ -11,16 +11,26 @@ import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TYPE;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+
 import static com.linuxbox.enkive.statistics.granularity.GrainConstants.*;
 public class StatsRuntimeGatherer extends AbstractGatherer {
 	
 	public StatsRuntimeGatherer(String serviceName, String schedule){
-		Map<String, String> keys = new HashMap<String, String>();
-		keys.put(STAT_MAX_MEMORY, GRAIN_MAX);
-		keys.put(STAT_FREE_MEMORY, GRAIN_AVG);
-		keys.put(STAT_TOTAL_MEMORY, GRAIN_AVG);
-		keys.put(STAT_PROCESSORS, GRAIN_AVG);
-		attributes = new GathererAttributes(serviceName, schedule, keys);
+		super(serviceName, schedule);
+	}
+	
+	protected Map<String, Set<String>> keyBuilder(){
+		Map<String, Set<String>> keys = new HashMap<String, Set<String>>();
+		
+		Set<String> methods = setCreator(GRAIN_MAX);
+		keys.put(STAT_MAX_MEMORY, methods);
+		
+		methods = setCreator(GRAIN_AVG);
+		keys.put(STAT_FREE_MEMORY, methods);
+		keys.put(STAT_TOTAL_MEMORY, methods);
+		keys.put(STAT_PROCESSORS, methods);
+		return keys;
 	}
 	
 	public Map<String, Object> getStats() {

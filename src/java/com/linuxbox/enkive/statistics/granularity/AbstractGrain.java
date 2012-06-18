@@ -35,6 +35,21 @@ public abstract class AbstractGrain implements Grain{
 	protected abstract void setDates();
 	
 	//TODO null exception handling?
+	private double getValue(String key, Map<String, Object> map){
+		double result = -1;
+		if(map.get(key) instanceof Integer){
+			result = (double)((Integer)map.get(key)).intValue();
+		}
+		else if(map.get(key) instanceof Long){
+			result = (double)((Long)map.get(key)).longValue();
+		}
+		else if(map.get(key) instanceof Double){
+			result = ((Double)map.get(key)).doubleValue();
+		}
+		
+		return result;
+	}
+	
 	private Object injectType(Object example, double value){
 		Object result = null;
 		if(example instanceof Integer){
@@ -50,12 +65,15 @@ public abstract class AbstractGrain implements Grain{
 		return result;
 	}
 	
+	@SuppressWarnings("unchecked")
 	private Object getStat(String statName, String method, Set<Map<String, Object>> data){
 		DescriptiveStatistics statsMaker = new DescriptiveStatistics();
 		int totalWeight = 0;
 		Object temp = null;
 		for(Map<String, Object> map: data){
-			temp = map.get(statName);
+			if(map.containsKey(statName))
+				temp = map.get(statName);
+			
 			double input = -1;
 			
 			if(temp instanceof Integer){
@@ -67,6 +85,13 @@ public abstract class AbstractGrain implements Grain{
 			else if(temp instanceof Double){
 				input = ((Double)temp).doubleValue();
 			}
+			else if(temp instanceof Map<?,?>){
+				System.out.println("tempMAP: " + temp);
+				input = getValue(statName, (Map<String,Object>)temp);
+			}
+			else{
+				System.out.println("ELSE-" + statName + " temp: " + temp);
+			}
 			
 			if(input >= 0){
 				if(method.equals(GRAIN_AVG)){
@@ -76,8 +101,6 @@ public abstract class AbstractGrain implements Grain{
 					}
 					
 					totalWeight += tempWeight;
-//					System.out.println("tempWeight: " + tempWeight);
-//					System.out.println("totalWeight: " + totalWeight);
 					input = input * tempWeight;
 				}
 				
@@ -94,17 +117,12 @@ public abstract class AbstractGrain implements Grain{
 			return injectType(temp, statsMaker.getMin());
 		}
 		if(method.equals(GRAIN_AVG)){
-/*			System.out.println("statName: " + statName);
-			System.out.println("totalWeightAVG: " + totalWeight);
-			System.out.println("tempAVG: " + temp);
-			System.out.println("tempClass: " + temp.getClass());
-*/			return injectType(temp, statsMaker.getSum()/totalWeight);
+			return injectType(temp, statsMaker.getSum()/totalWeight);
 		}
 		if(method.equals(GRAIN_STD_DEV)){
 			return injectType(temp, statsMaker.getStandardDeviation());
 		}
 		
-//		System.out.println("getStat-null-vals: " + temp + " " + statName + " " + totalWeight + " " + method);
 		return null;
 	}
 	
@@ -119,17 +137,20 @@ public abstract class AbstractGrain implements Grain{
 		return result;
 	}
 	
-//TODO: slow
+//TODO: very slow
 	private Map<String, Object> makeSnapshot(GathererAttributes attribute, Set<Map<String,Object>> serviceData){
 		Map<String, Object> result = new HashMap<String, Object>();
 		result.put(STAT_SERVICE_NAME, attribute.getName());
+		//TODO fix to avoid collection stats
 		for(String key:attribute.getKeys().keySet()){
 			Set<String> call = attribute.getKeys().get(key);
-			for(String method, call){
-//				System.out.println("makeSnapshot values: " + key + " " + call + " " + serviceData);
-				result.put(key, getStat(key, call, serviceData));
+			if(call != null){
+				for(String method: call){
+					Map<String, Object> map = new HashMap<String, Object>();
+					map.put(method, getStat(key, method, serviceData));
+					result.put(key, method);
+				}
 			}
-			//TODO: make this method work for many stats
 		}
 		return result;
 	}
@@ -146,27 +167,26 @@ public abstract class AbstractGrain implements Grain{
 		return weight;
 	}
 	
-	public void consolidateData(){
-//		System.out.println("RUNNING consolidateData()");		
-		//1. build set for each service (filter by service name)
-		    Set<Map<String,Object>> storageData = new HashSet<Map<String,Object>>();
-			for(GathererAttributes attribute: client.getAttributes()){
-				String name = attribute.getName();
-				//TODO: Figure out a way to not have the check for collectionstatsservice
-				if(name == "CollectionStatsService"){
-					continue;
-				}
-				Set<Map<String,Object>> serviceData = serviceFilter(name);
-			//3. loop through that set to apply AVG, ADD, MAX, etc.
-				if(!serviceData.isEmpty()){
-					Map<String, Object> newGrain = makeSnapshot(attribute, serviceData);
-					newGrain.put(GRAIN_TYPE, grainType);
-					newGrain.put(GRAIN_WEIGHT, findWeight(serviceData));
-					storageData.add(newGrain);
-				}
-//			System.out.println("consolidateData()-storagedata: " + storageData);
-			//4. store the snapshot
-			client.storeData(storageData);			
+	public void consolidateData(){	
+		//build set for each service
+		Set<Map<String,Object>> storageData = new HashSet<Map<String,Object>>();
+		for(GathererAttributes attribute: client.getAttributes()){
+			String name = attribute.getName();
+			//TODO: Figure out a way to not have the check for collectionstatsservice
+			Set<Map<String,Object>> serviceData = serviceFilter(name);
+			if(name.equals("CollectionStatsService")){
+				System.out.println("collectionstatsService-" + serviceData);
+				continue;
+			}
+			else if(!serviceData.isEmpty()){
+				//generate a snapshot by applying AVG, ADD, MAX, etc.
+				Map<String, Object> newGrain = makeSnapshot(attribute, serviceData);
+				newGrain.put(GRAIN_TYPE, grainType);
+				newGrain.put(GRAIN_WEIGHT, findWeight(serviceData));
+				storageData.add(newGrain);
+		//store the snapshot
+				client.storeData(storageData);
+			}
 		}
 	}
 }
