@@ -57,7 +57,9 @@ public class StatsMongoCollectionGatherer extends AbstractGatherer {
 		keys.put(STAT_LAST_EXTENT_SIZE, generic);
 		keys.put(STAT_NUM_INDEX, generic);
 		keys.put(STAT_TOTAL_INDEX_SIZE, generic);
-		keys.put(STAT_INDEX_SIZES, generic);
+		
+		//TODO: embedded
+		keys.put(STAT_INDEX_SIZES, null);
 		
 		return keys;
 	}

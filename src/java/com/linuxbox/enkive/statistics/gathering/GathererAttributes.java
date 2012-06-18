@@ -20,7 +20,8 @@ public class GathererAttributes {
 		Set<String> timeProperties = new HashSet<String>();
 		timeProperties.add(GRAIN_AVG);
 		timeProperties.add(GRAIN_MAX);
-		timeProperties.add(GRAIN_MIN);		
+		timeProperties.add(GRAIN_MIN);
+		
 		keys.put(STAT_TIME_STAMP, timeProperties);
 	}
 	

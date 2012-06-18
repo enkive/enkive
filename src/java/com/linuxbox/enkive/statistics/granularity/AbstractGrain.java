@@ -34,7 +34,6 @@ public abstract class AbstractGrain implements Grain{
 	
 	protected abstract void setDates();
 	
-	//TODO null exception handling?
 	private double getValue(String key, Map<String, Object> map){
 		double result = -1;
 		if(map.get(key) instanceof Integer){
@@ -85,11 +84,16 @@ public abstract class AbstractGrain implements Grain{
 			else if(temp instanceof Double){
 				input = ((Double)temp).doubleValue();
 			}
-			else if(temp instanceof Map<?,?>){
+			else if(temp instanceof Map){
 				System.out.println("tempMAP: " + temp);
-				input = getValue(statName, (Map<String,Object>)temp);
+				if(map.get(GRAIN_TYPE).equals(GRAIN_HOUR)){ //using raw data
+					input = getValue(statName, (Map<String,Object>)temp);
+				}
+				else{//using pre-granulated data
+					input = getValue(method, (Map<String,Object>)temp);
+				}
 			}
-			else{
+			else{//error
 				System.out.println("ELSE-" + statName + " temp: " + temp);
 			}
 			
@@ -103,7 +107,6 @@ public abstract class AbstractGrain implements Grain{
 					totalWeight += tempWeight;
 					input = input * tempWeight;
 				}
-				
 				statsMaker.addValue(input);
 			}
 		}
@@ -132,24 +135,44 @@ public abstract class AbstractGrain implements Grain{
 		keyVals.put(GRAIN_TYPE, filterString);
 		query.put(name, keyVals);
 		Set<Map<String,Object>> result = client.queryStatistics(query, startDate, endDate);
-		System.out.print(name + "serviceFilter: " + result + "\t\t");
-		System.out.println("query " + query);
 		return result;
 	}
 	
-//TODO: very slow
-	private Map<String, Object> makeSnapshot(GathererAttributes attribute, Set<Map<String,Object>> serviceData){
+//TODO:
+	private Map<String, Object> makeEmbeddedSnapshot(GathererAttributes attribute, Set<Map<String,Object>> serviceData){
 		Map<String, Object> result = new HashMap<String, Object>();
-		result.put(STAT_SERVICE_NAME, attribute.getName());
-		//TODO fix to avoid collection stats
+		result.put(STAT_SERVICE_NAME, attribute.getName());		
+		
+		for(String key: serviceData.iterator().next().keySet()){
+			if(!(key.equals(STAT_TIME_STAMP) && key.equals("_id") && key.equals(STAT_SERVICE_NAME) && serviceData == null)){
+				Set<Map<String,Object>> collStats= new HashSet<Map<String,Object>>();
+				for(Map<String, Object> map: serviceData){
+					@SuppressWarnings("unchecked")//we know how it should be stored
+					Map<String, Object> statMap = (HashMap<String, Object>)map.get(key);
+					statMap.put(STAT_TIME_STAMP, map.get(STAT_TIME_STAMP));
+					collStats.add(statMap);
+//					System.out.println("collStats" + collStats);
+				}
+				result.put(key, makeSnapshot(attribute, collStats));
+			}
+		}
+		System.out.println("makeEmbSnap-result:" + result);
+		return result;
+	}
+	
+	private Map<String, Object> makeSnapshot(GathererAttributes attribute, Set<Map<String,Object>> serviceData){		
+		Map<String, Object> result = new HashMap<String, Object>();
+		if(!attribute.getName().equals("CollectionStatsService")){
+				result.put(STAT_SERVICE_NAME, attribute.getName());
+		}
 		for(String key:attribute.getKeys().keySet()){
 			Set<String> call = attribute.getKeys().get(key);
 			if(call != null){
+				Map<String, Object> map = new HashMap<String, Object>();
 				for(String method: call){
-					Map<String, Object> map = new HashMap<String, Object>();
 					map.put(method, getStat(key, method, serviceData));
-					result.put(key, method);
 				}
+				result.put(key, map);
 			}
 		}
 		return result;
@@ -172,10 +195,31 @@ public abstract class AbstractGrain implements Grain{
 		Set<Map<String,Object>> storageData = new HashSet<Map<String,Object>>();
 		for(GathererAttributes attribute: client.getAttributes()){
 			String name = attribute.getName();
-			//TODO: Figure out a way to not have the check for collectionstatsservice
 			Set<Map<String,Object>> serviceData = serviceFilter(name);
+			
+			if(!serviceData.isEmpty()){
+				if(name.equals("CollectionStatsService")){
+					Map<String, Object> newGrain;
+					if(name.equals("CollectionStatsService")){//TODO: need a 'isEmbedded' key
+						newGrain = makeEmbeddedSnapshot(attribute, serviceData);
+						System.out.println("collectionStatsService-newGrain: " + newGrain);
+					}
+					else{
+						newGrain = makeSnapshot(attribute, serviceData);
+					}
+					newGrain.put(GRAIN_TYPE, grainType);
+					newGrain.put(GRAIN_WEIGHT, findWeight(serviceData));
+					storageData.add(newGrain);
+					client.storeData(storageData);
+				}
+			}
+			else{
+				System.out.println("filter empty: " + name);
+			}
+/*					
 			if(name.equals("CollectionStatsService")){
 				System.out.println("collectionstatsService-" + serviceData);
+				makeEmbeddedSnapshot(attribute, serviceData);
 				continue;
 			}
 			else if(!serviceData.isEmpty()){
@@ -187,6 +231,7 @@ public abstract class AbstractGrain implements Grain{
 		//store the snapshot
 				client.storeData(storageData);
 			}
+*/
 		}
 	}
 }
