@@ -121,8 +121,15 @@ public class StatsMongoAttachmentsGatherer extends AbstractGatherer {
 		setLower(new Date(currTime - THIRTY_DAYS));
 
 		Map<String, Object> stats = new HashMap<String, Object>();
-		stats.put(STAT_AVG_ATTACH, getAvgAttachSize());
-		stats.put(STAT_MAX_ATTACH, getMaxAttachSize());
+		double avg = getAvgAttachSize();
+		long max = getMaxAttachSize();
+		
+		if(avg <= -1 || max <= -1){
+			return null;
+		}
+		
+		stats.put(STAT_AVG_ATTACH, avg);
+		stats.put(STAT_MAX_ATTACH, max);
 		stats.put(STAT_TIME_STAMP, System.currentTimeMillis());
 		return stats;
 	}

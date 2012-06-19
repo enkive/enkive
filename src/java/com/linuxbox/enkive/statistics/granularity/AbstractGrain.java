@@ -141,8 +141,8 @@ public abstract class AbstractGrain implements Grain{
 		keyVals.put(GRAIN_TYPE, filterObj);
 		query.put(name, keyVals);
 		Set<Map<String,Object>> result = client.queryStatistics(query, startDate, endDate);
-		System.out.println("filterObj: " + filterObj);
-		System.out.println("result: " + result);
+//		System.out.println("filterObj: " + filterObj);
+//		System.out.println("result: " + result);
 		return result;
 	}
 	

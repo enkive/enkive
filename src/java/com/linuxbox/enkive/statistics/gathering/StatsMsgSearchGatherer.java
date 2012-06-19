@@ -50,12 +50,10 @@ public class StatsMsgSearchGatherer extends AbstractGatherer {
 			final Set<String> result3 = result2.getMessageIds();
 			final int count = result3.size();
 			if (count == 0) {
-				result = 0;
 				LOGGER.warn("StatisticsMsgEntries: no Entries found between "
 						+ dateEarliest + " & " + dateLatest);
-			} else {
-				result = count;
 			}
+			result = count;
 		} catch (MessageSearchException e) {
 			LOGGER.warn(
 					"MessageSearchException in StatsMsgEntries.numEntries()", e);
@@ -83,8 +81,14 @@ public class StatsMsgSearchGatherer extends AbstractGatherer {
 		String upperDate = new StringBuilder(SIMPLE_DATE.format(endDate))
 				.toString();
 
+		int numEntries = numEntries(lowerDate, upperDate);
+		
+		if(numEntries < 0){
+			return null;
+		}
+		
 		result.put(STAT_TIME_STAMP, System.currentTimeMillis());
-		result.put(STAT_NUM_ENTRIES, numEntries(lowerDate, upperDate));
+		result.put(STAT_NUM_ENTRIES, numEntries);
 		return result;
 	}
 
