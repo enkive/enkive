@@ -1,5 +1,13 @@
 package com.linuxbox.enkive.statistics.removal;
 
+import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_DAY;
+import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_HOUR;
+import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MONTH;
+import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_TYPE;
+import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_WEEK;
+
+import static com.linuxbox.enkive.statistics.removal.RemovalConstants.*;
+
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
@@ -8,44 +16,55 @@ import java.util.Set;
 
 import javax.annotation.PostConstruct;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.quartz.JobDetail;
 import org.quartz.Scheduler;
 import org.springframework.scheduling.quartz.CronTriggerBean;
 import org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean;
 
 import com.linuxbox.enkive.statistics.services.StatsClient;
-
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.*;
 public class Remove {
-	private final String method = "cleanAll";
+	protected final static Log LOGGER = LogFactory
+			.getLog("com.linuxbox.enkive.statistics.removal");
 	StatsClient client;
 	Scheduler scheduler;
 	String schedule;
-	private int rawBuff   =  1;
-	private int hrBuff    = 48;
-	private int dayBuff   = 30;
-	private int wkBuff    = 10;
-	private int monthBuff = 24;
-	private Date filter;
-	
+	private int rawBuff   = REMOVAL_RAW_ID;
+	private int hrBuff    = REMOVAL_HOUR_ID;
+	private int dayBuff   = REMOVAL_DAY_ID;
+	private int wkBuff    = REMOVAL_WEEK_ID;
+	private int monthBuff = REMOVAL_MONTH_ID;
+	private Date dateFilter;
+
 	public void setRawBuff(int rawBuff){
-		this.rawBuff = rawBuff;
+		if(rawBuff >= REMOVAL_RAW_ID || rawBuff == -1){
+			this.rawBuff = rawBuff;
+		}
 	}
 	
 	public void setHrBuff(int hrBuff){
-		this.hrBuff = hrBuff;
+		if(hrBuff >= REMOVAL_HOUR_ID || hrBuff == -1){
+			this.hrBuff = hrBuff;
+		}
 	}
 	
 	public void setDayBuff(int dayBuff){
-		this.dayBuff = dayBuff;
+		if(dayBuff >= REMOVAL_DAY_ID || dayBuff == -1){
+			this.dayBuff = dayBuff;
+		}
 	}
 	
 	public void setWkBuff(int wkBuff){
-		this.wkBuff = wkBuff;
+		if(wkBuff >= REMOVAL_WEEK_ID || wkBuff == -1){
+			this.wkBuff = wkBuff;
+		}
 	}
 	
 	public void setMonthBuff(int monthBuff){
-		this.monthBuff = monthBuff;
+		if(monthBuff >= REMOVAL_MONTH_ID || monthBuff == -1){
+			this.monthBuff = monthBuff;
+		}
 	}
 	
 	public Remove(StatsClient client, Scheduler scheduler, String schedule){
@@ -54,43 +73,43 @@ public class Remove {
 		this.schedule = schedule;
 	}
 		
-	private void setDate(char time){
+	private void setDate(int time){
 		Calendar cal = Calendar.getInstance();
 		cal.set(Calendar.MINUTE, 0);
 		cal.set(Calendar.MILLISECOND, 0);
 		cal.set(Calendar.SECOND, 0);
 		
 		switch(time){
-			case 'm'://month
+			case REMOVAL_MONTH_ID://month
 				cal.add(Calendar.MONTH, -monthBuff);
 				break;
-			case 'w'://week
+			case REMOVAL_WEEK_ID://week
 				cal.add(Calendar.WEEK_OF_YEAR, -wkBuff);
 				break;
-			case 'd'://day
+			case REMOVAL_DAY_ID://day
 				cal.add(Calendar.DATE, -dayBuff);
 				break;
-			case 'h'://hour
+			case REMOVAL_HOUR_ID://hour
 				cal.add(Calendar.HOUR, -hrBuff);
 				break;
-			case 'r'://raw
+			case REMOVAL_RAW_ID://raw
 				cal.add(Calendar.HOUR, -rawBuff);
 		}
-		filter = cal.getTime();
+		dateFilter = cal.getTime();
 	}
-	
-	private void cleaner(char interval, String type){
+	//TODO: test	
+	private void cleaner(int interval, int type){
 		setDate(interval);
-		Set<Map<String,Object>> data = client.queryStatistics(null, new Date(0L), filter);
+		Set<Map<String,Object>> data = client.queryStatistics(null, new Date(0L), dateFilter);
 		Set<Object> deletionSet = new HashSet<Object>();
 		for(Map<String, Object> map: data){
-			String gType = (String)map.get(GRAIN_TYPE);
+			Integer gType = (Integer)map.get(GRAIN_TYPE);
 			if(gType != null){
 				if(gType.equals(type)){
 					deletionSet.add(map.get("_id"));
 				}		
 			}
-			else if(type == null){
+			else if(type == 0){
 				deletionSet.add(map.get("_id"));
 			}
 		}
@@ -99,30 +118,31 @@ public class Remove {
 	
 	private void cleanRaw(){
 		if(rawBuff != -1)
-			cleaner('r', null);
+			cleaner(REMOVAL_RAW_ID, 0);
 	}
 	
 	private void cleanHour(){
 		if(hrBuff != -1)
-			cleaner('h', GRAIN_HOUR);
+			cleaner(REMOVAL_HOUR_ID, GRAIN_HOUR);
 	}
 	
 	private void cleanDay(){
 		if(dayBuff != -1)
-			cleaner('d', GRAIN_DAY);
+			cleaner(REMOVAL_DAY_ID, GRAIN_DAY);
 	}
 
 	private void cleanWeek(){
 		if(wkBuff != -1)
-			cleaner('w', GRAIN_WEEK);
+			cleaner(REMOVAL_WEEK_ID, GRAIN_WEEK);
 	}
 
 	private void cleanMonth(){
 		if(monthBuff != -1)
-			cleaner('m', GRAIN_MONTH);
+			cleaner(REMOVAL_MONTH_ID, GRAIN_MONTH);
 	}
 	
 	public void cleanAll(){
+		LOGGER.info("Starting removal");
 		Calendar c = Calendar.getInstance();
 		cleanRaw();
 		cleanHour();
@@ -139,7 +159,7 @@ public class Remove {
 			}
 		}
 		
-		
+		LOGGER.info("Finished Removal");	
 	}
 	
 	@PostConstruct
@@ -148,7 +168,7 @@ public class Remove {
 		MethodInvokingJobDetailFactoryBean jobDetail = new MethodInvokingJobDetailFactoryBean();
 		jobDetail.setTargetObject(this);
 		jobDetail.setName("RemoverJob");
-		jobDetail.setTargetMethod(method);
+		jobDetail.setTargetMethod(METHOD);
 		jobDetail.setConcurrent(false);
 		jobDetail.afterPropertiesSet();
 

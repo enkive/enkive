@@ -28,7 +28,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletResponse;
-import com.linuxbox.enkive.statistics.services.StatsClient;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.context.ApplicationContext;
@@ -40,6 +40,7 @@ import com.linuxbox.enkive.docstore.DocStoreService;
 import com.linuxbox.enkive.message.search.MessageSearchService;
 import com.linuxbox.enkive.permissions.PermissionService;
 import com.linuxbox.enkive.retriever.MessageRetrieverService;
+import com.linuxbox.enkive.statistics.services.StatsClient;
 import com.linuxbox.enkive.workspace.WorkspaceService;
 import com.linuxbox.util.spring.ApplicationContextProvider;
 

@@ -6,6 +6,7 @@ import static com.linuxbox.enkive.statistics.StatsConstants.SIMPLE_DATE;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_NUM_ENTRIES;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIME_STAMP;
 import static com.linuxbox.enkive.statistics.StatsConstants.THIRTY_DAYS;
+import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_AVG;
 
 import java.net.UnknownHostException;
 import java.util.Date;
@@ -20,7 +21,6 @@ import com.linuxbox.enkive.message.search.MessageSearchService;
 import com.linuxbox.enkive.message.search.exception.MessageSearchException;
 import com.linuxbox.enkive.workspace.SearchResult;
 import com.mongodb.MongoException;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.*;
 
 public class StatsMsgSearchGatherer extends AbstractGatherer {
 	MessageSearchService searchService;
@@ -33,7 +33,7 @@ public class StatsMsgSearchGatherer extends AbstractGatherer {
 	
 	protected Map<String, Set<String>> keyBuilder(){
 		Map<String, Set<String>> keys = new HashMap<String, Set<String>>();
-		keys.put(STAT_NUM_ENTRIES, setCreator(GRAIN_AVG));
+		keys.put(STAT_NUM_ENTRIES, makeCreator(GRAIN_AVG));
 		return keys;
 	}
 	
@@ -51,7 +51,7 @@ public class StatsMsgSearchGatherer extends AbstractGatherer {
 			final int count = result3.size();
 			if (count == 0) {
 				result = 0;
-				LOGGER.warn("StatisticsMsgEntries: Warning no Entries found in numEntries() between "
+				LOGGER.warn("StatisticsMsgEntries: no Entries found between "
 						+ dateEarliest + " & " + dateLatest);
 			} else {
 				result = count;
@@ -68,7 +68,6 @@ public class StatsMsgSearchGatherer extends AbstractGatherer {
 	}
 
 	public Map<String, Object> getStatistics() {
-
 		long currTime = System.currentTimeMillis();
 		Date currDate = new Date(currTime);
 		Date prevDate = new Date(currTime - THIRTY_DAYS);
@@ -89,7 +88,6 @@ public class StatsMsgSearchGatherer extends AbstractGatherer {
 		return result;
 	}
 
-	// required for spring to work
 	public MessageSearchService getSearchService() {
 		return searchService;
 	}

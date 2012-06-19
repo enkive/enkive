@@ -1,10 +1,10 @@
 package com.linuxbox.enkive.statistics.granularity;
 
 public class GrainConstants {
-	public static String GRAIN_HOUR = "hr";
-	public static String GRAIN_DAY = "day";
-	public static String GRAIN_WEEK = "wk";
-	public static String GRAIN_MONTH = "mon";
+	public static int GRAIN_HOUR = 1;//"hr";
+	public static int GRAIN_DAY = 24;//"day";
+	public static int GRAIN_WEEK = 168;
+	public static int GRAIN_MONTH = 744;
 	public static String GRAIN_TYPE = "gTyp";
 	public static String GRAIN_WEIGHT = "wgt";
 	public static String GRAIN_AVG = "avg";

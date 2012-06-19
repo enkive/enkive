@@ -1,35 +1,35 @@
-package com.linuxbox.enkive.statistics.retrieval.mongodb;
+package com.linuxbox.enkive.statistics.services.retrieval.mongodb;
 
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_SERVICE_NAME;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_STORAGE_COLLECTION;
+import static com.linuxbox.enkive.statistics.StatsConstants.STAT_STORAGE_DB;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIME_STAMP;
 
 import java.net.UnknownHostException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Set;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.bson.types.ObjectId;
 
-import com.linuxbox.enkive.statistics.retrieval.StatsRetrievalException;
 import com.linuxbox.enkive.statistics.services.AbstractService;
 import com.linuxbox.enkive.statistics.services.StatsRetrievalService;
-import com.mongodb.BasicDBList;
+import com.linuxbox.enkive.statistics.services.retrieval.StatsRetrievalException;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import com.mongodb.Mongo;
 import com.mongodb.MongoException;
-import com.sun.corba.se.spi.ior.ObjectId;
 
 public class MongoStatsRetrievalService extends AbstractService implements
 		StatsRetrievalService {
 	protected final static Log LOGGER = LogFactory
-			.getLog("com.linuxbox.enkive.statistics.retrieval.mongodb");
+			.getLog("com.linuxbox.enkive.statistics.services.retrieval.mongodb");
 
 	private static Mongo m;
 	private static DB db;
@@ -40,13 +40,16 @@ public class MongoStatsRetrievalService extends AbstractService implements
 		try {
 			m = new Mongo();
 		} catch (UnknownHostException e) {
+			//TODO
 			LOGGER.fatal("Mongo has failed: Unknown Host", e);
 		} catch (MongoException e) {
+			//TODO
 			LOGGER.fatal("Mongo has failed: Mongo Execption", e);
 		}
-		db = m.getDB("enkive");
+		db = m.getDB(STAT_STORAGE_DB);
 		statisticsServices = null;
 		coll = db.getCollection(STAT_STORAGE_COLLECTION);
+		LOGGER.info("RetrievalService() successfully created");
 	}
 
 	public MongoStatsRetrievalService(Mongo mongo, String dbName) {
@@ -54,6 +57,7 @@ public class MongoStatsRetrievalService extends AbstractService implements
 		db = m.getDB(dbName);
 		statisticsServices = null;
 		coll = db.getCollection(STAT_STORAGE_COLLECTION);
+		LOGGER.info("RetrievalService(Mongo, String) successfully created");
 	}
 
 	public MongoStatsRetrievalService(Mongo mongo, String dbName,
@@ -64,6 +68,7 @@ public class MongoStatsRetrievalService extends AbstractService implements
 		// serviceName [...statnames to retrieve...]
 		this.statisticsServices = statisticsServices;
 		coll = db.getCollection(STAT_STORAGE_COLLECTION);
+		LOGGER.info("RetrievalService(Mongo, String, HashMap) successfully created");
 	}
 
 	private Set<DBObject> buildSet(long lower, long upper) {
@@ -106,11 +111,7 @@ public class MongoStatsRetrievalService extends AbstractService implements
 
 		for (DBObject dateDBObj : dateSet) {
 			for (DBObject mapDBObj : hMapSet) {
-/*TODO:test		if (mapDBObj.get(STAT_SERVICE_NAME).equals(
-						dateDBObj.get(STAT_SERVICE_NAME))
-						&& mapDBObj.get(STAT_TIME_STAMP).equals(
-								dateDBObj.get(STAT_TIME_STAMP)))
-*/				if(mapDBObj.get("_id").equals(dateDBObj.get("_id")))
+				if(mapDBObj.get("_id").equals(dateDBObj.get("_id")))
 					bothSet.add(mapDBObj);
 			}
 		}

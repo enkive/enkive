@@ -3,7 +3,7 @@ package com.linuxbox.enkive.statistics.services;
 import java.util.Map;
 import java.util.Set;
 
-import com.linuxbox.enkive.statistics.storage.StatsStorageException;
+import com.linuxbox.enkive.statistics.services.storage.StatsStorageException;
 
 /*
  * TODO:

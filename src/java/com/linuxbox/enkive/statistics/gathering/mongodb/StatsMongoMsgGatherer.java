@@ -1,18 +1,19 @@
-package com.linuxbox.enkive.statistics.gathering;
+package com.linuxbox.enkive.statistics.gathering.mongodb;
 
 import static com.linuxbox.enkive.statistics.StatsConstants.ARCHIVE_SIZE;
+import static com.linuxbox.enkive.statistics.StatsConstants.STAT_AVG_ATTACH;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_DATA_SIZE;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_NAME;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIME_STAMP;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TYPE;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.*;
-import static com.linuxbox.enkive.statistics.StatsConstants.*;
+import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_AVG;
 
 import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import com.linuxbox.enkive.statistics.gathering.AbstractGatherer;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.Mongo;
@@ -32,7 +33,7 @@ public class StatsMongoMsgGatherer extends AbstractGatherer {
 	
 	protected Map<String, Set<String>> keyBuilder(){
 		Map<String, Set<String>> keys = new HashMap<String, Set<String>>();
-		keys.put(ARCHIVE_SIZE, setCreator(GRAIN_AVG));
+		keys.put(ARCHIVE_SIZE, makeCreator(GRAIN_AVG));
 		return keys;
 	}
 

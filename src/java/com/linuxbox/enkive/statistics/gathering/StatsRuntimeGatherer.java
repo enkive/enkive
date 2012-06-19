@@ -8,12 +8,12 @@ import static com.linuxbox.enkive.statistics.StatsConstants.STAT_PROCESSORS;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIME_STAMP;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TOTAL_MEMORY;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TYPE;
+import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_AVG;
+import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MAX;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.*;
 public class StatsRuntimeGatherer extends AbstractGatherer {
 	
 	public StatsRuntimeGatherer(String serviceName, String schedule){
@@ -23,17 +23,17 @@ public class StatsRuntimeGatherer extends AbstractGatherer {
 	protected Map<String, Set<String>> keyBuilder(){
 		Map<String, Set<String>> keys = new HashMap<String, Set<String>>();
 		
-		Set<String> methods = setCreator(GRAIN_MAX);
+		Set<String> methods = makeCreator(GRAIN_MAX);
 		keys.put(STAT_MAX_MEMORY, methods);
 		
-		methods = setCreator(GRAIN_AVG);
+		methods = makeCreator(GRAIN_AVG);
 		keys.put(STAT_FREE_MEMORY, methods);
 		keys.put(STAT_TOTAL_MEMORY, methods);
 		keys.put(STAT_PROCESSORS, methods);
 		return keys;
 	}
-	
-	public Map<String, Object> getStats() {
+
+	public Map<String, Object> getStatistics() {
 		Map<String, Object> stats = createMap();
 		Runtime runtime = Runtime.getRuntime();
 		stats.put(STAT_MAX_MEMORY, runtime.maxMemory());
@@ -42,10 +42,6 @@ public class StatsRuntimeGatherer extends AbstractGatherer {
 		stats.put(STAT_PROCESSORS, runtime.availableProcessors());
 		stats.put(STAT_TIME_STAMP, System.currentTimeMillis());
 		return stats;
-	}
-
-	public Map<String, Object> getStatistics() {
-		return getStats();
 	}
 
 	public static void main(String args[]) {

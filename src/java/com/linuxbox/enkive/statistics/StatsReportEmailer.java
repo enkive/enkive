@@ -1,5 +1,7 @@
 package com.linuxbox.enkive.statistics;
 
+import static com.linuxbox.enkive.statistics.StatsConstants.STAT_SERVICE_NAME;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -26,14 +28,12 @@ import org.apache.commons.logging.LogFactory;
 import org.quartz.SchedulerException;
 
 import com.linuxbox.enkive.statistics.gathering.GathererException;
-import com.linuxbox.enkive.statistics.retrieval.StatsRetrievalException;
 import com.linuxbox.enkive.statistics.services.StatsGathererService;
+import com.linuxbox.enkive.statistics.services.retrieval.StatsRetrievalException;
 
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
-
-import static com.linuxbox.enkive.statistics.StatsConstants.*;
 
 public class StatsReportEmailer {
 

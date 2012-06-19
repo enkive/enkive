@@ -1,4 +1,4 @@
-package com.linuxbox.enkive.statistics.storage;
+package com.linuxbox.enkive.statistics.services.storage;
 
 public class StatsStorageException extends Exception {
 	private static final long serialVersionUID = 1L;

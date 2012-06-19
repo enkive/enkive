@@ -4,8 +4,8 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Set;
 
-import com.linuxbox.enkive.statistics.retrieval.StatsRetrievalException;
-import com.linuxbox.enkive.statistics.storage.StatsStorageException;
+import com.linuxbox.enkive.statistics.services.retrieval.StatsRetrievalException;
+import com.linuxbox.enkive.statistics.services.storage.StatsStorageException;
 
 public interface StatsRetrievalService {
 	/**

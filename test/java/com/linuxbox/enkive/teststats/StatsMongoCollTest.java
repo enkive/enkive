@@ -29,7 +29,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import com.linuxbox.enkive.statistics.gathering.StatsMongoCollectionGatherer;
+import com.linuxbox.enkive.statistics.gathering.mongodb.StatsMongoCollectionGatherer;
 import com.mongodb.DB;
 import com.mongodb.Mongo;
 import com.mongodb.MongoException;

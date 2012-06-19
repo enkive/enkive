@@ -1,4 +1,4 @@
-package com.linuxbox.enkive.statistics.retrieval;
+package com.linuxbox.enkive.statistics.services.retrieval;
 
 public class StatsRetrievalException extends Exception {
 

@@ -6,6 +6,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.quartz.SchedulerException;
 
+import com.linuxbox.enkive.statistics.gathering.GathererException;
 import com.linuxbox.enkive.statistics.services.StatsGathererService;
 
 public class StatsReportLogWriter {
@@ -19,7 +20,7 @@ public class StatsReportLogWriter {
 		this.gatherer = gather;
 	}
 
-	public void logReport() throws ParseException, SchedulerException {
+	public void logReport() throws ParseException, SchedulerException, GathererException {
 		LOGGER.info(gatherer.gatherStats());
 	}
 }

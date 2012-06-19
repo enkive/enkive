@@ -1,5 +1,14 @@
-package com.linuxbox.enkive.statistics.gathering;
+package com.linuxbox.enkive.statistics.gathering.mongodb;
 
+import static com.linuxbox.enkive.statistics.MongoConstants.MONGO_AVG_OBJ_SIZE;
+import static com.linuxbox.enkive.statistics.MongoConstants.MONGO_DATA_SIZE;
+import static com.linuxbox.enkive.statistics.MongoConstants.MONGO_FILE_SIZE;
+import static com.linuxbox.enkive.statistics.MongoConstants.MONGO_INDEXES;
+import static com.linuxbox.enkive.statistics.MongoConstants.MONGO_INDEX_SIZE;
+import static com.linuxbox.enkive.statistics.MongoConstants.MONGO_NUM_COLLECTIONS;
+import static com.linuxbox.enkive.statistics.MongoConstants.MONGO_NUM_EXTENT;
+import static com.linuxbox.enkive.statistics.MongoConstants.MONGO_NUM_OBJS;
+import static com.linuxbox.enkive.statistics.MongoConstants.MONGO_STORAGE_SIZE;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_AVG_OBJ_SIZE;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_DATA_SIZE;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_FILE_SIZE;
@@ -12,6 +21,10 @@ import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIME_STAMP;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TOTAL_INDEX_SIZE;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TOTAL_SIZE;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TYPE;
+import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TYPE_DB;
+import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_AVG;
+import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MAX;
+import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MIN;
 
 import java.net.UnknownHostException;
 import java.util.HashMap;
@@ -21,11 +34,11 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.linuxbox.enkive.statistics.gathering.AbstractGatherer;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.Mongo;
 import com.mongodb.MongoException;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.*;
 public class StatsMongoDBGatherer extends AbstractGatherer {
 	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.statistics.gathering");
@@ -44,7 +57,7 @@ public class StatsMongoDBGatherer extends AbstractGatherer {
 		keys.put(STAT_TYPE, null);
 		keys.put(STAT_NAME, null);
 		
-		Set<String> result = setCreator(GRAIN_AVG, GRAIN_MAX, GRAIN_MIN);
+		Set<String> result = makeCreator(GRAIN_AVG, GRAIN_MAX, GRAIN_MIN);
 		
 		keys.put(STAT_NUM_COLLECTIONS, result);
 		keys.put(STAT_NUM_OBJS, result);
@@ -62,17 +75,17 @@ public class StatsMongoDBGatherer extends AbstractGatherer {
 	public BasicDBObject getStats() {
 		BasicDBObject stats = new BasicDBObject();
 		BasicDBObject temp = db.getStats();
-		stats.put(STAT_TYPE, "database");
+		stats.put(STAT_TYPE, STAT_TYPE_DB);
 		stats.put(STAT_NAME, db.getName());
-		stats.put(STAT_NUM_COLLECTIONS, temp.get("collections"));
-		stats.put(STAT_NUM_OBJS, temp.get("objects"));
-		stats.put(STAT_AVG_OBJ_SIZE, temp.get("avgObjSize"));
-		stats.put(STAT_DATA_SIZE, temp.get("dataSize"));
-		stats.put(STAT_TOTAL_SIZE, temp.get("storageSize"));
-		stats.put(STAT_NUM_INDEX, temp.get("indexes"));
-		stats.put(STAT_TOTAL_INDEX_SIZE, temp.get("indexSize"));
-		stats.put(STAT_NUM_EXTENT, temp.get("numExtents"));
-		stats.put(STAT_FILE_SIZE, temp.get("fileSize"));
+		stats.put(STAT_NUM_COLLECTIONS, temp.get(MONGO_NUM_COLLECTIONS));
+		stats.put(STAT_NUM_OBJS, temp.get(MONGO_NUM_OBJS));
+		stats.put(STAT_AVG_OBJ_SIZE, temp.get(MONGO_AVG_OBJ_SIZE));
+		stats.put(STAT_DATA_SIZE, temp.get(MONGO_DATA_SIZE));
+		stats.put(STAT_TOTAL_SIZE, temp.get(MONGO_STORAGE_SIZE));
+		stats.put(STAT_NUM_INDEX, temp.get(MONGO_INDEXES));
+		stats.put(STAT_TOTAL_INDEX_SIZE, temp.get(MONGO_INDEX_SIZE));
+		stats.put(STAT_NUM_EXTENT, temp.get(MONGO_NUM_EXTENT));
+		stats.put(STAT_FILE_SIZE, temp.get(MONGO_FILE_SIZE));
 		stats.put(STAT_TIME_STAMP, System.currentTimeMillis());
 		return stats;
 	}

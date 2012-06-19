@@ -7,13 +7,13 @@
 	<!-- Statistics Gathering related beans -->
 	<context:annotation-config />
 	
-	<bean id="StatisticsStorer" class="com.linuxbox.enkive.statistics.storage.mongodb.MongoStatsStorageService">
+	<bean id="StatisticsStorer" class="com.linuxbox.enkive.statistics.services.storage.mongodb.MongoStatsStorageService">
 		<constructor-arg ref="Mongo" />
 		<constructor-arg type="java.lang.String" value="${enkive.messagestore.db.name}" />
 	</bean>
 	
 	<bean id="MsgStatsService"
-		class="com.linuxbox.enkive.statistics.gathering.StatsMongoMsgGatherer">
+		class="com.linuxbox.enkive.statistics.gathering.mongodb.StatsMongoMsgGatherer">
 		<constructor-arg ref="Mongo" />
 		<constructor-arg type="java.lang.String" value="${enkive.messagestore.db.name}" />
 		<constructor-arg type="java.lang.String" value="${enkive.messagestore.collection.name}" />
@@ -33,7 +33,7 @@
 	</bean>
 
 	<bean id="AttachmentStatsService"
-		class="com.linuxbox.enkive.statistics.gathering.StatsMongoAttachmentsGatherer">
+		class="com.linuxbox.enkive.statistics.gathering.mongodb.StatsMongoAttachmentsGatherer">
 		<constructor-arg ref="Mongo" />
 		<constructor-arg type="java.lang.String" value="${enkive.messagestore.db.name}" />
 		<constructor-arg type="java.lang.String" value="${enkive.docstore.fs.collection.name}" />
@@ -44,7 +44,7 @@
 	</bean>
 	
 	<bean id="DatabaseStatsService"
-		class="com.linuxbox.enkive.statistics.gathering.StatsMongoDBGatherer">
+		class="com.linuxbox.enkive.statistics.gathering.mongodb.StatsMongoDBGatherer">
 		<constructor-arg ref="Mongo" />
 		<constructor-arg type="java.lang.String" value="${enkive.messagestore.db.name}" />
 		<constructor-arg name="serviceName" value="DatabaseStatsService"/>
@@ -54,7 +54,7 @@
 	</bean>
 	
 	<bean id="CollectionStatsService"
-		class="com.linuxbox.enkive.statistics.gathering.StatsMongoCollectionGatherer">
+		class="com.linuxbox.enkive.statistics.gathering.mongodb.StatsMongoCollectionGatherer">
 		<constructor-arg ref="Mongo" />
 		<constructor-arg type="java.lang.String" value="${enkive.messagestore.db.name}" />
 		<constructor-arg name="serviceName" value="CollectionStatsService"/>
@@ -84,7 +84,7 @@
 		</constructor-arg>
 	</bean>
 	
-	<bean id="StatisticsRetriever" class="com.linuxbox.enkive.statistics.retrieval.mongodb.MongoStatsRetrievalService">
+	<bean id="StatisticsRetriever" class="com.linuxbox.enkive.statistics.services.retrieval.mongodb.MongoStatsRetrievalService">
 		<constructor-arg ref="Mongo" />
 		<constructor-arg type="java.lang.String" value="${enkive.messagestore.db.name}" />
 	</bean>

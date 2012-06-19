@@ -3,7 +3,7 @@ package com.linuxbox.enkive.statistics.gathering;
 import java.util.Map;
 
 import com.linuxbox.enkive.statistics.services.StatsStorageService;
-import com.linuxbox.enkive.statistics.storage.StatsStorageException;
+import com.linuxbox.enkive.statistics.services.storage.StatsStorageException;
 
 public interface GathererInterface {
 	public void storeStats() throws StatsStorageException;

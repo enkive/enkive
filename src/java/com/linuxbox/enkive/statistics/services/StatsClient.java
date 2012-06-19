@@ -6,13 +6,17 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.quartz.SchedulerException;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import com.linuxbox.enkive.statistics.gathering.GathererAttributes;
-import com.linuxbox.enkive.statistics.retrieval.StatsRetrievalException;
-import com.linuxbox.enkive.statistics.storage.StatsStorageException;
+import com.linuxbox.enkive.statistics.gathering.GathererException;
+import com.linuxbox.enkive.statistics.services.retrieval.StatsRetrievalException;
+import com.linuxbox.enkive.statistics.services.storage.StatsStorageException;
 
 public class StatsClient {
+	protected final static Log LOGGER = LogFactory
+			.getLog("com.linuxbox.enkive.statistics.services.StatsClient");
 	protected StatsGathererService gathererService;
 	protected StatsStorageService storageService;
 	protected StatsRetrievalService retrievalService;
@@ -22,19 +26,29 @@ public class StatsClient {
 		gathererService = gatherer;
 		storageService = storer;
 		retrievalService = retriever;
+		LOGGER.info("Client successfully created");
 	}
 
 	public Set<Map<String, Object>> gatherData(){
 		try {
 			return gathererService.gatherStats();
 		} catch (ParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (SchedulerException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LOGGER.warn("Client.gatherData() ParseException", e);
+		} catch (GathererException e) {
+			LOGGER.warn("Client.gatherData() GathererException", e);
 		}
 		
+		return null;
+	}
+	
+	public Set<Map<String, Object>> gatherData(Map<String, String[]> map){
+		try {
+			return gathererService.gatherStats(map);
+		} catch (ParseException e) {
+			LOGGER.error("Client.gatherData(Map) ParseException", e);
+		} catch (GathererException e) {
+			LOGGER.error("Client.gatherData(Map) GathererException", e);
+		}
 		return null;
 	}
 
@@ -42,13 +56,8 @@ public class StatsClient {
 		try {
 			storageService.storeStatistics(set);
 		} catch (StatsStorageException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LOGGER.error("Client.storeData StatsStorageException", e);
 		}
-	}
-
-	public void gatherAndStoreData() {
-		storeData(gatherData());
 	}
 
 	public Set<Map<String, Object>> queryStatistics(
@@ -58,8 +67,7 @@ public class StatsClient {
 			return retrievalService.queryStatistics(stats, startingTimestamp,
 					endingTimestamp);
 		} catch (StatsRetrievalException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LOGGER.error("Client.queryStatistics(Map, Date, Date) StatsRetrievalException", e);
 		}
 		return null;
 	}
@@ -84,8 +92,7 @@ public class StatsClient {
 		try {
 			retrievalService.remove(deletionSet);
 		} catch (StatsRetrievalException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LOGGER.error("Client.remove(Set) StatsRetrievalException", e);
 		}
 	}
 }

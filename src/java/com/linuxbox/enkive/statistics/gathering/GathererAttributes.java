@@ -1,11 +1,14 @@
 package com.linuxbox.enkive.statistics.gathering;
 
+import static com.linuxbox.enkive.statistics.StatsConstants.STAT_SERVICE_NAME;
+import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIME_STAMP;
+import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_AVG;
+import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MAX;
+import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MIN;
+
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
-import static com.linuxbox.enkive.statistics.StatsConstants.*;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.*;
 public class GathererAttributes {
 	protected String serviceName;
 	protected String schedule;
@@ -23,14 +26,6 @@ public class GathererAttributes {
 		timeProperties.add(GRAIN_MIN);
 		
 		keys.put(STAT_TIME_STAMP, timeProperties);
-	}
-	
-	public Set<String> setCreator(String ... methodTypes){
-		Set<String> result = new HashSet<String>();
-		for(String methodName: methodTypes){
-			result.add(methodName);
-		}
-		return result;
 	}
 	
 	public String getName(){

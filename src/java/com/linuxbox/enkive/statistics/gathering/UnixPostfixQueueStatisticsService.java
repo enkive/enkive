@@ -2,8 +2,8 @@ package com.linuxbox.enkive.statistics.gathering;
 
 import static com.linuxbox.enkive.statistics.StatsConstants.QUEUE_LENGTH;
 import static com.linuxbox.enkive.statistics.StatsConstants.STATISTIC_CHECK_ERROR;
-import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIME_STAMP;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_NAME;
+import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIME_STAMP;
 import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_AVG;
 
 import java.io.BufferedReader;
@@ -33,7 +33,7 @@ public class UnixPostfixQueueStatisticsService extends AbstractGatherer{
 	protected Map<String, Set<String>> keyBuilder(){
 		Map<String, Set<String>> keys = new HashMap<String, Set<String>>();
 		
-		Set<String> methods = setCreator(GRAIN_AVG);
+		Set<String> methods = makeCreator(GRAIN_AVG);
 		keys.put(QUEUE_LENGTH, methods);
 		keys.put(STAT_TIME_STAMP, methods);
 		keys.put(STAT_NAME, null);
