@@ -1,22 +1,22 @@
 /*******************************************************************************
  * Copyright 2012 The Linux Box Corporation.
- * 
+ *
  * This file is part of Enkive CE (Community Edition).
- * 
+ *
  * Enkive CE is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of
  * the License, or (at your option) any later version.
- * 
+ *
  * Enkive CE is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Affero General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Affero General Public
  * License along with Enkive CE. If not, see
  * <http://www.gnu.org/licenses/>.
- ******************************************************************************/
+ *******************************************************************************/
 package com.linuxbox.enkive.docstore.mongogrid;
 
 import static com.linuxbox.enkive.docstore.mongogrid.Constants.BINARY_ENCODING_KEY;
@@ -27,6 +27,7 @@ import static com.linuxbox.enkive.docstore.mongogrid.Constants.INDEX_STATUS_KEY;
 import static com.linuxbox.enkive.docstore.mongogrid.Constants.INDEX_STATUS_QUERY;
 import static com.linuxbox.enkive.docstore.mongogrid.Constants.INDEX_TIMESTAMP_KEY;
 import static com.linuxbox.enkive.docstore.mongogrid.Constants.INDEX_TIMESTAMP_QUERY;
+import static com.linuxbox.util.mongodb.MongoDBConstants.CALL_ENSURE_INDEX_ON_INIT;
 import static com.linuxbox.util.mongodb.MongoDBConstants.FILENAME_KEY;
 import static com.linuxbox.util.mongodb.MongoDBConstants.GRID_FS_FILES_COLLECTION_SUFFIX;
 import static com.linuxbox.util.mongodb.MongoDBConstants.OBJECT_ID_KEY;
@@ -34,6 +35,8 @@ import static com.linuxbox.util.mongodb.MongoDBConstants.OBJECT_ID_KEY;
 import java.io.ByteArrayInputStream;
 import java.net.UnknownHostException;
 import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -50,6 +53,7 @@ import com.linuxbox.enkive.docstore.exception.DocumentNotFoundException;
 import com.linuxbox.util.HashingInputStream;
 import com.linuxbox.util.lockservice.LockService;
 import com.linuxbox.util.lockservice.LockServiceException;
+import com.linuxbox.util.mongodb.MongoIndexable;
 import com.mongodb.BasicDBObject;
 import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DB;
@@ -69,7 +73,8 @@ import com.mongodb.gridfs.GridFSInputFile;
  * http://groups.google.com/group/mongodb-user/browse_thread/thread/4a7419e07c73537/2931a3163836d6ba
  */
 
-public class MongoGridDocStoreService extends AbstractDocStoreService {
+public class MongoGridDocStoreService extends AbstractDocStoreService implements
+		MongoIndexable {
 	private final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.docstore.mongogrid");
 
@@ -128,23 +133,11 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 		filesCollection = gridFS.getDB().getCollection(
 				bucketName + GRID_FS_FILES_COLLECTION_SUFFIX);
 
-		/*
-		 * NOTE: we DO NOT NEED a filename index, because by default GridFS will
-		 * create an index on filename and upload date. You can efficiently
-		 * query on compound indexes if the key searched for come before those
-		 * that are not, which is true in this case.
-		 * 
-		 * DBObject filenameIndex = BasicDBObjectBuilder.start()
-		 * .add(FILENAME_KEY, 1).get();
-		 * filesCollection.ensureIndex(filenameIndex);
-		 */
-
-		// be sure to put status before timestamp, because it's more likely
-		// we'll search on just status rather than on just timestamp
-		DBObject searchIndexingIndex = BasicDBObjectBuilder.start()
-				.add(INDEX_STATUS_KEY, 1).add(INDEX_TIMESTAMP_KEY, 1).get();
-		filesCollection.ensureIndex(searchIndexingIndex, "indexingStatusIndex",
-				false);
+		// see comments on def'n of CALL_ENSURE_INDEX_ON_INIT to see why it's
+		// done conditionally
+		if (CALL_ENSURE_INDEX_ON_INIT) {
+			// see class com.linuxbox.enkive.MongoDBIndexManager
+		}
 
 		// insure data is written to disk
 		filesCollection.setWriteConcern(WriteConcern.FSYNC_SAFE);
@@ -454,5 +447,47 @@ public class MongoGridDocStoreService extends AbstractDocStoreService {
 
 		final DBObject finalQuery = protoQuery.get();
 		return finalQuery;
+	}
+
+	@Override
+	public List<DBObject> getIndexInfo() {
+		return filesCollection.getIndexInfo();
+	}
+
+	@Override
+	public List<IndexDescription> getPreferredIndexes() {
+		List<IndexDescription> result = new LinkedList<IndexDescription>();
+
+		/*
+		 * NOTE: we DO NOT NEED a filename index, because by default GridFS will
+		 * create an index on filename and upload date. You can efficiently
+		 * query on compound indexes if the key searched for come before those
+		 * that are not, which is true in this case.
+		 * 
+		 * DBObject filenameIndex = BasicDBObjectBuilder.start()
+		 * .add(FILENAME_KEY, 1).get();
+		 * filesCollection.ensureIndex(filenameIndex);
+		 */
+
+		// be sure to put status before timestamp, because it's more likely
+		// we'll search on just status rather than on just timestamp
+		DBObject searchIndexingIndex = BasicDBObjectBuilder.start()
+				.add(INDEX_STATUS_KEY, 1).add(INDEX_TIMESTAMP_KEY, 1).get();
+		IndexDescription id1 = new IndexDescription("indexingStatusIndex",
+				searchIndexingIndex, false);
+		result.add(id1);
+
+		return result;
+	}
+
+	@Override
+	public void ensureIndex(DBObject index, DBObject options)
+			throws MongoException {
+		filesCollection.ensureIndex(index, options);
+	}
+
+	@Override
+	public long getDocumentCount() throws MongoException {
+		return filesCollection.count();
 	}
 }

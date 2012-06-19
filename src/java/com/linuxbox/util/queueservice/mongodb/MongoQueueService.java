@@ -1,34 +1,38 @@
 /*******************************************************************************
  * Copyright 2012 The Linux Box Corporation.
- * 
+ *
  * This file is part of Enkive CE (Community Edition).
- * 
+ *
  * Enkive CE is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of
  * the License, or (at your option) any later version.
- * 
+ *
  * Enkive CE is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Affero General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Affero General Public
  * License along with Enkive CE. If not, see
  * <http://www.gnu.org/licenses/>.
- ******************************************************************************/
+ *******************************************************************************/
 package com.linuxbox.util.queueservice.mongodb;
 
+import static com.linuxbox.util.mongodb.MongoDBConstants.CALL_ENSURE_INDEX_ON_INIT;
 import static com.linuxbox.util.mongodb.MongoDBConstants.OBJECT_ID_KEY;
 
 import java.net.UnknownHostException;
 import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.bson.types.BSONTimestamp;
 import org.bson.types.ObjectId;
 
+import com.linuxbox.util.mongodb.MongoIndexable;
 import com.linuxbox.util.queueservice.AbstractQueueEntry;
 import com.linuxbox.util.queueservice.QueueEntry;
 import com.linuxbox.util.queueservice.QueueService;
@@ -43,7 +47,7 @@ import com.mongodb.QueryBuilder;
 import com.mongodb.WriteConcern;
 import com.mongodb.WriteResult;
 
-public class MongoQueueService implements QueueService {
+public class MongoQueueService implements QueueService, MongoIndexable {
 	protected static final Log LOGGER = LogFactory
 			.getLog("com.linuxbox.util.queueservice.mongodb");
 
@@ -104,24 +108,11 @@ public class MongoQueueService implements QueueService {
 		this.mongoDB = mongo.getDB(database);
 		this.queueCollection = mongoDB.getCollection(collection);
 
-		// For MongoDB multi-key indexes to work the most efficiently, the
-		// queried fields should appear before the sorting fields in the
-		// indexes.
-
-		// This index is used for finding the earliest entry with a given
-		// status.
-		final DBObject statusTimestampIndex = new BasicDBObject(STATUS_FIELD, 1)
-				.append(CREATED_AT_FIELD, 1);
-		queueCollection.ensureIndex(statusTimestampIndex,
-				"statusTimestampIndex");
-
-		// This index is used for finding the earliest entry with a given status
-		// and identifier.
-		final DBObject statusIdentifierTimestampIndex = new BasicDBObject(
-				STATUS_FIELD, 1).append(IDENTIFIER_FIELD, 1).append(
-				CREATED_AT_FIELD, 1);
-		queueCollection.ensureIndex(statusIdentifierTimestampIndex,
-				"statusIdentifierTimestampIndex");
+		// see comments on def'n of CALL_ENSURE_INDEX_ON_INIT to see why it's
+		// done conditionally
+		if (CALL_ENSURE_INDEX_ON_INIT) {
+			// see class com.linuxbox.enkive.MongoDBIndexManager
+		}
 
 		// Make sure data is written out to disk before operation is complete.
 		queueCollection.setWriteConcern(WriteConcern.FSYNC_SAFE);
@@ -248,5 +239,51 @@ public class MongoQueueService implements QueueService {
 			super(enqueuedAt, identifier, note, shardKey);
 			this.mongoID = mongoID;
 		}
+	}
+
+	@Override
+	public List<DBObject> getIndexInfo() {
+		return queueCollection.getIndexInfo();
+	}
+
+	@Override
+	public List<IndexDescription> getPreferredIndexes() {
+		LinkedList<IndexDescription> result = new LinkedList<IndexDescription>();
+
+		// For MongoDB multi-key indexes to work the most efficiently, the
+		// queried fields should appear before the sorting fields in the
+		// indexes.
+
+		// This index is used for finding the earliest entry with a given
+		// status.
+		final DBObject statusTimestampIndex = new BasicDBObject(STATUS_FIELD, 1)
+				.append(CREATED_AT_FIELD, 1);
+		IndexDescription id1 = new IndexDescription("statusTimestampIndex",
+				statusTimestampIndex, false);
+		result.add(id1);
+
+		// This index is used for finding the earliest entry with a given
+		// status
+		// and identifier.
+		final DBObject statusIdentifierTimestampIndex = new BasicDBObject(
+				STATUS_FIELD, 1).append(IDENTIFIER_FIELD, 1).append(
+				CREATED_AT_FIELD, 1);
+		IndexDescription id2 = new IndexDescription(
+				"statusIdentifierTimestampIndex",
+				statusIdentifierTimestampIndex, false);
+		result.add(id2);
+
+		return result;
+	}
+
+	@Override
+	public void ensureIndex(DBObject index, DBObject options)
+			throws MongoException {
+		queueCollection.ensureIndex(index, options);
+	}
+
+	@Override
+	public long getDocumentCount() throws MongoException {
+		return queueCollection.count();
 	}
 }

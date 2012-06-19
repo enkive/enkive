@@ -1,22 +1,22 @@
 /*******************************************************************************
  * Copyright 2012 The Linux Box Corporation.
- * 
+ *
  * This file is part of Enkive CE (Community Edition).
- * 
+ *
  * Enkive CE is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of
  * the License, or (at your option) any later version.
- * 
+ *
  * Enkive CE is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Affero General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Affero General Public
  * License along with Enkive CE. If not, see
  * <http://www.gnu.org/licenses/>.
- ******************************************************************************/
+ *******************************************************************************/
 package com.linuxbox.enkive.archiver.mongodb;
 
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.BOUNDARY_ID;
@@ -40,11 +40,13 @@ import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.SUBJECT;
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.TO;
 import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.ARCHIVE_TIME;
 import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.ATTACHMENT_ID;
+import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.ATTACHMENT_ID_INDEX;
 import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.ATTACHMENT_ID_LIST;
 import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.CONTENT_HEADER;
 import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.CONTENT_HEADER_TYPE;
 import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.MESSAGE_UUID;
 import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.MULTIPART_HEADER_TYPE;
+import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.NESTED_MESSAGE_ID_INDEX;
 import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.NESTED_MESSAGE_ID_LIST;
 import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.PART_HEADERS;
 import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.SINGLE_PART_HEADER_TYPE;
@@ -53,6 +55,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -80,6 +83,7 @@ import com.linuxbox.enkive.message.MimeTransferEncoding;
 import com.linuxbox.enkive.message.MultiPartHeader;
 import com.linuxbox.enkive.message.SinglePartHeader;
 import com.linuxbox.enkive.message.docstore.ContentDataDocument;
+import com.linuxbox.util.mongodb.MongoIndexable;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
@@ -89,7 +93,8 @@ import com.mongodb.Mongo;
 import com.mongodb.MongoException;
 import com.mongodb.WriteResult;
 
-public class MongoArchivingService extends AbstractMessageArchivingService {
+public class MongoArchivingService extends AbstractMessageArchivingService
+		implements MongoIndexable {
 
 	private final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.archiveService.mongodb");
@@ -267,7 +272,7 @@ public class MongoArchivingService extends AbstractMessageArchivingService {
 			return result.getLastError().ok();
 
 		} else {
-			LOGGER.info("Message referenced by more than one message as nested message, not removing: "
+			LOGGER.info("Message referenced as nested message, not removing: "
 					+ messageUUID);
 			return false;
 		}
@@ -315,11 +320,8 @@ public class MongoArchivingService extends AbstractMessageArchivingService {
 	private boolean messageReferencedAsNestedMessage(String messageId) {
 		BasicDBObject nestedMessageQuery = new BasicDBObject(
 				NESTED_MESSAGE_ID_LIST, messageId);
-		System.out.println(nestedMessageQuery.toString());
-		@SuppressWarnings("unused")
 		DBCursor results = messageColl.find(nestedMessageQuery);
-		// return (results.size() > 0);
-		return true;
+		return (results.size() > 0);
 	}
 
 	@Override
@@ -330,5 +332,39 @@ public class MongoArchivingService extends AbstractMessageArchivingService {
 	@Override
 	public void subShutdown() {
 		// Do nothing
+	}
+
+	@Override
+	public List<DBObject> getIndexInfo() {
+		return messageColl.getIndexInfo();
+	}
+
+	@Override
+	public List<IndexDescription> getPreferredIndexes() {
+		List<IndexDescription> result = new LinkedList<IndexDescription>();
+
+		final DBObject whenIndex = new BasicDBObject(ATTACHMENT_ID_LIST, 1);
+		IndexDescription id1 = new IndexDescription(ATTACHMENT_ID_INDEX,
+				whenIndex, false);
+		result.add(id1);
+
+		final DBObject whatWhenIndex = new BasicDBObject(
+				NESTED_MESSAGE_ID_LIST, 1);
+		IndexDescription id2 = new IndexDescription(NESTED_MESSAGE_ID_INDEX,
+				whatWhenIndex, false);
+		result.add(id2);
+
+		return result;
+	}
+
+	@Override
+	public void ensureIndex(DBObject index, DBObject options)
+			throws MongoException {
+		messageColl.ensureIndex(index, options);
+	}
+
+	@Override
+	public long getDocumentCount() throws MongoException {
+		return messageColl.getCount();
 	}
 }

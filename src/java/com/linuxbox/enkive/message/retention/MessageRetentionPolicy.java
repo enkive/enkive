@@ -1,22 +1,22 @@
 /*******************************************************************************
  * Copyright 2012 The Linux Box Corporation.
- * 
+ *
  * This file is part of Enkive CE (Community Edition).
- * 
+ *
  * Enkive CE is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of
  * the License, or (at your option) any later version.
- * 
+ *
  * Enkive CE is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Affero General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Affero General Public
  * License along with Enkive CE. If not, see
  * <http://www.gnu.org/licenses/>.
- ******************************************************************************/
+ *******************************************************************************/
 /*
  * 
  */
@@ -52,7 +52,8 @@ public class MessageRetentionPolicy {
 					.get(RETENTION_PERIOD);
 			int retentionPeriod = Integer.parseInt(retentionPeriodString);
 			Calendar retentionCal = Calendar.getInstance();
-			retentionCal.add(Calendar.DATE, (-1 * retentionPeriod));
+			// Add a day here since we're using the latest date parameter
+			retentionCal.add(Calendar.DATE, (-1 * (retentionPeriod + 1)));
 			Date retentionDate = retentionCal.getTime();
 			retentionSearchFields.put(DATE_LATEST_PARAMETER,
 					NUMERIC_SEARCH_FORMAT.format(retentionDate));

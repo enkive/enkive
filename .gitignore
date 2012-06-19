@@ -6,5 +6,5 @@ log/*
 *.log
 indri/*
 data/*
-webapps/*
+enkive.jar
 jetty/webapps/ediscovery.war

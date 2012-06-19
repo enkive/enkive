@@ -1,29 +1,35 @@
 /*******************************************************************************
  * Copyright 2012 The Linux Box Corporation.
- * 
+ *
  * This file is part of Enkive CE (Community Edition).
- * 
+ *
  * Enkive CE is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of
  * the License, or (at your option) any later version.
- * 
+ *
  * Enkive CE is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Affero General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Affero General Public
  * License along with Enkive CE. If not, see
  * <http://www.gnu.org/licenses/>.
- ******************************************************************************/
+ *******************************************************************************/
 package com.linuxbox.util.lockservice.mongodb;
+
+import static com.linuxbox.util.mongodb.MongoDBConstants.CALL_ENSURE_INDEX_ON_INIT;
 
 import java.net.UnknownHostException;
 import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
 
+import com.linuxbox.util.lockservice.AbstractRetryingLockService;
 import com.linuxbox.util.lockservice.LockAcquisitionException;
 import com.linuxbox.util.lockservice.LockReleaseException;
+import com.linuxbox.util.mongodb.MongoIndexable;
 import com.mongodb.BasicDBObject;
 import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DB;
@@ -34,7 +40,8 @@ import com.mongodb.MongoException;
 import com.mongodb.QueryBuilder;
 import com.mongodb.WriteConcern;
 
-public class MongoLockService extends AbstractRetryingLockService {
+public class MongoLockService extends AbstractRetryingLockService implements
+		MongoIndexable {
 	public static class LockRequestFailure {
 		public String identifier;
 		public Date holderTimestamp;
@@ -87,13 +94,11 @@ public class MongoLockService extends AbstractRetryingLockService {
 
 		lockCollection.setWriteConcern(WriteConcern.FSYNC_SAFE);
 
-		// We want the identifier index to be unique, as that's how we
-		// atomically detect when someone tries to create an already-existing
-		// lock record
-		final boolean mustBeUnique = true;
-		DBObject lockIndex = BasicDBObjectBuilder.start()
-				.add(LOCK_IDENTIFIER_KEY, 1).get();
-		lockCollection.ensureIndex(lockIndex, "lockIndex", mustBeUnique);
+		// see comments on def'n of CALL_ENSURE_INDEX_ON_INIT to see why it's
+		// done conditionally
+		if (CALL_ENSURE_INDEX_ON_INIT) {
+			// see class com.linuxbox.enkive.MongoDBIndexManager
+		}
 	}
 
 	public void startup() {
@@ -185,5 +190,39 @@ public class MongoLockService extends AbstractRetryingLockService {
 		if (lockRecord == null) {
 			throw new LockReleaseException(identifier);
 		}
+	}
+
+	@Override
+	public List<DBObject> getIndexInfo() {
+		return lockCollection.getIndexInfo();
+	}
+
+	@Override
+	public List<IndexDescription> getPreferredIndexes() {
+		List<IndexDescription> result = new LinkedList<IndexDescription>();
+
+		/*
+		 * We want the identifier index to be unique, as that's how we
+		 * atomically detect when someone tries to create an already-existing
+		 * lock record
+		 */
+		DBObject lockIndex = BasicDBObjectBuilder.start()
+				.add(LOCK_IDENTIFIER_KEY, 1).get();
+		IndexDescription id1 = new IndexDescription("lockIndex", lockIndex,
+				true);
+		result.add(id1);
+
+		return result;
+	}
+
+	@Override
+	public void ensureIndex(DBObject index, DBObject options)
+			throws MongoException {
+		lockCollection.ensureIndex(index, options);
+	}
+
+	@Override
+	public long getDocumentCount() throws MongoException {
+		return lockCollection.count();
 	}
 }
