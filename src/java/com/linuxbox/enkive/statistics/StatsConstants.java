@@ -6,10 +6,9 @@ public interface StatsConstants {
 	public static String QUEUE_LENGTH = "queLen";
 	public static String ARCHIVE_SIZE = "MsgArchive";
 	public static String STATISTIC_CHECK_ERROR = "CheckError";
-
-	// key names
 	public static String STAT_TYPE_COLL = "COLL";
 	public static String STAT_TYPE_DB = "DB";
+	public static String STAT_TYPE_RUN = "RUN";
 	
 	
 	// Attachments

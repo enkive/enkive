@@ -5,6 +5,7 @@ import static com.linuxbox.enkive.statistics.StatsConstants.STAT_FREE_MEMORY;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_MAX_MEMORY;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_NAME;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_PROCESSORS;
+import static com.linuxbox.enkive.statistics.StatsConstants.STAT_SERVICE_NAME;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIME_STAMP;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TOTAL_MEMORY;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TYPE;
@@ -24,6 +25,7 @@ public class StatsRuntimeGatherer extends AbstractGatherer {
 		Map<String, Set<String>> keys = new HashMap<String, Set<String>>();
 		
 		Set<String> methods = makeCreator(GRAIN_MAX);
+		keys.put(STAT_SERVICE_NAME, null);
 		keys.put(STAT_MAX_MEMORY, methods);
 		
 		methods = makeCreator(GRAIN_AVG);

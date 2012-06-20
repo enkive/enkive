@@ -11,6 +11,7 @@ import org.springframework.scheduling.quartz.CronTriggerBean;
 import org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean;
 
 import com.linuxbox.enkive.statistics.services.StatsClient;
+import com.linuxbox.enkive.statistics.removal.Remove;
 
 public class GrainRunner {
 	protected final static Log LOGGER = LogFactory
@@ -18,12 +19,13 @@ public class GrainRunner {
 	StatsClient client;
 	Scheduler scheduler;
 	String schedule;
+	Remove remover;
 	
-	
-	public GrainRunner(StatsClient client, Scheduler scheduler, String schedule){
+	public GrainRunner(StatsClient client, Scheduler scheduler, String schedule, Remove remover){
 		this.client = client;
 		this.scheduler = scheduler;
 		this.schedule = schedule;
+		this.remover = remover;
 		LOGGER.info("GrainRunner Initialized");
 	}
 	
@@ -74,5 +76,7 @@ public class GrainRunner {
 			LOGGER.trace("GrainRunner month() finished");
 		}
 		LOGGER.info("GrainRunner run() finished");
+		
+		remover.cleanAll();
 	}
 }

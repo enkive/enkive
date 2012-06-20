@@ -11,6 +11,8 @@ import static com.linuxbox.enkive.statistics.StatsConstants.STAT_NUM_OBJS;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TOTAL_INDEX_SIZE;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TOTAL_SIZE;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TYPE;
+import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TYPE_DB;
+
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import com.linuxbox.enkive.TestingConstants;
@@ -33,7 +35,7 @@ public class StatsMongoDBTest {
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		m = new Mongo();
-		dbStats = new StatsMongoDBGatherer(m, TestingConstants.MONGODB_TEST_DATABASE);
+		dbStats = new StatsMongoDBGatherer(m, TestingConstants.MONGODB_TEST_DATABASE, "DBGatherer", "0 * * * * ?");
 		allStats = dbStats.getStats();
 	}
 
@@ -55,7 +57,7 @@ public class StatsMongoDBTest {
 		String type = (String) allStats.get(STAT_TYPE);
 		assertNotNull("in " + TestingConstants.MONGODB_TEST_DATABASE + " (type = null)", type);
 		assertTrue("in " + TestingConstants.MONGODB_TEST_DATABASE + " (type = " + type + ")",
-				type.compareTo("database") == 0);
+				type.compareTo(STAT_TYPE_DB) == 0);
 	}
 
 	@Test

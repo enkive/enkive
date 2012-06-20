@@ -14,22 +14,14 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import javax.annotation.PostConstruct;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.quartz.JobDetail;
-import org.quartz.Scheduler;
-import org.springframework.scheduling.quartz.CronTriggerBean;
-import org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean;
 
 import com.linuxbox.enkive.statistics.services.StatsClient;
 public class Remove {
 	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.statistics.removal");
 	StatsClient client;
-	Scheduler scheduler;
-	String schedule;
 	private int rawBuff   = REMOVAL_RAW_ID;
 	private int hrBuff    = REMOVAL_HOUR_ID;
 	private int dayBuff   = REMOVAL_DAY_ID;
@@ -41,11 +33,17 @@ public class Remove {
 		if(rawBuff >= REMOVAL_RAW_ID || rawBuff == -1){
 			this.rawBuff = rawBuff;
 		}
+		else{
+			LOGGER.warn("setRawBuff input is invalid");
+		}
 	}
 	
 	public void setHrBuff(int hrBuff){
 		if(hrBuff >= REMOVAL_HOUR_ID || hrBuff == -1){
 			this.hrBuff = hrBuff;
+		}
+		else{
+			LOGGER.warn("setHrBuff input is invalid");
 		}
 	}
 	
@@ -53,11 +51,17 @@ public class Remove {
 		if(dayBuff >= REMOVAL_DAY_ID || dayBuff == -1){
 			this.dayBuff = dayBuff;
 		}
+		else{
+			LOGGER.warn("setDayBuff input is invalid");
+		}
 	}
 	
 	public void setWkBuff(int wkBuff){
 		if(wkBuff >= REMOVAL_WEEK_ID || wkBuff == -1){
 			this.wkBuff = wkBuff;
+		}
+		else{
+			LOGGER.warn("setWkBuff input is invalid");
 		}
 	}
 	
@@ -65,12 +69,13 @@ public class Remove {
 		if(monthBuff >= REMOVAL_MONTH_ID || monthBuff == -1){
 			this.monthBuff = monthBuff;
 		}
+		else{
+			LOGGER.warn("setMonthBuff input is invalid");
+		}
 	}
 	
-	public Remove(StatsClient client, Scheduler scheduler, String schedule){
+	public Remove(StatsClient client){
 		this.client = client;
-		this.scheduler = scheduler;
-		this.schedule = schedule;
 	}
 		
 	private void setDate(int time){
@@ -97,7 +102,7 @@ public class Remove {
 		}
 		dateFilter = cal.getTime();
 	}
-	//TODO: test	
+	
 	private void cleaner(int interval, int type){
 		setDate(interval);
 		Set<Map<String,Object>> data = client.queryStatistics(null, new Date(0L), dateFilter);
@@ -160,26 +165,5 @@ public class Remove {
 		}
 		
 		LOGGER.info("Finished Removal");	
-	}
-	
-	@PostConstruct
-	public void init() throws Exception{
-		// create factory
-		MethodInvokingJobDetailFactoryBean jobDetail = new MethodInvokingJobDetailFactoryBean();
-		jobDetail.setTargetObject(this);
-		jobDetail.setName("RemoverJob");
-		jobDetail.setTargetMethod(METHOD);
-		jobDetail.setConcurrent(false);
-		jobDetail.afterPropertiesSet();
-
-		// create trigger
-		CronTriggerBean trigger = new CronTriggerBean();
-		trigger.setBeanName("RemoverTrigger");
-		trigger.setJobDetail((JobDetail) jobDetail.getObject());
-		trigger.setCronExpression(schedule);
-		trigger.afterPropertiesSet();
-
-		// add to schedule defined in spring xml
-		scheduler.scheduleJob((JobDetail) jobDetail.getObject(), trigger);
 	}
 }

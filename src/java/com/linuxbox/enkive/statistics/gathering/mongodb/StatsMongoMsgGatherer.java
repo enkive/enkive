@@ -4,6 +4,7 @@ import static com.linuxbox.enkive.statistics.StatsConstants.ARCHIVE_SIZE;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_AVG_ATTACH;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_DATA_SIZE;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_NAME;
+import static com.linuxbox.enkive.statistics.StatsConstants.STAT_SERVICE_NAME;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIME_STAMP;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TYPE;
 import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_AVG;
@@ -33,6 +34,7 @@ public class StatsMongoMsgGatherer extends AbstractGatherer {
 	
 	protected Map<String, Set<String>> keyBuilder(){
 		Map<String, Set<String>> keys = new HashMap<String, Set<String>>();
+		keys.put(STAT_SERVICE_NAME, null);
 		keys.put(ARCHIVE_SIZE, makeCreator(GRAIN_AVG));
 		return keys;
 	}

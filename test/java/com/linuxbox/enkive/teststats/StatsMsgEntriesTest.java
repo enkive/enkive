@@ -24,7 +24,7 @@ public class StatsMsgEntriesTest {
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		msgEntries = new StatsMsgSearchGatherer();
+		msgEntries = new StatsMsgSearchGatherer("MsgEntriesGatherer", "0 * * * * ?");
 		MongoMessageSearchService searchService;
 		searchService = new MongoMessageSearchService(new Mongo(),
 				TestingConstants.MONGODB_TEST_DATABASE,

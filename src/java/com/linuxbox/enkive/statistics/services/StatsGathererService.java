@@ -86,7 +86,11 @@ public class StatsGathererService extends AbstractService {
 //TODO: Test
 	public Set<Map<String, Object>> gatherStats(Map<String, String[]> gathererKeys)
 			throws ParseException, GathererException {
-		if(statsGatherers == null || statsGatherers.isEmpty()){
+		if(statsGatherers == null){
+			return null;
+		}
+		
+		if(statsGatherers.isEmpty()){
 			return null;
 		}
 		

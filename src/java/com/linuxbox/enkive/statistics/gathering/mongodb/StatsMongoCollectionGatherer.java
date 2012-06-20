@@ -57,9 +57,8 @@ public class StatsMongoCollectionGatherer extends AbstractGatherer {
 	
 	protected Map<String, Set<String>> keyBuilder(){
 		Map<String, Set<String>> keys = new HashMap<String, Set<String>>();
-		keys.put(STAT_NAME, null);
 		keys.put(STAT_TYPE, null);
-		keys.put(STAT_NS, null);
+//		keys.remove(STAT_NS);
 		
 		Set<String> generic = makeCreator(GRAIN_AVG, GRAIN_MAX, GRAIN_MIN);
 		

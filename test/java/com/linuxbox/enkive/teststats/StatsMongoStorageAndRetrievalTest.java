@@ -8,6 +8,7 @@ import java.net.UnknownHostException;
 import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -23,8 +24,8 @@ import org.quartz.SchedulerException;
 
 import com.linuxbox.enkive.docsearch.indri.IndriDocSearchQueryService;
 import com.linuxbox.enkive.message.search.mongodb.MongoMessageSearchService;
-import com.linuxbox.enkive.statistics.gathering.AbstractGatherer;
 import com.linuxbox.enkive.statistics.gathering.GathererException;
+import com.linuxbox.enkive.statistics.gathering.GathererInterface;
 import com.linuxbox.enkive.statistics.gathering.StatsMsgSearchGatherer;
 import com.linuxbox.enkive.statistics.gathering.StatsRuntimeGatherer;
 import com.linuxbox.enkive.statistics.gathering.mongodb.StatsMongoAttachmentsGatherer;
@@ -50,17 +51,12 @@ public class StatsMongoStorageAndRetrievalTest {
 	private static Map<String, Object> stats;
 	private static DB db;
 	private static DBCollection coll;
-	private static String statTypeName;
 	
-	@SuppressWarnings("unchecked")
-	public StatsMongoStorageAndRetrievalTest(HashMap<String, AbstractGatherer> map) throws GathererException, SchedulerException, ParseException {
+	public StatsMongoStorageAndRetrievalTest(HashMap<String, GathererInterface> map) throws GathererException, SchedulerException, ParseException {
 		retrievalTester = new MongoStatsRetrievalService(m, TestingConstants.MONGODB_TEST_DATABASE);
 		storageTester = new MongoStatsStorageService(m, TestingConstants.MONGODB_TEST_DATABASE);
 		gatherTester = new StatsGathererService(map);
-		
-		statTypeName = map.keySet().iterator().next();
-		stats = (Map<String, Object>) gatherTester.gatherStats().iterator().next().get(statTypeName);
-		stats.put(STAT_SERVICE_NAME, statTypeName);
+		stats = (Map<String, Object>) gatherTester.gatherStats().iterator().next();
 	}
 
 	@Parameters
@@ -78,10 +74,10 @@ public class StatsMongoStorageAndRetrievalTest {
 		db = m.getDB(TestingConstants.MONGODB_TEST_DATABASE);
 		coll = db.getCollection(STAT_STORAGE_COLLECTION);
 		
-		AbstractGatherer dbProp = new StatsMongoDBGatherer(m, TestingConstants.MONGODB_TEST_DATABASE);
-		AbstractGatherer collProp = new StatsMongoCollectionGatherer(m, TestingConstants.MONGODB_TEST_DATABASE);
-		AbstractGatherer runProp = new StatsRuntimeGatherer();
-		StatsMsgSearchGatherer msgProp = new StatsMsgSearchGatherer();
+		GathererInterface dbProp = new StatsMongoDBGatherer(m, TestingConstants.MONGODB_TEST_DATABASE, "DBGatherer", "* * * * * ?");
+		GathererInterface collProp = new StatsMongoCollectionGatherer(m, TestingConstants.MONGODB_TEST_DATABASE, "CollGatherer", "* * * * * ?");
+		GathererInterface runProp = new StatsRuntimeGatherer("RuntimeGatherer", "* * * * * ?");
+		StatsMsgSearchGatherer msgProp = new StatsMsgSearchGatherer("MsgPropGatherer", "* * * * * ?");
 		MongoMessageSearchService searchService = null;
 		try {
 			searchService = new MongoMessageSearchService(new Mongo(),
@@ -96,15 +92,17 @@ public class StatsMongoStorageAndRetrievalTest {
 		}
 		searchService.setDocSearchService(new IndriDocSearchQueryService());
 		msgProp.setSearchService(searchService);
-		AbstractGatherer attProp = new StatsMongoAttachmentsGatherer(m, TestingConstants.MONGODB_TEST_DATABASE, TestingConstants.MONGODB_TEST_DOCUMENTS_COLLECTION);
-		AbstractGatherer msgStatProp = new StatsMongoMsgGatherer(m, TestingConstants.MONGODB_TEST_DATABASE, TestingConstants.MONGODB_TEST_MESSAGES_COLLECTION);
+		StatsMongoAttachmentsGatherer attProp = new StatsMongoAttachmentsGatherer(m, TestingConstants.MONGODB_TEST_DATABASE, TestingConstants.MONGODB_TEST_DOCUMENTS_COLLECTION, "AttachmentGatherer", "* * * * * ?", false);
+		attProp.setLower(new Date(0L));
+		attProp.setUpper(new Date());
+		GathererInterface msgStatProp = new StatsMongoMsgGatherer(m, TestingConstants.MONGODB_TEST_DATABASE, TestingConstants.MONGODB_TEST_MESSAGES_COLLECTION, "MsgStatGatherer", "* * * * * ?");
 		
-		HashMap<String, AbstractGatherer> map1 = new HashMap<String, AbstractGatherer>();
-		HashMap<String, AbstractGatherer> map2 = new HashMap<String, AbstractGatherer>();
-		HashMap<String, AbstractGatherer> map3 = new HashMap<String, AbstractGatherer>();
-		HashMap<String, AbstractGatherer> map4 = new HashMap<String, AbstractGatherer>();
-		HashMap<String, AbstractGatherer> map5 = new HashMap<String, AbstractGatherer>();
-		HashMap<String, AbstractGatherer> map6 = new HashMap<String, AbstractGatherer>();
+		HashMap<String, GathererInterface> map1 = new HashMap<String, GathererInterface>();
+		HashMap<String, GathererInterface> map2 = new HashMap<String, GathererInterface>();
+		HashMap<String, GathererInterface> map3 = new HashMap<String, GathererInterface>();
+		HashMap<String, GathererInterface> map4 = new HashMap<String, GathererInterface>();
+		HashMap<String, GathererInterface> map5 = new HashMap<String, GathererInterface>();
+		HashMap<String, GathererInterface> map6 = new HashMap<String, GathererInterface>();
 		
 		map1.put("DatabaseStatsService", dbProp);
 		map2.put("CollStatsService", collProp);
@@ -135,8 +133,6 @@ public class StatsMongoStorageAndRetrievalTest {
 	@Test
 	public void hasAllKeysTest() throws StatsRetrievalException {
 		Set<Map<String, Object>> dataSet  = retrievalTester.queryStatistics();
-		System.out.println("dataSet: " + dataSet);
-		System.out.println("stats: "  + stats);
 		boolean areEqual = true;
 		String errorString = "The following keys are missing: ";
 		for(String key : stats.keySet()){
@@ -161,7 +157,7 @@ public class StatsMongoStorageAndRetrievalTest {
 					continue;
 				}
 				if(!stats.get(key).equals(temp.get(key))){
-					System.out.println(stats.get(key) + " vs. " + temp.get(key));
+					System.out.println(key + ": " + stats.get(key) + " vs. " + temp.get(key));
 					errorString = errorString + " " + key;
 					areEqual = false;
 				}

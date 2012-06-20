@@ -17,6 +17,7 @@ import static com.linuxbox.enkive.statistics.StatsConstants.STAT_NUM_COLLECTIONS
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_NUM_EXTENT;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_NUM_INDEX;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_NUM_OBJS;
+import static com.linuxbox.enkive.statistics.StatsConstants.STAT_SERVICE_NAME;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIME_STAMP;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TOTAL_INDEX_SIZE;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TOTAL_SIZE;
@@ -58,7 +59,7 @@ public class StatsMongoDBGatherer extends AbstractGatherer {
 		keys.put(STAT_NAME, null);
 		
 		Set<String> result = makeCreator(GRAIN_AVG, GRAIN_MAX, GRAIN_MIN);
-		
+		keys.put(STAT_SERVICE_NAME, null);
 		keys.put(STAT_NUM_COLLECTIONS, result);
 		keys.put(STAT_NUM_OBJS, result);
 		keys.put(STAT_AVG_OBJ_SIZE, result);

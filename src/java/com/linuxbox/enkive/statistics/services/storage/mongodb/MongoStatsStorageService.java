@@ -50,9 +50,10 @@ public class MongoStatsStorageService extends AbstractService implements
 	public void storeStatistics(Set<Map<String, Object>> dataSet)
 			throws StatsStorageException {
 		for (Map<String, Object> map : dataSet) {
-			String serviceName = (String)map.get(STAT_SERVICE_NAME);
-			map.remove(STAT_SERVICE_NAME);
-			storeStatistics(serviceName, map);
+			if(map.get(STAT_SERVICE_NAME) == null){
+				System.out.println("ProblemMap: " + map);
+			}
+			coll.insert(new BasicDBObject(map));
 		}
 	}
 

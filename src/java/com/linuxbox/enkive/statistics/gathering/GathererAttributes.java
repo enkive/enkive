@@ -1,6 +1,5 @@
 package com.linuxbox.enkive.statistics.gathering;
 
-import static com.linuxbox.enkive.statistics.StatsConstants.STAT_SERVICE_NAME;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIME_STAMP;
 import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_AVG;
 import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MAX;
@@ -18,7 +17,6 @@ public class GathererAttributes {
 		this.serviceName = serviceName;
 		this.schedule = schedule;
 		this.keys = keys;
-		keys.put(STAT_SERVICE_NAME, null);
 		
 		Set<String> timeProperties = new HashSet<String>();
 		timeProperties.add(GRAIN_AVG);

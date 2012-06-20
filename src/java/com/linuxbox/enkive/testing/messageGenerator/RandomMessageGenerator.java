@@ -43,7 +43,7 @@ import org.apache.james.mime4j.dom.field.ContentTypeField;
 
 public class RandomMessageGenerator extends AbstractMessageGenerator {
 
-	public static String messageBodyDataDirectory = "test/data/gutenbergData";
+	public static String messageBodyDataDirectory = "test/data/text";
 	public static int DATE_RANGE = 365;
 
 	protected Random randGen;

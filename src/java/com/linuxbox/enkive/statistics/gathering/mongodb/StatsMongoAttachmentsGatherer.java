@@ -3,16 +3,13 @@ package com.linuxbox.enkive.statistics.gathering.mongodb;
 import static com.linuxbox.enkive.statistics.MongoConstants.MONGO_LENGTH;
 import static com.linuxbox.enkive.statistics.MongoConstants.MONGO_UPLOAD_DATE;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_AVG_ATTACH;
-import static com.linuxbox.enkive.statistics.StatsConstants.STAT_DATA_SIZE;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_MAX_ATTACH;
-import static com.linuxbox.enkive.statistics.StatsConstants.STAT_NAME;
+import static com.linuxbox.enkive.statistics.StatsConstants.STAT_SERVICE_NAME;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIME_STAMP;
-import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TYPE;
 import static com.linuxbox.enkive.statistics.StatsConstants.THIRTY_DAYS;
 import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_AVG;
 import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MAX;
 
-import java.net.UnknownHostException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -27,7 +24,6 @@ import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.Mongo;
-import com.mongodb.MongoException;
 public class StatsMongoAttachmentsGatherer extends AbstractGatherer {
 	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.statistics.gathering.StatsMongoAttachmentsGatherer");
@@ -35,12 +31,24 @@ public class StatsMongoAttachmentsGatherer extends AbstractGatherer {
 	protected DB db;
 	protected Date lower, upper;// uploadDate
 	protected String collectionName;
-
+	//if resetDates is false you must manually reset the upper & lower dates (30 days will not be called)
+	private boolean resetDates;
+	
 	public StatsMongoAttachmentsGatherer(Mongo m, String dbName, String coll, String serviceName, String schedule) {
 		super(serviceName, schedule);
 		this.m = m;
 		db = m.getDB(dbName);
 		collectionName = coll + ".files";
+		resetDates = true;
+	}
+	
+	//for testing
+	public StatsMongoAttachmentsGatherer(Mongo m, String dbName, String coll, String serviceName, String schedule, boolean resetDates) {
+		super(serviceName, schedule);
+		this.m = m;
+		db = m.getDB(dbName);
+		collectionName = coll + ".files";
+		this.resetDates = resetDates;
 	}
 	
 	public Date getLower() {
@@ -61,7 +69,7 @@ public class StatsMongoAttachmentsGatherer extends AbstractGatherer {
 
 	protected Map<String, Set<String>> keyBuilder(){
 		Map<String, Set<String>> keys = new HashMap<String, Set<String>>();
-		keys.put(STAT_NAME, null);
+		keys.put(STAT_SERVICE_NAME, null);
 		keys.put(STAT_AVG_ATTACH, makeCreator(GRAIN_AVG));
 		keys.put(STAT_MAX_ATTACH, makeCreator(GRAIN_MAX));
 		return keys;
@@ -90,14 +98,14 @@ public class StatsMongoAttachmentsGatherer extends AbstractGatherer {
 			avgAttach = (double) total / count;
 		} else {
 			avgAttach = -1;
-			LOGGER.warn("No attachments found between " + lower + " & " + upper);
+			LOGGER.warn("getAvgAttachSize()-No attachments between " + lower + " & " + upper);
 		}
 		return avgAttach;
 	}
 
 	public long getMaxAttachSize() {
 		DBCollection coll = db.getCollection(collectionName);
-		DBCursor cursor = coll.find();
+		DBCursor cursor = coll.find(new BasicDBObject(makeDateQuery()));
 		long max = -1;
 		if (cursor.hasNext()) {
 			while (cursor.hasNext()) {
@@ -107,7 +115,7 @@ public class StatsMongoAttachmentsGatherer extends AbstractGatherer {
 				}
 			}
 		} else {
-			LOGGER.warn("Empty Collection used in getMaxAttachSize()");
+			LOGGER.warn("getMaxAttachSize()-No attachments between " + lower + " & " + upper);
 		}
 		return max;
 	}
@@ -115,11 +123,19 @@ public class StatsMongoAttachmentsGatherer extends AbstractGatherer {
 	//TODO: variable dates
 	public Map<String, Object> getStatistics() {
 		long currTime = System.currentTimeMillis();
-
 		// default sets dates to previous thirty days
-		setUpper(new Date(currTime));
-		setLower(new Date(currTime - THIRTY_DAYS));
-
+		if(resetDates){
+			setUpper(new Date(currTime));
+			setLower(new Date(currTime - THIRTY_DAYS));
+		}
+		if(upper == null){
+			LOGGER.warn("upper == null current time used");
+			setUpper(new Date(currTime));
+		}
+		if(lower == null){
+			LOGGER.warn("lower == null beginning of time used");
+			setLower(new Date(0L));
+		}
 		Map<String, Object> stats = new HashMap<String, Object>();
 		double avg = getAvgAttachSize();
 		long max = getMaxAttachSize();
@@ -127,20 +143,9 @@ public class StatsMongoAttachmentsGatherer extends AbstractGatherer {
 		if(avg <= -1 || max <= -1){
 			return null;
 		}
-		
 		stats.put(STAT_AVG_ATTACH, avg);
 		stats.put(STAT_MAX_ATTACH, max);
 		stats.put(STAT_TIME_STAMP, System.currentTimeMillis());
 		return stats;
 	}
-
-	public static void main(String args[]) throws UnknownHostException,
-			MongoException {
-		StatsMongoAttachmentsGatherer attachProps = new StatsMongoAttachmentsGatherer(
-				new Mongo(), "enkive", "fs", "name", "cron");
-		System.out.println(attachProps.getStatistics());
-		String[] keys = { STAT_TYPE, STAT_NAME, STAT_DATA_SIZE, STAT_AVG_ATTACH };
-		System.out.println(attachProps.getStatistics(keys));
-	}
-
 }

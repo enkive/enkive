@@ -15,12 +15,12 @@ import com.linuxbox.enkive.statistics.gathering.StatsRuntimeGatherer;
 import static com.linuxbox.enkive.statistics.StatsConstants.*;
 
 public class StatsRuntimeTest {
-	protected static StatsRuntimeGatherer rtStat = new StatsRuntimeGatherer();
+	protected static StatsRuntimeGatherer rtStat = new StatsRuntimeGatherer("RuntimeGatherer", "* * * * * ?");
 	protected static Map<String, Object> stats;
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		stats = rtStat.getStats();
+		stats = rtStat.getStatistics();
 	}
 
 	@AfterClass

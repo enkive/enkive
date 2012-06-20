@@ -3,7 +3,6 @@ package com.linuxbox.enkive.teststats;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_AVG_OBJ_SIZE;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_DATA_SIZE;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_LAST_EXTENT_SIZE;
-import static com.linuxbox.enkive.statistics.StatsConstants.STAT_NAME;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_NS;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_NUM_EXTENT;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_NUM_INDEX;
@@ -11,6 +10,9 @@ import static com.linuxbox.enkive.statistics.StatsConstants.STAT_NUM_OBJS;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TOTAL_INDEX_SIZE;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TOTAL_SIZE;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TYPE;
+import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TYPE_COLL;
+import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TYPE_RUN;
+import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TYPE_DB;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import com.linuxbox.enkive.TestingConstants;
@@ -59,7 +61,7 @@ public class StatsMongoCollTest {
 			System.exit(0);
 		}
 		db = m.getDB(TestingConstants.MONGODB_TEST_DATABASE);
-		collStats = new StatsMongoCollectionGatherer(m, TestingConstants.MONGODB_TEST_DATABASE);
+		collStats = new StatsMongoCollectionGatherer(m, TestingConstants.MONGODB_TEST_DATABASE, "CollGatherer", "0 * * * * ?");
 		allStats = collStats.getStatistics();
 		List<Object[]> data = new ArrayList<Object[]>();
 		System.out.println("Not testing the following empty DB's: ");
@@ -98,22 +100,14 @@ public class StatsMongoCollTest {
 		assertNotNull("in " + collName + " (type = null)", type);
 		assertTrue(
 				"in " + collName + " (type = " + type + ")",
-				type.compareTo("collection") == 0
-						|| type.compareTo("database") == 0
-						|| type.compareTo("runtime") == 0);
+				type.compareTo(STAT_TYPE_COLL) == 0
+						|| type.compareTo(STAT_TYPE_DB) == 0
+						|| type.compareTo(STAT_TYPE_RUN) == 0);
 	}
 
 	@Test
-	public void nameTest() {
-		Map<String, Object> obj = (Map<String, Object>) allStats.get(collName);
-		String name = (String) obj.get(STAT_NAME);
-		if(name.startsWith("$")){
-			name = name.replaceFirst("$", "-");
-		}
-		name = name.replace('.', '-');
-		assertNotNull("in " + collName + " (name = null)", name);
-		assertTrue("in " + collName + "(name = " + name + ") vs (collName = " + collName,
-				name.compareTo(collName) == 0);
+	public void collExistsTest() {
+		assertTrue(collName + " does not exist", allStats.containsKey(collName));
 	}
 
 	@Test
