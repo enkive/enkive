@@ -26,5 +26,6 @@ public class DayGrain extends AbstractGrain {
 		endDate = cal.getTime();
 		cal.add(Calendar.DATE, -1);
 		startDate = cal.getTime();
+		System.out.println("Day Grain RUNNING!");
 	}
 }

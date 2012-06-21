@@ -67,7 +67,7 @@
 		class="com.linuxbox.enkive.statistics.gathering.StatsRuntimeGatherer">
 		<constructor-arg name="serviceName" value="RuntimeStatsService"/>
 		<constructor-arg name="schedule" value="0/30 * * * * ?" />
-		<property name="scheduler" ref="ScheduledJobsBean" />
+		<property name="scheduler" ref="ScheduledJobsBean" />	
 		<property name="storageService" ref="StatisticsStorer" />
 	</bean>
 
@@ -131,19 +131,5 @@
 		<constructor-arg name="remover" ref="RemovalRunner" />
 		<constructor-arg name="schedule" value="0 * * * * ?" />
 	</bean>
-	
-<!--
-	<bean id="StatisticsStorageJob"
-		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
-		<property name="targetObject" ref="StatisticsClient" />
-		<property name="targetMethod" value="gatherAndStoreData" />
-		<property name="concurrent" value="false" />
-	</bean>
-
-	<bean id="StatisticsReportTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
-		<property name="jobDetail" ref="StatisticsStorageJob" />
-		<property name="cronExpression" value="* * * * 1 ?" />
-	</bean>
--->
 </beans>
 	
