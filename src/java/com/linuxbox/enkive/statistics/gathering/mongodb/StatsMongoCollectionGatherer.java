@@ -58,11 +58,10 @@ public class StatsMongoCollectionGatherer extends AbstractGatherer {
 	protected Map<String, Set<String>> keyBuilder(){
 		Map<String, Set<String>> keys = new HashMap<String, Set<String>>();
 		keys.put(STAT_TYPE, null);
-//		keys.remove(STAT_NS);
+		keys.remove(STAT_NS);
 		
 		Set<String> generic = makeCreator(GRAIN_AVG, GRAIN_MAX, GRAIN_MIN);
 		
-		keys.put(STAT_TIME_STAMP, generic);
 		keys.put(STAT_NUM_OBJS, generic);
 		keys.put(STAT_AVG_OBJ_SIZE, generic);
 		keys.put(STAT_DATA_SIZE, generic);
@@ -113,7 +112,9 @@ public class StatsMongoCollectionGatherer extends AbstractGatherer {
 			collName = collName.replace('.', '-');
 			collStats.put(collName, getStats(key));
 		}
-		collStats.put(STAT_TIME_STAMP, System.currentTimeMillis());
+		long time = System.currentTimeMillis();
+		collStats.put(STAT_TIME_STAMP, time);
+		attributes.setTimeStamp(time);
 		return collStats;
 	}
 

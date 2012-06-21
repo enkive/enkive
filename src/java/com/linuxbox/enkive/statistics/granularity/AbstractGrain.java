@@ -149,7 +149,7 @@ public abstract class AbstractGrain implements Grain{
 	}
 	
 	private Map<String, Object> makeEmbeddedSnapshot(GathererAttributes attribute, Set<Map<String,Object>> serviceData){
-		Map<String, Object> result = new HashMap<String, Object>();		
+		Map<String, Object> result = new HashMap<String, Object>();
 		for(String key: serviceData.iterator().next().keySet()){
 			if(!(key.equals(STAT_TIME_STAMP) || key.equals("_id") || key.equals(STAT_SERVICE_NAME) || serviceData == null)){
 				Set<Map<String,Object>> collStats= new HashSet<Map<String,Object>>();
@@ -157,14 +157,22 @@ public abstract class AbstractGrain implements Grain{
 					if(data.get(key) != null ){
 						@SuppressWarnings("unchecked")//we know how it should be stored
 						Map<String, Object> statMap = (HashMap<String, Object>)data.get(key);
-						statMap.put(STAT_TIME_STAMP, -1);
 						collStats.add(statMap);
 					}
 				}
 				result.put(key, makeSnapshot(attribute, collStats));
 			}
 		}
-		result.put(STAT_SERVICE_NAME, attribute.getName());	
+		result.put(STAT_SERVICE_NAME, attribute.getName());
+		Set<String> kz = new HashSet<String>();
+		kz.add(GRAIN_AVG);
+		kz.add(GRAIN_MIN);
+		kz.add(GRAIN_MAX);
+		Map<String, Set<String>> timeKeys = new HashMap<String, Set<String>>();
+		timeKeys.put(STAT_TIME_STAMP, kz);
+		GathererAttributes a = new GathererAttributes(attribute.getName(), "", timeKeys);
+		result.putAll(makeSnapshot(a, serviceData));
+		System.out.println("Result: " + result);
 		return result;
 	}
 	

@@ -11,7 +11,9 @@ import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TOTAL_MEMORY;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TYPE;
 import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_AVG;
 import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MAX;
+import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MIN;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -32,6 +34,7 @@ public class StatsRuntimeGatherer extends AbstractGatherer {
 		keys.put(STAT_FREE_MEMORY, methods);
 		keys.put(STAT_TOTAL_MEMORY, methods);
 		keys.put(STAT_PROCESSORS, methods);
+		keys.put(STAT_TIME_STAMP, makeCreator(GRAIN_AVG, GRAIN_MAX, GRAIN_MIN));
 		return keys;
 	}
 
@@ -44,13 +47,5 @@ public class StatsRuntimeGatherer extends AbstractGatherer {
 		stats.put(STAT_PROCESSORS, runtime.availableProcessors());
 		stats.put(STAT_TIME_STAMP, System.currentTimeMillis());
 		return stats;
-	}
-
-	public static void main(String args[]) {
-		StatsRuntimeGatherer runProps = new StatsRuntimeGatherer("SERVICENAME", "CRONEXPRESSION");
-		System.out.println(runProps.getStatistics());
-		String[] keys = { STAT_TYPE, STAT_NAME, STAT_DATA_SIZE,
-				STAT_TOTAL_MEMORY, STAT_FREE_MEMORY };
-		System.out.println(runProps.getStatistics(keys));
 	}
 }

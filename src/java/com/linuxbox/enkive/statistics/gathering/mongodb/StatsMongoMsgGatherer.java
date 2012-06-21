@@ -8,6 +8,8 @@ import static com.linuxbox.enkive.statistics.StatsConstants.STAT_SERVICE_NAME;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIME_STAMP;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TYPE;
 import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_AVG;
+import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MAX;
+import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MIN;
 
 import java.net.UnknownHostException;
 import java.util.HashMap;
@@ -35,6 +37,7 @@ public class StatsMongoMsgGatherer extends AbstractGatherer {
 	protected Map<String, Set<String>> keyBuilder(){
 		Map<String, Set<String>> keys = new HashMap<String, Set<String>>();
 		keys.put(STAT_SERVICE_NAME, null);
+		keys.put(STAT_TIME_STAMP, makeCreator(GRAIN_AVG, GRAIN_MAX, GRAIN_MIN));
 		keys.put(ARCHIVE_SIZE, makeCreator(GRAIN_AVG));
 		return keys;
 	}
@@ -45,14 +48,5 @@ public class StatsMongoMsgGatherer extends AbstractGatherer {
 		result.put(STAT_TIME_STAMP, System.currentTimeMillis());
 		result.put(ARCHIVE_SIZE, messageColl.count());
 		return result;
-	}
-
-	public static void main(String args[]) throws UnknownHostException,
-			MongoException {
-		StatsMongoAttachmentsGatherer attachProps = new StatsMongoAttachmentsGatherer(
-				new Mongo(), "enkive", "fs", "name", "cron");
-		System.out.println(attachProps.getStatistics());
-		String[] keys = { STAT_TYPE, STAT_NAME, STAT_DATA_SIZE, STAT_AVG_ATTACH };
-		System.out.println(attachProps.getStatistics(keys));
 	}
 }

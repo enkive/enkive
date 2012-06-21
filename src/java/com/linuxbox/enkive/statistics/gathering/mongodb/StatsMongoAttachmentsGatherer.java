@@ -9,6 +9,7 @@ import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIME_STAMP;
 import static com.linuxbox.enkive.statistics.StatsConstants.THIRTY_DAYS;
 import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_AVG;
 import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MAX;
+import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MIN;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -70,6 +71,7 @@ public class StatsMongoAttachmentsGatherer extends AbstractGatherer {
 	protected Map<String, Set<String>> keyBuilder(){
 		Map<String, Set<String>> keys = new HashMap<String, Set<String>>();
 		keys.put(STAT_SERVICE_NAME, null);
+		keys.put(STAT_TIME_STAMP, makeCreator(GRAIN_AVG, GRAIN_MAX, GRAIN_MIN));
 		keys.put(STAT_AVG_ATTACH, makeCreator(GRAIN_AVG));
 		keys.put(STAT_MAX_ATTACH, makeCreator(GRAIN_MAX));
 		return keys;

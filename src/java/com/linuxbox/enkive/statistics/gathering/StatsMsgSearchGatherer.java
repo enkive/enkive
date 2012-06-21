@@ -8,6 +8,8 @@ import static com.linuxbox.enkive.statistics.StatsConstants.STAT_SERVICE_NAME;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIME_STAMP;
 import static com.linuxbox.enkive.statistics.StatsConstants.THIRTY_DAYS;
 import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_AVG;
+import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MIN;
+import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MAX;
 
 import java.net.UnknownHostException;
 import java.util.Date;
@@ -36,6 +38,7 @@ public class StatsMsgSearchGatherer extends AbstractGatherer {
 		Map<String, Set<String>> keys = new HashMap<String, Set<String>>();
 		keys.put(STAT_SERVICE_NAME, null);
 		keys.put(STAT_NUM_ENTRIES, makeCreator(GRAIN_AVG));
+		keys.put(STAT_TIME_STAMP, makeCreator(GRAIN_AVG, GRAIN_MAX, GRAIN_MIN));
 		return keys;
 	}
 	

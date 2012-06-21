@@ -37,6 +37,7 @@ public class UnixPostfixQueueStatisticsService extends AbstractGatherer{
 		keys.put(QUEUE_LENGTH, methods);
 		keys.put(STAT_TIME_STAMP, methods);
 		keys.put(STAT_NAME, null);
+		
 		return keys;
 	}
 	
