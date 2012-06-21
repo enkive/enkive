@@ -46,6 +46,7 @@ public abstract class AbstractGrain implements Grain{
 	
 	private double getValue(String key, Map<String, Object> map){
 		double result = -1;
+//TODO		System.out.println("map: " + map);
 		if(map.get(key) instanceof Integer){
 			result = (double)((Integer)map.get(key)).intValue();
 		}
@@ -55,7 +56,7 @@ public abstract class AbstractGrain implements Grain{
 		else if(map.get(key) instanceof Double){
 			result = ((Double)map.get(key)).doubleValue();
 		}
-		
+//TODO		System.out.println("result: " + result);
 		return result;
 	}
 	
@@ -70,6 +71,10 @@ public abstract class AbstractGrain implements Grain{
 		else if(example instanceof Double){
 			result = value;
 		}
+		
+//TODO		System.out.println("injection:");
+//		System.out.println("example: " + example);
+//		System.out.println("RESULTTTT: " + result);
 			
 		return result;
 	}
@@ -95,12 +100,13 @@ public abstract class AbstractGrain implements Grain{
 				input = ((Double)temp).doubleValue();
 			}
 			else if(temp instanceof Map){
-//TODO				if(map.get(GRAIN_TYPE).equals(GRAIN_HOUR)){ //using raw data
 				if(grainType == GRAIN_HOUR){ //using raw data
 					input = getValue(statName, (Map<String,Object>)temp);
+					temp = ((Map<String, Object>)temp).get(statName);
 				}
 				else{//using pre-granulated data
 					input = getValue(method, (Map<String,Object>)temp);
+					temp = ((Map<String, Object>)temp).get(method);
 				}
 			}
 			
@@ -117,6 +123,7 @@ public abstract class AbstractGrain implements Grain{
 				statsMaker.addValue(input);
 			}
 		}
+		
 		if(method.equals(GRAIN_SUM)){
 			return injectType(temp, statsMaker.getSum());
 		}
@@ -132,7 +139,7 @@ public abstract class AbstractGrain implements Grain{
 		if(method.equals(GRAIN_STD_DEV)){
 			return injectType(temp, statsMaker.getStandardDeviation());
 		}
-		
+		System.out.println("returning null...");
 		return null;
 	}
 	
@@ -151,11 +158,12 @@ public abstract class AbstractGrain implements Grain{
 	private Map<String, Object> makeEmbeddedSnapshot(GathererAttributes attribute, Set<Map<String,Object>> serviceData){
 		Map<String, Object> result = new HashMap<String, Object>();
 		for(String key: serviceData.iterator().next().keySet()){
-			if(!(key.equals(STAT_TIME_STAMP) || key.equals("_id") || key.equals(STAT_SERVICE_NAME) || serviceData == null)){
+			if(!(key.equals(STAT_TIME_STAMP) || key.equals(GRAIN_WEIGHT) || key.equals("_id") || key.equals(STAT_SERVICE_NAME) || serviceData == null || key.equals(GRAIN_TYPE))){
 				Set<Map<String,Object>> collStats= new HashSet<Map<String,Object>>();
 				for(Map<String, Object> data: serviceData){
 					if(data.get(key) != null ){
-						@SuppressWarnings("unchecked")//we know how it should be stored
+//TODO						System.out.println("data: " + data);
+//						System.out.println("key: " + key);
 						Map<String, Object> statMap = (HashMap<String, Object>)data.get(key);
 						collStats.add(statMap);
 					}
@@ -172,7 +180,6 @@ public abstract class AbstractGrain implements Grain{
 		timeKeys.put(STAT_TIME_STAMP, kz);
 		GathererAttributes a = new GathererAttributes(attribute.getName(), "", timeKeys);
 		result.putAll(makeSnapshot(a, serviceData));
-		System.out.println("Result: " + result);
 		return result;
 	}
 	
@@ -194,9 +201,7 @@ public abstract class AbstractGrain implements Grain{
 				}
 			}
 			else{
-				//TODO				System.out.println("Interesting: " + key);	
 				Object obj = serviceData.iterator().next().get(key);
-				//TODO				System.out.println("serviceData.iterator().next().get(key): " + obj);
 				if(obj != null)
 					result.put(key, obj);
 			}
@@ -221,7 +226,6 @@ public abstract class AbstractGrain implements Grain{
 		Set<Map<String,Object>> storageData = new HashSet<Map<String,Object>>();
 		for(GathererAttributes attribute: client.getAttributes()){
 			String name = attribute.getName();
-//TODO		System.out.println("attName: " + name);
 			Set<Map<String,Object>> serviceData = serviceFilter(name);
 			
 			if(!serviceData.isEmpty()){

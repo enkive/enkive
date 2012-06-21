@@ -44,7 +44,7 @@ public class StatsRuntimeGatherer extends AbstractGatherer {
 		stats.put(STAT_MAX_MEMORY, runtime.maxMemory());
 		stats.put(STAT_FREE_MEMORY, runtime.freeMemory());
 		stats.put(STAT_TOTAL_MEMORY, runtime.totalMemory());
-		stats.put(STAT_PROCESSORS, runtime.availableProcessors());
+		stats.put(STAT_PROCESSORS, runtime.availableProcessors());	
 		stats.put(STAT_TIME_STAMP, System.currentTimeMillis());
 		return stats;
 	}
