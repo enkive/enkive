@@ -1,3 +1,22 @@
+/*******************************************************************************
+ * Copyright 2012 The Linux Box Corporation.
+ *
+ * This file is part of Enkive CE (Community Edition).
+ *
+ * Enkive CE is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of
+ * the License, or (at your option) any later version.
+ *
+ * Enkive CE is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public
+ * License along with Enkive CE. If not, see
+ * <http://www.gnu.org/licenses/>.
+ *******************************************************************************/
 package com.linuxbox.enkive.testing.messageGenerator;
 
 import java.util.Date;
@@ -16,7 +35,7 @@ public abstract class AbstractMessageGenerator implements MessageGenerator {
 	public AbstractMessageGenerator() {
 		session = Session.getDefaultInstance(System.getProperties());
 	}
-	
+
 	@Override
 	public MimeMessage generateMessage() {
 		MimeMessage message = new MimeMessage(session);
@@ -34,10 +53,10 @@ public abstract class AbstractMessageGenerator implements MessageGenerator {
 			message.setSubject(generateSubject());
 
 			message.setSentDate(generateDate());
-			
+
 			// Now set the actual message
 			message.setText(generateMessageBody());
-			
+
 			return message;
 		} catch (AddressException e) {
 			// TODO Auto-generated catch block
@@ -48,23 +67,23 @@ public abstract class AbstractMessageGenerator implements MessageGenerator {
 		}
 		return null;
 	}
-	
-	protected String generateFrom(){
+
+	protected String generateFrom() {
 		return "enkive@enkive.com";
 	}
 
-	protected String generateTo(){
+	protected String generateTo() {
 		return "enkive@enkive.com";
 	}
-	
-	protected String generateSubject(){
+
+	protected String generateSubject() {
 		return "Enkive Test Message";
 	}
-	
-	protected Date generateDate(){
+
+	protected Date generateDate() {
 		return new Date();
 	}
-	
+
 	protected abstract String generateMessageBody();
 
 }

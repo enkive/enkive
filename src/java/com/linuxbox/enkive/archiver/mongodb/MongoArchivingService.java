@@ -1,22 +1,22 @@
 /*******************************************************************************
  * Copyright 2012 The Linux Box Corporation.
- * 
+ *
  * This file is part of Enkive CE (Community Edition).
- * 
+ *
  * Enkive CE is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of
  * the License, or (at your option) any later version.
- * 
+ *
  * Enkive CE is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Affero General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Affero General Public
  * License along with Enkive CE. If not, see
  * <http://www.gnu.org/licenses/>.
- ******************************************************************************/
+ *******************************************************************************/
 package com.linuxbox.enkive.archiver.mongodb;
 
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.BOUNDARY_ID;
@@ -344,15 +344,16 @@ public class MongoArchivingService extends AbstractMessageArchivingService
 		List<IndexDescription> result = new LinkedList<IndexDescription>();
 
 		final DBObject whenIndex = new BasicDBObject(ATTACHMENT_ID_LIST, 1);
-		IndexDescription id1 = new IndexDescription(ATTACHMENT_ID_INDEX, whenIndex,
-				false);
+		IndexDescription id1 = new IndexDescription(ATTACHMENT_ID_INDEX,
+				whenIndex, false);
 		result.add(id1);
 
-		final DBObject whatWhenIndex = new BasicDBObject(NESTED_MESSAGE_ID_LIST, 1);
+		final DBObject whatWhenIndex = new BasicDBObject(
+				NESTED_MESSAGE_ID_LIST, 1);
 		IndexDescription id2 = new IndexDescription(NESTED_MESSAGE_ID_INDEX,
 				whatWhenIndex, false);
 		result.add(id2);
-		
+
 		return result;
 	}
 

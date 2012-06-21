@@ -85,5 +85,6 @@
 	<classpathentry kind="lib" path="lib/freemarker-2.3.18.jar"/>
 	<classpathentry kind="var" path="ENKIVE_JAVA/lib/tools.jar"/>
 	<classpathentry kind="var" path="ENKIVE_JAVA/lib/dt.jar"/>
+	<classpathentry kind="var" path="ENKIVE_JAVA"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
