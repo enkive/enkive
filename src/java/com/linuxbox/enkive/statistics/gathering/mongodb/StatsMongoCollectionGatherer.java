@@ -1,15 +1,5 @@
 package com.linuxbox.enkive.statistics.gathering.mongodb;
 
-import static com.linuxbox.enkive.statistics.MongoConstants.MONGO_AVG_OBJ_SIZE;
-import static com.linuxbox.enkive.statistics.MongoConstants.MONGO_COUNT;
-import static com.linuxbox.enkive.statistics.MongoConstants.MONGO_INDEX_SIZES;
-import static com.linuxbox.enkive.statistics.MongoConstants.MONGO_LAST_EXTENT_SIZE;
-import static com.linuxbox.enkive.statistics.MongoConstants.MONGO_NS;
-import static com.linuxbox.enkive.statistics.MongoConstants.MONGO_NUM_EXTENT;
-import static com.linuxbox.enkive.statistics.MongoConstants.MONGO_NUM_INDEX;
-import static com.linuxbox.enkive.statistics.MongoConstants.MONGO_SIZE;
-import static com.linuxbox.enkive.statistics.MongoConstants.MONGO_STORAGE_SIZE;
-import static com.linuxbox.enkive.statistics.MongoConstants.MONGO_TOTAL_INDEX_SIZE;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_AVG_OBJ_SIZE;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_DATA_SIZE;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_ERROR;
@@ -26,18 +16,30 @@ import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TOTAL_INDEX_SIZ
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TOTAL_SIZE;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TYPE;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TYPE_COLL;
+import static com.linuxbox.enkive.statistics.gathering.mongodb.MongoConstants.MONGO_AVG_OBJ_SIZE;
+import static com.linuxbox.enkive.statistics.gathering.mongodb.MongoConstants.MONGO_COUNT;
+import static com.linuxbox.enkive.statistics.gathering.mongodb.MongoConstants.MONGO_INDEX_SIZES;
+import static com.linuxbox.enkive.statistics.gathering.mongodb.MongoConstants.MONGO_LAST_EXTENT_SIZE;
+import static com.linuxbox.enkive.statistics.gathering.mongodb.MongoConstants.MONGO_NS;
+import static com.linuxbox.enkive.statistics.gathering.mongodb.MongoConstants.MONGO_NUM_EXTENT;
+import static com.linuxbox.enkive.statistics.gathering.mongodb.MongoConstants.MONGO_NUM_INDEX;
+import static com.linuxbox.enkive.statistics.gathering.mongodb.MongoConstants.MONGO_SIZE;
+import static com.linuxbox.enkive.statistics.gathering.mongodb.MongoConstants.MONGO_STORAGE_SIZE;
+import static com.linuxbox.enkive.statistics.gathering.mongodb.MongoConstants.MONGO_TOTAL_INDEX_SIZE;
 import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_AVG;
 import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MAX;
 import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MIN;
 
 import java.net.UnknownHostException;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.linuxbox.enkive.statistics.KeyDef;
 import com.linuxbox.enkive.statistics.gathering.AbstractGatherer;
 import com.mongodb.DB;
 import com.mongodb.Mongo;
@@ -55,25 +57,18 @@ public class StatsMongoCollectionGatherer extends AbstractGatherer {
 		db = m.getDB(dbName);
 	}
 	
-	protected Map<String, Set<String>> keyBuilder(){
-		Map<String, Set<String>> keys = new HashMap<String, Set<String>>();
-		keys.put(STAT_TYPE, null);
-		keys.remove(STAT_NS);
-		
-		Set<String> generic = makeCreator(GRAIN_AVG, GRAIN_MAX, GRAIN_MIN);
-		
-		keys.put(STAT_NUM_OBJS, generic);
-		keys.put(STAT_AVG_OBJ_SIZE, generic);
-		keys.put(STAT_DATA_SIZE, generic);
-		keys.put(STAT_TOTAL_SIZE, generic);
-		keys.put(STAT_NUM_EXTENT, generic);
-		keys.put(STAT_LAST_EXTENT_SIZE, generic);
-		keys.put(STAT_NUM_INDEX, generic);
-		keys.put(STAT_TOTAL_INDEX_SIZE, generic);
-		
-		//TODO: embedded
-		keys.put(STAT_INDEX_SIZES, null);
-		
+	protected List<KeyDef> keyBuilder(){
+		List<KeyDef> keys = new LinkedList<KeyDef>();
+		keys.add(new KeyDef("*."+STAT_TYPE + ":"));
+		keys.add(new KeyDef("*."+STAT_NS + ":"));
+		keys.add(new KeyDef("*."+STAT_NUM_OBJS + ":" + GRAIN_AVG + "," + GRAIN_MAX + "," + GRAIN_MIN));
+		keys.add(new KeyDef("*."+STAT_AVG_OBJ_SIZE + ":" + GRAIN_AVG + "," + GRAIN_MAX + "," + GRAIN_MIN));
+		keys.add(new KeyDef("*."+STAT_DATA_SIZE + ":" + GRAIN_AVG + "," + GRAIN_MAX + "," + GRAIN_MIN));
+		keys.add(new KeyDef("*."+STAT_TOTAL_SIZE + ":" + GRAIN_AVG + "," + GRAIN_MAX + "," + GRAIN_MIN));
+		keys.add(new KeyDef("*."+STAT_NUM_EXTENT + ":" + GRAIN_AVG + "," + GRAIN_MAX + "," + GRAIN_MIN));
+		keys.add(new KeyDef("*."+STAT_LAST_EXTENT_SIZE + ":" + GRAIN_AVG + "," + GRAIN_MAX + "," + GRAIN_MIN));
+		keys.add(new KeyDef("*."+STAT_NUM_INDEX + ":" + GRAIN_AVG + "," + GRAIN_MAX + "," + GRAIN_MIN));
+		keys.add(new KeyDef("*."+STAT_TOTAL_INDEX_SIZE + ":" + GRAIN_AVG + "," + GRAIN_MAX + "," + GRAIN_MIN));
 		return keys;
 	}
 	
@@ -114,7 +109,6 @@ public class StatsMongoCollectionGatherer extends AbstractGatherer {
 		}
 		long time = System.currentTimeMillis();
 		collStats.put(STAT_TIME_STAMP, time);
-		attributes.setTimeStamp(time);
 		return collStats;
 	}
 

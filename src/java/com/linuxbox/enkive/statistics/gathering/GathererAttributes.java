@@ -1,48 +1,38 @@
 package com.linuxbox.enkive.statistics.gathering;
 
+import static com.linuxbox.enkive.statistics.StatsConstants.STAT_SERVICE_NAME;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIME_STAMP;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_AVG;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MAX;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MIN;
+import static com.linuxbox.enkive.statistics.granularity.GrainConstants.*;
+import java.util.List;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+
+import com.linuxbox.enkive.statistics.KeyDef;
 public class GathererAttributes {
 	protected String serviceName;
 	protected String schedule;
-	protected Map<String, Set<String>> keys;
-	protected long timeStamp;
-	public GathererAttributes(String serviceName, String schedule, Map<String, Set<String>> keys){
+	protected List<KeyDef> keys;
+	
+	public GathererAttributes(String serviceName, String schedule, List<KeyDef> keys){
 		this.serviceName = serviceName;
 		this.schedule = schedule;
 		this.keys = keys;
+		
+		KeyDef name = new KeyDef(STAT_SERVICE_NAME + ":");
+		KeyDef time = new KeyDef(STAT_TIME_STAMP + ":" + GRAIN_AVG + "," + GRAIN_MAX + "," + GRAIN_MIN);
+		
+		keys.add(name);
+		keys.add(time);
 	}
 	
 	public String getName(){
 		return serviceName;
 	}
 	
-	public void setTimeStamp(long timeStamp){
-		this.timeStamp = timeStamp;
-	}
-	
-	public long getTime(){
-		return timeStamp;
-	}
-	
 	public String getSchedule(){
 		return schedule;
 	}
 	
-	public Map<String, Set<String>> getKeys(){
+	public List<KeyDef> getKeys(){
 		return keys;
-	}
-	
-	public Map<String, Set<String>> getKeys(String keyName){
-		Map<String, Set<String>> result = new HashMap<String, Set<String>>();
-		result.put(keyName, result.get(keyName));
-		return result;
 	}
 }

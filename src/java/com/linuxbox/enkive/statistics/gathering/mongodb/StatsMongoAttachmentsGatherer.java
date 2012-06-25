@@ -1,12 +1,12 @@
 package com.linuxbox.enkive.statistics.gathering.mongodb;
 
-import static com.linuxbox.enkive.statistics.MongoConstants.MONGO_LENGTH;
-import static com.linuxbox.enkive.statistics.MongoConstants.MONGO_UPLOAD_DATE;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_AVG_ATTACH;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_MAX_ATTACH;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_SERVICE_NAME;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIME_STAMP;
 import static com.linuxbox.enkive.statistics.StatsConstants.THIRTY_DAYS;
+import static com.linuxbox.enkive.statistics.gathering.mongodb.MongoConstants.MONGO_LENGTH;
+import static com.linuxbox.enkive.statistics.gathering.mongodb.MongoConstants.MONGO_UPLOAD_DATE;
 import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_AVG;
 import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MAX;
 import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MIN;

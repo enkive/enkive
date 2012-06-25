@@ -4,6 +4,7 @@ import static com.linuxbox.enkive.statistics.StatsConstants.STAT_SERVICE_NAME;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIME_STAMP;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -14,6 +15,7 @@ import org.quartz.Scheduler;
 import org.springframework.scheduling.quartz.CronTriggerBean;
 import org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean;
 
+import com.linuxbox.enkive.statistics.KeyDef;
 import com.linuxbox.enkive.statistics.services.AbstractService;
 import com.linuxbox.enkive.statistics.services.StatsStorageService;
 import com.linuxbox.enkive.statistics.services.storage.StatsStorageException;
@@ -49,7 +51,7 @@ public abstract class AbstractGatherer extends AbstractService implements
 		scheduler.scheduleJob((JobDetail) jobDetail.getObject(), trigger);
 	}
 	
-	protected abstract Map<String, Set<String>> keyBuilder();
+	protected abstract List<KeyDef> keyBuilder();
 	
 	public abstract Map<String, Object> getStatistics();
 	

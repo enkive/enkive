@@ -1,14 +1,5 @@
 package com.linuxbox.enkive.statistics.gathering.mongodb;
 
-import static com.linuxbox.enkive.statistics.MongoConstants.MONGO_AVG_OBJ_SIZE;
-import static com.linuxbox.enkive.statistics.MongoConstants.MONGO_DATA_SIZE;
-import static com.linuxbox.enkive.statistics.MongoConstants.MONGO_FILE_SIZE;
-import static com.linuxbox.enkive.statistics.MongoConstants.MONGO_INDEXES;
-import static com.linuxbox.enkive.statistics.MongoConstants.MONGO_INDEX_SIZE;
-import static com.linuxbox.enkive.statistics.MongoConstants.MONGO_NUM_COLLECTIONS;
-import static com.linuxbox.enkive.statistics.MongoConstants.MONGO_NUM_EXTENT;
-import static com.linuxbox.enkive.statistics.MongoConstants.MONGO_NUM_OBJS;
-import static com.linuxbox.enkive.statistics.MongoConstants.MONGO_STORAGE_SIZE;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_AVG_OBJ_SIZE;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_DATA_SIZE;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_FILE_SIZE;
@@ -23,6 +14,15 @@ import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TOTAL_INDEX_SIZ
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TOTAL_SIZE;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TYPE;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TYPE_DB;
+import static com.linuxbox.enkive.statistics.gathering.mongodb.MongoConstants.MONGO_AVG_OBJ_SIZE;
+import static com.linuxbox.enkive.statistics.gathering.mongodb.MongoConstants.MONGO_DATA_SIZE;
+import static com.linuxbox.enkive.statistics.gathering.mongodb.MongoConstants.MONGO_FILE_SIZE;
+import static com.linuxbox.enkive.statistics.gathering.mongodb.MongoConstants.MONGO_INDEXES;
+import static com.linuxbox.enkive.statistics.gathering.mongodb.MongoConstants.MONGO_INDEX_SIZE;
+import static com.linuxbox.enkive.statistics.gathering.mongodb.MongoConstants.MONGO_NUM_COLLECTIONS;
+import static com.linuxbox.enkive.statistics.gathering.mongodb.MongoConstants.MONGO_NUM_EXTENT;
+import static com.linuxbox.enkive.statistics.gathering.mongodb.MongoConstants.MONGO_NUM_OBJS;
+import static com.linuxbox.enkive.statistics.gathering.mongodb.MongoConstants.MONGO_STORAGE_SIZE;
 import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_AVG;
 import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MAX;
 import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MIN;

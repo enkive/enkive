@@ -14,6 +14,8 @@ import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MA
 import java.net.UnknownHostException;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -22,6 +24,7 @@ import org.apache.commons.logging.LogFactory;
 
 import com.linuxbox.enkive.message.search.MessageSearchService;
 import com.linuxbox.enkive.message.search.exception.MessageSearchException;
+import com.linuxbox.enkive.statistics.KeyDef;
 import com.linuxbox.enkive.workspace.SearchResult;
 import com.mongodb.MongoException;
 
@@ -34,11 +37,9 @@ public class StatsMsgSearchGatherer extends AbstractGatherer {
 		super(serviceName, schedule);
 	}
 	
-	protected Map<String, Set<String>> keyBuilder(){
-		Map<String, Set<String>> keys = new HashMap<String, Set<String>>();
-		keys.put(STAT_SERVICE_NAME, null);
-		keys.put(STAT_NUM_ENTRIES, makeCreator(GRAIN_AVG));
-		keys.put(STAT_TIME_STAMP, makeCreator(GRAIN_AVG, GRAIN_MAX, GRAIN_MIN));
+	protected List<KeyDef> keyBuilder(){
+		List<KeyDef> keys = new LinkedList<KeyDef>();
+		keys.add(new KeyDef(STAT_NUM_ENTRIES + ":" + GRAIN_AVG + "," + GRAIN_MAX + "," + GRAIN_MIN));
 		return keys;
 	}
 	
