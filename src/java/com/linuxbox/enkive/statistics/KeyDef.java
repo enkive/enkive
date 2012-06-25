@@ -8,8 +8,8 @@ public class KeyDef {
 	private List<String> key;
 	private Collection<String> methods;
 	
-	public KeyDef(String key){
-		parseAll(key);
+	public KeyDef( String keyPath){
+		parseAll(keyPath);
 	}
 	
 	private void parseAll(String str){
