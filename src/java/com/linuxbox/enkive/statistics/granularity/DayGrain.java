@@ -1,20 +1,12 @@
 package com.linuxbox.enkive.statistics.granularity;
 
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_DAY;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_HOUR;
-
 import java.util.Calendar;
 
 import com.linuxbox.enkive.statistics.services.StatsClient;
-public class DayGrain extends AbstractGrain {
+public class DayGrain extends EmbeddedGrain {
 	
 	public DayGrain(StatsClient client){
 		super(client);
-	}
-	
-	public void setFilterString(){
-		filterObj = GRAIN_HOUR;
-		grainType= GRAIN_DAY;
 	}
 	
 	public void setDates(){

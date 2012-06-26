@@ -1,14 +1,5 @@
 package com.linuxbox.enkive.statistics.granularity;
 
-import static com.linuxbox.enkive.statistics.StatsConstants.STAT_SERVICE_NAME;
-import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIME_STAMP;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_AVG;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_HOUR;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MAX;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MIN;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_STD_DEV;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_SUM;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_TYPE;
 import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_WEIGHT;
 
 import java.util.ArrayList;
@@ -22,49 +13,31 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
 import com.linuxbox.enkive.statistics.KeyDef;
 import com.linuxbox.enkive.statistics.gathering.GathererAttributes;
 import com.linuxbox.enkive.statistics.services.StatsClient;
 
+@SuppressWarnings("unchecked")
 public abstract class AbstractGrain implements Grain {
 	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.statistics.granularity.AbstractGrain");
 	protected StatsClient client;
-	protected Integer filterObj;
-	protected int grainType;
+	protected boolean isEmbedded;
 	protected Date startDate;
 	protected Date endDate;
 
 	public AbstractGrain(StatsClient client) {
 		this.client = client;
-		System.out.println("starting abstract client");
-		setFilterString();
+		LOGGER.info("starting abstract client");
 		setDates();
 		consolidateData();
-		System.out.println("finishing abstract client");
+		LOGGER.info("finishing abstract client");
 	}
-
-	protected abstract void setFilterString();
 
 	protected abstract void setDates();
-/*
-	private double getValue(String key, Map<String, Object> map) {
-		double result = -1;
-		// TODO System.out.println("map: " + map);
-		if (map.get(key) instanceof Integer) {
-			result = (double) ((Integer) map.get(key)).intValue();
-		} else if (map.get(key) instanceof Long) {
-			result = (double) ((Long) map.get(key)).longValue();
-		} else if (map.get(key) instanceof Double) {
-			result = ((Double) map.get(key)).doubleValue();
-		}
-		// TODO System.out.println("result: " + result);
-		return result;
-	}
-*/
-	private Object injectType(Object example, double value) {
+
+	protected Object injectType(Object example, double value) {
 		Object result = null;
 		if (example instanceof Integer) {
 			result = (int) value;
@@ -80,7 +53,6 @@ public abstract class AbstractGrain implements Grain {
 	private Set<Map<String, Object>> serviceFilter(String name) {
 		Map<String, Map<String, Object>> query = new HashMap<String, Map<String, Object>>();
 		Map<String, Object> keyVals = new HashMap<String, Object>();
-		keyVals.put(GRAIN_TYPE, filterObj);
 		query.put(name, keyVals);
 		// TODO FOR TESTING ONLY
 		startDate = new Date(0L);
@@ -90,8 +62,7 @@ public abstract class AbstractGrain implements Grain {
 		return result;
 	}
 
-	// TODO: store the data at a level path
-	private Map<String, Object> storeOnPath(List<String> path,
+	protected Map<String, Object> putOnPath(List<String> path,
 			Map<String, Object> statsData, Map<String, Object> statToAdd) {
 		Map<String, Object> cursor = statsData;
 		int index = 0;
@@ -113,9 +84,9 @@ public abstract class AbstractGrain implements Grain {
 		return statsData;
 	}
 
-	private Object getDataVal(Map<String, Object> dataMap, List<String> path) {
+	protected Object getDataVal(Map<String, Object> dataMap, List<String> path) {
 		Object map = dataMap;
-		System.out.println("getDV-path: " + path);
+//		System.out.println("getDV-path: " + path);
 		for (String key : path) {
 			// System.out.println("getDV-key: " + key);
 			if (((Map<String, Object>) map).containsKey(key)) {
@@ -129,8 +100,6 @@ public abstract class AbstractGrain implements Grain {
 				}
 			}
 		}
-
-		System.out.println("getDataVal-null-dataMap: " + dataMap);
 		return null;
 	}
 
@@ -144,12 +113,8 @@ public abstract class AbstractGrain implements Grain {
 			int pathIndex = 0;
 			int defIndex = 0;
 			List<String> keyString = def.getKey();
-			while (pathIndex < path.size()) {// run through it to compare to
-												// path
+			while (pathIndex < path.size()) {// run through it to compare to path
 				if (defIndex >= keyString.size()) {
-					// System.out.println("defIndex >= keys.size()");
-					// System.out.println("paths don't match: " + path + " vs "
-					// + keyString);
 					 isMatch = false;
 					 break;
 				}
@@ -158,51 +123,39 @@ public abstract class AbstractGrain implements Grain {
 					if(defIndex == keyString.size()-1){
 						break;
 					}
-					// System.out.println("str*: " + str);
-					// System.out.println("path*: " + path.get(pathIndex));
 					defIndex++;
 					str = keyString.get(defIndex);
 
 					if (path.contains(str)) {
-						for (; pathIndex < path.size(); pathIndex++) {// jumps
-																		// to
-																		// matching
-																		// index
+						//jump to matching index
+						for (; pathIndex < path.size(); pathIndex++) {
 							if (path.get(pathIndex).equals(str)) {
 								break;
 							}
 						}
 					} else {
-						// System.out.println("does not contain");
-						// System.out.println("paths don't match: " + path +
-						// " vs " + keyString);
 						isMatch = false;
 						break;
 					}
 				}
-				// System.out.println("str: " + str);
-				// System.out.println("path: " + path.get(pathIndex));
 				if (path.get(pathIndex).equals(str)) {
-					// System.out.println("if");
 					pathIndex++;
 					defIndex++;
 				} else {
-					// System.out.println("paths don't match: " + path + " vs "
+//TODO			    System.out.println("paths don't match: " + path + " vs "
 					// + keyString);
 					isMatch = false;
 					break;
 				}
 			}
 			if (isMatch) {
-				System.out.println("paths match: " + path + " vs " + keyString);
 				return true;
 			}
 		}
 		return false;// no matches found
 	}
 
-	@SuppressWarnings("unchecked")
-	private double statToDouble(Object stat) {
+	protected double statToDouble(Object stat) {
 		double input = -1;
 
 		if (stat instanceof Integer) {
@@ -219,14 +172,12 @@ public abstract class AbstractGrain implements Grain {
 		return input;
 	}
 
-	private Set<List<String>> findPathSet(Map<String, Object> data,
+	protected Set<List<String>> findPathSet(Map<String, Object> data,
 			LinkedList<String> path, List<KeyDef> statKeys,
 			Set<List<String>> result) {
 		for (String key : data.keySet()) {
 			path.addLast(key);
 			if (pathMatches(path, statKeys)) {
-				// / System.out.println("key: " + key);
-				// System.out.println("findPath-adding path: " + path);
 				result.add(new ArrayList<String>(path));
 			} else {// recurse again
 				if (data.get(key) instanceof Map) {
@@ -236,7 +187,6 @@ public abstract class AbstractGrain implements Grain {
 			}
 			path.removeLast();
 		}
-		// System.out.println("findPath-result: " + result);
 		return result;
 	}
 /*
@@ -261,100 +211,9 @@ public abstract class AbstractGrain implements Grain {
 		return result;
 	}
 */
-	//TODO: the caller should be able to know if this is raw data or not raw data
-	protected Map<String, Object> consolidateMaps(
-			Set<Map<String, Object>> serviceData, List<KeyDef> keys) {
-		// Map<String, Object> result = consolidateMapHelper(map, path, keys,
-		// new HashMap<String, Object>());
-		// System.out.println("consolidateMap()-result: " + result);
-		Map<String, Object> exampleData = (Map<String, Object>) serviceData
-				.toArray()[0];
+	protected abstract Map<String, Object> consolidateMaps(Set<Map<String, Object>> serviceData, List<KeyDef> keys);
 
-		// 1. recurse to find set of paths
-		Set<List<String>> dataPaths = findPathSet(exampleData,
-				new LinkedList<String>(), keys, new HashSet<List<String>>());
-		Map<String, Object> consolidatedData = new HashMap<String, Object>(
-				exampleData);
-		// 2. TODO: check for pre-consolidated data
-		// know from that fact if it is hourly, daily, etc.
-		
-		// 3. loop over paths
-		for (List<String> dataPath : dataPaths) {
-			int totalWeight = 0;
-			DescriptiveStatistics statsMaker = new DescriptiveStatistics();
-			DescriptiveStatistics avgStatsMaker = new DescriptiveStatistics();
-			Object dataVal = null;
-
-			// 4. get data from maps and add to statMakers
-			for (Map<String, Object> dataMap : serviceData) {
-				dataVal = getDataVal(dataMap, dataPath);
-				System.out.println("maps()-dataVal: " + dataVal);
-				double input = -1;
-
-				if (dataVal != null) {
-					input = statToDouble(dataVal);
-					if (input > -1) {
-						statsMaker.addValue(input);
-					}
-
-					if (input >= 0) {
-						Integer statWeight = (Integer) dataMap
-								.get(GRAIN_WEIGHT);
-						if (statWeight == null) {
-							statWeight = 1;
-						}
-
-						totalWeight += statWeight;
-						avgStatsMaker.addValue(input * statWeight);
-						statsMaker.addValue(input);
-					}
-				}
-			}
-
-			// 5. loop over methods to populate map with max, min, etc.
-			Map<String, Object> methodData = new HashMap<String, Object>();
-			for (KeyDef keyDef : keys) {
-				if (keyDef.getMethods() != null) {
-					for (String method : keyDef.getMethods()) {
-						if (method.equals(GRAIN_SUM)) {
-							methodData.put(method,
-									injectType(dataVal, statsMaker.getSum()));
-						}
-						if (method.equals(GRAIN_MAX)) {
-							methodData.put(method,
-									injectType(dataVal, statsMaker.getMax()));
-						}
-						if (method.equals(GRAIN_MIN)) {
-							methodData.put(method,
-									injectType(dataVal, statsMaker.getMin()));
-						}
-						if (method.equals(GRAIN_AVG)) {
-							methodData.put(
-									method,
-									injectType(dataVal, avgStatsMaker.getSum()
-											/ totalWeight));
-						}
-						if (method.equals(GRAIN_STD_DEV)) {
-							methodData.put(
-									method,
-									injectType(dataVal,
-											statsMaker.getStandardDeviation()));
-						}
-					}
-				} else {
-					System.out.println("keyDef returned null");
-				}
-			}
-			// 6. store in new map on path
-			System.out.println("consolData-beforeStoreOnPath: "
-					+ consolidatedData);
-			storeOnPath(dataPath, consolidatedData, methodData);
-			System.out.println("consolData-afterStoreOnPath: "
-					+ consolidatedData);
-		}
-		return consolidatedData;
-	}
-
+//TODO: implement a weight
 	protected int findWeight(Set<Map<String, Object>> serviceData) {
 		int weight = 0;
 		for (Map<String, Object> map : serviceData) {
@@ -368,28 +227,32 @@ public abstract class AbstractGrain implements Grain {
 	}
 
 	public void consolidateData() {
-		System.out.println("consolidateData()");
 		// build set for each service
-		// Set<Map<String,Object>> storageData = new
-		// HashSet<Map<String,Object>>();
+		Set<Map<String,Object>> storageData = new
+		HashSet<Map<String,Object>>();
 		for (GathererAttributes attribute : client.getAttributes()) {
 			String name = attribute.getName();
-			System.out.println("name: " + name);
+//			System.out.println("name: " + name);
 			Set<Map<String, Object>> serviceData = serviceFilter(name);
-			System.out.println("ServiceData: " + serviceData);
+//			System.out.println("ServiceData: " + serviceData);
 			if (!serviceData.isEmpty()) {
 				consolidateMaps(serviceData, attribute.getKeys());
-				if (name.equals("CollectionStatsService")) {
+/*TODO				if (name.equals("CollectionStatsService")) {
 					System.out.println("exit");
 					System.exit(0);
 				}
-				// TODO storageData = new HashSet<Map<String, Object>>();
-				// storageData.add(consolidateMaps(serviceData, ));
+*/				storageData = new HashSet<Map<String, Object>>();
+				Map<String, Object> mapToStore = consolidateMaps(serviceData, attribute.getKeys());
+				if(mapToStore.containsKey("_id")){
+					mapToStore.remove("_id");
+				}
+				storageData.add(mapToStore);
 			}
 		}
-		// client.storeData(storageData);
+		client.storeData(storageData);
 	}
 	
+/*	
 	//TODO: stat.stat.* working
 	public static void main(String args[]){
 		KeyDef def = new KeyDef("*");
@@ -453,5 +316,5 @@ public abstract class AbstractGrain implements Grain {
 		if (isMatch) {
 			System.out.println("paths match: " + path + " vs " + keyString);
 		}
-	}
+	}*/
 }

@@ -1,22 +1,14 @@
 package com.linuxbox.enkive.statistics.granularity;
 
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_DAY;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MONTH;
-
 import java.util.Calendar;
 
 import com.linuxbox.enkive.statistics.services.StatsClient;
 
-public class MonthGrain extends AbstractGrain {
+public class MonthGrain extends EmbeddedGrain {
 	
 	public MonthGrain(StatsClient client){
 		super(client);
-	}
-	
-	public void setFilterString(){
-		filterObj = GRAIN_DAY;
-		grainType = GRAIN_MONTH;	
-	}
+	}	
 	
 	public void setDates(){
 		Calendar cal = Calendar.getInstance();
