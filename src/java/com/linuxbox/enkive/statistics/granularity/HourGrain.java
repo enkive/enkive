@@ -24,7 +24,7 @@ public class HourGrain extends AbstractGrain {
 	public HourGrain(StatsClient client) {
 		super(client);
 	}
-
+//TODO make this work to consolidate on a key
 	@Override
 	protected void consolidateMaps(Map<String, Object> consolidatedData,
 			Set<Map<String, Object>> serviceData, KeyDef keyDef,

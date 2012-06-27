@@ -3,7 +3,6 @@ package com.linuxbox.enkive.statistics.granularity;
 import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_TYPE;
 import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_WEIGHT;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -47,13 +46,10 @@ public abstract class AbstractGrain implements Grain {
 			String name = attribute.getName();
 			Set<Map<String, Object>> serviceData = serviceFilter(name);
 			if (!serviceData.isEmpty()) {
-				consolidateMaps(serviceData, attribute.getKeys());
 				storageData = new HashSet<Map<String, Object>>();
-				Map<String, Object> mapToStore =  generateConsolidatedMap(templateData, Map<String,Object> consolidatedMap,
-						LinkedList<String> path, List<KeyDef> statKeys,
-						 Set<Map<String, Object>> serviceData)
-					//	consolidateMaps(serviceData,
-					//	attribute.getKeys());
+				Map<String, Object> mapToStore = new HashMap<String, Object>();
+				generateConsolidatedMap(serviceData.iterator().next(), mapToStore,
+						 new LinkedList<String>(), attribute.getKeys(), serviceData);
 				mapToStore.put(GRAIN_WEIGHT, findWeight(serviceData));
 				mapToStore.put(GRAIN_TYPE, grainType);
 				if (mapToStore.containsKey("_id")) {
