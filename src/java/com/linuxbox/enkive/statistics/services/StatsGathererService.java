@@ -29,89 +29,11 @@ import com.mongodb.MongoException;
 public class StatsGathererService extends AbstractService {
 	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.statistics.services");
-	protected Map<String, GathererInterface> statsGatherers = null;
-
-	public StatsGathererService(Map<String, GathererInterface> statsGatherers)
-			throws   ParseException {
-		this.statsGatherers = statsGatherers;
-	}
-
-	public StatsGathererService(String serviceName, GathererInterface gatherer)
-			throws   ParseException {
-		statsGatherers = new HashMap<String, GathererInterface>();
-		statsGatherers.put(serviceName, gatherer);
-	}
-	
-	@PostConstruct
-	public void init(){
-		String info = "GathererService created with gatherers:";
-		if(getStatsGatherers() != null){
-			for(String name : getStatsGatherers().keySet()){
-				info = info + " " + name;
-			}
-		}
-		LOGGER.info(info);
-	}
-	
-	public Map<String, GathererInterface> getStatsGatherers(){
-		return statsGatherers;
-	}
-	
-	public Map<String, GathererInterface> getStatsGatherers(String name){
-		Map<String, GathererInterface> gathererMap = new HashMap<String, GathererInterface>();
-		gathererMap.put(name, statsGatherers.get(name));
-		return gathererMap;
-	}
-	
-	public void addGatherer(String name, GathererInterface gatherer) {
-		if(statsGatherers != null){
-			statsGatherers.put(name, gatherer);
-		}
-		else{
-			statsGatherers = new HashMap<String, GathererInterface>();
-			statsGatherers.put(name, gatherer);
-		}
-	}
-
-	public void removeGatherer(String name) {
-		if(statsGatherers.containsKey(name)){
-			statsGatherers.remove(name);
-		}
-	}
-
-	public Set<Map<String, Object>> gatherStats() throws ParseException, GathererException {
-		return gatherStats(null);
-	}
-	
-//TODO: Test
-	public Set<Map<String, Object>> gatherStats(Map<String, String[]> gathererKeys)
-			throws ParseException, GathererException {
-		if(statsGatherers == null){
-			return null;
-		}
-		
-		if(statsGatherers.isEmpty()){
-			return null;
-		}
-		
-		if(gathererKeys == null){
-			gathererKeys = new HashMap<String, String[]>();
-			for(String gathererName: statsGatherers.keySet()){
-				gathererKeys.put(gathererName, null);
-			}
-		}
-		
-		Set<Map<String, Object>> statsSet = createSet();
-		for(String name: gathererKeys.keySet()){
-			statsSet.add(statsGatherers.get(name).getStatistics(gathererKeys.get(name)));
-		}
-		
-		return statsSet;
-	}
 
 	public static void main(String args[]) throws UnknownHostException,
 			MongoException {
-		StatsRuntimeGatherer runProps = new StatsRuntimeGatherer("SERVICENAME", "CRONEXPRESSION");
+		StatsRuntimeGatherer runProps = new StatsRuntimeGatherer("SERVICENAME",
+				"CRONEXPRESSION");
 		StatsMongoAttachmentsGatherer attachProps = new StatsMongoAttachmentsGatherer(
 				new Mongo(), "enkive", "fs", "AttachName", "cronExpress");
 		StatsMongoDBGatherer dbProps = new StatsMongoDBGatherer(new Mongo(),
@@ -138,6 +60,88 @@ public class StatsGathererService extends AbstractService {
 			new StatsGathererService(gatherers);
 		} catch (Exception e) {
 			System.exit(0);
+		}
+	}
+
+	protected Map<String, GathererInterface> statsGatherers = null;
+
+	public StatsGathererService(Map<String, GathererInterface> statsGatherers)
+			throws ParseException {
+		this.statsGatherers = statsGatherers;
+	}
+
+	public StatsGathererService(String serviceName, GathererInterface gatherer)
+			throws ParseException {
+		statsGatherers = new HashMap<String, GathererInterface>();
+		statsGatherers.put(serviceName, gatherer);
+	}
+
+	public void addGatherer(String name, GathererInterface gatherer) {
+		if (statsGatherers != null) {
+			statsGatherers.put(name, gatherer);
+		} else {
+			statsGatherers = new HashMap<String, GathererInterface>();
+			statsGatherers.put(name, gatherer);
+		}
+	}
+
+	public Set<Map<String, Object>> gatherStats() throws ParseException,
+			GathererException {
+		return gatherStats(null);
+	}
+
+	// TODO: Test
+	public Set<Map<String, Object>> gatherStats(
+			Map<String, String[]> gathererKeys) throws ParseException,
+			GathererException {
+		if (statsGatherers == null) {
+			return null;
+		}
+
+		if (statsGatherers.isEmpty()) {
+			return null;
+		}
+
+		if (gathererKeys == null) {
+			gathererKeys = new HashMap<String, String[]>();
+			for (String gathererName : statsGatherers.keySet()) {
+				gathererKeys.put(gathererName, null);
+			}
+		}
+
+		Set<Map<String, Object>> statsSet = createSet();
+		for (String name : gathererKeys.keySet()) {
+			statsSet.add(statsGatherers.get(name).getStatistics(
+					gathererKeys.get(name)));
+		}
+
+		return statsSet;
+	}
+
+	public Map<String, GathererInterface> getStatsGatherers() {
+		return statsGatherers;
+	}
+
+	public Map<String, GathererInterface> getStatsGatherers(String name) {
+		Map<String, GathererInterface> gathererMap = new HashMap<String, GathererInterface>();
+		gathererMap.put(name, statsGatherers.get(name));
+		return gathererMap;
+	}
+
+	@PostConstruct
+	public void init() {
+		String info = "GathererService created with gatherers:";
+		if (getStatsGatherers() != null) {
+			for (String name : getStatsGatherers().keySet()) {
+				info = info + " " + name;
+			}
+		}
+		LOGGER.info(info);
+	}
+
+	public void removeGatherer(String name) {
+		if (statsGatherers.containsKey(name)) {
+			statsGatherers.remove(name);
 		}
 	}
 }

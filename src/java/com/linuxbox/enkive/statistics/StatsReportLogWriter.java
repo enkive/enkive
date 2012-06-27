@@ -20,7 +20,8 @@ public class StatsReportLogWriter {
 		this.gatherer = gather;
 	}
 
-	public void logReport() throws ParseException, SchedulerException, GathererException {
+	public void logReport() throws ParseException, SchedulerException,
+			GathererException {
 		LOGGER.info(gatherer.gatherStats());
 	}
 }

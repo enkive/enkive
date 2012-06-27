@@ -10,9 +10,7 @@ import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_WE
 
 import java.util.Calendar;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -22,33 +20,88 @@ import com.linuxbox.enkive.statistics.KeyDef;
 import com.linuxbox.enkive.statistics.services.StatsClient;
 
 public class HourGrain extends AbstractGrain {
-	
-	public HourGrain(StatsClient client){
+
+	public HourGrain(StatsClient client) {
 		super(client);
-	}	
-	
-	protected void setTypes(){
-		grainType = GRAIN_HOUR;
-		filterType = null;
+	}
+
+	@Override
+	protected void consolidateMaps(Map<String, Object> consolidatedData,
+			Set<Map<String, Object>> serviceData, KeyDef keyDef,
+			LinkedList<String> dataPath) {
+		
+		if (keyDef.getMethods() != null) {
+		int totalWeight = 0;
+		DescriptiveStatistics statsMaker = new DescriptiveStatistics();
+		DescriptiveStatistics avgStatsMaker = new DescriptiveStatistics();
+		Object dataVal = null;
+
+		// 4. get data from maps and add to statMakers
+		for (Map<String, Object> dataMap : serviceData) {
+			dataVal = getDataVal(dataMap, dataPath);
+			double input = -1;
+
+			if (dataVal != null) {
+				input = statToDouble(dataVal);
+				if (input > -1) {
+					statsMaker.addValue(input);
+				}
+
+				if (input >= 0) {
+					Integer statWeight = (Integer) dataMap
+							.get(GRAIN_WEIGHT);
+					if (statWeight == null) {
+						statWeight = 1;
+					}
+
+					totalWeight += statWeight;
+					avgStatsMaker.addValue(input * statWeight);
+					statsMaker.addValue(input);
+				}
+			}
+		}
+
+		// 5. loop over methods to populate map with max, min, etc.
+		Map<String, Object> methodData = new HashMap<String, Object>();
+				for (String method : keyDef.getMethods()) {
+					if (method.equals(GRAIN_SUM)) {
+						methodData.put(method,
+								injectType(dataVal, statsMaker.getSum()));
+					}
+					else if (method.equals(GRAIN_MAX)) {
+						methodData.put(method,
+								injectType(dataVal, statsMaker.getMax()));
+					}
+					else if (method.equals(GRAIN_MIN)) {
+						methodData.put(method,
+								injectType(dataVal, statsMaker.getMin()));
+					}
+					else if (method.equals(GRAIN_AVG)) {
+						methodData.put(
+								method,
+								injectType(dataVal, avgStatsMaker.getSum()
+										/ totalWeight));
+					}
+					else if (method.equals(GRAIN_STD_DEV)) {
+						methodData.put(
+								method,
+								injectType(dataVal,
+										statsMaker.getStandardDeviation()));
+					}
+				}
+				// 6. store in new map on path
+				putOnPath(dataPath, consolidatedData, methodData);
+			}
 	}
 	
-	public void setDates(){
-		Calendar cal = Calendar.getInstance();
-		cal.set(Calendar.MILLISECOND, 0);
-		cal.set(Calendar.SECOND, 0);
-		cal.set(Calendar.MINUTE, 0);
-		endDate = cal.getTime();	
-		cal.add(Calendar.HOUR_OF_DAY, -1);
-		startDate = cal.getTime();
-	}
-	
+/*	@Override
 	@SuppressWarnings("unchecked")
 	protected Map<String, Object> consolidateMaps(
 			Set<Map<String, Object>> serviceData, List<KeyDef> keys) {
 		// Map<String, Object> result = consolidateMapHelper(map, path, keys,
 		// new HashMap<String, Object>());
 		// System.out.println("consolidateMap()-result: " + result);
-		
+
 		Map<String, Object> exampleData = (Map<String, Object>) serviceData
 				.toArray()[0];
 
@@ -59,7 +112,7 @@ public class HourGrain extends AbstractGrain {
 				exampleData);
 		// 2. TODO: check for pre-consolidated data
 		// know from that fact if it is hourly, daily, etc.
-		
+
 		// 3. loop over paths
 		for (List<String> dataPath : dataPaths) {
 			int totalWeight = 0;
@@ -70,7 +123,7 @@ public class HourGrain extends AbstractGrain {
 			// 4. get data from maps and add to statMakers
 			for (Map<String, Object> dataMap : serviceData) {
 				dataVal = getDataVal(dataMap, dataPath);
-//				System.out.println("maps()-dataVal: " + dataVal);
+				// System.out.println("maps()-dataVal: " + dataVal);
 				double input = -1;
 
 				if (dataVal != null) {
@@ -97,26 +150,29 @@ public class HourGrain extends AbstractGrain {
 			Map<String, Object> methodData = new HashMap<String, Object>();
 			for (KeyDef keyDef : keys) {
 				if (keyDef.getMethods() != null) {
+					System.out.println("path: " + dataPath);
+					System.out.println("keyDef.getMethods(): " + keyDef.getMethods());
 					for (String method : keyDef.getMethods()) {
+						System.out.println("method: " + method);
 						if (method.equals(GRAIN_SUM)) {
 							methodData.put(method,
 									injectType(dataVal, statsMaker.getSum()));
 						}
-						if (method.equals(GRAIN_MAX)) {
+						else if (method.equals(GRAIN_MAX)) {
 							methodData.put(method,
 									injectType(dataVal, statsMaker.getMax()));
 						}
-						if (method.equals(GRAIN_MIN)) {
+						else if (method.equals(GRAIN_MIN)) {
 							methodData.put(method,
 									injectType(dataVal, statsMaker.getMin()));
 						}
-						if (method.equals(GRAIN_AVG)) {
+						else if (method.equals(GRAIN_AVG)) {
 							methodData.put(
 									method,
 									injectType(dataVal, avgStatsMaker.getSum()
 											/ totalWeight));
 						}
-						if (method.equals(GRAIN_STD_DEV)) {
+						else if (method.equals(GRAIN_STD_DEV)) {
 							methodData.put(
 									method,
 									injectType(dataVal,
@@ -126,12 +182,26 @@ public class HourGrain extends AbstractGrain {
 				}
 			}
 			// 6. store in new map on path
-//			System.out.println("consolData-beforeStoreOnPath: "
-//					+ consolidatedData);
 			putOnPath(dataPath, consolidatedData, methodData);
-//			System.out.println("consolData-afterStoreOnPath: "
-//					+ consolidatedData);
 		}
 		return consolidatedData;
+	}
+*/
+
+	@Override
+	public void setDates() {
+		Calendar cal = Calendar.getInstance();
+		cal.set(Calendar.MILLISECOND, 0);
+		cal.set(Calendar.SECOND, 0);
+		cal.set(Calendar.MINUTE, 0);
+		endDate = cal.getTime();
+		cal.add(Calendar.HOUR_OF_DAY, -1);
+		startDate = cal.getTime();
+	}
+
+	@Override
+	protected void setTypes() {
+		grainType = GRAIN_HOUR;
+		filterType = null;
 	}
 }

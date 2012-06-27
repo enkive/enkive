@@ -17,6 +17,9 @@ import com.linuxbox.enkive.statistics.services.storage.StatsStorageException;
  */
 
 public interface StatsStorageService {
+	void storeStatistics(Set<Map<String, Object>> dataSet)
+			throws StatsStorageException;
+
 	/**
 	 * Store some statistics in the back-end that were collected by a specific
 	 * service at a particular instance in time.
@@ -28,8 +31,5 @@ public interface StatsStorageService {
 	 * @throws StatsStorageException
 	 */
 	void storeStatistics(String service, Map<String, Object> data)
-			throws StatsStorageException;
-
-	void storeStatistics(Set<Map<String, Object>> dataSet)
 			throws StatsStorageException;
 }

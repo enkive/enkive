@@ -8,11 +8,11 @@ public class StatsRetrievalException extends Exception {
 		super(m);
 	}
 
-	public StatsRetrievalException(Throwable t) {
-		super(t);
-	}
-
 	public StatsRetrievalException(String m, Throwable t) {
 		super(m, t);
+	}
+
+	public StatsRetrievalException(Throwable t) {
+		super(t);
 	}
 }

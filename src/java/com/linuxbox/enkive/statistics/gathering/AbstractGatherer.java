@@ -23,13 +23,46 @@ import com.linuxbox.enkive.statistics.services.storage.StatsStorageException;
 public abstract class AbstractGatherer extends AbstractService implements
 		GathererInterface {
 	protected GathererAttributes attributes;
-	protected StatsStorageService storageService;
 	protected Scheduler scheduler;
-	
-	public AbstractGatherer(String serviceName, String schedule){
+	protected StatsStorageService storageService;
+
+	public AbstractGatherer(String serviceName, String schedule) {
 		attributes = new GathererAttributes(serviceName, schedule, keyBuilder());
 	}
-	
+
+	@Override
+	public GathererAttributes getAttributes() {
+		return attributes;
+	}
+
+	@Override
+	public abstract Map<String, Object> getStatistics();
+
+	@Override
+	public Map<String, Object> getStatistics(String[] keys) {
+		if (keys == null) {
+			return getStatistics();
+		}
+		Map<String, Object> stats = getStatistics();
+		Map<String, Object> selectedStats = createMap();
+		for (String key : keys) {
+			if (stats.get(key) != null) {
+				selectedStats.put(key, stats.get(key));
+			}
+		}
+
+		selectedStats.put(STAT_SERVICE_NAME, attributes.getName());
+
+		if (selectedStats.get(STAT_TIME_STAMP) == null
+				&& stats.get(STAT_TIME_STAMP) != null) {
+			selectedStats.put(STAT_TIME_STAMP, stats.get(STAT_TIME_STAMP));
+		} else {
+			selectedStats.put(STAT_TIME_STAMP, System.currentTimeMillis());
+		}
+
+		return selectedStats;
+	}
+
 	@PostConstruct
 	protected void init() throws Exception {
 		// create factory
@@ -50,55 +83,31 @@ public abstract class AbstractGatherer extends AbstractService implements
 		// add to schedule defined in spring xml
 		scheduler.scheduleJob((JobDetail) jobDetail.getObject(), trigger);
 	}
-	
+
 	protected abstract List<KeyDef> keyBuilder();
-	
-	public abstract Map<String, Object> getStatistics();
-	
-	public void setStorageService(StatsStorageService storageService) {
-		this.storageService = storageService;
-	}
-	
-	public void setScheduler(Scheduler scheduler){
-		this.scheduler = scheduler;
-	}
-	
-	protected Set<String> makeCreator(String ... methodTypes){
+
+	protected Set<String> makeCreator(String... methodTypes) {
 		Set<String> result = new HashSet<String>();
-		for(String methodName: methodTypes){
+		for (String methodName : methodTypes) {
 			result.add(methodName);
 		}
 		return result;
 	}
 
-	public GathererAttributes getAttributes(){
-		return attributes;
+	public void setScheduler(Scheduler scheduler) {
+		this.scheduler = scheduler;
 	}
 
-	public Map<String, Object> getStatistics(String[] keys) {
-		if (keys == null)
-			return getStatistics();
-		Map<String, Object> stats = getStatistics();
-		Map<String, Object> selectedStats = createMap();
-		for (String key : keys) {
-			if (stats.get(key) != null)
-				selectedStats.put(key, stats.get(key));
-		}
-		
-		selectedStats.put(STAT_SERVICE_NAME, attributes.getName());
-		
-		if (selectedStats.get(STAT_TIME_STAMP) == null && stats.get(STAT_TIME_STAMP) != null){
-			selectedStats.put(STAT_TIME_STAMP, stats.get(STAT_TIME_STAMP));
-		}
-		else
-			selectedStats.put(STAT_TIME_STAMP, System.currentTimeMillis());
-
-		return selectedStats;
+	@Override
+	public void setStorageService(StatsStorageService storageService) {
+		this.storageService = storageService;
 	}
-	
+
+	@Override
 	public void storeStats() throws StatsStorageException {
-		if(getStatistics() != null){
-			storageService.storeStatistics(attributes.getName(), getStatistics());
+		if (getStatistics() != null) {
+			storageService.storeStatistics(attributes.getName(),
+					getStatistics());
 		}
 	}
 }

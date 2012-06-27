@@ -8,11 +8,11 @@ public class GathererException extends Exception {
 		super(m);
 	}
 
-	public GathererException(Throwable t) {
-		super(t);
-	}
-
 	public GathererException(String m, Throwable t) {
 		super(m, t);
+	}
+
+	public GathererException(Throwable t) {
+		super(t);
 	}
 }

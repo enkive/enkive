@@ -4,12 +4,11 @@ import static com.linuxbox.enkive.search.Constants.DATE_EARLIEST_PARAMETER;
 import static com.linuxbox.enkive.search.Constants.DATE_LATEST_PARAMETER;
 import static com.linuxbox.enkive.statistics.StatsConstants.SIMPLE_DATE;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_NUM_ENTRIES;
-import static com.linuxbox.enkive.statistics.StatsConstants.STAT_SERVICE_NAME;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIME_STAMP;
 import static com.linuxbox.enkive.statistics.StatsConstants.THIRTY_DAYS;
 import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_AVG;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MIN;
 import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MAX;
+import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MIN;
 
 import java.net.UnknownHostException;
 import java.util.Date;
@@ -29,20 +28,64 @@ import com.linuxbox.enkive.workspace.SearchResult;
 import com.mongodb.MongoException;
 
 public class StatsMsgSearchGatherer extends AbstractGatherer {
-	MessageSearchService searchService;
 	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.statistics.gathering");
-	
+
+	public static void main(String args[]) throws UnknownHostException,
+			MongoException {
+		StatsMsgSearchGatherer msgEntries = new StatsMsgSearchGatherer("name",
+				"0/5 * * * ?");
+		System.out.println(msgEntries.getStatistics());
+		String[] keys = {};
+		System.out.println(msgEntries.getStatistics(keys));
+	}
+
+	MessageSearchService searchService;
+
 	public StatsMsgSearchGatherer(String serviceName, String schedule) {
 		super(serviceName, schedule);
 	}
-	
-	protected List<KeyDef> keyBuilder(){
+
+	public MessageSearchService getSearchService() {
+		return searchService;
+	}
+
+	@Override
+	public Map<String, Object> getStatistics() {
+		long currTime = System.currentTimeMillis();
+		Date currDate = new Date(currTime);
+		Date prevDate = new Date(currTime - THIRTY_DAYS);
+		return getStatistics(prevDate, currDate);
+	}
+
+	// testing
+	public Map<String, Object> getStatistics(Date startDate, Date endDate) {
+		Map<String, Object> result = createMap();
+		// create value strings for current date and 30-days previous
+		String lowerDate = new StringBuilder(SIMPLE_DATE.format(startDate))
+				.toString();
+		String upperDate = new StringBuilder(SIMPLE_DATE.format(endDate))
+				.toString();
+
+		int numEntries = numEntries(lowerDate, upperDate);
+
+		if (numEntries < 0) {
+			return null;
+		}
+
+		result.put(STAT_TIME_STAMP, System.currentTimeMillis());
+		result.put(STAT_NUM_ENTRIES, numEntries);
+		return result;
+	}
+
+	@Override
+	protected List<KeyDef> keyBuilder() {
 		List<KeyDef> keys = new LinkedList<KeyDef>();
-		keys.add(new KeyDef(STAT_NUM_ENTRIES + ":" + GRAIN_AVG + "," + GRAIN_MAX + "," + GRAIN_MIN));
+		keys.add(new KeyDef(STAT_NUM_ENTRIES + ":" + GRAIN_AVG + ","
+				+ GRAIN_MAX + "," + GRAIN_MIN));
 		return keys;
 	}
-	
+
 	protected int numEntries(String dateEarliest, String dateLatest) {
 		HashMap<String, String> hmap = new HashMap<String, String>();
 		hmap.put(DATE_EARLIEST_PARAMETER, dateEarliest);
@@ -71,46 +114,7 @@ public class StatsMsgSearchGatherer extends AbstractGatherer {
 		return result;
 	}
 
-	public Map<String, Object> getStatistics() {
-		long currTime = System.currentTimeMillis();
-		Date currDate = new Date(currTime);
-		Date prevDate = new Date(currTime - THIRTY_DAYS);
-		return getStatistics(prevDate, currDate);
-	}
-
-	// testing
-	public Map<String, Object> getStatistics(Date startDate, Date endDate) {
-		Map<String, Object> result = createMap();
-		// create value strings for current date and 30-days previous
-		String lowerDate = new StringBuilder(SIMPLE_DATE.format(startDate))
-				.toString();
-		String upperDate = new StringBuilder(SIMPLE_DATE.format(endDate))
-				.toString();
-
-		int numEntries = numEntries(lowerDate, upperDate);
-		
-		if(numEntries < 0){
-			return null;
-		}
-		
-		result.put(STAT_TIME_STAMP, System.currentTimeMillis());
-		result.put(STAT_NUM_ENTRIES, numEntries);
-		return result;
-	}
-
-	public MessageSearchService getSearchService() {
-		return searchService;
-	}
-
 	public void setSearchService(MessageSearchService searchService) {
 		this.searchService = searchService;
-	}
-
-	public static void main(String args[]) throws UnknownHostException,
-			MongoException {
-		StatsMsgSearchGatherer msgEntries = new StatsMsgSearchGatherer("name", "0/5 * * * ?");
-		System.out.println(msgEntries.getStatistics());
-		String[] keys = {};
-		System.out.println(msgEntries.getStatistics(keys));
 	}
 }

@@ -44,35 +44,71 @@ import com.linuxbox.enkive.statistics.gathering.AbstractGatherer;
 import com.mongodb.DB;
 import com.mongodb.Mongo;
 import com.mongodb.MongoException;
+
 public class StatsMongoCollectionGatherer extends AbstractGatherer {
 	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.statistics.gathering");
 
-	protected Mongo m;
+	public static void main(String args[]) throws UnknownHostException,
+			MongoException {
+		StatsMongoCollectionGatherer collProps = new StatsMongoCollectionGatherer(
+				new Mongo(), "enkive", "collService", "cronExpression");
+		System.out.println(collProps.getStatistics());
+		String[] keys = { STAT_TYPE, STAT_NAME, STAT_DATA_SIZE, };
+		System.out.println(collProps.getStatistics(keys));
+	}
+
 	protected DB db;
 
-	public StatsMongoCollectionGatherer(Mongo m, String dbName, String serviceName, String schedule) {
+	protected Mongo m;
+
+	public StatsMongoCollectionGatherer(Mongo m, String dbName,
+			String serviceName, String schedule) {
 		super(serviceName, schedule);
 		this.m = m;
 		db = m.getDB(dbName);
 	}
-	
-	protected List<KeyDef> keyBuilder(){
-		List<KeyDef> keys = new LinkedList<KeyDef>();
-		keys.add(new KeyDef("*."+STAT_TYPE + ":"));
-		keys.add(new KeyDef("*."+STAT_NS + ":"));
-		keys.add(new KeyDef("*."+STAT_NUM_OBJS + ":" + GRAIN_AVG + "," + GRAIN_MAX + "," + GRAIN_MIN));
-		keys.add(new KeyDef("*."+STAT_AVG_OBJ_SIZE + ":" + GRAIN_AVG + "," + GRAIN_MAX + "," + GRAIN_MIN));
-		keys.add(new KeyDef("*."+STAT_DATA_SIZE + ":" + GRAIN_AVG + "," + GRAIN_MAX + "," + GRAIN_MIN));
-		keys.add(new KeyDef("*."+STAT_TOTAL_SIZE + ":" + GRAIN_AVG + "," + GRAIN_MAX + "," + GRAIN_MIN));
-		keys.add(new KeyDef("*."+STAT_NUM_EXTENT + ":" + GRAIN_AVG + "," + GRAIN_MAX + "," + GRAIN_MIN));
-		keys.add(new KeyDef("*."+STAT_LAST_EXTENT_SIZE + ":" + GRAIN_AVG + "," + GRAIN_MAX + "," + GRAIN_MIN));
-		keys.add(new KeyDef("*."+STAT_NUM_INDEX + ":" + GRAIN_AVG + "," + GRAIN_MAX + "," + GRAIN_MIN));
-		keys.add(new KeyDef("*."+STAT_TOTAL_INDEX_SIZE + ":" + GRAIN_AVG + "," + GRAIN_MAX + "," + GRAIN_MIN));
-		keys.add(new KeyDef("*."+STAT_INDEX_SIZES+ ".*:" + GRAIN_AVG + "," + GRAIN_MAX + "," + GRAIN_MIN));
-		return keys;
+
+	@Override
+	public Map<String, Object> getStatistics() {
+		Map<String, Object> collStats = new HashMap<String, Object>();
+		for (String collName : db.getCollectionNames()) {
+			String key = collName;
+			if (collName.startsWith("$")) {
+				collName = collName.replaceFirst("$", "-");
+			}
+			collName = collName.replace('.', '-');
+			collStats.put(collName, getStats(key));
+		}
+		long time = System.currentTimeMillis();
+		collStats.put(STAT_TIME_STAMP, time);
+		return collStats;
 	}
-	
+
+	// overwrites the abstract implementation b/c collections are stored
+	// embedded
+	@Override
+	public Map<String, Object> getStatistics(String[] keys) {
+		if (keys == null) {
+			return getStatistics();
+		}
+		Map<String, Object> selectedStats = createMap();
+		for (String collName : db.getCollectionNames()) {
+			Map<String, Object> stats = getStats(collName);
+			Map<String, Object> temp = createMap();
+			for (String key : keys) {
+				if (stats.get(key) != null) {
+					temp.put(key, stats.get(key));
+				}
+			}
+			selectedStats.put(collName, temp);
+		}
+		selectedStats.put(STAT_SERVICE_NAME, attributes.getName());
+		selectedStats.put(STAT_TIME_STAMP, System.currentTimeMillis());
+
+		return selectedStats;
+	}
+
 	private Map<String, Object> getStats(String collectionName) {
 		if (db.collectionExists(collectionName)) {
 			Map<String, Object> stats = createMap();
@@ -98,48 +134,29 @@ public class StatsMongoCollectionGatherer extends AbstractGatherer {
 		}
 	}
 
-	public Map<String, Object> getStatistics() {
-		Map<String, Object> collStats = new HashMap<String, Object>();
-		for (String collName : db.getCollectionNames()) {
-			String key = collName;
-			if (collName.startsWith("$")) {
-				collName = collName.replaceFirst("$", "-");
-			}
-			collName = collName.replace('.', '-');
-			collStats.put(collName, getStats(key));
-		}
-		long time = System.currentTimeMillis();
-		collStats.put(STAT_TIME_STAMP, time);
-		return collStats;
-	}
-
-	// overwrites the abstract implementation b/c collections are stored
-	// embedded
-	public Map<String, Object> getStatistics(String[] keys) {
-		if (keys == null)
-			return getStatistics();
-		Map<String, Object> selectedStats = createMap();
-		for (String collName : db.getCollectionNames()) {
-			Map<String, Object> stats = getStats(collName);
-			Map<String, Object> temp = createMap();
-			for (String key : keys) {
-				if (stats.get(key) != null)
-					temp.put(key, stats.get(key));
-			}
-			selectedStats.put(collName, temp);
-		}
-		selectedStats.put(STAT_SERVICE_NAME, attributes.getName());
-		selectedStats.put(STAT_TIME_STAMP, System.currentTimeMillis());
-
-		return selectedStats;
-	}
-
-	public static void main(String args[]) throws UnknownHostException,
-			MongoException {
-		StatsMongoCollectionGatherer collProps = new StatsMongoCollectionGatherer(
-				new Mongo(), "enkive", "collService", "cronExpression");
-		System.out.println(collProps.getStatistics());
-		String[] keys = { STAT_TYPE, STAT_NAME, STAT_DATA_SIZE, };
-		System.out.println(collProps.getStatistics(keys));
+	@Override
+	protected List<KeyDef> keyBuilder() {
+		List<KeyDef> keys = new LinkedList<KeyDef>();
+		keys.add(new KeyDef("*." + STAT_TYPE + ":"));
+		keys.add(new KeyDef("*." + STAT_NS + ":"));
+		keys.add(new KeyDef("*." + STAT_NUM_OBJS + ":" + GRAIN_AVG + ","
+				+ GRAIN_MAX + "," + GRAIN_MIN));
+		keys.add(new KeyDef("*." + STAT_AVG_OBJ_SIZE + ":" + GRAIN_AVG + ","
+				+ GRAIN_MAX + "," + GRAIN_MIN));
+		keys.add(new KeyDef("*." + STAT_DATA_SIZE + ":" + GRAIN_AVG + ","
+				+ GRAIN_MAX + "," + GRAIN_MIN));
+		keys.add(new KeyDef("*." + STAT_TOTAL_SIZE + ":" + GRAIN_AVG + ","
+				+ GRAIN_MAX + "," + GRAIN_MIN));
+		keys.add(new KeyDef("*." + STAT_NUM_EXTENT + ":" + GRAIN_AVG + ","
+				+ GRAIN_MAX + "," + GRAIN_MIN));
+		keys.add(new KeyDef("*." + STAT_LAST_EXTENT_SIZE + ":" + GRAIN_AVG
+				+ "," + GRAIN_MAX + "," + GRAIN_MIN));
+		keys.add(new KeyDef("*." + STAT_NUM_INDEX + ":" + GRAIN_AVG + ","
+				+ GRAIN_MAX + "," + GRAIN_MIN));
+		keys.add(new KeyDef("*." + STAT_TOTAL_INDEX_SIZE + ":" + GRAIN_AVG
+				+ "," + GRAIN_MAX + "," + GRAIN_MIN));
+		keys.add(new KeyDef("*." + STAT_INDEX_SIZES + ".*:" + GRAIN_AVG + ","
+				+ GRAIN_MAX + "," + GRAIN_MIN));
+		return keys;
 	}
 }

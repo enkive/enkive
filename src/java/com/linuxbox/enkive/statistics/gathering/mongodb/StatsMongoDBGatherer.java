@@ -8,7 +8,6 @@ import static com.linuxbox.enkive.statistics.StatsConstants.STAT_NUM_COLLECTIONS
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_NUM_EXTENT;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_NUM_INDEX;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_NUM_OBJS;
-import static com.linuxbox.enkive.statistics.StatsConstants.STAT_SERVICE_NAME;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIME_STAMP;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TOTAL_INDEX_SIZE;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TOTAL_SIZE;
@@ -28,49 +27,47 @@ import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MA
 import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MIN;
 
 import java.net.UnknownHostException;
-import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.linuxbox.enkive.statistics.KeyDef;
 import com.linuxbox.enkive.statistics.gathering.AbstractGatherer;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.Mongo;
 import com.mongodb.MongoException;
+
 public class StatsMongoDBGatherer extends AbstractGatherer {
 	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.statistics.gathering");
 
-	protected Mongo m;
+	public static void main(String args[]) throws UnknownHostException,
+			MongoException {
+		StatsMongoDBGatherer dbProps = new StatsMongoDBGatherer(new Mongo(),
+				"enkive", "hi", "*");
+		System.out.println(dbProps.getStatistics());
+		String[] keys = { STAT_TYPE, STAT_NAME, STAT_NUM_OBJS, STAT_FILE_SIZE };
+		System.out.println(dbProps.getStatistics(keys));
+	}
+
 	protected DB db;
 
-	public StatsMongoDBGatherer(Mongo m, String dbName, String serviceName, String schedule) {
+	protected Mongo m;
+
+	public StatsMongoDBGatherer(Mongo m, String dbName, String serviceName,
+			String schedule) {
 		super(serviceName, schedule);
 		this.m = m;
 		db = m.getDB(dbName);
 	}
-	
-	protected Map<String, Set<String>> keyBuilder(){
-		Map<String, Set<String>> keys = new HashMap<String, Set<String>>();
-		keys.put(STAT_TYPE, null);
-		keys.put(STAT_NAME, null);
-		
-		Set<String> result = makeCreator(GRAIN_AVG, GRAIN_MAX, GRAIN_MIN);
-		keys.put(STAT_SERVICE_NAME, null);
-		keys.put(STAT_NUM_COLLECTIONS, result);
-		keys.put(STAT_NUM_OBJS, result);
-		keys.put(STAT_AVG_OBJ_SIZE, result);
-		keys.put(STAT_DATA_SIZE, result);
-		keys.put(STAT_TOTAL_SIZE, result);
-		keys.put(STAT_NUM_INDEX, result);
-		keys.put(STAT_TOTAL_INDEX_SIZE, result);
-		keys.put(STAT_NUM_EXTENT, result);
-		keys.put(STAT_FILE_SIZE, result);
-		keys.put(STAT_TIME_STAMP, result);	
-		return keys;
+
+	@Override
+	public Map<String, Object> getStatistics() {
+		return getStats();
 	}
 
 	public BasicDBObject getStats() {
@@ -91,16 +88,29 @@ public class StatsMongoDBGatherer extends AbstractGatherer {
 		return stats;
 	}
 
-	public Map<String, Object> getStatistics() {
-		return getStats();
-	}
-
-	public static void main(String args[]) throws UnknownHostException,
-			MongoException {
-		StatsMongoDBGatherer dbProps = new StatsMongoDBGatherer(new Mongo(),
-				"enkive", "hi", "*");
-		System.out.println(dbProps.getStatistics());
-		String[] keys = { STAT_TYPE, STAT_NAME, STAT_NUM_OBJS, STAT_FILE_SIZE };
-		System.out.println(dbProps.getStatistics(keys));
+	@Override
+	protected List<KeyDef> keyBuilder() {
+		List<KeyDef> keys = new LinkedList<KeyDef>();
+		keys.add(new KeyDef(STAT_TYPE + ":"));
+		keys.add(new KeyDef(STAT_NAME + ":"));
+		keys.add(new KeyDef(STAT_NUM_COLLECTIONS + ":" + GRAIN_AVG + ","
+				+ GRAIN_MAX + "," + GRAIN_MIN));
+		keys.add(new KeyDef(STAT_NUM_OBJS + ":" + GRAIN_AVG + "," + GRAIN_MAX
+				+ "," + GRAIN_MIN));
+		keys.add(new KeyDef(STAT_AVG_OBJ_SIZE + ":" + GRAIN_AVG + ","
+				+ GRAIN_MAX + "," + GRAIN_MIN));
+		keys.add(new KeyDef(STAT_DATA_SIZE + ":" + GRAIN_AVG + "," + GRAIN_MAX
+				+ "," + GRAIN_MIN));
+		keys.add(new KeyDef(STAT_TOTAL_SIZE + ":" + GRAIN_AVG + "," + GRAIN_MAX
+				+ "," + GRAIN_MIN));
+		keys.add(new KeyDef(STAT_NUM_INDEX + ":" + GRAIN_AVG + "," + GRAIN_MAX
+				+ "," + GRAIN_MIN));
+		keys.add(new KeyDef(STAT_TOTAL_INDEX_SIZE + ":" + GRAIN_AVG + ","
+				+ GRAIN_MAX + "," + GRAIN_MIN));
+		keys.add(new KeyDef(STAT_NUM_EXTENT + ":" + GRAIN_AVG + "," + GRAIN_MAX
+				+ "," + GRAIN_MIN));
+		keys.add(new KeyDef(STAT_FILE_SIZE + ":" + GRAIN_AVG + "," + GRAIN_MAX
+				+ "," + GRAIN_MIN));
+		return keys;
 	}
 }

@@ -7,11 +7,11 @@ public class StatsStorageException extends Exception {
 		super(m);
 	}
 
-	public StatsStorageException(Throwable t) {
-		super(t);
-	}
-
 	public StatsStorageException(String m, Throwable t) {
 		super(m, t);
+	}
+
+	public StatsStorageException(Throwable t) {
+		super(t);
 	}
 }

@@ -59,48 +59,13 @@ public class StatsReportEmailer {
 	protected static final Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.statistics");
 
-	StatsGathererService gatherer;
-	String to;
 	String from;
+	StatsGathererService gatherer;
 	String mailHost;
+	String to;
 
 	public StatsReportEmailer(StatsGathererService gather) {
 		this.gatherer = gather;
-	}
-
-	public void sendReport(Collection<String> addresses) {
-
-		// Get system properties
-		Properties properties = System.getProperties();
-
-		// Setup mail server
-		properties.setProperty("mail.smtp.host", mailHost);
-
-		// Get the default Session object.
-		Session session = Session.getDefaultInstance(properties);
-
-		try { // Create a default MimeMessage object.
-			MimeMessage message = new MimeMessage(session);
-
-			// Set From: header field of the header.
-			message.setFrom(new InternetAddress(from));
-
-			// Set To: header field of the header.
-			for (String toAddress : to.split(";"))
-				message.addRecipient(Message.RecipientType.TO,
-						new InternetAddress(toAddress));
-
-			// Set Subject: header field
-			message.setSubject("Enkive Status Report");
-
-			// Now set the actual message
-			message.setText(buildReport());
-
-			// Send message
-			Transport.send(message);
-		} catch (MessagingException mex) {
-			mex.printStackTrace();
-		}
 	}
 
 	protected String buildReport() {
@@ -110,30 +75,6 @@ public class StatsReportEmailer {
 			LOGGER.warn("Error building statistics report email", e);
 		}
 		return "There was an error generating the Enkive statistics report";
-	}
-
-	public String getTo() {
-		return to;
-	}
-
-	public void setTo(String to) {
-		this.to = to;
-	}
-
-	public String getFrom() {
-		return from;
-	}
-
-	public void setFrom(String from) {
-		this.from = from;
-	}
-
-	public String getMailHost() {
-		return mailHost;
-	}
-
-	public void setMailHost(String mailHost) {
-		this.mailHost = mailHost;
 	}
 
 	private String buildReportWithTemplate() throws IOException,
@@ -172,6 +113,66 @@ public class StatsReportEmailer {
 		temp.process(root, out);
 		out.flush();
 		return os.toString();
+	}
+
+	public String getFrom() {
+		return from;
+	}
+
+	public String getMailHost() {
+		return mailHost;
+	}
+
+	public String getTo() {
+		return to;
+	}
+
+	public void sendReport(Collection<String> addresses) {
+
+		// Get system properties
+		Properties properties = System.getProperties();
+
+		// Setup mail server
+		properties.setProperty("mail.smtp.host", mailHost);
+
+		// Get the default Session object.
+		Session session = Session.getDefaultInstance(properties);
+
+		try { // Create a default MimeMessage object.
+			MimeMessage message = new MimeMessage(session);
+
+			// Set From: header field of the header.
+			message.setFrom(new InternetAddress(from));
+
+			// Set To: header field of the header.
+			for (String toAddress : to.split(";")) {
+				message.addRecipient(Message.RecipientType.TO,
+						new InternetAddress(toAddress));
+			}
+
+			// Set Subject: header field
+			message.setSubject("Enkive Status Report");
+
+			// Now set the actual message
+			message.setText(buildReport());
+
+			// Send message
+			Transport.send(message);
+		} catch (MessagingException mex) {
+			mex.printStackTrace();
+		}
+	}
+
+	public void setFrom(String from) {
+		this.from = from;
+	}
+
+	public void setMailHost(String mailHost) {
+		this.mailHost = mailHost;
+	}
+
+	public void setTo(String to) {
+		this.to = to;
 	}
 
 }

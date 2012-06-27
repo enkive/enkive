@@ -1,6 +1,5 @@
 package com.linuxbox.enkive.statistics.granularity;
 
-
 import javax.annotation.PostConstruct;
 
 import org.apache.commons.logging.Log;
@@ -10,27 +9,28 @@ import org.quartz.Scheduler;
 import org.springframework.scheduling.quartz.CronTriggerBean;
 import org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean;
 
-import com.linuxbox.enkive.statistics.services.StatsClient;
 import com.linuxbox.enkive.statistics.removal.Remove;
+import com.linuxbox.enkive.statistics.services.StatsClient;
 
 public class GrainRunner {
 	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.statistics.granularity.GrainRunner");
 	StatsClient client;
-	Scheduler scheduler;
-	String schedule;
 	Remove remover;
-	
-	public GrainRunner(StatsClient client, Scheduler scheduler, String schedule, Remove remover){
+	String schedule;
+	Scheduler scheduler;
+
+	public GrainRunner(StatsClient client, Scheduler scheduler,
+			String schedule, Remove remover) {
 		this.client = client;
 		this.scheduler = scheduler;
 		this.schedule = schedule;
 		this.remover = remover;
 		LOGGER.info("GrainRunner Initialized");
 	}
-	
+
 	@PostConstruct
-	public void init() throws Exception{
+	public void init() throws Exception {
 		// create factory
 		MethodInvokingJobDetailFactoryBean jobDetail = new MethodInvokingJobDetailFactoryBean();
 		jobDetail.setTargetObject(this);
@@ -49,39 +49,33 @@ public class GrainRunner {
 		// add to schedule defined in spring xml
 		scheduler.scheduleJob((JobDetail) jobDetail.getObject(), trigger);
 	}
-	
-	public void run(){
+
+	public void run() {
 		LOGGER.info("GrainRunner run() starting");
-//		if(Granularity.HOUR.isMatch()){
-		if(true){
-		    LOGGER.trace("GrainRunner hour() starting");
+		// if(Granularity.HOUR.isMatch()){
+		if (true) {
+			LOGGER.trace("GrainRunner hour() starting");
 			new HourGrain(client);
 			LOGGER.trace("GrainRunner hour() finished");
 		}
-		
-		if(Granularity.DAY.isMatch()){
-//		if(true){
+
+		if (Granularity.DAY.isMatch()) {
+			// if(true){
 			LOGGER.trace("GrainRunner day() starting");
 			new DayGrain(client);
 			LOGGER.trace("GrainRunner day() finished");
 		}
-/*		
-		if(Granularity.WEEK.isMatch()){
-//		if(true){
-			LOGGER.trace("GrainRunner week() starting");
-			new WeekGrain(client);
-			LOGGER.trace("GrainRunner week() finished");
-		}
-		
-		if(Granularity.MONTH.isMatch()){
-//		if(true){
-			LOGGER.trace("GrainRunner month() starting");
-			new MonthGrain(client);
-			LOGGER.trace("GrainRunner month() finished");
-		}
-		LOGGER.info("GrainRunner run() finished");
-		
-		remover.cleanAll();
-*/
+		/*
+		 * if(Granularity.WEEK.isMatch()){ // if(true){
+		 * LOGGER.trace("GrainRunner week() starting"); new WeekGrain(client);
+		 * LOGGER.trace("GrainRunner week() finished"); }
+		 * 
+		 * if(Granularity.MONTH.isMatch()){ // if(true){
+		 * LOGGER.trace("GrainRunner month() starting"); new MonthGrain(client);
+		 * LOGGER.trace("GrainRunner month() finished"); }
+		 * LOGGER.info("GrainRunner run() finished");
+		 * 
+		 * remover.cleanAll();
+		 */
 	}
 }

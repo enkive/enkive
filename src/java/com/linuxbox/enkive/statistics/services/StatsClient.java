@@ -18,8 +18,8 @@ public class StatsClient {
 	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.statistics.services.StatsClient");
 	protected StatsGathererService gathererService;
-	protected StatsStorageService storageService;
 	protected StatsRetrievalService retrievalService;
+	protected StatsStorageService storageService;
 
 	public StatsClient(StatsGathererService gatherer,
 			StatsStorageService storer, StatsRetrievalService retriever) {
@@ -29,7 +29,11 @@ public class StatsClient {
 		LOGGER.info("Client successfully created");
 	}
 
-	public Set<Map<String, Object>> gatherData(){
+	public Set<Map<String, Object>> directQuery(Map<String, Object> stats) {
+		return retrievalService.directQuery(stats);
+	}
+
+	public Set<Map<String, Object>> gatherData() {
 		try {
 			return gathererService.gatherStats();
 		} catch (ParseException e) {
@@ -37,11 +41,11 @@ public class StatsClient {
 		} catch (GathererException e) {
 			LOGGER.warn("Client.gatherData() GathererException", e);
 		}
-		
+
 		return null;
 	}
-	
-	public Set<Map<String, Object>> gatherData(Map<String, String[]> map){
+
+	public Set<Map<String, Object>> gatherData(Map<String, String[]> map) {
 		try {
 			return gathererService.gatherStats(map);
 		} catch (ParseException e) {
@@ -52,12 +56,21 @@ public class StatsClient {
 		return null;
 	}
 
-	public void storeData(Set<Map<String, Object>> set){
-		try {
-			storageService.storeStatistics(set);
-		} catch (StatsStorageException e) {
-			LOGGER.error("Client.storeData StatsStorageException", e);
+	public Set<String> gathererNames() {
+		return gathererService.getStatsGatherers().keySet();
+	}
+
+	public Set<GathererAttributes> getAttributes() {
+		Set<GathererAttributes> attributeSet = new HashSet<GathererAttributes>();
+		for (String name : gathererNames()) {
+			attributeSet.add(getAttributes(name));
 		}
+		return attributeSet;
+	}
+
+	public GathererAttributes getAttributes(String serviceName) {
+		return gathererService.getStatsGatherers(serviceName).get(serviceName)
+				.getAttributes();
 	}
 
 	public Set<Map<String, Object>> queryStatistics(
@@ -67,37 +80,26 @@ public class StatsClient {
 			return retrievalService.queryStatistics(stats, startingTimestamp,
 					endingTimestamp);
 		} catch (StatsRetrievalException e) {
-			LOGGER.error("Client.queryStatistics(Map, Date, Date) StatsRetrievalException", e);
+			LOGGER.error(
+					"Client.queryStatistics(Map, Date, Date) StatsRetrievalException",
+					e);
 		}
 		return null;
 	}
-	
-	public Set<Map<String, Object>> directQuery(
-			Map<String, Object> stats) {
-		return retrievalService.directQuery(stats);
-	}
-	
-	public Set<String> gathererNames(){
-		return gathererService.getStatsGatherers().keySet();
-	}
-	
-	public Set<GathererAttributes> getAttributes(){
-		Set<GathererAttributes> attributeSet = new HashSet<GathererAttributes>();
-		for(String name: gathererNames()){
-			attributeSet.add(getAttributes(name));
-		}
-		return attributeSet;
-	}
-	
-	public GathererAttributes getAttributes(String serviceName){
-		return gathererService.getStatsGatherers(serviceName).get(serviceName).getAttributes();
-	}
-	
-	public void remove(Set<Object> deletionSet){
+
+	public void remove(Set<Object> deletionSet) {
 		try {
 			retrievalService.remove(deletionSet);
 		} catch (StatsRetrievalException e) {
 			LOGGER.error("Client.remove(Set) StatsRetrievalException", e);
+		}
+	}
+
+	public void storeData(Set<Map<String, Object>> set) {
+		try {
+			storageService.storeStatistics(set);
+		} catch (StatsStorageException e) {
+			LOGGER.error("Client.storeData StatsStorageException", e);
 		}
 	}
 }

@@ -8,17 +8,13 @@ import java.util.Calendar;
 import com.linuxbox.enkive.statistics.services.StatsClient;
 
 public class MonthGrain extends EmbeddedGrain {
-	
-	public MonthGrain(StatsClient client){
+
+	public MonthGrain(StatsClient client) {
 		super(client);
 	}
-	
-	protected void setTypes(){
-		grainType = GRAIN_MONTH;
-		filterType = GRAIN_DAY;
-	}
-	
-	public void setDates(){
+
+	@Override
+	public void setDates() {
 		Calendar cal = Calendar.getInstance();
 		cal.set(Calendar.MILLISECOND, 0);
 		cal.set(Calendar.SECOND, 0);
@@ -28,5 +24,11 @@ public class MonthGrain extends EmbeddedGrain {
 		endDate = cal.getTime();
 		cal.add(Calendar.MONTH, -1);
 		startDate = cal.getTime();
+	}
+
+	@Override
+	protected void setTypes() {
+		grainType = GRAIN_MONTH;
+		filterType = GRAIN_DAY;
 	}
 }

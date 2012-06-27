@@ -32,12 +32,40 @@ import com.mongodb.MongoException;
 
 public class MongoStatsStorageService extends AbstractService implements
 		StatsStorageService {
+	private static DBCollection coll;
+
+	private static DB db;
 	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.statistics.services.storage.mongodb");
-
 	private static Mongo m;
-	private static DB db;
-	private static DBCollection coll;
+
+	public static void main(String args[]) throws UnknownHostException,
+			MongoException, GathererException, StatsStorageException,
+			SchedulerException, ParseException {
+		MongoStatsStorageService storage = new MongoStatsStorageService(
+				new Mongo(), "enkive");
+		GathererInterface dbProp = new StatsMongoDBGatherer(m, "enkive",
+				"SERVICENAME", "CRONEXPRESSION");
+		GathererInterface collProp = new StatsMongoCollectionGatherer(m,
+				"enkive", "SERVICENAME", "CRONEXPRESSION");
+		GathererInterface runProp = new StatsRuntimeGatherer("SERVICENAME",
+				"CRONEXPRESSION");
+		GathererInterface attProp = new StatsMongoAttachmentsGatherer(m,
+				"enkive", STAT_STORAGE_COLLECTION, "SERVICENAME",
+				"CRONEXPRESSION");
+		GathererInterface msgStatProp = new StatsMongoMsgGatherer(m, "enkive",
+				STAT_STORAGE_COLLECTION, "SERVICENAME", "CRONEXPRESSION");
+
+		HashMap<String, GathererInterface> map = new HashMap<String, GathererInterface>();
+
+		map.put("DatabaseStatsService", dbProp);
+		map.put("CollStatsService", collProp);
+		map.put("RuntimeStatsService", runProp);
+		map.put("AttachstatsService", attProp);
+		map.put("msgStatStatsService", msgStatProp);
+		StatsGathererService gatherer = new StatsGathererService(map);
+		storage.storeStatistics(gatherer.gatherStats());
+	}
 
 	public MongoStatsStorageService(Mongo mongo, String dbName) {
 		m = mongo;
@@ -61,29 +89,5 @@ public class MongoStatsStorageService extends AbstractService implements
 		result.put(STAT_SERVICE_NAME, service);
 		result.putAll(data);
 		coll.insert(new BasicDBObject(result));
-	}
-
-	public static void main(String args[]) throws UnknownHostException,
-			MongoException, GathererException, StatsStorageException,
-			SchedulerException, ParseException {
-		MongoStatsStorageService storage = new MongoStatsStorageService(new Mongo(), "enkive");
-		GathererInterface dbProp = new StatsMongoDBGatherer(m, "enkive", "SERVICENAME", "CRONEXPRESSION");
-		GathererInterface collProp = new StatsMongoCollectionGatherer(m,
-				"enkive", "SERVICENAME", "CRONEXPRESSION");
-		GathererInterface runProp = new StatsRuntimeGatherer("SERVICENAME", "CRONEXPRESSION");
-		GathererInterface attProp = new StatsMongoAttachmentsGatherer(m,
-				"enkive", STAT_STORAGE_COLLECTION, "SERVICENAME", "CRONEXPRESSION");
-		GathererInterface msgStatProp = new StatsMongoMsgGatherer(m, "enkive",
-				STAT_STORAGE_COLLECTION, "SERVICENAME", "CRONEXPRESSION");
-
-		HashMap<String, GathererInterface> map = new HashMap<String, GathererInterface>();
-
-		map.put("DatabaseStatsService", dbProp);
-		map.put("CollStatsService", collProp);
-		map.put("RuntimeStatsService", runProp);
-		map.put("AttachstatsService", attProp);
-		map.put("msgStatStatsService", msgStatProp);
-		StatsGathererService gatherer = new StatsGathererService(map);
-		storage.storeStatistics(gatherer.gatherStats());
 	}
 }

@@ -8,6 +8,8 @@ import com.linuxbox.enkive.statistics.services.retrieval.StatsRetrievalException
 import com.linuxbox.enkive.statistics.services.storage.StatsStorageException;
 
 public interface StatsRetrievalService {
+	public Set<Map<String, Object>> directQuery(Map<String, Object> query);
+
 	/**
 	 * Does a query on the statistics service back end.
 	 * 
@@ -24,17 +26,16 @@ public interface StatsRetrievalService {
 	public Set<Map<String, Object>> queryStatistics()
 			throws StatsRetrievalException;
 
-	public Set<Map<String, Object>> queryStatistics(Map<String, Map<String, Object>> stats)
-			throws StatsRetrievalException;
-
 	public Set<Map<String, Object>> queryStatistics(Date startingTimestamp,
 			Date endingTimestamp) throws StatsRetrievalException;
 
 	public Set<Map<String, Object>> queryStatistics(
+			Map<String, Map<String, Object>> stats)
+			throws StatsRetrievalException;
+
+	public Set<Map<String, Object>> queryStatistics(
 			Map<String, Map<String, Object>> stats, Date startingTimestamp,
 			Date endingTimestamp) throws StatsRetrievalException;
-	
-	public Set<Map<String, Object>> directQuery(Map<String, Object> query);
-	
+
 	public void remove(Set<Object> deletionSet) throws StatsRetrievalException;
 }
