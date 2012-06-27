@@ -1,6 +1,7 @@
 package com.linuxbox.enkive.statistics.granularity;
 
 import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_AVG;
+import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_HOUR;
 import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MAX;
 import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MIN;
 import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_STD_DEV;
@@ -25,6 +26,11 @@ public class HourGrain extends AbstractGrain {
 	public HourGrain(StatsClient client){
 		super(client);
 	}	
+	
+	protected void setTypes(){
+		grainType = GRAIN_HOUR;
+		filterType = null;
+	}
 	
 	public void setDates(){
 		Calendar cal = Calendar.getInstance();

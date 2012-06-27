@@ -1,5 +1,8 @@
 package com.linuxbox.enkive.statistics.granularity;
 
+import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_DAY;
+import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_WEEK;
+
 import java.util.Calendar;
 
 import com.linuxbox.enkive.statistics.services.StatsClient;
@@ -7,6 +10,11 @@ public class WeekGrain extends EmbeddedGrain{
 
 	public WeekGrain(StatsClient client){
 		super(client);
+	}
+	
+	protected void setTypes(){
+		grainType = GRAIN_WEEK;
+		filterType = GRAIN_DAY;
 	}
 	
 	public void setDates(){

@@ -34,5 +34,7 @@ public interface StatsRetrievalService {
 			Map<String, Map<String, Object>> stats, Date startingTimestamp,
 			Date endingTimestamp) throws StatsRetrievalException;
 	
+	public Set<Map<String, Object>> directQuery(Map<String, Object> query);
+	
 	public void remove(Set<Object> deletionSet) throws StatsRetrievalException;
 }

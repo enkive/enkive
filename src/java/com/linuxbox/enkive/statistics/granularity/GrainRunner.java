@@ -52,19 +52,20 @@ public class GrainRunner {
 	
 	public void run(){
 		LOGGER.info("GrainRunner run() starting");
-		if(Granularity.HOUR.isMatch()){
-			LOGGER.trace("GrainRunner hour() starting");
+//		if(Granularity.HOUR.isMatch()){
+		if(true){
+		    LOGGER.trace("GrainRunner hour() starting");
 			new HourGrain(client);
 			LOGGER.trace("GrainRunner hour() finished");
 		}
-/*		
+		
 //		if(Granularity.DAY.isMatch()){
 		if(true){
 			LOGGER.trace("GrainRunner day() starting");
 			new DayGrain(client);
 			LOGGER.trace("GrainRunner day() finished");
 		}
-		
+/*		
 		if(Granularity.WEEK.isMatch()){
 //		if(true){
 			LOGGER.trace("GrainRunner week() starting");

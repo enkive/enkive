@@ -1,8 +1,8 @@
 package com.linuxbox.enkive.statistics.granularity;
 
 public class GrainConstants {
-	public static int GRAIN_HOUR = 1;//"hr";
-	public static int GRAIN_DAY = 24;//"day";
+	public static int GRAIN_HOUR = 1;
+	public static int GRAIN_DAY = 24;
 	public static int GRAIN_WEEK = 168;
 	public static int GRAIN_MONTH = 744;
 	public static String GRAIN_TYPE = "gTyp";

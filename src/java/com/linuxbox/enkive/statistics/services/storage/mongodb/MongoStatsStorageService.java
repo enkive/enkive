@@ -2,7 +2,6 @@ package com.linuxbox.enkive.statistics.services.storage.mongodb;
 
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_SERVICE_NAME;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_STORAGE_COLLECTION;
-import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIME_STAMP;
 
 import java.net.UnknownHostException;
 import java.text.ParseException;
@@ -51,7 +50,6 @@ public class MongoStatsStorageService extends AbstractService implements
 	public void storeStatistics(Set<Map<String, Object>> dataSet)
 			throws StatsStorageException {
 		for (Map<String, Object> map : dataSet) {
-			map.put(STAT_TIME_STAMP, 100L);
 			coll.insert(new BasicDBObject(map));
 		}
 	}
@@ -62,7 +60,6 @@ public class MongoStatsStorageService extends AbstractService implements
 		Map<String, Object> result = createMap();
 		result.put(STAT_SERVICE_NAME, service);
 		result.putAll(data);
-		result.put(STAT_TIME_STAMP, System.currentTimeMillis()-26297438300L);
 		coll.insert(new BasicDBObject(result));
 	}
 

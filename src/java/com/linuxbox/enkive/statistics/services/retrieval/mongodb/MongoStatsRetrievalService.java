@@ -70,7 +70,7 @@ public class MongoStatsRetrievalService extends AbstractService implements
 		coll = db.getCollection(STAT_STORAGE_COLLECTION);
 		LOGGER.info("RetrievalService(Mongo, String, HashMap) successfully created");
 	}
-
+	
 	private Set<DBObject> buildSet(long lower, long upper) {
 		DBObject query = new BasicDBObject();
 		DBObject time = new BasicDBObject();
@@ -98,7 +98,7 @@ public class MongoStatsRetrievalService extends AbstractService implements
 			
 			query.put(STAT_SERVICE_NAME, serviceName);			
 		}
-		
+//TODO		System.out.println("coll.find: " + coll.find(query).toArray());
 		result.addAll(coll.find(query).toArray());
 		return result;
 	}
@@ -111,8 +111,9 @@ public class MongoStatsRetrievalService extends AbstractService implements
 
 		for (DBObject dateDBObj : dateSet) {
 			for (DBObject mapDBObj : hMapSet) {
-				if(mapDBObj.get("_id").equals(dateDBObj.get("_id")))
+				if(mapDBObj.get("_id").equals(dateDBObj.get("_id"))){
 					bothSet.add(mapDBObj);
+				}
 			}
 		}
 		return bothSet;
@@ -137,7 +138,6 @@ public class MongoStatsRetrievalService extends AbstractService implements
 		return queryStatistics(null, startingTimestamp, endingTimestamp);
 	}
 
-	//TODO: Test
 	@SuppressWarnings("unchecked")
 	@Override
 	public Set<Map<String, Object>> queryStatistics(Map<String, Map<String, Object>> hmap, Date lower, Date upper){
@@ -149,6 +149,15 @@ public class MongoStatsRetrievalService extends AbstractService implements
 			upper = new Date();
 		}
 		for (DBObject entry : buildSet(hmap, lower.getTime(), upper.getTime())) {
+			allStats.add(entry.toMap());
+		}
+		return allStats;
+	}
+	
+	public Set<Map<String, Object>> directQuery(Map<String, Object> query){
+		Set<Map<String, Object>> allStats = new HashSet<Map<String, Object>>();
+		System.out.println("Query: " + new BasicDBObject(query));
+		for (DBObject entry : coll.find(new BasicDBObject(query)).toArray()) {
 			allStats.add(entry.toMap());
 		}
 		return allStats;
@@ -171,43 +180,9 @@ public class MongoStatsRetrievalService extends AbstractService implements
 	public static void main(String args[]) throws StatsRetrievalException {
 		System.out.println("Starting Retrieval Test: ");
 		MongoStatsRetrievalService retriever = new MongoStatsRetrievalService();
-//		Map<String,Map<String,Object>> services = new HashMap<String,Map<String,Object>>();
-		// TODO: make service names constants
-//		String[] names = { "_id", "numCollections", "dataSize", "timeStamp",
-//				"avgStat", "maxStat" };
-//		services.put("DatabaseStatsService", names);
-//		services.put("AttachstatsService", names);
 		Date lower = null;// 1337198505000L);
 		Date upper = new Date();//current time
-/*		System.out.println("\nretriever.queryStatistics()");
-		for (Map<String, Object> map : retriever.queryStatistics()) {
-			System.out.println(map);
-		}
-		System.out.println("\nretriever.queryStatistics(Date, Date)");
-		for (Map<String, Object> map : retriever.queryStatistics(lower, upper)) {
-			System.out.println(map);
-		}
-		System.out.println("\nretriever.queryStatistics(map)");
-		for (Map<String, Object> map : retriever.queryStatistics(services)) {
-			System.out.println(map);
-		}
-		System.out.println("\nretriever.queryStatistics(map, Date, Date)");
-		for (Map<String, Object> map : retriever.queryStatistics(services,
-				lower, upper)) {
-			System.out.println(map);
-		}
-		System.out.println("\nretriever.queryStatistics(map, null, Date)");
-		for (Map<String, Object> map : retriever.queryStatistics(services,
-				null, upper)) {
-			System.out.println(map);
-		}
-		System.out.println("\nretriever.queryStatistics(map, null, Date)");
-		for (Map<String, Object> map : retriever.queryStatistics(services,
-				lower, null)) {
-			System.out.println(map);
-		}
-*/		Map<String, Object> keyVals = new HashMap<String, Object>();
-//		keyVals.put("name", "enkive");
+		Map<String, Object> keyVals = new HashMap<String, Object>();
 		keyVals.put("dataSize", 25442832);
 		keyVals.put("type", "database");
 		Map<String, Map<String, Object>> serviceKeyMap = new HashMap<String, Map<String, Object>>();

@@ -72,6 +72,11 @@ public class StatsClient {
 		return null;
 	}
 	
+	public Set<Map<String, Object>> directQuery(
+			Map<String, Object> stats) {
+		return retrievalService.directQuery(stats);
+	}
+	
 	public Set<String> gathererNames(){
 		return gathererService.getStatsGatherers().keySet();
 	}
