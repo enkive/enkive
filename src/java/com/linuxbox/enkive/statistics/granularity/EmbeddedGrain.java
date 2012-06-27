@@ -54,9 +54,6 @@ public abstract class EmbeddedGrain extends AbstractGrain{
 	@SuppressWarnings("unchecked")
 	protected Map<String, Object> consolidateMaps(
 			Set<Map<String, Object>> serviceData, List<KeyDef> keys) {
-		// Map<String, Object> result = consolidateMapHelper(map, path, keys,
-		// new HashMap<String, Object>());
-		// System.out.println("consolidateMap()-result: " + result);
 		Map<String, Object> exampleData = (Map<String, Object>) serviceData
 				.toArray()[0];
 
@@ -70,8 +67,6 @@ public abstract class EmbeddedGrain extends AbstractGrain{
 		
 		// 2. loop over paths
 		for (List<String> dataPath : dataPaths) {
-			
-			
 			//3. loop over stat consolidation methods
 			for(KeyDef keyDef: keys){
 				if(keyDef.getMethods() != null){
@@ -84,7 +79,7 @@ public abstract class EmbeddedGrain extends AbstractGrain{
 						LinkedList<String> tempPath = new LinkedList<String>(dataPath);
 						tempPath.add(method);
 						double input = -1;
-						int i = 0;
+//						int i = 0;
 						for (Map<String, Object> dataMap : serviceData){
 							//5. get variable at the end of the path
 							input = -1;
@@ -142,6 +137,7 @@ public abstract class EmbeddedGrain extends AbstractGrain{
 			//9. store stat methods' data on main consolidated map
 			putOnPath(dataPath, consolidatedData, statConsolidatedData);
 		}
+		System.out.println("consolidatedEmbeddedData: " + consolidatedData);
 		return consolidatedData;
 	}
 }

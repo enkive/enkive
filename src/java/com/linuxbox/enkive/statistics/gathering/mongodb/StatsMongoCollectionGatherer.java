@@ -69,6 +69,7 @@ public class StatsMongoCollectionGatherer extends AbstractGatherer {
 		keys.add(new KeyDef("*."+STAT_LAST_EXTENT_SIZE + ":" + GRAIN_AVG + "," + GRAIN_MAX + "," + GRAIN_MIN));
 		keys.add(new KeyDef("*."+STAT_NUM_INDEX + ":" + GRAIN_AVG + "," + GRAIN_MAX + "," + GRAIN_MIN));
 		keys.add(new KeyDef("*."+STAT_TOTAL_INDEX_SIZE + ":" + GRAIN_AVG + "," + GRAIN_MAX + "," + GRAIN_MIN));
+		keys.add(new KeyDef("*."+STAT_INDEX_SIZES+ ".*:" + GRAIN_AVG + "," + GRAIN_MAX + "," + GRAIN_MIN));
 		return keys;
 	}
 	

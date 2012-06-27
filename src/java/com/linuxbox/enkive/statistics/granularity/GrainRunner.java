@@ -59,8 +59,8 @@ public class GrainRunner {
 			LOGGER.trace("GrainRunner hour() finished");
 		}
 		
-//		if(Granularity.DAY.isMatch()){
-		if(true){
+		if(Granularity.DAY.isMatch()){
+//		if(true){
 			LOGGER.trace("GrainRunner day() starting");
 			new DayGrain(client);
 			LOGGER.trace("GrainRunner day() finished");

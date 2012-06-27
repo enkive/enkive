@@ -103,62 +103,106 @@ public abstract class AbstractGrain implements Grain {
 //					System.out.println("getDataVal() returning: " + ((Map<String, Object>) map).get(key));
 					return ((Map<String, Object>) map).get(key);
 				}
-			} else {
-				System.out.println("getDataVal() doesn't contain key" + key);
 			}
 		}
-//		System.out.println("getDataVal() returning null");
 		return null;
 	}
 
 	private boolean pathMatches(List<String> path, List<KeyDef> keys) {
+		
 		for (KeyDef def : keys) {// get one key definition
-			// TODO make sure this works
 			if (def.getMethods() == null) {
 				continue;
 			}
 			boolean isMatch = true;
 			int pathIndex = 0;
 			int defIndex = 0;
+			String keyStr;
+			String pathStr;
 			List<String> keyString = def.getKey();
+//			System.out.println(path + " vs " + keyString);
+			if(keyString.size() > path.size()){
+	//			System.out.println("keyString.size() > path.size()" + path + " vs " + keyString);
+				isMatch = false;
+				continue;
+			}
+			
 			while (pathIndex < path.size()) {// run through it to compare to path
-				if (defIndex >= keyString.size()) {
-					 isMatch = false;
-					 break;
+				if(defIndex >= keyString.size()){
+	//				System.out.println("defIndex >= keyString.size() " + path + " vs " + keyString);
+					isMatch = false;
+					break;
 				}
-				String str = keyString.get(defIndex);
-				if (str.equals("*")) {
+				
+				while(keyString.get(defIndex).equals("*") && defIndex < keyString.size()){
 					if(defIndex == keyString.size()-1){
+						if(keyString.get(defIndex).equals("*")){
+							if(defIndex == path.size()-1){
+								System.out.println("paths match: " + path + " vs " + keyString);
+								return true;
+							}
+							else{
+//								System.out.println("paths don't match " + path + " vs " + keyString);
+								isMatch = false;
+								break;
+							}
+						}
+					}
+					else{
+						defIndex++;
+						pathIndex++;
+						keyStr = keyString.get(defIndex);
+						pathStr = path.get(pathIndex);
+					}
+				}
+/*TODO: regexpression code		
+				if (keyString.get(defIndex).equals("**") && defIndex < keyString.size()) {
+					if(defIndex == keyString.size()-1){
+//						System.out.println("3");
 						break;
 					}
 					defIndex++;
-					str = keyString.get(defIndex);
 
-					if (path.contains(str)) {
+					if (path.contains(keyString.get(defIndex))) {
 						//jump to matching index
 						for (; pathIndex < path.size(); pathIndex++) {
-							if (path.get(pathIndex).equals(str)) {
+							if (path.get(pathIndex).equals(keyString.get(defIndex))) {
 								break;
 							}
 						}
 					} else {
+//						return false;
+//						System.out.println("5"+keyString.get(defIndex));
 						isMatch = false;
 						break;
 					}
 				}
-				if (path.get(pathIndex).equals(str)) {
+*/
+				if(pathIndex >= path.size()){
+//					System.out.println("pathIndex >= path.size()" + path + " vs " + keyString);
+					isMatch = false;
+					break;
+//					System.out.println("pathIndex >= path.size()...returning false");
+				}
+				
+				keyStr = keyString.get(defIndex);
+				pathStr = path.get(pathIndex);
+				
+				if(keyStr.equals(pathStr)){
 					pathIndex++;
 					defIndex++;
-				} else {
+				} else{
+//					System.out.println("paths do not match" + path + " vs " + keyString);
 					isMatch = false;
 					break;
 				}
 			}
 			if (isMatch) {
+				System.out.println("paths match: " + path + " vs " + keyString);
 				return true;
-			}
+			}// no matches found
 		}
-		return false;// no matches found
+		return false;
 	}
 
 	protected double statToDouble(Object stat) {
@@ -180,6 +224,7 @@ public abstract class AbstractGrain implements Grain {
 			Set<List<String>> result) {
 		for (String key : data.keySet()) {
 			path.addLast(key);
+//			System.out.println("findPathSet-path: " + path);
 			if (pathMatches(path, statKeys)) {
 				result.add(new ArrayList<String>(path));
 			} else {
@@ -213,9 +258,9 @@ public abstract class AbstractGrain implements Grain {
 		HashSet<Map<String,Object>>();
 		for (GathererAttributes attribute : client.getAttributes()) {
 			String name = attribute.getName();
-//			System.out.println(name);
+			if(name.equals("CollectionStatsService")){
 			Set<Map<String, Object>> serviceData = serviceFilter(name);
-			System.out.println("ServiceData: " + serviceData);
+//			System.out.println("ServiceData: " + serviceData);
 			if (!serviceData.isEmpty()) {
 				consolidateMaps(serviceData, attribute.getKeys());
 				storageData = new HashSet<Map<String, Object>>();
@@ -228,67 +273,115 @@ public abstract class AbstractGrain implements Grain {
 				System.out.println("mapToStore: " + mapToStore);
 				storageData.add(mapToStore);
 			}
+			}
 		}
 		client.storeData(storageData);
 	}
 	
-/*	
+/*
 	//TODO: stat.stat.* working
 	public static void main(String args[]){
-		KeyDef def = new KeyDef("*");
-		KeyDef thing = new KeyDef("hi.how.are.you.my.good.sir");
+		KeyDef def = new KeyDef("*.hi");
+		KeyDef thing = new KeyDef("hi");
 		List<String> path = thing.getKey();
 		
 		boolean isMatch = true;
 		int pathIndex = 0;
 		int defIndex = 0;
+		String keyStr;
+		String pathStr;
 		List<String> keyString = def.getKey();
-		while (pathIndex < path.size()) {// run through it to compare to path
-			if (defIndex == keyString.size()) {
-				 System.out.println("defIndex >= keys.size()");
-				// System.out.println("paths don't match: " + path + " vs "
-				// + keyString);
-			//	return false;
-				 System.out.println("paths don't match: " + path + " vs " + keyString);
-				 isMatch = false;
-				 break;
+		boolean deletMe = true;
+		if(keyString.size() > path.size()){
+			//return false;
+			System.out.println("key too big");
+			isMatch = false;
+			 deletMe = false;
+		}
+		
+		while (pathIndex < path.size() && deletMe) {// run through it to compare to path
+			if(defIndex >= keyString.size()){
+				//return false;
+				System.out.println("defIndex >= keyString.size()...returning false");
+				isMatch = false;
+				break;
 			}
-			String str = keyString.get(defIndex);
-			if (str.equals("*")) {
+			
+			boolean deleteMe = false;
+			
+			while(keyString.get(defIndex).equals("*") && defIndex < keyString.size()){
+				
+				System.out.println(defIndex + "vs" + (keyString.size()-1));
 				if(defIndex == keyString.size()-1){
+					System.out.println("1");
+					if(keyString.get(defIndex).equals("*")){
+						System.out.println("2");
+						if(defIndex == path.size()-1){
+						//	return true;
+							deleteMe = true;
+							break;
+						}
+						else{
+						//  return false;
+							isMatch = false;
+							deleteMe = true;
+							break;
+						}
+					}
+				}
+				else if(!deleteMe){
+					defIndex++;
+					pathIndex++;
+					System.out.println("3a");
+					keyStr = keyString.get(defIndex);
+					pathStr = path.get(pathIndex);
+				}
+			}
+			
+			if(deleteMe){//delete
+				System.out.println("deleteMe!");
+				break;
+			}
+			
+			if (keyString.get(defIndex).equals("**") && defIndex < keyString.size()) {
+				if(defIndex == keyString.size()-1){
+					System.out.println("3");
 					break;
 				}
-				// System.out.println("str*: " + str);
-				// System.out.println("path*: " + path.get(pathIndex));
 				defIndex++;
-				str = keyString.get(defIndex);
 
-				if (path.contains(str)) {
-					for (; pathIndex < path.size(); pathIndex++) {// jumps
-																	// to
-																	// matching
-																	// index
-						if (path.get(pathIndex).equals(str)) {
+				if (path.contains(keyString.get(defIndex))) {
+					System.out.println("4");
+					//jump to matching index
+					for (; pathIndex < path.size(); pathIndex++) {
+						if (path.get(pathIndex).equals(keyString.get(defIndex))) {
 							break;
 						}
 					}
 				} else {
-					// System.out.println("does not contain");
-					// System.out.println("paths don't match: " + path +
-					// " vs " + keyString);
+					System.out.println("5"+keyString.get(defIndex));
 					isMatch = false;
 					break;
 				}
 			}
-			// System.out.println("str: " + str);
-			// System.out.println("path: " + path.get(pathIndex));
-			if (path.get(pathIndex).equals(str)) {
-				// System.out.println("if");
+
+			if(pathIndex >= path.size()){
+				//return false;
+				System.out.println("pathIndex >= path.size()...returning false");
+				isMatch = false;
+				break;
+			}
+			
+			keyStr = keyString.get(defIndex);
+			pathStr = path.get(pathIndex);
+			
+			System.out.println(keyStr + " vs. " + pathStr);
+			if(keyStr.equals(pathStr)){
 				pathIndex++;
 				defIndex++;
-			} else {
-				// System.out.println("paths don't match: " + path + " vs "
-				// + keyString);
+			} else{
+				//return false;
+				System.out.println("!keyStr.equals(pathStr)...returning false");
 				isMatch = false;
 				break;
 			}
@@ -296,5 +389,6 @@ public abstract class AbstractGrain implements Grain {
 		if (isMatch) {
 			System.out.println("paths match: " + path + " vs " + keyString);
 		}
-	}*/
+	}
+*/
 }
