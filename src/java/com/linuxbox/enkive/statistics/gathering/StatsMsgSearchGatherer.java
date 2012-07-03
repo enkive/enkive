@@ -10,7 +10,6 @@ import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_AV
 import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MAX;
 import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MIN;
 
-import java.net.UnknownHostException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -25,20 +24,10 @@ import com.linuxbox.enkive.message.search.MessageSearchService;
 import com.linuxbox.enkive.message.search.exception.MessageSearchException;
 import com.linuxbox.enkive.statistics.KeyDef;
 import com.linuxbox.enkive.workspace.SearchResult;
-import com.mongodb.MongoException;
 
 public class StatsMsgSearchGatherer extends AbstractGatherer {
 	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.statistics.gathering");
-
-	public static void main(String args[]) throws UnknownHostException,
-			MongoException {
-		StatsMsgSearchGatherer msgEntries = new StatsMsgSearchGatherer("name",
-				"0/5 * * * ?");
-		System.out.println(msgEntries.getStatistics());
-		String[] keys = {};
-		System.out.println(msgEntries.getStatistics(keys));
-	}
 
 	MessageSearchService searchService;
 

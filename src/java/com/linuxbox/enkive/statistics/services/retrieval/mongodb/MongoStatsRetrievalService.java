@@ -4,8 +4,11 @@ import static com.linuxbox.enkive.statistics.StatsConstants.STAT_SERVICE_NAME;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_STORAGE_COLLECTION;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_STORAGE_DB;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIME_STAMP;
+import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MAX;
+import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MIN;
 
 import java.net.UnknownHostException;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -19,6 +22,7 @@ import org.bson.types.ObjectId;
 import com.linuxbox.enkive.statistics.services.AbstractService;
 import com.linuxbox.enkive.statistics.services.StatsRetrievalService;
 import com.linuxbox.enkive.statistics.services.retrieval.StatsRetrievalException;
+import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
@@ -34,25 +38,6 @@ public class MongoStatsRetrievalService extends AbstractService implements
 	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.statistics.services.retrieval.mongodb");
 	private static Mongo m;
-
-	public static void main(String args[]) throws StatsRetrievalException {
-		System.out.println("Starting Retrieval Test: ");
-		MongoStatsRetrievalService retriever = new MongoStatsRetrievalService();
-		Date lower = null;// 1337198505000L);
-		Date upper = new Date();// current time
-		Map<String, Object> keyVals = new HashMap<String, Object>();
-		keyVals.put("dataSize", 25442832);
-		keyVals.put("type", "database");
-		Map<String, Map<String, Object>> serviceKeyMap = new HashMap<String, Map<String, Object>>();
-		serviceKeyMap.put("DatabaseStatsService", keyVals);
-		System.out.println("\nretriever.query(map<str, map<str,obj>>");
-		for (Map<String, Object> map : retriever.queryStatistics(serviceKeyMap,
-				lower, upper)) {
-			System.out.println(map);
-		}
-
-		System.out.println("Finished Retrieval Tests");
-	}
 
 	Map<String, Map<String, Object>> statisticsServices;
 
@@ -109,18 +94,27 @@ public class MongoStatsRetrievalService extends AbstractService implements
 			result.addAll(coll.find().toArray());
 			return result;
 		}
-
-		BasicDBObject query = new BasicDBObject();
+//		System.out.println("hmap: " + hmap);
+		
 		Set<DBObject> result = new HashSet<DBObject>();
+		BasicDBObject tempMap;
+		BasicDBList or = new BasicDBList();
 		for (String serviceName : hmap.keySet()) {
+			tempMap = new BasicDBObject();
 			if (hmap.get(serviceName) != null) {
-				query.putAll(hmap.get(serviceName));
+				tempMap.putAll(hmap.get(serviceName));
 			}
 
-			query.put(STAT_SERVICE_NAME, serviceName);
+			tempMap.put(STAT_SERVICE_NAME, serviceName);
+			//TODO
+//			System.out.println("tempMap: " + tempMap);
+			or.add(tempMap);
 		}
-		// TODO System.out.println("coll.find: " + coll.find(query).toArray());
+		System.out.println("hmap: " + hmap);
+		BasicDBObject query = new BasicDBObject("$or", or);
+//		System.out.println("query: " + query);
 		result.addAll(coll.find(query).toArray());
+//		System.out.println("result: " + result);
 		return result;
 	}
 
@@ -140,10 +134,10 @@ public class MongoStatsRetrievalService extends AbstractService implements
 		return bothSet;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public Set<Map<String, Object>> directQuery(Map<String, Object> query) {
 		Set<Map<String, Object>> allStats = new HashSet<Map<String, Object>>();
-		System.out.println("Query: " + new BasicDBObject(query));
 		for (DBObject entry : coll.find(new BasicDBObject(query)).toArray()) {
 			allStats.add(entry.toMap());
 		}
@@ -187,6 +181,34 @@ public class MongoStatsRetrievalService extends AbstractService implements
 		return allStats;
 	}
 
+	//TODO use the mongo find(map map) command to query and filter the database
+	//for use in the servlet
+	//TODO could be used to replace all other retrieval methods
+	@SuppressWarnings("unchecked")
+	@Override
+	public Set<Map<String, Object>> queryStatistics(Map<String, Map<String, Object>> queryMap, Map<String, Map<String, Object>> filterMap) throws StatsRetrievalException{		
+		Set<DBObject> allStats = new HashSet<DBObject>();	
+		for(String serviceName : queryMap.keySet()){
+			BasicDBObject query = new BasicDBObject();
+			query.put(STAT_SERVICE_NAME, serviceName);
+			query.putAll(queryMap.get(serviceName));
+			if(filterMap.get(serviceName) != null){
+				BasicDBObject filter = new BasicDBObject(filterMap.get(serviceName));
+				allStats.addAll(coll.find(query, filter).toArray());
+			} else {
+				allStats.addAll(coll.find(query).toArray());
+			}			
+		}
+		
+		Set<Map<String, Object>> result = new HashSet<Map<String, Object>>();
+		for (DBObject entry : allStats) {
+			result.add(entry.toMap());
+		}
+		System.out.println("allStats: " + allStats);
+		System.out.println("result: " + result);
+		return result;
+	}
+	
 	@Override
 	public void remove(Set<Object> set) throws StatsRetrievalException {
 		if (set != null) {// not null

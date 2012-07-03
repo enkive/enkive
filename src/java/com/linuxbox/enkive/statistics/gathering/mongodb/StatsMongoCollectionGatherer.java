@@ -80,8 +80,7 @@ public class StatsMongoCollectionGatherer extends AbstractGatherer {
 			collName = collName.replace('.', '-');
 			collStats.put(collName, getStats(key));
 		}
-		long time = System.currentTimeMillis();
-		collStats.put(STAT_TIME_STAMP, time);
+		collStats.put(STAT_TIME_STAMP, System.currentTimeMillis());
 		return collStats;
 	}
 
@@ -114,7 +113,7 @@ public class StatsMongoCollectionGatherer extends AbstractGatherer {
 			Map<String, Object> stats = createMap();
 			Map<String, Object> temp = db.getCollection(collectionName)
 					.getStats();
-			stats.put(STAT_TYPE, STAT_TYPE_COLL);
+ 			stats.put(STAT_TYPE, STAT_TYPE_COLL);
 			stats.put(STAT_NS, temp.get(MONGO_NS));
 			stats.put(STAT_NUM_OBJS, temp.get(MONGO_COUNT));
 			stats.put(STAT_AVG_OBJ_SIZE, temp.get(MONGO_AVG_OBJ_SIZE));

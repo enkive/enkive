@@ -52,30 +52,30 @@ public class GrainRunner {
 
 	public void run() {
 		LOGGER.info("GrainRunner run() starting");
-		// if(Granularity.HOUR.isMatch()){
-		if (true) {
+		if(Granularity.HOUR.isMatch()){
 			LOGGER.trace("GrainRunner hour() starting");
 			new HourGrain(client);
 			LOGGER.trace("GrainRunner hour() finished");
 		}
 
 		if (Granularity.DAY.isMatch()) {
-			// if(true){
 			LOGGER.trace("GrainRunner day() starting");
 			new DayGrain(client);
 			LOGGER.trace("GrainRunner day() finished");
 		}
-		/*
-		 * if(Granularity.WEEK.isMatch()){ // if(true){
-		 * LOGGER.trace("GrainRunner week() starting"); new WeekGrain(client);
-		 * LOGGER.trace("GrainRunner week() finished"); }
-		 * 
-		 * if(Granularity.MONTH.isMatch()){ // if(true){
-		 * LOGGER.trace("GrainRunner month() starting"); new MonthGrain(client);
-		 * LOGGER.trace("GrainRunner month() finished"); }
-		 * LOGGER.info("GrainRunner run() finished");
-		 * 
-		 * remover.cleanAll();
-		 */
+		if(Granularity.WEEK.isMatch()){
+			LOGGER.trace("GrainRunner week() starting");
+			new WeekGrain(client);
+			LOGGER.trace("GrainRunner week() finished"); 
+		}
+		
+		if(Granularity.MONTH.isMatch()){ 
+			LOGGER.trace("GrainRunner month() starting");
+			new MonthGrain(client);
+			LOGGER.trace("GrainRunner month() finished"); 
+		}
+		LOGGER.info("GrainRunner run() finished");
+//TODO		 
+//		remover.cleanAll();
 	}
 }

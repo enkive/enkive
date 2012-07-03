@@ -1,5 +1,10 @@
 package com.linuxbox.enkive.statistics.granularity;
 
+import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_AVG;
+import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MAX;
+import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MIN;
+import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_STD_DEV;
+import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_SUM;
 import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_TYPE;
 import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_WEIGHT;
 
@@ -13,6 +18,7 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
 import com.linuxbox.enkive.statistics.KeyDef;
 import com.linuxbox.enkive.statistics.gathering.GathererAttributes;
@@ -38,6 +44,29 @@ public abstract class AbstractGrain implements Grain {
 		LOGGER.info("finishing abstract client");
 	}
 
+	protected void methodMapBuilder(String method, Object exampleData, DescriptiveStatistics statsMaker, Map<String, Object> statData, int weight){
+		if (method.equals(GRAIN_SUM)) {
+			statData.put(method,
+					injectType(exampleData, statsMaker.getSum()));
+		} else if (method.equals(GRAIN_MAX)) {
+			statData.put(method,
+					injectType(exampleData, statsMaker.getMax()));
+		} else if (method.equals(GRAIN_MIN)) {
+			statData.put(method,
+					injectType(exampleData, statsMaker.getMin()));
+		} else if (method.equals(GRAIN_AVG)) {
+			statData.put(
+					method,
+					injectType(exampleData, statsMaker.getSum()
+							/ weight));
+		} else if (method.equals(GRAIN_STD_DEV)) {
+			statData.put(
+					method,
+					injectType(exampleData,
+							statsMaker.getStandardDeviation()));
+		}
+	}
+	
 	@Override
 	public void consolidateData() {
 		// build set for each service
@@ -47,15 +76,15 @@ public abstract class AbstractGrain implements Grain {
 			Set<Map<String, Object>> serviceData = serviceFilter(name);
 			if (!serviceData.isEmpty()) {
 				storageData = new HashSet<Map<String, Object>>();
-				Map<String, Object> mapToStore = new HashMap<String, Object>();
-				generateConsolidatedMap(serviceData.iterator().next(), mapToStore,
+				Map<String, Object> example = serviceData.iterator().next();
+				Map<String, Object> mapToStore = new HashMap<String, Object>(example);
+				generateConsolidatedMap(example, mapToStore,
 						 new LinkedList<String>(), attribute.getKeys(), serviceData);
 				mapToStore.put(GRAIN_WEIGHT, findWeight(serviceData));
 				mapToStore.put(GRAIN_TYPE, grainType);
 				if (mapToStore.containsKey("_id")) {
 					mapToStore.remove("_id");
 				}
-				System.out.println("mapToStore: " + mapToStore);
 				storageData.add(mapToStore);
 			}
 		}
@@ -65,16 +94,19 @@ public abstract class AbstractGrain implements Grain {
 	protected abstract void consolidateMaps(Map<String, Object> consolidatedData,
 			Set<Map<String, Object>> serviceData, KeyDef keyDef, LinkedList<String> dataPath);
 	
-//TODO remake this function
+
 	protected Map<String, Object> generateConsolidatedMap(Map<String, Object> templateData, Map<String,Object> consolidatedMap,
 			LinkedList<String> path, List<KeyDef> statKeys,
 			 Set<Map<String, Object>> serviceData) {
-		
+		//loop through a template map
 		for (String key : templateData.keySet()) {
 			path.addLast(key);
 			KeyDef matchingKeyDef = findMatchingPath(path, statKeys);
+			//if path matched
 			if (matchingKeyDef != null) {
+				//add that data to the consolidatedMap 
 				consolidateMaps(consolidatedMap, serviceData, matchingKeyDef, path);
+			//else recurse again
 			} else {
 				if (templateData.get(key) instanceof Map) {
 					generateConsolidatedMap((Map<String, Object>) templateData.get(key), consolidatedMap,  path,
@@ -87,15 +119,7 @@ public abstract class AbstractGrain implements Grain {
 	}
 
 	protected int findWeight(Set<Map<String, Object>> serviceData) {
-		int weight = 0;
-		for (Map<String, Object> map : serviceData) {
-			if (map.get(GRAIN_WEIGHT) == null) {
-				weight++;
-			} else {
-				weight += (Integer) map.get(GRAIN_WEIGHT);
-			}
-		}
-		return weight;
+		return serviceData.size();
 	}
 
 	protected Object getDataVal(Map<String, Object> dataMap, List<String> path) {
@@ -153,8 +177,6 @@ public abstract class AbstractGrain implements Grain {
 					if (defIndex == keyString.size() - 1) {
 						if (keyString.get(defIndex).equals("*")) {
 							if (defIndex == path.size() - 1) {
-//								System.out.println("paths match: " + path
-//										+ " vs " + keyString);
 								return def;
 							} else {
 								isMatch = false;
@@ -168,9 +190,8 @@ public abstract class AbstractGrain implements Grain {
 						pathStr = path.get(pathIndex);
 					}
 				}
-				/*
-				 * TODO: regexpression code if
-				 * (keyString.get(defIndex).equals("**") && defIndex <
+				/*regexpression code 
+				 * if(keyString.get(defIndex).equals("**") && defIndex <
 				 * keyString.size()) { if(defIndex == keyString.size()-1){ //
 				 * break; } defIndex++;
 				 * 
@@ -207,7 +228,6 @@ public abstract class AbstractGrain implements Grain {
 		final KeyDef def = findMatchingPath(path, keys);
 		return def != null;
 	}
-	
 
 	protected void putOnPath(List<String> path,
 			Map<String, Object> statsData, Map<String, Object> dataToAdd) {
@@ -220,8 +240,7 @@ public abstract class AbstractGrain implements Grain {
 				if (cursor.get(key) instanceof Map) {
 					cursor = (Map<String, Object>) cursor.get(key);
 				} else {
-					// TODO better exception saying we hit raw data
-					// throw exception;
+					LOGGER.error("Cannot put data on path");
 				}
 			}
 			index++;
@@ -233,9 +252,6 @@ public abstract class AbstractGrain implements Grain {
 		Map<String, Object> keyVals = new HashMap<String, Object>();
 		keyVals.put(GRAIN_TYPE, filterType);
 		query.put(name, keyVals);
-		// TODO FOR TESTING ONLY
-		startDate = new Date(0L);
-		endDate = new Date();
 		Set<Map<String, Object>> result = client.queryStatistics(query,
 				startDate, endDate);
 		return result;

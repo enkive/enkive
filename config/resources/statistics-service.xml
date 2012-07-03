@@ -18,7 +18,7 @@
 		<constructor-arg type="java.lang.String" value="${enkive.messagestore.db.name}" />
 		<constructor-arg type="java.lang.String" value="${enkive.messagestore.collection.name}" />
 		<constructor-arg name="serviceName" value="MsgStatsService"/>
-		<constructor-arg name="schedule" value="0/10 * * * * ?" />
+		<constructor-arg name="schedule" value="59 * * * * ?" />
 		<property name="scheduler" ref="ScheduledJobsBean" />
 		<property name="storageService" ref="StatisticsStorer" />
 	</bean>
@@ -29,7 +29,7 @@
 		<constructor-arg ref="Mongo" />
 		<constructor-arg type="java.lang.String" value="${enkive.messagestore.db.name}" />
 		<constructor-arg name="serviceName" value="CollectionStatsService"/>
-		<constructor-arg name="schedule" value="0/10 * * * * ?" />
+		<constructor-arg name="schedule" value="59 * * * * ?" />
 		<property name="scheduler" ref="ScheduledJobsBean" />
 		<property name="storageService" ref="StatisticsStorer" />
 	</bean>
@@ -37,7 +37,7 @@
 	<bean id="DetailedMsgStatsService"
 		class="com.linuxbox.enkive.statistics.gathering.StatsMsgSearchGatherer">
 		<constructor-arg name="serviceName" value="DetailedMsgStatsService"/>
-		<constructor-arg name="schedule" value="0/10 * * * * ?" />
+		<constructor-arg name="schedule" value="59 * * * * ?" />
 		<property name="scheduler" ref="ScheduledJobsBean" />
 		<property name="searchService" ref="SystemMessageSearchService" />
 		<property name="storageService" ref="StatisticsStorer" />
@@ -49,7 +49,7 @@
 		<constructor-arg type="java.lang.String" value="${enkive.messagestore.db.name}" />
 		<constructor-arg type="java.lang.String" value="${enkive.docstore.fs.collection.name}" />
 		<constructor-arg name="serviceName" value="AttachmentStatsService"/>
-		<constructor-arg name="schedule" value="0/10 * * * * ?" />
+		<constructor-arg name="schedule" value="59 * * * * ?" />
 		<property name="scheduler" ref="ScheduledJobsBean" />
 		<property name="storageService" ref="StatisticsStorer" />
 	</bean>
@@ -59,7 +59,7 @@
 		<constructor-arg ref="Mongo" />
 		<constructor-arg type="java.lang.String" value="${enkive.messagestore.db.name}" />
 		<constructor-arg name="serviceName" value="DatabaseStatsService"/>
-		<constructor-arg name="schedule" value="0/10 * * * * ?" />
+		<constructor-arg name="schedule" value="59 * * * * ?" />
 		<property name="scheduler" ref="ScheduledJobsBean" />
 		<property name="storageService" ref="StatisticsStorer" />
 	</bean>
@@ -67,7 +67,7 @@
 	<bean id="RuntimeStatsService"
 		class="com.linuxbox.enkive.statistics.gathering.StatsRuntimeGatherer">
 		<constructor-arg name="serviceName" value="RuntimeStatsService"/>
-		<constructor-arg name="schedule" value="0/10 * * * * ?" />
+		<constructor-arg name="schedule" value="59 * * * * ?" />
 		<property name="scheduler" ref="ScheduledJobsBean" />	
 		<property name="storageService" ref="StatisticsStorer" />
 	</bean>
@@ -130,7 +130,7 @@
 		<constructor-arg name="client" ref="StatisticsClient" />
 		<constructor-arg name="scheduler" ref="ScheduledJobsBean" />
 		<constructor-arg name="remover" ref="RemovalRunner" />
-		<constructor-arg name="schedule" value="0/30 * * * * ?" />
+		<constructor-arg name="schedule" value="0 * * * * ?" />
 	</bean>
 </beans>
 	

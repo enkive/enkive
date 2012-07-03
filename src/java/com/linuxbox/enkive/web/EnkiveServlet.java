@@ -56,6 +56,7 @@ public class EnkiveServlet extends HttpServlet {
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
 		appContext = ApplicationContextProvider.getApplicationContext();
+		LOGGER.trace("init -- servlet:" + this + "; appContext:" + appContext);
 	}
 
 	public DocSearchQueryService getDocSearchQueryService() {
@@ -93,6 +94,7 @@ public class EnkiveServlet extends HttpServlet {
 	}
 
 	public StatsClient getStatsClient() {
+		LOGGER.trace("getStatsClient -- enkiveServlet:" + this + "; appContext:" + appContext);
 		return appContext.getBean("StatisticsClient", StatsClient.class);
 	}
 

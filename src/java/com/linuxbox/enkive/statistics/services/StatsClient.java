@@ -86,6 +86,17 @@ public class StatsClient {
 		}
 		return null;
 	}
+	
+	public Set<Map<String, Object>> queryStatistics(Map<String, Map<String, Object>> queryMap, Map<String, Map<String, Object>> filterMap){
+		try {
+			return retrievalService.queryStatistics(queryMap, filterMap);
+		} catch (StatsRetrievalException e) {
+			LOGGER.error(
+					"Client.queryStatistics(Map, Date, Date) StatsRetrievalException",
+					e);
+		}
+		return null;
+	}
 
 	public void remove(Set<Object> deletionSet) {
 		try {
