@@ -69,10 +69,7 @@ public class Remove {
 		Set<Map<String, Object>> data = client.queryStatistics(null, new Date(
 				0L), dateFilter);
 		Set<Object> deletionSet = new HashSet<Object>();
-		// TODO
-		System.out.println("#items in COLL: "
-				+ client.queryStatistics(null, null, null).size());
-
+		
 		for (Map<String, Object> map : data) {
 			Integer gType = (Integer) map.get(GRAIN_TYPE);
 			if (gType != null) {
@@ -83,11 +80,7 @@ public class Remove {
 				deletionSet.add(map.get("_id"));
 			}
 		}
-		// TODO
-		System.out.println("#items to delete: " + deletionSet.size());
 		client.remove(deletionSet);
-		System.out.println("#items in COLL after: "
-				+ client.queryStatistics(null, null, null).size());
 	}
 
 	private void cleanHour() {

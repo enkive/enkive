@@ -5,7 +5,6 @@ import java.util.Date;
 
 public enum Granularity {
 	DAY(0, -1, -1, -1), // any hour (hourly controlled by cronTrigger)
-	// TODO: Implement week
 	HOUR(-1, -1, -1, -1), // first hour of any day
 	MONTH(-1, 1, -1, -1), // firts day of any week
 	WEEK(-1, -1, 1, -1); // first day of any month

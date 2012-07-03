@@ -1,11 +1,8 @@
 package com.linuxbox.enkive.statistics.granularity;
 
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_AVG;
 import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_HOUR;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_WEIGHT;
 
 import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
@@ -62,9 +59,6 @@ public class HourGrain extends AbstractGrain {
 		endDate = cal.getTime();
 		cal.add(Calendar.HOUR_OF_DAY, -1);
 		startDate = cal.getTime();
-		//TODO for testing only!
-		endDate = new Date();
-		startDate = new Date(0L);
 	}
 
 	@Override

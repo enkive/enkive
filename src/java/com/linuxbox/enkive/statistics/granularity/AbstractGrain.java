@@ -6,7 +6,6 @@ import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MI
 import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_STD_DEV;
 import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_SUM;
 import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_TYPE;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_WEIGHT;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -70,17 +69,18 @@ public abstract class AbstractGrain implements Grain {
 	@Override
 	public void consolidateData() {
 		// build set for each service
-		Set<Map<String, Object>> storageData = new HashSet<Map<String, Object>>();
+		Set<Map<String, Object>> storageData = null;
 		for (GathererAttributes attribute : client.getAttributes()) {
 			String name = attribute.getName();
 			Set<Map<String, Object>> serviceData = serviceFilter(name);
 			if (!serviceData.isEmpty()) {
-				storageData = new HashSet<Map<String, Object>>();
-				Map<String, Object> example = serviceData.iterator().next();
+				if(storageData == null){
+					storageData = new HashSet<Map<String, Object>>();
+				}
+				Map<String, Object> example = new HashMap<String, Object>(serviceData.iterator().next());
 				Map<String, Object> mapToStore = new HashMap<String, Object>(example);
 				generateConsolidatedMap(example, mapToStore,
 						 new LinkedList<String>(), attribute.getKeys(), serviceData);
-				mapToStore.put(GRAIN_WEIGHT, findWeight(serviceData));
 				mapToStore.put(GRAIN_TYPE, grainType);
 				if (mapToStore.containsKey("_id")) {
 					mapToStore.remove("_id");
@@ -270,7 +270,7 @@ public abstract class AbstractGrain implements Grain {
 		} else if (stat instanceof Double) {
 			input = ((Double) stat).doubleValue();
 		} else {
-			LOGGER.warn("AbstractGrain.statToDouble(Object stat)-unexpected Object type");
+			LOGGER.warn("statToDouble(Object stat)-unexpected Object type");
 		}
 		return input;
 	}

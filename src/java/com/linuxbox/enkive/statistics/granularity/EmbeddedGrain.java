@@ -8,7 +8,6 @@ import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MI
 import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_TYPE;
 import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_WEIGHT;
 
-import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
@@ -42,7 +41,6 @@ public abstract class EmbeddedGrain extends AbstractGrain {
 						dataPath);
 				tempPath.add(method);
 				double input = -1;
-				// int i = 0;
 				for (Map<String, Object> dataMap : serviceData) {
 					// 5. get variable at the end of the path
 					input = -1;
@@ -75,7 +73,6 @@ public abstract class EmbeddedGrain extends AbstractGrain {
 			// 9. store stat methods' data on main consolidated map
 			putOnPath(dataPath, consolidatedData, statConsolidatedData);
 		}
-//		System.out.println("consolidatedEmbeddedData: " + consolidatedData);
 	}
 	
 	@Override
@@ -83,9 +80,6 @@ public abstract class EmbeddedGrain extends AbstractGrain {
 		Map<String, Object> query = new HashMap<String, Object>();
 		Map<String, Object> keyVals = new HashMap<String, Object>();
 		Map<String, Object> time = new HashMap<String, Object>();
-		// TODO FOR TESTING ONLY
-		startDate = new Date(0L);
-		endDate = new Date();
 		time.put("$gte", startDate.getTime());
 		keyVals.put(STAT_TIME_STAMP + "." + GRAIN_MIN, time);
 		time = new HashMap<String, Object>();
@@ -97,8 +91,6 @@ public abstract class EmbeddedGrain extends AbstractGrain {
 		query.put(STAT_SERVICE_NAME, name);
 
 		Set<Map<String, Object>> result = client.directQuery(query);
-		// TODO System.out.println("serviceFilter-result: " + result);
-		// System.out.println("serviceFilter-Query: " + query);
 		return result;
 	}
 }

@@ -2,7 +2,6 @@ package com.linuxbox.enkive.statistics.gathering.mongodb;
 
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_AVG_OBJ_SIZE;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_DATA_SIZE;
-import static com.linuxbox.enkive.statistics.StatsConstants.STAT_ERROR;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_INDEX_SIZES;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_LAST_EXTENT_SIZE;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_NAME;
@@ -127,9 +126,7 @@ public class StatsMongoCollectionGatherer extends AbstractGatherer {
 			return stats;
 		} else {
 			LOGGER.warn("Collection " + collectionName + " does not exist");
-			Map<String, Object> errMap = createMap();
-			errMap.put(STAT_ERROR, "Empty");
-			return errMap;
+			return null;
 		}
 	}
 

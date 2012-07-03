@@ -47,7 +47,6 @@ public class StatsMsgSearchGatherer extends AbstractGatherer {
 		return getStatistics(prevDate, currDate);
 	}
 
-	// testing
 	public Map<String, Object> getStatistics(Date startDate, Date endDate) {
 		Map<String, Object> result = createMap();
 		// create value strings for current date and 30-days previous

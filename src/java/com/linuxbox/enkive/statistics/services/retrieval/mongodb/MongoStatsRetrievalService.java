@@ -4,11 +4,8 @@ import static com.linuxbox.enkive.statistics.StatsConstants.STAT_SERVICE_NAME;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_STORAGE_COLLECTION;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_STORAGE_DB;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIME_STAMP;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MAX;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MIN;
 
 import java.net.UnknownHostException;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -86,15 +83,12 @@ public class MongoStatsRetrievalService extends AbstractService implements
 		result.addAll(coll.find(query).toArray());
 		return result;
 	}
-
-	// TODO test & use
 	private Set<DBObject> buildSet(Map<String, Map<String, Object>> hmap) {
 		if (hmap == null) {// if null return all
 			Set<DBObject> result = new HashSet<DBObject>();
 			result.addAll(coll.find().toArray());
 			return result;
 		}
-//		System.out.println("hmap: " + hmap);
 		
 		Set<DBObject> result = new HashSet<DBObject>();
 		BasicDBObject tempMap;
@@ -106,15 +100,10 @@ public class MongoStatsRetrievalService extends AbstractService implements
 			}
 
 			tempMap.put(STAT_SERVICE_NAME, serviceName);
-			//TODO
-//			System.out.println("tempMap: " + tempMap);
 			or.add(tempMap);
 		}
-		System.out.println("hmap: " + hmap);
 		BasicDBObject query = new BasicDBObject("$or", or);
-//		System.out.println("query: " + query);
 		result.addAll(coll.find(query).toArray());
-//		System.out.println("result: " + result);
 		return result;
 	}
 
@@ -181,9 +170,7 @@ public class MongoStatsRetrievalService extends AbstractService implements
 		return allStats;
 	}
 
-	//TODO use the mongo find(map map) command to query and filter the database
 	//for use in the servlet
-	//TODO could be used to replace all other retrieval methods
 	@SuppressWarnings("unchecked")
 	@Override
 	public Set<Map<String, Object>> queryStatistics(Map<String, Map<String, Object>> queryMap, Map<String, Map<String, Object>> filterMap) throws StatsRetrievalException{		
@@ -192,7 +179,7 @@ public class MongoStatsRetrievalService extends AbstractService implements
 			BasicDBObject query = new BasicDBObject();
 			query.put(STAT_SERVICE_NAME, serviceName);
 			query.putAll(queryMap.get(serviceName));
-			if(filterMap.get(serviceName) != null){
+			if(filterMap.get(serviceName) != null && !filterMap.get(serviceName).isEmpty()){
 				BasicDBObject filter = new BasicDBObject(filterMap.get(serviceName));
 				allStats.addAll(coll.find(query, filter).toArray());
 			} else {
@@ -204,8 +191,6 @@ public class MongoStatsRetrievalService extends AbstractService implements
 		for (DBObject entry : allStats) {
 			result.add(entry.toMap());
 		}
-		System.out.println("allStats: " + allStats);
-		System.out.println("result: " + result);
 		return result;
 	}
 	

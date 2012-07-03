@@ -75,7 +75,7 @@ public class GrainRunner {
 			LOGGER.trace("GrainRunner month() finished"); 
 		}
 		LOGGER.info("GrainRunner run() finished");
-//TODO		 
-//		remover.cleanAll();
+		 
+		remover.cleanAll();
 	}
 }

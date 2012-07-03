@@ -90,7 +90,6 @@ public class StatsGathererService extends AbstractService {
 		return gatherStats(null);
 	}
 
-	// TODO: Test
 	public Set<Map<String, Object>> gatherStats(
 			Map<String, String[]> gathererKeys) throws ParseException,
 			GathererException {

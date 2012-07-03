@@ -11,8 +11,6 @@ public interface StatsConstants {
 	public static String STAT_AVG_OBJ_SIZE = "avgOSz";
 	public static String STAT_DATA_SIZE = "dataSz";
 
-	// ErrorKey
-	public static String STAT_ERROR = "ERR";
 	// DBs only
 	public static String STAT_FILE_SIZE = "fileSz";
 	public static String STAT_FREE_MEMORY = "freeM";
