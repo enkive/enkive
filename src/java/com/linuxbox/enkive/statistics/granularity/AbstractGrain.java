@@ -36,14 +36,15 @@ public abstract class AbstractGrain implements Grain {
 
 	public AbstractGrain(StatsClient client) {
 		this.client = client;
-		LOGGER.info("starting abstract client");
 		setDates();
 		setTypes();
-		consolidateData();
-		LOGGER.info("finishing abstract client");
+	}
+	
+	public void storeConsolidatedData(){
+		client.storeData(consolidateData());
 	}
 
-	protected void methodMapBuilder(String method, Object exampleData, DescriptiveStatistics statsMaker, Map<String, Object> statData, int weight){
+	public void methodMapBuilder(String method, Object exampleData, DescriptiveStatistics statsMaker, Map<String, Object> statData){
 		if (method.equals(GRAIN_SUM)) {
 			statData.put(method,
 					injectType(exampleData, statsMaker.getSum()));
@@ -56,8 +57,7 @@ public abstract class AbstractGrain implements Grain {
 		} else if (method.equals(GRAIN_AVG)) {
 			statData.put(
 					method,
-					injectType(exampleData, statsMaker.getSum()
-							/ weight));
+					injectType(exampleData, statsMaker.getMean()));
 		} else if (method.equals(GRAIN_STD_DEV)) {
 			statData.put(
 					method,
@@ -67,16 +67,13 @@ public abstract class AbstractGrain implements Grain {
 	}
 	
 	@Override
-	public void consolidateData() {
+	public Set<Map<String, Object>> consolidateData() {
 		// build set for each service
-		Set<Map<String, Object>> storageData = null;
+		Set<Map<String, Object>> storageData = new HashSet<Map<String, Object>>();
 		for (GathererAttributes attribute : client.getAttributes()) {
 			String name = attribute.getName();
 			Set<Map<String, Object>> serviceData = serviceFilter(name);
 			if (!serviceData.isEmpty()) {
-				if(storageData == null){
-					storageData = new HashSet<Map<String, Object>>();
-				}
 				Map<String, Object> example = new HashMap<String, Object>(serviceData.iterator().next());
 				Map<String, Object> mapToStore = new HashMap<String, Object>(example);
 				generateConsolidatedMap(example, mapToStore,
@@ -88,7 +85,7 @@ public abstract class AbstractGrain implements Grain {
 				storageData.add(mapToStore);
 			}
 		}
-		client.storeData(storageData);
+		return storageData;
 	}
 
 	protected abstract void consolidateMaps(Map<String, Object> consolidatedData,
@@ -247,7 +244,7 @@ public abstract class AbstractGrain implements Grain {
 		}
 	}
 
-	protected Set<Map<String, Object>> serviceFilter(String name) {
+	public Set<Map<String, Object>> serviceFilter(String name) {
 		Map<String, Map<String, Object>> query = new HashMap<String, Map<String, Object>>();
 		Map<String, Object> keyVals = new HashMap<String, Object>();
 		keyVals.put(GRAIN_TYPE, filterType);

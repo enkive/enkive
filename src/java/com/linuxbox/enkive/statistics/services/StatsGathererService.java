@@ -5,6 +5,7 @@ import static com.linuxbox.enkive.statistics.StatsConstants.STAT_DATA_SIZE;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_FREE_MEMORY;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_NAME;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TYPE;
+import static com.linuxbox.enkive.statistics.StatsConstants.STAT_SERVICE_NAME;
 
 import java.net.UnknownHostException;
 import java.text.ParseException;
@@ -64,19 +65,32 @@ public class StatsGathererService extends AbstractService {
 	}
 
 	protected Map<String, GathererInterface> statsGatherers = null;
-
+	//needs to maintain that key is the name in attributes!
 	public StatsGathererService(Map<String, GathererInterface> statsGatherers)
 			throws ParseException {
-		this.statsGatherers = statsGatherers;
+		this.statsGatherers = new HashMap<String, GathererInterface>();
+		for(String key: statsGatherers.keySet()){
+			GathererInterface gatherer = statsGatherers.get(key);
+			this.statsGatherers.put(gatherer.getAttributes().getName(), gatherer);
+		}
+	}
+	
+	public StatsGathererService(Set<GathererInterface> statsGatherers)
+			throws ParseException {
+		this.statsGatherers = new HashMap<String, GathererInterface>();
+		for(GathererInterface gatherer: statsGatherers){
+			this.statsGatherers.put(gatherer.getAttributes().getName(), gatherer);
+		}
 	}
 
-	public StatsGathererService(String serviceName, GathererInterface gatherer)
+	public StatsGathererService(GathererInterface gatherer)
 			throws ParseException {
 		statsGatherers = new HashMap<String, GathererInterface>();
-		statsGatherers.put(serviceName, gatherer);
+		statsGatherers.put(gatherer.getAttributes().getName(), gatherer);
 	}
 
-	public void addGatherer(String name, GathererInterface gatherer) {
+	public void addGatherer(GathererInterface gatherer) {
+		String name = gatherer.getAttributes().getName();
 		if (statsGatherers != null) {
 			statsGatherers.put(name, gatherer);
 		} else {
@@ -110,8 +124,10 @@ public class StatsGathererService extends AbstractService {
 
 		Set<Map<String, Object>> statsSet = createSet();
 		for (String name : gathererKeys.keySet()) {
-			statsSet.add(statsGatherers.get(name).getStatistics(
-					gathererKeys.get(name)));
+			Map<String, Object> gathererData = statsGatherers.get(name).getStatistics(
+					gathererKeys.get(name));
+			gathererData.put(STAT_SERVICE_NAME, statsGatherers.get(name).getAttributes().getName());
+			statsSet.add(gathererData);
 		}
 
 		return statsSet;

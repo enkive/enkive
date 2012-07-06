@@ -2,17 +2,17 @@ package com.linuxbox.enkive.statistics;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
+import java.util.LinkedList;
 
 public class KeyDef {
-	private List<String> key;
+	private LinkedList<String> key;
 	private Collection<String> methods;
 
 	public KeyDef(String keyPath) {
 		parseAll(keyPath);
 	}
 
-	public List<String> getKey() {
+	public LinkedList<String> getKey() {
 		return this.key;
 	}
 
@@ -22,7 +22,7 @@ public class KeyDef {
 
 	private void parseAll(String str) {
 		String[] temp = str.split(":");
-		key = Arrays.asList(temp[0].split("\\."));
+		key = new LinkedList<String>(Arrays.asList(temp[0].split("\\.")));
 		if (temp.length == 2) {
 			methods = Arrays.asList(temp[1].split(","));
 		} else {

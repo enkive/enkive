@@ -43,7 +43,7 @@ public class HourGrain extends AbstractGrain {
 		// 5. loop over methods to populate map with max, min, etc.
 			Map<String, Object> methodData = new HashMap<String, Object>();
 			for (String method : keyDef.getMethods()) {
-					methodMapBuilder(method, dataVal, statsMaker, methodData, serviceData.size());
+					methodMapBuilder(method, dataVal, statsMaker, methodData);
 			}
 			// 6. store in new map on path
 			putOnPath(dataPath, consolidatedData, methodData);

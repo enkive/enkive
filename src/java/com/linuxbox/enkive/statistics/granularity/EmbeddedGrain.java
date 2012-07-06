@@ -2,11 +2,9 @@ package com.linuxbox.enkive.statistics.granularity;
 
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_SERVICE_NAME;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIME_STAMP;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_AVG;
 import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MAX;
 import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MIN;
 import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_TYPE;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_WEIGHT;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -34,7 +32,6 @@ public abstract class EmbeddedGrain extends AbstractGrain {
 			for (String method : keyDef.getMethods()) {
 				DescriptiveStatistics statsMaker = new DescriptiveStatistics();
 				Object dataVal = null;
-				int totalWeight = 0;
 				dataVal = null;
 				// 4. loop over data for consolidation Method
 				LinkedList<String> tempPath = new LinkedList<String>(
@@ -50,24 +47,13 @@ public abstract class EmbeddedGrain extends AbstractGrain {
 						input = statToDouble(dataVal);
 
 						if (input > -1) {
-							Integer statWeight = (Integer) dataMap
-									.get(GRAIN_WEIGHT);
-							if (statWeight == null) {
-								statWeight = 1;
-							}
-
-							if (method.equals(GRAIN_AVG)) {
-								input = input * statWeight;
-							}
-
-							totalWeight += statWeight;
 							// 7. add to stat maker if relevant
 							statsMaker.addValue(input);
 						}
 					}
 				}
 				// 8. store in map if relevant method
-				methodMapBuilder(method, dataVal, statsMaker, statConsolidatedData, totalWeight);
+				methodMapBuilder(method, dataVal, statsMaker, statConsolidatedData);
 			}
 
 			// 9. store stat methods' data on main consolidated map
@@ -76,7 +62,7 @@ public abstract class EmbeddedGrain extends AbstractGrain {
 	}
 	
 	@Override
-	protected Set<Map<String, Object>> serviceFilter(String name) {
+	public Set<Map<String, Object>> serviceFilter(String name) {
 		Map<String, Object> query = new HashMap<String, Object>();
 		Map<String, Object> keyVals = new HashMap<String, Object>();
 		Map<String, Object> time = new HashMap<String, Object>();
@@ -89,7 +75,6 @@ public abstract class EmbeddedGrain extends AbstractGrain {
 
 		query.putAll(keyVals);
 		query.put(STAT_SERVICE_NAME, name);
-
 		Set<Map<String, Object>> result = client.directQuery(query);
 		return result;
 	}
