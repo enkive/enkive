@@ -13,6 +13,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.quartz.SchedulerException;
 
+import com.linuxbox.enkive.statistics.AbstractCreator;
 import com.linuxbox.enkive.statistics.gathering.GathererException;
 import com.linuxbox.enkive.statistics.gathering.GathererInterface;
 import com.linuxbox.enkive.statistics.gathering.StatsRuntimeGatherer;
@@ -20,7 +21,6 @@ import com.linuxbox.enkive.statistics.gathering.mongodb.StatsMongoAttachmentsGat
 import com.linuxbox.enkive.statistics.gathering.mongodb.StatsMongoCollectionGatherer;
 import com.linuxbox.enkive.statistics.gathering.mongodb.StatsMongoDBGatherer;
 import com.linuxbox.enkive.statistics.gathering.mongodb.StatsMongoMsgGatherer;
-import com.linuxbox.enkive.statistics.services.AbstractService;
 import com.linuxbox.enkive.statistics.services.StatsGathererService;
 import com.linuxbox.enkive.statistics.services.StatsStorageService;
 import com.linuxbox.enkive.statistics.services.storage.StatsStorageException;
@@ -30,7 +30,7 @@ import com.mongodb.DBCollection;
 import com.mongodb.Mongo;
 import com.mongodb.MongoException;
 
-public class MongoStatsStorageService extends AbstractService implements
+public class MongoStatsStorageService extends AbstractCreator implements
 		StatsStorageService {
 	private static DBCollection coll;
 

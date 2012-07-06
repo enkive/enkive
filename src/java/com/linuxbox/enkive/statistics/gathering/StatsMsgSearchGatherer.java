@@ -5,7 +5,6 @@ import static com.linuxbox.enkive.search.Constants.DATE_LATEST_PARAMETER;
 import static com.linuxbox.enkive.statistics.StatsConstants.SIMPLE_DATE;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_NUM_ENTRIES;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIME_STAMP;
-import static com.linuxbox.enkive.statistics.StatsConstants.THIRTY_DAYS;
 import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_AVG;
 import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MAX;
 import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MIN;
@@ -26,6 +25,7 @@ import com.linuxbox.enkive.statistics.KeyDef;
 import com.linuxbox.enkive.workspace.SearchResult;
 
 public class StatsMsgSearchGatherer extends AbstractGatherer {
+	long interval = 3600000;//one hour by default
 	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.statistics.gathering");
 
@@ -43,18 +43,16 @@ public class StatsMsgSearchGatherer extends AbstractGatherer {
 	public Map<String, Object> getStatistics() {
 		long currTime = System.currentTimeMillis();
 		Date currDate = new Date(currTime);
-		Date prevDate = new Date(currTime - THIRTY_DAYS);
+		Date prevDate = new Date(currTime - interval);
 		return getStatistics(prevDate, currDate);
 	}
 
 	public Map<String, Object> getStatistics(Date startDate, Date endDate) {
 		Map<String, Object> result = createMap();
-		// create value strings for current date and 30-days previous
 		String lowerDate = new StringBuilder(SIMPLE_DATE.format(startDate))
 				.toString();
 		String upperDate = new StringBuilder(SIMPLE_DATE.format(endDate))
 				.toString();
-
 		int numEntries = numEntries(lowerDate, upperDate);
 
 		if (numEntries < 0) {
@@ -104,5 +102,9 @@ public class StatsMsgSearchGatherer extends AbstractGatherer {
 
 	public void setSearchService(MessageSearchService searchService) {
 		this.searchService = searchService;
+	}
+	
+	public void setInterval(long interval){
+		this.interval = interval;
 	}
 }

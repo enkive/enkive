@@ -64,7 +64,6 @@ public class StatsMongoStorageAndRetrievalTest {
 		try {
 			m = new Mongo();
 		} catch (UnknownHostException e) {
-			//TODO: write actual handling
 			e.printStackTrace();
 			System.exit(0);
 		} catch (MongoException e) {
@@ -73,6 +72,7 @@ public class StatsMongoStorageAndRetrievalTest {
 		}
 		db = m.getDB(TestingConstants.MONGODB_TEST_DATABASE);
 		coll = db.getCollection(STAT_STORAGE_COLLECTION);
+		coll.drop();
 		
 		GathererInterface dbProp = new StatsMongoDBGatherer(m, TestingConstants.MONGODB_TEST_DATABASE, "DBGatherer", "* * * * * ?");
 		GathererInterface collProp = new StatsMongoCollectionGatherer(m, TestingConstants.MONGODB_TEST_DATABASE, "CollGatherer", "* * * * * ?");
@@ -140,6 +140,7 @@ public class StatsMongoStorageAndRetrievalTest {
 				if(!temp.containsKey(key)){
 					areEqual = false;
 					errorString = errorString + " " + key;
+					break;
 				}
 			}
 		}

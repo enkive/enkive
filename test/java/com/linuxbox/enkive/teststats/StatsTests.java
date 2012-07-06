@@ -25,16 +25,12 @@ import junit.framework.TestSuite;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
-import com.linuxbox.enkive.archiver.mongodb.MongoArchivingServiceTest;
-import com.linuxbox.enkive.docstore.mongogrid.MongoGridDocStoreServiceTest;
-
 @RunWith(Suite.class)
-@Suite.SuiteClasses({ StatsMongoAttachTest.class,
-		MongoGridDocStoreServiceTest.class, MongoArchivingServiceTest.class,
+@Suite.SuiteClasses({ StatsMongoAttachTest.class, StatsClientTest.class,
 		StatsMongoCollTest.class, StatsMongoDBTest.class,
 		StatsMsgEntriesTest.class, StatsRuntimeTest.class,
 		StatsMongoStorageAndRetrievalTest.class, StatsHourGrainTest.class, 
-		StatsDayGrainTest.class, StatsWeekGrainTest.class, StatsMonthGrainTest.class })
+		StatsDayGrainTest.class, StatsWeekGrainTest.class, StatsMonthGrainTest.class})
 public class StatsTests {
 	public static Test suite() {
 		TestSuite suite = new TestSuite(StatsTests.class.getName());

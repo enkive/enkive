@@ -38,10 +38,13 @@ public class Constants {
 	public static final String PERMISSIONS_RECIPIENT_PARAMETER = "permissions_recipient";
 
 	public static final DateFormat NUMERIC_SEARCH_FORMAT;
+	public static final DateFormat SPECIFIC_SEARCH_FORMAT;
 
 	static {
 		NUMERIC_SEARCH_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
 		NUMERIC_SEARCH_FORMAT.setTimeZone(STANDARD_TIME_ZONE);
+		SPECIFIC_SEARCH_FORMAT = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
+		SPECIFIC_SEARCH_FORMAT.setTimeZone(STANDARD_TIME_ZONE);
 	}
 
 }

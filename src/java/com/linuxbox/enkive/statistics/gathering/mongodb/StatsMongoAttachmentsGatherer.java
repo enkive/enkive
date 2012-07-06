@@ -3,7 +3,6 @@ package com.linuxbox.enkive.statistics.gathering.mongodb;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_AVG_ATTACH;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_MAX_ATTACH;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIME_STAMP;
-import static com.linuxbox.enkive.statistics.StatsConstants.THIRTY_DAYS;
 import static com.linuxbox.enkive.statistics.gathering.mongodb.MongoConstants.MONGO_LENGTH;
 import static com.linuxbox.enkive.statistics.gathering.mongodb.MongoConstants.MONGO_UPLOAD_DATE;
 import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_AVG;
@@ -35,7 +34,6 @@ public class StatsMongoAttachmentsGatherer extends AbstractGatherer {
 	protected Date lower, upper;// uploadDate
 	protected Mongo m;
 	// if resetDates is false you must manually reset the upper & lower dates
-	// (30 days will not be called)
 	private boolean resetDates;
 
 	public StatsMongoAttachmentsGatherer(Mongo m, String dbName, String coll,
@@ -108,7 +106,7 @@ public class StatsMongoAttachmentsGatherer extends AbstractGatherer {
 		// default sets dates to previous thirty days
 		if (resetDates) {
 			setUpper(new Date(currTime));
-			setLower(new Date(currTime - THIRTY_DAYS));
+			setLower(new Date(currTime - 3600000));
 		}
 		if (upper == null) {
 			LOGGER.warn("upper == null current time used");

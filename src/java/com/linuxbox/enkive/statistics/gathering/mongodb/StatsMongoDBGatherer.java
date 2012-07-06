@@ -26,7 +26,6 @@ import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_AV
 import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MAX;
 import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MIN;
 
-import java.net.UnknownHostException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -39,21 +38,11 @@ import com.linuxbox.enkive.statistics.gathering.AbstractGatherer;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.Mongo;
-import com.mongodb.MongoException;
 
 public class StatsMongoDBGatherer extends AbstractGatherer {
 	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.statistics.gathering");
-
-	public static void main(String args[]) throws UnknownHostException,
-			MongoException {
-		StatsMongoDBGatherer dbProps = new StatsMongoDBGatherer(new Mongo(),
-				"enkive", "hi", "*");
-		System.out.println(dbProps.getStatistics());
-		String[] keys = { STAT_TYPE, STAT_NAME, STAT_NUM_OBJS, STAT_FILE_SIZE };
-		System.out.println(dbProps.getStatistics(keys));
-	}
-
+	
 	protected DB db;
 
 	protected Mongo m;

@@ -16,7 +16,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.bson.types.ObjectId;
 
-import com.linuxbox.enkive.statistics.services.AbstractService;
+import com.linuxbox.enkive.statistics.AbstractCreator;
 import com.linuxbox.enkive.statistics.services.StatsRetrievalService;
 import com.linuxbox.enkive.statistics.services.retrieval.StatsRetrievalException;
 import com.mongodb.BasicDBList;
@@ -27,7 +27,7 @@ import com.mongodb.DBObject;
 import com.mongodb.Mongo;
 import com.mongodb.MongoException;
 
-public class MongoStatsRetrievalService extends AbstractService implements
+public class MongoStatsRetrievalService extends AbstractCreator implements
 		StatsRetrievalService {
 	private static DBCollection coll;
 

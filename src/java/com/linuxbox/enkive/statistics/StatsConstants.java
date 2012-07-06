@@ -6,7 +6,7 @@ public interface StatsConstants {
 	public static String ARCHIVE_SIZE = "MsgArchive";
 	public static String QUEUE_LENGTH = "queLen";
 	public static SimpleDateFormat SIMPLE_DATE = new SimpleDateFormat(
-			"yyyy-MM-dd");
+			"yyyy-MM-dd-HH-mm-ss");
 	public static String STAT_AVG_ATTACH = "avgAtt";
 	public static String STAT_AVG_OBJ_SIZE = "avgOSz";
 	public static String STAT_DATA_SIZE = "dataSz";

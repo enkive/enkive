@@ -4,6 +4,7 @@ import static com.linuxbox.enkive.statistics.StatsConstants.STAT_SERVICE_NAME;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIME_STAMP;
 
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -15,19 +16,24 @@ import org.quartz.Scheduler;
 import org.springframework.scheduling.quartz.CronTriggerBean;
 import org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean;
 
+import com.linuxbox.enkive.statistics.AbstractCreator;
 import com.linuxbox.enkive.statistics.KeyDef;
-import com.linuxbox.enkive.statistics.services.AbstractService;
 import com.linuxbox.enkive.statistics.services.StatsStorageService;
 import com.linuxbox.enkive.statistics.services.storage.StatsStorageException;
 
-public abstract class AbstractGatherer extends AbstractService implements
+public abstract class AbstractGatherer extends AbstractCreator implements
 		GathererInterface {
 	protected GathererAttributes attributes;
 	protected Scheduler scheduler;
 	protected StatsStorageService storageService;
-
+	protected List<String> keys;
+	
 	public AbstractGatherer(String serviceName, String schedule) {
-		attributes = new GathererAttributes(serviceName, schedule, keyBuilder());
+		if(keys == null){
+			attributes = new GathererAttributes(serviceName, schedule, keyBuilder());
+		} else {
+			attributes = new GathererAttributes(serviceName, schedule, keyBuilder(keys));
+		}
 	}
 
 	@Override
@@ -85,7 +91,15 @@ public abstract class AbstractGatherer extends AbstractService implements
 	}
 
 	protected abstract List<KeyDef> keyBuilder();
-
+	
+	protected List<KeyDef> keyBuilder(List<String> keyList) {
+		List<KeyDef> keys = new LinkedList<KeyDef>();
+		for(String key: keyList){
+			keys.add(new KeyDef(key));
+		}
+		return keys;
+	}
+	
 	protected Set<String> makeCreator(String... methodTypes) {
 		Set<String> result = new HashSet<String>();
 		for (String methodName : methodTypes) {

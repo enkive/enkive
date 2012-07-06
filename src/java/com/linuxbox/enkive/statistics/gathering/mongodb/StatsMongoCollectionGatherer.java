@@ -4,7 +4,6 @@ import static com.linuxbox.enkive.statistics.StatsConstants.STAT_AVG_OBJ_SIZE;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_DATA_SIZE;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_INDEX_SIZES;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_LAST_EXTENT_SIZE;
-import static com.linuxbox.enkive.statistics.StatsConstants.STAT_NAME;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_NS;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_NUM_EXTENT;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_NUM_INDEX;
@@ -29,7 +28,6 @@ import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_AV
 import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MAX;
 import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MIN;
 
-import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -42,20 +40,10 @@ import com.linuxbox.enkive.statistics.KeyDef;
 import com.linuxbox.enkive.statistics.gathering.AbstractGatherer;
 import com.mongodb.DB;
 import com.mongodb.Mongo;
-import com.mongodb.MongoException;
 
 public class StatsMongoCollectionGatherer extends AbstractGatherer {
 	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.statistics.gathering");
-
-	public static void main(String args[]) throws UnknownHostException,
-			MongoException {
-		StatsMongoCollectionGatherer collProps = new StatsMongoCollectionGatherer(
-				new Mongo(), "enkive", "collService", "cronExpression");
-		System.out.println(collProps.getStatistics());
-		String[] keys = { STAT_TYPE, STAT_NAME, STAT_DATA_SIZE, };
-		System.out.println(collProps.getStatistics(keys));
-	}
 
 	protected DB db;
 

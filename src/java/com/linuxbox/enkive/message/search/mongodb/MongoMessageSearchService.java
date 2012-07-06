@@ -34,6 +34,7 @@ import static com.linuxbox.enkive.search.Constants.DATE_LATEST_PARAMETER;
 import static com.linuxbox.enkive.search.Constants.LIMIT_PARAMETER;
 import static com.linuxbox.enkive.search.Constants.MESSAGE_ID_PARAMETER;
 import static com.linuxbox.enkive.search.Constants.NUMERIC_SEARCH_FORMAT;
+import static com.linuxbox.enkive.search.Constants.SPECIFIC_SEARCH_FORMAT;
 import static com.linuxbox.enkive.search.Constants.PERMISSIONS_RECIPIENT_PARAMETER;
 import static com.linuxbox.enkive.search.Constants.PERMISSIONS_SENDER_PARAMETER;
 import static com.linuxbox.enkive.search.Constants.RECIPIENT_PARAMETER;
@@ -218,30 +219,46 @@ public class MongoMessageSearchService extends AbstractMessageSearchService {
 						&& fields.get(DATE_EARLIEST_PARAMETER) != null
 						&& !fields.get(DATE_EARLIEST_PARAMETER).isEmpty()) {
 					try {
-						Date dateEarliest = NUMERIC_SEARCH_FORMAT.parse(fields
+						Date dateEarliest = SPECIFIC_SEARCH_FORMAT.parse(fields
 								.get(DATE_EARLIEST_PARAMETER));
 						dateQuery.put("$gte", dateEarliest);
 					} catch (ParseException e) {
-						if (LOGGER.isWarnEnabled())
-							LOGGER.warn("Could not parse earliest date submitted to search - "
-									+ fields.get(DATE_EARLIEST_PARAMETER));
+						try {
+						Date dateEarliest = NUMERIC_SEARCH_FORMAT.parse(fields
+								.get(DATE_EARLIEST_PARAMETER));
+						dateQuery.put("$gte", dateEarliest);
+						} catch (ParseException ex) {
+							if (LOGGER.isWarnEnabled())
+								LOGGER.warn("Could not parse earliest date submitted to search - "
+										+ fields.get(DATE_EARLIEST_PARAMETER));
+						}
 					}
+					
+					
 				}
 				if (fields.containsKey(DATE_LATEST_PARAMETER)
 						&& fields.get(DATE_LATEST_PARAMETER) != null
 						&& !fields.get(DATE_LATEST_PARAMETER).isEmpty()) {
 					try {
 						Calendar c = Calendar.getInstance();
-						c.setTime(NUMERIC_SEARCH_FORMAT.parse(fields
+						c.setTime(SPECIFIC_SEARCH_FORMAT.parse(fields
 								.get(DATE_LATEST_PARAMETER)));
 						c.add(Calendar.DATE, 1);
 						Date dateLatest = c.getTime();
-						//TODO: Make sure lt is what we want
 						dateQuery.put("$lt", dateLatest);
 					} catch (ParseException e) {
-						if (LOGGER.isWarnEnabled())
-							LOGGER.warn("Could not parse latest date submitted to search - "
-									+ fields.get(DATE_LATEST_PARAMETER));
+						try {
+							Calendar c = Calendar.getInstance();
+							c.setTime(NUMERIC_SEARCH_FORMAT.parse(fields
+									.get(DATE_LATEST_PARAMETER)));
+							c.add(Calendar.DATE, 1);
+							Date dateLatest = c.getTime();
+							dateQuery.put("$lt", dateLatest);
+						} catch (ParseException ex) {
+							if (LOGGER.isWarnEnabled())
+								LOGGER.warn("Could not parse latest date submitted to search - "
+										+ fields.get(DATE_LATEST_PARAMETER));
+						}
 					}
 				}
 				query.put(DATE, dateQuery);

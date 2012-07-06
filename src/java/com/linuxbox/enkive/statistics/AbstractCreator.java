@@ -1,11 +1,11 @@
-package com.linuxbox.enkive.statistics.services;
+package com.linuxbox.enkive.statistics;
 
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-public abstract class AbstractService {
+public abstract class AbstractCreator {
 	public static Map<String, Object> createMap() {
 		return new HashMap<String, Object>();
 	}
