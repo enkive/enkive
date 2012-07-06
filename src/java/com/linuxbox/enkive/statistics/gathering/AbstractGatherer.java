@@ -29,11 +29,7 @@ public abstract class AbstractGatherer extends AbstractCreator implements
 	protected List<String> keys;
 	
 	public AbstractGatherer(String serviceName, String schedule) {
-		if(keys == null){
-			attributes = new GathererAttributes(serviceName, schedule, keyBuilder());
-		} else {
-			attributes = new GathererAttributes(serviceName, schedule, keyBuilder(keys));
-		}
+		attributes = new GathererAttributes(serviceName, schedule, keyBuilder(keys));
 	}
 
 	@Override
@@ -89,13 +85,13 @@ public abstract class AbstractGatherer extends AbstractCreator implements
 		// add to schedule defined in spring xml
 		scheduler.scheduleJob((JobDetail) jobDetail.getObject(), trigger);
 	}
-
-	protected abstract List<KeyDef> keyBuilder();
 	
 	protected List<KeyDef> keyBuilder(List<String> keyList) {
 		List<KeyDef> keys = new LinkedList<KeyDef>();
-		for(String key: keyList){
-			keys.add(new KeyDef(key));
+		if(keyList != null){
+			for(String key: keyList){
+				keys.add(new KeyDef(key));
+			}
 		}
 		return keys;
 	}
@@ -123,5 +119,9 @@ public abstract class AbstractGatherer extends AbstractCreator implements
 			storageService.storeStatistics(attributes.getName(),
 					getStatistics());
 		}
+	}
+	
+	public void setKeys(List<String> keys){
+		this.keys = keys;
 	}
 }

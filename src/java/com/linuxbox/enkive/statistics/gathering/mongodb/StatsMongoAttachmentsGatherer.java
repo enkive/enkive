@@ -5,20 +5,14 @@ import static com.linuxbox.enkive.statistics.StatsConstants.STAT_MAX_ATTACH;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIME_STAMP;
 import static com.linuxbox.enkive.statistics.gathering.mongodb.MongoConstants.MONGO_LENGTH;
 import static com.linuxbox.enkive.statistics.gathering.mongodb.MongoConstants.MONGO_UPLOAD_DATE;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_AVG;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MAX;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MIN;
 
 import java.util.Date;
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.linuxbox.enkive.statistics.KeyDef;
 import com.linuxbox.enkive.statistics.gathering.AbstractGatherer;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
@@ -132,7 +126,7 @@ public class StatsMongoAttachmentsGatherer extends AbstractGatherer {
 	public Date getUpper() {
 		return upper;
 	}
-
+/*
 	@Override
 	protected List<KeyDef> keyBuilder() {
 		List<KeyDef> keys = new LinkedList<KeyDef>();
@@ -140,7 +134,7 @@ public class StatsMongoAttachmentsGatherer extends AbstractGatherer {
 		keys.add(new KeyDef(STAT_MAX_ATTACH + ":" + GRAIN_MAX + "," + GRAIN_MIN));
 		return keys;
 	}
-
+*/
 	private Map<String, Object> makeDateQuery() {
 		Map<String, Object> dateQuery = createMap();
 		dateQuery.put("$gte", lower);

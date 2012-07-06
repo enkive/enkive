@@ -2,16 +2,10 @@ package com.linuxbox.enkive.statistics.gathering.mongodb;
 
 import static com.linuxbox.enkive.statistics.StatsConstants.ARCHIVE_SIZE;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIME_STAMP;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_AVG;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MAX;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MIN;
 
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
-import com.linuxbox.enkive.statistics.KeyDef;
 import com.linuxbox.enkive.statistics.gathering.AbstractGatherer;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
@@ -38,7 +32,7 @@ public class StatsMongoMsgGatherer extends AbstractGatherer {
 		result.put(ARCHIVE_SIZE, messageColl.count());
 		return result;
 	}
-
+/*
 	@Override
 	protected List<KeyDef> keyBuilder() {
 		List<KeyDef> keys = new LinkedList<KeyDef>();
@@ -46,4 +40,5 @@ public class StatsMongoMsgGatherer extends AbstractGatherer {
 				+ "," + GRAIN_MIN));
 		return keys;
 	}
+*/
 }

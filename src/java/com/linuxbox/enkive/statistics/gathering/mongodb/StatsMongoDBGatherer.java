@@ -22,18 +22,12 @@ import static com.linuxbox.enkive.statistics.gathering.mongodb.MongoConstants.MO
 import static com.linuxbox.enkive.statistics.gathering.mongodb.MongoConstants.MONGO_NUM_EXTENT;
 import static com.linuxbox.enkive.statistics.gathering.mongodb.MongoConstants.MONGO_NUM_OBJS;
 import static com.linuxbox.enkive.statistics.gathering.mongodb.MongoConstants.MONGO_STORAGE_SIZE;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_AVG;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MAX;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MIN;
 
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.linuxbox.enkive.statistics.KeyDef;
 import com.linuxbox.enkive.statistics.gathering.AbstractGatherer;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
@@ -76,7 +70,7 @@ public class StatsMongoDBGatherer extends AbstractGatherer {
 		stats.put(STAT_TIME_STAMP, System.currentTimeMillis());
 		return stats;
 	}
-
+/*
 	@Override
 	protected List<KeyDef> keyBuilder() {
 		List<KeyDef> keys = new LinkedList<KeyDef>();
@@ -102,4 +96,5 @@ public class StatsMongoDBGatherer extends AbstractGatherer {
 				+ "," + GRAIN_MIN));
 		return keys;
 	}
+*/
 }

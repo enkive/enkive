@@ -5,14 +5,9 @@ import static com.linuxbox.enkive.search.Constants.DATE_LATEST_PARAMETER;
 import static com.linuxbox.enkive.statistics.StatsConstants.SIMPLE_DATE;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_NUM_ENTRIES;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIME_STAMP;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_AVG;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MAX;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MIN;
 
 import java.util.Date;
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -21,7 +16,6 @@ import org.apache.commons.logging.LogFactory;
 
 import com.linuxbox.enkive.message.search.MessageSearchService;
 import com.linuxbox.enkive.message.search.exception.MessageSearchException;
-import com.linuxbox.enkive.statistics.KeyDef;
 import com.linuxbox.enkive.workspace.SearchResult;
 
 public class StatsMsgSearchGatherer extends AbstractGatherer {
@@ -63,7 +57,7 @@ public class StatsMsgSearchGatherer extends AbstractGatherer {
 		result.put(STAT_NUM_ENTRIES, numEntries);
 		return result;
 	}
-
+/*
 	@Override
 	protected List<KeyDef> keyBuilder() {
 		List<KeyDef> keys = new LinkedList<KeyDef>();
@@ -71,7 +65,7 @@ public class StatsMsgSearchGatherer extends AbstractGatherer {
 				+ GRAIN_MAX + "," + GRAIN_MIN));
 		return keys;
 	}
-
+*/	
 	protected int numEntries(String dateEarliest, String dateLatest) {
 		HashMap<String, String> hmap = new HashMap<String, String>();
 		hmap.put(DATE_EARLIEST_PARAMETER, dateEarliest);

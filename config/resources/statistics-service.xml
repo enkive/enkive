@@ -11,7 +11,8 @@
 		<constructor-arg ref="Mongo" />
 		<constructor-arg type="java.lang.String" value="${enkive.messagestore.db.name}" />
 	</bean>
-	
+
+
 	<bean id="MsgStatsService"
 		class="com.linuxbox.enkive.statistics.gathering.mongodb.StatsMongoMsgGatherer">
 		<constructor-arg ref="Mongo" />
@@ -21,8 +22,12 @@
 		<constructor-arg name="schedule" value="59 * * * * ?" />
 		<property name="scheduler" ref="ScheduledJobsBean" />
 		<property name="storageService" ref="StatisticsStorer" />
+		<property name="keys">	
+			<list>
+				<value>"MsgArchive:avg,max,min"</value>
+			</list>
+		</property>	
 	</bean>
-
 
 	<bean id="CollectionStatsService"
 		class="com.linuxbox.enkive.statistics.gathering.mongodb.StatsMongoCollectionGatherer">
@@ -32,6 +37,21 @@
 		<constructor-arg name="schedule" value="59 * * * * ?" />
 		<property name="scheduler" ref="ScheduledJobsBean" />
 		<property name="storageService" ref="StatisticsStorer" />
+		<property name="keys">	
+			<list>
+				<value>"*.type:"</value>
+				<value>"*.ns:"</value>
+				<value>"*.numObj:avg,max,min"</value>
+				<value>"*.avgOSz:avg,max,min"</value>
+				<value>"*.dataSz:avg,max,min"</value>
+				<value>"*.totSz:avg,max,min"</value>
+				<value>"*.numExt:avg,max,min"</value>
+				<value>"*.lExSz:avg,max,min"</value>
+				<value>"*.numInd:avg,max,min"</value>
+				<value>"*.indSz:avg,max,min"</value>
+				<value>"*.indSzs.*:avg,max,min"</value>
+			</list>
+		</property>	
 	</bean>
 	
 	<bean id="DetailedMsgStatsService"
@@ -41,6 +61,11 @@
 		<property name="scheduler" ref="ScheduledJobsBean" />
 		<property name="searchService" ref="SystemMessageSearchService" />
 		<property name="storageService" ref="StatisticsStorer" />
+		<property name="keys">	
+			<list>
+				<value>"numMsg:avg,max,min"</value>
+			</list>
+		</property>	
 	</bean>
 
 	<bean id="AttachmentStatsService"
@@ -52,6 +77,12 @@
 		<constructor-arg name="schedule" value="59 * * * * ?" />
 		<property name="scheduler" ref="ScheduledJobsBean" />
 		<property name="storageService" ref="StatisticsStorer" />
+		<property name="keys">	
+			<list>
+				<value>"avgAtt:avg"</value>
+				<value>"maxAtt:avg"</value>
+			</list>
+		</property>	
 	</bean>
 	
 	<bean id="DatabaseStatsService"
@@ -62,14 +93,37 @@
 		<constructor-arg name="schedule" value="59 * * * * ?" />
 		<property name="scheduler" ref="ScheduledJobsBean" />
 		<property name="storageService" ref="StatisticsStorer" />
+		<property name="keys">	
+			<list>
+				<value>"type:"</value>
+				<value>"db:"</value>
+				<value>"numObj:avg,max,min"</value>
+				<value>"nColls:avg,max,min"</value>
+				<value>"avgOSz:avg,max,min"</value>
+				<value>"dataSz:avg,max,min"</value>
+				<value>"totSz:avg,max,min"</value>
+				<value>"numInd:avg,max,min"</value>
+				<value>"indSz:avg,max,min"</value>
+				<value>"numExt:avg,max,min"</value>
+				<value>"fileSz:avg,max,min"</value>
+			</list>
+		</property>	
 	</bean>
 	
 	<bean id="RuntimeStatsService"
 		class="com.linuxbox.enkive.statistics.gathering.StatsRuntimeGatherer">
 		<constructor-arg name="serviceName" value="RuntimeStatsService"/>
 		<constructor-arg name="schedule" value="59 * * * * ?" />
-		<property name="scheduler" ref="ScheduledJobsBean" />	
+		<property name="scheduler" ref="ScheduledJobsBean" />
 		<property name="storageService" ref="StatisticsStorer" />
+		<property name="keys">	
+			<list>
+				<value>"freeM:avg,max,min"</value>
+				<value>"maxM:avg,max,min"</value>
+				<value>"totM:avg,max,min"</value>
+				<value>"cores:avg,max,min"</value>
+			</list>
+		</property>	
 	</bean>
 
 	<bean id="StatisticsGatherer" class="com.linuxbox.enkive.statistics.services.StatsGathererService">
@@ -77,7 +131,7 @@
 			<map>
 				<entry key="DetailedMsgStatsService" value-ref="DetailedMsgStatsService" />
 				<entry key="CollectionStatsService" value-ref="CollectionStatsService" />
-				<entry key="MsgStatsService" value-ref="MsgStatsService" />
+				<entry key="MsgStatsService" value-ref="MsgStatsService" /> 
 				<entry key="AttachmentStatsService" value-ref="AttachmentStatsService" />
 				<entry key="DatabaseStatsService" value-ref="DatabaseStatsService" />
 				<entry key="RuntimeStatsService" value-ref="RuntimeStatsService" />

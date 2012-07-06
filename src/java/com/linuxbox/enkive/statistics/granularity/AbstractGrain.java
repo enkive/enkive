@@ -255,7 +255,7 @@ public abstract class AbstractGrain implements Grain {
 	}
 
 	protected abstract void setDates();
-
+	
 	protected abstract void setTypes();
 
 	protected double statToDouble(Object stat) {

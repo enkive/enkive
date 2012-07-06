@@ -3,19 +3,14 @@ package com.linuxbox.enkive.statistics.gathering;
 import static com.linuxbox.enkive.statistics.StatsConstants.QUEUE_LENGTH;
 import static com.linuxbox.enkive.statistics.StatsConstants.STATISTIC_CHECK_ERROR;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIME_STAMP;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_AVG;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
-
-import com.linuxbox.enkive.statistics.KeyDef;
 
 public class UnixPostfixQueueStatisticsService extends AbstractGatherer {
 
@@ -69,12 +64,5 @@ public class UnixPostfixQueueStatisticsService extends AbstractGatherer {
 		selectedStats.put(STAT_TIME_STAMP, System.currentTimeMillis());
 
 		return selectedStats;
-	}
-
-	@Override
-	protected List<KeyDef> keyBuilder() {
-		List<KeyDef> keys = new LinkedList<KeyDef>();
-		keys.add(new KeyDef(QUEUE_LENGTH + ":" + GRAIN_AVG));
-		return keys;
 	}
 }
