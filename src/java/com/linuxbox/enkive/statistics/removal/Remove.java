@@ -27,6 +27,9 @@ public class Remove {
 			.getLog("com.linuxbox.enkive.statistics.removal");
 	StatsClient client;
 	private Date dateFilter;
+	// NOAH: I'm thinking of "Buff" meaning buffer, but all I see is single int
+	// value. Plus the setters have some logic that I'm not following. Please
+	// add JavaDoc comments.
 	private int dayBuff = REMOVAL_DAY_ID;
 	private int hrBuff = REMOVAL_HOUR_ID;
 	private int monthBuff = REMOVAL_MONTH_ID;

@@ -49,6 +49,8 @@ public class StatsClient {
 		return null;
 	}
 
+	// NOAH: let's not call Maps "map". Let's describe their content in the
+	// variable name.
 	public Set<Map<String, Object>> gatherData(Map<String, String[]> map) {
 		try {
 			return gathererService.gatherStats(map);

@@ -104,6 +104,10 @@ public abstract class AbstractGatherer extends AbstractCreator implements
 		return keys;
 	}
 
+	/*
+	 * NOAH: what's a creator, how's it used? I tried to find a caller of this
+	 * method but couldn't find any.
+	 */
 	protected Set<String> makeCreator(String... methodTypes) {
 		Set<String> result = new HashSet<String>();
 		for (String methodName : methodTypes) {

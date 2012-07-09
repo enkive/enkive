@@ -85,11 +85,8 @@ public abstract class AbstractGrain implements Grain {
 		return storageData;
 	}
 
-	protected abstract void consolidateMaps(
-			Map<String, Object> consolidatedData,
-			Set<Map<String, Object>> serviceData, KeyDef keyDef,
-			LinkedList<String> dataPath);
 
+	// NOAH: this method calls out for a nice JavaDoc comment
 	protected Map<String, Object> generateConsolidatedMap(
 			Map<String, Object> templateData,
 			Map<String, Object> consolidatedMap, LinkedList<String> path,
@@ -149,6 +146,7 @@ public abstract class AbstractGrain implements Grain {
 		return result;
 	}
 
+	// NOAH: this method calls out for a nice JavaDoc comment
 	private KeyDef findMatchingPath(List<String> path, List<KeyDef> keys) {
 		for (KeyDef def : keys) {// get one key definition
 			if (def.getMethods() == null) {
@@ -190,6 +188,17 @@ public abstract class AbstractGrain implements Grain {
 						pathStr = path.get(pathIndex);
 					}
 				}
+				/*
+				 * regexpression code if(keyString.get(defIndex).equals("**") &&
+				 * defIndex <	// NOAH: this method calls out for a nice JavaDoc comment keyString.size()) { if(defIndex ==
+				 * keyString.size()-1){ // break; } defIndex++;
+				 * 
+				 * if (path.contains(keyString.get(defIndex))) { //jump to
+				 * matching index for (; pathIndex < path.size(); pathIndex++) {
+				 * if (path.get(pathIndex).equals(keyString.get(defIndex))) {
+				 * break; } } } else { // return false; // isMatch = false;
+				 * break; } }
+				 */
 				if (pathIndex >= path.size()) {
 					isMatch = false;
 					break;
@@ -218,6 +227,7 @@ public abstract class AbstractGrain implements Grain {
 		return def != null;
 	}
 
+	// NOAH: this method calls out for a nice JavaDoc comment
 	protected void putOnPath(List<String> path, Map<String, Object> statsData,
 			Map<String, Object> dataToAdd) {
 		Map<String, Object> cursor = statsData;
@@ -229,6 +239,8 @@ public abstract class AbstractGrain implements Grain {
 				if (cursor.get(key) instanceof Map) {
 					cursor = (Map<String, Object>) cursor.get(key);
 				} else {
+					// NOAH: is there a reason we don't create the missing
+					// intervening maps?
 					LOGGER.error("Cannot put data on path");
 				}
 			}
@@ -236,6 +248,7 @@ public abstract class AbstractGrain implements Grain {
 		}
 	}
 
+	// NOAH: this method calls out for a nice JavaDoc comment
 	public Set<Map<String, Object>> serviceFilter(String name) {
 		Map<String, Map<String, Object>> query = new HashMap<String, Map<String, Object>>();
 		Map<String, Object> keyVals = new HashMap<String, Object>();
@@ -245,10 +258,6 @@ public abstract class AbstractGrain implements Grain {
 				startDate, endDate);
 		return result;
 	}
-
-	protected abstract void setDates();
-
-	protected abstract void setTypes();
 
 	protected double statToDouble(Object stat) {
 		double input = -1;
@@ -265,4 +274,13 @@ public abstract class AbstractGrain implements Grain {
 		}
 		return input;
 	}
+
+	protected abstract void setDates();
+
+	protected abstract void setTypes();
+
+	protected abstract void consolidateMaps(
+			Map<String, Object> consolidatedData,
+			Set<Map<String, Object>> serviceData, KeyDef keyDef,
+			LinkedList<String> dataPath);
 }

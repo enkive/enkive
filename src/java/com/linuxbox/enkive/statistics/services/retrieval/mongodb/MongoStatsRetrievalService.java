@@ -27,6 +27,10 @@ import com.mongodb.DBObject;
 import com.mongodb.Mongo;
 import com.mongodb.MongoException;
 
+// NOAH: I see the string "_id" in this file and in other files quite a bit. Seems like a good use of a constant.
+
+// NOAH: As I've said in other files, I think these sets/lists/maps of other sets/lists/maps need to be documented so the reader knows what they contain. These should be in JavaDoc comments.
+
 public class MongoStatsRetrievalService extends AbstractCreator implements
 		StatsRetrievalService {
 	private static DBCollection coll;
@@ -71,6 +75,7 @@ public class MongoStatsRetrievalService extends AbstractCreator implements
 		LOGGER.info("RetrievalService(Mongo, String, HashMap) successfully created");
 	}
 
+	// NOAH: again, buildSet is a bad name. Build a set that does what?
 	private Set<DBObject> buildSet(Date lower, Date upper) {
 		DBObject query = new BasicDBObject();
 		DBObject time = new BasicDBObject();
@@ -122,6 +127,9 @@ public class MongoStatsRetrievalService extends AbstractCreator implements
 		return bothSet;
 	}
 
+	// NOAH: The suppress warnings is necessary because DBObject returns a map
+	// w/o key and value types specified? If so, let's document why we're
+	// suppressing warnings in such situations.
 	@SuppressWarnings("unchecked")
 	@Override
 	public Set<Map<String, Object>> directQuery() {
