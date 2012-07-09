@@ -22,6 +22,8 @@ import org.apache.commons.logging.LogFactory;
 
 import com.linuxbox.enkive.statistics.services.StatsClient;
 
+//NOAH: I think the name for this class could be a little more descriptive. This appears to be a class meant to be run by a job, so saying that in the class name would make people weary of using it in any other way.
+
 public class Remove {
 	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.statistics.removal");

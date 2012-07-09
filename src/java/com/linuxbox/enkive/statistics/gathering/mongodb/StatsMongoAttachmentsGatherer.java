@@ -22,6 +22,12 @@ import com.mongodb.Mongo;
 
 // NOAH: please turn your comments of variables and methods within a class to JavaDoc comments. They start with /** and end with */. 
 
+// To use this class the workflow appears to be:
+// Create instance of new StatsMongoAttachmentGatherer
+// setUpper(), setLower()
+// Then call getMax... and getAvg..., which take no arguments
+// I'd like to see the ability to call getMax and getAvg with date arguments which would make this class a little more flexible.
+
 public class StatsMongoAttachmentsGatherer extends AbstractGatherer {
 	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.statistics.gathering.StatsMongoAttachmentsGatherer");

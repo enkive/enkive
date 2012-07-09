@@ -44,6 +44,7 @@ public class MongoStatsRetrievalService extends AbstractCreator implements
 
 	public MongoStatsRetrievalService() {
 		try {
+    //NOAH: We don't really use new Mongo (or at least shouldn't) anywhere else in Enkive, since spring provides us a nice method to pass in a single mongo instance.  This allows us to change anything related to the mongo driver in a single place, like if mongo were running on a non-standard port this code would break.  You have the correct creation method a little farther down, so this creator can likely just be removed.
 			m = new Mongo();
 		} catch (UnknownHostException e) {
 			LOGGER.fatal("Mongo has failed: Unknown Host", e);
@@ -60,6 +61,7 @@ public class MongoStatsRetrievalService extends AbstractCreator implements
 		m = mongo;
 		db = m.getDB(dbName);
 		statisticsServices = null;
+		//NOAH: STAT_STORAGE_COLLECTION should be passed in via spring configuration, not stored as a constant. This allows us to change the collection name in configuration in case we ever want to do an installation where many Enkives point to the same mongo instance.
 		coll = db.getCollection(STAT_STORAGE_COLLECTION);
 		LOGGER.info("RetrievalService(Mongo, String) successfully created");
 	}
@@ -71,6 +73,7 @@ public class MongoStatsRetrievalService extends AbstractCreator implements
 		// statsServices needs to be in format:
 		// serviceName [...statnames to retrieve...]
 		this.statisticsServices = statisticsServices;
+		//NOAH: STAT_STORAGE_COLLECTION should be passed in via spring configuration, not stored as a constant. This allows us to change the collection name in configuration in case we ever want to do an installation where many Enkives point to the same mongo instance.
 		coll = db.getCollection(STAT_STORAGE_COLLECTION);
 		LOGGER.info("RetrievalService(Mongo, String, HashMap) successfully created");
 	}
