@@ -22,28 +22,28 @@ public class HourGrain extends AbstractGrain {
 	protected void consolidateMaps(Map<String, Object> consolidatedData,
 			Set<Map<String, Object>> serviceData, KeyDef keyDef,
 			LinkedList<String> dataPath) {
-		
+
 		if (keyDef.getMethods() != null) {
-		DescriptiveStatistics statsMaker = new DescriptiveStatistics();
-		Object dataVal = null;
+			DescriptiveStatistics statsMaker = new DescriptiveStatistics();
+			Object dataVal = null;
 
-		// 4. get data from maps and add to statMakers
-		for (Map<String, Object> dataMap : serviceData) {
-			dataVal = getDataVal(dataMap, dataPath);
-			double input = -1;
+			// 4. get data from maps and add to statMakers
+			for (Map<String, Object> dataMap : serviceData) {
+				dataVal = getDataVal(dataMap, dataPath);
+				double input = -1;
 
-			if (dataVal != null) {
-				input = statToDouble(dataVal);
-				if (input > -1) {
-					statsMaker.addValue(input);
+				if (dataVal != null) {
+					input = statToDouble(dataVal);
+					if (input > -1) {
+						statsMaker.addValue(input);
+					}
 				}
 			}
-		}
 
-		// 5. loop over methods to populate map with max, min, etc.
+			// 5. loop over methods to populate map with max, min, etc.
 			Map<String, Object> methodData = new HashMap<String, Object>();
 			for (String method : keyDef.getMethods()) {
-					methodMapBuilder(method, dataVal, statsMaker, methodData);
+				methodMapBuilder(method, dataVal, statsMaker, methodData);
 			}
 			// 6. store in new map on path
 			putOnPath(dataPath, consolidatedData, methodData);

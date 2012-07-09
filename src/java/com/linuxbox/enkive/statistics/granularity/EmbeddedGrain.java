@@ -20,6 +20,7 @@ public abstract class EmbeddedGrain extends AbstractGrain {
 	public EmbeddedGrain(StatsClient client) {
 		super(client);
 	}
+
 	@Override
 	protected void consolidateMaps(Map<String, Object> consolidatedData,
 			Set<Map<String, Object>> serviceData, KeyDef keyDef,
@@ -34,8 +35,7 @@ public abstract class EmbeddedGrain extends AbstractGrain {
 				Object dataVal = null;
 				dataVal = null;
 				// 4. loop over data for consolidation Method
-				LinkedList<String> tempPath = new LinkedList<String>(
-						dataPath);
+				LinkedList<String> tempPath = new LinkedList<String>(dataPath);
 				tempPath.add(method);
 				double input = -1;
 				for (Map<String, Object> dataMap : serviceData) {
@@ -53,14 +53,15 @@ public abstract class EmbeddedGrain extends AbstractGrain {
 					}
 				}
 				// 8. store in map if relevant method
-				methodMapBuilder(method, dataVal, statsMaker, statConsolidatedData);
+				methodMapBuilder(method, dataVal, statsMaker,
+						statConsolidatedData);
 			}
 
 			// 9. store stat methods' data on main consolidated map
 			putOnPath(dataPath, consolidatedData, statConsolidatedData);
 		}
 	}
-	
+
 	@Override
 	public Set<Map<String, Object>> serviceFilter(String name) {
 		Map<String, Object> query = new HashMap<String, Object>();

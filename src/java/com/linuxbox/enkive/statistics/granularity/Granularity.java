@@ -9,7 +9,6 @@ public enum Granularity {
 	MONTH(-1, 1, -1, -1), // firts day of any week
 	WEEK(-1, -1, 1, -1); // first day of any month
 	public static void main(String[] args) {
-		// Date t = new Date(2011, 1, 13, 17, 4, 32);
 		System.out.println("CurrDate: " + new Date());
 		System.out.println("HOUR " + HOUR.isMatch());
 		System.out.println("DAY " + DAY.isMatch());

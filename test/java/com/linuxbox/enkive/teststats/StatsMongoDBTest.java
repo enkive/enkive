@@ -14,13 +14,11 @@ import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TOTAL_INDEX_SIZ
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TOTAL_SIZE;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TYPE;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TYPE_DB;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.LinkedList;
 import java.util.Map;
-
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import com.linuxbox.enkive.TestingConstants;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -28,6 +26,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.linuxbox.enkive.TestingConstants;
 import com.linuxbox.enkive.statistics.KeyDef;
 import com.linuxbox.enkive.statistics.gathering.mongodb.StatsMongoDBGatherer;
 import com.mongodb.BasicDBObject;
@@ -42,7 +41,8 @@ public class StatsMongoDBTest {
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		m = new Mongo();
-		dbStats = new StatsMongoDBGatherer(m, TestingConstants.MONGODB_TEST_DATABASE, name, "0 * * * * ?");
+		dbStats = new StatsMongoDBGatherer(m,
+				TestingConstants.MONGODB_TEST_DATABASE, name, "0 * * * * ?");
 		allStats = dbStats.getStats();
 	}
 
@@ -58,35 +58,37 @@ public class StatsMongoDBTest {
 	@After
 	public void tearDown() throws Exception {
 	}
-	
+
 	@SuppressWarnings("unchecked")
-	public boolean checkFormat(Map<String, Object> stats, LinkedList<String> path){
-		if(path.contains(STAT_SERVICE_NAME)){
+	public boolean checkFormat(Map<String, Object> stats,
+			LinkedList<String> path) {
+		if (path.contains(STAT_SERVICE_NAME)) {
 			return true;
 		}
-		
-		if(path.isEmpty()){
+
+		if (path.isEmpty()) {
 			return false;
 		}
 		String key = path.getFirst();
-		if(path.size() == 1){
-			if(key.equals("*"))
+		if (path.size() == 1) {
+			if (key.equals("*"))
 				return stats != null;
 			else {
-				return stats.get(key) != null; 
+				return stats.get(key) != null;
 			}
 		}
-		
+
 		boolean result = false;
 		if (key.equals("*")) {
 			path.removeFirst();
-			for(String statKey: stats.keySet()){
-				if(!(stats.get(statKey) instanceof Map)){
+			for (String statKey : stats.keySet()) {
+				if (!(stats.get(statKey) instanceof Map)) {
 					result = path.size() == 1;
 				} else {
-					result = checkFormat((Map<String, Object>)stats.get(statKey), path);
+					result = checkFormat(
+							(Map<String, Object>) stats.get(statKey), path);
 				}
-				if(result){
+				if (result) {
 					break;
 				}
 			}
@@ -94,7 +96,7 @@ public class StatsMongoDBTest {
 			return result;
 		} else if (stats.containsKey(key)) {
 			path.removeFirst();
-			result = checkFormat((Map<String, Object>)stats.get(key), path);
+			result = checkFormat((Map<String, Object>) stats.get(key), path);
 			path.addFirst(key);
 			return result;
 		}
@@ -102,10 +104,11 @@ public class StatsMongoDBTest {
 	}
 
 	@Test
-	public void testAttributes(){
-		for(KeyDef key: dbStats.getAttributes().getKeys()){
+	public void testAttributes() {
+		for (KeyDef key : dbStats.getAttributes().getKeys()) {
 			LinkedList<String> path = key.getKey();
-			assertTrue("the format is incorrect for path: " + path,checkFormat(allStats, path));
+			assertTrue("the format is incorrect for path: " + path,
+					checkFormat(allStats, path));
 		}
 	}
 
@@ -114,127 +117,131 @@ public class StatsMongoDBTest {
 		int numKeys = allStats.keySet().size();
 		assertTrue("numKeys doesn't match: numKeys = " + numKeys, numKeys == 12);
 	}
-	
+
 	@Test
 	public void hasServiceName() {
 		String sn = (String) dbStats.getAttributes().getName();
 		assertNotNull("no service name found in hasServiceName()", sn);
 		assertTrue(sn.equals(name));
 	}
-	
+
 	@Test
 	public void hasTimeStamp() {
 		Long time = ((Long) allStats.get(STAT_TIME_STAMP));
 		assertTrue("runtime test exception in hasTimeStamp(): time = " + time,
 				time != null);
 	}
-	
+
 	@Test
 	public void timeGTZero() {
 		Long time = ((Long) allStats.get(STAT_TIME_STAMP));
 		assertTrue("runtime test exception in timeGTZero(): time = " + time,
 				time > 0);
 	}
-	
+
 	@Test
 	public void typeTest() {
 		String type = (String) allStats.get(STAT_TYPE);
-		assertNotNull("in " + TestingConstants.MONGODB_TEST_DATABASE + " (type = null)", type);
-		assertTrue("in " + TestingConstants.MONGODB_TEST_DATABASE + " (type = " + type + ")",
-				type.compareTo(STAT_TYPE_DB) == 0);
+		assertNotNull("in " + TestingConstants.MONGODB_TEST_DATABASE
+				+ " (type = null)", type);
+		assertTrue("in " + TestingConstants.MONGODB_TEST_DATABASE + " (type = "
+				+ type + ")", type.compareTo(STAT_TYPE_DB) == 0);
 	}
 
 	@Test
 	public void nameTest() {
 		String name = (String) allStats.get(STAT_NAME);
-		assertNotNull("in " + TestingConstants.MONGODB_TEST_DATABASE + " (type = null)", name);
-		assertTrue("in " + TestingConstants.MONGODB_TEST_DATABASE + " (type = " + name + ")",
+		assertNotNull("in " + TestingConstants.MONGODB_TEST_DATABASE
+				+ " (type = null)", name);
+		assertTrue("in " + TestingConstants.MONGODB_TEST_DATABASE + " (type = "
+				+ name + ")",
 				name.compareTo(TestingConstants.MONGODB_TEST_DATABASE) == 0);
 	}
 
 	// GT means 'greater than'
 	@Test
 	public void numCollsGTZero() {
-		assertNotNull("in " + TestingConstants.MONGODB_TEST_DATABASE + " (numColls = null)",
-				allStats.get(STAT_NUM_COLLECTIONS));
+		assertNotNull("in " + TestingConstants.MONGODB_TEST_DATABASE
+				+ " (numColls = null)", allStats.get(STAT_NUM_COLLECTIONS));
 		int numColls = ((Integer) allStats.get(STAT_NUM_COLLECTIONS))
 				.intValue();
-		assertTrue("in " + TestingConstants.MONGODB_TEST_DATABASE + " (numColls = " + numColls + ") ",
-				numColls > 0);
+		assertTrue("in " + TestingConstants.MONGODB_TEST_DATABASE
+				+ " (numColls = " + numColls + ") ", numColls > 0);
 	}
 
 	@Test
 	public void numObjsGTZero() {
-		assertNotNull("in " + TestingConstants.MONGODB_TEST_DATABASE + " (numObjs = null)",
-				allStats.get(STAT_NUM_OBJS));
+		assertNotNull("in " + TestingConstants.MONGODB_TEST_DATABASE
+				+ " (numObjs = null)", allStats.get(STAT_NUM_OBJS));
 		int numObjs = ((Integer) allStats.get(STAT_NUM_OBJS)).intValue();
-		assertTrue("in " + TestingConstants.MONGODB_TEST_DATABASE + " (numObjs = " + numObjs + ") ",
-				numObjs > 0);
+		assertTrue("in " + TestingConstants.MONGODB_TEST_DATABASE
+				+ " (numObjs = " + numObjs + ") ", numObjs > 0);
 	}
 
 	@Test
 	public void numAvgObjSizeGTZero() {
-		assertNotNull("in " + TestingConstants.MONGODB_TEST_DATABASE + " (avgObjSize = null)",
-				allStats.get(STAT_AVG_OBJ_SIZE));
+		assertNotNull("in " + TestingConstants.MONGODB_TEST_DATABASE
+				+ " (avgObjSize = null)", allStats.get(STAT_AVG_OBJ_SIZE));
 		double avgObjSize = (Double) ((Double) allStats.get(STAT_AVG_OBJ_SIZE))
 				.doubleValue();
-		assertTrue(
-				"in " + TestingConstants.MONGODB_TEST_DATABASE + " (avgObjSize = " + avgObjSize + ") ",
-				avgObjSize > 0);
+		assertTrue("in " + TestingConstants.MONGODB_TEST_DATABASE
+				+ " (avgObjSize = " + avgObjSize + ") ", avgObjSize > 0);
 	}
 
 	@Test
 	public void dataGTZero() {
-		assertNotNull("in " + TestingConstants.MONGODB_TEST_DATABASE + " (data = null)",
-				allStats.get(STAT_DATA_SIZE));
+		assertNotNull("in " + TestingConstants.MONGODB_TEST_DATABASE
+				+ " (data = null)", allStats.get(STAT_DATA_SIZE));
 		int data = ((Integer) allStats.get(STAT_DATA_SIZE)).intValue();
-		assertTrue("in " + TestingConstants.MONGODB_TEST_DATABASE + " (data = " + data + ") ", data > 0);
+		assertTrue("in " + TestingConstants.MONGODB_TEST_DATABASE + " (data = "
+				+ data + ") ", data > 0);
 	}
 
 	@Test
 	public void storageGTZero() {
-		assertNotNull("in " + TestingConstants.MONGODB_TEST_DATABASE + " (storage = null)",
-				allStats.get(STAT_TOTAL_SIZE));
+		assertNotNull("in " + TestingConstants.MONGODB_TEST_DATABASE
+				+ " (storage = null)", allStats.get(STAT_TOTAL_SIZE));
 		int storage = ((Integer) allStats.get(STAT_TOTAL_SIZE)).intValue();
-		assertTrue("in " + TestingConstants.MONGODB_TEST_DATABASE + " (storage = " + storage + ") ",
-				storage > 0);
+		assertTrue("in " + TestingConstants.MONGODB_TEST_DATABASE
+				+ " (storage = " + storage + ") ", storage > 0);
 	}
 
 	@Test
 	public void numIndexGTZero() {
-		assertNotNull("in " + TestingConstants.MONGODB_TEST_DATABASE + " (numIndex = null)",
-				allStats.get(STAT_NUM_INDEX));
+		assertNotNull("in " + TestingConstants.MONGODB_TEST_DATABASE
+				+ " (numIndex = null)", allStats.get(STAT_NUM_INDEX));
 		int numIndex = ((Integer) allStats.get(STAT_NUM_INDEX)).intValue();
-		assertTrue("in " + TestingConstants.MONGODB_TEST_DATABASE + " (numIndex = " + numIndex + ") ",
-				numIndex > 0);
+		assertTrue("in " + TestingConstants.MONGODB_TEST_DATABASE
+				+ " (numIndex = " + numIndex + ") ", numIndex > 0);
 	}
 
 	@Test
 	public void totalIndexSizeGTZero() {
-		assertNotNull("in " + TestingConstants.MONGODB_TEST_DATABASE + " (totalIndexSize = null)",
+		assertNotNull("in " + TestingConstants.MONGODB_TEST_DATABASE
+				+ " (totalIndexSize = null)",
 				allStats.get(STAT_TOTAL_INDEX_SIZE));
 		int totalIndexSize = ((Integer) allStats.get(STAT_TOTAL_INDEX_SIZE))
 				.intValue();
-		assertTrue("in " + TestingConstants.MONGODB_TEST_DATABASE + " (totalIndexSize = "
-				+ totalIndexSize + ") ", totalIndexSize > 0);
+		assertTrue("in " + TestingConstants.MONGODB_TEST_DATABASE
+				+ " (totalIndexSize = " + totalIndexSize + ") ",
+				totalIndexSize > 0);
 	}
 
 	@Test
 	public void numExtentGTZero() {
-		assertNotNull("in " + TestingConstants.MONGODB_TEST_DATABASE + " (numExtents = null)",
-				allStats.get(STAT_NUM_EXTENT));
+		assertNotNull("in " + TestingConstants.MONGODB_TEST_DATABASE
+				+ " (numExtents = null)", allStats.get(STAT_NUM_EXTENT));
 		int numExtents = ((Integer) allStats.get(STAT_NUM_EXTENT)).intValue();
-		assertTrue(
-				"in " + TestingConstants.MONGODB_TEST_DATABASE + " (numExtents = " + numExtents + ") ",
-				numExtents > 0);
+		assertTrue("in " + TestingConstants.MONGODB_TEST_DATABASE
+				+ " (numExtents = " + numExtents + ") ", numExtents > 0);
 	}
 
 	@Test
 	public void fileSizeGTZero() {
-		assertNotNull("in " + TestingConstants.MONGODB_TEST_DATABASE + " (fileSize = null)",
-				allStats.get(STAT_FILE_SIZE));
+		assertNotNull("in " + TestingConstants.MONGODB_TEST_DATABASE
+				+ " (fileSize = null)", allStats.get(STAT_FILE_SIZE));
 		int fileSize = ((Integer) allStats.get(STAT_FILE_SIZE)).intValue();
-		assertTrue("in " + TestingConstants.MONGODB_TEST_DATABASE + " (fileSize = " + fileSize + ") ",
-				fileSize > 0);
+		assertTrue("in " + TestingConstants.MONGODB_TEST_DATABASE
+				+ " (fileSize = " + fileSize + ") ", fileSize > 0);
 	}
 }

@@ -29,8 +29,8 @@ import java.util.Random;
 
 public class SimpleRandomMessageGenerator extends AbstractMessageGenerator {
 
-	//TODO fix me
-	public static String messageBodyDataDirectory = "/home/noah/workspace/enkive/test/data/text";//"/home/lee/Storage/Projects/Enkive-3/workspace/Enkive/test/data/gutenbergData";
+	// TODO fix me
+	public static String messageBodyDataDirectory = "/home/noah/workspace/enkive/test/data/text";// "/home/lee/Storage/Projects/Enkive-3/workspace/Enkive/test/data/gutenbergData";
 
 	protected Random randGen;
 

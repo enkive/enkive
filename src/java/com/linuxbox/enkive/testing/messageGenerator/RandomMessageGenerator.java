@@ -102,8 +102,10 @@ public class RandomMessageGenerator extends AbstractMessageGenerator {
 		StringBuffer messageBody = new StringBuffer();
 		String workspaceDirectory = new File(".").getAbsolutePath();
 		try {
-			//File workspaceDirectory = workspace.getRoot().getLocation().toFile();
-			File messageBodyDataDir = new File(workspaceDirectory + "/" + messageBodyDataDirectory);
+			// File workspaceDirectory =
+			// workspace.getRoot().getLocation().toFile();
+			File messageBodyDataDir = new File(workspaceDirectory + "/"
+					+ messageBodyDataDirectory);
 			File[] files = messageBodyDataDir.listFiles();
 
 			int fileToGet = randGen.nextInt(files.length);

@@ -13,11 +13,10 @@ import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TOTAL_INDEX_SIZ
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TOTAL_SIZE;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TYPE;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TYPE_COLL;
-import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TYPE_RUN;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TYPE_DB;
+import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TYPE_RUN;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import com.linuxbox.enkive.TestingConstants;
 
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -34,6 +33,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
+import com.linuxbox.enkive.TestingConstants;
 import com.linuxbox.enkive.statistics.KeyDef;
 import com.linuxbox.enkive.statistics.gathering.mongodb.StatsMongoCollectionGatherer;
 import com.mongodb.DB;
@@ -60,26 +60,27 @@ public class StatsMongoCollTest {
 			m = new Mongo();
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
-			System.exit(0);	
+			System.exit(0);
 		} catch (MongoException e) {
 			e.printStackTrace();
 			System.exit(0);
 		}
 		db = m.getDB(TestingConstants.MONGODB_TEST_DATABASE);
-		collStats = new StatsMongoCollectionGatherer(m, TestingConstants.MONGODB_TEST_DATABASE, "CollGatherer", "0 * * * * ?");
+		collStats = new StatsMongoCollectionGatherer(m,
+				TestingConstants.MONGODB_TEST_DATABASE, "CollGatherer",
+				"0 * * * * ?");
 		allStats = collStats.getStatistics();
 		List<Object[]> data = new ArrayList<Object[]>();
 		System.out.println("Not testing the following empty DB's: ");
-		for(String name : db.getCollectionNames()){
-			if(db.getCollection(name).count() > 0){
-				if(name.startsWith("$")){
+		for (String name : db.getCollectionNames()) {
+			if (db.getCollection(name).count() > 0) {
+				if (name.startsWith("$")) {
 					name = name.replaceFirst("$", "-");
 				}
 				name = name.replace('.', '-');
 				Object[] thing = { name };
 				data.add(thing);
-			}
-			else{
+			} else {
 				System.out.println(name);
 			}
 		}
@@ -97,35 +98,37 @@ public class StatsMongoCollTest {
 	@After
 	public void tearDown() throws Exception {
 	}
-	
-	//TODO: move to main api in the future?
-	public boolean checkFormat(Map<String, Object> stats, LinkedList<String> path){
-		if(path.contains(STAT_SERVICE_NAME)){
+
+	// TODO: move to main api in the future?
+	public boolean checkFormat(Map<String, Object> stats,
+			LinkedList<String> path) {
+		if (path.contains(STAT_SERVICE_NAME)) {
 			return true;
 		}
-		
-		if(path.isEmpty()){
+
+		if (path.isEmpty()) {
 			return false;
 		}
 		String key = path.getFirst();
-		if(path.size() == 1){
-			if(key.equals("*"))
+		if (path.size() == 1) {
+			if (key.equals("*"))
 				return stats != null;
 			else {
-				return stats.get(key) != null; 
+				return stats.get(key) != null;
 			}
 		}
-		
+
 		boolean result = false;
 		if (key.equals("*")) {
 			path.removeFirst();
-			for(String statKey: stats.keySet()){
-				if(!(stats.get(statKey) instanceof Map)){
+			for (String statKey : stats.keySet()) {
+				if (!(stats.get(statKey) instanceof Map)) {
 					result = path.size() == 1;
 				} else {
-					result = checkFormat((Map<String, Object>)stats.get(statKey), path);
+					result = checkFormat(
+							(Map<String, Object>) stats.get(statKey), path);
 				}
-				if(result){
+				if (result) {
 					break;
 				}
 			}
@@ -133,7 +136,7 @@ public class StatsMongoCollTest {
 			return result;
 		} else if (stats.containsKey(key)) {
 			path.removeFirst();
-			result = checkFormat((Map<String, Object>)stats.get(key), path);
+			result = checkFormat((Map<String, Object>) stats.get(key), path);
 			path.addFirst(key);
 			return result;
 		}
@@ -141,34 +144,35 @@ public class StatsMongoCollTest {
 	}
 
 	@Test
-	public void testAttributes(){
-		for(KeyDef key: collStats.getAttributes().getKeys()){
+	public void testAttributes() {
+		for (KeyDef key : collStats.getAttributes().getKeys()) {
 			LinkedList<String> path = key.getKey();
-			assertTrue("the format is incorrect for path: " + path,checkFormat(allStats, path));
+			assertTrue("the format is incorrect for path: " + path,
+					checkFormat(allStats, path));
 		}
 	}
-	
+
 	@Test
 	public void hasServiceName() {
 		String sn = (String) collStats.getAttributes().getName();
 		assertNotNull("no service name found in hasServiceName()", sn);
 		assertTrue(sn.equals(name));
 	}
-	
+
 	@Test
 	public void hasTimeStamp() {
 		Long time = ((Long) allStats.get(STAT_TIME_STAMP));
 		assertTrue("runtime test exception in hasTimeStamp(): time = " + time,
 				time != null);
 	}
-	
+
 	@Test
 	public void timeGTZero() {
 		Long time = ((Long) allStats.get(STAT_TIME_STAMP));
 		assertTrue("runtime test exception in timeGTZero(): time = " + time,
 				time > 0);
 	}
-	
+
 	@Test
 	public void typeTest() {
 		Map<String, Object> obj = (Map<String, Object>) allStats.get(collName);
@@ -197,10 +201,11 @@ public class StatsMongoCollTest {
 
 	@Test
 	public void keyCountMatches() {
-		int numKeys = ((Map<String, Object>) allStats.get(collName)).keySet().size();
+		int numKeys = ((Map<String, Object>) allStats.get(collName)).keySet()
+				.size();
 		assertTrue("numKeys doesn't match: numKeys = " + numKeys, numKeys == 11);
 	}
-	
+
 	// GT means 'greater than'
 	@Test
 	public void numObjsGTZeroTest() {

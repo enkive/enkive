@@ -3,6 +3,7 @@ package com.linuxbox.enkive.statistics.gathering.mongodb;
 import static com.linuxbox.enkive.statistics.StatsConstants.ARCHIVE_SIZE;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIME_STAMP;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,17 +29,8 @@ public class StatsMongoMsgGatherer extends AbstractGatherer {
 	@Override
 	public Map<String, Object> getStatistics() {
 		Map<String, Object> result = new HashMap<String, Object>();
-		result.put(STAT_TIME_STAMP, System.currentTimeMillis());
 		result.put(ARCHIVE_SIZE, messageColl.count());
+		result.put(STAT_TIME_STAMP, new Date(System.currentTimeMillis()));
 		return result;
 	}
-/*
-	@Override
-	protected List<KeyDef> keyBuilder() {
-		List<KeyDef> keys = new LinkedList<KeyDef>();
-		keys.add(new KeyDef(ARCHIVE_SIZE + ":" + GRAIN_AVG + "," + GRAIN_MAX
-				+ "," + GRAIN_MIN));
-		return keys;
-	}
-*/
 }

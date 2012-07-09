@@ -42,10 +42,8 @@ public class MongoStatsRetrievalService extends AbstractCreator implements
 		try {
 			m = new Mongo();
 		} catch (UnknownHostException e) {
-			// TODO
 			LOGGER.fatal("Mongo has failed: Unknown Host", e);
 		} catch (MongoException e) {
-			// TODO
 			LOGGER.fatal("Mongo has failed: Mongo Execption", e);
 		}
 		db = m.getDB(STAT_STORAGE_DB);
@@ -73,7 +71,7 @@ public class MongoStatsRetrievalService extends AbstractCreator implements
 		LOGGER.info("RetrievalService(Mongo, String, HashMap) successfully created");
 	}
 
-	private Set<DBObject> buildSet(long lower, long upper) {
+	private Set<DBObject> buildSet(Date lower, Date upper) {
 		DBObject query = new BasicDBObject();
 		DBObject time = new BasicDBObject();
 		time.put("$gte", lower);
@@ -83,13 +81,14 @@ public class MongoStatsRetrievalService extends AbstractCreator implements
 		result.addAll(coll.find(query).toArray());
 		return result;
 	}
+
 	private Set<DBObject> buildSet(Map<String, Map<String, Object>> hmap) {
 		if (hmap == null) {// if null return all
 			Set<DBObject> result = new HashSet<DBObject>();
 			result.addAll(coll.find().toArray());
 			return result;
 		}
-		
+
 		Set<DBObject> result = new HashSet<DBObject>();
 		BasicDBObject tempMap;
 		BasicDBList or = new BasicDBList();
@@ -108,7 +107,7 @@ public class MongoStatsRetrievalService extends AbstractCreator implements
 	}
 
 	private Set<DBObject> buildSet(Map<String, Map<String, Object>> hMap,
-			long lower, long upper) {
+			Date lower, Date upper) {
 		Set<DBObject> hMapSet = buildSet(hMap);
 		Set<DBObject> dateSet = buildSet(lower, upper);
 		Set<DBObject> bothSet = new HashSet<DBObject>();
@@ -132,12 +131,12 @@ public class MongoStatsRetrievalService extends AbstractCreator implements
 		}
 		return allStats;
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public Set<Map<String, Object>> directQuery(Map<String, Object> query) {
 		Set<Map<String, Object>> allStats = new HashSet<Map<String, Object>>();
-		if(query != null){
+		if (query != null) {
 			for (DBObject entry : coll.find(new BasicDBObject(query)).toArray()) {
 				allStats.add(entry.toMap());
 			}
@@ -178,29 +177,36 @@ public class MongoStatsRetrievalService extends AbstractCreator implements
 		if (upper == null) {
 			upper = new Date();
 		}
-		for (DBObject entry : buildSet(hmap, lower.getTime(), upper.getTime())) {
+
+		for (DBObject entry : buildSet(hmap, lower, upper)) {
 			allStats.add(entry.toMap());
 		}
+
 		return allStats;
 	}
 
-	//for use in the servlet
+	// for use in the servlet
 	@SuppressWarnings("unchecked")
 	@Override
-	public Set<Map<String, Object>> queryStatistics(Map<String, Map<String, Object>> queryMap, Map<String, Map<String, Object>> filterMap) throws StatsRetrievalException{		
-		Set<DBObject> allStats = new HashSet<DBObject>();	
-		for(String serviceName : queryMap.keySet()){
+	public Set<Map<String, Object>> queryStatistics(
+			Map<String, Map<String, Object>> queryMap,
+			Map<String, Map<String, Object>> filterMap)
+			throws StatsRetrievalException {
+		Set<DBObject> allStats = new HashSet<DBObject>();
+		for (String serviceName : queryMap.keySet()) {
 			BasicDBObject query = new BasicDBObject();
 			query.put(STAT_SERVICE_NAME, serviceName);
 			query.putAll(queryMap.get(serviceName));
-			if(filterMap.get(serviceName) != null && !filterMap.get(serviceName).isEmpty()){
-				BasicDBObject filter = new BasicDBObject(filterMap.get(serviceName));
+			if (filterMap.get(serviceName) != null
+					&& !filterMap.get(serviceName).isEmpty()) {
+				BasicDBObject filter = new BasicDBObject(
+						filterMap.get(serviceName));
 				allStats.addAll(coll.find(query, filter).toArray());
 			} else {
 				allStats.addAll(coll.find(query).toArray());
-			}			
+			}
 		}
-		
+
 		Set<Map<String, Object>> result = new HashSet<Map<String, Object>>();
 		for (DBObject entry : allStats) {
 			result.add(entry.toMap());

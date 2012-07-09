@@ -34,11 +34,11 @@ import static com.linuxbox.enkive.search.Constants.DATE_LATEST_PARAMETER;
 import static com.linuxbox.enkive.search.Constants.LIMIT_PARAMETER;
 import static com.linuxbox.enkive.search.Constants.MESSAGE_ID_PARAMETER;
 import static com.linuxbox.enkive.search.Constants.NUMERIC_SEARCH_FORMAT;
-import static com.linuxbox.enkive.search.Constants.SPECIFIC_SEARCH_FORMAT;
 import static com.linuxbox.enkive.search.Constants.PERMISSIONS_RECIPIENT_PARAMETER;
 import static com.linuxbox.enkive.search.Constants.PERMISSIONS_SENDER_PARAMETER;
 import static com.linuxbox.enkive.search.Constants.RECIPIENT_PARAMETER;
 import static com.linuxbox.enkive.search.Constants.SENDER_PARAMETER;
+import static com.linuxbox.enkive.search.Constants.SPECIFIC_SEARCH_FORMAT;
 import static com.linuxbox.enkive.search.Constants.SUBJECT_PARAMETER;
 
 import java.text.ParseException;
@@ -224,17 +224,16 @@ public class MongoMessageSearchService extends AbstractMessageSearchService {
 						dateQuery.put("$gte", dateEarliest);
 					} catch (ParseException e) {
 						try {
-						Date dateEarliest = NUMERIC_SEARCH_FORMAT.parse(fields
-								.get(DATE_EARLIEST_PARAMETER));
-						dateQuery.put("$gte", dateEarliest);
+							Date dateEarliest = NUMERIC_SEARCH_FORMAT
+									.parse(fields.get(DATE_EARLIEST_PARAMETER));
+							dateQuery.put("$gte", dateEarliest);
 						} catch (ParseException ex) {
 							if (LOGGER.isWarnEnabled())
 								LOGGER.warn("Could not parse earliest date submitted to search - "
 										+ fields.get(DATE_EARLIEST_PARAMETER));
 						}
 					}
-					
-					
+
 				}
 				if (fields.containsKey(DATE_LATEST_PARAMETER)
 						&& fields.get(DATE_LATEST_PARAMETER) != null

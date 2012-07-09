@@ -97,7 +97,7 @@ public class StatsMongoAttachmentsGatherer extends AbstractGatherer {
 	@Override
 	public Map<String, Object> getStatistics() {
 		long currTime = System.currentTimeMillis();
-		// default sets dates to previous thirty days
+		// default sets dates to previous hour
 		if (resetDates) {
 			setUpper(new Date(currTime));
 			setLower(new Date(currTime - 3600000));
@@ -119,22 +119,20 @@ public class StatsMongoAttachmentsGatherer extends AbstractGatherer {
 		}
 		stats.put(STAT_AVG_ATTACH, avg);
 		stats.put(STAT_MAX_ATTACH, max);
-		stats.put(STAT_TIME_STAMP, System.currentTimeMillis());
+		stats.put(STAT_TIME_STAMP, new Date(System.currentTimeMillis()));
 		return stats;
 	}
 
 	public Date getUpper() {
 		return upper;
 	}
-/*
-	@Override
-	protected List<KeyDef> keyBuilder() {
-		List<KeyDef> keys = new LinkedList<KeyDef>();
-		keys.add(new KeyDef(STAT_AVG_ATTACH + ":" + GRAIN_AVG));
-		keys.add(new KeyDef(STAT_MAX_ATTACH + ":" + GRAIN_MAX + "," + GRAIN_MIN));
-		return keys;
-	}
-*/
+
+	/*
+	 * @Override protected List<KeyDef> keyBuilder() { List<KeyDef> keys = new
+	 * LinkedList<KeyDef>(); keys.add(new KeyDef(STAT_AVG_ATTACH + ":" +
+	 * GRAIN_AVG)); keys.add(new KeyDef(STAT_MAX_ATTACH + ":" + GRAIN_MAX + ","
+	 * + GRAIN_MIN)); return keys; }
+	 */
 	private Map<String, Object> makeDateQuery() {
 		Map<String, Object> dateQuery = createMap();
 		dateQuery.put("$gte", lower);

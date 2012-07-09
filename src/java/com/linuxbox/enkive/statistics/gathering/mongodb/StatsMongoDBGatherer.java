@@ -23,6 +23,7 @@ import static com.linuxbox.enkive.statistics.gathering.mongodb.MongoConstants.MO
 import static com.linuxbox.enkive.statistics.gathering.mongodb.MongoConstants.MONGO_NUM_OBJS;
 import static com.linuxbox.enkive.statistics.gathering.mongodb.MongoConstants.MONGO_STORAGE_SIZE;
 
+import java.util.Date;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
@@ -36,7 +37,7 @@ import com.mongodb.Mongo;
 public class StatsMongoDBGatherer extends AbstractGatherer {
 	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.statistics.gathering");
-	
+
 	protected DB db;
 
 	protected Mongo m;
@@ -67,34 +68,7 @@ public class StatsMongoDBGatherer extends AbstractGatherer {
 		stats.put(STAT_TOTAL_INDEX_SIZE, temp.get(MONGO_INDEX_SIZE));
 		stats.put(STAT_NUM_EXTENT, temp.get(MONGO_NUM_EXTENT));
 		stats.put(STAT_FILE_SIZE, temp.get(MONGO_FILE_SIZE));
-		stats.put(STAT_TIME_STAMP, System.currentTimeMillis());
+		stats.put(STAT_TIME_STAMP, new Date(System.currentTimeMillis()));
 		return stats;
 	}
-/*
-	@Override
-	protected List<KeyDef> keyBuilder() {
-		List<KeyDef> keys = new LinkedList<KeyDef>();
-		keys.add(new KeyDef(STAT_TYPE + ":"));
-		keys.add(new KeyDef(STAT_NAME + ":"));
-		keys.add(new KeyDef(STAT_NUM_COLLECTIONS + ":" + GRAIN_AVG + ","
-				+ GRAIN_MAX + "," + GRAIN_MIN));
-		keys.add(new KeyDef(STAT_NUM_OBJS + ":" + GRAIN_AVG + "," + GRAIN_MAX
-				+ "," + GRAIN_MIN));
-		keys.add(new KeyDef(STAT_AVG_OBJ_SIZE + ":" + GRAIN_AVG + ","
-				+ GRAIN_MAX + "," + GRAIN_MIN));
-		keys.add(new KeyDef(STAT_DATA_SIZE + ":" + GRAIN_AVG + "," + GRAIN_MAX
-				+ "," + GRAIN_MIN));
-		keys.add(new KeyDef(STAT_TOTAL_SIZE + ":" + GRAIN_AVG + "," + GRAIN_MAX
-				+ "," + GRAIN_MIN));
-		keys.add(new KeyDef(STAT_NUM_INDEX + ":" + GRAIN_AVG + "," + GRAIN_MAX
-				+ "," + GRAIN_MIN));
-		keys.add(new KeyDef(STAT_TOTAL_INDEX_SIZE + ":" + GRAIN_AVG + ","
-				+ GRAIN_MAX + "," + GRAIN_MIN));
-		keys.add(new KeyDef(STAT_NUM_EXTENT + ":" + GRAIN_AVG + "," + GRAIN_MAX
-				+ "," + GRAIN_MIN));
-		keys.add(new KeyDef(STAT_FILE_SIZE + ":" + GRAIN_AVG + "," + GRAIN_MAX
-				+ "," + GRAIN_MIN));
-		return keys;
-	}
-*/
 }

@@ -4,8 +4,8 @@ import static com.linuxbox.enkive.statistics.StatsConstants.STAT_AVG_ATTACH;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_DATA_SIZE;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_FREE_MEMORY;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_NAME;
-import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TYPE;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_SERVICE_NAME;
+import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TYPE;
 
 import java.net.UnknownHostException;
 import java.text.ParseException;
@@ -66,21 +66,24 @@ public class StatsGathererService extends AbstractCreator {
 	}
 
 	protected Map<String, GathererInterface> statsGatherers = null;
-	//needs to maintain that key is the name in attributes!
+
+	// needs to maintain that key is the name in attributes!
 	public StatsGathererService(Map<String, GathererInterface> statsGatherers)
 			throws ParseException {
 		this.statsGatherers = new HashMap<String, GathererInterface>();
-		for(String key: statsGatherers.keySet()){
+		for (String key : statsGatherers.keySet()) {
 			GathererInterface gatherer = statsGatherers.get(key);
-			this.statsGatherers.put(gatherer.getAttributes().getName(), gatherer);
+			this.statsGatherers.put(gatherer.getAttributes().getName(),
+					gatherer);
 		}
 	}
-	
+
 	public StatsGathererService(Set<GathererInterface> statsGatherers)
 			throws ParseException {
 		this.statsGatherers = new HashMap<String, GathererInterface>();
-		for(GathererInterface gatherer: statsGatherers){
-			this.statsGatherers.put(gatherer.getAttributes().getName(), gatherer);
+		for (GathererInterface gatherer : statsGatherers) {
+			this.statsGatherers.put(gatherer.getAttributes().getName(),
+					gatherer);
 		}
 	}
 
@@ -125,9 +128,10 @@ public class StatsGathererService extends AbstractCreator {
 
 		Set<Map<String, Object>> statsSet = createSet();
 		for (String name : gathererKeys.keySet()) {
-			Map<String, Object> gathererData = statsGatherers.get(name).getStatistics(
-					gathererKeys.get(name));
-			gathererData.put(STAT_SERVICE_NAME, statsGatherers.get(name).getAttributes().getName());
+			Map<String, Object> gathererData = statsGatherers.get(name)
+					.getStatistics(gathererKeys.get(name));
+			gathererData.put(STAT_SERVICE_NAME, statsGatherers.get(name)
+					.getAttributes().getName());
 			statsSet.add(gathererData);
 		}
 

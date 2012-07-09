@@ -49,7 +49,9 @@ import com.linuxbox.util.queueservice.mongodb.MongoQueueServiceTest;
 		StatsMongoDBTest.class, StatsMongoCollTest.class,
 		StatsMsgEntriesTest.class, StatsRuntimeTest.class,
 		StatsMongoAttachTest.class, MongoRetrieverServiceTest.class,
-		MongoMessageRetentionPolicyEnforcementTest.class, //has problems (infinite loop problems)
+		MongoMessageRetentionPolicyEnforcementTest.class, // has problems
+															// (infinite loop
+															// problems)
 		// Unimplemented - IndriQueryComposerTest.class,
 		EnkiveFilterTest.class })
 public class AllTests {

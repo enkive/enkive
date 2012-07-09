@@ -52,7 +52,7 @@ public class GrainRunner {
 
 	public void run() {
 		LOGGER.info("GrainRunner run() starting");
-		if(Granularity.HOUR.isMatch()){
+		if (Granularity.HOUR.isMatch()) {
 			LOGGER.trace("GrainRunner hour() starting");
 			new HourGrain(client).storeConsolidatedData();
 			LOGGER.trace("GrainRunner hour() finished");
@@ -63,19 +63,18 @@ public class GrainRunner {
 			new DayGrain(client).storeConsolidatedData();
 			LOGGER.trace("GrainRunner day() finished");
 		}
-		if(Granularity.WEEK.isMatch()){
+		if (Granularity.WEEK.isMatch()) {
 			LOGGER.trace("GrainRunner week() starting");
 			new WeekGrain(client).storeConsolidatedData();
-			LOGGER.trace("GrainRunner week() finished"); 
+			LOGGER.trace("GrainRunner week() finished");
 		}
-		
-		if(Granularity.MONTH.isMatch()){ 
+
+		if (Granularity.MONTH.isMatch()) {
 			LOGGER.trace("GrainRunner month() starting");
 			new MonthGrain(client).storeConsolidatedData();
-			LOGGER.trace("GrainRunner month() finished"); 
+			LOGGER.trace("GrainRunner month() finished");
 		}
 		LOGGER.info("GrainRunner run() finished");
-		 
 		remover.cleanAll();
 	}
 }

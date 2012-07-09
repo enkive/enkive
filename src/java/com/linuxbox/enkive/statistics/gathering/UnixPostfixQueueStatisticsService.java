@@ -7,6 +7,7 @@ import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIME_STAMP;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Date;
 import java.util.Map;
 
 import org.quartz.JobExecutionContext;
@@ -61,7 +62,8 @@ public class UnixPostfixQueueStatisticsService extends AbstractGatherer {
 				selectedStats.put(key, stats.get(key));
 			}
 		}
-		selectedStats.put(STAT_TIME_STAMP, System.currentTimeMillis());
+		selectedStats
+				.put(STAT_TIME_STAMP, new Date(System.currentTimeMillis()));
 
 		return selectedStats;
 	}

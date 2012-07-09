@@ -69,7 +69,7 @@ public class Remove {
 		Set<Map<String, Object>> data = client.queryStatistics(null, new Date(
 				0L), dateFilter);
 		Set<Object> deletionSet = new HashSet<Object>();
-		
+
 		for (Map<String, Object> map : data) {
 			Integer gType = (Integer) map.get(GRAIN_TYPE);
 			if (gType != null) {

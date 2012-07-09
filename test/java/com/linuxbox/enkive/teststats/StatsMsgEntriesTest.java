@@ -28,6 +28,7 @@ public class StatsMsgEntriesTest {
 	private static StatsMsgSearchGatherer msgEntries;
 	private static Map<String, Object> stats;
 	private static String name = "MsgEntriesGatherer";
+
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		msgEntries = new StatsMsgSearchGatherer(name, "0 * * * * ?");
@@ -52,34 +53,37 @@ public class StatsMsgEntriesTest {
 	@After
 	public void tearDown() throws Exception {
 	}
+
 	@SuppressWarnings("unchecked")
-	public boolean checkFormat(Map<String, Object> stats, LinkedList<String> path){
-		if(path.contains(STAT_SERVICE_NAME)){
+	public boolean checkFormat(Map<String, Object> stats,
+			LinkedList<String> path) {
+		if (path.contains(STAT_SERVICE_NAME)) {
 			return true;
 		}
-		
-		if(path.isEmpty()){
+
+		if (path.isEmpty()) {
 			return false;
 		}
 		String key = path.getFirst();
-		if(path.size() == 1){
-			if(key.equals("*"))
+		if (path.size() == 1) {
+			if (key.equals("*"))
 				return stats != null;
 			else {
-				return stats.get(key) != null; 
+				return stats.get(key) != null;
 			}
 		}
-		
+
 		boolean result = false;
 		if (key.equals("*")) {
 			path.removeFirst();
-			for(String statKey: stats.keySet()){
-				if(!(stats.get(statKey) instanceof Map)){
+			for (String statKey : stats.keySet()) {
+				if (!(stats.get(statKey) instanceof Map)) {
 					result = path.size() == 1;
 				} else {
-					result = checkFormat((Map<String, Object>)stats.get(statKey), path);
+					result = checkFormat(
+							(Map<String, Object>) stats.get(statKey), path);
 				}
-				if(result){
+				if (result) {
 					break;
 				}
 			}
@@ -87,55 +91,56 @@ public class StatsMsgEntriesTest {
 			return result;
 		} else if (stats.containsKey(key)) {
 			path.removeFirst();
-			result = checkFormat((Map<String, Object>)stats.get(key), path);
+			result = checkFormat((Map<String, Object>) stats.get(key), path);
 			path.addFirst(key);
 			return result;
 		}
 		return false;
 	}
-	
+
 	@Test
-	public void testAttributes(){
-		for(KeyDef key: msgEntries.getAttributes().getKeys()){
+	public void testAttributes() {
+		for (KeyDef key : msgEntries.getAttributes().getKeys()) {
 			LinkedList<String> path = key.getKey();
-			assertTrue("the format is incorrect for path: " + path,checkFormat(stats, path));
+			assertTrue("the format is incorrect for path: " + path,
+					checkFormat(stats, path));
 		}
 	}
-	
+
 	@Test
 	public void keyCountMatches() {
 		int numKeys = stats.keySet().size();
 		assertTrue("numKeys doesn't match: numKeys = " + numKeys, numKeys == 2);
 	}
-	
+
 	@Test
 	public void hasServiceName() {
 		String sn = (String) msgEntries.getAttributes().getName();
 		assertNotNull("no service name found in hasServiceName()", sn);
 		assertTrue(sn.equals(name));
 	}
-	
+
 	@Test
 	public void hasTimeStamp() {
 		Long time = ((Long) stats.get(STAT_TIME_STAMP));
 		assertTrue("runtime test exception in hasTimeStamp(): time = " + time,
 				time != null);
 	}
-	
+
 	@Test
 	public void timeGTZero() {
 		Long time = ((Long) stats.get(STAT_TIME_STAMP));
 		assertTrue("runtime test exception in timeGTZero(): time = " + time,
 				time > 0);
 	}
-	
+
 	@Test
 	public void GTZerotest() {
 		Date startDate = new Date(0L);
 		Date endDate = new Date();
 		Map<String, Object> numEntriesStats = msgEntries.getStatistics(
 				startDate, endDate);
-		int numEntries = (Integer)numEntriesStats.get(STAT_NUM_ENTRIES);
+		int numEntries = (Integer) numEntriesStats.get(STAT_NUM_ENTRIES);
 		assertTrue("numEntries = " + numEntries, numEntries > 0);
 	}
 }

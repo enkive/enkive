@@ -3,6 +3,7 @@ package com.linuxbox.enkive.statistics.gathering;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_SERVICE_NAME;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIME_STAMP;
 
+import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -27,9 +28,12 @@ public abstract class AbstractGatherer extends AbstractCreator implements
 	protected Scheduler scheduler;
 	protected StatsStorageService storageService;
 	protected List<String> keys;
-	
+	private String serviceName;
+	private String schedule;
+
 	public AbstractGatherer(String serviceName, String schedule) {
-		attributes = new GathererAttributes(serviceName, schedule, keyBuilder(keys));
+		this.serviceName = serviceName;
+		this.schedule = schedule;
 	}
 
 	@Override
@@ -59,7 +63,8 @@ public abstract class AbstractGatherer extends AbstractCreator implements
 				&& stats.get(STAT_TIME_STAMP) != null) {
 			selectedStats.put(STAT_TIME_STAMP, stats.get(STAT_TIME_STAMP));
 		} else {
-			selectedStats.put(STAT_TIME_STAMP, System.currentTimeMillis());
+			selectedStats.put(STAT_TIME_STAMP,
+					new Date(System.currentTimeMillis()));
 		}
 
 		return selectedStats;
@@ -67,6 +72,9 @@ public abstract class AbstractGatherer extends AbstractCreator implements
 
 	@PostConstruct
 	protected void init() throws Exception {
+		// create attributes
+		attributes = new GathererAttributes(serviceName, schedule,
+				keyBuilder(keys));
 		// create factory
 		MethodInvokingJobDetailFactoryBean jobDetail = new MethodInvokingJobDetailFactoryBean();
 		jobDetail.setTargetObject(this);
@@ -85,17 +93,17 @@ public abstract class AbstractGatherer extends AbstractCreator implements
 		// add to schedule defined in spring xml
 		scheduler.scheduleJob((JobDetail) jobDetail.getObject(), trigger);
 	}
-	
+
 	protected List<KeyDef> keyBuilder(List<String> keyList) {
 		List<KeyDef> keys = new LinkedList<KeyDef>();
-		if(keyList != null){
-			for(String key: keyList){
+		if (keyList != null) {
+			for (String key : keyList) {
 				keys.add(new KeyDef(key));
 			}
 		}
 		return keys;
 	}
-	
+
 	protected Set<String> makeCreator(String... methodTypes) {
 		Set<String> result = new HashSet<String>();
 		for (String methodName : methodTypes) {
@@ -120,8 +128,8 @@ public abstract class AbstractGatherer extends AbstractCreator implements
 					getStatistics());
 		}
 	}
-	
-	public void setKeys(List<String> keys){
+
+	public void setKeys(List<String> keys) {
 		this.keys = keys;
 	}
 }

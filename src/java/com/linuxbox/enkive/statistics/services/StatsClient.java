@@ -32,7 +32,7 @@ public class StatsClient {
 	public Set<Map<String, Object>> directQuery(Map<String, Object> stats) {
 		return retrievalService.directQuery(stats);
 	}
-	
+
 	public Set<Map<String, Object>> directQuery() {
 		return retrievalService.directQuery();
 	}
@@ -90,8 +90,10 @@ public class StatsClient {
 		}
 		return null;
 	}
-	
-	public Set<Map<String, Object>> queryStatistics(Map<String, Map<String, Object>> queryMap, Map<String, Map<String, Object>> filterMap){
+
+	public Set<Map<String, Object>> queryStatistics(
+			Map<String, Map<String, Object>> queryMap,
+			Map<String, Map<String, Object>> filterMap) {
 		try {
 			return retrievalService.queryStatistics(queryMap, filterMap);
 		} catch (StatsRetrievalException e) {

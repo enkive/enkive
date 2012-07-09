@@ -6,6 +6,7 @@ import static com.linuxbox.enkive.statistics.StatsConstants.STAT_PROCESSORS;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIME_STAMP;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TOTAL_MEMORY;
 
+import java.util.Date;
 import java.util.Map;
 
 public class StatsRuntimeGatherer extends AbstractGatherer {
@@ -22,7 +23,7 @@ public class StatsRuntimeGatherer extends AbstractGatherer {
 		stats.put(STAT_FREE_MEMORY, runtime.freeMemory());
 		stats.put(STAT_TOTAL_MEMORY, runtime.totalMemory());
 		stats.put(STAT_PROCESSORS, runtime.availableProcessors());
-		stats.put(STAT_TIME_STAMP, System.currentTimeMillis());
+		stats.put(STAT_TIME_STAMP, new Date(System.currentTimeMillis()));
 		return stats;
-	}	
+	}
 }

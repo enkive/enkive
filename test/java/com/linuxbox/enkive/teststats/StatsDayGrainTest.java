@@ -2,7 +2,10 @@ package com.linuxbox.enkive.teststats;
 
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_STORAGE_COLLECTION;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIME_STAMP;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.*;
+import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_AVG;
+import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MAX;
+import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MIN;
+import static org.junit.Assert.assertTrue;
 
 import java.net.UnknownHostException;
 import java.text.ParseException;
@@ -15,8 +18,6 @@ import java.util.Set;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import static org.junit.Assert.assertTrue;
 
 import com.linuxbox.enkive.TestingConstants;
 import com.linuxbox.enkive.docsearch.indri.IndriDocSearchQueryService;
@@ -52,9 +53,9 @@ public class StatsDayGrainTest {
 	private static DB db;
 	private static DBCollection coll;
 	private static long dataCount;
-	
+
 	@BeforeClass
-	public static void setUp() throws ParseException, GathererException{
+	public static void setUp() throws ParseException, GathererException {
 		try {
 			m = new Mongo();
 		} catch (UnknownHostException e) {
@@ -66,11 +67,17 @@ public class StatsDayGrainTest {
 		}
 		db = m.getDB(TestingConstants.MONGODB_TEST_DATABASE);
 		coll = db.getCollection(STAT_STORAGE_COLLECTION);
-		
-		GathererInterface dbProp = new StatsMongoDBGatherer(m, TestingConstants.MONGODB_TEST_DATABASE, "DBGatherer", "* * * * * ?");
-		GathererInterface collProp = new StatsMongoCollectionGatherer(m, TestingConstants.MONGODB_TEST_DATABASE, "CollGatherer", "* * * * * ?");
-		GathererInterface runProp = new StatsRuntimeGatherer("RuntimeGatherer", "* * * * * ?");
-		StatsMsgSearchGatherer msgProp = new StatsMsgSearchGatherer("MsgPropGatherer", "* * * * * ?");
+
+		GathererInterface dbProp = new StatsMongoDBGatherer(m,
+				TestingConstants.MONGODB_TEST_DATABASE, "DBGatherer",
+				"* * * * * ?");
+		GathererInterface collProp = new StatsMongoCollectionGatherer(m,
+				TestingConstants.MONGODB_TEST_DATABASE, "CollGatherer",
+				"* * * * * ?");
+		GathererInterface runProp = new StatsRuntimeGatherer("RuntimeGatherer",
+				"* * * * * ?");
+		StatsMsgSearchGatherer msgProp = new StatsMsgSearchGatherer(
+				"MsgPropGatherer", "* * * * * ?");
 		MongoMessageSearchService searchService = null;
 		try {
 			searchService = new MongoMessageSearchService(new Mongo(),
@@ -83,11 +90,17 @@ public class StatsDayGrainTest {
 		}
 		searchService.setDocSearchService(new IndriDocSearchQueryService());
 		msgProp.setSearchService(searchService);
-		StatsMongoAttachmentsGatherer attProp = new StatsMongoAttachmentsGatherer(m, TestingConstants.MONGODB_TEST_DATABASE, TestingConstants.MONGODB_TEST_DOCUMENTS_COLLECTION, "AttachmentGatherer", "* * * * * ?", false);
+		StatsMongoAttachmentsGatherer attProp = new StatsMongoAttachmentsGatherer(
+				m, TestingConstants.MONGODB_TEST_DATABASE,
+				TestingConstants.MONGODB_TEST_DOCUMENTS_COLLECTION,
+				"AttachmentGatherer", "* * * * * ?", false);
 		attProp.setLower(new Date(0L));
 		attProp.setUpper(new Date());
-		GathererInterface msgStatProp = new StatsMongoMsgGatherer(m, TestingConstants.MONGODB_TEST_DATABASE, TestingConstants.MONGODB_TEST_MESSAGES_COLLECTION, "MsgStatGatherer", "* * * * * ?");
-		
+		GathererInterface msgStatProp = new StatsMongoMsgGatherer(m,
+				TestingConstants.MONGODB_TEST_DATABASE,
+				TestingConstants.MONGODB_TEST_MESSAGES_COLLECTION,
+				"MsgStatGatherer", "* * * * * ?");
+
 		HashMap<String, GathererInterface> gatherers = new HashMap<String, GathererInterface>();
 		gatherers.put("DatabaseStatsService", dbProp);
 		gatherers.put("CollStatsService", collProp);
@@ -95,57 +108,63 @@ public class StatsDayGrainTest {
 		gatherers.put("MsgEntriesStatsService", msgProp);
 		gatherers.put("AttachstatsService", attProp);
 		gatherers.put("msgStatStatsService", msgStatProp);
-		retrievalTester = new MongoStatsRetrievalService(m, TestingConstants.MONGODB_TEST_DATABASE);
-		storageTester = new MongoStatsStorageService(m, TestingConstants.MONGODB_TEST_DATABASE);
+		retrievalTester = new MongoStatsRetrievalService(m,
+				TestingConstants.MONGODB_TEST_DATABASE);
+		storageTester = new MongoStatsStorageService(m,
+				TestingConstants.MONGODB_TEST_DATABASE);
 		gatherTester = new StatsGathererService(gatherers);
 		client = new StatsClient(gatherTester, storageTester, retrievalTester);
 		grain = new DayGrain(client);
-		
-		//TODO
-		Set<Map<String,Object>> stats = (new HourGrain(client)).consolidateData();
+
+		// TODO
+		Set<Map<String, Object>> stats = (new HourGrain(client))
+				.consolidateData();
 		Map<String, Object> timeMap = new HashMap<String, Object>();
-		for(int i = 0; i < 10; i++){
+		for (int i = 0; i < 10; i++) {
 			Calendar cal = Calendar.getInstance();
-			if(i < 5){
+			if (i < 5) {
 				cal.add(Calendar.DATE, -1);
 			}
 			timeMap.put(GRAIN_MAX, cal.getTimeInMillis());
 			timeMap.put(GRAIN_MIN, cal.getTimeInMillis());
-			for(Map<String, Object> data: stats){
+			for (Map<String, Object> data : stats) {
 				data.put(STAT_TIME_STAMP, timeMap);
 			}
 			client.storeData(stats);
 		}
 		dataCount = coll.count();
 	}
-	
+
 	@Test
-	public void correctQueryTest(){
-		for(GathererAttributes attribute: client.getAttributes()){
+	public void correctQueryTest() {
+		for (GathererAttributes attribute : client.getAttributes()) {
 			String name = attribute.getName();
-			int size = grain.serviceFilter(name).size();	
-			assertTrue("the query did not return the correct number of objects: 5 vs. " + size, size == 5);
+			int size = grain.serviceFilter(name).size();
+			assertTrue(
+					"the query did not return the correct number of objects: 5 vs. "
+							+ size, size == 5);
 		}
 	}
-	
- 	@Test
-	public void noDeletedDataTest(){
-		long count = coll.count();
-		assertTrue("data was deleted by consolidatation: dataCount before: " + dataCount +"dataCount now: " + count , count >= dataCount);
-	}
-	
+
 	@Test
-	public void consolidationMethods(){
+	public void noDeletedDataTest() {
+		long count = coll.count();
+		assertTrue("data was deleted by consolidatation: dataCount before: "
+				+ dataCount + "dataCount now: " + count, count >= dataCount);
+	}
+
+	@Test
+	public void consolidationMethods() {
 		Set<Map<String, Object>> consolidatedData = grain.consolidateData();
 		assertTrue("the consolidated data is null", consolidatedData != null);
-		String methods[] = {GRAIN_AVG, GRAIN_MAX, GRAIN_MIN};
+		String methods[] = { GRAIN_AVG, GRAIN_MAX, GRAIN_MIN };
 		Object exampleData = new Integer(10);
 		DescriptiveStatistics statsMaker = new DescriptiveStatistics();
 		statsMaker.addValue(111);
 		statsMaker.addValue(11);
 		statsMaker.addValue(1);
 		Map<String, Object> statData = new HashMap<String, Object>();
-		for(String method: methods){
+		for (String method : methods) {
 			grain.methodMapBuilder(method, exampleData, statsMaker, statData);
 		}
 		assertTrue("methodMapBuilder returned null", statData != null);

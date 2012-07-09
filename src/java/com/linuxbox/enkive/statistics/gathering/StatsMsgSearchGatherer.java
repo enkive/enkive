@@ -19,7 +19,7 @@ import com.linuxbox.enkive.message.search.exception.MessageSearchException;
 import com.linuxbox.enkive.workspace.SearchResult;
 
 public class StatsMsgSearchGatherer extends AbstractGatherer {
-	long interval = 3600000;//one hour by default
+	long interval = 3600000;// one hour by default
 	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.statistics.gathering");
 
@@ -53,19 +53,11 @@ public class StatsMsgSearchGatherer extends AbstractGatherer {
 			return null;
 		}
 
-		result.put(STAT_TIME_STAMP, System.currentTimeMillis());
+		result.put(STAT_TIME_STAMP, new Date(System.currentTimeMillis()));
 		result.put(STAT_NUM_ENTRIES, numEntries);
 		return result;
 	}
-/*
-	@Override
-	protected List<KeyDef> keyBuilder() {
-		List<KeyDef> keys = new LinkedList<KeyDef>();
-		keys.add(new KeyDef(STAT_NUM_ENTRIES + ":" + GRAIN_AVG + ","
-				+ GRAIN_MAX + "," + GRAIN_MIN));
-		return keys;
-	}
-*/	
+
 	protected int numEntries(String dateEarliest, String dateLatest) {
 		HashMap<String, String> hmap = new HashMap<String, String>();
 		hmap.put(DATE_EARLIEST_PARAMETER, dateEarliest);
@@ -97,8 +89,8 @@ public class StatsMsgSearchGatherer extends AbstractGatherer {
 	public void setSearchService(MessageSearchService searchService) {
 		this.searchService = searchService;
 	}
-	
-	public void setInterval(long interval){
+
+	public void setInterval(long interval) {
 		this.interval = interval;
 	}
 }
