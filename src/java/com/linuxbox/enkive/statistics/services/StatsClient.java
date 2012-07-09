@@ -32,6 +32,10 @@ public class StatsClient {
 	public Set<Map<String, Object>> directQuery(Map<String, Object> stats) {
 		return retrievalService.directQuery(stats);
 	}
+	
+	public Set<Map<String, Object>> directQuery() {
+		return retrievalService.directQuery();
+	}
 
 	public Set<Map<String, Object>> gatherData() {
 		try {

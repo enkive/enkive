@@ -125,10 +125,24 @@ public class MongoStatsRetrievalService extends AbstractCreator implements
 
 	@SuppressWarnings("unchecked")
 	@Override
+	public Set<Map<String, Object>> directQuery() {
+		Set<Map<String, Object>> allStats = new HashSet<Map<String, Object>>();
+		for (DBObject entry : coll.find().toArray()) {
+			allStats.add(entry.toMap());
+		}
+		return allStats;
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
 	public Set<Map<String, Object>> directQuery(Map<String, Object> query) {
 		Set<Map<String, Object>> allStats = new HashSet<Map<String, Object>>();
-		for (DBObject entry : coll.find(new BasicDBObject(query)).toArray()) {
-			allStats.add(entry.toMap());
+		if(query != null){
+			for (DBObject entry : coll.find(new BasicDBObject(query)).toArray()) {
+				allStats.add(entry.toMap());
+			}
+		} else {
+			return directQuery();
 		}
 		return allStats;
 	}
@@ -193,7 +207,7 @@ public class MongoStatsRetrievalService extends AbstractCreator implements
 		}
 		return result;
 	}
-	
+
 	@Override
 	public void remove(Set<Object> set) throws StatsRetrievalException {
 		if (set != null) {// not null
