@@ -6,7 +6,7 @@ import java.util.Date;
 public enum Granularity {
 	DAY(0, -1, -1, -1), // any hour (hourly controlled by cronTrigger)
 	HOUR(-1, -1, -1, -1), // first hour of any day
-	MONTH(-1, 1, -1, -1), // firts day of any week
+	MONTH(-1, 1, -1, -1), // first day of any week
 	WEEK(-1, -1, 1, -1); // first day of any month
 	public static void main(String[] args) {
 		// Date t = new Date(2011, 1, 13, 17, 4, 32);

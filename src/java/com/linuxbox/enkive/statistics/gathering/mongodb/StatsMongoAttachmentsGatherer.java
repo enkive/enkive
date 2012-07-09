@@ -20,13 +20,21 @@ import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.Mongo;
 
+// NOAH: please turn your comments of variables and methods within a class to JavaDoc comments. They start with /** and end with */. 
+
 public class StatsMongoAttachmentsGatherer extends AbstractGatherer {
 	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.statistics.gathering.StatsMongoAttachmentsGatherer");
 	protected String collectionName;
 	protected DB db;
+	// NOAH: lower and upper are not very self-describing; rename along w/
+	// setters.
 	protected Date lower, upper;// uploadDate
 	protected Mongo m;
+	// NOAH: I think we need some help w/ the logic of resetDates. Who controls
+	// whether it's true/false and why? Who is supposed to check it and then set
+	// dates if it is true?
+	//
 	// if resetDates is false you must manually reset the upper & lower dates
 	private boolean resetDates;
 
@@ -126,15 +134,13 @@ public class StatsMongoAttachmentsGatherer extends AbstractGatherer {
 	public Date getUpper() {
 		return upper;
 	}
-/*
-	@Override
-	protected List<KeyDef> keyBuilder() {
-		List<KeyDef> keys = new LinkedList<KeyDef>();
-		keys.add(new KeyDef(STAT_AVG_ATTACH + ":" + GRAIN_AVG));
-		keys.add(new KeyDef(STAT_MAX_ATTACH + ":" + GRAIN_MAX + "," + GRAIN_MIN));
-		return keys;
-	}
-*/
+
+	/*
+	 * @Override protected List<KeyDef> keyBuilder() { List<KeyDef> keys = new
+	 * LinkedList<KeyDef>(); keys.add(new KeyDef(STAT_AVG_ATTACH + ":" +
+	 * GRAIN_AVG)); keys.add(new KeyDef(STAT_MAX_ATTACH + ":" + GRAIN_MAX + ","
+	 * + GRAIN_MIN)); return keys; }
+	 */
 	private Map<String, Object> makeDateQuery() {
 		Map<String, Object> dateQuery = createMap();
 		dateQuery.put("$gte", lower);

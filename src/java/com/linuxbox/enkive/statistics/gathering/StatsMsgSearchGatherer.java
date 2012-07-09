@@ -19,9 +19,12 @@ import com.linuxbox.enkive.message.search.exception.MessageSearchException;
 import com.linuxbox.enkive.workspace.SearchResult;
 
 public class StatsMsgSearchGatherer extends AbstractGatherer {
-	long interval = 3600000;//one hour by default
 	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.statistics.gathering");
+
+	// NOAH; let's rename this to intervalMilliseconds (and the setter in an
+	// analogous manner) to help document.
+	long interval = 1000 * 60 * 60; // one hour (3600 milliseconds) by default
 
 	MessageSearchService searchService;
 
@@ -57,15 +60,14 @@ public class StatsMsgSearchGatherer extends AbstractGatherer {
 		result.put(STAT_NUM_ENTRIES, numEntries);
 		return result;
 	}
-/*
-	@Override
-	protected List<KeyDef> keyBuilder() {
-		List<KeyDef> keys = new LinkedList<KeyDef>();
-		keys.add(new KeyDef(STAT_NUM_ENTRIES + ":" + GRAIN_AVG + ","
-				+ GRAIN_MAX + "," + GRAIN_MIN));
-		return keys;
-	}
-*/	
+
+	// NOAH: I see there is a GathererException class. Why are we returning a
+	// negative number rather than throwing the GathererException?
+	/*
+	 * @Override protected List<KeyDef> keyBuilder() { List<KeyDef> keys = new
+	 * LinkedList<KeyDef>(); keys.add(new KeyDef(STAT_NUM_ENTRIES + ":" +
+	 * GRAIN_AVG + "," + GRAIN_MAX + "," + GRAIN_MIN)); return keys; }
+	 */
 	protected int numEntries(String dateEarliest, String dateLatest) {
 		HashMap<String, String> hmap = new HashMap<String, String>();
 		hmap.put(DATE_EARLIEST_PARAMETER, dateEarliest);
@@ -75,6 +77,10 @@ public class StatsMsgSearchGatherer extends AbstractGatherer {
 			// TODO is this efficient? should we instead add a method to our
 			// search service that would do a count of messages b/w a pair of
 			// dates?
+			//
+			// NOAH: I think so. We're returning all the messages in order to
+			// get a count? That's a lot of network traffic to generate a single
+			// number!
 			final SearchResult result2 = searchService.search(hmap);
 			final Set<String> result3 = result2.getMessageIds();
 			final int count = result3.size();
@@ -97,8 +103,13 @@ public class StatsMsgSearchGatherer extends AbstractGatherer {
 	public void setSearchService(MessageSearchService searchService) {
 		this.searchService = searchService;
 	}
-	
-	public void setInterval(long interval){
+
+	/**
+	 * Set the number of milliseconds ...
+	 * 
+	 * @param interval
+	 */
+	public void setInterval(long interval) {
 		this.interval = interval;
 	}
 }

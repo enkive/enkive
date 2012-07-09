@@ -45,6 +45,8 @@ public class StatsClient {
 		return null;
 	}
 
+	// NOAH: let's not call Maps "map". Let's describe their content in the
+	// variable name.
 	public Set<Map<String, Object>> gatherData(Map<String, String[]> map) {
 		try {
 			return gathererService.gatherStats(map);
@@ -86,8 +88,10 @@ public class StatsClient {
 		}
 		return null;
 	}
-	
-	public Set<Map<String, Object>> queryStatistics(Map<String, Map<String, Object>> queryMap, Map<String, Map<String, Object>> filterMap){
+
+	public Set<Map<String, Object>> queryStatistics(
+			Map<String, Map<String, Object>> queryMap,
+			Map<String, Map<String, Object>> filterMap) {
 		try {
 			return retrievalService.queryStatistics(queryMap, filterMap);
 		} catch (StatsRetrievalException e) {

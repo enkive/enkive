@@ -39,33 +39,27 @@ public abstract class AbstractGrain implements Grain {
 		setDates();
 		setTypes();
 	}
-	
-	public void storeConsolidatedData(){
+
+	public void storeConsolidatedData() {
 		client.storeData(consolidateData());
 	}
 
-	public void methodMapBuilder(String method, Object exampleData, DescriptiveStatistics statsMaker, Map<String, Object> statData){
+	public void methodMapBuilder(String method, Object exampleData,
+			DescriptiveStatistics statsMaker, Map<String, Object> statData) {
 		if (method.equals(GRAIN_SUM)) {
-			statData.put(method,
-					injectType(exampleData, statsMaker.getSum()));
+			statData.put(method, injectType(exampleData, statsMaker.getSum()));
 		} else if (method.equals(GRAIN_MAX)) {
-			statData.put(method,
-					injectType(exampleData, statsMaker.getMax()));
+			statData.put(method, injectType(exampleData, statsMaker.getMax()));
 		} else if (method.equals(GRAIN_MIN)) {
-			statData.put(method,
-					injectType(exampleData, statsMaker.getMin()));
+			statData.put(method, injectType(exampleData, statsMaker.getMin()));
 		} else if (method.equals(GRAIN_AVG)) {
-			statData.put(
-					method,
-					injectType(exampleData, statsMaker.getMean()));
+			statData.put(method, injectType(exampleData, statsMaker.getMean()));
 		} else if (method.equals(GRAIN_STD_DEV)) {
-			statData.put(
-					method,
-					injectType(exampleData,
-							statsMaker.getStandardDeviation()));
+			statData.put(method,
+					injectType(exampleData, statsMaker.getStandardDeviation()));
 		}
 	}
-	
+
 	@Override
 	public Set<Map<String, Object>> consolidateData() {
 		// build set for each service
@@ -74,10 +68,13 @@ public abstract class AbstractGrain implements Grain {
 			String name = attribute.getName();
 			Set<Map<String, Object>> serviceData = serviceFilter(name);
 			if (!serviceData.isEmpty()) {
-				Map<String, Object> example = new HashMap<String, Object>(serviceData.iterator().next());
-				Map<String, Object> mapToStore = new HashMap<String, Object>(example);
+				Map<String, Object> example = new HashMap<String, Object>(
+						serviceData.iterator().next());
+				Map<String, Object> mapToStore = new HashMap<String, Object>(
+						example);
 				generateConsolidatedMap(example, mapToStore,
-						 new LinkedList<String>(), attribute.getKeys(), serviceData);
+						new LinkedList<String>(), attribute.getKeys(),
+						serviceData);
 				mapToStore.put(GRAIN_TYPE, grainType);
 				if (mapToStore.containsKey("_id")) {
 					mapToStore.remove("_id");
@@ -88,26 +85,26 @@ public abstract class AbstractGrain implements Grain {
 		return storageData;
 	}
 
-	protected abstract void consolidateMaps(Map<String, Object> consolidatedData,
-			Set<Map<String, Object>> serviceData, KeyDef keyDef, LinkedList<String> dataPath);
-	
-
-	protected Map<String, Object> generateConsolidatedMap(Map<String, Object> templateData, Map<String,Object> consolidatedMap,
-			LinkedList<String> path, List<KeyDef> statKeys,
-			 Set<Map<String, Object>> serviceData) {
-		//loop through a template map
+	// NOAH: this method calls out for a nice JavaDoc comment
+	protected Map<String, Object> generateConsolidatedMap(
+			Map<String, Object> templateData,
+			Map<String, Object> consolidatedMap, LinkedList<String> path,
+			List<KeyDef> statKeys, Set<Map<String, Object>> serviceData) {
+		// loop through a template map
 		for (String key : templateData.keySet()) {
 			path.addLast(key);
 			KeyDef matchingKeyDef = findMatchingPath(path, statKeys);
-			//if path matched
+			// if path matched
 			if (matchingKeyDef != null) {
-				//add that data to the consolidatedMap 
-				consolidateMaps(consolidatedMap, serviceData, matchingKeyDef, path);
-			//else recurse again
+				// add that data to the consolidatedMap
+				consolidateMaps(consolidatedMap, serviceData, matchingKeyDef,
+						path);
+				// else recurse again
 			} else {
 				if (templateData.get(key) instanceof Map) {
-					generateConsolidatedMap((Map<String, Object>) templateData.get(key), consolidatedMap,  path,
-							statKeys, serviceData);
+					generateConsolidatedMap(
+							(Map<String, Object>) templateData.get(key),
+							consolidatedMap, path, statKeys, serviceData);
 				}
 			}
 			path.removeLast();
@@ -145,7 +142,8 @@ public abstract class AbstractGrain implements Grain {
 
 		return result;
 	}
-	
+
+	// NOAH: this method calls out for a nice JavaDoc comment
 	private KeyDef findMatchingPath(List<String> path, List<KeyDef> keys) {
 		for (KeyDef def : keys) {// get one key definition
 			if (def.getMethods() == null) {
@@ -187,16 +185,16 @@ public abstract class AbstractGrain implements Grain {
 						pathStr = path.get(pathIndex);
 					}
 				}
-				/*regexpression code 
-				 * if(keyString.get(defIndex).equals("**") && defIndex <
-				 * keyString.size()) { if(defIndex == keyString.size()-1){ //
-				 * break; } defIndex++;
+				/*
+				 * regexpression code if(keyString.get(defIndex).equals("**") &&
+				 * defIndex <	// NOAH: this method calls out for a nice JavaDoc comment keyString.size()) { if(defIndex ==
+				 * keyString.size()-1){ // break; } defIndex++;
 				 * 
 				 * if (path.contains(keyString.get(defIndex))) { //jump to
 				 * matching index for (; pathIndex < path.size(); pathIndex++) {
 				 * if (path.get(pathIndex).equals(keyString.get(defIndex))) {
-				 * break; } } } else { // return false; //
-				 * isMatch = false; break; } }
+				 * break; } } } else { // return false; // isMatch = false;
+				 * break; } }
 				 */
 				if (pathIndex >= path.size()) {
 					isMatch = false;
@@ -221,13 +219,14 @@ public abstract class AbstractGrain implements Grain {
 		return null;
 	}
 
-	 boolean pathMatches(List<String> path, List<KeyDef> keys) {
+	boolean pathMatches(List<String> path, List<KeyDef> keys) {
 		final KeyDef def = findMatchingPath(path, keys);
 		return def != null;
 	}
 
-	protected void putOnPath(List<String> path,
-			Map<String, Object> statsData, Map<String, Object> dataToAdd) {
+	// NOAH: this method calls out for a nice JavaDoc comment
+	protected void putOnPath(List<String> path, Map<String, Object> statsData,
+			Map<String, Object> dataToAdd) {
 		Map<String, Object> cursor = statsData;
 		int index = 0;
 		for (String key : path) {
@@ -237,6 +236,8 @@ public abstract class AbstractGrain implements Grain {
 				if (cursor.get(key) instanceof Map) {
 					cursor = (Map<String, Object>) cursor.get(key);
 				} else {
+					// NOAH: is there a reason we don't create the missing
+					// intervening maps?
 					LOGGER.error("Cannot put data on path");
 				}
 			}
@@ -244,6 +245,7 @@ public abstract class AbstractGrain implements Grain {
 		}
 	}
 
+	// NOAH: this method calls out for a nice JavaDoc comment
 	public Set<Map<String, Object>> serviceFilter(String name) {
 		Map<String, Map<String, Object>> query = new HashMap<String, Map<String, Object>>();
 		Map<String, Object> keyVals = new HashMap<String, Object>();
@@ -253,10 +255,6 @@ public abstract class AbstractGrain implements Grain {
 				startDate, endDate);
 		return result;
 	}
-
-	protected abstract void setDates();
-	
-	protected abstract void setTypes();
 
 	protected double statToDouble(Object stat) {
 		double input = -1;
@@ -271,4 +269,13 @@ public abstract class AbstractGrain implements Grain {
 		}
 		return input;
 	}
+
+	protected abstract void setDates();
+
+	protected abstract void setTypes();
+
+	protected abstract void consolidateMaps(
+			Map<String, Object> consolidatedData,
+			Set<Map<String, Object>> serviceData, KeyDef keyDef,
+			LinkedList<String> dataPath);
 }

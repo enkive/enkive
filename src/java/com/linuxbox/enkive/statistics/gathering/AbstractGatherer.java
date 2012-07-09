@@ -27,9 +27,10 @@ public abstract class AbstractGatherer extends AbstractCreator implements
 	protected Scheduler scheduler;
 	protected StatsStorageService storageService;
 	protected List<String> keys;
-	
+
 	public AbstractGatherer(String serviceName, String schedule) {
-		attributes = new GathererAttributes(serviceName, schedule, keyBuilder(keys));
+		attributes = new GathererAttributes(serviceName, schedule,
+				keyBuilder(keys));
 	}
 
 	@Override
@@ -85,17 +86,21 @@ public abstract class AbstractGatherer extends AbstractCreator implements
 		// add to schedule defined in spring xml
 		scheduler.scheduleJob((JobDetail) jobDetail.getObject(), trigger);
 	}
-	
+
 	protected List<KeyDef> keyBuilder(List<String> keyList) {
 		List<KeyDef> keys = new LinkedList<KeyDef>();
-		if(keyList != null){
-			for(String key: keyList){
+		if (keyList != null) {
+			for (String key : keyList) {
 				keys.add(new KeyDef(key));
 			}
 		}
 		return keys;
 	}
-	
+
+	/*
+	 * NOAH: what's a creator, how's it used? I tried to find a caller of this
+	 * method but couldn't find any.
+	 */
 	protected Set<String> makeCreator(String... methodTypes) {
 		Set<String> result = new HashSet<String>();
 		for (String methodName : methodTypes) {
@@ -120,8 +125,8 @@ public abstract class AbstractGatherer extends AbstractCreator implements
 					getStatistics());
 		}
 	}
-	
-	public void setKeys(List<String> keys){
+
+	public void setKeys(List<String> keys) {
 		this.keys = keys;
 	}
 }

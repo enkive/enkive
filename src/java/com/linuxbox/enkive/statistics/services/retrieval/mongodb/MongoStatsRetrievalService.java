@@ -27,6 +27,10 @@ import com.mongodb.DBObject;
 import com.mongodb.Mongo;
 import com.mongodb.MongoException;
 
+// NOAH: I see the string "_id" in this file and in other files quite a bit. Seems like a good use of a constant.
+
+// NOAH: As I've said in other files, I think these sets/lists/maps of other sets/lists/maps need to be documented so the reader knows what they contain. These should be in JavaDoc comments.
+
 public class MongoStatsRetrievalService extends AbstractCreator implements
 		StatsRetrievalService {
 	private static DBCollection coll;
@@ -42,6 +46,10 @@ public class MongoStatsRetrievalService extends AbstractCreator implements
 		try {
 			m = new Mongo();
 		} catch (UnknownHostException e) {
+			// NOAH: is there something you think needs doing? If so, document
+			// the TODO more fully. Otherwise, remove. Applies here and
+			// elsewhere.
+			//
 			// TODO
 			LOGGER.fatal("Mongo has failed: Unknown Host", e);
 		} catch (MongoException e) {
@@ -73,6 +81,7 @@ public class MongoStatsRetrievalService extends AbstractCreator implements
 		LOGGER.info("RetrievalService(Mongo, String, HashMap) successfully created");
 	}
 
+	// NOAH: again, buildSet is a bad name. Build a set that does what?
 	private Set<DBObject> buildSet(long lower, long upper) {
 		DBObject query = new BasicDBObject();
 		DBObject time = new BasicDBObject();
@@ -83,13 +92,14 @@ public class MongoStatsRetrievalService extends AbstractCreator implements
 		result.addAll(coll.find(query).toArray());
 		return result;
 	}
+
 	private Set<DBObject> buildSet(Map<String, Map<String, Object>> hmap) {
 		if (hmap == null) {// if null return all
 			Set<DBObject> result = new HashSet<DBObject>();
 			result.addAll(coll.find().toArray());
 			return result;
 		}
-		
+
 		Set<DBObject> result = new HashSet<DBObject>();
 		BasicDBObject tempMap;
 		BasicDBList or = new BasicDBList();
@@ -123,6 +133,9 @@ public class MongoStatsRetrievalService extends AbstractCreator implements
 		return bothSet;
 	}
 
+	// NOAH: The suppress warnings is necessary because DBObject returns a map
+	// w/o key and value types specified? If so, let's document why we're
+	// suppressing warnings in such situations.
 	@SuppressWarnings("unchecked")
 	@Override
 	public Set<Map<String, Object>> directQuery(Map<String, Object> query) {
@@ -170,30 +183,35 @@ public class MongoStatsRetrievalService extends AbstractCreator implements
 		return allStats;
 	}
 
-	//for use in the servlet
+	// for use in the servlet
 	@SuppressWarnings("unchecked")
 	@Override
-	public Set<Map<String, Object>> queryStatistics(Map<String, Map<String, Object>> queryMap, Map<String, Map<String, Object>> filterMap) throws StatsRetrievalException{		
-		Set<DBObject> allStats = new HashSet<DBObject>();	
-		for(String serviceName : queryMap.keySet()){
+	public Set<Map<String, Object>> queryStatistics(
+			Map<String, Map<String, Object>> queryMap,
+			Map<String, Map<String, Object>> filterMap)
+			throws StatsRetrievalException {
+		Set<DBObject> allStats = new HashSet<DBObject>();
+		for (String serviceName : queryMap.keySet()) {
 			BasicDBObject query = new BasicDBObject();
 			query.put(STAT_SERVICE_NAME, serviceName);
 			query.putAll(queryMap.get(serviceName));
-			if(filterMap.get(serviceName) != null && !filterMap.get(serviceName).isEmpty()){
-				BasicDBObject filter = new BasicDBObject(filterMap.get(serviceName));
+			if (filterMap.get(serviceName) != null
+					&& !filterMap.get(serviceName).isEmpty()) {
+				BasicDBObject filter = new BasicDBObject(
+						filterMap.get(serviceName));
 				allStats.addAll(coll.find(query, filter).toArray());
 			} else {
 				allStats.addAll(coll.find(query).toArray());
-			}			
+			}
 		}
-		
+
 		Set<Map<String, Object>> result = new HashSet<Map<String, Object>>();
 		for (DBObject entry : allStats) {
 			result.add(entry.toMap());
 		}
 		return result;
 	}
-	
+
 	@Override
 	public void remove(Set<Object> set) throws StatsRetrievalException {
 		if (set != null) {// not null

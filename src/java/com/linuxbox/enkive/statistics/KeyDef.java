@@ -4,6 +4,11 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
 
+/*
+ * NOAH: is this class well-named? It seems to store more than keys; it also stores the consolidation methods. I'm not sure about this, but as I read it I get the sense that it's defining consolidations. Is this also used if there are no consolidations?.
+ * Also, there's no documentation about the String that the constructor takes.
+ */
+
 public class KeyDef {
 	private LinkedList<String> key;
 	private Collection<String> methods;
