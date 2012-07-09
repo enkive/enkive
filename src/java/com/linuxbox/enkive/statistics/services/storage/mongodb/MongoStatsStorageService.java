@@ -70,6 +70,7 @@ public class MongoStatsStorageService extends AbstractCreator implements
 	public MongoStatsStorageService(Mongo mongo, String dbName) {
 		m = mongo;
 		db = m.getDB(dbName);
+		//NOAH: See comment in retrieval class, move to spring configuration
 		coll = db.getCollection(STAT_STORAGE_COLLECTION);
 		LOGGER.info("StorageService successfully created");
 	}

@@ -11,6 +11,7 @@ import com.linuxbox.enkive.statistics.KeyDef;
 
 public class GathererAttributes {
 	protected List<KeyDef> keys;
+    // NOAH: Could the schedule be of type org.quartz.CronExpression? I'm not certain that would gain us much, but I think that's what is really trying to be stored here, so it might make more sense to use the data type.  The quartz library should be present since it's what is being used for the scheduled jobs.
 	protected String schedule;
 	protected String serviceName;
 
