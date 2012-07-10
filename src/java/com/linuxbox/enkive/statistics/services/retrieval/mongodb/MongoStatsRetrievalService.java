@@ -1,11 +1,9 @@
 package com.linuxbox.enkive.statistics.services.retrieval.mongodb;
 
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_SERVICE_NAME;
-import static com.linuxbox.enkive.statistics.StatsConstants.STAT_STORAGE_COLLECTION;
-import static com.linuxbox.enkive.statistics.StatsConstants.STAT_STORAGE_DB;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIME_STAMP;
+import static com.linuxbox.enkive.statistics.gathering.mongodb.MongoConstants.MONGO_ID;
 
-import java.net.UnknownHostException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -16,7 +14,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.bson.types.ObjectId;
 
-import com.linuxbox.enkive.statistics.AbstractCreator;
+import com.linuxbox.enkive.statistics.VarsMaker;
 import com.linuxbox.enkive.statistics.services.StatsRetrievalService;
 import com.linuxbox.enkive.statistics.services.retrieval.StatsRetrievalException;
 import com.mongodb.BasicDBList;
@@ -25,13 +23,11 @@ import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import com.mongodb.Mongo;
-import com.mongodb.MongoException;
 
-// NOAH: I see the string "_id" in this file and in other files quite a bit. Seems like a good use of a constant.
-
-// NOAH: As I've said in other files, I think these sets/lists/maps of other sets/lists/maps need to be documented so the reader knows what they contain. These should be in JavaDoc comments.
-
-public class MongoStatsRetrievalService extends AbstractCreator implements
+// NOAH: As I've said in other files, I think these sets/lists/maps of other sets/lists/maps need to 
+//be documented so the reader knows what they contain. These should be in JavaDoc comments.
+//fixed with @params javadocs
+public class MongoStatsRetrievalService extends VarsMaker implements
 		StatsRetrievalService {
 	private static DBCollection coll;
 
@@ -40,57 +36,45 @@ public class MongoStatsRetrievalService extends AbstractCreator implements
 			.getLog("com.linuxbox.enkive.statistics.services.retrieval.mongodb");
 	private static Mongo m;
 
-	Map<String, Map<String, Object>> statisticsServices;
-
-	public MongoStatsRetrievalService() {
-		try {
-    //NOAH: We don't really use new Mongo (or at least shouldn't) anywhere else in Enkive, since spring provides us a nice method to pass in a single mongo instance.  This allows us to change anything related to the mongo driver in a single place, like if mongo were running on a non-standard port this code would break.  You have the correct creation method a little farther down, so this creator can likely just be removed.
-			m = new Mongo();
-		} catch (UnknownHostException e) {
-			LOGGER.fatal("Mongo has failed: Unknown Host", e);
-		} catch (MongoException e) {
-			LOGGER.fatal("Mongo has failed: Mongo Execption", e);
-		}
-		db = m.getDB(STAT_STORAGE_DB);
-		statisticsServices = null;
-		coll = db.getCollection(STAT_STORAGE_COLLECTION);
-		LOGGER.info("RetrievalService() successfully created");
-	}
-
-	public MongoStatsRetrievalService(Mongo mongo, String dbName) {
+	public MongoStatsRetrievalService(Mongo mongo, String dbName, String collectionName) {
 		m = mongo;
 		db = m.getDB(dbName);
-		statisticsServices = null;
-		//NOAH: STAT_STORAGE_COLLECTION should be passed in via spring configuration, not stored as a constant. This allows us to change the collection name in configuration in case we ever want to do an installation where many Enkives point to the same mongo instance.
-		coll = db.getCollection(STAT_STORAGE_COLLECTION);
+		//NOAH: STAT_STORAGE_COLLECTION should be passed in via spring configuration, 
+		//not stored as a constant. This allows us to change the collection name in 
+		//configuration in case we ever want to do an installation where many Enkives 
+		//point to the same mongo instance.
+		//fixed by spring config use
+		coll = db.getCollection(collectionName);
 		LOGGER.info("RetrievalService(Mongo, String) successfully created");
 	}
 
-	public MongoStatsRetrievalService(Mongo mongo, String dbName,
-			HashMap<String, Map<String, Object>> statisticsServices) {
-		m = mongo;
-		db = m.getDB(dbName);
-		// statsServices needs to be in format:
-		// serviceName [...statnames to retrieve...]
-		this.statisticsServices = statisticsServices;
-		//NOAH: STAT_STORAGE_COLLECTION should be passed in via spring configuration, not stored as a constant. This allows us to change the collection name in configuration in case we ever want to do an installation where many Enkives point to the same mongo instance.
-		coll = db.getCollection(STAT_STORAGE_COLLECTION);
-		LOGGER.info("RetrievalService(Mongo, String, HashMap) successfully created");
-	}
-
-	// NOAH: again, buildSet is a bad name. Build a set that does what?
-	private Set<DBObject> buildSet(Date lower, Date upper) {
+	// NOAH: again, getQuerySet is a bad name. Build a set that does what?
+	// fixed by rename
+	
+	/**
+	 * preforms a query on the database based on a date range the lower bound
+	 * is treated as greater than or equal to and the upper bound is less than
+	 * @param lowerDate - the lower date of the range
+	 * @param upperDate - the upper date of the range
+	 * @return the query results as a set of maps
+	 */
+	private Set<DBObject> getQuerySet(Date lowerDate, Date upperDate) {
 		DBObject query = new BasicDBObject();
 		DBObject time = new BasicDBObject();
-		time.put("$gte", lower);
-		time.put("$lt", upper);
+		time.put("$gte", lowerDate);
+		time.put("$lt", upperDate);
 		query.put(STAT_TIME_STAMP, time);
 		Set<DBObject> result = new HashSet<DBObject>();
 		result.addAll(coll.find(query).toArray());
 		return result;
 	}
 
-	private Set<DBObject> buildSet(Map<String, Map<String, Object>> hmap) {
+	/**
+	 * preforms a query on the database based on a query map
+	 * @param hmap - the query map
+	 * @return the query results as a set of maps
+	 */
+	private Set<DBObject> getQuerySet(Map<String, Map<String, Object>> hmap) {
 		if (hmap == null) {// if null return all
 			Set<DBObject> result = new HashSet<DBObject>();
 			result.addAll(coll.find().toArray());
@@ -114,50 +98,72 @@ public class MongoStatsRetrievalService extends AbstractCreator implements
 		return result;
 	}
 
-	private Set<DBObject> buildSet(Map<String, Map<String, Object>> hMap,
-			Date lower, Date upper) {
-		Set<DBObject> hMapSet = buildSet(hMap);
-		Set<DBObject> dateSet = buildSet(lower, upper);
-		Set<DBObject> bothSet = new HashSet<DBObject>();
+	/**
+	 * preforms two querys: one on the query object and the other on the date range
+	 * after done all objects not in the date range query are removed from the map
+	 * object's query--in the date range the lower bound is treated as greater than or 
+	 * equal to and the upper bound is less than
+	 * @param queryMap -a map in the following format: {GathererName:{stat1:val1, stat2:val2,...}...}
+	 * @param lowerDate - the lower bound date
+	 * @param upperDate - the upper bound date
+	 * @return the query results as a set of maps
+	 */
+	private Set<DBObject> getQuerySet(Map<String, Map<String, Object>> queryMap,
+			Date lowerDate, Date upperDate) {
+		Set<DBObject> hMapSet = getQuerySet(queryMap);
+		Set<DBObject> dateSet = getQuerySet(lowerDate, upperDate);
+		Set<DBObject> result = new HashSet<DBObject>();
 
 		for (DBObject dateDBObj : dateSet) {
 			for (DBObject mapDBObj : hMapSet) {
-				if (mapDBObj.get("_id").equals(dateDBObj.get("_id"))) {
-					bothSet.add(mapDBObj);
+				if (mapDBObj.get(MONGO_ID).equals(dateDBObj.get(MONGO_ID))) {
+					result.add(mapDBObj);
 				}
 			}
 		}
-		return bothSet;
+		return result;
 	}
 
+	/**
+	 * Takes a DBObject, extracts the map from it, and inserts that map into
+	 * the given set. NOTE: warnings are suppressed because they are being
+	 * activated because the actual type of the map is not specified in the
+	 * dbObject but it should not matter so long as it conforms to Mongo's 
+	 * key:value format
+	 * @param entry -dbObject to extract map from
+	 * @param stats -set to add map to
+	 */
+	@SuppressWarnings("unchecked")
+	private void addMapToSet(DBObject entry, Set<Map<String, Object>> stats){
+		stats.add(entry.toMap());
+	}
+	
 	// NOAH: The suppress warnings is necessary because DBObject returns a map
 	// w/o key and value types specified? If so, let's document why we're
 	// suppressing warnings in such situations.
-	@SuppressWarnings("unchecked")
+	//fixed with above function & javadoc
 	@Override
 	public Set<Map<String, Object>> directQuery() {
-		Set<Map<String, Object>> allStats = new HashSet<Map<String, Object>>();
+		Set<Map<String, Object>> result = new HashSet<Map<String, Object>>();
 		for (DBObject entry : coll.find().toArray()) {
-			allStats.add(entry.toMap());
+			addMapToSet(entry, result);
 		}
-		return allStats;
+		return result;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public Set<Map<String, Object>> directQuery(Map<String, Object> query) {
-		Set<Map<String, Object>> allStats = new HashSet<Map<String, Object>>();
+		Set<Map<String, Object>> result = new HashSet<Map<String, Object>>();
 		if (query != null) {
 			for (DBObject entry : coll.find(new BasicDBObject(query)).toArray()) {
-				allStats.add(entry.toMap());
+				addMapToSet(entry, result);
 			}
 		} else {
 			return directQuery();
 		}
-		return allStats;
+		return result;
 	}
 
-	// assuming statName is service name
 	@Override
 	public Set<Map<String, Object>> queryStatistics()
 			throws StatsRetrievalException {
@@ -177,11 +183,10 @@ public class MongoStatsRetrievalService extends AbstractCreator implements
 		return queryStatistics(stats, null, null);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public Set<Map<String, Object>> queryStatistics(
 			Map<String, Map<String, Object>> hmap, Date lower, Date upper) {
-		Set<Map<String, Object>> allStats = new HashSet<Map<String, Object>>();
+		Set<Map<String, Object>> result = new HashSet<Map<String, Object>>();
 		if (lower == null) {
 			lower = new Date(0L);
 		}
@@ -189,15 +194,13 @@ public class MongoStatsRetrievalService extends AbstractCreator implements
 			upper = new Date();
 		}
 
-		for (DBObject entry : buildSet(hmap, lower, upper)) {
-			allStats.add(entry.toMap());
+		for (DBObject entry : getQuerySet(hmap, lower, upper)) {
+			addMapToSet(entry, result);
 		}
 
-		return allStats;
+		return result;
 	}
 
-	// for use in the servlet
-	@SuppressWarnings("unchecked")
 	@Override
 	public Set<Map<String, Object>> queryStatistics(
 			Map<String, Map<String, Object>> queryMap,
@@ -220,7 +223,7 @@ public class MongoStatsRetrievalService extends AbstractCreator implements
 
 		Set<Map<String, Object>> result = new HashSet<Map<String, Object>>();
 		for (DBObject entry : allStats) {
-			result.add(entry.toMap());
+			addMapToSet(entry, result);
 		}
 		return result;
 	}
@@ -232,7 +235,7 @@ public class MongoStatsRetrievalService extends AbstractCreator implements
 				for (Object id : set) {
 					if (id instanceof ObjectId) {
 						Map<String, ObjectId> map = new HashMap<String, ObjectId>();
-						map.put("_id", (ObjectId) id);
+						map.put(MONGO_ID, (ObjectId) id);
 						coll.remove(new BasicDBObject(map));
 					}
 				}

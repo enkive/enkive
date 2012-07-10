@@ -30,6 +30,7 @@ import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Set;
 import java.util.concurrent.Future;
 
 import org.apache.commons.logging.Log;
@@ -60,6 +61,14 @@ public class RetentionPolicyEnforcingMessageSearchService implements
 	public Future<SearchResult> searchAsync(HashMap<String, String> fields)
 			throws MessageSearchException {
 		throw new MessageSearchException("Unimplemented");
+	}
+	
+	@Override
+	public int countSearch(HashMap<String, String> fields)
+			throws MessageSearchException {
+		SearchResult search = search(fields);
+		Set<String> searchSet = search.getMessageIds();
+		return searchSet.size();
 	}
 
 	@Override

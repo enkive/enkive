@@ -1,6 +1,7 @@
 package com.linuxbox.enkive.statistics.gathering.mongodb;
 
 public interface MongoConstants {
+	public static String MONGO_ID = "_id";
 	public static String MONGO_AVG_OBJ_SIZE = "avgObjSize";
 	public static String MONGO_COUNT = "count";
 

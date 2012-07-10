@@ -23,6 +23,7 @@
 package com.linuxbox.enkive.message.search;
 
 import java.util.HashMap;
+import java.util.Set;
 import java.util.concurrent.Future;
 
 import org.apache.commons.logging.Log;
@@ -69,6 +70,14 @@ public class AuditLoggingMessageSearchService implements MessageSearchService {
 		}
 	}
 
+	@Override
+	public int countSearch(HashMap<String, String> fields)
+			throws MessageSearchException {
+		SearchResult search = search(fields);
+		Set<String> searchSet = search.getMessageIds();
+		return searchSet.size();
+	}
+	
 	public AuthenticationService getAuthenticationService() {
 		return authenticationService;
 	}

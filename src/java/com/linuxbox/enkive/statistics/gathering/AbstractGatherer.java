@@ -4,11 +4,9 @@ import static com.linuxbox.enkive.statistics.StatsConstants.STAT_SERVICE_NAME;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIME_STAMP;
 
 import java.util.Date;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.annotation.PostConstruct;
 
@@ -17,12 +15,12 @@ import org.quartz.Scheduler;
 import org.springframework.scheduling.quartz.CronTriggerBean;
 import org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean;
 
-import com.linuxbox.enkive.statistics.AbstractCreator;
-import com.linuxbox.enkive.statistics.KeyDef;
+import com.linuxbox.enkive.statistics.VarsMaker;
 import com.linuxbox.enkive.statistics.services.StatsStorageService;
 import com.linuxbox.enkive.statistics.services.storage.StatsStorageException;
+import com.linuxbox.enkive.statistics.KeyConsolidationHandler;
 
-public abstract class AbstractGatherer extends AbstractCreator implements
+public abstract class AbstractGatherer extends VarsMaker implements
 		GathererInterface {
 	protected GathererAttributes attributes;
 	protected Scheduler scheduler;
@@ -69,7 +67,11 @@ public abstract class AbstractGatherer extends AbstractCreator implements
 
 		return selectedStats;
 	}
-
+	
+	/**
+	 * initialization method called to give quartz this gatherer
+	 * @throws Exception
+	 */
 	@PostConstruct
 	protected void init() throws Exception {
 		// create attributes
@@ -94,26 +96,23 @@ public abstract class AbstractGatherer extends AbstractCreator implements
 		scheduler.scheduleJob((JobDetail) jobDetail.getObject(), trigger);
 	}
 
-	protected List<KeyDef> keyBuilder(List<String> keyList) {
-		List<KeyDef> keys = new LinkedList<KeyDef>();
+	/**
+	 * builds the list of keyConsolidationHandlers in order to allow the raw data created
+	 * by this gatherer to be consolidated
+	 * @param keyList - a list of dot-notation formatted strings: "coll.date:max,min,avg"
+	 * the key's levels are specified by periods and the key is separated from the methods by a 
+	 * colon. An asterisk may be used as an 'any' to go down a level in a map, such as:
+	 * "*.date:max,min,avg"
+	 * @return returns the instantiated consolidation list
+	 */
+	protected List<KeyConsolidationHandler> keyBuilder(List<String> keyList) {
+		List<KeyConsolidationHandler> keys = new LinkedList<KeyConsolidationHandler>();
 		if (keyList != null) {
 			for (String key : keyList) {
-				keys.add(new KeyDef(key));
+				keys.add(new KeyConsolidationHandler(key));
 			}
 		}
 		return keys;
-	}
-
-	/*
-	 * NOAH: what's a creator, how's it used? I tried to find a caller of this
-	 * method but couldn't find any.
-	 */
-	protected Set<String> makeCreator(String... methodTypes) {
-		Set<String> result = new HashSet<String>();
-		for (String methodName : methodTypes) {
-			result.add(methodName);
-		}
-		return result;
 	}
 
 	public void setScheduler(Scheduler scheduler) {

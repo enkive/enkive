@@ -30,7 +30,7 @@ public class StatsMongoMsgGatherer extends AbstractGatherer {
 	public Map<String, Object> getStatistics() {
 		Map<String, Object> result = new HashMap<String, Object>();
 		result.put(ARCHIVE_SIZE, messageColl.count());
-		result.put(STAT_TIME_STAMP, new Date(System.currentTimeMillis()));
+		result.put(STAT_TIME_STAMP, new Date());
 		return result;
 	}
 }

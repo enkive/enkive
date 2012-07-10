@@ -6,17 +6,22 @@ import java.util.Set;
 import com.linuxbox.enkive.statistics.services.storage.StatsStorageException;
 
 public interface StatsStorageService {
+	
+	/**
+	 * Store all statistics contained within a set. The format of each map 
+	 * is retained when it is stored.
+	 * 
+	 * @param dataSet
+	 * @throws StatsStorageException
+	 */
 	void storeStatistics(Set<Map<String, Object>> dataSet)
 			throws StatsStorageException;
 
 	/**
-	 * Store some statistics in the back-end that were collected by a specific
-	 * service at a particular instance in time.
+	 * Store a map after appending a service name to it
 	 * 
-	 * @param service
-	 * @param timestamp
-	 *            This should be the idealized
-	 * @param data
+	 * @param service -- gatherer name
+	 * @param data -- map to store
 	 * @throws StatsStorageException
 	 */
 	void storeStatistics(String service, Map<String, Object> data)

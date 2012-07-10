@@ -65,9 +65,7 @@ public class StatsMongoCollectionGatherer extends AbstractGatherer {
 		collStats.put(STAT_TIME_STAMP, new Date(System.currentTimeMillis()));
 		return collStats;
 	}
-
-	// overwrites the abstract implementation b/c collections are stored
-	// embedded
+	
 	@Override
 	public Map<String, Object> getStatistics(String[] keys) {
 		if (keys == null) {

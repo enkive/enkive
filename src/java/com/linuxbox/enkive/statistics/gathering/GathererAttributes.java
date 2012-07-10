@@ -5,35 +5,46 @@ import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIME_STAMP;
 import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MAX;
 import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MIN;
 
+import java.text.ParseException;
 import java.util.List;
 
-import com.linuxbox.enkive.statistics.KeyDef;
+import org.quartz.CronExpression;
+
+import com.linuxbox.enkive.statistics.KeyConsolidationHandler;
 
 public class GathererAttributes {
-	protected List<KeyDef> keys;
-    // NOAH: Could the schedule be of type org.quartz.CronExpression? I'm not certain that would gain us much, but I think that's what is really trying to be stored here, so it might make more sense to use the data type.  The quartz library should be present since it's what is being used for the scheduled jobs.
-	protected String schedule;
+	protected List<KeyConsolidationHandler> keys;
+	protected CronExpression schedule;
 	protected String serviceName;
 
 	public GathererAttributes(String serviceName, String schedule,
-			List<KeyDef> keys) {
+			List<KeyConsolidationHandler> keys) throws ParseException {
 		this.serviceName = serviceName;
-		this.schedule = schedule;
+		this.schedule = new CronExpression(schedule);
 		this.keys = keys;
-
-		keys.add(new KeyDef(STAT_SERVICE_NAME + ":"));
-		keys.add(new KeyDef(STAT_TIME_STAMP + ":" + GRAIN_MAX + "," + GRAIN_MIN));
+		//serviceName and Timestamp must always be specified
+		keys.add(new KeyConsolidationHandler(STAT_SERVICE_NAME + ":"));
+		keys.add(new KeyConsolidationHandler(STAT_TIME_STAMP + ":" + GRAIN_MAX + "," + GRAIN_MIN));
 	}
 
-	public List<KeyDef> getKeys() {
+	/**
+	 * @return the consolidation handlers cooresponding to this gatherer
+	 */
+	public List<KeyConsolidationHandler> getKeys() {
 		return keys;
 	}
 
+	/**
+	 * @return the name of the gatherer this attributes class belongs to
+	 */
 	public String getName() {
 		return serviceName;
 	}
 
-	public String getSchedule() {
+	/**
+	 * @return the cronExpression schedule this gatherer runs on
+	 */
+	public CronExpression getSchedule() {
 		return schedule;
 	}
 }

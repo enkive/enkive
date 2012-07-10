@@ -4,16 +4,20 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
 
-/*
- * NOAH: is this class well-named? It seems to store more than keys; it also stores the consolidation methods. I'm not sure about this, but as I read it I get the sense that it's defining consolidations. Is this also used if there are no consolidations?.
- * Also, there's no documentation about the String that the constructor takes.
- */
-
-public class KeyDef {
+public class KeyConsolidationHandler {
 	private LinkedList<String> key;
 	private Collection<String> methods;
 
-	public KeyDef(String keyPath) {
+	/**
+	 * @param keyPath is a string formatted in the following way:
+	 * 
+	 * "*.*.variableName:consolidationMethodName,consolidationMethodName"
+	 * 
+	 * the asterisks indicate that the variableName is embedded a level down
+	 * the consolidation method names indicate which consolidations to keep for
+	 * a given statistic.
+	 */
+	public KeyConsolidationHandler(String keyPath) {
 		parseAll(keyPath);
 	}
 
@@ -25,6 +29,9 @@ public class KeyDef {
 		return this.methods;
 	}
 
+	/**
+	 * @param str is parsed using the semantics outlined in the constructor's comments 
+	 */
 	private void parseAll(String str) {
 		String[] temp = str.split(":");
 		key = new LinkedList<String>(Arrays.asList(temp[0].split("\\.")));

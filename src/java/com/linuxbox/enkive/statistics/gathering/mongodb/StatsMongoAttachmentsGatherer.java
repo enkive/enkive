@@ -20,24 +20,29 @@ import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.Mongo;
 
-// NOAH: please turn your comments of variables and methods within a class to JavaDoc comments. They start with /** and end with */. 
+// NOAH: please turn your comments of variables and methods within a class to JavaDoc comments. 
+//They start with /** and end with */. 
 
 // To use this class the workflow appears to be:
 // Create instance of new StatsMongoAttachmentGatherer
 // setUpper(), setLower()
 // Then call getMax... and getAvg..., which take no arguments
-// I'd like to see the ability to call getMax and getAvg with date arguments which would make this class a little more flexible.
+// I'd like to see the ability to call getMax and getAvg with date arguments 
+//which would make this class a little more flexible.
 
+/*
+ * FIXES:
+ * changed names of date variables
+ * added functionality to getAvg & getMax to take a date range
+ */
 public class StatsMongoAttachmentsGatherer extends AbstractGatherer {
 	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.statistics.gathering.StatsMongoAttachmentsGatherer");
 	protected String collectionName;
 	protected DB db;
-	// NOAH: lower and upper are not very self-describing; rename along w/
-	// setters.
-	protected Date lower, upper;// uploadDate
+	protected Date lowerDate, upperDate;// uploadDate of attachment object
 	protected Mongo m;
-	// NOAH: I think we need some help w/ the logic of resetDates. Who controls
+	// NOAH:TODO I think we need some help w/ the logic of resetDates. Who controls
 	// whether it's true/false and why? Who is supposed to check it and then set
 	// dates if it is true?
 	//
@@ -63,7 +68,7 @@ public class StatsMongoAttachmentsGatherer extends AbstractGatherer {
 		this.resetDates = resetDates;
 	}
 
-	public double getAvgAttachSize() {
+	public double getAvgAttachSize(Date upperUploadDate, Date lowerUploadDate) {
 		DBCollection coll = db.getCollection(collectionName);
 		DBCursor cursor = coll.find(new BasicDBObject(makeDateQuery()));
 		double avgAttach;
@@ -78,17 +83,20 @@ public class StatsMongoAttachmentsGatherer extends AbstractGatherer {
 			avgAttach = (double) total / count;
 		} else {
 			avgAttach = -1;
-			LOGGER.warn("getAvgAttachSize()-No attachments between " + lower
-					+ " & " + upper);
+			LOGGER.warn("getAvgAttachSize()-No attachments between " + lowerUploadDate
+					+ " & " + upperUploadDate);
 		}
 		return avgAttach;
 	}
-
-	public Date getLower() {
-		return lower;
+	
+	//avg attach size total
+	public double getAvgAttachSize() {
+		return getAvgAttachSize(getUpperDate(), getLowerDate());
 	}
 
-	public long getMaxAttachSize() {
+
+
+	public long getMaxAttachSize(Date lowerDate, Date upperDate) {
 		DBCollection coll = db.getCollection(collectionName);
 		DBCursor cursor = coll.find(new BasicDBObject(makeDateQuery()));
 		long max = -1;
@@ -101,28 +109,31 @@ public class StatsMongoAttachmentsGatherer extends AbstractGatherer {
 				}
 			}
 		} else {
-			LOGGER.warn("getMaxAttachSize()-No attachments between " + lower
-					+ " & " + upper);
+			LOGGER.warn("getMaxAttachSize()-No attachments between " + lowerDate
+					+ " & " + upperDate);
 		}
 		return max;
 	}
+	
+	public long getMaxAttachSize() {
+		return getMaxAttachSize(getUpperDate(), getLowerDate());
+	}
 
-	// TODO: variable dates
 	@Override
 	public Map<String, Object> getStatistics() {
 		long currTime = System.currentTimeMillis();
 		// default sets dates to previous hour
 		if (resetDates) {
-			setUpper(new Date(currTime));
-			setLower(new Date(currTime - 3600000));
+			setUpperDate(new Date(currTime));
+			setLowerDate(new Date(currTime - 3600000));
 		}
-		if (upper == null) {
+		if (upperDate == null) {
 			LOGGER.warn("upper == null current time used");
-			setUpper(new Date(currTime));
+			setUpperDate(new Date(currTime));
 		}
-		if (lower == null) {
+		if (lowerDate == null) {
 			LOGGER.warn("lower == null beginning of time used");
-			setLower(new Date(0L));
+			setLowerDate(new Date(0L));
 		}
 		Map<String, Object> stats = new HashMap<String, Object>();
 		double avg = getAvgAttachSize();
@@ -133,34 +144,36 @@ public class StatsMongoAttachmentsGatherer extends AbstractGatherer {
 		}
 		stats.put(STAT_AVG_ATTACH, avg);
 		stats.put(STAT_MAX_ATTACH, max);
-		stats.put(STAT_TIME_STAMP, new Date(System.currentTimeMillis()));
+		stats.put(STAT_TIME_STAMP, new Date());
 		return stats;
 	}
 
-	public Date getUpper() {
-		return upper;
-	}
-
-	/*
-	 * @Override protected List<KeyDef> keyBuilder() { List<KeyDef> keys = new
-	 * LinkedList<KeyDef>(); keys.add(new KeyDef(STAT_AVG_ATTACH + ":" +
-	 * GRAIN_AVG)); keys.add(new KeyDef(STAT_MAX_ATTACH + ":" + GRAIN_MAX + ","
-	 * + GRAIN_MIN)); return keys; }
-	 */
-	private Map<String, Object> makeDateQuery() {
+	private Map<String, Object> makeDateQuery(Date lowerUploadDate, Date upperUploadDate) {
 		Map<String, Object> dateQuery = createMap();
-		dateQuery.put("$gte", lower);
-		dateQuery.put("$lt", upper);
+		dateQuery.put("$gte", lowerUploadDate);
+		dateQuery.put("$lt", upperUploadDate);
 		Map<String, Object> query = createMap();
 		query.put(MONGO_UPLOAD_DATE, dateQuery);
 		return query;
 	}
-
-	public void setLower(Date lower) {
-		this.lower = lower;
+	
+	public Date getLowerDate() {
+		return lowerDate;
+	}
+	
+	public Date getUpperDate() {
+		return upperDate;
 	}
 
-	public void setUpper(Date upper) {
-		this.upper = upper;
+	private Map<String, Object> makeDateQuery() {
+		return makeDateQuery(getLowerDate(), getUpperDate());
+	}
+	
+	public void setLowerDate(Date lower) {
+		this.lowerDate = lower;
+	}
+
+	public void setUpperDate(Date upper) {
+		this.upperDate = upper;
 	}
 }

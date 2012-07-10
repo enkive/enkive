@@ -4,6 +4,7 @@ import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_DA
 import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MONTH;
 
 import java.util.Calendar;
+import java.util.Date;
 
 import com.linuxbox.enkive.statistics.services.StatsClient;
 
@@ -21,14 +22,14 @@ public class MonthGrain extends EmbeddedGrain {
 		cal.set(Calendar.MINUTE, 0);
 		cal.set(Calendar.HOUR_OF_DAY, 0);
 		cal.set(Calendar.DATE, 1);
-		endDate = cal.getTime();
+		Date upperDate = cal.getTime();
 		cal.add(Calendar.MONTH, -1);
-		startDate = cal.getTime();
+		Date lowerDate = cal.getTime();
+		setDates(upperDate, lowerDate);
 	}
-
+	
 	@Override
-	protected void setTypes() {
-		grainType = GRAIN_MONTH;
-		filterType = GRAIN_DAY;
+	public void setTypes() {
+		setTypes(GRAIN_MONTH, GRAIN_DAY);
 	}
 }

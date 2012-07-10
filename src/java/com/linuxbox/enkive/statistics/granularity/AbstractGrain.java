@@ -19,7 +19,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
-import com.linuxbox.enkive.statistics.KeyDef;
+import com.linuxbox.enkive.statistics.KeyConsolidationHandler;
 import com.linuxbox.enkive.statistics.gathering.GathererAttributes;
 import com.linuxbox.enkive.statistics.services.StatsClient;
 
@@ -62,11 +62,10 @@ public abstract class AbstractGrain implements Grain {
 
 	@Override
 	public Set<Map<String, Object>> consolidateData() {
-		// build set for each service
 		Set<Map<String, Object>> storageData = new HashSet<Map<String, Object>>();
 		for (GathererAttributes attribute : client.getAttributes()) {
 			String name = attribute.getName();
-			Set<Map<String, Object>> serviceData = serviceFilter(name);
+			Set<Map<String, Object>> serviceData = gathererFilter(name);
 			if (!serviceData.isEmpty()) {
 				Map<String, Object> example = new HashMap<String, Object>(
 						serviceData.iterator().next());
@@ -87,25 +86,31 @@ public abstract class AbstractGrain implements Grain {
 
 
 	// NOAH: this method calls out for a nice JavaDoc comment
+	//fixed
+	/** this method recurses through a given template map to add consolidated data to a new map
+	 * as defined by each key's ConsolidationDefinition
+	 * @param templateData - the map used to trace
+	 * @param consolidatedMap - the map being built
+	 * @param path - the path to variables being used for trace
+	 * @param statKeys - the list of a gatherer's consolidation definitions
+	 * @param gathererData- all the data cooresponding to a given gatherer
+	 * @return returns the built consolidatedMap variable
+	 */
 	protected Map<String, Object> generateConsolidatedMap(
 			Map<String, Object> templateData,
 			Map<String, Object> consolidatedMap, LinkedList<String> path,
-			List<KeyDef> statKeys, Set<Map<String, Object>> serviceData) {
-		// loop through a template map
+			List<KeyConsolidationHandler> statKeys, Set<Map<String, Object>> gathererData) {
 		for (String key : templateData.keySet()) {
 			path.addLast(key);
-			KeyDef matchingKeyDef = findMatchingPath(path, statKeys);
-			// if path matched
-			if (matchingKeyDef != null) {
-				// add that data to the consolidatedMap
-				consolidateMaps(consolidatedMap, serviceData, matchingKeyDef,
+			KeyConsolidationHandler matchingDef = findMatchingPath(path, statKeys);
+			if (matchingDef != null) {
+				consolidateMaps(consolidatedMap, gathererData, matchingDef,
 						path);
-				// else recurse again
 			} else {
 				if (templateData.get(key) instanceof Map) {
 					generateConsolidatedMap(
 							(Map<String, Object>) templateData.get(key),
-							consolidatedMap, path, statKeys, serviceData);
+							consolidatedMap, path, statKeys, gathererData);
 				}
 			}
 			path.removeLast();
@@ -147,8 +152,17 @@ public abstract class AbstractGrain implements Grain {
 	}
 
 	// NOAH: this method calls out for a nice JavaDoc comment
-	private KeyDef findMatchingPath(List<String> path, List<KeyDef> keys) {
-		for (KeyDef def : keys) {// get one key definition
+	//fixed
+	/** determines if a path matches any of the ConsolidationDefinitions for a given gatherer
+	 * it does this by comparing each of the path's strings to each of the definition's strings
+	 * asterisks are considered 'any' and are skipped
+	 * @param path - the path to be checked
+	 * @param keys - the gatherer's consolidation definitions
+	 * @return if it finds a matching path it returns the corresponding ConsolidationDefinition
+	 * if not it returns null
+	 */
+	private KeyConsolidationHandler findMatchingPath(List<String> path, List<KeyConsolidationHandler> keys) {
+		for (KeyConsolidationHandler def : keys) {// get one key definition
 			if (def.getMethods() == null) {
 				continue;
 			}
@@ -188,17 +202,6 @@ public abstract class AbstractGrain implements Grain {
 						pathStr = path.get(pathIndex);
 					}
 				}
-				/*
-				 * regexpression code if(keyString.get(defIndex).equals("**") &&
-				 * defIndex <	// NOAH: this method calls out for a nice JavaDoc comment keyString.size()) { if(defIndex ==
-				 * keyString.size()-1){ // break; } defIndex++;
-				 * 
-				 * if (path.contains(keyString.get(defIndex))) { //jump to
-				 * matching index for (; pathIndex < path.size(); pathIndex++) {
-				 * if (path.get(pathIndex).equals(keyString.get(defIndex))) {
-				 * break; } } } else { // return false; // isMatch = false;
-				 * break; } }
-				 */
 				if (pathIndex >= path.size()) {
 					isMatch = false;
 					break;
@@ -217,17 +220,18 @@ public abstract class AbstractGrain implements Grain {
 			}
 			if (isMatch) {
 				return def;
-			}// no matches found
+			}
 		}
 		return null;
 	}
 
-	boolean pathMatches(List<String> path, List<KeyDef> keys) {
-		final KeyDef def = findMatchingPath(path, keys);
-		return def != null;
-	}
-
 	// NOAH: this method calls out for a nice JavaDoc comment
+	//fixed
+	/** this method takes a data object and inserts it at the end of a path on a given map
+	 * @param path - the path to traverse
+	 * @param statsData - the map to insert data into
+	 * @param dataToAdd - the data to insert
+	 */
 	protected void putOnPath(List<String> path, Map<String, Object> statsData,
 			Map<String, Object> dataToAdd) {
 		Map<String, Object> cursor = statsData;
@@ -239,8 +243,9 @@ public abstract class AbstractGrain implements Grain {
 				if (cursor.get(key) instanceof Map) {
 					cursor = (Map<String, Object>) cursor.get(key);
 				} else {
-					// NOAH: is there a reason we don't create the missing
+					// TODO NOAH: is there a reason we don't create the missing
 					// intervening maps?
+					// Noah-No, but I'm not sure how.
 					LOGGER.error("Cannot put data on path");
 				}
 			}
@@ -249,7 +254,8 @@ public abstract class AbstractGrain implements Grain {
 	}
 
 	// NOAH: this method calls out for a nice JavaDoc comment
-	public Set<Map<String, Object>> serviceFilter(String name) {
+	//fixed (in interface)
+	public Set<Map<String, Object>> gathererFilter(String name) {
 		Map<String, Map<String, Object>> query = new HashMap<String, Map<String, Object>>();
 		Map<String, Object> keyVals = new HashMap<String, Object>();
 		keyVals.put(GRAIN_TYPE, filterType);
@@ -275,12 +281,22 @@ public abstract class AbstractGrain implements Grain {
 		return input;
 	}
 
-	protected abstract void setDates();
-
-	protected abstract void setTypes();
+	public abstract void setDates();
+	
+	public void setDates(Date upperDate, Date lowerDate){
+		this.startDate = lowerDate;
+		this.endDate = upperDate;
+	}
+	
+	public abstract void setTypes();
+	
+	public void setTypes(int grainType, Integer filterType){
+		this.grainType = grainType;
+		this.filterType = filterType;
+	}
 
 	protected abstract void consolidateMaps(
 			Map<String, Object> consolidatedData,
-			Set<Map<String, Object>> serviceData, KeyDef keyDef,
+			Set<Map<String, Object>> serviceData, KeyConsolidationHandler keyDef,
 			LinkedList<String> dataPath);
 }

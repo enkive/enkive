@@ -4,6 +4,7 @@ import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_DA
 import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_WEEK;
 
 import java.util.Calendar;
+import java.util.Date;
 
 import com.linuxbox.enkive.statistics.services.StatsClient;
 
@@ -23,14 +24,14 @@ public class WeekGrain extends EmbeddedGrain {
 		while (cal.get(Calendar.DAY_OF_WEEK) != Calendar.SUNDAY) {
 			cal.add(Calendar.DATE, -1);
 		}
-		endDate = cal.getTime();
+		Date upperDate = cal.getTime();
 		cal.add(Calendar.DATE, -7);
-		startDate = cal.getTime();
+		Date lowerDate = cal.getTime();
+		setDates(upperDate, lowerDate);
 	}
-
+	
 	@Override
-	protected void setTypes() {
-		grainType = GRAIN_WEEK;
-		filterType = GRAIN_DAY;
+	public void setTypes() {
+		setTypes(GRAIN_WEEK, GRAIN_DAY);
 	}
 }

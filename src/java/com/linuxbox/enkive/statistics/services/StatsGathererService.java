@@ -1,13 +1,7 @@
 package com.linuxbox.enkive.statistics.services;
 
-import static com.linuxbox.enkive.statistics.StatsConstants.STAT_AVG_ATTACH;
-import static com.linuxbox.enkive.statistics.StatsConstants.STAT_DATA_SIZE;
-import static com.linuxbox.enkive.statistics.StatsConstants.STAT_FREE_MEMORY;
-import static com.linuxbox.enkive.statistics.StatsConstants.STAT_NAME;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_SERVICE_NAME;
-import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TYPE;
 
-import java.net.UnknownHostException;
 import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Map;
@@ -18,52 +12,13 @@ import javax.annotation.PostConstruct;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.linuxbox.enkive.statistics.AbstractCreator;
+import com.linuxbox.enkive.statistics.VarsMaker;
 import com.linuxbox.enkive.statistics.gathering.GathererException;
 import com.linuxbox.enkive.statistics.gathering.GathererInterface;
-import com.linuxbox.enkive.statistics.gathering.StatsRuntimeGatherer;
-import com.linuxbox.enkive.statistics.gathering.mongodb.StatsMongoAttachmentsGatherer;
-import com.linuxbox.enkive.statistics.gathering.mongodb.StatsMongoCollectionGatherer;
-import com.linuxbox.enkive.statistics.gathering.mongodb.StatsMongoDBGatherer;
-import com.mongodb.Mongo;
-import com.mongodb.MongoException;
 
-public class StatsGathererService extends AbstractCreator {
+public class StatsGathererService extends VarsMaker {
 	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.statistics.services");
-
-	public static void main(String args[]) throws UnknownHostException,
-			MongoException {
-		StatsRuntimeGatherer runProps = new StatsRuntimeGatherer("SERVICENAME",
-				"CRONEXPRESSION");
-		StatsMongoAttachmentsGatherer attachProps = new StatsMongoAttachmentsGatherer(
-				new Mongo(), "enkive", "fs", "AttachName", "cronExpress");
-		StatsMongoDBGatherer dbProps = new StatsMongoDBGatherer(new Mongo(),
-				"enkive", "attachName", "cronexpress");
-		StatsMongoCollectionGatherer collProps = new StatsMongoCollectionGatherer(
-				new Mongo(), "enkive", "collName", "cronExpression");
-
-		Map<String, GathererInterface> gatherers = new HashMap<String, GathererInterface>();
-		gatherers.put("runProps", runProps);
-		gatherers.put("attachProps", attachProps);
-		gatherers.put("dbProps", dbProps);
-		gatherers.put("collProps", collProps);
-
-		String[] keys = { STAT_TYPE, STAT_NAME, STAT_DATA_SIZE,
-				STAT_AVG_ATTACH, STAT_FREE_MEMORY };
-
-		Map<String, String[]> serviceKeys = new HashMap<String, String[]>();
-		serviceKeys.put("runProps", keys);
-		serviceKeys.put("attachProps", keys);
-		serviceKeys.put("dbProps", keys);
-		serviceKeys.put("collProps", keys);
-
-		try {
-			new StatsGathererService(gatherers);
-		} catch (Exception e) {
-			System.exit(0);
-		}
-	}
 
 	protected Map<String, GathererInterface> statsGatherers = null;
 
@@ -93,6 +48,10 @@ public class StatsGathererService extends AbstractCreator {
 		statsGatherers.put(gatherer.getAttributes().getName(), gatherer);
 	}
 
+	/**
+	 * adds the arg to the known gatherer list if it is not null
+	 * @param gatherer - gatherer to add
+	 */
 	public void addGatherer(GathererInterface gatherer) {
 		String name = gatherer.getAttributes().getName();
 		if (statsGatherers != null) {
@@ -103,11 +62,25 @@ public class StatsGathererService extends AbstractCreator {
 		}
 	}
 
+	/**
+	 * returns every statistic from every known gatherer
+	 * @return returns a set corresponding to every statistic avaiable to gather
+	 * @throws ParseException
+	 * @throws GathererException
+	 */
 	public Set<Map<String, Object>> gatherStats() throws ParseException,
 			GathererException {
 		return gatherStats(null);
 	}
 
+	/**
+	 * gathers statistics filtered by the map argument--returns all stats if map is null
+	 * @param gathererKeys - map corresponding to the keys to be returned
+	 * Format: {gathererName:[key1, key2, key3,...], ...}
+	 * @return filtered stats
+	 * @throws ParseException
+	 * @throws GathererException
+	 */
 	public Set<Map<String, Object>> gatherStats(
 			Map<String, String[]> gathererKeys) throws ParseException,
 			GathererException {
@@ -138,10 +111,18 @@ public class StatsGathererService extends AbstractCreator {
 		return statsSet;
 	}
 
+	/**
+	 * @return returns the map of all known gatherers
+	 */
 	public Map<String, GathererInterface> getStatsGatherers() {
 		return statsGatherers;
 	}
 
+	/**
+	 * takes a gathererName and returns the gatherer cooresponding to it
+	 * @param name a gathererName (should be from attributes class)
+	 * @return returns the gatherer cooresponding to the param
+	 */
 	public Map<String, GathererInterface> getStatsGatherers(String name) {
 		Map<String, GathererInterface> gathererMap = new HashMap<String, GathererInterface>();
 		gathererMap.put(name, statsGatherers.get(name));
@@ -159,6 +140,10 @@ public class StatsGathererService extends AbstractCreator {
 		LOGGER.info(info);
 	}
 
+	/**
+	 * remove a gatherer from the known gatherer map
+	 * @param name - a gatherer name (should be from attributes class)
+	 */
 	public void removeGatherer(String name) {
 		if (statsGatherers.containsKey(name)) {
 			statsGatherers.remove(name);

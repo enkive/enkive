@@ -9,22 +9,18 @@ import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIME_STAMP;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.linuxbox.enkive.message.search.MessageSearchService;
 import com.linuxbox.enkive.message.search.exception.MessageSearchException;
-import com.linuxbox.enkive.workspace.SearchResult;
 
 public class StatsMsgSearchGatherer extends AbstractGatherer {
 	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.statistics.gathering");
-
-	// NOAH; let's rename this to intervalMilliseconds (and the setter in an
-	// analogous manner) to help document.
-	long interval = 1000 * 60 * 60; // one hour (3600 milliseconds) by default
+	
+	long interval = 1000 * 60 * 60; // one hour (3600000 milliseconds) by default
 
 	MessageSearchService searchService;
 
@@ -44,15 +40,26 @@ public class StatsMsgSearchGatherer extends AbstractGatherer {
 		return getStatistics(prevDate, currDate);
 	}
 
+	/**
+	 * used to get statistics corresponding to a particular time range
+	 * conforms to standard of lower bound being greater than or equal to 
+	 * (inclusive) and upper bound of being less than (non-inclusive)
+	 * @param startDate -lower bound date
+	 * @param endDate -upper bound date
+	 * @return a map with stats cooresponding to the date range
+	 */
 	public Map<String, Object> getStatistics(Date startDate, Date endDate) {
 		Map<String, Object> result = createMap();
 		String lowerDate = new StringBuilder(SIMPLE_DATE.format(startDate))
 				.toString();
 		String upperDate = new StringBuilder(SIMPLE_DATE.format(endDate))
 				.toString();
-		int numEntries = numEntries(lowerDate, upperDate);
-
-		if (numEntries < 0) {
+		int numEntries = -1;
+		
+		try {
+			numEntries = numEntries(lowerDate, upperDate);
+		} catch (Exception e) {
+			e.printStackTrace();
 			return null;
 		}
 
@@ -61,40 +68,28 @@ public class StatsMsgSearchGatherer extends AbstractGatherer {
 		return result;
 	}
 
-	// NOAH: I see there is a GathererException class. Why are we returning a
-	// negative number rather than throwing the GathererException?
-	/*
-	 * @Override protected List<KeyDef> keyBuilder() { List<KeyDef> keys = new
-	 * LinkedList<KeyDef>(); keys.add(new KeyDef(STAT_NUM_ENTRIES + ":" +
-	 * GRAIN_AVG + "," + GRAIN_MAX + "," + GRAIN_MIN)); return keys; }
-	 */
-	protected int numEntries(String dateEarliest, String dateLatest) {
+	protected int numEntries(String dateEarliest, String dateLatest) throws Exception {
 		HashMap<String, String> hmap = new HashMap<String, String>();
 		hmap.put(DATE_EARLIEST_PARAMETER, dateEarliest);
 		hmap.put(DATE_LATEST_PARAMETER, dateLatest);
 		int result = -1;// -1 is error value
 		try {
-			// TODO is this efficient? should we instead add a method to our
-			// search service that would do a count of messages b/w a pair of
-			// dates?
-			//
-			// NOAH: I think so. We're returning all the messages in order to
-			// get a count? That's a lot of network traffic to generate a single
-			// number!
-			final SearchResult result2 = searchService.search(hmap);
-			final Set<String> result3 = result2.getMessageIds();
-			final int count = result3.size();
+			int count = searchService.countSearch(hmap);
 			if (count == 0) {
 				LOGGER.warn("StatisticsMsgEntries: no Entries found between "
 						+ dateEarliest + " & " + dateLatest);
+			} else if (result < 0){
+				throw new GathererException("msgEntries crash");
 			}
 			result = count;
 		} catch (MessageSearchException e) {
 			LOGGER.warn(
 					"MessageSearchException in StatsMsgEntries.numEntries()", e);
+			throw new GathererException("msgEntries crash");
 		} catch (NullPointerException e) {
 			LOGGER.warn("NullPointerException in statsMsgEntries.numEntries()",
 					e);
+			throw new GathererException("msgEntries crash");
 		}
 
 		return result;

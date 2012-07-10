@@ -20,6 +20,7 @@
 package com.linuxbox.enkive.message.search;
 
 import java.util.HashMap;
+import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
@@ -57,6 +58,14 @@ public class TaskPoolAsyncMessageSearchService implements MessageSearchService {
 				maxPoolSize, keepAliveTime, TimeUnit.SECONDS, queue);
 	}
 
+	@Override
+	public int countSearch(HashMap<String, String> fields)
+			throws MessageSearchException {
+		SearchResult search = search(fields);
+		Set<String> searchSet = search.getMessageIds();
+		return searchSet.size();
+	}
+	
 	@Override
 	public Future<SearchResult> searchAsync(HashMap<String, String> fields)
 			throws MessageSearchException {

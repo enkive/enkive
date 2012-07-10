@@ -49,7 +49,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 
 import com.linuxbox.enkive.exception.CannotRetrieveException;
-import com.linuxbox.enkive.statistics.KeyDef;
+import com.linuxbox.enkive.statistics.KeyConsolidationHandler;
 import com.linuxbox.enkive.statistics.services.StatsClient;
 
 @SuppressWarnings("unchecked")
@@ -89,7 +89,7 @@ public class StatsServlet extends EnkiveServlet {
 	 */
 
 	private Map<String, Object> consolidateMaps(
-			Set<Map<String, Object>> serviceData, List<KeyDef> statKeys) {
+			Set<Map<String, Object>> serviceData, List<KeyConsolidationHandler> statKeys) {
 		if (serviceData.size() > 0) {
 			Map<String, Object> template = new HashMap<String, Object>(
 					serviceData.iterator().next());
@@ -106,11 +106,11 @@ public class StatsServlet extends EnkiveServlet {
 
 	private void consolidateMapsHelper(Map<String, Object> templateData,
 			Map<String, Object> consolidatedMap, LinkedList<String> path,
-			List<KeyDef> statKeys, Set<Map<String, Object>> serviceData) {
+			List<KeyConsolidationHandler> statKeys, Set<Map<String, Object>> serviceData) {
 		for (String key : templateData.keySet()) {
 			path.addLast(key);
-			KeyDef matchingKeyDef = findMatchingPath(path, statKeys);
-			if (matchingKeyDef != null) {
+			KeyConsolidationHandler matchingConsolidationDefinition = findMatchingPath(path, statKeys);
+			if (matchingConsolidationDefinition != null) {
 				TreeSet<Map<String, Object>> dataSet = new TreeSet<Map<String, Object>>(
 						new NumComparator());
 				for (Map<String, Object> dataMap : serviceData) {
@@ -218,8 +218,8 @@ public class StatsServlet extends EnkiveServlet {
 		}
 	}
 
-	private KeyDef findMatchingPath(List<String> path, List<KeyDef> keys) {
-		for (KeyDef def : keys) {// get one key definition
+	private KeyConsolidationHandler findMatchingPath(List<String> path, List<KeyConsolidationHandler> keys) {
+		for (KeyConsolidationHandler def : keys) {// get one key definition
 			if (def.getMethods() == null) {
 				continue;
 			}

@@ -51,11 +51,7 @@ public class StatsMongoDBGatherer extends AbstractGatherer {
 
 	@Override
 	public Map<String, Object> getStatistics() {
-		return getStats();
-	}
-
-	public BasicDBObject getStats() {
-		BasicDBObject stats = new BasicDBObject();
+		Map<String, Object> stats = createMap();
 		BasicDBObject temp = db.getStats();
 		stats.put(STAT_TYPE, STAT_TYPE_DB);
 		stats.put(STAT_NAME, db.getName());

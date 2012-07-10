@@ -13,7 +13,7 @@ import java.util.Set;
 
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
-import com.linuxbox.enkive.statistics.KeyDef;
+import com.linuxbox.enkive.statistics.KeyConsolidationHandler;
 import com.linuxbox.enkive.statistics.services.StatsClient;
 
 public abstract class EmbeddedGrain extends AbstractGrain {
@@ -23,54 +23,52 @@ public abstract class EmbeddedGrain extends AbstractGrain {
 
 	@Override
 	protected void consolidateMaps(Map<String, Object> consolidatedData,
-			Set<Map<String, Object>> serviceData, KeyDef keyDef,
+			Set<Map<String, Object>> serviceData, KeyConsolidationHandler keyDef,
 			LinkedList<String> dataPath) {
 		Map<String, Object> statConsolidatedData = new HashMap<String, Object>();
-
-		// 2. loop over paths
 		if (keyDef.getMethods() != null) {
-			// 3. loop over stat consolidation methods
+			//loop over stat consolidation methods
 			for (String method : keyDef.getMethods()) {
 				DescriptiveStatistics statsMaker = new DescriptiveStatistics();
 				Object dataVal = null;
 				dataVal = null;
-				// 4. loop over data for consolidation Method
+				//loop over data for consolidation Method
 				LinkedList<String> tempPath = new LinkedList<String>(dataPath);
 				tempPath.add(method);
 				double input = -1;
 				for (Map<String, Object> dataMap : serviceData) {
-					// 5. get variable at the end of the path
+					//go to end of path & get variable
 					input = -1;
 					dataVal = getDataVal(dataMap, tempPath);
 					if (dataVal != null) {
-						// 6. extract relevant data
+						//extract relevant data from end of path
 						input = statToDouble(dataVal);
 
 						if (input > -1) {
-							// 7. add to stat maker if relevant
+							//add to stat maker if relevant
 							statsMaker.addValue(input);
 						}
 					}
 				}
-				// 8. store in map if relevant method
+				//store in map if method is valid
 				methodMapBuilder(method, dataVal, statsMaker,
 						statConsolidatedData);
 			}
 
-			// 9. store stat methods' data on main consolidated map
+			// store stat methods' data on main consolidated map
 			putOnPath(dataPath, consolidatedData, statConsolidatedData);
 		}
 	}
 
 	@Override
-	public Set<Map<String, Object>> serviceFilter(String name) {
+	public Set<Map<String, Object>> gathererFilter(String name) {
 		Map<String, Object> query = new HashMap<String, Object>();
 		Map<String, Object> keyVals = new HashMap<String, Object>();
 		Map<String, Object> time = new HashMap<String, Object>();
-		time.put("$gte", startDate.getTime());
+		time.put("$gte", startDate);
 		keyVals.put(STAT_TIME_STAMP + "." + GRAIN_MIN, time);
 		time = new HashMap<String, Object>();
-		time.put("$lt", endDate.getTime());
+		time.put("$lt", endDate);
 		keyVals.put(STAT_TIME_STAMP + "." + GRAIN_MAX, time);
 		keyVals.put(GRAIN_TYPE, filterType);
 
