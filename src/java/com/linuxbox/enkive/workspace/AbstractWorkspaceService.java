@@ -19,9 +19,14 @@
  *******************************************************************************/
 package com.linuxbox.enkive.workspace;
 
+import com.linuxbox.enkive.workspace.searchResult.SearchResult;
+import com.linuxbox.enkive.workspace.searchResult.SearchResultBuilder;
 import com.linuxbox.util.MBeanUtils;
 
 public abstract class AbstractWorkspaceService implements WorkspaceService {
+
+	protected WorkspaceBuilder workspaceBuilder;
+	protected SearchResultBuilder searchResultBuilder;
 
 	public AbstractWorkspaceService() {
 
@@ -33,4 +38,31 @@ public abstract class AbstractWorkspaceService implements WorkspaceService {
 		MBeanUtils.registerMBean(this, WorkspaceServiceMBean.class, type, name);
 	}
 
+	public WorkspaceBuilder getWorkspaceBuilder() {
+		return workspaceBuilder;
+	}
+
+	public void setWorkspaceBuilder(WorkspaceBuilder workspaceBuilder) {
+		this.workspaceBuilder = workspaceBuilder;
+	}
+
+	public SearchResultBuilder getSearchResultBuilder() {
+		return searchResultBuilder;
+	}
+
+	public void setSearchResultBuilder(SearchResultBuilder searchResultBuilder) {
+		this.searchResultBuilder = searchResultBuilder;
+	}
+
+	@Override
+	public Workspace getWorkspace(String workspaceUUID)
+			throws WorkspaceException {
+		return workspaceBuilder.getWorkspace(workspaceUUID);
+	}
+
+	@Override
+	public SearchResult getSearchResult(String searchResultID)
+			throws WorkspaceException {
+		return searchResultBuilder.getSearchResult(searchResultID);
+	}
 }

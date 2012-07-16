@@ -29,9 +29,9 @@ import javax.servlet.http.HttpServletResponse;
 import com.linuxbox.enkive.exception.EnkiveServletException;
 import com.linuxbox.enkive.web.EnkiveServlet;
 import com.linuxbox.enkive.web.WebScriptUtils;
-import com.linuxbox.enkive.workspace.SearchResult;
 import com.linuxbox.enkive.workspace.WorkspaceException;
 import com.linuxbox.enkive.workspace.WorkspaceService;
+import com.linuxbox.enkive.workspace.searchResult.SearchResult;
 
 public class SaveSearchWebScript extends EnkiveServlet {
 	/**
@@ -56,7 +56,7 @@ public class SaveSearchWebScript extends EnkiveServlet {
 		try {
 			SearchResult result = workspaceService.getSearchResult(searchId);
 			result.setSaved(true);
-			workspaceService.saveSearchResult(result);
+			result.saveSearchResult();
 			if (LOGGER.isDebugEnabled())
 				LOGGER.debug("saved search at id " + searchId + " with name \""
 						+ nameOfSavedSearch + "\"");

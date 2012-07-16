@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd"
+	default-init-method="startup" default-destroy-method="shutdown">
+
+	<bean id="WorkspaceService"
+		class="com.linuxbox.enkive.workspace.PermissionsEnforcingWorkspaceService">
+		<property name="authenticationService" ref="AuthenticationService" />
+		<property name="workspaceService" ref="MongoWorkspaceService" />
+		<property name="permissionService" ref="PermissionService" />
+	</bean>
+
+	<bean id="MongoWorkspaceService"
+		class="com.linuxbox.enkive.workspace.mongo.MongoWorkspaceService">
+		<constructor-arg ref="Mongo" />
+		<constructor-arg type="java.lang.String" value="${enkive.workspace.db.name}" />
+		<constructor-arg type="java.lang.String"
+			value="${enkive.workspace.userWorkspaces.collection.name}" />
+		<property name="workspaceBuilder" ref="WorkspaceBuilder" />
+		<property name="searchResultBuilder" ref="SearchResultBuilder" />
+	</bean>
+
+	<bean id="MongoSearchResultUtils"
+		class="com.linuxbox.enkive.workspace.mongo.MongoSearchResultUtils">
+		<constructor-arg ref="Mongo" />
+		<constructor-arg type="java.lang.String" value="${enkive.messagestore.db.name}" />
+		<constructor-arg type="java.lang.String"
+			value="${enkive.messagestore.collection.name}" />
+		<constructor-arg type="java.lang.String"
+			value="${enkive.workspace.search.results.collection.name}" />
+	</bean>
+
+	<bean id="WorkspaceBuilder" name="MongoWorkspaceBuilder"
+		class="com.linuxbox.enkive.workspace.mongo.MongoWorkspaceBuilder">
+		<constructor-arg ref="Mongo" />
+		<constructor-arg type="java.lang.String" value="${enkive.workspace.db.name}" />
+		<constructor-arg type="java.lang.String"
+			value="${enkive.workspaces.collection.name}" />
+		<constructor-arg ref="MongoSearchResultBuilder" />
+	</bean>
+
+	<bean id="SearchResultBuilder" name="MongoSearchResultBuilder"
+		class="com.linuxbox.enkive.workspace.mongo.MongoSearchResultBuilder">
+		<constructor-arg ref="Mongo" />
+		<constructor-arg type="java.lang.String" value="${enkive.workspace.db.name}" />
+		<constructor-arg type="java.lang.String"
+			value="${enkive.workspace.search.results.collection.name}" />
+		<constructor-arg ref="MongoSearchQueryBuilder" />
+		<property name="searchResultUtils" ref="MongoSearchResultUtils" />
+	</bean>
+
+	
+	<bean id="SearchQueryBuilder" name="MongoSearchQueryBuilder"
+		class="com.linuxbox.enkive.workspace.mongo.MongoSearchQueryBuilder">
+		<constructor-arg ref="Mongo" />
+		<constructor-arg type="java.lang.String" value="${enkive.workspace.db.name}" />
+		<constructor-arg type="java.lang.String"
+			value="${enkive.workspace.search.queries.collection.name}" />
+	</bean>
+	
+</beans>

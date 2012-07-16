@@ -20,9 +20,16 @@
 package com.linuxbox.enkive.workspace;
 
 import java.text.DateFormat;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
+
+import com.linuxbox.enkive.workspace.searchResult.SearchResultComparator;
+import com.linuxbox.enkive.workspace.searchResult.SearchResult;
+import com.linuxbox.enkive.workspace.searchResult.SearchResultBuilder;
 
 /**
  * A Workspace represents a place where the search history is kept. It's kind of
@@ -33,7 +40,16 @@ import java.util.HashSet;
  * @author eric
  * 
  */
-public class Workspace {
+public abstract class Workspace {
+
+	public static String SORTBYDATE = "sortByDate";
+	public static String SORTBYSUBJECT = "sortBySubject";
+	public static String SORTBYSENDER = "sortBySender";
+	public static String SORTBYRECEIVER = "sortByReceiver";
+	public static String SORTBYSTATUS = "sortByStatus";
+
+	public static int SORT_ASC = 1;
+	public static int SORT_DESC = -1;
 
 	protected String workspaceUUID;
 	protected String workspaceName;
@@ -41,6 +57,7 @@ public class Workspace {
 	protected Date creationDate;
 	protected Date lastUpdate;
 	protected Collection<String> searchResultUUIDs;
+	protected SearchResultBuilder searchResultBuilder;
 
 	public Workspace() {
 		creationDate = new Date(System.currentTimeMillis());
@@ -101,7 +118,82 @@ public class Workspace {
 		searchResultUUIDs.remove(searchResultUUID);
 	}
 
+	public void addSearchResult(SearchResult searchResult) {
+		searchResultUUIDs.add(searchResult.getId());
+	}
+
+	public void deleteSearchResult(SearchResult searchResult) {
+		searchResultUUIDs.remove(searchResult.getId());
+	}
+
 	public void setWorkspaceUUID(String workspaceUUID) {
 		this.workspaceUUID = workspaceUUID;
 	}
+
+	public List<SearchResult> getSearchResults() {
+		return getSearchResults(SORTBYDATE, SORT_DESC);
+	}
+
+	public List<SearchResult> getRecentSearchResults()
+			throws WorkspaceException {
+		return getSearchResults(SORTBYDATE, SORT_DESC);
+	}
+
+	public List<SearchResult> getRecentSearchResults(String sortField,
+			int sortDir) throws WorkspaceException {
+		return getSearchResults(sortField, sortDir);
+	}
+
+	public List<SearchResult> getSavedSearchResults() {
+		return getSavedSearchResults(SORTBYDATE, SORT_DESC);
+	}
+
+	public List<SearchResult> getSavedSearchResults(String sortField,
+			int sortDir) {
+		List<SearchResult> searchResults = new ArrayList<SearchResult>();
+		for (SearchResult searchResult : getSearchResults(sortField, sortDir)) {
+			if (searchResult.isSaved())
+				searchResults.add(searchResult);
+		}
+		return searchResults;
+	}
+
+	public SearchResultBuilder getSearchResultBuilder() {
+		return searchResultBuilder;
+	}
+
+	public void setSearchResultBuilder(SearchResultBuilder searchResultBuilder) {
+		this.searchResultBuilder = searchResultBuilder;
+	}
+
+	protected List<SearchResult> getSearchResults(String sortField, int sortDir) {
+		List<SearchResult> searchResults;
+		Collection<SearchResult> searchResultColl = searchResultBuilder
+				.getSearchResults(searchResultUUIDs);
+		if (searchResultColl instanceof List)
+			searchResults = (List<SearchResult>) searchResultColl;
+		else
+			searchResults = new ArrayList<SearchResult>(searchResultColl);
+		return sortSearchResults(searchResults, sortField, sortDir);
+	}
+
+	public SearchResult getSearchResult(String searchResultId)
+			throws WorkspaceException {
+		return searchResultBuilder.getSearchResult(searchResultId);
+	}
+
+	public static List<SearchResult> sortSearchResults(
+			Collection<SearchResult> searchResults, String sortField,
+			int sortDir) {
+		List<SearchResult> sortedSearchResults;
+		sortedSearchResults = new ArrayList<SearchResult>(searchResults);
+		Collections.sort(sortedSearchResults, new SearchResultComparator(
+				sortField, sortDir));
+		return sortedSearchResults;
+	}
+
+	public abstract void saveWorkspace() throws WorkspaceException;
+
+	public abstract void deleteWorkspace() throws WorkspaceException;
+
 }

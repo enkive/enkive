@@ -17,7 +17,7 @@
  * License along with Enkive CE. If not, see
  * <http://www.gnu.org/licenses/>.
  *******************************************************************************/
-package com.linuxbox.enkive.workspace;
+package com.linuxbox.enkive.workspace.searchQuery;
 
 import static com.linuxbox.enkive.search.Constants.CONTENT_PARAMETER;
 import static com.linuxbox.enkive.search.Constants.DATE_EARLIEST_PARAMETER;
@@ -33,20 +33,15 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.linuxbox.enkive.message.search.MessageSearchSummary;
+import com.linuxbox.enkive.workspace.WorkspaceException;
 
 /**
- * Represents a query consisting of a set of search criteria and a set of
- * results. The reason why there can be multiple results is that a search query
- * may be re-executed over time and given that the repository will likely change
- * over time, the results can be different.
- * 
- * Currently this class is used for both recent queries and saved queries.
- * Perhaps someday those will be subclasses.
+ * Represents a query consisting of a set of search criteria.
  * 
  * @author eric
  * 
  */
-public class SearchQuery {
+public abstract class SearchQuery {
 	protected String id;
 	protected String name;
 	protected Map<String, String> criteria;
@@ -117,4 +112,8 @@ public class SearchQuery {
 	public Collection<String> getCriteriaParameters() {
 		return criteria.keySet();
 	}
+	
+	public abstract void saveSearchQuery() throws WorkspaceException;
+	
+	public abstract void deleteSearchQuery() throws WorkspaceException;
 }

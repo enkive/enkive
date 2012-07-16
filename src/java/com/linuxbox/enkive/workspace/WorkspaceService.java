@@ -20,7 +20,8 @@
 package com.linuxbox.enkive.workspace;
 
 import java.util.Collection;
-import java.util.List;
+
+import com.linuxbox.enkive.workspace.searchResult.SearchResult;
 
 public interface WorkspaceService extends WorkspaceServiceMBean {
 
@@ -34,31 +35,7 @@ public interface WorkspaceService extends WorkspaceServiceMBean {
 	Collection<Workspace> getUserWorkspaces(String userId)
 			throws WorkspaceException;
 
-	String saveWorkspace(Workspace workspace) throws WorkspaceException;
-
-	void deleteWorkspace(Workspace workspace) throws WorkspaceException;
-
-	String saveSearchQuery(SearchQuery query) throws WorkspaceException;
-
-	String saveSearchResult(SearchResult result) throws WorkspaceException;
-
-	List<SearchResult> getRecentSearches(String workspaceId)
-			throws WorkspaceException;
-
-	List<SearchResult> getSavedSearches(String workspaceId)
-			throws WorkspaceException;
-
-	SearchQuery getSearchQuery(String searchQueryId) throws WorkspaceException;
-
-	void deleteSearchQuery(SearchQuery query) throws WorkspaceException;
-
-	void deleteSearchQuery(String stringQueryId) throws WorkspaceException;
-
 	SearchResult getSearchResult(String searchResultId)
 			throws WorkspaceException;
-
-	void deleteSearchResult(SearchResult result) throws WorkspaceException;
-
-	void deleteSearchResult(String searchResultId) throws WorkspaceException;
 
 }

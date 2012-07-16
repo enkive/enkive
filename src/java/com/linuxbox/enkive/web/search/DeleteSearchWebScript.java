@@ -32,6 +32,7 @@ import com.linuxbox.enkive.web.WebScriptUtils;
 import com.linuxbox.enkive.workspace.Workspace;
 import com.linuxbox.enkive.workspace.WorkspaceException;
 import com.linuxbox.enkive.workspace.WorkspaceService;
+import com.linuxbox.enkive.workspace.searchResult.SearchResult;
 
 public class DeleteSearchWebScript extends EnkiveServlet {
 	/**
@@ -52,8 +53,10 @@ public class DeleteSearchWebScript extends EnkiveServlet {
 					.getUserPrincipal().getName());
 			workspace.deleteSearchResult(searchId);
 
-			workspaceService.deleteSearchResult(searchId);
-			workspaceService.saveWorkspace(workspace);
+			SearchResult result = workspace.getSearchResultBuilder().getSearchResult(searchId);
+			result.deleteSearchResult();
+			workspace.saveWorkspace();
+			
 			if (LOGGER.isDebugEnabled())
 				LOGGER.debug("deleted search at id " + searchId);
 		} catch (WorkspaceException e) {

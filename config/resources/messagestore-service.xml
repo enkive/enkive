@@ -45,6 +45,8 @@
 		<constructor-arg value="${enkive.messageSearch.keepAliveTime}" />
 		<property name="authenticationService" ref="AuthenticationService" />
 		<property name="workspaceService" ref="WorkspaceService" />
+		<property name="searchResultBuilder" ref="SearchResultBuilder" />
+		<property name="searchQueryBuilder" ref="SearchQueryBuilder" />
 		<property name="messageSearchService" ref="RetentionPolicyEnforcingMessageSearchService" />
 	</bean>
 
@@ -69,6 +71,7 @@
 		<constructor-arg type="java.lang.String"
 			value="${enkive.messagestore.collection.name}" />
 		<property name="docSearchService" ref="DocSearchQueryService" />
+		<property name="searchResultBuilder" ref="SearchResultBuilder" />
 	</bean>
 </beans>
 	

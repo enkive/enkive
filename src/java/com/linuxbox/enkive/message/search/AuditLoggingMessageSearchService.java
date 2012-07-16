@@ -33,7 +33,7 @@ import com.linuxbox.enkive.audit.AuditServiceException;
 import com.linuxbox.enkive.authentication.AuthenticationException;
 import com.linuxbox.enkive.authentication.AuthenticationService;
 import com.linuxbox.enkive.message.search.exception.MessageSearchException;
-import com.linuxbox.enkive.workspace.SearchResult;
+import com.linuxbox.enkive.workspace.searchResult.SearchResult;
 
 public class AuditLoggingMessageSearchService implements MessageSearchService {
 
