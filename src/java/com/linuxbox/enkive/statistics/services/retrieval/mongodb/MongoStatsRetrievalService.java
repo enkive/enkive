@@ -69,7 +69,7 @@ public class MongoStatsRetrievalService extends VarsMaker implements
 			result.addAll(coll.find().toArray());
 			return result;
 		}
-
+//QUERY -- used to set up a single query on all gatherers at once
 		Set<DBObject> result = new HashSet<DBObject>();
 		BasicDBObject tempMap;
 		BasicDBList or = new BasicDBList();
@@ -140,7 +140,7 @@ public class MongoStatsRetrievalService extends VarsMaker implements
 	public Set<Map<String, Object>> directQuery(Map<String, Object> query) {
 		Set<Map<String, Object>> result = new HashSet<Map<String, Object>>();
 		if (query != null) {
-			for (DBObject entry : coll.find(new BasicDBObject(query)).toArray()) {
+			for (DBObject entry : coll.find(new BasicDBObject(query))) {
 				addMapToSet(entry, result);
 			}
 		} else {
