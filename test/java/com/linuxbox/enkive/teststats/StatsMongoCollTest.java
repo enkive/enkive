@@ -11,16 +11,13 @@ import static com.linuxbox.enkive.statistics.StatsConstants.STAT_SERVICE_NAME;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIME_STAMP;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TOTAL_INDEX_SIZE;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TOTAL_SIZE;
-import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TYPE;
-import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TYPE_COLL;
-import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TYPE_DB;
-import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TYPE_RUN;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -34,7 +31,8 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 import com.linuxbox.enkive.TestingConstants;
-import com.linuxbox.enkive.statistics.KeyDef;
+import com.linuxbox.enkive.statistics.KeyConsolidationHandler;
+import com.linuxbox.enkive.statistics.gathering.GathererException;
 import com.linuxbox.enkive.statistics.gathering.mongodb.StatsMongoCollectionGatherer;
 import com.mongodb.DB;
 import com.mongodb.Mongo;
@@ -54,7 +52,7 @@ public class StatsMongoCollTest {
 	}
 
 	@Parameters
-	public static Collection<Object[]> data() {
+	public static Collection<Object[]> data() throws GathererException {
 		Mongo m = null;
 		try {
 			m = new Mongo();
@@ -66,9 +64,20 @@ public class StatsMongoCollTest {
 			System.exit(0);
 		}
 		db = m.getDB(TestingConstants.MONGODB_TEST_DATABASE);
+		List<String> keys = new LinkedList<String>();
+		keys.add("*.ns:");
+		keys.add("*.numObj:avg,max,min");
+		keys.add("*.avgOSz:avg,max,min");
+		keys.add("*.dataSz:avg,max,min");
+		keys.add("*.totSz:avg,max,min");
+		keys.add("*.numExt:avg,max,min");
+		keys.add("*.lExSz:avg,max,min");
+		keys.add("*.numInd:avg,max,min");
+		keys.add("*.indSz:avg,max,min");
+		keys.add("*.indSzs.*:avg,max,min");
 		collStats = new StatsMongoCollectionGatherer(m,
 				TestingConstants.MONGODB_TEST_DATABASE, "CollGatherer",
-				"0 * * * * ?");
+				"0 * * * * ?", keys);
 		allStats = collStats.getStatistics();
 		List<Object[]> data = new ArrayList<Object[]>();
 		System.out.println("Not testing the following empty DB's: ");
@@ -99,7 +108,7 @@ public class StatsMongoCollTest {
 	public void tearDown() throws Exception {
 	}
 
-	// TODO: move to main api in the future?
+	// TODO: possibly move to main api in the future
 	public boolean checkFormat(Map<String, Object> stats,
 			LinkedList<String> path) {
 		if (path.contains(STAT_SERVICE_NAME)) {
@@ -145,7 +154,7 @@ public class StatsMongoCollTest {
 
 	@Test
 	public void testAttributes() {
-		for (KeyDef key : collStats.getAttributes().getKeys()) {
+		for (KeyConsolidationHandler key : collStats.getAttributes().getKeys()) {
 			LinkedList<String> path = key.getKey();
 			assertTrue("the format is incorrect for path: " + path,
 					checkFormat(allStats, path));
@@ -161,28 +170,16 @@ public class StatsMongoCollTest {
 
 	@Test
 	public void hasTimeStamp() {
-		Long time = ((Long) allStats.get(STAT_TIME_STAMP));
+		Date time = ((Date) allStats.get(STAT_TIME_STAMP));
 		assertTrue("runtime test exception in hasTimeStamp(): time = " + time,
 				time != null);
 	}
 
 	@Test
 	public void timeGTZero() {
-		Long time = ((Long) allStats.get(STAT_TIME_STAMP));
+		Long time = ((Date) allStats.get(STAT_TIME_STAMP)).getTime();
 		assertTrue("runtime test exception in timeGTZero(): time = " + time,
 				time > 0);
-	}
-
-	@Test
-	public void typeTest() {
-		Map<String, Object> obj = (Map<String, Object>) allStats.get(collName);
-		String type = (String) obj.get(STAT_TYPE);
-		assertNotNull("in " + collName + " (type = null)", type);
-		assertTrue(
-				"in " + collName + " (type = " + type + ")",
-				type.compareTo(STAT_TYPE_COLL) == 0
-						|| type.compareTo(STAT_TYPE_DB) == 0
-						|| type.compareTo(STAT_TYPE_RUN) == 0);
 	}
 
 	@Test
@@ -203,7 +200,7 @@ public class StatsMongoCollTest {
 	public void keyCountMatches() {
 		int numKeys = ((Map<String, Object>) allStats.get(collName)).keySet()
 				.size();
-		assertTrue("numKeys doesn't match: numKeys = " + numKeys, numKeys == 11);
+		assertTrue("numKeys doesn't match: numKeys = " + numKeys, numKeys == 10);
 	}
 
 	// GT means 'greater than'

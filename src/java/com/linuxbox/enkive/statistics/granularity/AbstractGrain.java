@@ -44,6 +44,13 @@ public abstract class AbstractGrain implements Grain {
 		client.storeData(consolidateData());
 	}
 
+	/**
+	 * Builds a map that cooresponds to the consolidation methods
+	 * @param method - the method to use
+	 * @param exampleData - an example data object (for type consistancy after consolidation)
+	 * @param statsMaker - the pre-populated DescriptiveStatstistics object to pull stats from
+	 * @param statData - the map to populate with consolidated data
+	 */
 	public void methodMapBuilder(String method, Object exampleData,
 			DescriptiveStatistics statsMaker, Map<String, Object> statData) {
 		if (method.equals(GRAIN_SUM)) {
@@ -84,9 +91,6 @@ public abstract class AbstractGrain implements Grain {
 		return storageData;
 	}
 
-
-	// NOAH: this method calls out for a nice JavaDoc comment
-	//fixed
 	/** this method recurses through a given template map to add consolidated data to a new map
 	 * as defined by each key's ConsolidationDefinition
 	 * @param templateData - the map used to trace
@@ -119,10 +123,21 @@ public abstract class AbstractGrain implements Grain {
 		return consolidatedMap;
 	}
 
+	/** 
+	 * @param serviceData all data pertaining to the weight 
+	 * @return the number of objects in serviceData
+	 */
 	protected int findWeight(Set<Map<String, Object>> serviceData) {
 		return serviceData.size();
 	}
 
+	/**
+	 * this method takes a map and a path and uses the path to trace down the map to a data object
+	 * it then returns that data
+	 * @param dataMap - the map the data will be extracted from
+	 * @param path - the path to traced on
+	 * @return the found data object or null if path does not work
+	 */
 	protected Object getDataVal(Map<String, Object> dataMap, List<String> path) {
 		Object map = dataMap;
 		for (String key : path) {
@@ -137,6 +152,13 @@ public abstract class AbstractGrain implements Grain {
 		return null;
 	}
 
+	/**
+	 * This method uses an example data object from the map and converts the double value back
+	 * into whatever type that example data object was.
+	 * @param example - the example data objecvt
+	 * @param value - the double value to convert
+	 * @return converted value
+	 */
 	protected Object injectType(Object example, double value) {
 		Object result = null;
 		if (example instanceof Integer) {
@@ -151,8 +173,6 @@ public abstract class AbstractGrain implements Grain {
 		return result;
 	}
 
-	// NOAH: this method calls out for a nice JavaDoc comment
-	//fixed
 	/** determines if a path matches any of the ConsolidationDefinitions for a given gatherer
 	 * it does this by comparing each of the path's strings to each of the definition's strings
 	 * asterisks are considered 'any' and are skipped
@@ -177,8 +197,7 @@ public abstract class AbstractGrain implements Grain {
 				continue;
 			}
 
-			while (pathIndex < path.size()) {// run through it to compare to
-												// path
+			while (pathIndex < path.size()) {
 				if (defIndex >= keyString.size()) {
 					isMatch = false;
 					break;
@@ -225,8 +244,6 @@ public abstract class AbstractGrain implements Grain {
 		return null;
 	}
 
-	// NOAH: this method calls out for a nice JavaDoc comment
-	//fixed
 	/** this method takes a data object and inserts it at the end of a path on a given map
 	 * @param path - the path to traverse
 	 * @param statsData - the map to insert data into
@@ -245,16 +262,14 @@ public abstract class AbstractGrain implements Grain {
 				} else {
 					// TODO NOAH: is there a reason we don't create the missing
 					// intervening maps?
-					// Noah-No, but I'm not sure how.
 					LOGGER.error("Cannot put data on path");
+					break;
 				}
 			}
 			index++;
 		}
 	}
 
-	// NOAH: this method calls out for a nice JavaDoc comment
-	//fixed (in interface)
 	public Set<Map<String, Object>> gathererFilter(String name) {
 		Map<String, Map<String, Object>> query = new HashMap<String, Map<String, Object>>();
 		Map<String, Object> keyVals = new HashMap<String, Object>();
@@ -265,6 +280,11 @@ public abstract class AbstractGrain implements Grain {
 		return result;
 	}
 
+	/**
+	 * converts a statistic object into a double
+	 * @param stat the statistic object to convert
+	 * @return a double representing the statistic object
+	 */
 	protected double statToDouble(Object stat) {
 		double input = -1;
 		if (stat instanceof Integer) {
@@ -295,6 +315,16 @@ public abstract class AbstractGrain implements Grain {
 		this.filterType = filterType;
 	}
 
+	/**
+	 * This method gets consolidated data from the service data and inserts it into
+	 * the consolidateData map argument.
+	 * 
+	 * @param consolidatedData map to insert consolidated Data into (must have valid dataPath)
+	 * if the path has data at the end it will be overwritten
+	 * @param serviceData - all data relating to a service
+	 * @param keyDef - defines the consolidation methods to use on the serviceData
+	 * @param dataPath - the path on which to store the data in the consolidatedMap
+	 */
 	protected abstract void consolidateMaps(
 			Map<String, Object> consolidatedData,
 			Set<Map<String, Object>> serviceData, KeyConsolidationHandler keyDef,

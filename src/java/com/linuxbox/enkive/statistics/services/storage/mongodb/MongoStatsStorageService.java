@@ -28,7 +28,6 @@ public class MongoStatsStorageService extends VarsMaker implements
 	public MongoStatsStorageService(Mongo mongo, String dbName, String collectionName) {
 		m = mongo;
 		db = m.getDB(dbName);
-		//NOAH: See comment in retrieval class, move to spring configuration
 		coll = db.getCollection(collectionName);
 		LOGGER.info("StorageService successfully created");
 	}

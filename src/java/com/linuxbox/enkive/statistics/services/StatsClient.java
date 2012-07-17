@@ -63,9 +63,6 @@ public class StatsClient {
 		return null;
 	}
 
-	// NOAH: let's not call Maps "map". Let's describe their content in the
-	// variable name.
-	//fixed by change name to gathererFilter
 	/**
 	 * takes a map and filters the raw statistics based on it. Each map contains keys corresponding
 	 * to a gatherer name followed by an string array of keys to return

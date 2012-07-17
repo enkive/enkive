@@ -9,19 +9,19 @@ import org.quartz.Scheduler;
 import org.springframework.scheduling.quartz.CronTriggerBean;
 import org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean;
 
-import com.linuxbox.enkive.statistics.removal.Remove;
+import com.linuxbox.enkive.statistics.removal.RemovalJob;
 import com.linuxbox.enkive.statistics.services.StatsClient;
 
 public class GrainRunner {
 	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.statistics.granularity.GrainRunner");
 	StatsClient client;
-	Remove remover;
+	RemovalJob remover;
 	String schedule;
 	Scheduler scheduler;
 
 	public GrainRunner(StatsClient client, Scheduler scheduler,
-			String schedule, Remove remover) {
+			String schedule, RemovalJob remover) {
 		this.client = client;
 		this.scheduler = scheduler;
 		this.schedule = schedule;
@@ -54,24 +54,25 @@ public class GrainRunner {
 		LOGGER.info("GrainRunner run() starting");
 		if (Granularity.HOUR.isMatch()) {
 			LOGGER.trace("GrainRunner hour() starting");
-			new HourGrain(client).storeConsolidatedData();
+			(new HourGrain(client)).storeConsolidatedData();
 			LOGGER.trace("GrainRunner hour() finished");
 		}
 
 		if (Granularity.DAY.isMatch()) {
 			LOGGER.trace("GrainRunner day() starting");
-			new DayGrain(client).storeConsolidatedData();
+			(new DayGrain(client)).storeConsolidatedData();
 			LOGGER.trace("GrainRunner day() finished");
 		}
+		
 		if (Granularity.WEEK.isMatch()) {
 			LOGGER.trace("GrainRunner week() starting");
-			new WeekGrain(client).storeConsolidatedData();
+			(new WeekGrain(client)).storeConsolidatedData();
 			LOGGER.trace("GrainRunner week() finished");
 		}
 
 		if (Granularity.MONTH.isMatch()) {
 			LOGGER.trace("GrainRunner month() starting");
-			new MonthGrain(client).storeConsolidatedData();
+			(new MonthGrain(client)).storeConsolidatedData();
 			LOGGER.trace("GrainRunner month() finished");
 		}
 		LOGGER.info("GrainRunner run() finished");

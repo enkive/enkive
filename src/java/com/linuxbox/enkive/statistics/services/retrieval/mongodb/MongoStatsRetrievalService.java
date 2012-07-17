@@ -24,9 +24,6 @@ import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import com.mongodb.Mongo;
 
-// NOAH: As I've said in other files, I think these sets/lists/maps of other sets/lists/maps need to 
-//be documented so the reader knows what they contain. These should be in JavaDoc comments.
-//fixed with @params javadocs
 public class MongoStatsRetrievalService extends VarsMaker implements
 		StatsRetrievalService {
 	private static DBCollection coll;
@@ -39,17 +36,9 @@ public class MongoStatsRetrievalService extends VarsMaker implements
 	public MongoStatsRetrievalService(Mongo mongo, String dbName, String collectionName) {
 		m = mongo;
 		db = m.getDB(dbName);
-		//NOAH: STAT_STORAGE_COLLECTION should be passed in via spring configuration, 
-		//not stored as a constant. This allows us to change the collection name in 
-		//configuration in case we ever want to do an installation where many Enkives 
-		//point to the same mongo instance.
-		//fixed by spring config use
 		coll = db.getCollection(collectionName);
 		LOGGER.info("RetrievalService(Mongo, String) successfully created");
 	}
-
-	// NOAH: again, getQuerySet is a bad name. Build a set that does what?
-	// fixed by rename
 	
 	/**
 	 * preforms a query on the database based on a date range the lower bound
@@ -71,7 +60,7 @@ public class MongoStatsRetrievalService extends VarsMaker implements
 
 	/**
 	 * preforms a query on the database based on a query map
-	 * @param hmap - the query map
+	 * @param hmap - the formatted query map
 	 * @return the query results as a set of maps
 	 */
 	private Set<DBObject> getQuerySet(Map<String, Map<String, Object>> hmap) {
@@ -138,10 +127,6 @@ public class MongoStatsRetrievalService extends VarsMaker implements
 		stats.add(entry.toMap());
 	}
 	
-	// NOAH: The suppress warnings is necessary because DBObject returns a map
-	// w/o key and value types specified? If so, let's document why we're
-	// suppressing warnings in such situations.
-	//fixed with above function & javadoc
 	@Override
 	public Set<Map<String, Object>> directQuery() {
 		Set<Map<String, Object>> result = new HashSet<Map<String, Object>>();
@@ -219,8 +204,9 @@ public class MongoStatsRetrievalService extends VarsMaker implements
 			} else {
 				allStats.addAll(coll.find(query).toArray());
 			}
+			
 		}
-
+		System.out.println("queryStatistics.count(): " + allStats.size());
 		Set<Map<String, Object>> result = new HashSet<Map<String, Object>>();
 		for (DBObject entry : allStats) {
 			addMapToSet(entry, result);

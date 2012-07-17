@@ -12,12 +12,12 @@ import static com.linuxbox.enkive.statistics.StatsConstants.STAT_SERVICE_NAME;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIME_STAMP;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TOTAL_INDEX_SIZE;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TOTAL_SIZE;
-import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TYPE;
-import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TYPE_DB;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Date;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.After;
@@ -27,7 +27,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.linuxbox.enkive.TestingConstants;
-import com.linuxbox.enkive.statistics.KeyDef;
+import com.linuxbox.enkive.statistics.KeyConsolidationHandler;
 import com.linuxbox.enkive.statistics.gathering.mongodb.StatsMongoDBGatherer;
 import com.mongodb.BasicDBObject;
 import com.mongodb.Mongo;
@@ -41,9 +41,20 @@ public class StatsMongoDBTest {
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		m = new Mongo();
+		List<String> keys = new LinkedList<String>();
+		keys.add("db:");
+		keys.add("numObj:avg,max,min");
+		keys.add("nColls:avg,max,min");
+		keys.add("avgOSz:avg,max,min");
+		keys.add("dataSz:avg,max,min");
+		keys.add("totSz:avg,max,min");
+		keys.add("numInd:avg,max,min");
+		keys.add("indSz:avg,max,min");
+		keys.add("numExt:avg,max,min");
+		keys.add("fileSz:avg,max,min");
 		dbStats = new StatsMongoDBGatherer(m,
-				TestingConstants.MONGODB_TEST_DATABASE, name, "0 * * * * ?");
-		allStats = dbStats.getStats();
+				TestingConstants.MONGODB_TEST_DATABASE, name, "0 * * * * ?", keys);
+		allStats = new BasicDBObject(dbStats.getStatistics());
 	}
 
 	@AfterClass
@@ -105,7 +116,7 @@ public class StatsMongoDBTest {
 
 	@Test
 	public void testAttributes() {
-		for (KeyDef key : dbStats.getAttributes().getKeys()) {
+		for (KeyConsolidationHandler key : dbStats.getAttributes().getKeys()) {
 			LinkedList<String> path = key.getKey();
 			assertTrue("the format is incorrect for path: " + path,
 					checkFormat(allStats, path));
@@ -115,7 +126,7 @@ public class StatsMongoDBTest {
 	@Test
 	public void keyCountMatches() {
 		int numKeys = allStats.keySet().size();
-		assertTrue("numKeys doesn't match: numKeys = " + numKeys, numKeys == 12);
+		assertTrue("numKeys doesn't match: numKeys = " + numKeys, numKeys == 11);
 	}
 
 	@Test
@@ -127,25 +138,16 @@ public class StatsMongoDBTest {
 
 	@Test
 	public void hasTimeStamp() {
-		Long time = ((Long) allStats.get(STAT_TIME_STAMP));
+		Long time = ((Date) allStats.get(STAT_TIME_STAMP)).getTime();
 		assertTrue("runtime test exception in hasTimeStamp(): time = " + time,
 				time != null);
 	}
 
 	@Test
 	public void timeGTZero() {
-		Long time = ((Long) allStats.get(STAT_TIME_STAMP));
+		Long time = ((Date) allStats.get(STAT_TIME_STAMP)).getTime();
 		assertTrue("runtime test exception in timeGTZero(): time = " + time,
 				time > 0);
-	}
-
-	@Test
-	public void typeTest() {
-		String type = (String) allStats.get(STAT_TYPE);
-		assertNotNull("in " + TestingConstants.MONGODB_TEST_DATABASE
-				+ " (type = null)", type);
-		assertTrue("in " + TestingConstants.MONGODB_TEST_DATABASE + " (type = "
-				+ type + ")", type.compareTo(STAT_TYPE_DB) == 0);
 	}
 
 	@Test

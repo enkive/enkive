@@ -7,12 +7,17 @@ import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIME_STAMP;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TOTAL_MEMORY;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 public class StatsRuntimeGatherer extends AbstractGatherer {
 
 	public StatsRuntimeGatherer(String serviceName, String schedule) {
 		super(serviceName, schedule);
+	}
+	
+	public StatsRuntimeGatherer(String serviceName, String schedule, List<String> keys) throws GathererException {
+		super(serviceName, schedule, keys);		
 	}
 
 	@Override

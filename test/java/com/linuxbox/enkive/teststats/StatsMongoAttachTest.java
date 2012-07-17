@@ -9,6 +9,7 @@ import static org.junit.Assert.assertTrue;
 import java.net.UnknownHostException;
 import java.util.Date;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.After;
@@ -18,7 +19,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.linuxbox.enkive.TestingConstants;
-import com.linuxbox.enkive.statistics.KeyDef;
+import com.linuxbox.enkive.statistics.KeyConsolidationHandler;
 import com.linuxbox.enkive.statistics.gathering.mongodb.StatsMongoAttachmentsGatherer;
 import com.mongodb.Mongo;
 import com.mongodb.MongoException;
@@ -30,12 +31,15 @@ public class StatsMongoAttachTest {
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
+		List<String> keys = new LinkedList<String>();
+		keys.add("avgAtt:avg");
+		keys.add("maxAtt:max");
 		attach = new StatsMongoAttachmentsGatherer(new Mongo(),
 				TestingConstants.MONGODB_TEST_DATABASE,
 				TestingConstants.MONGODB_TEST_FSFILES_COLLECTION, name,
-				"0 * * * * ?", false);
-		attach.setUpper(new Date());
-		attach.setLower(new Date(0L));
+				"0 * * * * ?", false, keys);
+		attach.setUpperDate(new Date());
+		attach.setLowerDate(new Date(0L));
 		stats = attach.getStatistics();
 	}
 
@@ -97,7 +101,7 @@ public class StatsMongoAttachTest {
 
 	@Test
 	public void testAttributes() {
-		for (KeyDef key : attach.getAttributes().getKeys()) {
+		for (KeyConsolidationHandler key : attach.getAttributes().getKeys()) {
 			LinkedList<String> path = key.getKey();
 			assertTrue("the format is incorrect for path: " + path,
 					checkFormat(stats, path));
@@ -119,14 +123,14 @@ public class StatsMongoAttachTest {
 
 	@Test
 	public void hasTimeStamp() {
-		Long time = ((Long) stats.get(STAT_TIME_STAMP));
+		Long time = ((Date) stats.get(STAT_TIME_STAMP)).getTime();
 		assertTrue("runtime test exception in hasTimeStamp(): time = " + time,
 				time != null);
 	}
 
 	@Test
 	public void timeGTZero() {
-		Long time = ((Long) stats.get(STAT_TIME_STAMP));
+		Long time = ((Date) stats.get(STAT_TIME_STAMP)).getTime();
 		assertTrue("runtime test exception in timeGTZero(): time = " + time,
 				time > 0);
 	}
@@ -167,8 +171,8 @@ public class StatsMongoAttachTest {
 		attach = new StatsMongoAttachmentsGatherer(new Mongo(),
 				TestingConstants.MONGODB_TEST_DATABASE, "IHopeThIsMess3s1tUp!",
 				"AttachmentGatherer", "0 * * * * ?");
-		attach.setUpper(new Date());
-		attach.setLower(new Date(0L));
+		attach.setUpperDate(new Date());
+		attach.setLowerDate(new Date(0L));
 		double max = attach.getMaxAttachSize();
 		double avg = attach.getAvgAttachSize();
 		assertTrue("(avg = " + avg + ")", avg == -1);

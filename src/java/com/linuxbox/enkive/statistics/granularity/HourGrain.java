@@ -60,6 +60,10 @@ public class HourGrain extends AbstractGrain {
 		Date upperDate = cal.getTime();
 		cal.add(Calendar.HOUR_OF_DAY, -1);
 		Date lowerDate = cal.getTime();
+		
+		//TODO DELTE THIS
+		upperDate = new Date();
+		lowerDate = new Date(0L);
 		setDates(upperDate, lowerDate);
 	}
 

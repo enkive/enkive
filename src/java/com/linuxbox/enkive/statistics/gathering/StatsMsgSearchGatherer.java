@@ -8,6 +8,7 @@ import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIME_STAMP;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
@@ -26,6 +27,10 @@ public class StatsMsgSearchGatherer extends AbstractGatherer {
 
 	public StatsMsgSearchGatherer(String serviceName, String schedule) {
 		super(serviceName, schedule);
+	}
+	
+	public StatsMsgSearchGatherer(String serviceName, String schedule, List<String> keys) throws GathererException {
+		super(serviceName, schedule, keys);		
 	}
 
 	public MessageSearchService getSearchService() {
@@ -78,8 +83,6 @@ public class StatsMsgSearchGatherer extends AbstractGatherer {
 			if (count == 0) {
 				LOGGER.warn("StatisticsMsgEntries: no Entries found between "
 						+ dateEarliest + " & " + dateLatest);
-			} else if (result < 0){
-				throw new GathererException("msgEntries crash");
 			}
 			result = count;
 		} catch (MessageSearchException e) {
@@ -89,6 +92,10 @@ public class StatsMsgSearchGatherer extends AbstractGatherer {
 		} catch (NullPointerException e) {
 			LOGGER.warn("NullPointerException in statsMsgEntries.numEntries()",
 					e);
+			throw new GathererException("msgEntries crash");
+		}
+		
+		if (result < 0){
 			throw new GathererException("msgEntries crash");
 		}
 

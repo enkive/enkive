@@ -12,6 +12,8 @@ import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -66,16 +68,48 @@ public class StatsHourGrainTest {
 		coll = db.getCollection(STAT_STORAGE_COLLECTION);
 		coll.drop();
 
+		List<String> keys = new LinkedList<String>();
+		keys.add("db:");
+		keys.add("numObj:avg,max,min");
+		keys.add("nColls:avg,max,min");
+		keys.add("avgOSz:avg,max,min");
+		keys.add("dataSz:avg,max,min");
+		keys.add("totSz:avg,max,min");
+		keys.add("numInd:avg,max,min");
+		keys.add("indSz:avg,max,min");
+		keys.add("numExt:avg,max,min");
+		keys.add("fileSz:avg,max,min");
 		GathererInterface dbProp = new StatsMongoDBGatherer(m,
 				TestingConstants.MONGODB_TEST_DATABASE, "DBGatherer",
-				"* * * * * ?");
+				"* * * * * ?", keys);
+		
+		keys = new LinkedList<String>();
+		keys.add("*.ns:");
+		keys.add("*.numObj:avg,max,min");
+		keys.add("*.avgOSz:avg,max,min");
+		keys.add("*.dataSz:avg,max,min");
+		keys.add("*.totSz:avg,max,min");
+		keys.add("*.numExt:avg,max,min");
+		keys.add("*.lExSz:avg,max,min");
+		keys.add("*.numInd:avg,max,min");
+		keys.add("*.indSz:avg,max,min");
+		keys.add("*.indSzs.*:avg,max,min");
 		GathererInterface collProp = new StatsMongoCollectionGatherer(m,
 				TestingConstants.MONGODB_TEST_DATABASE, "CollGatherer",
-				"* * * * * ?");
+				"* * * * * ?", keys);
+		
+		keys = new LinkedList<String>();
+		keys.add("freeM:avg,max,min");
+		keys.add("maxM:avg,max,min");
+		keys.add("totM:avg,max,min");
+		keys.add("cores:avg,max,min");
 		GathererInterface runProp = new StatsRuntimeGatherer("RuntimeGatherer",
-				"* * * * * ?");
+				"* * * * * ?", keys);
+		
+		keys = new LinkedList<String>();
+		keys.add("numMsg:avg,max,min");
 		StatsMsgSearchGatherer msgProp = new StatsMsgSearchGatherer(
-				"MsgPropGatherer", "* * * * * ?");
+				"MsgPropGatherer", "* * * * * ?", keys);
 		MongoMessageSearchService searchService = null;
 		try {
 			searchService = new MongoMessageSearchService(new Mongo(),
@@ -88,16 +122,23 @@ public class StatsHourGrainTest {
 		}
 		searchService.setDocSearchService(new IndriDocSearchQueryService());
 		msgProp.setSearchService(searchService);
+		
+		keys = new LinkedList<String>();
+		keys.add("avgAtt:avg");
+		keys.add("maxAtt:max");
 		StatsMongoAttachmentsGatherer attProp = new StatsMongoAttachmentsGatherer(
 				m, TestingConstants.MONGODB_TEST_DATABASE,
 				TestingConstants.MONGODB_TEST_DOCUMENTS_COLLECTION,
-				"AttachmentGatherer", "* * * * * ?", false);
-		attProp.setLower(new Date(0L));
-		attProp.setUpper(new Date());
+				"AttachmentGatherer", "* * * * * ?", false, keys);
+		attProp.setLowerDate(new Date(0L));
+		attProp.setUpperDate(new Date());
+		
+		keys = new LinkedList<String>();
+		keys.add("msgArchive:avg,max,min");
 		GathererInterface msgStatProp = new StatsMongoMsgGatherer(m,
 				TestingConstants.MONGODB_TEST_DATABASE,
 				TestingConstants.MONGODB_TEST_MESSAGES_COLLECTION,
-				"MsgStatGatherer", "* * * * * ?");
+				"MsgStatGatherer", "* * * * * ?", keys);
 
 		HashMap<String, GathererInterface> gatherers = new HashMap<String, GathererInterface>();
 		gatherers.put("DatabaseStatsService", dbProp);
@@ -107,9 +148,9 @@ public class StatsHourGrainTest {
 		gatherers.put("AttachstatsService", attProp);
 		gatherers.put("msgStatStatsService", msgStatProp);
 		retrievalTester = new MongoStatsRetrievalService(m,
-				TestingConstants.MONGODB_TEST_DATABASE);
+				TestingConstants.MONGODB_TEST_DATABASE, TestingConstants.MONGODB_TEST_COLL);
 		storageTester = new MongoStatsStorageService(m,
-				TestingConstants.MONGODB_TEST_DATABASE);
+				TestingConstants.MONGODB_TEST_DATABASE, TestingConstants.MONGODB_TEST_COLL);
 		gatherTester = new StatsGathererService(gatherers);
 		client = new StatsClient(gatherTester, storageTester, retrievalTester);
 		grain = new HourGrain(client);
@@ -121,7 +162,7 @@ public class StatsHourGrainTest {
 				cal.add(Calendar.HOUR, -1);
 			}
 			for (Map<String, Object> data : stats) {
-				data.put(STAT_TIME_STAMP, cal.getTimeInMillis());
+				data.put(STAT_TIME_STAMP, cal.getTime());
 			}
 			client.storeData(stats);
 		}
@@ -132,7 +173,7 @@ public class StatsHourGrainTest {
 	public void correctQueryTest() {
 		for (GathererAttributes attribute : client.getAttributes()) {
 			String name = attribute.getName();
-			int size = grain.serviceFilter(name).size();
+			int size = grain.gathererFilter(name).size();
 			grain.consolidateData();
 			assertTrue(
 					"the query did not return the correct number of objects: 5 vs. "

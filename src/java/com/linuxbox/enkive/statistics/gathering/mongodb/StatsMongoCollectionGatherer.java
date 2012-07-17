@@ -12,8 +12,6 @@ import static com.linuxbox.enkive.statistics.StatsConstants.STAT_SERVICE_NAME;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIME_STAMP;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TOTAL_INDEX_SIZE;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TOTAL_SIZE;
-import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TYPE;
-import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TYPE_COLL;
 import static com.linuxbox.enkive.statistics.gathering.mongodb.MongoConstants.MONGO_AVG_OBJ_SIZE;
 import static com.linuxbox.enkive.statistics.gathering.mongodb.MongoConstants.MONGO_COUNT;
 import static com.linuxbox.enkive.statistics.gathering.mongodb.MongoConstants.MONGO_INDEX_SIZES;
@@ -27,12 +25,14 @@ import static com.linuxbox.enkive.statistics.gathering.mongodb.MongoConstants.MO
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.linuxbox.enkive.statistics.gathering.AbstractGatherer;
+import com.linuxbox.enkive.statistics.gathering.GathererException;
 import com.mongodb.DB;
 import com.mongodb.Mongo;
 
@@ -47,6 +47,13 @@ public class StatsMongoCollectionGatherer extends AbstractGatherer {
 	public StatsMongoCollectionGatherer(Mongo m, String dbName,
 			String serviceName, String schedule) {
 		super(serviceName, schedule);
+		this.m = m;
+		db = m.getDB(dbName);
+	}
+	
+	public StatsMongoCollectionGatherer(Mongo m, String dbName,
+			String serviceName, String schedule, List<String> keys) throws GathererException {
+		super(serviceName, schedule, keys);
 		this.m = m;
 		db = m.getDB(dbName);
 	}
@@ -88,12 +95,16 @@ public class StatsMongoCollectionGatherer extends AbstractGatherer {
 		return selectedStats;
 	}
 
+	/**
+	 * gets the statistics cooresponding to a given collection
+	 * @param collectionName - the name of the collection on which to gather stats
+	 * @return the stats collected
+	 */
 	private Map<String, Object> getStats(String collectionName) {
 		if (db.collectionExists(collectionName)) {
 			Map<String, Object> stats = createMap();
 			Map<String, Object> temp = db.getCollection(collectionName)
 					.getStats();
-			stats.put(STAT_TYPE, STAT_TYPE_COLL);
 			stats.put(STAT_NS, temp.get(MONGO_NS));
 			stats.put(STAT_NUM_OBJS, temp.get(MONGO_COUNT));
 			stats.put(STAT_AVG_OBJ_SIZE, temp.get(MONGO_AVG_OBJ_SIZE));

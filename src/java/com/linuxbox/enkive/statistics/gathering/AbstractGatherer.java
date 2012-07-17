@@ -3,6 +3,7 @@ package com.linuxbox.enkive.statistics.gathering;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_SERVICE_NAME;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIME_STAMP;
 
+import java.text.ParseException;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -33,7 +34,12 @@ public abstract class AbstractGatherer extends VarsMaker implements
 		this.serviceName = serviceName;
 		this.schedule = schedule;
 	}
-
+	
+	public AbstractGatherer(String serviceName, String schedule, List<String> keys) throws GathererException {
+		this(serviceName, schedule);
+		setKeys(keys);
+	}
+	
 	@Override
 	public GathererAttributes getAttributes() {
 		return attributes;
@@ -62,7 +68,7 @@ public abstract class AbstractGatherer extends VarsMaker implements
 			selectedStats.put(STAT_TIME_STAMP, stats.get(STAT_TIME_STAMP));
 		} else {
 			selectedStats.put(STAT_TIME_STAMP,
-					new Date(System.currentTimeMillis()));
+					new Date());
 		}
 
 		return selectedStats;
@@ -75,8 +81,8 @@ public abstract class AbstractGatherer extends VarsMaker implements
 	@PostConstruct
 	protected void init() throws Exception {
 		// create attributes
-		attributes = new GathererAttributes(serviceName, schedule,
-				keyBuilder(keys));
+		attributes = new GathererAttributes(serviceName, schedule, keyBuilder(keys));
+		
 		// create factory
 		MethodInvokingJobDetailFactoryBean jobDetail = new MethodInvokingJobDetailFactoryBean();
 		jobDetail.setTargetObject(this);
@@ -104,8 +110,13 @@ public abstract class AbstractGatherer extends VarsMaker implements
 	 * colon. An asterisk may be used as an 'any' to go down a level in a map, such as:
 	 * "*.date:max,min,avg"
 	 * @return returns the instantiated consolidation list
+	 * @throws GathererException 
 	 */
-	protected List<KeyConsolidationHandler> keyBuilder(List<String> keyList) {
+	protected List<KeyConsolidationHandler> keyBuilder(List<String> keyList) throws GathererException {
+		if(keyList == null){
+			throw new GathererException("keys were not set for " + serviceName);
+		}
+		
 		List<KeyConsolidationHandler> keys = new LinkedList<KeyConsolidationHandler>();
 		if (keyList != null) {
 			for (String key : keyList) {
@@ -132,7 +143,13 @@ public abstract class AbstractGatherer extends VarsMaker implements
 		}
 	}
 
-	public void setKeys(List<String> keys) {
+	public void setKeys(List<String> keys) throws GathererException {
 		this.keys = keys;
+		// create attributes
+		try {
+			attributes = new GathererAttributes(serviceName, schedule, keyBuilder(keys));
+		} catch (ParseException e) {
+			throw new GathererException("parseException in attributes constructor", e);
+		}
 	}
 }

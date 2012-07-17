@@ -8,6 +8,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Date;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.After;
@@ -19,7 +20,7 @@ import org.junit.Test;
 import com.linuxbox.enkive.TestingConstants;
 import com.linuxbox.enkive.docsearch.indri.IndriDocSearchQueryService;
 import com.linuxbox.enkive.message.search.mongodb.MongoMessageSearchService;
-import com.linuxbox.enkive.statistics.KeyDef;
+import com.linuxbox.enkive.statistics.KeyConsolidationHandler;
 import com.linuxbox.enkive.statistics.gathering.StatsMsgSearchGatherer;
 import com.mongodb.Mongo;
 
@@ -31,7 +32,9 @@ public class StatsMsgEntriesTest {
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		msgEntries = new StatsMsgSearchGatherer(name, "0 * * * * ?");
+		List<String> keys = new LinkedList<String>();
+		keys.add("numMsg:avg,max,min");
+		msgEntries = new StatsMsgSearchGatherer(name, "0 * * * * ?", keys);
 		MongoMessageSearchService searchService;
 		searchService = new MongoMessageSearchService(new Mongo(),
 				TestingConstants.MONGODB_TEST_DATABASE,
@@ -100,7 +103,7 @@ public class StatsMsgEntriesTest {
 
 	@Test
 	public void testAttributes() {
-		for (KeyDef key : msgEntries.getAttributes().getKeys()) {
+		for (KeyConsolidationHandler key : msgEntries.getAttributes().getKeys()) {
 			LinkedList<String> path = key.getKey();
 			assertTrue("the format is incorrect for path: " + path,
 					checkFormat(stats, path));
@@ -122,25 +125,30 @@ public class StatsMsgEntriesTest {
 
 	@Test
 	public void hasTimeStamp() {
-		Long time = ((Long) stats.get(STAT_TIME_STAMP));
+		Long time = ((Date) stats.get(STAT_TIME_STAMP)).getTime();
 		assertTrue("runtime test exception in hasTimeStamp(): time = " + time,
 				time != null);
 	}
 
 	@Test
 	public void timeGTZero() {
-		Long time = ((Long) stats.get(STAT_TIME_STAMP));
+		Long time = ((Date) stats.get(STAT_TIME_STAMP)).getTime();
 		assertTrue("runtime test exception in timeGTZero(): time = " + time,
 				time > 0);
 	}
 
 	@Test
-	public void GTZerotest() {
+	public void GTEZerotest() {
 		Date startDate = new Date(0L);
 		Date endDate = new Date();
-		Map<String, Object> numEntriesStats = msgEntries.getStatistics(
+		Map<String, Object> numEntriesStats = null;
+		try{
+			 numEntriesStats = msgEntries.getStatistics(
 				startDate, endDate);
+		} catch(Exception e) {
+			assertTrue("numEntriesCrashed", false);
+		}
 		int numEntries = (Integer) numEntriesStats.get(STAT_NUM_ENTRIES);
-		assertTrue("numEntries = " + numEntries, numEntries > 0);
+		assertTrue("numEntries = " + numEntries, numEntries >= 0);
 	}
 }

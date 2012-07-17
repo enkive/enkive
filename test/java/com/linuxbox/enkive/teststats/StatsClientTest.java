@@ -7,6 +7,8 @@ import java.net.UnknownHostException;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -60,16 +62,48 @@ public class StatsClientTest {
 		coll = db.getCollection(STAT_STORAGE_COLLECTION);
 		coll.drop();
 
+		List<String> keys = new LinkedList<String>();
+		keys.add("db:");
+		keys.add("numObj:avg,max,min");
+		keys.add("nColls:avg,max,min");
+		keys.add("avgOSz:avg,max,min");
+		keys.add("dataSz:avg,max,min");
+		keys.add("totSz:avg,max,min");
+		keys.add("numInd:avg,max,min");
+		keys.add("indSz:avg,max,min");
+		keys.add("numExt:avg,max,min");
+		keys.add("fileSz:avg,max,min");
 		GathererInterface dbProp = new StatsMongoDBGatherer(m,
 				TestingConstants.MONGODB_TEST_DATABASE, dbPropName,
-				"* * * * * ?");
+				"* * * * * ?", keys);
+		
+		keys = new LinkedList<String>();
+		keys.add("*.ns:");
+		keys.add("*.numObj:avg,max,min");
+		keys.add("*.avgOSz:avg,max,min");
+		keys.add("*.dataSz:avg,max,min");
+		keys.add("*.totSz:avg,max,min");
+		keys.add("*.numExt:avg,max,min");
+		keys.add("*.lExSz:avg,max,min");
+		keys.add("*.numInd:avg,max,min");
+		keys.add("*.indSz:avg,max,min");
+		keys.add("*.indSzs.*:avg,max,min");
 		GathererInterface collProp = new StatsMongoCollectionGatherer(m,
 				TestingConstants.MONGODB_TEST_DATABASE, collPropName,
-				"* * * * * ?");
+				"* * * * * ?", keys);
+		
+		keys = new LinkedList<String>();
+		keys.add("freeM:avg,max,min");
+		keys.add("maxM:avg,max,min");
+		keys.add("totM:avg,max,min");
+		keys.add("cores:avg,max,min");
 		GathererInterface runProp = new StatsRuntimeGatherer(runPropName,
-				"* * * * * ?");
+				"* * * * * ?", keys);
+		
+		keys = new LinkedList<String>();
+		keys.add("numMsg:avg,max,min");
 		StatsMsgSearchGatherer msgProp = new StatsMsgSearchGatherer(
-				msgSearchPropName, "* * * * * ?");
+				msgSearchPropName, "* * * * * ?", keys);
 		MongoMessageSearchService searchService = null;
 		try {
 			searchService = new MongoMessageSearchService(new Mongo(),
@@ -80,18 +114,26 @@ public class StatsClientTest {
 		} catch (MongoException e) {
 			e.printStackTrace();
 		}
+		
 		searchService.setDocSearchService(new IndriDocSearchQueryService());
 		msgProp.setSearchService(searchService);
+		
+		keys = new LinkedList<String>();
+		keys.add("avgAtt:avg");
+		keys.add("maxAtt:max");
 		StatsMongoAttachmentsGatherer attProp = new StatsMongoAttachmentsGatherer(
 				m, TestingConstants.MONGODB_TEST_DATABASE,
 				TestingConstants.MONGODB_TEST_DOCUMENTS_COLLECTION,
-				attPropName, "* * * * * ?", false);
-		attProp.setLower(new Date(0L));
-		attProp.setUpper(new Date());
+				attPropName, "* * * * * ?", false, keys);
+		attProp.setLowerDate(new Date(0L));
+		attProp.setUpperDate(new Date());
+		
+		keys = new LinkedList<String>();
+		keys.add("msgArchive:avg,max,min");
 		GathererInterface msgStatProp = new StatsMongoMsgGatherer(m,
 				TestingConstants.MONGODB_TEST_DATABASE,
 				TestingConstants.MONGODB_TEST_MESSAGES_COLLECTION,
-				msgStatPropName, "* * * * * ?");
+				msgStatPropName, "* * * * * ?", keys);
 
 		HashMap<String, GathererInterface> gatherers = new HashMap<String, GathererInterface>();
 		gatherers.put("DatabaseStatsService", dbProp);
@@ -101,9 +143,9 @@ public class StatsClientTest {
 		gatherers.put("AttachstatsService", attProp);
 		gatherers.put("msgStatStatsService", msgStatProp);
 		retrievalTester = new MongoStatsRetrievalService(m,
-				TestingConstants.MONGODB_TEST_DATABASE);
+				TestingConstants.MONGODB_TEST_DATABASE, TestingConstants.MONGODB_TEST_COLL);
 		storageTester = new MongoStatsStorageService(m,
-				TestingConstants.MONGODB_TEST_DATABASE);
+				TestingConstants.MONGODB_TEST_DATABASE, TestingConstants.MONGODB_TEST_COLL);
 		gatherTester = new StatsGathererService(gatherers);
 		client = new StatsClient(gatherTester, storageTester, retrievalTester);
 	}

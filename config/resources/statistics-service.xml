@@ -10,7 +10,7 @@
 	<bean id="StatisticsStorer" class="com.linuxbox.enkive.statistics.services.storage.mongodb.MongoStatsStorageService">
 		<constructor-arg ref="Mongo" />
 		<constructor-arg name="dbName" value="${enkive.statistics.db.name}" />
-		<constructor-arg name="collectionName" value="${enkive.statistics.db.name}" />
+		<constructor-arg name="collectionName" value="${enkive.statistics.collection.name}" />
 	</bean>
 
 	<bean id="MsgStatsService"
@@ -39,7 +39,6 @@
 		<property name="storageService" ref="StatisticsStorer" />
 		<property name="keys">	
 			<list>
-				<value>*.type:</value>
 				<value>*.ns:</value>
 				<value>*.numObj:avg,max,min</value>
 				<value>*.avgOSz:avg,max,min</value>
@@ -80,7 +79,7 @@
 		<property name="keys">	
 			<list>
 				<value>avgAtt:avg</value>
-				<value>maxAtt:avg</value>
+				<value>maxAtt:max</value>
 			</list>
 		</property>	
 	</bean>
@@ -95,7 +94,6 @@
 		<property name="storageService" ref="StatisticsStorer" />
 		<property name="keys">	
 			<list>
-				<value>type:</value>
 				<value>db:</value>
 				<value>numObj:avg,max,min</value>
 				<value>nColls:avg,max,min</value>
@@ -142,7 +140,7 @@
 	<bean id="StatisticsRetriever" class="com.linuxbox.enkive.statistics.services.retrieval.mongodb.MongoStatsRetrievalService">
 		<constructor-arg ref="Mongo" />
 		<constructor-arg name="dbName" value="${enkive.statistics.db.name}" />
-		<constructor-arg name="collectionName" value="${enkive.statistics.db.name}" />
+		<constructor-arg name="collectionName" value="${enkive.statistics.collection.name}" />
 	</bean>
 	
 	<bean id="StatisticsClient" class="com.linuxbox.enkive.statistics.services.StatsClient">
@@ -171,7 +169,7 @@
 	</bean>
 	
 	<bean id="RemovalRunner"
-		class="com.linuxbox.enkive.statistics.removal.Remove">
+		class="com.linuxbox.enkive.statistics.removal.RemovalJob">
 		<constructor-arg name="client" ref="StatisticsClient" />
 		<property name="rawKeepTime" value="2"/>
 		<property name="hrKeepTime" value="48"/>

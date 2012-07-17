@@ -9,7 +9,7 @@ import com.linuxbox.enkive.statistics.services.storage.StatsStorageException;
 
 public interface StatsRetrievalService {
 	/**
-	 * Does a query on the statistics service back end.
+	 * Does a query equivalent to find() on the statistics service back end.
 	 * 
 	 * @param statName
 	 *            A dot-separated path to the statistic desired starting with
@@ -25,7 +25,7 @@ public interface StatsRetrievalService {
 			throws StatsRetrievalException;
 
 	/**
-	 * does a query on a date range to the statistics back-end
+	 * Does a query on a date range to the statistics back-end
 	 * @param startingTimestamp -the starting date for the query
 	 * @param endingTimestamp -the ending date for the query
 	 * @return a set of results. Each result is a map object retrieved from the
@@ -36,7 +36,7 @@ public interface StatsRetrievalService {
 			Date endingTimestamp) throws StatsRetrievalException;
 
 	/**
-	 * does a query on the backend based on gatherer types & keys
+	 * Does a query on the backend based on gatherer types & keys
 	 * @param stats - a map formatted as the following:
 	 * {GathererName:{key1:val1, key2:val2}, ...} each key must conform
 	 * to the correct dot notation (e.g. MessageCollection.indexes._id.count)
@@ -49,7 +49,7 @@ public interface StatsRetrievalService {
 			throws StatsRetrievalException;
 
 	/**
-	 * does a query on the backend based on a query Object and a date range
+	 * Does a query on the backend based on a query Object and a date range
 	 * @param stats - a map formatted as the following:
 	 * {GathererName:{key1:val1, key2:val2}, ...} each key must conform
 	 * to the correct dot notation (e.g. MessageCollection.indexes._id.count)
@@ -80,20 +80,20 @@ public interface StatsRetrievalService {
 			throws StatsRetrievalException;
 
 	/**
-	 * removes every object cooresponding to a given objectID
+	 * Removes every object cooresponding to a given objectID
 	 * @param deletionSet - a set of objectIds
 	 * @throws StatsRetrievalException
 	 */
 	public void remove(Set<Object> deletionSet) throws StatsRetrievalException;
 
 	/**
-	 * equivalent to the coll.find() method
+	 * Equivalent to the coll.find() method
 	 * @return every object in the collection
 	 */
 	public Set<Map<String, Object>> directQuery();
 	
 	/**
-	 * does a query on the backend without formatting the map at all (e.g. just 
+	 * Does a query on the backend without formatting the map at all (e.g. just 
 	 * like the shell)
 	 * @param query a map that is the exact representation of a dbObject to query
 	 * the DB with

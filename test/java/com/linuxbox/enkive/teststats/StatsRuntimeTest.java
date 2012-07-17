@@ -9,7 +9,9 @@ import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TOTAL_MEMORY;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Date;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.After;
@@ -18,17 +20,24 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.linuxbox.enkive.statistics.KeyDef;
+import com.linuxbox.enkive.statistics.KeyConsolidationHandler;
 import com.linuxbox.enkive.statistics.gathering.StatsRuntimeGatherer;
 
 public class StatsRuntimeTest {
 	private final static String serviceName = "RuntimeGatherer";
-	protected static StatsRuntimeGatherer rtStat = new StatsRuntimeGatherer(
-			serviceName, "* * * * * ?");
+	protected static StatsRuntimeGatherer rtStat = null;
 	protected static Map<String, Object> stats;
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
+		
+		List<String> keys = new LinkedList<String>();
+		keys.add("freeM:avg,max,min");
+		keys.add("maxM:avg,max,min");
+		keys.add("totM:avg,max,min");
+		keys.add("cores:avg,max,min");
+		rtStat = new StatsRuntimeGatherer(
+				serviceName, "0 * * * * ?", keys);
 		stats = rtStat.getStatistics();
 	}
 
@@ -90,7 +99,7 @@ public class StatsRuntimeTest {
 
 	@Test
 	public void testAttributes() {
-		for (KeyDef key : rtStat.getAttributes().getKeys()) {
+		for (KeyConsolidationHandler key : rtStat.getAttributes().getKeys()) {
 			LinkedList<String> path = key.getKey();
 			assertTrue("the format is incorrect for path: " + path,
 					checkFormat(stats, path));
@@ -112,16 +121,16 @@ public class StatsRuntimeTest {
 
 	@Test
 	public void hasTimeStamp() {
-		Long time = ((Long) stats.get(STAT_TIME_STAMP));
+		Date time = ((Date) stats.get(STAT_TIME_STAMP));
 		assertTrue("runtime test exception in hasTimeStamp(): time = " + time,
 				time != null);
 	}
 
 	@Test
 	public void timeGTZero() {
-		Long time = ((Long) stats.get(STAT_TIME_STAMP));
+		Date time = ((Date) stats.get(STAT_TIME_STAMP));
 		assertTrue("runtime test exception in timeGTZero(): time = " + time,
-				time > 0);
+				time.getTime() > 0);
 	}
 
 	@Test

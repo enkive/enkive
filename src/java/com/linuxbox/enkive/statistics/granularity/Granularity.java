@@ -1,21 +1,12 @@
 package com.linuxbox.enkive.statistics.granularity;
 
 import java.util.Calendar;
-import java.util.Date;
 
 public enum Granularity {
-	DAY(0, -1, -1, -1), // any hour (hourly controlled by cronTrigger)
-	HOUR(-1, -1, -1, -1), // first hour of any day
-	MONTH(-1, 1, -1, -1), // first day of any week
-	WEEK(-1, -1, 1, -1); // first day of any month
-	public static void main(String[] args) {
-		System.out.println("CurrDate: " + new Date());
-		System.out.println("HOUR " + HOUR.isMatch());
-		System.out.println("DAY " + DAY.isMatch());
-		System.out.println("WEEK " + WEEK.isMatch());
-		System.out.println("MONTH " + MONTH.isMatch());
-	}
-
+	HOUR(-1, -1, -1, -1),// any hour (hourly controlled by cronTrigger)
+	DAY(0, -1, -1, -1), // first hour of any day 
+	WEEK(-1, -1, 1, -1), // first day of any week
+	MONTH(-1, 1, -1, -1); // first day of any month
 	private int dayOfMonth;
 	// -1 means any
 	private int hour;
