@@ -269,7 +269,8 @@ public abstract class AbstractGrain implements Grain {
 			index++;
 		}
 	}
-
+	
+//TODO QUERY
 	public Set<Map<String, Object>> gathererFilter(String name) {
 		Map<String, Map<String, Object>> query = new HashMap<String, Map<String, Object>>();
 		Map<String, Object> keyVals = new HashMap<String, Object>();
