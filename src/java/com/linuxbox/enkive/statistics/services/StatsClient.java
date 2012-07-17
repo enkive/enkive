@@ -107,6 +107,7 @@ public class StatsClient {
 				.getAttributes();
 	}
 
+	// MODIFY
 	/**
 	 * query the database using a query argument and a date range
 	 * @param stats - a map formatted in the following way: {gathererName:{stat:value, stat:value, ...}, ...}

@@ -271,11 +271,11 @@ public abstract class AbstractGrain implements Grain {
 	}
 	
 //TODO QUERY
-	public Set<Map<String, Object>> gathererFilter(String name) {
+	public Set<Map<String, Object>> gathererFilter(String gathererName) {
 		Map<String, Map<String, Object>> query = new HashMap<String, Map<String, Object>>();
 		Map<String, Object> keyVals = new HashMap<String, Object>();
 		keyVals.put(GRAIN_TYPE, filterType);
-		query.put(name, keyVals);
+		query.put(gathererName, keyVals);
 		Set<Map<String, Object>> result = client.queryStatistics(query,
 				startDate, endDate);
 		return result;

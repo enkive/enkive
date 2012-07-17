@@ -14,6 +14,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.bson.types.ObjectId;
 
+import com.linuxbox.enkive.statistics.StatsQuery;
 import com.linuxbox.enkive.statistics.VarsMaker;
 import com.linuxbox.enkive.statistics.services.StatsRetrievalService;
 import com.linuxbox.enkive.statistics.services.retrieval.StatsRetrievalException;
@@ -63,7 +64,7 @@ public class MongoStatsRetrievalService extends VarsMaker implements
 	 * @param hmap - the formatted query map
 	 * @return the query results as a set of maps
 	 */
-	private Set<DBObject> getQuerySet(Map<String, Map<String, Object>> hmap) {
+	private Set<DBObject> getQuerySet(StatsQuery query) {
 		if (hmap == null) {// if null return all
 			Set<DBObject> result = new HashSet<DBObject>();
 			result.addAll(coll.find().toArray());
@@ -87,6 +88,7 @@ public class MongoStatsRetrievalService extends VarsMaker implements
 		return result;
 	}
 
+	// MODIFY
 	/**
 	 * preforms two querys: one on the query object and the other on the date range
 	 * after done all objects not in the date range query are removed from the map
@@ -97,8 +99,7 @@ public class MongoStatsRetrievalService extends VarsMaker implements
 	 * @param upperDate - the upper bound date
 	 * @return the query results as a set of maps
 	 */
-	private Set<DBObject> getQuerySet(Map<String, Map<String, Object>> queryMap,
-			Date lowerDate, Date upperDate) {
+	private Set<DBObject> getQuerySet(StatsQuery query) {
 		Set<DBObject> hMapSet = getQuerySet(queryMap);
 		Set<DBObject> dateSet = getQuerySet(lowerDate, upperDate);
 		Set<DBObject> result = new HashSet<DBObject>();
@@ -149,18 +150,21 @@ public class MongoStatsRetrievalService extends VarsMaker implements
 		return result;
 	}
 
+	// MODIFY
 	@Override
 	public Set<Map<String, Object>> queryStatistics()
 			throws StatsRetrievalException {
 		return queryStatistics(null, null, null);
 	}
 
+	// MODIFY
 	@Override
 	public Set<Map<String, Object>> queryStatistics(Date startingTimestamp,
 			Date endingTimestamp) throws StatsRetrievalException {
 		return queryStatistics(null, startingTimestamp, endingTimestamp);
 	}
 
+	// MODIFY
 	@Override
 	public Set<Map<String, Object>> queryStatistics(
 			Map<String, Map<String, Object>> stats)
@@ -168,9 +172,10 @@ public class MongoStatsRetrievalService extends VarsMaker implements
 		return queryStatistics(stats, null, null);
 	}
 
+	// MODIFY
 	@Override
 	public Set<Map<String, Object>> queryStatistics(
-			Map<String, Map<String, Object>> hmap, Date lower, Date upper) {
+			StatsQuery query) {
 		Set<Map<String, Object>> result = new HashSet<Map<String, Object>>();
 		if (lower == null) {
 			lower = new Date(0L);
