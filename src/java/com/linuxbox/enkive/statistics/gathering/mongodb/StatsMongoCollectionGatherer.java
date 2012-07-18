@@ -8,7 +8,7 @@ import static com.linuxbox.enkive.statistics.StatsConstants.STAT_NS;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_NUM_EXTENT;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_NUM_INDEX;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_NUM_OBJS;
-import static com.linuxbox.enkive.statistics.StatsConstants.STAT_SERVICE_NAME;
+import static com.linuxbox.enkive.statistics.StatsConstants.STAT_GATHERER_NAME;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIME_STAMP;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TOTAL_INDEX_SIZE;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TOTAL_SIZE;
@@ -89,7 +89,7 @@ public class StatsMongoCollectionGatherer extends AbstractGatherer {
 			}
 			selectedStats.put(collName, temp);
 		}
-		selectedStats.put(STAT_SERVICE_NAME, attributes.getName());
+		selectedStats.put(STAT_GATHERER_NAME, attributes.getName());
 		selectedStats.put(STAT_TIME_STAMP, System.currentTimeMillis());
 
 		return selectedStats;

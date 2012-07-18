@@ -19,7 +19,7 @@
  *******************************************************************************/
 package com.linuxbox.enkive.statistics;
 
-import static com.linuxbox.enkive.statistics.StatsConstants.STAT_SERVICE_NAME;
+import static com.linuxbox.enkive.statistics.StatsConstants.STAT_GATHERER_NAME;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -91,7 +91,7 @@ public class StatsReportEmailer {
 
 		for (Map<String, Object> map : statistics) {
 			HashMap<String, Object> hMap = new HashMap<String, Object>(map);
-			root.put((String) map.get(STAT_SERVICE_NAME), hMap.toString());
+			root.put((String) map.get(STAT_GATHERER_NAME), hMap.toString());
 		}
 		/*
 		 * for (String serviceName : JSONObject.getNames(statistics)) {

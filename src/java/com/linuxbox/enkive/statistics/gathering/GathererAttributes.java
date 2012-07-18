@@ -1,6 +1,6 @@
 package com.linuxbox.enkive.statistics.gathering;
 
-import static com.linuxbox.enkive.statistics.StatsConstants.STAT_SERVICE_NAME;
+import static com.linuxbox.enkive.statistics.StatsConstants.STAT_GATHERER_NAME;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIME_STAMP;
 import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MAX;
 import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MIN;
@@ -23,7 +23,7 @@ public class GathererAttributes {
 		this.schedule = new CronExpression(schedule);
 		this.keys = keys;
 		//serviceName and Timestamp must always be specified
-		keys.add(new KeyConsolidationHandler(STAT_SERVICE_NAME + ":"));
+		keys.add(new KeyConsolidationHandler(STAT_GATHERER_NAME + ":"));
 		keys.add(new KeyConsolidationHandler(STAT_TIME_STAMP + ":" + GRAIN_MAX + "," + GRAIN_MIN));
 	}
 

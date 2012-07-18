@@ -1,11 +1,4 @@
 package com.linuxbox.enkive.statistics.granularity;
-
-import static com.linuxbox.enkive.statistics.StatsConstants.STAT_SERVICE_NAME;
-import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIME_STAMP;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MAX;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MIN;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_TYPE;
-
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
@@ -58,23 +51,5 @@ public abstract class EmbeddedGrain extends AbstractGrain {
 			// store stat methods' data on main consolidated map
 			putOnPath(dataPath, consolidatedData, statConsolidatedData);
 		}
-	}
-
-	@Override
-	public Set<Map<String, Object>> gathererFilter(String name) {
-		Map<String, Object> query = new HashMap<String, Object>();
-		Map<String, Object> keyVals = new HashMap<String, Object>();
-		Map<String, Object> time = new HashMap<String, Object>();
-		time.put("$gte", startDate);
-		keyVals.put(STAT_TIME_STAMP + "." + GRAIN_MIN, time);
-		time = new HashMap<String, Object>();
-		time.put("$lt", endDate);
-		keyVals.put(STAT_TIME_STAMP + "." + GRAIN_MAX, time);
-		keyVals.put(GRAIN_TYPE, filterType);
-
-		query.putAll(keyVals);
-		query.put(STAT_SERVICE_NAME, name);
-		Set<Map<String, Object>> result = client.directQuery(query);
-		return result;
 	}
 }

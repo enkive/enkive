@@ -1,9 +1,11 @@
 package com.linuxbox.enkive.statistics.services;
 
-import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.linuxbox.enkive.statistics.StatsFilter;
+import com.linuxbox.enkive.statistics.StatsQuery;
 import com.linuxbox.enkive.statistics.services.retrieval.StatsRetrievalException;
 import com.linuxbox.enkive.statistics.services.storage.StatsStorageException;
 
@@ -25,30 +27,6 @@ public interface StatsRetrievalService {
 			throws StatsRetrievalException;
 
 	/**
-	 * Does a query on a date range to the statistics back-end
-	 * @param startingTimestamp -the starting date for the query
-	 * @param endingTimestamp -the ending date for the query
-	 * @return a set of results. Each result is a map object retrieved from the
-	 * db between the two dates specified
-	 * @throws StatsRetrievalException
-	 */
-	public Set<Map<String, Object>> queryStatistics(Date startingTimestamp,
-			Date endingTimestamp) throws StatsRetrievalException;
-
-	/**
-	 * Does a query on the backend based on gatherer types & keys
-	 * @param stats - a map formatted as the following:
-	 * {GathererName:{key1:val1, key2:val2}, ...} each key must conform
-	 * to the correct dot notation (e.g. MessageCollection.indexes._id.count)
-	 * @return a set of results cooresponding to each of the objects found by 
-	 * the query
-	 * @throws StatsRetrievalException
-	 */
-	public Set<Map<String, Object>> queryStatistics(
-			Map<String, Map<String, Object>> stats)
-			throws StatsRetrievalException;
-
-	/**
 	 * Does a query on the backend based on a query Object and a date range
 	 * @param stats - a map formatted as the following:
 	 * {GathererName:{key1:val1, key2:val2}, ...} each key must conform
@@ -59,8 +37,7 @@ public interface StatsRetrievalService {
 	 * @throws StatsRetrievalException
 	 */
 	public Set<Map<String, Object>> queryStatistics(
-			Map<String, Map<String, Object>> stats, Date startingTimestamp,
-			Date endingTimestamp) throws StatsRetrievalException;
+			StatsQuery query) throws StatsRetrievalException;
 
 	/**
 	 * Does a query on the backend that only returns specific keys as specified by the filterMap's
@@ -79,6 +56,10 @@ public interface StatsRetrievalService {
 			Map<String, Map<String, Object>> filterMap)
 			throws StatsRetrievalException;
 
+	//TODO document
+	public Set<Map<String, Object>> queryStatistics(
+			List<StatsQuery> query, List<StatsFilter> filter)
+			throws StatsRetrievalException;
 	/**
 	 * Removes every object cooresponding to a given objectID
 	 * @param deletionSet - a set of objectIds
@@ -90,7 +71,7 @@ public interface StatsRetrievalService {
 	 * Equivalent to the coll.find() method
 	 * @return every object in the collection
 	 */
-	public Set<Map<String, Object>> directQuery();
+//	public Set<Map<String, Object>> directQuery();
 	
 	/**
 	 * Does a query on the backend without formatting the map at all (e.g. just 
@@ -99,5 +80,5 @@ public interface StatsRetrievalService {
 	 * the DB with
 	 * @return set representing the query
 	 */
-	public Set<Map<String, Object>> directQuery(Map<String, Object> query);
+//	public Set<Map<String, Object>> directQuery(Map<String, Object> query);
 }

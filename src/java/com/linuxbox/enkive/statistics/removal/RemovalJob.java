@@ -1,6 +1,7 @@
 package com.linuxbox.enkive.statistics.removal;
 
 import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_DAY;
+import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_RAW;
 import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_HOUR;
 import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MONTH;
 import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_TYPE;
@@ -20,6 +21,7 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.linuxbox.enkive.statistics.StatsQuery;
 import com.linuxbox.enkive.statistics.services.StatsClient;
 
 //NOAH: I think the name for this class could be a little more descriptive. '
@@ -68,21 +70,22 @@ public class RemovalJob {
 	 * this method takes an identifier that determines a date range and a type of grainualarity and deletes all
 	 * the objects found in a query over these 
 	 * @param interval - the identifier that determines how the date is to be made
-	 * @param type - the type of grainularity to delete
+	 * @param grainType - the type of grainularity to delete
 	 */
-	private void cleaner(int interval, int type) {
+	private void cleaner(int interval, int grainType) {
 		setDate(interval);
-		Set<Map<String, Object>> data = client.queryStatistics(null, new Date(
-				0L), dateFilter);
+		StatsQuery query = new StatsQuery(new Date(0L), dateFilter);
+		query.grainType = grainType;
+		Set<Map<String, Object>> data = client.queryStatistics(query);
 		Set<Object> deletionSet = new HashSet<Object>();
 
 		for (Map<String, Object> map : data) {
 			Integer gType = (Integer) map.get(GRAIN_TYPE);
 			if (gType != null) {
-				if (gType.equals(type)) {
+				if (gType.equals(grainType)) {
 					deletionSet.add(map.get("_id"));
 				}
-			} else if (type == 0) {
+			} else if (grainType == 0) {
 				deletionSet.add(map.get("_id"));
 			}
 		}
@@ -103,10 +106,10 @@ public class RemovalJob {
 
 	private void cleanRaw() {
 		if (rawKeepTime != -1) {
-			cleaner(REMOVAL_RAW_ID, 0);
+			cleaner(REMOVAL_RAW_ID, GRAIN_RAW);
 		}
 	}
-
+	
 	private void cleanWeek() {
 		if (wkKeepTime != -1) {
 			cleaner(REMOVAL_WEEK_ID, GRAIN_WEEK);

@@ -36,7 +36,7 @@ public interface StatsConstants {
 	public static String STAT_NUM_INDEX = "numInd";
 	public static String STAT_NUM_OBJS = "numObj";
 	public static String STAT_PROCESSORS = "cores";
-	public static String STAT_SERVICE_NAME = "sn";
+	public static String STAT_GATHERER_NAME = "gn";
 	public static String STAT_STORAGE_COLLECTION = "statistics";
 	public static String STAT_STORAGE_DB = "enkive";
 	public static String STAT_TIME = "time";

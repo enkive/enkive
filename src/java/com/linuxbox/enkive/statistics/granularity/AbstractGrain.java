@@ -20,6 +20,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
 import com.linuxbox.enkive.statistics.KeyConsolidationHandler;
+import com.linuxbox.enkive.statistics.StatsQuery;
 import com.linuxbox.enkive.statistics.gathering.GathererAttributes;
 import com.linuxbox.enkive.statistics.services.StatsClient;
 
@@ -41,6 +42,8 @@ public abstract class AbstractGrain implements Grain {
 	}
 
 	public void storeConsolidatedData() {
+		//TODO
+//		System.out.println("consolidateData: " + consolidateData());
 		client.storeData(consolidateData());
 	}
 
@@ -270,15 +273,9 @@ public abstract class AbstractGrain implements Grain {
 		}
 	}
 	
-//TODO QUERY
 	public Set<Map<String, Object>> gathererFilter(String gathererName) {
-		Map<String, Map<String, Object>> query = new HashMap<String, Map<String, Object>>();
-		Map<String, Object> keyVals = new HashMap<String, Object>();
-		keyVals.put(GRAIN_TYPE, filterType);
-		query.put(gathererName, keyVals);
-		Set<Map<String, Object>> result = client.queryStatistics(query,
-				startDate, endDate);
-		return result;
+		StatsQuery query = new StatsQuery(gathererName, filterType, startDate, endDate);
+		return client.queryStatistics(query);
 	}
 
 	/**

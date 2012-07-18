@@ -1,14 +1,16 @@
 package com.linuxbox.enkive.statistics.services;
 
 import java.text.ParseException;
-import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.linuxbox.enkive.statistics.StatsFilter;
+import com.linuxbox.enkive.statistics.StatsQuery;
 import com.linuxbox.enkive.statistics.gathering.GathererAttributes;
 import com.linuxbox.enkive.statistics.gathering.GathererException;
 import com.linuxbox.enkive.statistics.services.retrieval.StatsRetrievalException;
@@ -35,18 +37,18 @@ public class StatsClient {
 	 * @param stats - object on which to query mongo with
 	 * @return results from the query
 	 */
-	public Set<Map<String, Object>> directQuery(Map<String, Object> stats) {
+/*	public Set<Map<String, Object>> directQuery(Map<String, Object> stats) {
 		return retrievalService.directQuery(stats);
 	}
-
+*/
 	/**
 	 * this method returns all objects in collection (equivalent to the shell .find() method)
 	 * @return all found objects
 	 */
-	public Set<Map<String, Object>> directQuery() {
+/*	public Set<Map<String, Object>> directQuery() {
 		return retrievalService.directQuery();
 	}
-
+*/
 	/**
 	 * gathers statistics from every known gatherer in the gathererService
 	 * @return returns all statistics gathered from every known gatherer
@@ -115,21 +117,18 @@ public class StatsClient {
 	 * @param endingTimestamp - the end date for the query-if null then current date is used
 	 * @return result of objects found with query
 	 */
-	public Set<Map<String, Object>> queryStatistics(
-			Map<String, Map<String, Object>> stats, Date startingTimestamp,
-			Date endingTimestamp) {
+	public Set<Map<String, Object>> queryStatistics(StatsQuery query) {
 		try {
-			return retrievalService.queryStatistics(stats, startingTimestamp,
-					endingTimestamp);
+			return retrievalService.queryStatistics(query);
 		} catch (StatsRetrievalException e) {
 			LOGGER.error(
-					"Client.queryStatistics(Map, Date, Date) StatsRetrievalException",
+					"Client.queryStatistics(StatsQuery) StatsRetrievalException",
 					e);
 		}
 		return null;
 	}
 
-	/**
+	/** //TODO fix documentation
 	 * query the database and filter the result before returning
 	 * both arguments should be formated like so:
 	 * queryMap - {gathererName:{key:value, ...}, ...} 
@@ -145,7 +144,20 @@ public class StatsClient {
 			return retrievalService.queryStatistics(queryMap, filterMap);
 		} catch (StatsRetrievalException e) {
 			LOGGER.error(
-					"Client.queryStatistics(Map, Date, Date) StatsRetrievalException",
+					"Client.queryStatistics(map, map) StatsRetrievalException",
+					e);
+		}
+		return null;
+	}
+	
+	//TODO document
+	public Set<Map<String, Object>> queryStatistics(
+			List<StatsQuery> query, List<StatsFilter> filter) {
+		try {
+			return retrievalService.queryStatistics(query, filter);
+		} catch (StatsRetrievalException e) {
+			LOGGER.error(
+					"Client.queryStatistics(map, map) StatsRetrievalException",
 					e);
 		}
 		return null;

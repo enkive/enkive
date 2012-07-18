@@ -17,6 +17,11 @@ public class StatsQuery {
 	public Date startTimestamp = null;
 	public Date endTimestamp = null;
 
+	public StatsQuery(Date startTimestamp, Date endTimestamp) {
+		this.startTimestamp = startTimestamp;
+		this.endTimestamp = endTimestamp;
+	}
+	
 	public StatsQuery(String gathererName, Integer grainType) {
 		this.gathererName = gathererName;
 		this.grainType = grainType;

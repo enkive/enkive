@@ -1,6 +1,6 @@
 package com.linuxbox.enkive.statistics.gathering;
 
-import static com.linuxbox.enkive.statistics.StatsConstants.STAT_SERVICE_NAME;
+import static com.linuxbox.enkive.statistics.StatsConstants.STAT_GATHERER_NAME;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIME_STAMP;
 
 import java.text.ParseException;
@@ -61,7 +61,7 @@ public abstract class AbstractGatherer extends VarsMaker implements
 			}
 		}
 
-		selectedStats.put(STAT_SERVICE_NAME, attributes.getName());
+		selectedStats.put(STAT_GATHERER_NAME, attributes.getName());
 
 		if (selectedStats.get(STAT_TIME_STAMP) == null
 				&& stats.get(STAT_TIME_STAMP) != null) {

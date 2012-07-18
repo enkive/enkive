@@ -1,6 +1,6 @@
 package com.linuxbox.enkive.statistics.services;
 
-import static com.linuxbox.enkive.statistics.StatsConstants.STAT_SERVICE_NAME;
+import static com.linuxbox.enkive.statistics.StatsConstants.STAT_GATHERER_NAME;
 
 import java.text.ParseException;
 import java.util.HashMap;
@@ -103,7 +103,7 @@ public class StatsGathererService extends VarsMaker {
 		for (String name : gathererKeys.keySet()) {
 			Map<String, Object> gathererData = statsGatherers.get(name)
 					.getStatistics(gathererKeys.get(name));
-			gathererData.put(STAT_SERVICE_NAME, statsGatherers.get(name)
+			gathererData.put(STAT_GATHERER_NAME, statsGatherers.get(name)
 					.getAttributes().getName());
 			statsSet.add(gathererData);
 		}
