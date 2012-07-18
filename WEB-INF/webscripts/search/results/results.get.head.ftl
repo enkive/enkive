@@ -1,7 +1,7 @@
 <link rel="stylesheet" type="text/css" href="${url.context}/resource/css/jquery.fancybox-1.3.4.css" media="screen" />
 <script src="${url.context}/resource/javascript/jquery.fancybox-1.3.4.js"></script>
 <script type="text/javascript">
-	$('#search_results tr').live('click', function(){
+	$('#search_results .message').live('click', function(){
 		var currentId = $(this).attr('id');
 		$(this).fancybox({
 				'width'				: '75%',
@@ -19,5 +19,10 @@
 	    var link = $(this).attr("href");
 	    $('#main').load(link + " #main");
 	    $(this).removeAttr("href");
+	});
+	
+	$('.sortable').live('click', function() {
+	    var link = $(this).attr("href");
+	    $('#main').load(link + " #main");
 	});
 </script>

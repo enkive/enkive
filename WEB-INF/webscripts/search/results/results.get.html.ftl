@@ -38,17 +38,49 @@
 			<#if (result.data.itemTotal > 0)>
 				<table id="search_results">
 				  <thead>
-				    <th><b>Date</b></th>
-				    <th><b>Sender</b></th>
-				    <th><b>Recipients</b></th>
-				    <th><b>Subject</b></th>
+				    <th>
+				    	<a class="sortable" href="${uri}&sortBy=sortByDate&sortDir=-1">
+				    		<img src="${url.context}/resource/images/sort_arrow_desc.png" alt="Sort DESC" />
+				    	</a>
+				    	<b>Date</b>
+				    	<a class="sortable" href="${uri}&sortBy=sortByDate&sortDir=1">
+				    		<img src="${url.context}/resource/images/sort_arrow_asc.png" alt="Sort ASC" />
+				    	</a>
+				    </th>
+				    <th>
+				    	<a class="sortable" href="${uri}&sortBy=sortBySender&sortDir=-1">
+				    		<img src="${url.context}/resource/images/sort_arrow_desc.png" alt="Sort DESC" />
+				    	</a>
+				    	<b>Sender</b>
+				    	<a class="sortable" href="${uri}&sortBy=sortBySender&sortDir=1">
+				    		<img src="${url.context}/resource/images/sort_arrow_asc.png" alt="Sort ASC" />
+				    	</a>
+				    </th>
+				    <th>
+				    	<a class="sortable" href="${uri}&sortBy=sortByReceiver&sortDir=-1">
+				    		<img src="${url.context}/resource/images/sort_arrow_desc.png" alt="Sort DESC" />
+				    	</a>
+				    	<b>Receiver</b>
+				    	<a class="sortable" href="${uri}&sortBy=sortByReceiver&sortDir=1">
+				    		<img src="${url.context}/resource/images/sort_arrow_asc.png" alt="Sort ASC" />
+				    	</a>
+				    </th>
+				    <th>
+				    	<a class="sortable" href="${uri}&sortBy=sortBySubject&sortDir=-1">
+				    		<img src="${url.context}/resource/images/sort_arrow_desc.png" alt="Sort DESC" />
+				    	</a>
+				    	<b>Subject</b>
+				    	<a class="sortable" href="${uri}&sortBy=sortBySubject&sortDir=1">
+				    		<img src="${url.context}/resource/images/sort_arrow_asc.png" alt="Sort ASC" />
+				    	</a>
+				    </th>
 				  </thead>
 				  <tbody>
 					<#list result.data.results as message>
 					  	<#if (message_index % 2) == 0>
-					    	<tr class="result_even" id="${message.messageId}">
+					    	<tr class="result_even message" id="${message.messageId}">
 					    <#else>
-					    	<tr class="result_odd" id="${message.messageId}">
+					    	<tr class="result_odd message" id="${message.messageId}">
 					    </#if>
 				    	<td class="noscript">
 				    		<a href="${url.context}/message?messageid=${message.messageId}" target="_blank">VIEW</a>

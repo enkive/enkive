@@ -2,11 +2,27 @@
 	<div class="scrollable">
 		<table id="saved_searches">
 			<tr>
-				<th>Execution Date</th>
+				<th>
+					<a class="sortable" href="${uri}&sortBy=sortByDate&sortDir=-1">
+						<img src="${url.context}/resource/images/sort_arrow_desc.png" alt="Sort DESC" />
+					</a>
+					<b>Execution Date</b>
+					<a class="sortable" href="${uri}&sortBy=sortByDate&sortDir=1">
+						<img src="${url.context}/resource/images/sort_arrow_asc.png" alt="Sort ASC" />
+					</a>
+				</th>
 				<th>Criteria</th>
-				<th>Status</th>
+				<th>
+					<a class="sortable" href="${uri}&sortBy=sortByStatus&sortDir=-1">
+						<img src="${url.context}/resource/images/sort_arrow_desc.png" alt="Sort DESC" />
+					</a>
+					<b>Status</b>
+					<a class="sortable" href="${uri}&sortBy=sortByStatus&sortDir=1">
+						<img src="${url.context}/resource/images/sort_arrow_asc.png" alt="Sort ASC" />
+					</a>
+				</th>
 			</tr>
-			<#list searchList?sort_by("searchDate")?reverse as search>
+			<#list searchList as search>
 				<#if (search_index % 2) == 0>
 				   	<tr class="result_even 
 				<#else>

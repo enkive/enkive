@@ -10,4 +10,9 @@
 	    $('#main').load(link + " #main");
 	    $(this).removeAttr("href");
 	});
+		
+	$('.sortable').live('click', function() {
+	    var link = $(this).attr("href");
+	    $('#main').load(link + " #main");
+	});
 </script>

@@ -6,6 +6,8 @@ var connector = remote.connect("enkive");
 var searchid = context.properties["searchid"];
 var pos = context.properties["pos"];
 var size = context.properties["size"];
+var sortBy = context.properties["sortBy"];
+var sortDir = context.properties["sortDir"];
 
 var content = context.properties["content"];
 var sender = context.properties["sender"];
@@ -21,7 +23,7 @@ var uri = url.uri;
 if (searchid != null) {
 	// retrieve the web script index page
 	messagelist = connector.get("/search/results?id=" + searchid + "&pos="
-			+ pos + "&size=" + size);
+			+ pos + "&size=" + size + "&sortBy=" + sortBy + "&sortDir=" + sortDir);
 
 } else if ((content != null && content != "")
 		|| (sender != null && sender != "")
