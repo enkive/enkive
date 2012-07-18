@@ -156,13 +156,13 @@ public class StatsRemovalTest {
 			map.put(STAT_TIME_STAMP, 0L);
 		}
 		client.storeData(stats);
-		assertTrue("The db is empty", !client.directQuery().isEmpty());
-		stats = client.directQuery();
+		assertTrue("The db is empty", !client.queryStatistics().isEmpty());
+		stats = client.queryStatistics();
 		Set<Object> ids = new HashSet<Object>();
 		for (Map<String, Object> stat : stats) {
 			ids.add(stat.get("_id"));
 		}
 		client.remove(ids);
-		assertTrue("The db is not empty", client.directQuery().isEmpty());
+		assertTrue("The db is not empty", client.queryStatistics().isEmpty());
 	}
 }

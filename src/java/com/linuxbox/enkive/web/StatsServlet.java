@@ -63,12 +63,16 @@ public class StatsServlet extends EnkiveServlet {
 	private StatsClient client;
 
 	/*
-	 * Servlet Algorithm 1. Get a DateRange for ts.min & ts.max (done) 1.5 if no
-	 * dateRange is specified figure out a way to do instantData 2. get all
-	 * service names 3. loop over service names to build filter map 4. while
-	 * looping build a second map for query second map will only have
-	 * serviceName, date range, and (optional) grainType 5. query database using
-	 * query map & filter map 6. format query data 7. return formatted data
+	 * Servlet Algorithm 
+	 * 1. Get a DateRange for ts.min & ts.max 
+	 * 1.5 if no dateRange is specified find instant data 
+	 * 2. get allservice names 
+	 * 3. loop over service names to build filter map 
+	 * 4. while looping build a second map for query second map will only have
+	 * serviceName, date range, and (optional) grainType 
+	 * 5. query database using query map & filter map 
+	 * 6. format query data 
+	 * 7. return formatted data
 	 * Note. handle errors with log messages & thrown exceptions
 	 */
 
@@ -85,7 +89,7 @@ public class StatsServlet extends EnkiveServlet {
 	 * 1. get a map to use as template 
 	 * 2. recurse template until hit full path specified by attributes class 
 	 * 3. when full path loop over entire data on that path to build a sorted set
-	 * (sorted on ts.min) for each input to the set also include ts and _id 
+	 * (sorted on ts.min) for each input to the set also include ts
 	 * 4. when done with that loop store that set under the path on the
 	 * consolidated data path 
 	 * 5. return Set<Map<String,Object>> as json by list constructor
@@ -98,10 +102,10 @@ public class StatsServlet extends EnkiveServlet {
 					serviceData.iterator().next());			
 			LinkedList<String> path = new LinkedList<String>();
 			Map<String, Object> result = new HashMap<String, Object>(template);
+			consolidateMapsHelper(template, result, path, statKeys, serviceData);
 			result.remove(STAT_GATHERER_NAME);
 			result.remove(STAT_TIME_STAMP);
 			result.remove("_id");
-			consolidateMapsHelper(template, result, path, statKeys, serviceData);
 			return result;
 		}
 		return null;
@@ -110,7 +114,7 @@ public class StatsServlet extends EnkiveServlet {
 	private void consolidateMapsHelper(Map<String, Object> templateData,
 			Map<String, Object> consolidatedMap, LinkedList<String> path,
 			List<KeyConsolidationHandler> statKeys, Set<Map<String, Object>> serviceData) {
-		for (String key : consolidatedMap.keySet()) {
+		for (String key : templateData.keySet()) {
 			path.addLast(key);
 			KeyConsolidationHandler matchingConsolidationDefinition = findMatchingPath(path, statKeys);
 			if (matchingConsolidationDefinition != null) {
@@ -179,6 +183,7 @@ public class StatsServlet extends EnkiveServlet {
 					} else if(max1 > max2){
 						return 1;
 					} else {//should never happen
+						LOGGER.warn("numComparator attempting to store objects with same timestamp");
 						return 0;
 					}
 				}
@@ -248,8 +253,7 @@ public class StatsServlet extends EnkiveServlet {
 				continue;
 			}
 
-			while (pathIndex < path.size()) {// run through it to compare to
-												// path
+			while (pathIndex < path.size()) {// run through it to compare to path
 				if (defIndex >= keyString.size()) {
 					isMatch = false;
 					break;
@@ -316,8 +320,6 @@ public class StatsServlet extends EnkiveServlet {
 					lowerTimestamp = NUMERIC_SEARCH_FORMAT.parse(req
 							.getParameter(tsMin));
 				}
-				resp.getWriter().write("UpperDate: " + upperTimestamp + "\n");
-				resp.getWriter().write("lowerDate: " + lowerTimestamp + "\n");
 
 				// 2. get all service names
 				String[] serviceNames = req
@@ -357,7 +359,9 @@ public class StatsServlet extends EnkiveServlet {
 							filter = new StatsFilter(serviceName, null);
 						}
 						queryList.add(query);
-						filter.keys.put("_id", 1);
+						if(filter.keys != null){
+							filter.keys.put("_id", 1);
+						}
 						filterList.add(filter);
 					}
 				}	
@@ -379,8 +383,6 @@ public class StatsServlet extends EnkiveServlet {
 								}
 								i++;
 							}
-//							resp.getWriter().write("-- keys: " +
-//							 Arrays.toString(keys) + "\n");
 							gatheringStats.put(tempFilter.gathererName, keys);
 						} else {
 							gatheringStats.put(tempFilter.gathererName, null);
@@ -390,8 +392,8 @@ public class StatsServlet extends EnkiveServlet {
 				} else {//output query data as formatted json
 					Set<Map<String, Object>> stats = client.queryStatistics(
 							queryList, filterList);
-/*					resp.getWriter().write("query: 	\n");
-					for(StatsQuery s: queryList){
+					resp.getWriter().write("query: 	\n");
+/*					for(StatsQuery s: queryList){
 						resp.getWriter().write("gathererName: " + s.gathererName + "\n");
 						resp.getWriter().write("upperDate: "  + s.endTimestamp + "\n");
 						resp.getWriter().write("lowerDate: " + s.startTimestamp + "\n");
@@ -402,9 +404,9 @@ public class StatsServlet extends EnkiveServlet {
 						resp.getWriter().write("gathererName: " + s.gathererName + "\n");
 						resp.getWriter().write("keys: "  + s.keys + "\n");
 					}
-					resp.getWriter().write("stats: " + stats + "\n");
-*/					result = new HashSet<Map<String, Object>>();
-					for (String name : serviceNames) {
+*/					resp.getWriter().write("stats: " + stats + "\n");
+					result = new HashSet<Map<String, Object>>();
+					for (String name : serviceNames) {	
 						Set<Map<String, Object>> serviceStats = new HashSet<Map<String, Object>>();
 						//populate service data
 						for (Map<String, Object> data : stats) {

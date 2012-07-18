@@ -7,7 +7,7 @@ import static com.linuxbox.enkive.statistics.StatsConstants.STAT_NS;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_NUM_EXTENT;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_NUM_INDEX;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_NUM_OBJS;
-import static com.linuxbox.enkive.statistics.StatsConstants.STAT_SERVICE_NAME;
+import static com.linuxbox.enkive.statistics.StatsConstants.STAT_GATHERER_NAME;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIME_STAMP;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TOTAL_INDEX_SIZE;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TOTAL_SIZE;
@@ -111,7 +111,7 @@ public class StatsMongoCollTest {
 	// TODO: possibly move to main api in the future
 	public boolean checkFormat(Map<String, Object> stats,
 			LinkedList<String> path) {
-		if (path.contains(STAT_SERVICE_NAME)) {
+		if (path.contains(STAT_GATHERER_NAME)) {
 			return true;
 		}
 

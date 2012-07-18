@@ -147,12 +147,7 @@ public class MongoStatsRetrievalService extends VarsMaker implements
 						break;
 					}
 				}
-			}
-			
-			//TODO
-			System.out.println("query: " + query);
-			System.out.println("filter: " + filter);
-			
+			}			
 			
 			if(filter != null){
 				allStats.addAll(coll.find(query, filter).toArray());

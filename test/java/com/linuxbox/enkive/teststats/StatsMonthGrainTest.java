@@ -27,6 +27,7 @@ import org.junit.Test;
 import com.linuxbox.enkive.TestingConstants;
 import com.linuxbox.enkive.docsearch.indri.IndriDocSearchQueryService;
 import com.linuxbox.enkive.message.search.mongodb.MongoMessageSearchService;
+import com.linuxbox.enkive.statistics.StatsQuery;
 import com.linuxbox.enkive.statistics.gathering.GathererAttributes;
 import com.linuxbox.enkive.statistics.gathering.GathererException;
 import com.linuxbox.enkive.statistics.gathering.GathererInterface;
@@ -163,8 +164,9 @@ public class StatsMonthGrainTest {
 		// clean up if week was run...
 		Map<String, Object> queryMap = new HashMap<String, Object>();
 		queryMap.put(GRAIN_TYPE, GRAIN_DAY);
+		StatsQuery sQ = new StatsQuery(null, GRAIN_DAY);
 		Set<Object> ids = new HashSet<Object>();
-		for (Map<String, Object> mapToDelete : client.directQuery(queryMap)) {
+		for (Map<String, Object> mapToDelete : client.queryStatistics(sQ)) {
 			ids.add(mapToDelete.get("_id"));
 		}
 

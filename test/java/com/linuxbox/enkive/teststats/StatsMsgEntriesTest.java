@@ -1,7 +1,7 @@
 package com.linuxbox.enkive.teststats;
 
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_NUM_ENTRIES;
-import static com.linuxbox.enkive.statistics.StatsConstants.STAT_SERVICE_NAME;
+import static com.linuxbox.enkive.statistics.StatsConstants.STAT_GATHERER_NAME;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIME_STAMP;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -60,7 +60,7 @@ public class StatsMsgEntriesTest {
 	@SuppressWarnings("unchecked")
 	public boolean checkFormat(Map<String, Object> stats,
 			LinkedList<String> path) {
-		if (path.contains(STAT_SERVICE_NAME)) {
+		if (path.contains(STAT_GATHERER_NAME)) {
 			return true;
 		}
 
