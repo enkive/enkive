@@ -2,6 +2,7 @@
 	<div class="scrollable">
 		<table id="saved_searches">
 			<tr>
+				<th><input type="checkbox" onclick="toggleChecked(this.checked)" /></th>
 				<th>
 					<a class="sortable" href="${uri}&sortBy=sortByDate&sortDir=-1">
 						<img src="${url.context}/resource/images/sort_arrow_desc.png" alt="Sort DESC" />
@@ -33,6 +34,7 @@
 				</#if>
 				" id="${search.searchId}">
 					<#assign searchDate = search.searchDate?datetime("yyyy-MM-dd_HH-mm-ss-SSS")>
+					<td class="search_action"><input type="checkbox" class="checkbox"/></td>
 				  	<td>${searchDate}</td>
 				  	<td>
 					    <#list search.criteria as criteria>
