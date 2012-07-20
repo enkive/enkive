@@ -1,6 +1,6 @@
 <script type="text/javascript">
 	function toggleChecked(status) {
-		$(".checkbox").each( function() {
+		$(".idcheckbox").each( function() {
 		$(this).attr("checked",status);
 		})
 	}

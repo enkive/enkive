@@ -34,7 +34,7 @@
 				</#if>
 				" id="${search.searchId}">
 					<#assign searchDate = search.searchDate?datetime("yyyy-MM-dd_HH-mm-ss-SSS")>
-					<td class="search_action"><input type="checkbox" class="checkbox"/></td>
+					<td class="search_action"><input type="checkbox" class="idcheckbox"  value="${search.searchId}"/></td>
 				  	<td>${searchDate}</td>
 				  	<td>
 					    <#list search.criteria as criteria>
@@ -49,8 +49,8 @@
 					    			<td class="noscript">
 					    				<a class="view_search" href="${url.context}/search/saved/view?searchid=${search.searchId}">VIEW</a>
 					    			</td>
-								    <td><input type="button" onClick='save_recent_search("${search.searchId}")' value="Save" /></td>
-								    <td><input type="button" onClick='delete_recent_search("${search.searchId}")' value="Delete" /></td>
+								    <td><input type="button" onClick='save_recent_searches()' value="Save" /></td>
+								    <td><input type="button" onClick='delete_recent_searches()' value="Delete" /></td>
 								</tr>
 							</table>
 						<#elseif search.status == "RUNNING" || search.status == "QUEUED">
@@ -62,7 +62,7 @@
 						<#else>
 							<table>
 						    	<tr>
-								    <td><input type="button" onClick='delete_recent_search("${search.searchId}")' value="Delete" /></td>
+								    <td><input type="button" onClick='delete_recent_searches()' value="Delete" /></td>
 								</tr>
 							</table>
 						</#if>
