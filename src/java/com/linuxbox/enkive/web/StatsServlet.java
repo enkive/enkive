@@ -47,6 +47,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import com.linuxbox.enkive.exception.CannotRetrieveException;
 import com.linuxbox.enkive.statistics.KeyConsolidationHandler;
@@ -428,8 +429,9 @@ public class StatsServlet extends EnkiveServlet {
 
 				try {
 					// 6. return data from query
-					JSONArray statistics = new JSONArray(result.toArray());
-					resp.getWriter().write("JSON: " + statistics.toString());
+					JSONObject statistics = new JSONObject();
+					statistics.put("results", new JSONArray(result.toArray()));
+					resp.getWriter().write(statistics.toString());
 				} catch (IOException e) {
 					respondError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
 							null, resp);
