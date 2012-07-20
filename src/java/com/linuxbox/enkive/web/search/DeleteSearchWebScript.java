@@ -20,6 +20,7 @@
 package com.linuxbox.enkive.web.search;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -45,24 +46,44 @@ public class DeleteSearchWebScript extends EnkiveServlet {
 	public void doGet(HttpServletRequest req, HttpServletResponse res)
 			throws IOException {
 
-		String searchId = "";
-		try {
-			searchId = WebScriptUtils.cleanGetParameter(req, "searchid");
-			WorkspaceService workspaceService = getWorkspaceService();
-			Workspace workspace = workspaceService.getActiveWorkspace(req
-					.getUserPrincipal().getName());
-			workspace.deleteSearchResult(searchId);
+		String searchIds = "";
+		ArrayList<String> failedDeletedSearches = new ArrayList<String>();
+		searchIds = WebScriptUtils.cleanGetParameter(req, "searchids");
+		WorkspaceService workspaceService = getWorkspaceService();
+		Workspace workspace;
 
-			SearchResult result = workspace.getSearchResultBuilder().getSearchResult(searchId);
-			result.deleteSearchResult();
+		try {
+			workspace = workspaceService.getActiveWorkspace(req
+					.getUserPrincipal().getName());
+
+			for (String searchId : searchIds.split(",")) {
+				if (!searchId.isEmpty()) {
+					try {
+						workspace.deleteSearchResult(searchIds);
+
+						SearchResult result = workspace
+								.getSearchResultBuilder().getSearchResult(
+										searchId);
+						result.deleteSearchResult();
+						if (LOGGER.isDebugEnabled())
+							LOGGER.debug("deleted search at id " + searchId);
+					} catch (WorkspaceException e) {
+						failedDeletedSearches.add(searchId);
+					}
+				}
+			}
 			workspace.saveWorkspace();
-			
-			if (LOGGER.isDebugEnabled())
-				LOGGER.debug("deleted search at id " + searchId);
-		} catch (WorkspaceException e) {
+			if (!failedDeletedSearches.isEmpty()) {
+				respondError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+						null, res);
+				throw new IOException("Could not delete searches with UUIDs "
+						+ failedDeletedSearches.toString());
+			}
+		} catch (WorkspaceException e1) {
 			respondError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, null,
 					res);
-			throw new IOException("Could not delete search at UUID " + searchId);
+			throw new IOException(
+					"Could not update workspace to remove searches");
 		}
 	}
 }

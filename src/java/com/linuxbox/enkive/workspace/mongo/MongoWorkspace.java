@@ -50,14 +50,14 @@ public class MongoWorkspace extends Workspace {
 				workspaceColl.update(toUpdate, workspaceObject);
 			}
 		}
-		if (workspaceObject.getString(getWorkspaceUUID()) == null){
+		else {
 			workspaceColl.insert(workspaceObject);
+			setWorkspaceUUID(workspaceObject.getString(MongoWorkspaceConstants.UUID));
 		}
 		
 		if (LOGGER.isInfoEnabled())
 			LOGGER.info("Saved Workspace " + getWorkspaceName()
-					+ " - " + workspaceObject.getString(MongoWorkspaceConstants.UUID));
-		setWorkspaceUUID(workspaceObject.getString(MongoWorkspaceConstants.UUID));
+					+ " - " + getWorkspaceUUID());
 	}
 	
 	@Override

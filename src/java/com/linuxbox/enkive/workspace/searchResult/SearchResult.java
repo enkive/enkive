@@ -57,6 +57,7 @@ public abstract class SearchResult {
 	protected SearchQueryBuilder queryBuilder;
 	
 	public static String SORTBYDATE = "sortByDate";
+	public static String SORTBYNAME = "sortByName";
 	public static String SORTBYSUBJECT = "sortBySubject";
 	public static String SORTBYSENDER = "sortBySender";
 	public static String SORTBYRECEIVER = "sortByReceiver";
