@@ -164,4 +164,8 @@
 	</bean>
 
 	<bean id="ApplicationContextProvider" class="com.linuxbox.util.spring.ApplicationContextProvider" />
+
+	<!-- Makes sure all beans with PostConstruct or PreDestroy annotations get called appropriately -->
+	<bean id="CommonAnnotationBeanPostProcessor"
+		class="org.springframework.context.annotation.CommonAnnotationBeanPostProcessor" />
 </beans>

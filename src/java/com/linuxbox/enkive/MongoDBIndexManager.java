@@ -30,6 +30,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.annotation.PostConstruct;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.BeansException;
@@ -409,6 +411,7 @@ public class MongoDBIndexManager implements ApplicationContextAware {
 		System.out.println("done");
 	}
 
+	@PostConstruct
 	public void loadServices() {
 		if (initialPotentialServices != null) {
 			for (Object o : initialPotentialServices) {
@@ -444,7 +447,6 @@ public class MongoDBIndexManager implements ApplicationContextAware {
 	public void runCheckAndAutoEnsure(long maxDocuments) {
 		AutoIndexActions actions = new AutoIndexActions(maxDocuments);
 		try {
-			loadServices();
 			for (Entry<String, Object> service : potentialServices.entrySet()) {
 				checkService(actions, service.getKey(), service.getValue());
 			}
@@ -475,7 +477,6 @@ public class MongoDBIndexManager implements ApplicationContextAware {
 
 	void runConsole() {
 		try {
-			loadServices();
 			ConsoleIndexActions actions = new ConsoleIndexActions(System.in,
 					System.out, System.err);
 
