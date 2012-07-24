@@ -393,19 +393,8 @@ public class StatsServlet extends EnkiveServlet {
 				} else {//output query data as formatted json
 					Set<Map<String, Object>> stats = client.queryStatistics(
 							queryList, filterList);
-					resp.getWriter().write("query: 	\n");
-/*					for(StatsQuery s: queryList){
-						resp.getWriter().write("gathererName: " + s.gathererName + "\n");
-						resp.getWriter().write("upperDate: "  + s.endTimestamp + "\n");
-						resp.getWriter().write("lowerDate: " + s.startTimestamp + "\n");
-						resp.getWriter().write("grainT: " + s.grainType + "\n"	);
-					}
-					resp.getWriter().write("filter: \n");
-					for(StatsFilter s: filterList){
-						resp.getWriter().write("gathererName: " + s.gathererName + "\n");
-						resp.getWriter().write("keys: "  + s.keys + "\n");
-					}
-*/					resp.getWriter().write("stats: " + stats + "\n");
+//					resp.getWriter().write("query: 	" + queryList + "\n");
+//					resp.getWriter().write("stats: " + stats + "\n");
 					result = new HashSet<Map<String, Object>>();
 					for (String name : serviceNames) {	
 						Set<Map<String, Object>> serviceStats = new HashSet<Map<String, Object>>();
@@ -415,14 +404,13 @@ public class StatsServlet extends EnkiveServlet {
 								serviceStats.add(data);
 							}
 						}
-						resp.getWriter().write("serviceStats: " + serviceStats + "\n");
 						Map<String, Object> consolidatedMap = new HashMap<String, Object>();
 						consolidatedMap.put(
 								name,
 								consolidateMaps(serviceStats, client
 										.getAttributes(name).getKeys())); 
-						resp.getWriter().write("consolidatedMap: " +
-						consolidatedMap + "\n");
+//						resp.getWriter().write("consolidatedMap: " +
+//						consolidatedMap + "\n");
 						result.add(consolidatedMap);
 					}
 				}
