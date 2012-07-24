@@ -9,7 +9,7 @@ var auditEntryListJSON = connector.get("/audit/recent?pos=" + pos
 		+ "&size=" + size);
 
 var auditEntryList = eval("(" + auditEntryListJSON + ")");
-model.result = auditEntryList
+model.result = auditEntryList;
 
-model.paging = auditEntryList.paging
+model.paging = auditEntryList.paging;
 model.uri = url.uri + "?";
