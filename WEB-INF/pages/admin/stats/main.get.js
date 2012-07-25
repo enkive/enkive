@@ -1,8 +1,8 @@
-var pos = context.properties["pos"];
-var size = context.properties["size"];
+//var pos = context.properties["pos"];
+//var size = context.properties["size"];
 var gn = context.properties["gn"];
-var statName = context.properties[gn];
-var tsMin = context.properties["ts.min"];
+var statName = context.properties["stat"];
+var tsMin = context.properties["ts"];
 // get a connector to the Alfresco repository endpoint
 var connector = remote.connect("enkive");
 
@@ -11,3 +11,5 @@ var auditEntryListJSON = connector.get("/stats/statistics?gn="+gn+"&"+gn+"="+sta
 
 var auditEntryList = "'" + auditEntryListJSON + "'";
 model.result = auditEntryList;
+model.gn = gn;
+model.statName = statName;

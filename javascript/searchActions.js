@@ -25,6 +25,7 @@ function delete_saved_search(id) {
 				});
 	});
 }
+
 function stop_search(id) {
 	$
 			.get(
