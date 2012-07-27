@@ -6,32 +6,98 @@
 </center>
 
 <div>
-    <form name="searchInput" action="/ediscovery/service/admin/stats" method="GET" onSubmit="return loadStatGraph()">
-            Gatherer: <select name="gn">
-          <option value="RuntimeStatsService" >RuntimeStatsService</option>
-          <option value="CO" >Test</option>
-          <option value="CN" >Test</option>
+  <form name="statInput" action="/ediscovery/service/admin/stats" method="GET" onSubmit="return loadStatGraph()">
+        Gatherer: <select id="gn" name="gn" onchange="updateOptions()">
+          <option value=""> </option>
+          <option value="RuntimeStatsService" >Runtime Statistics</option>
+          <option value="DetailedMsgStatsService" >Message Statistics</option>
+          <option value="AttachmentStatsService" >Attachment Statistics</option>
+          <option value="MsgStatsService" >Email Entry Statistics</option>
+          <option value="CollectionStatsService" >Collection Statistics</option>
+          <option value="DBStatsService" >Enkive Statistics</option>
+          
         </select> <br>
-        Statistic: <select name="stat">
-          <option value="freeM" >Free Memory</option>
-          <option value="maxM" >Max Memory</option>
-          <option value="totM" >Total Memory</option>
-        </select> <br>
-        Date: <input type="text" value="1993-01-01" name="ts"/><br>
+        Statistic: <select name="stat"></select> <br>
+        Minimum Date: <input type="text" name="ts.min" id="dateEarliestField" readonly="readonly" class="searchField"/><br>
+        Maximum Date: <input type="text" name="ts.max" id="dateLatestField" readonly="readonly" class="searchField"/><br>
         <input type="submit" value="Submit" />
     </form>
 </div>
 
 <script type="text/javascript">
+		$(function() {
+		$( "#dateEarliestField" ).datepicker({
+			showOn: "button",
+			buttonImage: "/ediscovery/resource/images/cal.gif",
+			buttonImageOnly: true,
+			changeMonth: true,
+			changeYear: true,
+			dateFormat: 'yy-mm-dd'
+		});
+		$( "#dateLatestField" ).datepicker({
+			showOn: "button",
+			buttonImage: "/ediscovery/resource/images/cal.gif",
+			buttonImageOnly: true,
+			changeMonth: true,
+			changeYear: true,
+			dateFormat: 'yy-mm-dd'
+		});
+	});
+
+
+    var runtimeStats= new Array(["Free Memory","freeM"], ["Max Memory", "maxM"], ["Total Memory", "totM"]);
+    var detailMsgStats= new Array(["Number of Messages","numMsg"]);
+    var attachStats= new Array(["Max Attachment Size","maxAtt"],["Average Attachment Size","avgAtt"]);
+    var archiveStats=new Array(["Message Archive Size","MsgArchive"]);
+    var collStats=new Array([]);
+    var dbStats=new Array(["Database Name","db"],["Number of  Collections","numColls"],["Number of Objects","numObj"],["Average Object  Size", "avgOSz"],["Data Size","dataSz"], ["Total Size", "totSz"],["Number of Indexes","numInd"],["Total Index Size","indSz"],["Number of Extents","numExt"],["File Size","fileSz"]);
+    function populateOptions(vars) {   
+    
+        var stat = document.statInput.stat;     
+        stat.options.length = 0;
+        for(i=0; i<vars.length; i++){
+            stat.options[i] = new Option(vars[i][0], vars[i][1]);
+        }
+    }
+    
+    function updateOptions(){
+        var master = document.statInput.gn;
+        switch (master.selectedIndex)
+        {
+        case 0:
+          alert("empty gatherer not allowed!");
+             document.statInput.stat.options.length = 0;
+          break;
+        case 1:
+          populateOptions(runtimeStats);
+          break;
+        case 2:
+          populateOptions(detailMsgStats);
+          break;
+        case 3:
+          populateOptions(attachStats);
+          break;
+        case 4:
+          populateOptions(archiveStats);
+          break;
+        case 5:
+          populateOptions(collStats);
+          break;
+        case 6:
+          populateOptions(dbStats);
+          break;
+        }
+    }
+
 //TODO move to another place
 function loadStatGraph() {
     var gatherer = $("#gn").val();
     var stat = $("#stat").val();
-    var tsMin = $("#ts").val();
+    var tsMin = $("#ts.min").val();
     var queryString = '?gn=' + encodeURIComponent(gatherer) + '&' + gatherer + '='
-            + encodeURIComponent(stat) + '&ts='
-            + encodeURIComponent(ts);
-
+            + encodeURIComponent(stat) + '&ts.min='
+            + encodeURIComponent(ts.min) + '&ts.max='
+            + encodeURIComponent(ts.max);
     $('#graph').html('<center>' +
     '<p><b>Search is in progress...</b></p><br />' +
     '<img src=/ediscovery/resource/images/spinner.gif alt="Waiting for results" />' +
@@ -66,7 +132,7 @@ function loadStatGraph() {
 		
 		var data = serviceStats.${statName};
 		
-		var y = d3.scale.linear().domain([0, d3.max(data, function(d) { return d.avg; })]).range([height, 0]);
+		var y = d3.scale.linear().domain([0, 2*d3.max(data, function(d) { return d.avg; })]).range([height, 0]);
 		var  x = d3.time.scale().domain([d3.min(data, function(d) { return  getDate(d); }), d3.max(data, function(d) { return getDate(d);  })]).range([0, width]);
 		
 		var graphic = d3.select("#graph").
