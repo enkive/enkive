@@ -12,6 +12,7 @@ import org.bson.types.ObjectId;
 import com.linuxbox.enkive.workspace.Workspace;
 import com.linuxbox.enkive.workspace.WorkspaceBuilder;
 import com.linuxbox.enkive.workspace.WorkspaceException;
+import com.linuxbox.enkive.workspace.searchFolder.SearchFolderBuilder;
 import com.linuxbox.enkive.workspace.searchResult.SearchResultBuilder;
 import com.mongodb.BasicDBList;
 import com.mongodb.DB;
@@ -30,7 +31,8 @@ public class MongoWorkspaceBuilder implements WorkspaceBuilder {
 			.getLog("com.linuxbox.enkive.workspaces");
 
 	public MongoWorkspaceBuilder(Mongo m, String dbName,
-			String workspaceCollName, SearchResultBuilder searchResultBuilder) {
+			String workspaceCollName, SearchResultBuilder searchResultBuilder,
+			SearchFolderBuilder searchFolderBuilder) {
 		this.m = m;
 		workspaceDb = m.getDB(dbName);
 		workspaceColl = workspaceDb.getCollection(workspaceCollName);

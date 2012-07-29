@@ -59,7 +59,6 @@ public class MongoSearchResultBuilder implements SearchResultBuilder {
 
 	public SearchResult getSearchResult(String searchResultId)
 			throws WorkspaceException {
-		System.out.println(searchResultId);
 		MongoSearchResult result = new MongoSearchResult(m,
 				searchResultsDB.getName(), searchResultsColl.getName(),
 				queryBuilder);

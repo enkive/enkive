@@ -21,6 +21,7 @@ package com.linuxbox.enkive.workspace;
 
 import java.util.Collection;
 
+import com.linuxbox.enkive.workspace.searchFolder.SearchFolder;
 import com.linuxbox.enkive.workspace.searchResult.SearchResult;
 
 public interface WorkspaceService extends WorkspaceServiceMBean {
@@ -37,5 +38,8 @@ public interface WorkspaceService extends WorkspaceServiceMBean {
 
 	SearchResult getSearchResult(String searchResultId)
 			throws WorkspaceException;
+	
+	SearchFolder getSearchFolder(String searchFolderId)
+		throws WorkspaceException;
 
 }

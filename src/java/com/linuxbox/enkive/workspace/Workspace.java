@@ -27,6 +27,8 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 
+import com.linuxbox.enkive.workspace.searchFolder.SearchFolder;
+import com.linuxbox.enkive.workspace.searchFolder.SearchFolderBuilder;
 import com.linuxbox.enkive.workspace.searchResult.SearchResultComparator;
 import com.linuxbox.enkive.workspace.searchResult.SearchResult;
 import com.linuxbox.enkive.workspace.searchResult.SearchResultBuilder;
@@ -57,7 +59,9 @@ public abstract class Workspace {
 	protected Date creationDate;
 	protected Date lastUpdate;
 	protected Collection<String> searchResultUUIDs;
+	protected String searchFolderID;
 	protected SearchResultBuilder searchResultBuilder;
+	protected SearchFolderBuilder searchFolderBuilder;
 
 	public Workspace() {
 		creationDate = new Date(System.currentTimeMillis());
@@ -100,6 +104,14 @@ public abstract class Workspace {
 
 	public void setLastUpdate(Date lastUpdate) {
 		this.lastUpdate = lastUpdate;
+	}
+
+	public String getSearchFolderID() {
+		return searchFolderID;
+	}
+
+	public void setSearchFolderID(String searchFolderID) {
+		this.searchFolderID = searchFolderID;
 	}
 
 	public Collection<String> getSearchResultUUIDs() {
@@ -166,6 +178,14 @@ public abstract class Workspace {
 		this.searchResultBuilder = searchResultBuilder;
 	}
 
+	public SearchFolderBuilder getSearchFolderBuilder() {
+		return searchFolderBuilder;
+	}
+
+	public void setSearchFolderBuilder(SearchFolderBuilder searchFolderBuilder) {
+		this.searchFolderBuilder = searchFolderBuilder;
+	}
+
 	protected List<SearchResult> getSearchResults(String sortField, int sortDir) {
 		List<SearchResult> searchResults;
 		Collection<SearchResult> searchResultColl = searchResultBuilder
@@ -190,6 +210,10 @@ public abstract class Workspace {
 		Collections.sort(sortedSearchResults, new SearchResultComparator(
 				sortField, sortDir));
 		return sortedSearchResults;
+	}
+	
+	public SearchFolder getSearchFolder(){
+		return searchFolderBuilder.getSearchFolder(searchFolderID);
 	}
 
 	public abstract void saveWorkspace() throws WorkspaceException;

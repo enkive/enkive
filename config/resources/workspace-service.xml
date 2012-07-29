@@ -38,6 +38,7 @@
 		<constructor-arg type="java.lang.String"
 			value="${enkive.workspaces.collection.name}" />
 		<constructor-arg ref="MongoSearchResultBuilder" />
+		<constructor-arg ref="SearchFolderBuilder" />
 	</bean>
 
 	<bean id="SearchResultBuilder" name="MongoSearchResultBuilder"
@@ -48,6 +49,14 @@
 			value="${enkive.workspace.search.results.collection.name}" />
 		<constructor-arg ref="MongoSearchQueryBuilder" />
 		<property name="searchResultUtils" ref="MongoSearchResultUtils" />
+	</bean>
+	
+	<bean id="SearchFolderBuilder" name="MongoSearchFolderBuilder"
+		class="com.linuxbox.enkive.workspace.searchFolder.mongo.MongoSearchFolderBuilder">
+		<constructor-arg ref="Mongo" />
+		<constructor-arg type="java.lang.String" value="${enkive.workspace.db.name}" />
+		<constructor-arg type="java.lang.String"
+			value="${enkive.workspace.search.folders.collection.name}" />
 	</bean>
 
 	
