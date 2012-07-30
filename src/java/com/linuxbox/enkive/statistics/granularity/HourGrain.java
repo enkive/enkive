@@ -60,15 +60,8 @@ public class HourGrain extends AbstractGrain {
 		cal.set(Calendar.MINUTE, 0);
 		Date upperDate = cal.getTime();
 		cal.add(Calendar.HOUR_OF_DAY, -1);
-		Date lowerDate = cal.getTime();
-		
-		//TODO TESTING ONLY
-		upperDate = new Date();
-		lowerDate = new Date(0L);
-		
+		Date lowerDate = cal.getTime();	
 		setDates(upperDate, lowerDate);
-		
-		
 	}
 
 	@Override

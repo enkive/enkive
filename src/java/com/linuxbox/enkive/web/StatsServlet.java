@@ -31,11 +31,9 @@ import java.text.ParseException;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeSet;
 
 import javax.servlet.ServletConfig;
@@ -95,9 +93,8 @@ public class StatsServlet extends EnkiveServlet {
 	 * consolidated data path 
 	 * 5. return Set<Map<String,Object>> as json by list constructor
 	 */
-
 	private Map<String, Object> consolidateMaps(
-			Set<Map<String, Object>> serviceData, List<KeyConsolidationHandler> statKeys) {
+			List<Map<String, Object>> serviceData, List<KeyConsolidationHandler> statKeys) {
 		if (serviceData.size() > 0) {
 			Map<String, Object> template = new HashMap<String, Object>(
 					serviceData.iterator().next());			
@@ -114,7 +111,7 @@ public class StatsServlet extends EnkiveServlet {
 
 	private void consolidateMapsHelper(Map<String, Object> templateData,
 			Map<String, Object> consolidatedMap, LinkedList<String> path,
-			List<KeyConsolidationHandler> statKeys, Set<Map<String, Object>> serviceData) {
+			List<KeyConsolidationHandler> statKeys, List<Map<String, Object>> serviceData) {
 		for (String key : templateData.keySet()) {
 			path.addLast(key);
 			KeyConsolidationHandler matchingConsolidationDefinition = findMatchingPath(path, statKeys);
@@ -313,14 +310,32 @@ public class StatsServlet extends EnkiveServlet {
 				// 1. Get a DateRange for ts.min & ts.max
 				if (req.getParameter(tsMax) != null) {
 					noDate = false;
-					upperTimestamp = NUMERIC_SEARCH_FORMAT.parse(req
-							.getParameter(tsMax));
+					if(!req.getParameter(tsMax).equals("")){
+						try{
+							upperTimestamp = NUMERIC_SEARCH_FORMAT.parse(req
+								.getParameter(tsMax));
+						} catch(ParseException e) {
+							upperTimestamp = new Date();
+							LOGGER.error("Error Parsing Date: " + req.getParameter(tsMax), e);
+						}
+					} else {
+						LOGGER.warn("Warning: Max date is not defined");
+					}
 				}
 				if (req.getParameter(tsMin) != null) {
 					noDate = false;
-					lowerTimestamp = NUMERIC_SEARCH_FORMAT.parse(req
-							.getParameter(tsMin));
-				}
+					if(!req.getParameter(tsMin).equals("")){
+						try{
+							lowerTimestamp = NUMERIC_SEARCH_FORMAT.parse(req
+								.getParameter(tsMin));
+						} catch(ParseException e) {
+							lowerTimestamp = new Date(0L);
+							LOGGER.error("Error Parsing Date: " + req.getParameter(tsMin), e);
+						}
+					} else {
+						LOGGER.warn("Warning: Min date is not defined");
+					}
+				} 
 
 				// 2. get all service names
 				String[] serviceNames = req
@@ -346,7 +361,7 @@ public class StatsServlet extends EnkiveServlet {
 						StatsQuery query = new StatsQuery(serviceName, grainType, lowerTimestamp, upperTimestamp);
 						StatsFilter filter = null;
 						String[] keys = req.getParameterValues(serviceName);
-					//	 building filter
+					//	building filter
 						if (keys != null) {
 							Map<String, Object> temp = new HashMap<String, Object>();
 							// 4. while looping build a second map for query
@@ -367,7 +382,7 @@ public class StatsServlet extends EnkiveServlet {
 					}
 				}	
 
-				Set<Map<String, Object>> result = null;
+				List<Map<String, Object>> result = null;
 
 				if (noDate) {//no date range means get instant data
 					Map<String, String[]> gatheringStats = new HashMap<String, String[]>();
@@ -391,13 +406,11 @@ public class StatsServlet extends EnkiveServlet {
 					}
 					result = client.gatherData(gatheringStats);
 				} else {//output query data as formatted json
-					Set<Map<String, Object>> stats = client.queryStatistics(
+					List<Map<String, Object>> stats = client.queryStatistics(
 							queryList, filterList);
-//					resp.getWriter().write("query: 	" + queryList + "\n");
-//					resp.getWriter().write("stats: " + stats + "\n");
-					result = new HashSet<Map<String, Object>>();
+					result = new LinkedList<Map<String, Object>>();
 					for (String name : serviceNames) {	
-						Set<Map<String, Object>> serviceStats = new HashSet<Map<String, Object>>();
+						List<Map<String, Object>> serviceStats = new LinkedList<Map<String, Object>>();
 						//populate service data
 						for (Map<String, Object> data : stats) {
 							if (data.get(STAT_GATHERER_NAME).equals(name)) {
@@ -409,8 +422,6 @@ public class StatsServlet extends EnkiveServlet {
 								name,
 								consolidateMaps(serviceStats, client
 										.getAttributes(name).getKeys())); 
-//						resp.getWriter().write("consolidatedMap: " +
-//						consolidatedMap + "\n");
 						result.add(consolidatedMap);
 					}
 				}
@@ -431,10 +442,6 @@ public class StatsServlet extends EnkiveServlet {
 					throw new CannotRetrieveException(
 							"could not create JSON for message attachment", e);
 				}
-			} catch (ParseException e) {
-				respondError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
-						null, resp);
-				LOGGER.error("Error Parsing Data", e);
 			} catch (CannotRetrieveException e) {
 				respondError(HttpServletResponse.SC_UNAUTHORIZED, null, resp);
 				if (LOGGER.isErrorEnabled())

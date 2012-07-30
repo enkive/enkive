@@ -31,9 +31,9 @@ import java.text.ParseException;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -87,7 +87,7 @@ public class StatsReportEmailer {
 		Map<String, Object> root = new HashMap<String, Object>();
 		root.put("date", new Date());
 		// TODO: need to convert to using maps & sets rather than JSON
-		Set<Map<String, Object>> statistics = gatherer.gatherStats();
+		List<Map<String, Object>> statistics = gatherer.gatherStats();
 
 		for (Map<String, Object> map : statistics) {
 			HashMap<String, Object> hMap = new HashMap<String, Object>(map);

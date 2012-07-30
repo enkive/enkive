@@ -4,6 +4,7 @@ import static com.linuxbox.enkive.statistics.StatsConstants.STAT_GATHERER_NAME;
 
 import java.text.ParseException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -68,7 +69,7 @@ public class StatsGathererService extends VarsMaker {
 	 * @throws ParseException
 	 * @throws GathererException
 	 */
-	public Set<Map<String, Object>> gatherStats() throws ParseException,
+	public List<Map<String, Object>> gatherStats() throws ParseException,
 			GathererException {
 		return gatherStats(null);
 	}
@@ -81,7 +82,7 @@ public class StatsGathererService extends VarsMaker {
 	 * @throws ParseException
 	 * @throws GathererException
 	 */
-	public Set<Map<String, Object>> gatherStats(
+	public List<Map<String, Object>> gatherStats(
 			Map<String, String[]> gathererKeys) throws ParseException,
 			GathererException {
 		if (statsGatherers == null) {
@@ -99,7 +100,7 @@ public class StatsGathererService extends VarsMaker {
 			}
 		}
 
-		Set<Map<String, Object>> statsSet = createSet();
+		List<Map<String, Object>> statsSet = createList();
 		for (String name : gathererKeys.keySet()) {
 			Map<String, Object> gathererData = statsGatherers.get(name)
 					.getStatistics(gathererKeys.get(name));

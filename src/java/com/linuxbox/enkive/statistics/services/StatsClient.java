@@ -32,28 +32,10 @@ public class StatsClient {
 	}
 
 	/**
-	 * this method allows you to directly query the database from the client
-	 * the only check preformed is if stats is null (if it null is all stats will be returned)
-	 * @param stats - object on which to query mongo with
-	 * @return results from the query
-	 */
-/*	public Set<Map<String, Object>> directQuery(Map<String, Object> stats) {
-		return retrievalService.directQuery(stats);
-	}
-*/
-	/**
-	 * this method returns all objects in collection (equivalent to the shell .find() method)
-	 * @return all found objects
-	 */
-/*	public Set<Map<String, Object>> directQuery() {
-		return retrievalService.directQuery();
-	}
-*/
-	/**
 	 * gathers statistics from every known gatherer in the gathererService
 	 * @return returns all statistics gathered from every known gatherer
 	 */
-	public Set<Map<String, Object>> gatherData() {
+	public List<Map<String, Object>> gatherData() {
 		try {
 			return gathererService.gatherStats();
 		} catch (ParseException e) {
@@ -71,7 +53,7 @@ public class StatsClient {
 	 * @param gathererFilter - a map in the form {gathererName:[array of keys for that gatherer]}
 	 * @return stats returned after filter
 	 */
-	public Set<Map<String, Object>> gatherData(Map<String, String[]> gathererFilter) {
+	public List<Map<String, Object>> gatherData(Map<String, String[]> gathererFilter) {
 		try {
 			return gathererService.gatherStats(gathererFilter);
 		} catch (ParseException e) {
@@ -109,7 +91,6 @@ public class StatsClient {
 				.getAttributes();
 	}
 
-	// MODIFY
 	/**
 	 * query the database using a query argument and a date range
 	 * @param stats - a map formatted in the following way: {gathererName:{stat:value, stat:value, ...}, ...}
@@ -155,7 +136,7 @@ public class StatsClient {
 	 * @param filterMap - the keys to be returned for each service
 	 * @return the resultant set of objects from the database
 	 */
-	public Set<Map<String, Object>> queryStatistics(
+	public List<Map<String, Object>> queryStatistics(
 			Map<String, Map<String, Object>> queryMap,
 			Map<String, Map<String, Object>> filterMap) {
 		try {
@@ -169,7 +150,7 @@ public class StatsClient {
 	}
 	
 	//TODO document
-	public Set<Map<String, Object>> queryStatistics(
+	public List<Map<String, Object>> queryStatistics(
 			List<StatsQuery> query, List<StatsFilter> filter) {
 		try {
 			return retrievalService.queryStatistics(query, filter);

@@ -51,13 +51,13 @@ public interface StatsRetrievalService {
 	 * @return a set of objects only containing the 
 	 * @throws StatsRetrievalException
 	 */
-	public Set<Map<String, Object>> queryStatistics(
+	public List<Map<String, Object>> queryStatistics(
 			Map<String, Map<String, Object>> queryMap,
 			Map<String, Map<String, Object>> filterMap)
 			throws StatsRetrievalException;
 
 	//TODO document
-	public Set<Map<String, Object>> queryStatistics(
+	public List<Map<String, Object>> queryStatistics(
 			List<StatsQuery> query, List<StatsFilter> filter)
 			throws StatsRetrievalException;
 	/**

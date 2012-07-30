@@ -2,6 +2,8 @@ package com.linuxbox.enkive.statistics;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -24,5 +26,9 @@ public abstract class VarsMaker {
 	
 	public static Set<Map<String, Object>> createSet() {
 		return new HashSet<Map<String, Object>>();
+	}
+	
+	public static List<Map<String, Object>> createList() {
+		return new LinkedList<Map<String, Object>>();
 	}
 }
