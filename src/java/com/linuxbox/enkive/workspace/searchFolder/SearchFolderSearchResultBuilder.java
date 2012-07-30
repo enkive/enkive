@@ -1,7 +1,14 @@
 package com.linuxbox.enkive.workspace.searchFolder;
 
-public abstract class SearchFolderSearchResultBuilder {
+import com.linuxbox.enkive.workspace.WorkspaceException;
+import com.linuxbox.enkive.workspace.searchResult.SearchResult;
 
+public interface SearchFolderSearchResultBuilder {
+
+	SearchFolderSearchResult getSearchResult();
 	
+	SearchFolderSearchResult getSearchResult(String id);
+	
+	SearchFolderSearchResult buildSearchResult(SearchResult searchResult) throws WorkspaceException;
 	
 }

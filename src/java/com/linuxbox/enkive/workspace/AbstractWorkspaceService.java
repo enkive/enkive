@@ -57,6 +57,14 @@ public abstract class AbstractWorkspaceService implements WorkspaceService {
 		this.searchResultBuilder = searchResultBuilder;
 	}
 
+	public SearchFolderBuilder getSearchFolderBuilder() {
+		return searchFolderBuilder;
+	}
+
+	public void setSearchFolderBuilder(SearchFolderBuilder searchFolderBuilder) {
+		this.searchFolderBuilder = searchFolderBuilder;
+	}
+
 	@Override
 	public Workspace getWorkspace(String workspaceUUID)
 			throws WorkspaceException {

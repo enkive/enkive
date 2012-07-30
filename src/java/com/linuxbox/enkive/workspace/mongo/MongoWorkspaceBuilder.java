@@ -26,6 +26,7 @@ public class MongoWorkspaceBuilder implements WorkspaceBuilder {
 	protected DB workspaceDb;
 	protected DBCollection workspaceColl;
 	protected SearchResultBuilder searchResultBuilder;
+	protected SearchFolderBuilder searchFolderBuilder;
 
 	private final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.workspaces");
@@ -37,6 +38,7 @@ public class MongoWorkspaceBuilder implements WorkspaceBuilder {
 		workspaceDb = m.getDB(dbName);
 		workspaceColl = workspaceDb.getCollection(workspaceCollName);
 		this.searchResultBuilder = searchResultBuilder;
+		this.searchFolderBuilder = searchFolderBuilder;
 	}
 
 	@Override
@@ -69,13 +71,16 @@ public class MongoWorkspaceBuilder implements WorkspaceBuilder {
 		if (LOGGER.isInfoEnabled())
 			LOGGER.info("Retrieved Workspace " + workspace.getWorkspaceName()
 					+ " - " + workspace.getWorkspaceUUID());
+		workspace.setSearchFolderBuilder(searchFolderBuilder);
 		return workspace;
 	}
 
 	@Override
 	public Workspace getWorkspace() {
-		return new MongoWorkspace(m, workspaceDb.getName(),
+		Workspace workspace = new MongoWorkspace(m, workspaceDb.getName(),
 				workspaceColl.getName(), searchResultBuilder);
+		workspace.setSearchFolderBuilder(searchFolderBuilder);
+		return workspace;
 	}
 
 }

@@ -13,8 +13,9 @@ public abstract class SearchFolder {
 	protected Collection<SearchFolderSearchResult> results;
 	protected SearchFolderSearchResultBuilder searchResultBuilder;
 
-	public SearchFolder() {
+	public SearchFolder(SearchFolderSearchResultBuilder searchResultBuilder) {
 		results = new HashSet<SearchFolderSearchResult>();
+		this.searchResultBuilder = searchResultBuilder;
 	}
 
 	public String getID() {
@@ -25,9 +26,11 @@ public abstract class SearchFolder {
 		this.ID = ID;
 	}
 
-	public void addSearchResult(SearchResult searchResult) {
-		SearchFolderSearchResult searchFolderSearchResult = new SearchFolderSearchResult(
-				searchResult);
+	public void addSearchResult(SearchResult searchResult)
+			throws WorkspaceException {
+		SearchFolderSearchResult searchFolderSearchResult = searchResultBuilder
+				.buildSearchResult(searchResult);
+		searchFolderSearchResult.saveSearchResult();
 		results.add(searchFolderSearchResult);
 
 	}
@@ -71,5 +74,5 @@ public abstract class SearchFolder {
 	}
 
 	public abstract void saveSearchFolder();
-	
+
 }

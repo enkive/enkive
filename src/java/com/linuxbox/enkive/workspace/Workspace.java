@@ -212,7 +212,7 @@ public abstract class Workspace {
 		return sortedSearchResults;
 	}
 	
-	public SearchFolder getSearchFolder(){
+	public SearchFolder getSearchFolder() throws WorkspaceException {
 		return searchFolderBuilder.getSearchFolder(searchFolderID);
 	}
 

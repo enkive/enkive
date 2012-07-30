@@ -5,6 +5,7 @@ import java.util.HashSet;
 
 import com.linuxbox.enkive.workspace.searchFolder.SearchFolder;
 import com.linuxbox.enkive.workspace.searchFolder.SearchFolderSearchResult;
+import com.linuxbox.enkive.workspace.searchFolder.SearchFolderSearchResultBuilder;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
@@ -15,23 +16,26 @@ public class MongoSearchFolder extends SearchFolder {
 	Mongo m;
 	DB searchFolderDB;
 	DBCollection searchFolderColl;
-	
-	public MongoSearchFolder(Mongo m, String searchFolderDBName, String searchFolderCollName){
-		super();
+
+	public MongoSearchFolder(Mongo m, String searchFolderDBName,
+			String searchFolderCollName,
+			SearchFolderSearchResultBuilder searchResultBuilder) {
+		super(searchResultBuilder);
 		this.m = m;
 		this.searchFolderDB = m.getDB(searchFolderDBName);
-		this.searchFolderColl = searchFolderDB.getCollection(searchFolderCollName);
+		this.searchFolderColl = searchFolderDB
+				.getCollection(searchFolderCollName);
 	}
-	
-	public void saveSearchFolder(){
+
+	public void saveSearchFolder() {
 		BasicDBObject searchFolderObject = new BasicDBObject();
 		Collection<String> searchResultIds = new HashSet<String>();
-		for (SearchFolderSearchResult result : results)
+		for (SearchFolderSearchResult result : results){
+			System.out.println(result.getId());
 			searchResultIds.add(result.getId());
+		}
 		searchFolderObject.put("searchResultIds", searchResultIds);
 		searchFolderColl.insert(searchFolderObject);
 	}
-	
-	
-	
+
 }

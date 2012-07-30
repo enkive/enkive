@@ -13,6 +13,15 @@ public class MongoSearchFolderSearchResult extends SearchFolderSearchResult {
 	DB searchFolderDB;
 	DBCollection searchFolderSearchResultsColl;
 
+	public MongoSearchFolderSearchResult(Mongo m,
+			String searchFolderSearchResultsDBName,
+			String searchFolderSearchResultsCollName) {
+		this.m = m;
+		this.searchFolderDB = m.getDB(searchFolderSearchResultsDBName);
+		this.searchFolderSearchResultsColl = searchFolderDB
+				.getCollection(searchFolderSearchResultsCollName);
+	}
+
 	@Override
 	public void saveSearchResult() throws WorkspaceException {
 		MongoSearchResult mSearchResult = new MongoSearchResult(m,
@@ -26,6 +35,8 @@ public class MongoSearchFolderSearchResult extends SearchFolderSearchResult {
 		mSearchResult.setTimestamp(getTimestamp());
 		mSearchResult.setId(getId());
 		mSearchResult.saveSearchResult();
+		// Set the ID in case the ID was not set previously
+		setId(mSearchResult.getId());
 
 	}
 
