@@ -62,10 +62,14 @@
     var stat = $("#statField").val();
     var tsMin = $("#dateEarliestField").val();
     var tsMax = $("#dateLatestField").val();
+    var grain = $("#grainField").val();
+    var statType = $("#statTypeField").val();
     var queryString = '?gn=' + encodeURIComponent(gatherer) + '&stat='
-            + encodeURIComponent(stat) + '&ts.min='
+            + encodeURIComponent(stat)  + '&ts.min='
             + encodeURIComponent(tsMin) + '&ts.max='
-            + encodeURIComponent(tsMax);
+            + encodeURIComponent(tsMax) + '&gTyp='
+            + encodeURIComponent(grain) + '&statType='
+            + encodeURIComponent(statType);
     $('#graph').html('<center>' +
     '<p><b>Search is in progress...</b></p><br />' +
     '<img src=/ediscovery/resource/images/spinner.gif alt="Waiting for results" />' +
@@ -76,7 +80,7 @@
                     function(response, status, xhr) {
                         if (xhr.status == 403) {
                             $("#main")
-                            .html("You are not authorized to search, your session has likely expired. Redirecting to login...");
+                            .html("You are not authorized to graph, your session has likely expired. Redirecting to login...");
                             location.reload();
                         } else if (status != "success") {
                             $("#main")

@@ -31,7 +31,22 @@
 		        <tr>
 		            <td>Statistic Type:</td>
 		            <td><select name="statType" id="statTypeField" class="searchField"/>
+			            <option value="avg">Average</option>
+			            <option value="max">Maximum</option>
+			            <option value="min">Minimum</option>
+				        <option value="sum">Summation</option>
+				        <option value="std">Standard Deviation</option>
 		            </td>
+		        </tr>
+		        
+		        <tr>
+		          <td>Grainularity:</td>
+		          <td><select name="grain" id="grainField" class="searchField"/>
+		            <option value="1">Hourly</option>
+		            <option value="24">Daily</option>
+			        <option value="168">Weekly</option>
+			        <option value="744">Monthly</option>
+		          </td>
 		        </tr>
 		
 		        <tr>

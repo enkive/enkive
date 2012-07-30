@@ -6,10 +6,10 @@
 </center>
 
 <script type="text/javascript">
-		var width = 500;
+		var width = 850;
 		var height = 325;
 		var padding = 80;
-		
+		var statType = ${statType};
 		var temp = ${result};
 		var jsonData = JSON.parse(temp);
 		
@@ -17,7 +17,7 @@
 		
 		var data = serviceStats.${statName};
 		
-		var y = d3.scale.linear().domain([0, 1.5*d3.max(data, function(d) { return d.avg; })]).range([height, 0]);
+		var y = d3.scale.linear().domain([0, 1.2*d3.max(data, function(d) { return d[statType]; })]).range([height, 0]);
 		var x = d3.time.scale().domain([d3.min(data, function(d) { return  getDate(d); }), d3.max(data, function(d) { return getDate(d);  })]).range([0, width]);
 		
 		var graphic = d3.select("#graph").
@@ -49,7 +49,7 @@
 		    
 		//graph
 		function getDate(d) {
-		    return new Date(d.ts.max);
+		    return new Date(d.ts.min);
 		}
 		
 		var graphGroup = graphic.append("svg:g").
@@ -58,7 +58,7 @@
 		var sunsetLine = d3.svg.area().
 		  x(function(d) { return x(getDate(d)); }).
 		  y0(height).
-		  y1(function(d) { return y(d.avg); }).
+		  y1(function(d) { return y(d[statType]); }).
 		  interpolate("linear");
 		
 		graphGroup.append("svg:path").
@@ -72,11 +72,11 @@
 		.enter().append("svg:circle")
 		.attr("class", "line")
 		.attr("cx", function(d) { return x(getDate(d)) })
-		.attr("cy", function(d) { return y(d.avg); })
+		.attr("cy", function(d) { return y(d[statType]); })
 		.attr("r", 3.5)
 		.attr("stroke","black")
 		.on("mouseover", function(d) {
-		    d3.select("#GraphTitle span").text("avg: " + d.avg + " Date: " + getDate(d));
+		    d3.select("#GraphTitle span").text(statType + ": " + d[statType] + " Date: " + getDate(d));
 		    d3.select(this).attr("fill","lightblue");
 		})
 		.on("mouseout", function(d) {
