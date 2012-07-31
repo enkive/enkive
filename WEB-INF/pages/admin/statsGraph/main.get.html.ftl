@@ -1,19 +1,20 @@
-<center>
-    <div id="graph"></div>
-    <div id="GraphTitle">
-        <span>Statistics Graph</span>
-    </div>
-</center>
-
-<script type="text/javascript">
+<#if result??>
+	<center>
+	    <div id="graph"></div>
+	    <div id="GraphTitle">
+	        <span>Statistics Graph</span>
+	    </div>
+	</center>
+	
+	<script type="text/javascript">
 		var width = 850;
 		var height = 325;
 		var padding = 80;
 		var statType = ${statType};
-		var temp = ${result};
-		var jsonData = JSON.parse(temp);
+		var jsonStatsStr = ${result};
+		var jsonStatsData = JSON.parse(jsonStatsStr);
 		
-		var serviceStats = jsonData.results[0].${gn};
+		var serviceStats = jsonStatsData.results[0].${gn};
 		
 		var data = serviceStats.${statName};
 		
@@ -83,4 +84,9 @@
 		    d3.select("#GraphTitle span").text("Statistics Graph");
 		    d3.select(this).attr("fill","black");
 		});
-</script>
+	</script>
+<#else>
+	<p>
+		<b>There was an error retrieving graph data.</b><br />
+	</p>
+</#if>

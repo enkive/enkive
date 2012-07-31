@@ -12,13 +12,6 @@
 		        <tr>
 		          <td>Gatherer:</td>
 		          <td><select name="gn" id="gnField" class="searchField" onchange="updateOptions()"/>
-		            <option value=""></option>
-		            <option value="RuntimeStatsService">Runtime Statistics</option>
-		            <option value="DetailedMsgStatsService">Message Statistics</option>
-		            <option value="AttachmentStatsService">Attachment Statistics</option>
-			        <option value="MsgStatsService">Email Entry Statistics</option>
-			        <option value="CollectionStatsService">Collection Statistics</option>
-			        <option value="DBStatsService">Enkive Statistics</option>
 		          </td>
 		        </tr>
 		        
@@ -27,15 +20,16 @@
 		            <td><select name="stat" id="statField" class="searchField"/>
 		            </td>
 		        </tr>
+
+		        <tr>
+		            <td>Checks:</td>
+		            <td><div name="checks" id="checkers"></div>
+		            </td>
+		        </tr>
 		
 		        <tr>
 		            <td>Statistic Type:</td>
 		            <td><select name="statType" id="statTypeField" class="searchField"/>
-			            <option value="avg">Average</option>
-			            <option value="max">Maximum</option>
-			            <option value="min">Minimum</option>
-				        <option value="sum">Summation</option>
-				        <option value="std">Standard Deviation</option>
 		            </td>
 		        </tr>
 		        
@@ -43,9 +37,9 @@
 		          <td>Grainularity:</td>
 		          <td><select name="grain" id="grainField" class="searchField"/>
 		            <option value="1">Hourly</option>
-		            <option value="24">Daily</option>
-			        <option value="168">Weekly</option>
-			        <option value="744">Monthly</option>
+                    <option value="24">Daily</option>
+                    <option value="168">Weekly</option>
+                    <option value="744">Monthly</option>
 		          </td>
 		        </tr>
 		
@@ -85,48 +79,100 @@
 	</div>
 
 <script type="text/javascript">
-    var runtimeStats= new Array(["Free Memory","freeM"], ["Max Memory", "maxM"], ["Total Memory", "totM"]);
-    var detailMsgStats= new Array(["Number of Messages","numMsg"]);
-    var attachStats= new Array(["Max Attachment Size","maxAtt"],["Average Attachment Size","avgAtt"]);
-    var archiveStats=new Array(["Message Archive Size","MsgArchive"]);
-    var collStats=new Array([]);
-    var dbStats=new Array(["Database Name","db"],["Number of  Collections","numColls"],["Number of Objects","numObj"],["Average Object  Size", "avgOSz"],["Data Size","dataSz"], ["Total Size", "totSz"],["Number of Indexes","numInd"],["Total Index Size","indSz"],["Number of Extents","numExt"],["File Size","fileSz"]);
-    
-    function populateOptions(vars) {
-        var stat = document.statInput.stat;    
-        stat.options.length = 0;
-        for(i=0; i<vars.length; i++){
-            stat.options[i] = new Option(vars[i][0], vars[i][1]);
-        }
-    }
-    
-    function updateOptions(){  
-        var master = document.statInput.gn;
-        switch (document.statInput.gn.selectedIndex){
-         case 0:
-           alert("empty gatherer not allowed!");
-              document.statInput.stat.options.length = 0;
-           break;
-         case 1:
-           populateOptions(runtimeStats);
-           break;
-         case 2:
-           populateOptions(detailMsgStats);
-           break;
-         case 3:
-           populateOptions(attachStats);
-           break;
-         case 4:
-           populateOptions(archiveStats);
-           break;
-         case 5:
-           populateOptions(collStats);
-           break;
-         case 6:
-           populateOptions(dbStats);
-           break;
-         default:
-           alert("Index is out of bounds for UpdateOptions function");
-         }    
-    }
+var jsonStr = ${result};
+var jsonMethodData = JSON.parse(jsonStr);
+
+function updateOptions(){
+ var master = document.statInput.gn;       
+ populateOptions(jsonMethodData.results[master.selectedIndex]);
+}
+
+function populateOptions(vars) {         
+	 var stat = document.statInput.stat;             
+	 stat.options.length = 0;
+	 var index = 0;   
+	 for(var i in vars){
+	     for(var j in vars[i]){
+	         if(j != "ts"){
+	             var option=document.createElement("option");
+	             option.text=j;      
+	             try {//Standards compliant
+	                 stat.add(option, null);
+	             } catch (err) {//IE
+	                 stat.add(option);
+	             }
+	         }
+	     }            
+	 }     
+	 populateMethods();
+}
+
+function populateMethods(){
+	 var gnIndex = document.statInput.gn.selectedIndex;
+	 var gnKey = document.statInput.gn[gnIndex].text;
+	 var statIndex = document.statInput.stat.selectedIndex;
+	 var statKey = document.statInput.stat[statIndex].text;
+	 var methodsSelect = document.statInput.statType;
+	 methodsSelect.options.length = 0;
+	 var methods = jsonMethodData.results[gnIndex][gnKey][statKey];
+	 for(var i in methods){
+	     var option=document.createElement("option");
+	     option.text=methods[i];      
+	     try {//Standards compliant
+	          methodsSelect.add(option, null);
+	      } catch (err) {//IE
+	          methodsSelect.add(option);
+	      }
+	 }
+	 populateChecks(); 
+}
+
+
+function populateChecks(){
+     var gnIndex = document.statInput.gn.selectedIndex;
+	 var gnKey = document.statInput.gn[gnIndex].text;
+	 var statIndex = document.statInput.stat.selectedIndex;
+	 var statKey = document.statInput.stat[statIndex].text;
+	 var methodsSelect = document.statInput.checks;
+	 methodsSelect.options.length = 0;
+	 var methods = jsonMethodData.results[gnIndex][gnKey][statKey];
+	 for(var i in methods){
+	     var option=document.createElement("option");
+	     option.text=methods[i];      
+	     try {//Standards compliant
+	          methodsSelect.add(option, null);
+	      } catch (err) {//IE
+	          methodsSelect.add(option);
+	      }
+	 }  
+	
+	var checkbox = document.createElement('input');
+	checkbox.type = "checkbox";
+	checkbox.name = "name";
+	checkbox.value = "value";
+	checkbox.id = "id";
+	
+	var label = document.createElement('label')
+	label.htmlFor = "id";
+	label.appendChild(document.createTextNode('label');
+	
+	container.appendChild(checkbox);
+	container.appendChild(label);
+}
+
+
+for(var i in jsonMethodData.results){
+ for(var j in jsonMethodData.results[i]){
+     var option=document.createElement("option");
+     option.text=j;      
+     var select = document.statInput.gn;
+     try {//Standards compliant
+         select.add(option, null);
+     } catch (err) {//IE
+         select.add(option);
+     }
+ }                    
+}
+
+updateOptions();
 </script>
