@@ -3,6 +3,9 @@ package com.linuxbox.enkive.workspace.searchFolder.mongo;
 import java.util.Collection;
 import java.util.HashSet;
 
+import org.bson.types.ObjectId;
+
+import com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants;
 import com.linuxbox.enkive.workspace.searchFolder.SearchFolder;
 import com.linuxbox.enkive.workspace.searchFolder.SearchFolderSearchResult;
 import com.linuxbox.enkive.workspace.searchFolder.SearchFolderSearchResultBuilder;
@@ -30,12 +33,22 @@ public class MongoSearchFolder extends SearchFolder {
 	public void saveSearchFolder() {
 		BasicDBObject searchFolderObject = new BasicDBObject();
 		Collection<String> searchResultIds = new HashSet<String>();
-		for (SearchFolderSearchResult result : results){
-			System.out.println(result.getId());
+		for (SearchFolderSearchResult result : results) {
 			searchResultIds.add(result.getId());
 		}
-		searchFolderObject.put("searchResultIds", searchResultIds);
-		searchFolderColl.insert(searchFolderObject);
+		searchFolderObject.put(MongoWorkspaceConstants.SEARCHRESULTSLIST,
+				searchResultIds);
+		if (getID() != null && !getID().isEmpty()) {
+			searchFolderObject.put("_id", ObjectId.massageToObjectId(getID()));
+			BasicDBObject searchFolderQueryObject = new BasicDBObject();
+			searchFolderQueryObject.put("_id",
+					ObjectId.massageToObjectId(getID()));
+			searchFolderColl.findAndModify(searchFolderQueryObject,
+					searchFolderObject);
+		} else {
+			searchFolderColl.insert(searchFolderObject);
+			setID(searchFolderObject.getString(MongoWorkspaceConstants.UUID));
+		}
 	}
 
 }

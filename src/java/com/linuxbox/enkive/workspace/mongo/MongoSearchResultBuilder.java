@@ -6,6 +6,7 @@ import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.SEARCH
 import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.SEARCHQUERYID;
 import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.SEARCHRESULTS;
 import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.SEARCHSTATUS;
+import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.UUID;
 
 import java.util.Collection;
 import java.util.Date;
@@ -51,8 +52,9 @@ public class MongoSearchResultBuilder implements SearchResultBuilder {
 
 	@Override
 	public SearchResult getSearchResult() throws WorkspaceException {
-		MongoSearchResult searchResult = new MongoSearchResult(m, searchResultsDB.getName(),
-				searchResultsColl.getName(), queryBuilder);
+		MongoSearchResult searchResult = new MongoSearchResult(m,
+				searchResultsDB.getName(), searchResultsColl.getName(),
+				queryBuilder);
 		searchResult.setSearchResultUtils(searchResultUtils);
 		return searchResult;
 	}
@@ -88,7 +90,7 @@ public class MongoSearchResultBuilder implements SearchResultBuilder {
 		if (LOGGER.isInfoEnabled())
 			LOGGER.info("Retrieved Search Results - " + result.getId());
 		result.setSearchResultUtils(searchResultUtils);
-		
+
 		return result;
 	}
 
@@ -103,14 +105,14 @@ public class MongoSearchResultBuilder implements SearchResultBuilder {
 		for (String searchResultUUID : searchResultUUIDs)
 			idList.add(ObjectId.massageToObjectId(searchResultUUID));
 		query.put("$in", idList);
-		DBCursor searchResult = searchResultsColl.find(new BasicDBObject("_id",
+		DBCursor searchResult = searchResultsColl.find(new BasicDBObject(UUID,
 				query));
 		while (searchResult.hasNext()) {
 			MongoSearchResult result = new MongoSearchResult(m,
 					searchResultsDB.getName(), searchResultsColl.getName(),
 					queryBuilder);
 			DBObject searchResultObject = searchResult.next();
-			result.setId(((ObjectId) searchResultObject.get("_id")).toString());
+			result.setId(((ObjectId) searchResultObject.get(UUID)).toString());
 			result.setTimestamp((Date) searchResultObject
 					.get(EXECUTIONTIMESTAMP));
 			result.setExecutedBy((String) searchResultObject.get(EXECUTEDBY));

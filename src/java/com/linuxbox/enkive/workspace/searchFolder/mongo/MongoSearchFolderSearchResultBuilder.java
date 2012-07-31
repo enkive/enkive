@@ -1,28 +1,12 @@
 package com.linuxbox.enkive.workspace.searchFolder.mongo;
 
-import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.EXECUTEDBY;
-import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.EXECUTIONTIMESTAMP;
-import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.SEARCHISSAVED;
-import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.SEARCHQUERYID;
-import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.SEARCHRESULTS;
-import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.SEARCHSTATUS;
-
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
-
-import org.bson.types.ObjectId;
-
 import com.linuxbox.enkive.workspace.WorkspaceException;
-import com.linuxbox.enkive.workspace.mongo.MongoSearchResult;
+import com.linuxbox.enkive.workspace.mongo.MongoSearchResultBuilder;
 import com.linuxbox.enkive.workspace.searchFolder.SearchFolderSearchResult;
 import com.linuxbox.enkive.workspace.searchFolder.SearchFolderSearchResultBuilder;
 import com.linuxbox.enkive.workspace.searchResult.SearchResult;
-import com.mongodb.BasicDBList;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
-import com.mongodb.DBObject;
 import com.mongodb.Mongo;
 
 public class MongoSearchFolderSearchResultBuilder implements
@@ -31,7 +15,10 @@ public class MongoSearchFolderSearchResultBuilder implements
 	Mongo m;
 	DB searchFolderSearchResultDB;
 	DBCollection searchFolderSearchResultColl;
+	MongoSearchResultBuilder mSearchResultBuilder;
 
+	//XXX Need to set mongosearchutils
+	
 	MongoSearchFolderSearchResultBuilder(Mongo m,
 			String searchFolderSearchResultDBName,
 			String searchFolderSearchResultCollName) {
@@ -40,6 +27,9 @@ public class MongoSearchFolderSearchResultBuilder implements
 		searchFolderSearchResultColl = searchFolderSearchResultDB
 				.getCollection(searchFolderSearchResultCollName);
 
+		mSearchResultBuilder = new MongoSearchResultBuilder(m,
+				searchFolderSearchResultDBName,
+				searchFolderSearchResultCollName, null);
 	}
 
 	@Override
@@ -50,37 +40,12 @@ public class MongoSearchFolderSearchResultBuilder implements
 	}
 
 	@Override
-	public SearchFolderSearchResult getSearchResult(String id) {
-		MongoSearchFolderSearchResult result = new MongoSearchFolderSearchResult(m,
-				searchFolderSearchResultDB.getName(),
-				searchFolderSearchResultColl.getName());
-		DBObject searchResultObject = searchFolderSearchResultColl.findOne(ObjectId
-				.massageToObjectId(id));
+	public SearchFolderSearchResult getSearchResult(String id)
+			throws WorkspaceException {
 
-		result.setId(id);
-		result.setTimestamp((Date) searchResultObject.get(EXECUTIONTIMESTAMP));
-		result.setExecutedBy((String) searchResultObject.get(EXECUTEDBY));
-
-		BasicDBList searchResults = (BasicDBList) searchResultObject
-				.get(SEARCHRESULTS);
-
-		Set<String> searchResultUUIDs = new HashSet<String>();
-		Iterator<Object> searchResultsIterator = searchResults.iterator();
-		while (searchResultsIterator.hasNext())
-			searchResultUUIDs.add((String) searchResultsIterator.next());
-
-		result.setMessageIds(searchResultUUIDs);
-
-		result.setStatus(SearchResult.Status
-				.valueOf((String) searchResultObject.get(SEARCHSTATUS)));
-		result.setSearchQueryId((String) searchResultObject.get(SEARCHQUERYID));
-		if (searchResultObject.get(SEARCHISSAVED) != null)
-			result.setSaved((Boolean) searchResultObject.get(SEARCHISSAVED));
-
-		//if (LOGGER.isInfoEnabled())
-		//	LOGGER.info("Retrieved Search Results - " + result.getId());
-		//result.setSearchResultUtils(searchResultUtils);
-
+		SearchResult tempSearchResult = mSearchResultBuilder.getSearchResult(id);
+		SearchFolderSearchResult result = buildSearchResult(tempSearchResult);
+		
 		return result;
 	}
 
@@ -97,6 +62,7 @@ public class MongoSearchFolderSearchResultBuilder implements
 				.getSearchQueryBuilder());
 		mSearchResult.setSearchQueryId(searchResult.getSearchQueryId());
 		mSearchResult.setTimestamp(searchResult.getTimestamp());
+		//TODO Can we have a check to see if this is actually a searchfolder result?
 		mSearchResult.saveSearchResult();
 		return mSearchResult;
 	}

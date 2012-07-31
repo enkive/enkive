@@ -33,7 +33,6 @@ import com.linuxbox.enkive.workspace.Workspace;
 import com.linuxbox.enkive.workspace.WorkspaceException;
 import com.linuxbox.enkive.workspace.WorkspaceService;
 import com.linuxbox.enkive.workspace.searchFolder.SearchFolder;
-import com.linuxbox.enkive.workspace.searchFolder.SearchFolderBuilder;
 import com.linuxbox.enkive.workspace.searchResult.SearchResult;
 
 public class SaveSearchWebScript extends EnkiveServlet {
@@ -70,11 +69,10 @@ public class SaveSearchWebScript extends EnkiveServlet {
 							.getActiveWorkspace(this.getPermissionService()
 									.getCurrentUsername());
 
-					SearchFolderBuilder folderBuilder = workspace.getSearchFolderBuilder();
-					SearchFolder searchFolder = folderBuilder.getSearchFolder();
+					SearchFolder searchFolder = workspace.getSearchFolder();
 					searchFolder.addSearchResult(result);
 					searchFolder.saveSearchFolder();
-					
+
 					if (LOGGER.isDebugEnabled())
 						LOGGER.debug("saved search at id " + searchId
 								+ " with name \"" + nameOfSavedSearch + "\"");

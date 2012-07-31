@@ -211,9 +211,17 @@ public abstract class Workspace {
 				sortField, sortDir));
 		return sortedSearchResults;
 	}
-	
+
 	public SearchFolder getSearchFolder() throws WorkspaceException {
-		return searchFolderBuilder.getSearchFolder(searchFolderID);
+		SearchFolder searchFolder;
+		if (searchFolderID != null && !searchFolderID.isEmpty())
+			searchFolder = searchFolderBuilder.getSearchFolder(searchFolderID);
+		else {
+			searchFolder = searchFolderBuilder.getSearchFolder();
+			setSearchFolderID(searchFolder.getID());
+			saveWorkspace();
+		}
+		return searchFolder;
 	}
 
 	public abstract void saveWorkspace() throws WorkspaceException;

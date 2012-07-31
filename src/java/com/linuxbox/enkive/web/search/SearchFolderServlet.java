@@ -106,7 +106,6 @@ public class SearchFolderServlet extends EnkiveServlet {
 
 			SearchFolder searchFolder = workspaceService
 					.getSearchFolder(searchFolderId);
-			System.out.println(searchFolder.getID());
 
 			JSONArray resultsJson = new JSONArray();
 

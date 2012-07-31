@@ -34,8 +34,10 @@ public class MongoSearchFolderBuilder implements SearchFolderBuilder {
 
 	@Override
 	public SearchFolder getSearchFolder() {
-		return new MongoSearchFolder(m, searchFolderDB.getName(),
+		SearchFolder searchFolder = new MongoSearchFolder(m, searchFolderDB.getName(),
 				searchFolderColl.getName(), searchResultBuilder);
+		searchFolder.saveSearchFolder();
+		return searchFolder;
 	}
 
 	@Override
@@ -50,13 +52,13 @@ public class MongoSearchFolderBuilder implements SearchFolderBuilder {
 				.massageToObjectId(searchFolderId));
 
 		BasicDBList searchResults = (BasicDBList) folderObject
-				.get("searchResultIds");
+				.get(MongoWorkspaceConstants.SEARCHRESULTSLIST);
 
 		Iterator<Object> searchResultsIterator = searchResults.iterator();
 		while (searchResultsIterator.hasNext())
 			searchFolder.addSearchResult(searchResultBuilder
 					.getSearchResult((String) searchResultsIterator.next()));
-		// TODO Auto-generated method stub
+
 		return searchFolder;
 	}
 
