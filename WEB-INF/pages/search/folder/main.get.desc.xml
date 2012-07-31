@@ -1,0 +1,6 @@
+<webscript>
+  <shortname>Search Folder Page - Main Section</shortname>
+  <description>Search Folder Page - Main Section</description>
+  <url>/search/folder/main</url>
+  <format default="html">any</format>
+</webscript>
