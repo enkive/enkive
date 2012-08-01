@@ -19,11 +19,10 @@
 	            <td><select name="stat" id="statField" class="searchField" onchange="populateMethods()"/>
 	            </td>
 	        </tr>
-	
+	        
 	        <tr>
 	            <td>Statistic Type:</td>
-	            <td><select name="statType" id="statTypeField" class="searchField"/>
-	            </td>
+	            <td><div id="MethodBoxesDiv"></div></td>
 	        </tr>
 	        
 	        <tr>
@@ -142,21 +141,33 @@ function populateMethods(){
 	 var gnKey = document.statInput.gn[gnIndex].text;
 	 var statIndex = document.statInput.stat.selectedIndex;
 	 var statKey = document.statInput.stat[statIndex].text;
-	 var methodsSelect = document.statInput.statType;
-	 methodsSelect.options.length = 0;
 	 var methods = jsonMethodData.results[gnIndex][gnKey][statKey];
-	 for(var i in methods){
-	     var option=document.createElement("option");
-	     option.text=methods[i];      
-	     try {//Standards compliant
-	          methodsSelect.add(option, null);
-	      } catch (err) {//IE
-	          methodsSelect.add(option);
-	      }
-	 }
+	 addMethodBoxes(methods);
 }
 
-//called once to populate all fields
-populateAll();
+function addMethodBoxes(methods){
+    removeBoxes();
+    for(i=0;i<methods.length;i++){
+        var str = methods[i];
+        var checkbox=document.createElement('input');
+        var label=document.createElement('label');
+        var output=document.getElementById('MethodBoxesDiv');
+        checkbox.type='checkbox';
+        checkbox.value=str;
+        checkbox.name='methods';
+        checkbox.id=str;
+        label.setAttribute('for',str);
+        label.appendChild(document.createTextNode(str));
+        output.appendChild(checkbox);
+        output.appendChild(label);
+        output.appendChild(document.createElement('br'));
+    }
+}
 
+function removeBoxes(){
+    $('#MethodBoxesDiv').empty();
+}
+
+//called once on run to populate all fields
+populateAll();
 </script>

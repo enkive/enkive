@@ -58,6 +58,18 @@
 	});
 	
 	function loadStatGraph() {
+	var checkBoxes = $("input[name=methods]");
+    var array = [];
+    var strang = "";
+    $.each(checkBoxes, function() {
+    	if ($(this).attr('checked')){
+           array.push($(this).value());
+           strang = strang + " " + $(this).value(); 
+        }
+	});
+	
+	alert(strang);
+	
     var gatherer = $("#gnField").val();
     var stat = $("#statField").val();
     var tsMin = $("#dateEarliestField").val();
