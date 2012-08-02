@@ -4,6 +4,7 @@ var tsMin = context.properties["ts.min"];
 var tsMax = context.properties["ts.max"];
 var grainType = context.properties["gTyp"];
 var statType = context.properties["statType"];
+var methods = context.properties["methods"];
 // get a connector to the Alfresco repository endpoint
 var connector = remote.connect("enkive");
 // retrieve the web script index page
@@ -18,3 +19,4 @@ model.gn = gn;
 model.statName = statName;
 model.queryStr = queryStr;
 model.statType = "'" + statType + "'";
+model.methods  = "[" + methods + "]";

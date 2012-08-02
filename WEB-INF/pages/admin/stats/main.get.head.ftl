@@ -62,9 +62,10 @@
     var statType = "";
     $.each(checkBoxes, function() {
     	if ($(this).attr('checked')){
-           statType = $(this).val();
+           statType = statType + "\"" + $(this).val() + "\"" + ",";
         }
 	});
+	statType = statType.slice(0, -1);	
 	
     var gatherer = $("#gnField").val();
     var stat = $("#statField").val();
@@ -75,7 +76,7 @@
             + encodeURIComponent(stat)  + '&ts.min='
             + encodeURIComponent(tsMin) + '&ts.max='
             + encodeURIComponent(tsMax) + '&gTyp='
-            + encodeURIComponent(grain) + '&statType='
+            + encodeURIComponent(grain) + '&methods='
             + encodeURIComponent(statType);
     $('#graph').html('<center>' +
     '<p><b>Search is in progress...</b></p><br />' +
