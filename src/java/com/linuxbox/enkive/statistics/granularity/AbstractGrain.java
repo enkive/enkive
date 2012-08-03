@@ -66,7 +66,7 @@ public abstract class AbstractGrain implements Grain {
 			statData.put(method, injectType(exampleData, statsMaker.getMean()));
 		} else if (method.equals(GRAIN_STD_DEV)) {
 			statData.put(method,
-					injectType(exampleData, statsMaker.getStandardDeviation()));
+			injectType(exampleData, statsMaker.getStandardDeviation()));
 		}
 	}
 
@@ -294,6 +294,7 @@ public abstract class AbstractGrain implements Grain {
 		} else if (stat instanceof Date) {
 			input = (double) ((Long) ((Date) stat).getTime()).longValue();
 		} else {
+			System.out.println(stat);
 			LOGGER.warn("statToDouble(Object stat)-unexpected Object type");
 		}
 		return input;

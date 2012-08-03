@@ -24,7 +24,7 @@
 		<property name="storageService" ref="StatisticsStorer" />
 		<property name="keys">	
 			<list>
-				<value>MsgArchive:avg,max,min</value>
+				<value>MsgArchive:avg,max,min:Size of Archive</value>
 			</list>
 		</property>	
 	</bean>
@@ -39,16 +39,16 @@
 		<property name="storageService" ref="StatisticsStorer" />
 		<property name="keys">	
 			<list>
-				<value>*.ns:</value>
-				<value>*.numObj:avg,max,min</value>
-				<value>*.avgOSz:avg,max,min</value>
-				<value>*.dataSz:avg,max,min</value>
-				<value>*.totSz:avg,max,min</value>
-				<value>*.numExt:avg,max,min</value>
-				<value>*.lExSz:avg,max,min</value>
-				<value>*.numInd:avg,max,min</value>
-				<value>*.indSz:avg,max,min</value>
-				<value>*.indSzs.*:avg,max,min</value>
+				<value>*.ns::Name Space</value>
+				<value>*.numObj:avg,max,min:Number of Objects</value>
+				<value>*.avgOSz:avg,max,min:Average Object Size</value>
+				<value>*.dataSz:avg,max,min:Data Size</value>
+				<value>*.totSz:avg,max,min:Total Size</value>
+				<value>*.numExt:avg,max,min:Number of Extents</value>
+				<value>*.lExSz:avg,max,min:Last Extent Size</value>
+				<value>*.numInd:avg,max,min:Number of Indexes</value>
+				<value>*.indSz:avg,max,min:Index Size</value>
+				<value>*.indSzs.*:avg,max,min:Index Sizes</value>
 			</list>
 		</property>	
 	</bean>
@@ -62,7 +62,7 @@
 		<property name="storageService" ref="StatisticsStorer" />
 		<property name="keys">	
 			<list>
-				<value>numMsg:avg,max,min</value>
+				<value>numMsg:avg,max,min:Number of Messages</value>
 			</list>
 		</property>	
 	</bean>
@@ -78,8 +78,8 @@
 		<property name="storageService" ref="StatisticsStorer" />
 		<property name="keys">	
 			<list>
-				<value>avgAtt:avg</value>
-				<value>maxAtt:max</value>
+				<value>avgAtt:avg:Average Number of Attachments</value>
+				<value>maxAtt:max:Maximum Number of Attachments</value>
 			</list>
 		</property>	
 	</bean>
@@ -94,16 +94,16 @@
 		<property name="storageService" ref="StatisticsStorer" />
 		<property name="keys">	
 			<list>
-				<value>db:</value>
-				<value>numObj:avg,max,min</value>
-				<value>nColls:avg,max,min</value>
-				<value>avgOSz:avg,max,min</value>
-				<value>dataSz:avg,max,min</value>
-				<value>totSz:avg,max,min</value>
-				<value>numInd:avg,max,min</value>
-				<value>indSz:avg,max,min</value>
-				<value>numExt:avg,max,min</value>
-				<value>fileSz:avg,max,min</value>
+				<value>db::"Database Name"</value>
+				<value>numObj:avg,max,min:Number of Objects</value>
+				<value>nColls:avg,max,min:Number of Collections</value>
+				<value>avgOSz:avg,max,min:Average Object Size</value>
+				<value>dataSz:avg,max,min:Data Size</value>
+				<value>totSz:avg,max,min:Total Size</value>
+				<value>numInd:avg,max,min:Number of Indexes</value>
+				<value>indSz:avg,max,min:Index Size</value>
+				<value>numExt:avg,max,min:Number Extents</value>
+				<value>fileSz:avg,max,min:File Size</value>
 			</list>
 		</property>	
 	</bean>
@@ -116,10 +116,10 @@
 		<property name="storageService" ref="StatisticsStorer" />
 		<property name="keys">	
 			<list>
-				<value>freeM:avg,max,min</value>
-				<value>maxM:avg,max,min</value>
-				<value>totM:avg,max,min</value>
-				<value>cores:avg,max,min</value>
+				<value>freeM:avg,max,min:Free Memory</value>
+				<value>maxM:avg,max,min:Max Memory</value>
+				<value>totM:avg,max,min:Total Memory</value>
+				<value>cores:avg,max,min:Processors</value>
 			</list>
 		</property>	
 	</bean>

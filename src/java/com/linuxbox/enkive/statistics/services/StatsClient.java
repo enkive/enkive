@@ -32,7 +32,7 @@ public class StatsClient {
 	}
 
 	/**
-	 * gathers statistics from every known gatherer in the gathererService
+	 * gathers raw statistics from every known gatherer in the gathererService
 	 * @return returns all statistics gathered from every known gatherer
 	 */
 	public List<Map<String, Object>> gatherData() {

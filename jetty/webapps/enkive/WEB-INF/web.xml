@@ -64,6 +64,10 @@
 		<servlet-class>com.linuxbox.enkive.web.StatsServlet</servlet-class>
 	</servlet>
 	<servlet>
+		<servlet-name>KeyNameServlet</servlet-name>
+		<servlet-class>com.linuxbox.enkive.web.KeyNameServlet</servlet-class>
+	</servlet>
+	<servlet>
 		<servlet-name>DeleteSearchServlet</servlet-name>
 		<servlet-class>com.linuxbox.enkive.web.search.DeleteSearchWebScript</servlet-class>
 	</servlet>
@@ -131,6 +135,10 @@
 	<servlet-mapping>
 		<servlet-name>StatsServlet</servlet-name>
 		<url-pattern>/stats/statistics</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>KeyNameServlet</servlet-name>
+		<url-pattern>/stats/keys</url-pattern>
 	</servlet-mapping>
 
 	<error-page>

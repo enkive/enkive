@@ -38,7 +38,7 @@ public class TestMessageSender extends AbstractMessageImporter {
 	public void sendGeneratedMessages() {
 		try {
 			setWriter();
-			for (int i = 0; i < 50; i++) {
+			for (int i = 0; i < 20000; i++) {
 				try {
 					sendMessage(messageGenerator.generateMessage());
 				} catch (IOException e) {

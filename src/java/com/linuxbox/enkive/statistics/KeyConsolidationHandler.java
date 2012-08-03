@@ -5,9 +5,10 @@ import java.util.Collection;
 import java.util.LinkedList;
 
 public class KeyConsolidationHandler {
+	private String humanKey;
 	private LinkedList<String> key;
 	private Collection<String> methods;
-
+    
 	/**
 	 * @param keyPath is a string formatted in the following way:
 	 * 
@@ -29,16 +30,23 @@ public class KeyConsolidationHandler {
 		return this.methods;
 	}
 
+	public String getHumanKey(){
+		return humanKey;
+	}
+	
 	/**
 	 * @param str is parsed using the semantics outlined in the constructor's comments 
 	 */
 	private void parseAll(String str) {
 		String[] temp = str.split(":");
 		key = new LinkedList<String>(Arrays.asList(temp[0].split("\\.")));
-		if (temp.length == 2) {
+		if (temp[1] != null && !temp[1].equals("")) {
 			methods = Arrays.asList(temp[1].split(","));
 		} else {
 			methods = null;
+		}
+		if(temp[2] != null){
+			humanKey=temp[2];
 		}
 	}
 }
