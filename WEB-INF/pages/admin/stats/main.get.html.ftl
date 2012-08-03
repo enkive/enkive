@@ -96,53 +96,58 @@ function updateOptions(){
 }
 
 function populateGathererNames() {         
-	 var master = document.statInput.gn;            
-	 stat.options.length = 0;
-	 var index = 0;
-	 for(var gn in jsonMethodData.results[0]){
-	     for(var statKey in vars[i]){
-	         if(statKey != "ts"){
-	             var option=document.createElement("option");
-	             option.text=statKey;      
-	             try {//Standards compliant
-	                 stat.add(option, null);
-	             } catch (err) {//IE
-	                 stat.add(option);
-	             }
-	         }
-	     }            
-	 }
-	 populateMethods();
+     var master = document.statInput.gn;            
+     stat.options.length = 0;
+     var index = 0;
+     for(var gn in jsonMethodData.results[0]){
+         for(var statKey in vars[i]){
+             if(statKey != "ts"){
+                 var option=document.createElement("option");
+                 option.text=statKey;      
+                 try {//Standards compliant
+                     stat.add(option, null);
+                 } catch (err) {//IE
+                     stat.add(option);
+                 }
+             }
+         }            
+     }
+     populateMethods();
 }
 
 
-function populateStats(vars) {         
-	 var stat = document.statInput.stat;             
-	 stat.options.length = 0;
-	 var index = 0;   
-	 for(var i in vars){
-	     for(var statKey in vars[i]){
-	         if(statKey != "ts"){
-	             var option=document.createElement("option");
-	             option.text=statKey;      
-	             try {//Standards compliant
-	                 stat.add(option, null);
-	             } catch (err) {//IE
-	                 stat.add(option);
-	             }
-	         }
-	     }            
-	 }     
-	 populateMethods();
+function populateStats(vars) {
+     var stat = document.statInput.stat;
+     stat.options.length = 0;
+     var index = 0;
+     for(var i in vars){
+         for(var humanKey in vars[i]){
+             for(var statKey in vars[i][humanKey]){
+                 if(statKey != "ts"){
+                     var option=document.createElement("option");
+                     option.text=humanKey;
+                     option.value=statKey;
+                     try {//Standards compliant
+                         stat.add(option, null);
+                     } catch (err) {//IE
+                         stat.add(option);
+                     }
+//                     populateMethods(vars[i][humanKey][statKey]);
+                 }
+             }
+         }
+     }
+     populateMethods();
 }
 
-function populateMethods(){
-	 var gnIndex = document.statInput.gn.selectedIndex;
-	 var gnKey = document.statInput.gn[gnIndex].text;
-	 var statIndex = document.statInput.stat.selectedIndex;
-	 var statKey = document.statInput.stat[statIndex].text;
-	 var methods = jsonMethodData.results[gnIndex][gnKey][statKey];
-	 addMethodBoxes(methods);
+function populateMethods(methods){
+     var gnIndex = document.statInput.gn.selectedIndex;
+     var gnKey = document.statInput.gn[gnIndex].text;
+     var keyIndex = document.statInput.stat.selectedIndex;
+     var humanKey = document.statInput.stat[keyIndex].text;
+     var statKey = document.statInput.stat[keyIndex].value;
+     var methods = jsonMethodData.results[gnIndex][gnKey][humanKey][statKey];
+     addMethodBoxes(methods);
 }
 
 function addMethodBoxes(methods){
@@ -154,6 +159,7 @@ function addMethodBoxes(methods){
         var output=document.getElementById('MethodBoxesDiv');
         checkbox.type='checkbox';
         checkbox.value=str;
+        checkbox.checked=true;
         checkbox.name='methods';
         checkbox.id=str;
         label.setAttribute('for',str);
