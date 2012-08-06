@@ -117,31 +117,40 @@ function populateStats(vars) {
      var index = 0;
      for(var i in vars){
          for(var humanKey in vars[i]){
-             for(var statKey in vars[i][humanKey]){
-                 if(statKey != "ts"){
-                     var option=document.createElement("option");
-                     option.text=humanKey;
-                     option.value=statKey;
-                     try {//Standards compliant
-                         stat.add(option, null);
-                     } catch (err) {//IE
-                         stat.add(option);
-                     }
-//                     populateMethods(vars[i][humanKey][statKey]);
-                 }
-             }
+         	if(humanKey != "Time Stamp"){
+	             for(var statKey in vars[i][humanKey]){
+             		var option=document.createElement("option");
+                    option.text=humanKey;
+                    option.value=statKey;
+                    try {//Standards compliant
+                        stat.add(option, null);
+                    } catch (err) {//IE
+                        stat.add(option);
+                    }
+//                  populateMethods(vars[i][humanKey][statKey]);
+	             }
+            }
          }
      }
      populateMethods();
 }
 
-function populateMethods(methods){
+function getUnits(){
+	var gnIndex = document.statInput.gn.selectedIndex;
+	var gnKey = document.statInput.gn[gnIndex].text;
+	var keyIndex = document.statInput.stat.selectedIndex;
+	var humanKey = document.statInput.stat[keyIndex].text;
+	var statKey = document.statInput.stat[keyIndex].value;
+	return jsonMethodData.results[gnIndex][gnKey][humanKey][statKey].units;
+}
+
+function populateMethods(){
      var gnIndex = document.statInput.gn.selectedIndex;
      var gnKey = document.statInput.gn[gnIndex].text;
      var keyIndex = document.statInput.stat.selectedIndex;
      var humanKey = document.statInput.stat[keyIndex].text;
      var statKey = document.statInput.stat[keyIndex].value;
-     var methods = jsonMethodData.results[gnIndex][gnKey][humanKey][statKey];
+     var methods = jsonMethodData.results[gnIndex][gnKey][humanKey][statKey].methods;
      addMethodBoxes(methods);
 }
 

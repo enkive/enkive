@@ -154,6 +154,11 @@
 		.attr("id", "yAxisLabel")
 		.attr("d", "M -"+(padding*1.3)+",0 V "+height);
 		
+		var yAxisText = $("#statField option:selected").text()
+		if(getUnits() != null){
+			yAxisText = yAxisText+" ("+getUnits()+")";
+		}
+		
 		axisGroup.append("svg:g")
 		.attr("id", "thing")
 		.attr("fill", "black")
@@ -163,7 +168,7 @@
 		.attr("xlink:href", "#yAxisLabel")
 		.attr("text-anchor","middle")
 		.attr("startOffset","50%")
-		.text($("#statField option:selected").text());
+		.text(yAxisText);
 		    
 		axisGroup.append("defs")
 		.append("path")
@@ -172,7 +177,7 @@
 		
 		axisGroup.append("svg:g")
 		.attr("id", "thing")
-		.attr("fill", "Black")
+		.attr("fill", "black")
 		.append("text")
 		.attr("font-size", "20")
 		.append("textPath")
@@ -180,7 +185,6 @@
 		.attr("text-anchor","middle")
 		.attr("startOffset","50%")
 		.text("Time");
-     
 	</script>
 <#else>
 	<p>
