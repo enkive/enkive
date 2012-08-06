@@ -79,7 +79,7 @@
             + encodeURIComponent(grain) + '&methods='
             + encodeURIComponent(statType);
     $('#graph').html('<center>' +
-    '<p><b>Search is in progress...</b></p><br />' +
+    '<p><b>Calculating...</b></p><br />' +
     '<img src=/ediscovery/resource/images/spinner.gif alt="Waiting for results" />' +
     '</center>');
     $('#graph')

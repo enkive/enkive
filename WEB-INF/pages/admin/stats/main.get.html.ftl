@@ -2,11 +2,6 @@
 <table width="25%" cellpadding="0" cellspacing="0">      
 	<tr><td id="StatGraphStyle" style="padding: 5px;" align="left" valign="top">
 	<table width="100%">
-	    <tr>
-	        <td colspan="2" align="center">
-	                <input type="image" src="${url.context}/resource/images/clear_search_btn.png" alt="Clear Search" onClick="clearForm()"/>
-	        </td>
-	    </tr>
 	    <form name="statInput" method="GET" onSubmit="return loadStatGraph()">
 	        <tr>
 	          <td>Gatherer:</td>
