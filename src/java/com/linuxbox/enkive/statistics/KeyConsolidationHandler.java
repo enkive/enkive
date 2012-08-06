@@ -5,9 +5,11 @@ import java.util.Collection;
 import java.util.LinkedList;
 
 public class KeyConsolidationHandler {
-	private String humanKey;
+	private String humanKey = null;
+	private String units = null;
 	private LinkedList<String> key;
 	private Collection<String> methods;
+	
     
 	/**
 	 * @param keyPath is a string formatted in the following way:
@@ -34,6 +36,10 @@ public class KeyConsolidationHandler {
 		return humanKey;
 	}
 	
+	public String getUnits(){
+		return units;
+	}
+	
 	/**
 	 * @param str is parsed using the semantics outlined in the constructor's comments 
 	 */
@@ -45,8 +51,11 @@ public class KeyConsolidationHandler {
 		} else {
 			methods = null;
 		}
-		if(temp[2] != null){
+		if(temp[2] != null && !temp[2].equals("")){
 			humanKey=temp[2];
+		}
+		if(temp.length >= 4 && !temp[3].equals("")){
+			units = temp[3];
 		}
 	}
 }

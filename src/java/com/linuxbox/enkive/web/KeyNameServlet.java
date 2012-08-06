@@ -49,10 +49,12 @@ public class KeyNameServlet extends EnkiveServlet {
 							}
 							builtKey = builtKey.substring(0, builtKey.length()-1);
 							if(key.getMethods() != null){
-								Map<String, String[]> realMap = new HashMap<String, String[]>();
-								realMap.put(builtKey, (String[])key.getMethods().toArray());
-								keyMethods.put(key.getHumanKey(), realMap);
-//								keyMethods.put(builtKey, (String[])key.getMethods().toArray());
+								Map<String, Object> methodsMap = new HashMap<String, Object>();
+								Map<String, Object> innerKeyMap = new HashMap<String, Object>();
+								innerKeyMap.put("methods", (String[])key.getMethods().toArray());
+								innerKeyMap.put("units", key.getUnits());
+								methodsMap.put(builtKey, innerKeyMap);
+								keyMethods.put(key.getHumanKey(), methodsMap);
 							}
 						}
 						Map<String, Object> temp = new HashMap<String, Object>();
