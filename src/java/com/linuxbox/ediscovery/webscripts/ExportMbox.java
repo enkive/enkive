@@ -64,7 +64,6 @@ public class ExportMbox extends AbstractWebScript {
 				+ req.getParameterValues("searchid")[0]);
 
 		if (resp.getStatus().getCode() == ResponseStatus.STATUS_FORBIDDEN) {
-			System.out.println("HERE");
 			res.setContentType("text/plain");
 			res.setStatus(ResponseStatus.STATUS_MOVED_TEMPORARILY);
 			res.setHeader(

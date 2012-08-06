@@ -30,5 +30,9 @@
          <dest-id>search/recent</dest-id>
          <assoc-type>child</assoc-type>
       </page-association>
+      <page-association>
+         <dest-id>search/folder</dest-id>
+         <assoc-type>child</assoc-type>
+      </page-association>
    </associations>
 </page>
