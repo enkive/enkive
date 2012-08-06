@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <page>
-   <id>search/saved</id>
-   <title>Saved Searches</title>
+   <id>search/folder/view</id>
+   <title>Recent Search Results View</title>
    <template-instance>basicTemplate</template-instance>
    <authentication>user</authentication>
    <order-id>1</order-id>
@@ -12,8 +12,8 @@
       </component>
       <component>
          <region-id>main</region-id>
-         <url>/search/saved/main</url>
-      </component>   
+         <url>/search/results</url>
+      </component>
    </components>
    <associations>
       <page-association>
@@ -28,8 +28,8 @@
          <dest-id>search/recent</dest-id>
          <assoc-type>child</assoc-type>
       </page-association>
-      <page-association>
-         <dest-id>search/folder</dest-id>
+            <page-association>
+      <dest-id>search/saved</dest-id>
          <assoc-type>child</assoc-type>
       </page-association>
    </associations>

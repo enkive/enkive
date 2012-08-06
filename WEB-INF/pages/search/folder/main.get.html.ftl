@@ -1,17 +1,6 @@
 <#if status.code != 200>
 	<#-- Do Nothing -->
-
-<#elseif emptySearch??>
-	<p>
-		<b>You must fill in a search field</b>
-	</p>
-
-<#elseif !firstRun?? && result.data.status == "running">
-	<p>
-		<b>Your search has not yet returned results</b><br />
-		When the search is complete, it will appear in the recent search list.
-	</p>
-<#elseif result?? && !firstRun?? && result.data??>
+<#elseif result?? && result.data??>
 	<#if result.errors??>
 	<p>
 	Errors:
@@ -133,4 +122,3 @@
 		</div>
 	</#if>
 </#if>
-

@@ -1,4 +1,9 @@
 <script type="text/javascript">
+	function toggleChecked(status) {
+		$(".idcheckbox").each( function() {
+		$(this).attr("checked",status);
+		})
+	}
     $('tr.search_result td').live('click', function() {
         var id = $(this).parent().attr("id");
         if(id && !$(this).hasClass('search_action')) {
@@ -9,5 +14,9 @@
 	    var link = $(this).attr("href");
 	    $('#main').load(link + " #main");
 	    $(this).removeAttr("href");
+	});
+	$('.sortable').live('click', function() {
+	    var link = $(this).attr("href");
+	    $('#main').load(link + " #main");
 	});
 </script>

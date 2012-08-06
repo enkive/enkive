@@ -1,10 +1,10 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <page>
-   <id>search/saved</id>
-   <title>Saved Searches</title>
+   <id>search/folder</id>
+   <title>Search Folder</title>
    <template-instance>basicTemplate</template-instance>
    <authentication>user</authentication>
-   <order-id>1</order-id>
+   <order-id>0</order-id>
    <components>
       <component>
          <region-id>subnav</region-id>
@@ -12,7 +12,7 @@
       </component>
       <component>
          <region-id>main</region-id>
-         <url>/search/saved/main</url>
+         <url>/search/folder/main</url>
       </component>   
    </components>
    <associations>
@@ -21,15 +21,11 @@
          <assoc-type>child</assoc-type>
       </page-association>
       <page-association>
-         <dest-id>search/advanced</dest-id>
+         <dest-id>search/saved</dest-id>
          <assoc-type>child</assoc-type>
       </page-association>
       <page-association>
          <dest-id>search/recent</dest-id>
-         <assoc-type>child</assoc-type>
-      </page-association>
-      <page-association>
-         <dest-id>search/folder</dest-id>
          <assoc-type>child</assoc-type>
       </page-association>
    </associations>
