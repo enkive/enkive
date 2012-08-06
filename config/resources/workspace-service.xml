@@ -60,6 +60,7 @@
 			value="${enkive.workspace.search.folders.collection.name}" />
 		<constructor-arg type="com.linuxbox.enkive.workspace.searchFolder.SearchFolderSearchResultBuilder"
 			ref="SearchFolderSearchResultBuilder" />
+			<property name="retrieverService" ref="MessageRetrieverService" />
 	</bean>
 
 	<bean id="SearchFolderSearchResultBuilder" name="MongoSearchFolderSearchResultBuilder"

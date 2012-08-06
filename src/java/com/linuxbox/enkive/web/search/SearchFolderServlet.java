@@ -27,7 +27,13 @@ import static com.linuxbox.enkive.web.WebPageInfo.PAGE_POSITION_PARAMETER;
 import static com.linuxbox.enkive.web.WebPageInfo.PAGE_SIZE_PARAMETER;
 import static com.linuxbox.enkive.web.WebPageInfo.PAGING_LABEL;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -42,6 +48,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.tika.io.IOUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -89,8 +96,16 @@ public class SearchFolderServlet extends EnkiveServlet {
 	public void doGet(HttpServletRequest req, HttpServletResponse res)
 			throws IOException {
 		try {
+
 			String searchFolderId = WebScriptUtils.cleanGetParameter(req, "id");
 			String action = WebScriptUtils.cleanGetParameter(req, "action");
+
+			if (searchFolderId == null || searchFolderId.isEmpty())
+				searchFolderId = workspaceService.getActiveWorkspace(
+						getPermissionService().getCurrentUsername())
+						.getSearchFolderID();
+			if (action == null || action.isEmpty())
+				action = VIEW_SEARCH_FOLDER;
 
 			WebPageInfo pageInfo = new WebPageInfo(
 					WebScriptUtils.cleanGetParameter(req,
@@ -119,7 +134,8 @@ public class SearchFolderServlet extends EnkiveServlet {
 				addSearchFolderMessages(searchFolder, searchResultId,
 						messageIds);
 			} else if (action.equalsIgnoreCase(EXPORT_SEARCH_FOLDER)) {
-				exportSearchFolder(searchFolderId);
+				res.setContentType("application/x-gzip; charset=ISO-8859-1");
+				exportSearchFolder(searchFolder, res.getOutputStream());
 			} else if (action.equalsIgnoreCase(REMOVE_SEARCH_FOLDER_MESSAGE)) {
 				String messageidlist = WebScriptUtils.cleanGetParameter(req,
 						"messageids");
@@ -128,18 +144,18 @@ public class SearchFolderServlet extends EnkiveServlet {
 				removeSearchFolderMessages(searchFolder, messageIds);
 			} else if (action.equalsIgnoreCase(VIEW_SEARCH_FOLDER)) {
 				resultsJson = viewSearchFolder(searchFolder, pageInfo);
+				dataJSON.put(ITEM_TOTAL_TAG, pageInfo.getItemTotal());
+
+				dataJSON.put(RESULTS_TAG, resultsJson);
+				if (LOGGER.isDebugEnabled())
+					LOGGER.debug("Returning search folder messages for folder id "
+							+ searchFolderId);
+
+				jsonResult.put(DATA_TAG, dataJSON);
+				jsonResult.put(PAGING_LABEL, pageInfo.getPageJSON());
+				res.getWriter().write(jsonResult.toString());
 			}
 
-			dataJSON.put(ITEM_TOTAL_TAG, pageInfo.getItemTotal());
-
-			dataJSON.put(RESULTS_TAG, resultsJson);
-			if (LOGGER.isDebugEnabled())
-				LOGGER.debug("Returning search folder messages for folder id "
-						+ searchFolderId);
-
-			jsonResult.put(DATA_TAG, dataJSON);
-			jsonResult.put(PAGING_LABEL, pageInfo.getPageJSON());
-			res.getWriter().write(jsonResult.toString());
 		} catch (WorkspaceException e) {
 			respondError(HttpServletResponse.SC_UNAUTHORIZED, null, res);
 			throw new EnkiveServletException(
@@ -188,7 +204,12 @@ public class SearchFolderServlet extends EnkiveServlet {
 		return jsonMessageSummaryList;
 	}
 
-	protected void exportSearchFolder(String searchFolderId) {
-
+	protected void exportSearchFolder(SearchFolder searchFolder,
+			OutputStream outputStream) {
+		try {
+			searchFolder.exportSearchFolder(outputStream);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 }

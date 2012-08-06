@@ -4,6 +4,7 @@ import java.util.Iterator;
 
 import org.bson.types.ObjectId;
 
+import com.linuxbox.enkive.retriever.MessageRetrieverService;
 import com.linuxbox.enkive.workspace.WorkspaceException;
 import com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants;
 import com.linuxbox.enkive.workspace.searchFolder.SearchFolder;
@@ -21,7 +22,8 @@ public class MongoSearchFolderBuilder implements SearchFolderBuilder {
 	protected DB searchFolderDB;
 	protected DBCollection searchFolderColl;
 	protected SearchFolderSearchResultBuilder searchResultBuilder;
-
+	protected MessageRetrieverService retrieverService;
+	
 	public MongoSearchFolderBuilder(Mongo m, String searchFolderDBName,
 			String searchFolderCollName,
 			SearchFolderSearchResultBuilder searchResultBuilder) {
@@ -36,6 +38,7 @@ public class MongoSearchFolderBuilder implements SearchFolderBuilder {
 	public SearchFolder getSearchFolder() {
 		SearchFolder searchFolder = new MongoSearchFolder(m, searchFolderDB.getName(),
 				searchFolderColl.getName(), searchResultBuilder);
+		searchFolder.setRetrieverService(retrieverService);
 		searchFolder.saveSearchFolder();
 		return searchFolder;
 	}
@@ -46,6 +49,7 @@ public class MongoSearchFolderBuilder implements SearchFolderBuilder {
 		SearchFolder searchFolder = new MongoSearchFolder(m,
 				searchFolderDB.getName(), searchFolderColl.getName(),
 				searchResultBuilder);
+		searchFolder.setRetrieverService(retrieverService);
 		searchFolder.setID(searchFolderId);
 
 		DBObject folderObject = searchFolderColl.findOne(ObjectId
@@ -60,6 +64,14 @@ public class MongoSearchFolderBuilder implements SearchFolderBuilder {
 					.getSearchResult((String) searchResultsIterator.next()));
 
 		return searchFolder;
+	}
+
+	public MessageRetrieverService getRetrieverService() {
+		return retrieverService;
+	}
+
+	public void setRetrieverService(MessageRetrieverService retrieverService) {
+		this.retrieverService = retrieverService;
 	}
 
 }

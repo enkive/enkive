@@ -106,7 +106,11 @@ public abstract class Workspace {
 		this.lastUpdate = lastUpdate;
 	}
 
-	public String getSearchFolderID() {
+	public String getSearchFolderID() throws WorkspaceException {
+		// If we don't have a search folder id, assume we don't have a search
+		// folder, and create one
+		if (searchFolderID == null || searchFolderID.isEmpty())
+			getSearchFolder();
 		return searchFolderID;
 	}
 
@@ -214,6 +218,8 @@ public abstract class Workspace {
 
 	public SearchFolder getSearchFolder() throws WorkspaceException {
 		SearchFolder searchFolder;
+		// Check to make sure we have a folder id, if not, assume we don't have
+		// a folder and create one
 		if (searchFolderID != null && !searchFolderID.isEmpty())
 			searchFolder = searchFolderBuilder.getSearchFolder(searchFolderID);
 		else {
