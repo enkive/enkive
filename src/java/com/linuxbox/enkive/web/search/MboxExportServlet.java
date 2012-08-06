@@ -42,9 +42,9 @@ import com.linuxbox.enkive.permissions.PermissionService;
 import com.linuxbox.enkive.retriever.MessageRetrieverService;
 import com.linuxbox.enkive.web.EnkiveServlet;
 import com.linuxbox.enkive.web.WebScriptUtils;
-import com.linuxbox.enkive.workspace.SearchResult;
 import com.linuxbox.enkive.workspace.WorkspaceException;
 import com.linuxbox.enkive.workspace.WorkspaceService;
+import com.linuxbox.enkive.workspace.searchResult.SearchResult;
 
 public class MboxExportServlet extends EnkiveServlet {
 	/**

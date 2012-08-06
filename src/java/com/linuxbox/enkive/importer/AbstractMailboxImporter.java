@@ -51,23 +51,27 @@ public abstract class AbstractMailboxImporter extends AbstractMessageImporter {
 
 	public void readMailDirectory(String subDir) throws MessagingException,
 			IOException {
-		Folder inbox = root.getFolder(subDir);
-		readMailDirectory(inbox);
+		int i = 1;
+		System.out.println(subDir + " - Starting");
+		while (!readMailDirectory(subDir, i, i + 100))
+			i = i + 100;
+		System.out.println(subDir + " - Finished");
 	}
 
-	public void readMailDirectory(Folder folder) throws MessagingException,
-			IOException {
-		System.out.println(folder.getName() + " - Starting - "
-				+ folder.getMessageCount() + " Messages");
+	protected boolean readMailDirectory(String subdir, int startMessage,
+			int endMessage) throws MessagingException, IOException {
+		Folder folder = root.getFolder(subdir);
 		folder.open(Folder.READ_ONLY);
-		for (Message m : folder.getMessages()) {
-			sendMessage(m);
+		int messageTotal = folder.getMessageCount();
+		for (int i = startMessage; i <= endMessage; i++) {
+			if (i <= messageTotal)
+				sendMessage(folder.getMessage(i));
 			if (messageCount % 100 == 0) {
 				System.out.println(messageCount + " Messages Sent");
 			}
 		}
 		folder.close(false);
-		System.out.println(folder.getName() + " - Finished");
+		return endMessage >= messageTotal;
 	}
 
 	protected abstract void readAllMessages() throws MessagingException,

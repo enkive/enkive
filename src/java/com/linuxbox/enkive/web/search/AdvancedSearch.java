@@ -60,7 +60,7 @@ import com.linuxbox.enkive.retriever.MessageRetrieverService;
 import com.linuxbox.enkive.web.WebConstants;
 import com.linuxbox.enkive.web.WebPageInfo;
 import com.linuxbox.enkive.web.WebScriptUtils;
-import com.linuxbox.enkive.workspace.SearchResult;
+import com.linuxbox.enkive.workspace.searchResult.SearchResult;
 
 public class AdvancedSearch extends AbstractSearchWebScript {
 
@@ -134,6 +134,7 @@ public class AdvancedSearch extends AbstractSearchWebScript {
 						TimeUnit.SECONDS);
 
 			} catch (Exception e) {
+				e.printStackTrace();
 				// catch various kinds of exceptions, including cancellations
 				result = null;
 			}

@@ -71,6 +71,7 @@ public abstract class AbstractMessageImporter {
 				new ByteArrayInputStream(os.toByteArray())));
 		sendMessage(reader);
 		reader.close();
+		os.reset();
 	}
 
 	protected void sendMessage(File m) throws IOException, MessagingException {

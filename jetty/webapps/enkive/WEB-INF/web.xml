@@ -40,6 +40,10 @@
 		<servlet-class>com.linuxbox.enkive.web.search.AdvancedSearch</servlet-class>
 	</servlet>
 	<servlet>
+		<servlet-name>SearchFolderServlet</servlet-name>
+		<servlet-class>com.linuxbox.enkive.web.search.SearchFolderServlet</servlet-class>
+	</servlet>
+	<servlet>
 		<servlet-name>ViewSearchResultsServlet</servlet-name>
 		<servlet-class>com.linuxbox.enkive.web.search.ViewSavedResultsServlet</servlet-class>
 	</servlet>
@@ -127,6 +131,10 @@
 	<servlet-mapping>
 		<servlet-name>CancelSearchServlet</servlet-name>
 		<url-pattern>/search/cancel</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>SearchFolderServlet</servlet-name>
+		<url-pattern>/search/searchFolder</url-pattern>
 	</servlet-mapping>
 	<servlet-mapping>
 		<servlet-name>GetPermissionsServlet</servlet-name>

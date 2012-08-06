@@ -24,7 +24,7 @@ import java.util.concurrent.Future;
 
 import com.linuxbox.enkive.docsearch.exception.DocSearchException;
 import com.linuxbox.enkive.message.search.exception.MessageSearchException;
-import com.linuxbox.enkive.workspace.SearchResult;
+import com.linuxbox.enkive.workspace.searchResult.SearchResult;
 
 public interface MessageSearchService {
 

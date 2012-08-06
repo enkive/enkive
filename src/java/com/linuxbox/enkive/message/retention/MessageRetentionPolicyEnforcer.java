@@ -30,7 +30,7 @@ import org.apache.commons.logging.LogFactory;
 import com.linuxbox.enkive.archiver.MessageArchivingService;
 import com.linuxbox.enkive.message.search.MessageSearchService;
 import com.linuxbox.enkive.message.search.exception.MessageSearchException;
-import com.linuxbox.enkive.workspace.SearchResult;
+import com.linuxbox.enkive.workspace.searchResult.SearchResult;
 
 public class MessageRetentionPolicyEnforcer {
 
