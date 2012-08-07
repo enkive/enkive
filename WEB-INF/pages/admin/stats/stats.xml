@@ -14,5 +14,11 @@
          <region-id>main</region-id>
          <url>/admin/stats/main</url>
       </component>   
+      <component>
+	      <region-id>searchForm</region-id>
+	      <url>/admin/stats/search/input</url>
+	      <chrome>searchBox</chrome>
+	      <title>Statistics Search</title>
+	   </component>
    </components>
 </page>

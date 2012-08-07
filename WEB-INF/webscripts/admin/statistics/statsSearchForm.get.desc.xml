@@ -1,0 +1,7 @@
+<webscript>
+  <shortname>Statistics Search Form</shortname>
+  <description>Statistics Search Input Form</description>
+  <url>/admin/stats/search/input</url>
+  <authentication>user</authentication>
+  <format default="html">any</format>
+</webscript>

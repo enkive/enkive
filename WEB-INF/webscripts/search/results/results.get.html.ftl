@@ -38,7 +38,6 @@
 			<#if (result.data.itemTotal > 0)>
 				<table id="search_results">
 				  <thead>
-				  	<th><input type="checkbox" onclick="toggleChecked(this.checked)" /></th>
 				    <th>
 				    	<a class="sortable" href="${uri}&sortBy=sortByDate&sortDir=-1">
 				    		<img src="${url.context}/resource/images/sort_arrow_desc.png" alt="Sort DESC" />
@@ -83,7 +82,6 @@
 					    <#else>
 					    	<tr class="result_odd message" id="${message.messageId}">
 					    </#if>
-					    <td class="search_action"><input type="checkbox" class="idcheckbox"  value="${message.messageId}"/></td>
 				    	<td class="noscript">
 				    		<a href="${url.context}/message?messageid=${message.messageId}" target="_blank">VIEW</a>
 				    	</td>

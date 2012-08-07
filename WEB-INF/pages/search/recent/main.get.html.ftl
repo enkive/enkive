@@ -41,32 +41,16 @@
 						  	<b>${criteria.parameter}:</b>${criteria.value}<br />
 				        </#list>
 				    </td>
-				    <td>${search.status}</td>	
+				    <td>${search.status}</td>
+				    <#if search.status == "RUNNING" || search.status == "QUEUED">
 					<td width="50px" class="search_action">
-					    <#if search.status == "COMPLETE" && !search.searchIsSaved>
-						    <table>
-						    	<tr>
-					    			<td class="noscript">
-					    				<a class="view_search" href="${url.context}/search/saved/view?searchid=${search.searchId}">VIEW</a>
-					    			</td>
-								    <td><input type="button" onClick='save_recent_searches()' value="Save" /></td>
-								    <td><input type="button" onClick='delete_recent_searches()' value="Delete" /></td>
-								</tr>
-							</table>
-						<#elseif search.status == "RUNNING" || search.status == "QUEUED">
-						    <table>
-						    	<tr>
-								    <td><input type="button" onClick='stop_search("${search.searchId}")' value="Request Stop" /></td>
-								</tr>
-							</table>
-						<#else>
-							<table>
-						    	<tr>
-								    <td><input type="button" onClick='delete_recent_searches()' value="Delete" /></td>
-								</tr>
-							</table>
-						</#if>
+						<table>
+						    <tr>
+							    <td><input type="button" onClick='stop_search("${search.searchId}")' value="Request Stop" /></td>
+							</tr>
+						</table>
 					</td>
+					</#if>
 				</tr>
 			</#list>
 		</table>
@@ -74,4 +58,10 @@
 	<#assign uri = uri>
 	<#assign paging = paging>
 	<#include "*/templates/paging.ftl">
+	<table>
+		<tr>
+			<td><input type="button" onClick='save_recent_searches()' value="Save Selected Searches" /></td>
+			<td><input type="button" onClick='delete_recent_searches()' value="Delete Selected Searches" /></td>
+		</tr>
+	</table>
 </#if>

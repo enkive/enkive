@@ -38,13 +38,12 @@
 					  		<b>${criteria.parameter}:</b>${criteria.value}<br />
 			        	</#list>
 			    	</td>
-			    	<td width="25px">
+			    	<td width="25px" class="noscript">
 				    	<table>
 				    		<tr>
-			    				<td class="noscript">
+			    				<td>
 			    					<a class="view_search" href="${url.context}/search/saved/view?searchid=${search.searchId}">VIEW</a>
 			    				</td>
-						    	<td><input type="button" onClick='delete_saved_searches()' value="Delete" /></td>
 							</tr>
 						</table>
 					</td>
@@ -55,4 +54,9 @@
 	<#assign uri = uri>
 	<#assign paging = paging>
 	<#include "*/templates/paging.ftl">
+	<table>
+		<tr>
+	    	<td><input type="button" onClick='delete_saved_searches()' value="Delete Selected Searches" /></td>
+		</tr>
+	</table>
 </#if>
