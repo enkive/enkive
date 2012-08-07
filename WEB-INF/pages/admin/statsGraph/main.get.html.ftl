@@ -49,6 +49,11 @@
 					max = d[method];
 				}
 			}
+			
+			if(max == 0){
+				return 1;
+			}
+			
 			return max;
 		}
 		
@@ -58,17 +63,17 @@
 		var rec = d3.scale.linear().domain([0, 1250]).range([5, 15]);
 		        
 		function getDate(d){    
-		 return new Date(d);
+		   return new Date(d);
 		}
 		
 		var graphic = d3.select("#graph").
-		  append("svg:svg").
-		  attr("width", width + padding * 2).
-		  attr("height", height + padding * 3);
+		    append("svg:svg").
+		    attr("width", width + padding * 2).
+		    attr("height", height + padding * 3);
 		    
 		//graph		
 		var graphGroup = graphic.append("svg:g").
-		  attr("transform", "translate("+padding+","+padding/4+")");
+		    attr("transform", "translate("+padding*1.5+","+padding/4+")");
 		    
 	    var line = d3.svg.area()
 		    .x(function(d, i) { return x(getDate(times[i])); })
@@ -87,7 +92,7 @@
 		    .style('fill-opacity',".06");
 
 		var axisGroup = graphic.append("svg:g").
-		  attr("transform", "translate("+(padding)+","+(padding/4)+")");
+		  attr("transform", "translate("+(padding*1.5)+","+(padding/4)+")");
 		
 		var xAxis = d3.svg.axis()
 		    .scale(x)
@@ -143,6 +148,43 @@
                .attr("y", legendOffset+10+(recSize+10)*methodIndex)
                .text(methods[methodIndex]);
 		}
+		
+		axisGroup.append("defs")
+		.append("path")
+		.attr("id", "yAxisLabel")
+		.attr("d", "M -"+(padding*1.3)+",0 V "+height);
+		
+		var yAxisText = $("#statField option:selected").text()
+		if(getUnits() != null){
+			yAxisText = yAxisText+" ("+getUnits()+")";
+		}
+		
+		axisGroup.append("svg:g")
+		.attr("id", "thing")
+		.attr("fill", "black")
+		.append("text")
+		.attr("font-size", "20")
+		.append("textPath")
+		.attr("xlink:href", "#yAxisLabel")
+		.attr("text-anchor","middle")
+		.attr("startOffset","50%")
+		.text(yAxisText);
+		    
+		axisGroup.append("defs")
+		.append("path")
+		.attr("id", "xAxisLabel")
+		.attr("d", "M 0,"+(height+padding)+" H "+width);
+		
+		axisGroup.append("svg:g")
+		.attr("id", "thing")
+		.attr("fill", "black")
+		.append("text")
+		.attr("font-size", "20")
+		.append("textPath")
+		.attr("xlink:href", "#xAxisLabel")
+		.attr("text-anchor","middle")
+		.attr("startOffset","50%")
+		.text("Time");
 	</script>
 <#else>
 	<p>
