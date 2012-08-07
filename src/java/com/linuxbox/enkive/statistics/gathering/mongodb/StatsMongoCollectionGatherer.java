@@ -8,8 +8,6 @@ import static com.linuxbox.enkive.statistics.StatsConstants.STAT_NS;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_NUM_EXTENT;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_NUM_INDEX;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_NUM_OBJS;
-import static com.linuxbox.enkive.statistics.StatsConstants.STAT_GATHERER_NAME;
-import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIME_STAMP;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TOTAL_INDEX_SIZE;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TOTAL_SIZE;
 import static com.linuxbox.enkive.statistics.gathering.mongodb.MongoConstants.MONGO_AVG_OBJ_SIZE;
@@ -31,6 +29,7 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.linuxbox.enkive.statistics.RawStats;
 import com.linuxbox.enkive.statistics.gathering.AbstractGatherer;
 import com.linuxbox.enkive.statistics.gathering.GathererException;
 import com.mongodb.DB;
@@ -59,7 +58,7 @@ public class StatsMongoCollectionGatherer extends AbstractGatherer {
 	}
 
 	@Override
-	public Map<String, Object> getStatistics() {
+	public RawStats getStatistics() {
 		Map<String, Object> collStats = new HashMap<String, Object>();
 		for (String collName : db.getCollectionNames()) {
 			String key = collName;
@@ -69,12 +68,15 @@ public class StatsMongoCollectionGatherer extends AbstractGatherer {
 			collName = collName.replace('.', '-');
 			collStats.put(collName, getStats(key));
 		}
-		collStats.put(STAT_TIME_STAMP, new Date(System.currentTimeMillis()));
-		return collStats;
+		
+		RawStats result = new RawStats();
+		result.setStatsMap(collStats);
+		result.setTimestamp(new Date());
+		return result;
 	}
 	
 	@Override
-	public Map<String, Object> getStatistics(String[] keys) {
+	public RawStats getStatistics(String[] keys) {
 		if (keys == null) {
 			return getStatistics();
 		}
@@ -89,10 +91,12 @@ public class StatsMongoCollectionGatherer extends AbstractGatherer {
 			}
 			selectedStats.put(collName, temp);
 		}
-		selectedStats.put(STAT_GATHERER_NAME, attributes.getName());
-		selectedStats.put(STAT_TIME_STAMP, System.currentTimeMillis());
-
-		return selectedStats;
+//		selectedStats.put(STAT_GATHERER_NAME, attributes.getName());
+	
+		RawStats result = new RawStats();
+		result.setStatsMap(selectedStats);
+		result.setTimestamp(new Date());
+		return result;
 	}
 
 	/**

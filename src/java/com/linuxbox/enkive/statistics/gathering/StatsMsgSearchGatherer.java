@@ -4,7 +4,6 @@ import static com.linuxbox.enkive.search.Constants.DATE_EARLIEST_PARAMETER;
 import static com.linuxbox.enkive.search.Constants.DATE_LATEST_PARAMETER;
 import static com.linuxbox.enkive.statistics.StatsConstants.SIMPLE_DATE;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_NUM_ENTRIES;
-import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIME_STAMP;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -16,6 +15,7 @@ import org.apache.commons.logging.LogFactory;
 
 import com.linuxbox.enkive.message.search.MessageSearchService;
 import com.linuxbox.enkive.message.search.exception.MessageSearchException;
+import com.linuxbox.enkive.statistics.RawStats;
 
 public class StatsMsgSearchGatherer extends AbstractGatherer {
 	protected final static Log LOGGER = LogFactory
@@ -38,7 +38,7 @@ public class StatsMsgSearchGatherer extends AbstractGatherer {
 	}
 
 	@Override
-	public Map<String, Object> getStatistics() {
+	public RawStats getStatistics() {
 		long currTime = System.currentTimeMillis();
 		Date currDate = new Date(currTime);
 		Date prevDate = new Date(currTime - interval);
@@ -53,8 +53,7 @@ public class StatsMsgSearchGatherer extends AbstractGatherer {
 	 * @param endDate -upper bound date
 	 * @return a map with stats cooresponding to the date range
 	 */
-	public Map<String, Object> getStatistics(Date startDate, Date endDate) {
-		Map<String, Object> result = createMap();
+	public RawStats getStatistics(Date startDate, Date endDate) {
 		String lowerDate = new StringBuilder(SIMPLE_DATE.format(startDate))
 				.toString();
 		String upperDate = new StringBuilder(SIMPLE_DATE.format(endDate))
@@ -68,8 +67,12 @@ public class StatsMsgSearchGatherer extends AbstractGatherer {
 			return null;
 		}
 
-		result.put(STAT_TIME_STAMP, new Date(System.currentTimeMillis()));
-		result.put(STAT_NUM_ENTRIES, numEntries);
+		Map<String, Object> statsData = createMap();
+		statsData.put(STAT_NUM_ENTRIES, numEntries);
+		
+		RawStats result = new RawStats();
+		result.setTimestamp(new Date());
+		result.setStatsMap(statsData);
 		return result;
 	}
 

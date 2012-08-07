@@ -2,7 +2,6 @@ package com.linuxbox.enkive.statistics.gathering;
 
 import static com.linuxbox.enkive.statistics.StatsConstants.QUEUE_LENGTH;
 import static com.linuxbox.enkive.statistics.StatsConstants.STATISTIC_CHECK_ERROR;
-import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIME_STAMP;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -12,6 +11,8 @@ import java.util.Map;
 
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
+
+import com.linuxbox.enkive.statistics.RawStats;
 
 public class UnixPostfixQueueStatisticsService extends AbstractGatherer {
 
@@ -40,31 +41,32 @@ public class UnixPostfixQueueStatisticsService extends AbstractGatherer {
 	}
 
 	@Override
-	public Map<String, Object> getStatistics() {
-		Map<String, Object> result = createMap();
+	public RawStats getStatistics() {
+		Map<String, Object> stats = createMap();
 		try {
-			result.put(QUEUE_LENGTH, getQueueLength());
+			stats.put(QUEUE_LENGTH, getQueueLength());
 		} catch (IOException e) {
-			result.put(QUEUE_LENGTH + STATISTIC_CHECK_ERROR, e.toString());
+			stats.put(QUEUE_LENGTH + STATISTIC_CHECK_ERROR, e.toString());
 		}
+		RawStats result = new RawStats(); 
 		return result;
 	}
 
 	@Override
-	public Map<String, Object> getStatistics(String[] keys) {
+	public RawStats getStatistics(String[] keys) {
 		if (keys == null) {
 			return getStatistics();
 		}
-		Map<String, Object> stats = getStatistics();
+		Map<String, Object> stats = getStatistics().getStatsMap();
 		Map<String, Object> selectedStats = createMap();
 		for (String key : keys) {
 			if (stats.get(key) != null) {
 				selectedStats.put(key, stats.get(key));
 			}
 		}
-		selectedStats
-				.put(STAT_TIME_STAMP, new Date(System.currentTimeMillis()));
-
-		return selectedStats;
+		RawStats result = new RawStats();
+		result.setTimestamp(new Date());
+		result.setStatsMap(selectedStats);
+		return result;
 	}
 }

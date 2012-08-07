@@ -8,7 +8,6 @@ import static com.linuxbox.enkive.statistics.StatsConstants.STAT_NUM_COLLECTIONS
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_NUM_EXTENT;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_NUM_INDEX;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_NUM_OBJS;
-import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIME_STAMP;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TOTAL_INDEX_SIZE;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TOTAL_SIZE;
 import static com.linuxbox.enkive.statistics.gathering.mongodb.MongoConstants.MONGO_AVG_OBJ_SIZE;
@@ -28,6 +27,7 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.linuxbox.enkive.statistics.RawStats;
 import com.linuxbox.enkive.statistics.gathering.AbstractGatherer;
 import com.linuxbox.enkive.statistics.gathering.GathererException;
 import com.mongodb.BasicDBObject;
@@ -57,7 +57,7 @@ public class StatsMongoDBGatherer extends AbstractGatherer {
 	}
 
 	@Override
-	public Map<String, Object> getStatistics() {
+	public RawStats getStatistics() {
 		Map<String, Object> stats = createMap();
 		BasicDBObject temp = db.getStats();
 		stats.put(STAT_NAME, db.getName());
@@ -70,7 +70,10 @@ public class StatsMongoDBGatherer extends AbstractGatherer {
 		stats.put(STAT_TOTAL_INDEX_SIZE, temp.get(MONGO_INDEX_SIZE));
 		stats.put(STAT_NUM_EXTENT, temp.get(MONGO_NUM_EXTENT));
 		stats.put(STAT_FILE_SIZE, temp.get(MONGO_FILE_SIZE));
-		stats.put(STAT_TIME_STAMP, new Date());
-		return stats;
+		
+		RawStats result = new RawStats();
+		result.setStatsMap(stats);
+		result.setTimestamp(new Date());
+		return result;
 	}
 }

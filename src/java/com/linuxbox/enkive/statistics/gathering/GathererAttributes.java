@@ -1,7 +1,7 @@
 package com.linuxbox.enkive.statistics.gathering;
 
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_GATHERER_NAME;
-import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIME_STAMP;
+import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIMESTAMP;
 import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MAX;
 import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MIN;
 
@@ -24,7 +24,7 @@ public class GathererAttributes {
 		this.keys = keys;
 		//serviceName and Timestamp must always be specified
 		keys.add(new KeyConsolidationHandler(STAT_GATHERER_NAME + "::Gatherer Name:"));
-		keys.add(new KeyConsolidationHandler(STAT_TIME_STAMP + ":" + GRAIN_MAX + "," + GRAIN_MIN + ":Time Stamp:"));
+		keys.add(new KeyConsolidationHandler(STAT_TIMESTAMP + ":" + GRAIN_MAX + "," + GRAIN_MIN + ":Time Stamp:"));
 	}
 
 	/**

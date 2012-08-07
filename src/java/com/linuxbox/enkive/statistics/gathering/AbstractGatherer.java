@@ -1,7 +1,6 @@
 package com.linuxbox.enkive.statistics.gathering;
 
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_GATHERER_NAME;
-import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIME_STAMP;
 
 import java.text.ParseException;
 import java.util.Date;
@@ -16,6 +15,7 @@ import org.quartz.Scheduler;
 import org.springframework.scheduling.quartz.CronTriggerBean;
 import org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean;
 
+import com.linuxbox.enkive.statistics.RawStats;
 import com.linuxbox.enkive.statistics.VarsMaker;
 import com.linuxbox.enkive.statistics.services.StatsStorageService;
 import com.linuxbox.enkive.statistics.services.storage.StatsStorageException;
@@ -46,32 +46,25 @@ public abstract class AbstractGatherer extends VarsMaker implements
 	}
 
 	@Override
-	public abstract Map<String, Object> getStatistics();
+	public abstract RawStats getStatistics();
 
 	@Override
-	public Map<String, Object> getStatistics(String[] keys) {
+	public RawStats getStatistics(String[] keys) {
 		if (keys == null) {
 			return getStatistics();
 		}
-		Map<String, Object> stats = getStatistics();
+		Map<String, Object> stats = getStatistics().getStatsMap();
 		Map<String, Object> selectedStats = createMap();
 		for (String key : keys) {
 			if (stats.get(key) != null) {
 				selectedStats.put(key, stats.get(key));
 			}
 		}
-
 		selectedStats.put(STAT_GATHERER_NAME, attributes.getName());
-
-		if (selectedStats.get(STAT_TIME_STAMP) == null
-				&& stats.get(STAT_TIME_STAMP) != null) {
-			selectedStats.put(STAT_TIME_STAMP, stats.get(STAT_TIME_STAMP));
-		} else {
-			selectedStats.put(STAT_TIME_STAMP,
-					new Date());
-		}
-
-		return selectedStats;
+		RawStats result = new RawStats();
+		result.setTimestamp(new Date());
+		result.setStatsMap(selectedStats);
+		return result;
 	}
 	
 	/**
@@ -137,9 +130,9 @@ public abstract class AbstractGatherer extends VarsMaker implements
 
 	@Override
 	public void storeStats() throws StatsStorageException {
-		if (getStatistics() != null) {
-			storageService.storeStatistics(attributes.getName(),
-					getStatistics());
+		RawStats stats = getStatistics();
+		if (stats != null) {
+			storageService.storeStatistics(attributes.getName(), stats);
 		}
 	}
 

@@ -2,7 +2,6 @@ package com.linuxbox.enkive.statistics.gathering.mongodb;
 
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_AVG_ATTACH;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_MAX_ATTACH;
-import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIME_STAMP;
 import static com.linuxbox.enkive.statistics.gathering.mongodb.MongoConstants.MONGO_LENGTH;
 import static com.linuxbox.enkive.statistics.gathering.mongodb.MongoConstants.MONGO_UPLOAD_DATE;
 
@@ -14,6 +13,7 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.linuxbox.enkive.statistics.RawStats;
 import com.linuxbox.enkive.statistics.gathering.AbstractGatherer;
 import com.linuxbox.enkive.statistics.gathering.GathererException;
 import com.mongodb.BasicDBObject;
@@ -105,7 +105,7 @@ public class StatsMongoAttachmentsGatherer extends AbstractGatherer {
 	 * @param lowerUploadDate - lower date in range (greater than or equal to)
 	 * @return the max attachment size between two dates
 	 */
-	public long getMaxAttachSize(Date lowerDate, Date upperDate) {
+	public long getMaxAttachSize(Date upperDate, Date lowerDate) {
 		DBCollection coll = db.getCollection(collectionName);
 		DBCursor cursor = coll.find(new BasicDBObject(makeDateQuery()));
 		long max = -1;
@@ -134,7 +134,7 @@ public class StatsMongoAttachmentsGatherer extends AbstractGatherer {
 	}
 
 	@Override
-	public Map<String, Object> getStatistics() {
+	public RawStats getStatistics() {
 		long currTime = System.currentTimeMillis();
 		if (resetDates) {
 			setUpperDate(new Date(currTime));
@@ -157,8 +157,11 @@ public class StatsMongoAttachmentsGatherer extends AbstractGatherer {
 		}
 		stats.put(STAT_AVG_ATTACH, avg);
 		stats.put(STAT_MAX_ATTACH, max);
-		stats.put(STAT_TIME_STAMP, new Date());
-		return stats;
+		
+		RawStats result = new RawStats();
+		result.setStatsMap(stats);
+		result.setTimestamp(new Date());
+		return result;
 	}
 
 	/**

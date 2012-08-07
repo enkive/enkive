@@ -1,6 +1,7 @@
 package com.linuxbox.enkive.statistics.services.storage.mongodb;
 
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_GATHERER_NAME;
+import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIMESTAMP;
 
 import java.util.Map;
 import java.util.Set;
@@ -8,6 +9,7 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.linuxbox.enkive.statistics.RawStats;
 import com.linuxbox.enkive.statistics.VarsMaker;
 import com.linuxbox.enkive.statistics.services.StatsStorageService;
 import com.linuxbox.enkive.statistics.services.storage.StatsStorageException;
@@ -41,11 +43,12 @@ public class MongoStatsStorageService extends VarsMaker implements
 	}
 
 	@Override
-	public void storeStatistics(String service, Map<String, Object> data)
+	public void storeStatistics(String service, RawStats data)
 			throws StatsStorageException {
 		Map<String, Object> result = createMap();
 		result.put(STAT_GATHERER_NAME, service);
-		result.putAll(data);
+		result.put(STAT_TIMESTAMP, data.getTimestamp());
+		result.putAll(data.getStatsMap());
 		coll.insert(new BasicDBObject(result));
 	}
 }

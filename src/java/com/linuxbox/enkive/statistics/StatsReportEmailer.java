@@ -67,7 +67,7 @@ public class StatsReportEmailer {
 	public StatsReportEmailer(StatsGathererService gather) {
 		this.gatherer = gather;
 	}
-
+/*
 	protected String buildReport() {
 		try {
 			return buildReportWithTemplate();
@@ -87,13 +87,13 @@ public class StatsReportEmailer {
 		Map<String, Object> root = new HashMap<String, Object>();
 		root.put("date", new Date());
 		// TODO: need to convert to using maps & sets rather than JSON
-		List<Map<String, Object>> statistics = gatherer.gatherStats();
+		List<RawStats> statistics = gatherer.gatherStats();
 
-		for (Map<String, Object> map : statistics) {
+		for (RawStats map : statistics) {
 			HashMap<String, Object> hMap = new HashMap<String, Object>(map);
 			root.put((String) map.get(STAT_GATHERER_NAME), hMap.toString());
 		}
-		/*
+		
 		 * for (String serviceName : JSONObject.getNames(statistics)) {
 		 * Map<String, String> service = new HashMap<String, String>();
 		 * Set<Map<String, Object>> serviceStatistics = statistics.entrySet();
@@ -105,7 +105,7 @@ public class StatsReportEmailer {
 		 * statisticName : JSONObject.getNames(statistic)) {
 		 * service.put(statisticName, statistic.getString(statisticName)); } }
 		 * root.put(serviceName, service); }
-		 */// Create the hash for ``latestProduct''
+		 // Create the hash for ``latestProduct''
 		Template temp = cfg.getTemplate("StatisticsEmailTemplate.ftl");
 
 		ByteArrayOutputStream os = new ByteArrayOutputStream();
@@ -162,7 +162,7 @@ public class StatsReportEmailer {
 			mex.printStackTrace();
 		}
 	}
-
+*/
 	public void setFrom(String from) {
 		this.from = from;
 	}
@@ -174,5 +174,4 @@ public class StatsReportEmailer {
 	public void setTo(String to) {
 		this.to = to;
 	}
-
 }

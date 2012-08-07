@@ -21,7 +21,7 @@ package com.linuxbox.enkive.web;
 
 import static com.linuxbox.enkive.search.Constants.NUMERIC_SEARCH_FORMAT;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_GATHERER_NAME;
-import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIME_STAMP;
+import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIMESTAMP;
 import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MAX;
 import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MIN;
 import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_TYPE;
@@ -49,6 +49,7 @@ import org.json.JSONObject;
 
 import com.linuxbox.enkive.exception.CannotRetrieveException;
 import com.linuxbox.enkive.statistics.KeyConsolidationHandler;
+import com.linuxbox.enkive.statistics.RawStats;
 import com.linuxbox.enkive.statistics.StatsFilter;
 import com.linuxbox.enkive.statistics.StatsQuery;
 import com.linuxbox.enkive.statistics.services.StatsClient;
@@ -75,8 +76,8 @@ public class StatsServlet extends EnkiveServlet {
 	 * Note. handle errors with log messages & thrown exceptions
 	 */
 
-	private final String tsMax = STAT_TIME_STAMP + "." + GRAIN_MAX;
-	private final String tsMin = STAT_TIME_STAMP + "." + GRAIN_MIN;
+	private final String tsMax = STAT_TIMESTAMP + "." + GRAIN_MAX;
+	private final String tsMin = STAT_TIMESTAMP + "." + GRAIN_MIN;
 
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
@@ -102,7 +103,7 @@ public class StatsServlet extends EnkiveServlet {
 			Map<String, Object> result = new HashMap<String, Object>(template);
 			consolidateMapsHelper(template, result, path, statKeys, serviceData);
 			result.remove(STAT_GATHERER_NAME);
-			result.remove(STAT_TIME_STAMP);
+			result.remove(STAT_TIMESTAMP);
 			result.remove("_id");
 			return result;
 		}
@@ -121,7 +122,7 @@ public class StatsServlet extends EnkiveServlet {
 				for (Map<String, Object> dataMap : serviceData) {
 					Map<String, Object> dataVal = new HashMap<String, Object>(getDataVal(dataMap, path));
 					if (dataVal != null && !dataVal.isEmpty()) {
-						dataVal.put(STAT_TIME_STAMP, dataMap.get(STAT_TIME_STAMP));
+						dataVal.put(STAT_TIMESTAMP, dataMap.get(STAT_TIMESTAMP));
 						dataSet.add(dataVal);
 					}
 				}
@@ -157,7 +158,7 @@ public class StatsServlet extends EnkiveServlet {
 		@Override
 		public int compare(Map<String, Object> o1, Map<String, Object> o2) {
 			List<String> path = new LinkedList<String>();
-			path.add(STAT_TIME_STAMP);
+			path.add(STAT_TIMESTAMP);
 			Map<String, Object> dateRange1 = (Map<String,Object>)getDataVal(o1, path);
 			Map<String, Object> dateRange2 = (Map<String,Object>)getDataVal(o1, path);
 			
@@ -404,7 +405,13 @@ public class StatsServlet extends EnkiveServlet {
 							gatheringStats.put(tempFilter.gathererName, null);
 						}
 					}
-					result = client.gatherData(gatheringStats);
+					List<RawStats> tempRawStats = client.gatherData(gatheringStats);
+					result = new LinkedList<Map<String,Object>>();
+					for(RawStats stats: tempRawStats){
+						Map<String,Object> statsMap = stats.getStatsMap();
+						statsMap.put(STAT_TIMESTAMP, stats.getTimestamp());
+						result.add(statsMap);
+					}
 				} else {//output query data as formatted json
 					List<Map<String, Object>> stats = client.queryStatistics(
 							queryList, filterList);
