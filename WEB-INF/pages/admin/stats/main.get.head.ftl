@@ -18,7 +18,8 @@
 	} 
 	
 	#graphdisplay {
-		float: right;
+		margin-left:auto;
+		margin-right:auto;
 	}
 	
 	#inputform {
