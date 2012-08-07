@@ -73,7 +73,7 @@ public class StatsRemovalTest {
 		GathererInterface dbProp = new StatsMongoDBGatherer(m,
 				TestingConstants.MONGODB_TEST_DATABASE, "DBGatherer",
 				"* * * * * ?", keys);
-		
+
 		keys = new LinkedList<String>();
 		keys.add("*.ns:");
 		keys.add("*.numObj:avg,max,min");
@@ -88,7 +88,7 @@ public class StatsRemovalTest {
 		GathererInterface collProp = new StatsMongoCollectionGatherer(m,
 				TestingConstants.MONGODB_TEST_DATABASE, "CollGatherer",
 				"* * * * * ?", keys);
-		
+
 		keys = new LinkedList<String>();
 		keys.add("freeM:avg,max,min");
 		keys.add("maxM:avg,max,min");
@@ -96,14 +96,14 @@ public class StatsRemovalTest {
 		keys.add("cores:avg,max,min");
 		GathererInterface runProp = new StatsRuntimeGatherer("RuntimeGatherer",
 				"* * * * * ?", keys);
-		
+
 		keys = new LinkedList<String>();
 		keys.add("numMsg:avg,max,min");
 		StatsMsgSearchGatherer msgProp = new StatsMsgSearchGatherer(
 				"MsgPropGatherer", "* * * * * ?", keys);
-		
+
 		MongoMessageSearchService searchService = null;
-		
+
 		try {
 			searchService = new MongoMessageSearchService(new Mongo(),
 					TestingConstants.MONGODB_TEST_DATABASE,
@@ -115,7 +115,7 @@ public class StatsRemovalTest {
 		}
 		searchService.setDocSearchService(new IndriDocSearchQueryService());
 		msgProp.setSearchService(searchService);
-		
+
 		keys = new LinkedList<String>();
 		keys.add("avgAtt:avg");
 		keys.add("maxAtt:max");
@@ -125,7 +125,7 @@ public class StatsRemovalTest {
 				"AttachmentGatherer", "* * * * * ?", false, keys);
 		attProp.setLowerDate(new Date(0L));
 		attProp.setUpperDate(new Date());
-		
+
 		keys = new LinkedList<String>();
 		keys.add("msgArchive:avg,max,min");
 		GathererInterface msgStatProp = new StatsMongoMsgGatherer(m,
@@ -141,16 +141,19 @@ public class StatsRemovalTest {
 		gatherers.put("AttachstatsService", attProp);
 		gatherers.put("msgStatStatsService", msgStatProp);
 		retrievalTester = new MongoStatsRetrievalService(m,
-				TestingConstants.MONGODB_TEST_DATABASE, TestingConstants.MONGODB_TEST_COLL);
+				TestingConstants.MONGODB_TEST_DATABASE,
+				TestingConstants.MONGODB_TEST_COLL);
 		storageTester = new MongoStatsStorageService(m,
-				TestingConstants.MONGODB_TEST_DATABASE, TestingConstants.MONGODB_TEST_COLL);
+				TestingConstants.MONGODB_TEST_DATABASE,
+				TestingConstants.MONGODB_TEST_COLL);
 		gatherTester = new StatsGathererService(gatherers);
 		client = new StatsClient(gatherTester, storageTester, retrievalTester);
 	}
 
 	@Test
 	public void removeAllTest() throws ParseException, GathererException {
-		Set<Map<String, Object>> stats = gatherTester.gatherStats();
+		Set<Map<String, Object>> stats = new HashSet<Map<String, Object>>(
+				gatherTester.gatherStats());
 		for (Map<String, Object> map : stats) {
 
 			map.put(STAT_TIME_STAMP, 0L);

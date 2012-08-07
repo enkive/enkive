@@ -12,6 +12,7 @@ import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -82,7 +83,7 @@ public class StatsHourGrainTest {
 		GathererInterface dbProp = new StatsMongoDBGatherer(m,
 				TestingConstants.MONGODB_TEST_DATABASE, "DBGatherer",
 				"* * * * * ?", keys);
-		
+
 		keys = new LinkedList<String>();
 		keys.add("*.ns:");
 		keys.add("*.numObj:avg,max,min");
@@ -97,7 +98,7 @@ public class StatsHourGrainTest {
 		GathererInterface collProp = new StatsMongoCollectionGatherer(m,
 				TestingConstants.MONGODB_TEST_DATABASE, "CollGatherer",
 				"* * * * * ?", keys);
-		
+
 		keys = new LinkedList<String>();
 		keys.add("freeM:avg,max,min");
 		keys.add("maxM:avg,max,min");
@@ -105,7 +106,7 @@ public class StatsHourGrainTest {
 		keys.add("cores:avg,max,min");
 		GathererInterface runProp = new StatsRuntimeGatherer("RuntimeGatherer",
 				"* * * * * ?", keys);
-		
+
 		keys = new LinkedList<String>();
 		keys.add("numMsg:avg,max,min");
 		StatsMsgSearchGatherer msgProp = new StatsMsgSearchGatherer(
@@ -122,7 +123,7 @@ public class StatsHourGrainTest {
 		}
 		searchService.setDocSearchService(new IndriDocSearchQueryService());
 		msgProp.setSearchService(searchService);
-		
+
 		keys = new LinkedList<String>();
 		keys.add("avgAtt:avg");
 		keys.add("maxAtt:max");
@@ -132,7 +133,7 @@ public class StatsHourGrainTest {
 				"AttachmentGatherer", "* * * * * ?", false, keys);
 		attProp.setLowerDate(new Date(0L));
 		attProp.setUpperDate(new Date());
-		
+
 		keys = new LinkedList<String>();
 		keys.add("msgArchive:avg,max,min");
 		GathererInterface msgStatProp = new StatsMongoMsgGatherer(m,
@@ -148,15 +149,18 @@ public class StatsHourGrainTest {
 		gatherers.put("AttachstatsService", attProp);
 		gatherers.put("msgStatStatsService", msgStatProp);
 		retrievalTester = new MongoStatsRetrievalService(m,
-				TestingConstants.MONGODB_TEST_DATABASE, TestingConstants.MONGODB_TEST_COLL);
+				TestingConstants.MONGODB_TEST_DATABASE,
+				TestingConstants.MONGODB_TEST_COLL);
 		storageTester = new MongoStatsStorageService(m,
-				TestingConstants.MONGODB_TEST_DATABASE, TestingConstants.MONGODB_TEST_COLL);
+				TestingConstants.MONGODB_TEST_DATABASE,
+				TestingConstants.MONGODB_TEST_COLL);
 		gatherTester = new StatsGathererService(gatherers);
 		client = new StatsClient(gatherTester, storageTester, retrievalTester);
 		grain = new HourGrain(client);
 
 		for (int i = 0; i < 10; i++) {
-			Set<Map<String, Object>> stats = gatherTester.gatherStats();
+			Set<Map<String, Object>> stats = new HashSet<Map<String, Object>>(
+					gatherTester.gatherStats());
 			Calendar cal = Calendar.getInstance();
 			if (i < 5) {
 				cal.add(Calendar.HOUR, -1);

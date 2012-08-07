@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -58,10 +59,12 @@ public class StatsMongoStorageAndRetrievalTest {
 	public StatsMongoStorageAndRetrievalTest(
 			HashMap<String, GathererInterface> map) throws GathererException,
 			SchedulerException, ParseException {
-		retrievalTester = new MongoStatsRetrievalService(m, 
-				TestingConstants.MONGODB_TEST_DATABASE, TestingConstants.MONGODB_TEST_COLL);
+		retrievalTester = new MongoStatsRetrievalService(m,
+				TestingConstants.MONGODB_TEST_DATABASE,
+				TestingConstants.MONGODB_TEST_COLL);
 		storageTester = new MongoStatsStorageService(m,
-				TestingConstants.MONGODB_TEST_DATABASE, TestingConstants.MONGODB_TEST_COLL);
+				TestingConstants.MONGODB_TEST_DATABASE,
+				TestingConstants.MONGODB_TEST_COLL);
 		gatherTester = new StatsGathererService(map);
 		stats = (Map<String, Object>) gatherTester.gatherStats().iterator()
 				.next();
@@ -81,7 +84,7 @@ public class StatsMongoStorageAndRetrievalTest {
 		db = m.getDB(TestingConstants.MONGODB_TEST_DATABASE);
 		coll = db.getCollection(STAT_STORAGE_COLLECTION);
 		coll.drop();
-		
+
 		List<String> keys = new LinkedList<String>();
 		keys.add("db:");
 		keys.add("numObj:avg,max,min");
@@ -96,7 +99,7 @@ public class StatsMongoStorageAndRetrievalTest {
 		GathererInterface dbProp = new StatsMongoDBGatherer(m,
 				TestingConstants.MONGODB_TEST_DATABASE, "DBGatherer",
 				"* * * * * ?", keys);
-		
+
 		keys = new LinkedList<String>();
 		keys.add("*.ns:");
 		keys.add("*.numObj:avg,max,min");
@@ -111,7 +114,7 @@ public class StatsMongoStorageAndRetrievalTest {
 		GathererInterface collProp = new StatsMongoCollectionGatherer(m,
 				TestingConstants.MONGODB_TEST_DATABASE, "CollGatherer",
 				"* * * * * ?", keys);
-		
+
 		keys = new LinkedList<String>();
 		keys.add("freeM:avg,max,min");
 		keys.add("maxM:avg,max,min");
@@ -119,14 +122,14 @@ public class StatsMongoStorageAndRetrievalTest {
 		keys.add("cores:avg,max,min");
 		GathererInterface runProp = new StatsRuntimeGatherer("RuntimeGatherer",
 				"* * * * * ?", keys);
-		
+
 		keys = new LinkedList<String>();
 		keys.add("numMsg:avg,max,min");
 		StatsMsgSearchGatherer msgProp = new StatsMsgSearchGatherer(
 				"MsgPropGatherer", "* * * * * ?", keys);
-		
+
 		MongoMessageSearchService searchService = null;
-		
+
 		try {
 			searchService = new MongoMessageSearchService(new Mongo(),
 					TestingConstants.MONGODB_TEST_DATABASE,
@@ -138,7 +141,7 @@ public class StatsMongoStorageAndRetrievalTest {
 		}
 		searchService.setDocSearchService(new IndriDocSearchQueryService());
 		msgProp.setSearchService(searchService);
-		
+
 		keys = new LinkedList<String>();
 		keys.add("avgAtt:avg");
 		keys.add("maxAtt:max");
@@ -148,7 +151,7 @@ public class StatsMongoStorageAndRetrievalTest {
 				"AttachmentGatherer", "* * * * * ?", false, keys);
 		attProp.setLowerDate(new Date(0L));
 		attProp.setUpperDate(new Date());
-		
+
 		keys = new LinkedList<String>();
 		keys.add("msgArchive:avg,max,min");
 		GathererInterface msgStatProp = new StatsMongoMsgGatherer(m,
@@ -181,7 +184,8 @@ public class StatsMongoStorageAndRetrievalTest {
 
 	@Before
 	public void setUp() throws Exception {
-		storageTester.storeStatistics(gatherTester.gatherStats());
+		storageTester.storeStatistics(new HashSet<Map<String, Object>>(
+				gatherTester.gatherStats()));
 	}
 
 	@After

@@ -60,8 +60,14 @@
 		class="com.linuxbox.enkive.message.search.PermissionsEnforcingAuditLoggingMessageSearchService">
 		<property name="permService" ref="PermissionService" />
 		<property name="authenticationService" ref="AuthenticationService" />
-		<property name="messageSearchService" ref="SystemMessageSearchService" />
+		<property name="messageSearchService" ref="SizeLimitingMessageSearchService" />
 		<property name="auditService" ref="AuditLogService" />
+	</bean>
+
+	<bean id="SizeLimitingMessageSearchService"
+		class="com.linuxbox.enkive.message.search.SizeLimitingMessageSearchService">
+		<constructor-arg ref="SystemMessageSearchService" />
+		<property name="sizeLimit" value="${enkive.messageSearch.resultSizeLimit}" />
 	</bean>
 
 	<bean id="SystemMessageSearchService"
