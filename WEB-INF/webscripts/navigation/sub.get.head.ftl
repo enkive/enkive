@@ -4,6 +4,7 @@
 	padding:5px;
 	margin:0px;
 	clear: both;
+	background-color: #476098;
 }
 
 #subnav ul
