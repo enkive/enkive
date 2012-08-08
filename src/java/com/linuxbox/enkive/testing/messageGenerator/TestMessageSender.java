@@ -28,17 +28,18 @@ import com.linuxbox.enkive.importer.AbstractMessageImporter;
 
 public class TestMessageSender extends AbstractMessageImporter {
 
-	MessageGenerator messageGenerator;
+	protected MessageGenerator messageGenerator;
 
-	TestMessageSender(String host, String port) throws UnknownHostException {
+	TestMessageSender(String host, String port, String messageBodyDirectory)
+			throws UnknownHostException {
 		super(host, port);
-		messageGenerator = new RandomMessageGenerator();
+		messageGenerator = new RandomMessageGenerator(messageBodyDirectory);
 	}
 
-	public void sendGeneratedMessages() {
+	public void sendGeneratedMessages(int numOfMessages) {
 		try {
 			setWriter();
-			for (int i = 0; i < 20000; i++) {
+			for (int i = 0; i < numOfMessages; i++) {
 				try {
 					sendMessage(messageGenerator.generateMessage());
 				} catch (IOException e) {
@@ -58,9 +59,22 @@ public class TestMessageSender extends AbstractMessageImporter {
 	}
 
 	public static void main(String args[]) throws UnknownHostException {
-		TestMessageSender messageSender = new TestMessageSender("127.0.0.1",
-				"2526");
-		messageSender.sendGeneratedMessages();
+		if (args.length != 4) {
+			System.err
+					.println("Error: requires command-line arguments representing host, port number, path to message bodies, and number of messages to send");
+			System.exit(1);
+		}
+
+		final String host = args[0];
+		final String portString = args[1];
+		final String path = args[2];
+		final String numOfMessages = args[3];
+		
+		System.out.println(path);
+
+		TestMessageSender messageSender = new TestMessageSender(host,
+				portString, path);
+		messageSender.sendGeneratedMessages(Integer.valueOf(numOfMessages));
 
 	}
 

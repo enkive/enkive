@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.net.UnknownHostException;
 
 import javax.mail.Folder;
-import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.Store;
