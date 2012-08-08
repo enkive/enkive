@@ -25,12 +25,12 @@ public class StatsMsgSearchGatherer extends AbstractGatherer {
 
 	MessageSearchService searchService;
 
-	public StatsMsgSearchGatherer(String serviceName, String schedule) {
-		super(serviceName, schedule);
+	public StatsMsgSearchGatherer(String serviceName, String humanName, String schedule) {
+		super(serviceName, humanName, schedule);
 	}
 	
-	public StatsMsgSearchGatherer(String serviceName, String schedule, List<String> keys) throws GathererException {
-		super(serviceName, schedule, keys);		
+	public StatsMsgSearchGatherer(String serviceName, String humanName, String schedule, List<String> keys) throws GathererException {
+		super(serviceName, humanName, schedule, keys);		
 	}
 
 	public MessageSearchService getSearchService() {

@@ -13,12 +13,12 @@ import com.linuxbox.enkive.statistics.RawStats;
 
 public class StatsRuntimeGatherer extends AbstractGatherer {
 
-	public StatsRuntimeGatherer(String serviceName, String schedule) {
-		super(serviceName, schedule);
+	public StatsRuntimeGatherer(String serviceName, String humanName, String schedule) {
+		super(serviceName, humanName, schedule);
 	}
 	
-	public StatsRuntimeGatherer(String serviceName, String schedule, List<String> keys) throws GathererException {
-		super(serviceName, schedule, keys);		
+	public StatsRuntimeGatherer(String serviceName, String humanName, String schedule, List<String> keys) throws GathererException {
+		super(serviceName, humanName, schedule, keys);		
 	}
 
 	@Override

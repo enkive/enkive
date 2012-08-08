@@ -42,16 +42,16 @@ public class StatsMongoDBGatherer extends AbstractGatherer {
 
 	protected Mongo m;
 
-	public StatsMongoDBGatherer(Mongo m, String dbName, String serviceName,
+	public StatsMongoDBGatherer(Mongo m, String dbName, String serviceName, String humanName,
 			String schedule) throws GathererException {
-		super(serviceName, schedule);
+		super(serviceName, humanName, schedule);
 		this.m = m;
 		db = m.getDB(dbName);
 	}
 	
-	public StatsMongoDBGatherer(Mongo m, String dbName, String serviceName,
+	public StatsMongoDBGatherer(Mongo m, String dbName, String serviceName, String humanName,
 			String schedule, List<String> keys) throws GathererException {
-		super(serviceName, schedule, keys);
+		super(serviceName, humanName, schedule, keys);
 		this.m = m;
 		db = m.getDB(dbName);
 	}

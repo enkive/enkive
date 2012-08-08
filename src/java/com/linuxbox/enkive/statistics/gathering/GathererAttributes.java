@@ -16,9 +16,11 @@ public class GathererAttributes {
 	protected List<KeyConsolidationHandler> keys;
 	protected CronExpression schedule;
 	protected String serviceName;
+	protected String humanName;
 
-	public GathererAttributes(String serviceName, String schedule,
+	public GathererAttributes(String serviceName, String humanName, String schedule,
 			List<KeyConsolidationHandler> keys) throws ParseException {
+		this.humanName = humanName;
 		this.serviceName = serviceName;
 		this.schedule = new CronExpression(schedule);
 		this.keys = keys;

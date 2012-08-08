@@ -28,15 +28,17 @@ public abstract class AbstractGatherer extends VarsMaker implements
 	protected StatsStorageService storageService;
 	protected List<String> keys;
 	private String serviceName;
+	private String humanName;
 	private String schedule;
 
-	public AbstractGatherer(String serviceName, String schedule) {
+	public AbstractGatherer(String serviceName, String humanName, String schedule) {
 		this.serviceName = serviceName;
+		this.humanName = humanName;
 		this.schedule = schedule;
 	}
 	
-	public AbstractGatherer(String serviceName, String schedule, List<String> keys) throws GathererException {
-		this(serviceName, schedule);
+	public AbstractGatherer(String serviceName, String humanName, String schedule, List<String> keys) throws GathererException {
+		this(serviceName, humanName, schedule);
 		setKeys(keys);
 	}
 	
@@ -74,7 +76,7 @@ public abstract class AbstractGatherer extends VarsMaker implements
 	@PostConstruct
 	protected void init() throws Exception {
 		// create attributes
-		attributes = new GathererAttributes(serviceName, schedule, keyBuilder(keys));
+		attributes = new GathererAttributes(serviceName, humanName, schedule, keyBuilder(keys));
 		
 		// create factory
 		MethodInvokingJobDetailFactoryBean jobDetail = new MethodInvokingJobDetailFactoryBean();
@@ -140,7 +142,7 @@ public abstract class AbstractGatherer extends VarsMaker implements
 		this.keys = keys;
 		// create attributes
 		try {
-			attributes = new GathererAttributes(serviceName, schedule, keyBuilder(keys));
+			attributes = new GathererAttributes(serviceName, humanName, schedule, keyBuilder(keys));
 		} catch (ParseException e) {
 			throw new GathererException("parseException in attributes constructor", e);
 		}

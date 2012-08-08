@@ -21,16 +21,16 @@ public class StatsMongoMsgGatherer extends AbstractGatherer {
 	protected DB messageDb;
 
 	public StatsMongoMsgGatherer(Mongo m, String dbName, String collName,
-			String serviceName, String schedule) {
-		super(serviceName, schedule);
+			String serviceName, String humanName, String schedule) {
+		super(serviceName, humanName, schedule);
 		this.m = m;
 		messageDb = m.getDB(dbName);
 		messageColl = messageDb.getCollection(collName);
 	}
 
 	public StatsMongoMsgGatherer(Mongo m, String dbName, String collName,
-			String serviceName, String schedule, List<String> keys) throws GathererException {
-		super(serviceName, schedule, keys);
+			String serviceName, String humanName, String schedule, List<String> keys) throws GathererException {
+		super(serviceName, humanName, schedule, keys);
 		this.m = m;
 		messageDb = m.getDB(dbName);
 		messageColl = messageDb.getCollection(collName);

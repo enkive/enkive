@@ -21,8 +21,8 @@ public class UnixPostfixQueueStatisticsService extends AbstractGatherer {
 	// public static String POSTFIX_QUEUE_COMMAND = "postqueue -p";
 	public static String POSTQUEUE_OUTPUT_MANIPULATOR_PIPELINE = " | grep Requests | cut -d' ' -f 5";
 
-	public UnixPostfixQueueStatisticsService(String serviceName, String schedule) {
-		super(serviceName, schedule);
+	public UnixPostfixQueueStatisticsService(String serviceName, String humanName, String schedule) {
+		super(serviceName, humanName, schedule);
 	}
 
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {

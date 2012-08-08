@@ -39,8 +39,8 @@ public class StatsMongoAttachmentsGatherer extends AbstractGatherer {
 	private boolean resetDates;
 
 	public StatsMongoAttachmentsGatherer(Mongo m, String dbName, String coll,
-			String serviceName, String schedule) {
-		super(serviceName, schedule);
+			String serviceName, String humanName, String schedule) {
+		super(serviceName, humanName, schedule);
 		this.m = m;
 		db = m.getDB(dbName);
 		collectionName = coll + ".files";
@@ -58,8 +58,8 @@ public class StatsMongoAttachmentsGatherer extends AbstractGatherer {
 	 * @throws GathererException 
 	 */
 	public StatsMongoAttachmentsGatherer(Mongo m, String dbName, String coll,
-			String serviceName, String schedule, boolean resetDates, List<String> keys) throws GathererException {
-		super(serviceName, schedule, keys);
+			String serviceName, String humanName, String schedule, boolean resetDates, List<String> keys) throws GathererException {
+		super(serviceName, humanName, schedule, keys);
 		this.m = m;
 		db = m.getDB(dbName);
 		collectionName = coll + ".files";
