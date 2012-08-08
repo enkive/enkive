@@ -3,7 +3,6 @@ package com.linuxbox.enkive.statistics.gathering;
 import java.util.Map;
 
 import com.linuxbox.enkive.statistics.services.StatsStorageService;
-import com.linuxbox.enkive.statistics.services.storage.StatsStorageException;
 
 public interface GathererInterface {
 	/**
@@ -12,14 +11,14 @@ public interface GathererInterface {
 	public GathererAttributes getAttributes();
 
 	/**
-	 * gathers all the statistics cooresponding to this gatherer
+	 * gathers all the statistics corresponding to this gatherer
 	 * @return the gathered statistics
 	 * @throws GathererException
 	 */
 	public Map<String, Object> getStatistics() throws GathererException;
 
 	/**
-	 * gathers the statistics cooresponding to this gatherer but filtered by the
+	 * gathers the statistics corresponding to this gatherer but filtered by the
 	 * string array 'keys'--only those keys in the array are returned
 	 * 
 	 * NOTE: if the string array is null all keys are returned
@@ -37,8 +36,8 @@ public interface GathererInterface {
 	public void setStorageService(StatsStorageService storageService);
 
 	/**
-	 * if the result of the getStatistics() is not null store it in mongo
-	 * @throws StatsStorageException
+	 * if the result of the getStatistics() is not null store it
+	 * @throws GathererException 
 	 */
-	public void storeStats() throws StatsStorageException;
+	public void storeStats() throws GathererException;
 }

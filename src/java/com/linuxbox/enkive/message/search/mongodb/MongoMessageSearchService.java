@@ -56,7 +56,6 @@ import org.apache.commons.logging.LogFactory;
 import com.linuxbox.enkive.docsearch.exception.DocSearchException;
 import com.linuxbox.enkive.message.search.AbstractMessageSearchService;
 import com.linuxbox.enkive.message.search.exception.MessageSearchException;
-import com.linuxbox.enkive.workspace.searchResult.SearchResult;
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
@@ -297,14 +296,6 @@ public class MongoMessageSearchService extends AbstractMessageSearchService {
 	public boolean cancelAsyncSearch(String searchId)
 			throws MessageSearchException {
 		throw new MessageSearchException("Unimplemented");
-	}
-
-	@Override
-	public int countSearch(HashMap<String, String> fields)
-			throws MessageSearchException {
-		SearchResult search = search(fields);
-		Set<String> searchSet = search.getMessageIds();
-		return searchSet.size();
 	}
 
 }

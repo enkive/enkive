@@ -10,6 +10,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import com.linuxbox.enkive.statistics.VarsMaker;
+
 public class StatsRuntimeGatherer extends AbstractGatherer {
 
 	public StatsRuntimeGatherer(String serviceName, String schedule) {
@@ -22,7 +24,7 @@ public class StatsRuntimeGatherer extends AbstractGatherer {
 
 	@Override
 	public Map<String, Object> getStatistics() {
-		Map<String, Object> stats = createMap();
+		Map<String, Object> stats = VarsMaker.createMap();
 		Runtime runtime = Runtime.getRuntime();
 		stats.put(STAT_MAX_MEMORY, runtime.maxMemory());
 		stats.put(STAT_FREE_MEMORY, runtime.freeMemory());

@@ -1,7 +1,7 @@
 package com.linuxbox.enkive.teststats;
 
-import static com.linuxbox.enkive.statistics.StatsConstants.STAT_NUM_ENTRIES;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_GATHERER_NAME;
+import static com.linuxbox.enkive.statistics.StatsConstants.STAT_NUM_ENTRIES;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIME_STAMP;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -19,9 +19,9 @@ import org.junit.Test;
 
 import com.linuxbox.enkive.TestingConstants;
 import com.linuxbox.enkive.docsearch.indri.IndriDocSearchQueryService;
-import com.linuxbox.enkive.message.search.mongodb.MongoMessageSearchService;
 import com.linuxbox.enkive.statistics.KeyConsolidationHandler;
 import com.linuxbox.enkive.statistics.gathering.StatsMsgSearchGatherer;
+import com.linuxbox.enkive.statistics.gathering.mongodb.MongoGathererMessageSearchService;
 import com.mongodb.Mongo;
 
 public class StatsMsgEntriesTest {
@@ -35,8 +35,8 @@ public class StatsMsgEntriesTest {
 		List<String> keys = new LinkedList<String>();
 		keys.add("numMsg:avg,max,min");
 		msgEntries = new StatsMsgSearchGatherer(name, "0 * * * * ?", keys);
-		MongoMessageSearchService searchService;
-		searchService = new MongoMessageSearchService(new Mongo(),
+		MongoGathererMessageSearchService searchService;
+		searchService = new MongoGathererMessageSearchService(new Mongo(),
 				TestingConstants.MONGODB_TEST_DATABASE,
 				TestingConstants.MONGODB_TEST_MESSAGES_COLLECTION);
 		searchService.setDocSearchService(new IndriDocSearchQueryService());

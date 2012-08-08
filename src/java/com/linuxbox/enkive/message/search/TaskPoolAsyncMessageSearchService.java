@@ -20,7 +20,6 @@
 package com.linuxbox.enkive.message.search;
 
 import java.util.HashMap;
-import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
@@ -33,14 +32,14 @@ import org.apache.commons.logging.LogFactory;
 import com.linuxbox.enkive.authentication.AuthenticationException;
 import com.linuxbox.enkive.authentication.AuthenticationService;
 import com.linuxbox.enkive.message.search.exception.MessageSearchException;
-import com.linuxbox.enkive.workspace.searchQuery.SearchQuery;
-import com.linuxbox.enkive.workspace.searchQuery.SearchQueryBuilder;
-import com.linuxbox.enkive.workspace.searchResult.SearchResult;
-import com.linuxbox.enkive.workspace.searchResult.SearchResultBuilder;
-import com.linuxbox.enkive.workspace.searchResult.SearchResult.Status;
 import com.linuxbox.enkive.workspace.Workspace;
 import com.linuxbox.enkive.workspace.WorkspaceException;
 import com.linuxbox.enkive.workspace.WorkspaceService;
+import com.linuxbox.enkive.workspace.searchQuery.SearchQuery;
+import com.linuxbox.enkive.workspace.searchQuery.SearchQueryBuilder;
+import com.linuxbox.enkive.workspace.searchResult.SearchResult;
+import com.linuxbox.enkive.workspace.searchResult.SearchResult.Status;
+import com.linuxbox.enkive.workspace.searchResult.SearchResultBuilder;
 import com.linuxbox.util.threadpool.CancellableProcessExecutor;
 
 public class TaskPoolAsyncMessageSearchService implements MessageSearchService {
@@ -61,14 +60,6 @@ public class TaskPoolAsyncMessageSearchService implements MessageSearchService {
 		BlockingQueue<Runnable> queue = new LinkedBlockingQueue<Runnable>();
 		searchExecutor = new CancellableProcessExecutor(corePoolSize,
 				maxPoolSize, keepAliveTime, TimeUnit.SECONDS, queue);
-	}
-
-	@Override
-	public int countSearch(HashMap<String, String> fields)
-			throws MessageSearchException {
-		SearchResult search = search(fields);
-		Set<String> searchSet = search.getMessageIds();
-		return searchSet.size();
 	}
 	
 	@Override

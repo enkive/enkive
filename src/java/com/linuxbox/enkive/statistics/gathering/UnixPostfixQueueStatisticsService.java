@@ -13,6 +13,8 @@ import java.util.Map;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
+import com.linuxbox.enkive.statistics.VarsMaker;
+
 public class UnixPostfixQueueStatisticsService extends AbstractGatherer {
 
 	public static String POSTFIX_QUEUE_COMMAND = "cat /tmp/test.txt";
@@ -41,7 +43,7 @@ public class UnixPostfixQueueStatisticsService extends AbstractGatherer {
 
 	@Override
 	public Map<String, Object> getStatistics() {
-		Map<String, Object> result = createMap();
+		Map<String, Object> result = VarsMaker.createMap();
 		try {
 			result.put(QUEUE_LENGTH, getQueueLength());
 		} catch (IOException e) {
@@ -56,7 +58,7 @@ public class UnixPostfixQueueStatisticsService extends AbstractGatherer {
 			return getStatistics();
 		}
 		Map<String, Object> stats = getStatistics();
-		Map<String, Object> selectedStats = createMap();
+		Map<String, Object> selectedStats = VarsMaker.createMap();
 		for (String key : keys) {
 			if (stats.get(key) != null) {
 				selectedStats.put(key, stats.get(key));

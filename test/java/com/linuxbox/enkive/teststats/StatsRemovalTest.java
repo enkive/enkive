@@ -19,11 +19,11 @@ import org.junit.Test;
 
 import com.linuxbox.enkive.TestingConstants;
 import com.linuxbox.enkive.docsearch.indri.IndriDocSearchQueryService;
-import com.linuxbox.enkive.message.search.mongodb.MongoMessageSearchService;
 import com.linuxbox.enkive.statistics.gathering.GathererException;
 import com.linuxbox.enkive.statistics.gathering.GathererInterface;
 import com.linuxbox.enkive.statistics.gathering.StatsMsgSearchGatherer;
 import com.linuxbox.enkive.statistics.gathering.StatsRuntimeGatherer;
+import com.linuxbox.enkive.statistics.gathering.mongodb.MongoGathererMessageSearchService;
 import com.linuxbox.enkive.statistics.gathering.mongodb.StatsMongoAttachmentsGatherer;
 import com.linuxbox.enkive.statistics.gathering.mongodb.StatsMongoCollectionGatherer;
 import com.linuxbox.enkive.statistics.gathering.mongodb.StatsMongoDBGatherer;
@@ -102,10 +102,10 @@ public class StatsRemovalTest {
 		StatsMsgSearchGatherer msgProp = new StatsMsgSearchGatherer(
 				"MsgPropGatherer", "* * * * * ?", keys);
 
-		MongoMessageSearchService searchService = null;
+		MongoGathererMessageSearchService searchService = null;
 
 		try {
-			searchService = new MongoMessageSearchService(new Mongo(),
+			searchService = new MongoGathererMessageSearchService(new Mongo(),
 					TestingConstants.MONGODB_TEST_DATABASE,
 					TestingConstants.MONGODB_TEST_MESSAGES_COLLECTION);
 		} catch (UnknownHostException e) {

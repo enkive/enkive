@@ -14,6 +14,7 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.linuxbox.enkive.statistics.VarsMaker;
 import com.linuxbox.enkive.statistics.gathering.AbstractGatherer;
 import com.linuxbox.enkive.statistics.gathering.GathererException;
 import com.mongodb.BasicDBObject;
@@ -168,10 +169,10 @@ public class StatsMongoAttachmentsGatherer extends AbstractGatherer {
 	 * @return
 	 */
 	private Map<String, Object> makeDateQuery(Date lowerUploadDate, Date upperUploadDate) {
-		Map<String, Object> dateQuery = createMap();
+		Map<String, Object> dateQuery = VarsMaker.createMap();
 		dateQuery.put("$gte", lowerUploadDate);
 		dateQuery.put("$lt", upperUploadDate);
-		Map<String, Object> query = createMap();
+		Map<String, Object> query = VarsMaker.createMap();
 		query.put(MONGO_UPLOAD_DATE, dateQuery);
 		return query;
 	}

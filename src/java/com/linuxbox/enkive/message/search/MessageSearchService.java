@@ -40,18 +40,6 @@ public interface MessageSearchService {
 	 */
 	SearchResult search(HashMap<String, String> fields)
 			throws MessageSearchException;
-	
-	/**
-	 * Perform a search for a user and return an integer representing the number
-	 * of objects found.
-	 * 
-	 * @param fields
-	 * 
-	 * @return
-	 * @throws DocSearchException
-	 */
-	int countSearch(HashMap<String, String> fields)
-			throws MessageSearchException;
 
 	/**
 	 * Perform an asynchronous search and return a Future<SearchResult> object.

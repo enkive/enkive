@@ -27,13 +27,6 @@ public class SizeLimitingMessageSearchService implements MessageSearchService {
 	}
 
 	@Override
-	public int countSearch(HashMap<String, String> fields)
-			throws MessageSearchException {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
 	public Future<SearchResult> searchAsync(HashMap<String, String> fields)
 			throws MessageSearchException {
 		return messageSearchService.searchAsync(fields);

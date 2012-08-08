@@ -31,6 +31,7 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.linuxbox.enkive.statistics.VarsMaker;
 import com.linuxbox.enkive.statistics.gathering.AbstractGatherer;
 import com.linuxbox.enkive.statistics.gathering.GathererException;
 import com.mongodb.DB;
@@ -78,10 +79,10 @@ public class StatsMongoCollectionGatherer extends AbstractGatherer {
 		if (keys == null) {
 			return getStatistics();
 		}
-		Map<String, Object> selectedStats = createMap();
+		Map<String, Object> selectedStats = VarsMaker.createMap();
 		for (String collName : db.getCollectionNames()) {
 			Map<String, Object> stats = getStats(collName);
-			Map<String, Object> temp = createMap();
+			Map<String, Object> temp = VarsMaker.createMap();
 			for (String key : keys) {
 				if (stats.get(key) != null) {
 					temp.put(key, stats.get(key));
@@ -102,7 +103,7 @@ public class StatsMongoCollectionGatherer extends AbstractGatherer {
 	 */
 	private Map<String, Object> getStats(String collectionName) {
 		if (db.collectionExists(collectionName)) {
-			Map<String, Object> stats = createMap();
+			Map<String, Object> stats = VarsMaker.createMap();
 			Map<String, Object> temp = db.getCollection(collectionName)
 					.getStats();
 			stats.put(STAT_NS, temp.get(MONGO_NS));

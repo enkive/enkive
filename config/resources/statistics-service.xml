@@ -58,13 +58,23 @@
 		<constructor-arg name="serviceName" value="DetailedMsgStatsService"/>
 		<constructor-arg name="schedule" value="0 0/15 * * * ?" />
 		<property name="scheduler" ref="ScheduledJobsBean" />
-		<property name="searchService" ref="SystemMessageSearchService" />
+		<property name="searchService" ref="GathererMessageSearchService" />
 		<property name="storageService" ref="StatisticsStorer" />
 		<property name="keys">	
 			<list>
 				<value>numMsg:avg,max,min:Number of Messages:</value>
 			</list>
 		</property>	
+	</bean>
+	
+	<bean id="GathererMessageSearchService"
+		class="com.linuxbox.enkive.statistics.gathering.mongodb.MongoGathererMessageSearchService">
+		<constructor-arg ref="Mongo" />
+		<constructor-arg type="java.lang.String" value="${enkive.messagestore.db.name}" />
+		<constructor-arg type="java.lang.String"
+			value="${enkive.messagestore.collection.name}" />
+		<property name="docSearchService" ref="DocSearchQueryService" />
+		<property name="searchResultBuilder" ref="SearchResultBuilder" />
 	</bean>
 
 	<bean id="AttachmentStatsService"

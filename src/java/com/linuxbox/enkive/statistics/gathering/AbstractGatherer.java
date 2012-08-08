@@ -21,7 +21,7 @@ import com.linuxbox.enkive.statistics.services.StatsStorageService;
 import com.linuxbox.enkive.statistics.services.storage.StatsStorageException;
 import com.linuxbox.enkive.statistics.KeyConsolidationHandler;
 
-public abstract class AbstractGatherer extends VarsMaker implements
+public abstract class AbstractGatherer implements
 		GathererInterface {
 	protected GathererAttributes attributes;
 	protected Scheduler scheduler;
@@ -34,27 +34,30 @@ public abstract class AbstractGatherer extends VarsMaker implements
 		this.serviceName = serviceName;
 		this.schedule = schedule;
 	}
-	
-	public AbstractGatherer(String serviceName, String schedule, List<String> keys) throws GathererException {
+
+	public AbstractGatherer(String serviceName, String schedule,
+			List<String> keys) throws GathererException {
 		this(serviceName, schedule);
 		setKeys(keys);
 	}
-	
+
 	@Override
 	public GathererAttributes getAttributes() {
 		return attributes;
 	}
 
 	@Override
-	public abstract Map<String, Object> getStatistics();
+	public abstract Map<String, Object> getStatistics()
+			throws GathererException;
 
 	@Override
-	public Map<String, Object> getStatistics(String[] keys) {
+	public Map<String, Object> getStatistics(String[] keys)
+			throws GathererException {
 		if (keys == null) {
 			return getStatistics();
 		}
 		Map<String, Object> stats = getStatistics();
-		Map<String, Object> selectedStats = createMap();
+		Map<String, Object> selectedStats = VarsMaker.createMap();
 		for (String key : keys) {
 			if (stats.get(key) != null) {
 				selectedStats.put(key, stats.get(key));
@@ -67,22 +70,23 @@ public abstract class AbstractGatherer extends VarsMaker implements
 				&& stats.get(STAT_TIME_STAMP) != null) {
 			selectedStats.put(STAT_TIME_STAMP, stats.get(STAT_TIME_STAMP));
 		} else {
-			selectedStats.put(STAT_TIME_STAMP,
-					new Date());
+			selectedStats.put(STAT_TIME_STAMP, new Date());
 		}
 
 		return selectedStats;
 	}
-	
+
 	/**
 	 * initialization method called to give quartz this gatherer
+	 * 
 	 * @throws Exception
 	 */
 	@PostConstruct
 	protected void init() throws Exception {
 		// create attributes
-		attributes = new GathererAttributes(serviceName, schedule, keyBuilder(keys));
-		
+		attributes = new GathererAttributes(serviceName, schedule,
+				keyBuilder(keys));
+
 		// create factory
 		MethodInvokingJobDetailFactoryBean jobDetail = new MethodInvokingJobDetailFactoryBean();
 		jobDetail.setTargetObject(this);
@@ -103,20 +107,24 @@ public abstract class AbstractGatherer extends VarsMaker implements
 	}
 
 	/**
-	 * builds the list of keyConsolidationHandlers in order to allow the raw data created
-	 * by this gatherer to be consolidated
-	 * @param keyList - a list of dot-notation formatted strings: "coll.date:max,min,avg"
-	 * the key's levels are specified by periods and the key is separated from the methods by a 
-	 * colon. An asterisk may be used as an 'any' to go down a level in a map, such as:
-	 * "*.date:max,min,avg"
+	 * builds the list of keyConsolidationHandlers in order to allow the raw
+	 * data created by this gatherer to be consolidated
+	 * 
+	 * @param keyList
+	 *            - a list of dot-notation formatted strings:
+	 *            "coll.date:max,min,avg" the key's levels are specified by
+	 *            periods and the key is separated from the methods by a colon.
+	 *            An asterisk may be used as an 'any' to go down a level in a
+	 *            map, such as: "*.date:max,min,avg"
 	 * @return returns the instantiated consolidation list
-	 * @throws GathererException 
+	 * @throws GathererException
 	 */
-	protected List<KeyConsolidationHandler> keyBuilder(List<String> keyList) throws GathererException {
-		if(keyList == null){
+	protected List<KeyConsolidationHandler> keyBuilder(List<String> keyList)
+			throws GathererException {
+		if (keyList == null) {
 			throw new GathererException("keys were not set for " + serviceName);
 		}
-		
+
 		List<KeyConsolidationHandler> keys = new LinkedList<KeyConsolidationHandler>();
 		if (keyList != null) {
 			for (String key : keyList) {
@@ -136,10 +144,15 @@ public abstract class AbstractGatherer extends VarsMaker implements
 	}
 
 	@Override
-	public void storeStats() throws StatsStorageException {
-		if (getStatistics() != null) {
-			storageService.storeStatistics(attributes.getName(),
-					getStatistics());
+	public void storeStats() throws GathererException {
+		try {
+			Map<String, Object> stats = getStatistics();
+			if (stats != null) {
+				storageService.storeStatistics(attributes.getName(),
+						stats);
+			}
+		} catch (StatsStorageException e) {
+			throw new GathererException(e);
 		}
 	}
 
@@ -147,9 +160,11 @@ public abstract class AbstractGatherer extends VarsMaker implements
 		this.keys = keys;
 		// create attributes
 		try {
-			attributes = new GathererAttributes(serviceName, schedule, keyBuilder(keys));
+			attributes = new GathererAttributes(serviceName, schedule,
+					keyBuilder(keys));
 		} catch (ParseException e) {
-			throw new GathererException("parseException in attributes constructor", e);
+			throw new GathererException(
+					"parseException in attributes constructor", e);
 		}
 	}
 }
