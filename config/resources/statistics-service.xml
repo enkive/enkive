@@ -63,6 +63,7 @@
 		<property name="scheduler" ref="ScheduledJobsBean" />
 		<property name="searchService" ref="SystemMessageSearchService" />
 		<property name="storageService" ref="StatisticsStorer" />
+		<property name="interval" value="900000"/>
 		<property name="keys">	
 			<list>
 				<value>numMsg:avg,max,min:Number of Messages:</value>
@@ -80,6 +81,7 @@
 		<constructor-arg name="schedule" value="0 0/15 * * * ?" />
 		<property name="scheduler" ref="ScheduledJobsBean" />
 		<property name="storageService" ref="StatisticsStorer" />
+		<property name="interval" value="900000"/>
 		<property name="keys">	
 			<list>
 				<value>avgAtt:avg:Average Number of Attachments</value>
