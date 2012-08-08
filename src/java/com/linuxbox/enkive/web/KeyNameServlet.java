@@ -57,9 +57,11 @@ public class KeyNameServlet extends EnkiveServlet {
 								keyMethods.put(key.getHumanKey(), methodsMap);
 							}
 						}
-						Map<String, Object> temp = new HashMap<String, Object>();
-						temp.put(attribute.getName(), keyMethods);
-						result.put(temp);
+						Map<String, Object> dataTemp = new HashMap<String, Object>();
+						dataTemp.put(attribute.getName(), keyMethods);
+						Map<String, Object> humanKeyWrapper = new HashMap<String, Object>();
+						humanKeyWrapper.put(attribute.getHumanName(), dataTemp);
+						result.put(humanKeyWrapper);
 					}
 				}
 				

@@ -44,6 +44,13 @@ public class GathererAttributes {
 	}
 
 	/**
+	 * @return the human-readable name of the gatherer this attributes class belongs to
+	 */
+	public String getHumanName() {
+		return humanName;
+	}
+	
+	/**
 	 * @return the cronExpression schedule this gatherer runs on
 	 */
 	public CronExpression getSchedule() {
