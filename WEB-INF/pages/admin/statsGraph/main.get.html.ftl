@@ -13,7 +13,7 @@
 		var serviceStats = jsonStatsData.results[0].${gn};
 		
 		var data = serviceStats.${statName};
-		
+				
 		var methods = ${methods};
 
 		var colors = ["steelblue","blue","cornflowerblue"];
@@ -57,7 +57,7 @@
 			return max;
 		}
 		
-		var y = d3.scale.linear().domain([0, d3.max(data, function(d) { return getBiggest(d); })]).range([height, 0]);
+		var y = d3.scale.linear().domain([0, 1.25*d3.max(data, function(d) { return getBiggest(d); })]).range([height, 0]);
 		var x = d3.time.scale().domain([d3.min(times,  function(d) {  return getDate(d); }), d3.max(times, function(d) {  return  getDate(d);  })]).range([1, width]);
 		var r = d3.scale.linear().domain([0, 1250]).range([1, 4]);
 		var rec = d3.scale.linear().domain([0, 1250]).range([5, 15]);
@@ -75,17 +75,33 @@
 		var graphGroup = graphic.append("svg:g").
 		    attr("transform", "translate("+padding*1.5+","+padding/4+")");
 		    
-	    var line = d3.svg.area()
+	    var area = d3.svg.area()
 		    .x(function(d, i) { return x(getDate(times[i])); })
 		    .y0(height-1)
 		    .y1(y)
 		    .interpolate("basis");
+		    
+		var line = d3.svg.line()
+		    .x(function(d, i) { return x(getDate(times[i])); })
+		    .y(y)
+		    .interpolate("basis");
 
-		graphGroup.selectAll(".line")
+//these paths are for tracing (not actually displayed)
+var paths = graphGroup.selectAll(".line")
 		    .data(values)
 		    .enter().append("path")
 		    .attr("class", "line")
 		    .attr("d", 	line)
+		    .style('stroke', "none")
+		    .style('stroke-width', 1)
+		    .style('fill', "none");
+
+//displayed on graph		    
+ 		graphGroup.selectAll(".area")
+		    .data(values)
+		    .enter().append("path")
+		    .attr("class", "area")
+		    .attr("d", 	area)
 		    .style('stroke', function(d, i) { return colors[i]; })
 		    .style('stroke-width', 1)
 		    .style('fill', function(d, i) { return fills[i]; })
@@ -114,29 +130,44 @@
 		  .call(xAxis);
 		var legendpadding = 20;
         var legendOffset = height+50; 
-		for(var methodIndex in methods){
-		    /*
-		    var cirData = values[methodIndex];
-		    graphGroup.selectAll(methods[methodIndex] + ".circles")
-		              .data(cirData)
-		              .enter()
-		              .append("svg:circle")
-		              .attr("cx", function(d, i) { return x(getDate(times[i])); })
-		              .attr("cy", y)
-		              .attr("r", r(width))
-		              .attr("opacity", 0)
-		              .attr("stroke",colors[methodIndex])
-		              .attr("fill",fills[methodIndex])
-				      .on("mouseover", function(d, i) {
-				     		d3.select("#GraphTitle span").text("value: " + d + " Date: " + getDate(times[i]));
-			//	     		d3.select(this).attr("fill","aliceblue");
-				      })
-				      .on("mouseout", function() {
-				     		d3.select("#GraphTitle span").text("Statistics Graph");
-			//	     		d3.select(this).attr("fill",fills[methodIndex]);
-				      });
-		    */
-		    var recSize = rec(width);
+
+
+        function createTitle(node){
+		    var pNode = node.parentNode;
+		    var cx = d3.select(pNode).attr("cx");
+		    var cy = d3.select(pNode).attr("cy");
+		    return Math.round((y.invert(cy)*100))/100 + ", " + x.invert(cx);
+		}
+		
+//add legend & titles
+        for(var methodIndex in methods){
+            var path = paths[0][methodIndex];
+            var l = path.getTotalLength();     
+            var step = 5;
+            for(q = 0;q<=l;q+=step){
+                var p = path.getPointAtLength(q);
+                    axisGroup.selectAll("circle.line")
+                        .data(values)
+                        .enter().append("svg:circle")
+                        .attr("class","circle")
+                        .attr("cx", p.x)
+                        .attr("cy", p.y)
+                        .attr("r", 3.5)
+                        .attr("stroke-width","none")
+                        .attr("fill","black")
+                        .attr("fill-opacity", "0")
+                        .on("mouseover", function() {
+                            d3.select(this).attr("stroke","red");
+                            d3.select(this).attr("stroke-width",1.5);
+                    })
+                        .on("mouseout", function() {
+                            d3.select(this).attr("stroke","none");
+                    })
+                    .append("svg:title")
+          				.text(function() { return createTitle(this); });
+           }
+                    
+            var recSize = rec(width);
             axisGroup.append("svg:rect")
                .attr("fill", colors[methodIndex] )
                .attr("x", legendpadding / 2)
@@ -147,7 +178,7 @@
                .attr("x", 20 + legendpadding/2)
                .attr("y", legendOffset+10+(recSize+10)*methodIndex)
                .text(methods[methodIndex]);
-		}
+        }
 		
 		axisGroup.append("defs")
 		.append("path")
