@@ -1,13 +1,13 @@
 package com.linuxbox.enkive.statistics.gathering.mongodb;
 
 import static com.linuxbox.enkive.statistics.StatsConstants.ARCHIVE_SIZE;
-import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIME_STAMP;
 
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.linuxbox.enkive.statistics.RawStats;
 import com.linuxbox.enkive.statistics.gathering.AbstractGatherer;
 import com.linuxbox.enkive.statistics.gathering.GathererException;
 import com.mongodb.DB;
@@ -21,26 +21,29 @@ public class StatsMongoMsgGatherer extends AbstractGatherer {
 	protected DB messageDb;
 
 	public StatsMongoMsgGatherer(Mongo m, String dbName, String collName,
-			String serviceName, String schedule) {
-		super(serviceName, schedule);
+			String serviceName, String humanName, String schedule) {
+		super(serviceName, humanName, schedule);
 		this.m = m;
 		messageDb = m.getDB(dbName);
 		messageColl = messageDb.getCollection(collName);
 	}
 
 	public StatsMongoMsgGatherer(Mongo m, String dbName, String collName,
-			String serviceName, String schedule, List<String> keys) throws GathererException {
-		super(serviceName, schedule, keys);
+			String serviceName, String humanName, String schedule, List<String> keys) throws GathererException {
+		super(serviceName, humanName, schedule, keys);
 		this.m = m;
 		messageDb = m.getDB(dbName);
 		messageColl = messageDb.getCollection(collName);
 	}
 	
 	@Override
-	public Map<String, Object> getStatistics() {
-		Map<String, Object> result = new HashMap<String, Object>();
-		result.put(ARCHIVE_SIZE, messageColl.count());
-		result.put(STAT_TIME_STAMP, new Date());
+	public RawStats getStatistics() {
+		Map<String, Object> stats = new HashMap<String, Object>();
+		stats.put(ARCHIVE_SIZE, messageColl.count());
+		
+		RawStats result = new RawStats();
+		result.setStatsMap(stats);
+		result.setTimestamp(new Date());
 		return result;
 	}
 }

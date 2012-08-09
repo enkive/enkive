@@ -9,6 +9,7 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.linuxbox.enkive.statistics.RawStats;
 import com.linuxbox.enkive.statistics.StatsFilter;
 import com.linuxbox.enkive.statistics.StatsQuery;
 import com.linuxbox.enkive.statistics.gathering.GathererAttributes;
@@ -35,7 +36,7 @@ public class StatsClient {
 	 * gathers raw statistics from every known gatherer in the gathererService
 	 * @return returns all statistics gathered from every known gatherer
 	 */
-	public List<Map<String, Object>> gatherData() {
+	public List<RawStats> gatherData() {
 		try {
 			return gathererService.gatherStats();
 		} catch (ParseException e) {
@@ -53,7 +54,7 @@ public class StatsClient {
 	 * @param gathererFilter - a map in the form {gathererName:[array of keys for that gatherer]}
 	 * @return stats returned after filter
 	 */
-	public List<Map<String, Object>> gatherData(Map<String, String[]> gathererFilter) {
+	public List<RawStats> gatherData(Map<String, String[]> gathererFilter) {
 		try {
 			return gathererService.gatherStats(gathererFilter);
 		} catch (ParseException e) {

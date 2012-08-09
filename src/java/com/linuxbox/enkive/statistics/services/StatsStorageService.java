@@ -3,6 +3,7 @@ package com.linuxbox.enkive.statistics.services;
 import java.util.Map;
 import java.util.Set;
 
+import com.linuxbox.enkive.statistics.RawStats;
 import com.linuxbox.enkive.statistics.services.storage.StatsStorageException;
 
 public interface StatsStorageService {
@@ -21,9 +22,9 @@ public interface StatsStorageService {
 	 * Store a map after appending a service name to it
 	 * 
 	 * @param service -- gatherer name
-	 * @param data -- map to store
+	 * @param rawStats -- map to store
 	 * @throws StatsStorageException
 	 */
-	void storeStatistics(String service, Map<String, Object> data)
+	void storeStatistics(String service, RawStats rawStats)
 			throws StatsStorageException;
 }

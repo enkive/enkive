@@ -1,7 +1,7 @@
 package com.linuxbox.enkive.statistics.gathering;
 
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_GATHERER_NAME;
-import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIME_STAMP;
+import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIMESTAMP;
 import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MAX;
 import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MIN;
 
@@ -16,15 +16,17 @@ public class GathererAttributes {
 	protected List<KeyConsolidationHandler> keys;
 	protected CronExpression schedule;
 	protected String serviceName;
+	protected String humanName;
 
-	public GathererAttributes(String serviceName, String schedule,
+	public GathererAttributes(String serviceName, String humanName, String schedule,
 			List<KeyConsolidationHandler> keys) throws ParseException {
+		this.humanName = humanName;
 		this.serviceName = serviceName;
 		this.schedule = new CronExpression(schedule);
 		this.keys = keys;
 		//serviceName and Timestamp must always be specified
 		keys.add(new KeyConsolidationHandler(STAT_GATHERER_NAME + "::Gatherer Name:"));
-		keys.add(new KeyConsolidationHandler(STAT_TIME_STAMP + ":" + GRAIN_MAX + "," + GRAIN_MIN + ":Time Stamp:"));
+		keys.add(new KeyConsolidationHandler(STAT_TIMESTAMP + ":" + GRAIN_MAX + "," + GRAIN_MIN + ":Time Stamp:"));
 	}
 
 	/**
@@ -41,6 +43,13 @@ public class GathererAttributes {
 		return serviceName;
 	}
 
+	/**
+	 * @return the human-readable name of the gatherer this attributes class belongs to
+	 */
+	public String getHumanName() {
+		return humanName;
+	}
+	
 	/**
 	 * @return the cronExpression schedule this gatherer runs on
 	 */

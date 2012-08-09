@@ -28,7 +28,7 @@ public abstract class VarsMaker {
 		return new HashSet<Map<String, Object>>();
 	}
 	
-	public static List<Map<String, Object>> createList() {
-		return new LinkedList<Map<String, Object>>();
+	public static List<RawStats> createList() {
+		return new LinkedList<RawStats>();
 	}
 }

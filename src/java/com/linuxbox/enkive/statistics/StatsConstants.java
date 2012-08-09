@@ -39,8 +39,7 @@ public interface StatsConstants {
 	public static String STAT_GATHERER_NAME = "gn";
 	public static String STAT_STORAGE_COLLECTION = "statistics";
 	public static String STAT_STORAGE_DB = "enkive";
-	public static String STAT_TIME = "time";
-	public static String STAT_TIME_STAMP = "ts";
+	public static String STAT_TIMESTAMP = "ts";
 	// end of keynames
 	public static String STAT_TOTAL_INDEX_SIZE = "indSz";
 	public static String STAT_TOTAL_MEMORY = "totM";

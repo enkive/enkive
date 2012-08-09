@@ -2,7 +2,7 @@ package com.linuxbox.enkive.statistics;
 
 import java.util.Map;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_GATHERER_NAME;
-import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIME_STAMP;
+import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIMESTAMP;
 
 public class StatsFilter {
 	public String gathererName;
@@ -14,7 +14,7 @@ public class StatsFilter {
 		
 		if(keys != null){
 			keys.put(STAT_GATHERER_NAME, 1);
-			keys.put(STAT_TIME_STAMP, 1);
+			keys.put(STAT_TIMESTAMP, 1);
 		}
 	}
 }

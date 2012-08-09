@@ -13,6 +13,7 @@ import javax.annotation.PostConstruct;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.linuxbox.enkive.statistics.RawStats;
 import com.linuxbox.enkive.statistics.VarsMaker;
 import com.linuxbox.enkive.statistics.gathering.GathererException;
 import com.linuxbox.enkive.statistics.gathering.GathererInterface;
@@ -69,7 +70,7 @@ public class StatsGathererService extends VarsMaker {
 	 * @throws ParseException
 	 * @throws GathererException
 	 */
-	public List<Map<String, Object>> gatherStats() throws ParseException,
+	public List<RawStats> gatherStats() throws ParseException,
 			GathererException {
 		return gatherStats(null);
 	}
@@ -82,7 +83,7 @@ public class StatsGathererService extends VarsMaker {
 	 * @throws ParseException
 	 * @throws GathererException
 	 */
-	public List<Map<String, Object>> gatherStats(
+	public List<RawStats> gatherStats(
 			Map<String, String[]> gathererKeys) throws ParseException,
 			GathererException {
 		if (statsGatherers == null) {
@@ -100,16 +101,16 @@ public class StatsGathererService extends VarsMaker {
 			}
 		}
 
-		List<Map<String, Object>> statsSet = createList();
-		for (String name : gathererKeys.keySet()) {
-			Map<String, Object> gathererData = statsGatherers.get(name)
-					.getStatistics(gathererKeys.get(name));
-			gathererData.put(STAT_GATHERER_NAME, statsGatherers.get(name)
+		List<RawStats> statsList = createList();
+		for (String statName: gathererKeys.keySet()) {
+			RawStats gathererData = statsGatherers.get(statName)
+					.getStatistics(gathererKeys.get(statName));
+			gathererData.getStatsMap().put(STAT_GATHERER_NAME, statsGatherers.get(statName)
 					.getAttributes().getName());
-			statsSet.add(gathererData);
+			statsList.add(gathererData);
 		}
 
-		return statsSet;
+		return statsList;
 	}
 
 	/**

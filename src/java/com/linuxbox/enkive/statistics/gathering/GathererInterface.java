@@ -1,7 +1,6 @@
 package com.linuxbox.enkive.statistics.gathering;
 
-import java.util.Map;
-
+import com.linuxbox.enkive.statistics.RawStats;
 import com.linuxbox.enkive.statistics.services.StatsStorageService;
 
 public interface GathererInterface {
@@ -15,7 +14,7 @@ public interface GathererInterface {
 	 * @return the gathered statistics
 	 * @throws GathererException
 	 */
-	public Map<String, Object> getStatistics() throws GathererException;
+	public RawStats getStatistics() throws GathererException;
 
 	/**
 	 * gathers the statistics corresponding to this gatherer but filtered by the
@@ -27,7 +26,7 @@ public interface GathererInterface {
 	 * @return a filtered version of the statistics
 	 * @throws GathererException
 	 */
-	public Map<String, Object> getStatistics(String[] keys)
+	public RawStats getStatistics(String[] keys)
 			throws GathererException;
 
 	/**
