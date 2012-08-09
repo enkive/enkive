@@ -54,11 +54,11 @@
 	            '/ediscovery/admin/stats/graph' + queryString,
 	            function(response, status, xhr) {
 	                if (xhr.status == 403) {
-	                   $("#main")
+	                   $("#graph")
 	                    .html("You are not authorized to graph, your session has likely expired. Redirecting to login...");
 	                     location.reload();
 	                 } else if (status != "success") {
-	                     $("#main")
+	                     $("#graph")
 	                          .html(
 	                               "There was an error retrieving search results.  Please contact your administrator.");
 	                 }
