@@ -132,7 +132,7 @@ public class StatsMongoStorageAndRetrievalTest {
 		keys.add("numMsg:avg,max,min:Number of Messages:");
 		StatsMsgSearchGatherer msgProp = new StatsMsgSearchGatherer(
 				"MsgPropGatherer", "Message Statistics", "* * * * * ?", keys);
-		MongoMessageSearchService searchService = null;
+		MongoGathererMessageSearchService searchService = null;
 
 		try {
 			searchService = new MongoGathererMessageSearchService(new Mongo(),

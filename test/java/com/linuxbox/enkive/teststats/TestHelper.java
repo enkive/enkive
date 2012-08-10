@@ -23,6 +23,7 @@ import com.linuxbox.enkive.statistics.services.StatsClient;
 import com.linuxbox.enkive.statistics.services.StatsGathererService;
 import com.linuxbox.enkive.statistics.services.retrieval.mongodb.MongoStatsRetrievalService;
 import com.linuxbox.enkive.statistics.services.storage.mongodb.MongoStatsStorageService;
+import com.linuxbox.enkive.statistics.gathering.mongodb.MongoGathererMessageSearchService;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.Mongo;
@@ -143,9 +144,9 @@ public class TestHelper {
 		keys.add("numMsg:avg,max,min:Number of Messages:messages");
 		StatsMsgSearchGatherer msgProp = new StatsMsgSearchGatherer(
 				msgSearchPropName, "Message Statistics", "* * * * * ?", keys);
-		MongoMessageSearchService searchService = null;
+		MongoGathererMessageSearchService searchService = null;
 		try {
-			searchService = new MongoMessageSearchService(m,
+			searchService = new MongoGathererMessageSearchService(m,
 					TestingConstants.MONGODB_TEST_DATABASE,
 					TestingConstants.MONGODB_TEST_MESSAGES_COLLECTION);
 		} catch (MongoException e) {

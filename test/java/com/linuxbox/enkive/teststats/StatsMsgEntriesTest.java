@@ -36,8 +36,8 @@ public class StatsMsgEntriesTest {
 		List<String> keys = new LinkedList<String>();
 		keys.add("numMsg:avg,max,min:Number of Messages:messages");
 		msgEntries = new StatsMsgSearchGatherer(name, "Message Statistics", "0 * * * * ?", keys);
-		MongoMessageSearchService searchService;
-		searchService = new MongoMessageSearchService(new Mongo(),
+		MongoGathererMessageSearchService searchService;
+		searchService = new MongoGathererMessageSearchService(new Mongo(),
 				TestingConstants.MONGODB_TEST_DATABASE,
 				TestingConstants.MONGODB_TEST_MESSAGES_COLLECTION);
 		searchService.setDocSearchService(new IndriDocSearchQueryService());
