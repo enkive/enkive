@@ -17,6 +17,7 @@ import com.linuxbox.enkive.statistics.gathering.GathererException;
 import com.linuxbox.enkive.statistics.services.StatsClient;
 import com.linuxbox.enkive.statistics.services.StatsGathererService;
 import com.linuxbox.enkive.teststats.TestHelper;
+
 public class StatsRemovalTest {
 	private static StatsGathererService gatherTester;
 	private static StatsClient client;

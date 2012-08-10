@@ -45,6 +45,8 @@
 		<constructor-arg value="${enkive.messageSearch.keepAliveTime}" />
 		<property name="authenticationService" ref="AuthenticationService" />
 		<property name="workspaceService" ref="WorkspaceService" />
+		<property name="searchResultBuilder" ref="SearchResultBuilder" />
+		<property name="searchQueryBuilder" ref="SearchQueryBuilder" />
 		<property name="messageSearchService" ref="RetentionPolicyEnforcingMessageSearchService" />
 	</bean>
 
@@ -58,8 +60,14 @@
 		class="com.linuxbox.enkive.message.search.PermissionsEnforcingAuditLoggingMessageSearchService">
 		<property name="permService" ref="PermissionService" />
 		<property name="authenticationService" ref="AuthenticationService" />
-		<property name="messageSearchService" ref="SystemMessageSearchService" />
+		<property name="messageSearchService" ref="SizeLimitingMessageSearchService" />
 		<property name="auditService" ref="AuditLogService" />
+	</bean>
+
+	<bean id="SizeLimitingMessageSearchService"
+		class="com.linuxbox.enkive.message.search.SizeLimitingMessageSearchService">
+		<constructor-arg ref="SystemMessageSearchService" />
+		<property name="sizeLimit" value="${enkive.messageSearch.resultSizeLimit}" />
 	</bean>
 
 	<bean id="SystemMessageSearchService"
@@ -69,6 +77,7 @@
 		<constructor-arg type="java.lang.String"
 			value="${enkive.messagestore.collection.name}" />
 		<property name="docSearchService" ref="DocSearchQueryService" />
+		<property name="searchResultBuilder" ref="SearchResultBuilder" />
 	</bean>
 </beans>
 	

@@ -50,7 +50,7 @@ public class MailDirReader extends AbstractMailboxImporter {
 
 	@Override
 	public void readAllMessages() throws MessagingException, IOException {
-		readMailDirectory(store.getDefaultFolder());
+		readMailDirectory(".");
 		// now process any subdirectories
 		String[] subDirs = listSubDirectories();
 		if (subDirs != null) {

@@ -17,13 +17,17 @@
  * License along with Enkive CE. If not, see
  * <http://www.gnu.org/licenses/>.
  *******************************************************************************/
-package com.linuxbox.enkive.workspace;
+package com.linuxbox.enkive.workspace.searchResult;
 
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
-public class SearchResult {
+import com.linuxbox.enkive.workspace.WorkspaceException;
+import com.linuxbox.enkive.workspace.searchQuery.SearchQuery;
+import com.linuxbox.enkive.workspace.searchQuery.SearchQueryBuilder;
+
+public abstract class SearchResult {
 
 	public enum Status {
 		QUEUED,
@@ -41,6 +45,8 @@ public class SearchResult {
 		UNKNOWN; // when the status was read from DB, did not understand
 	}
 
+	protected SearchQueryBuilder searchQueryBuilder;
+
 	private String id;
 	private Date timestamp;
 	protected String executedBy;
@@ -48,6 +54,17 @@ public class SearchResult {
 	private Status status;
 	protected String searchQueryId;
 	protected Boolean isSaved = false;
+	protected SearchQueryBuilder queryBuilder;
+	
+	public static String SORTBYDATE = "sortByDate";
+	public static String SORTBYNAME = "sortByName";
+	public static String SORTBYSUBJECT = "sortBySubject";
+	public static String SORTBYSENDER = "sortBySender";
+	public static String SORTBYRECEIVER = "sortByReceiver";
+	public static String SORTBYSTATUS = "sortByStatus";
+	
+	public static int SORT_ASC = 1;
+	public static int SORT_DESC = -1;
 
 	public SearchResult() {
 		this.timestamp = new Date();
@@ -110,4 +127,23 @@ public class SearchResult {
 	public void setSaved(Boolean isSaved) {
 		this.isSaved = isSaved;
 	}
+
+	public SearchQuery getSearchQuery() throws WorkspaceException {
+		return searchQueryBuilder.getSearchQuery(getSearchQueryId());
+	}
+
+	public abstract void saveSearchResult() throws WorkspaceException;
+
+	public abstract void deleteSearchResult() throws WorkspaceException;
+
+	public SearchQueryBuilder getSearchQueryBuilder() {
+		return searchQueryBuilder;
+	}
+
+	public void setSearchQueryBuilder(SearchQueryBuilder searchQueryBuilder) {
+		this.searchQueryBuilder = searchQueryBuilder;
+	}
+	
+	public abstract void sortSearchResultMessages(String sortBy, int sortDir)
+			throws WorkspaceException;
 }

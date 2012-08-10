@@ -92,6 +92,7 @@ public class MongoRetrieverService extends AbstractRetrieverService {
 	@Override
 	public Message retrieve(String messageUUID) throws CannotRetrieveException {
 		try {
+			System.out.println(messageUUID);
 			DBObject messageObject = messageColl.findOne(messageUUID);
 			Message message = new MessageImpl();
 			message.setId(messageUUID);
@@ -102,8 +103,12 @@ public class MongoRetrieverService extends AbstractRetrieverService {
 
 			return message;
 		} catch (IOException e) {
+			if (LOGGER.isWarnEnabled())
+				LOGGER.warn("Error retrieving message with UUID " + messageUUID);
 			throw new CannotRetrieveException(e);
 		} catch (BadMessageException e) {
+			if (LOGGER.isWarnEnabled())
+				LOGGER.warn("Error retrieving message with UUID " + messageUUID);
 			throw new CannotRetrieveException(e);
 		}
 	}

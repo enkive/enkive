@@ -56,7 +56,7 @@ import org.apache.commons.logging.LogFactory;
 import com.linuxbox.enkive.docsearch.exception.DocSearchException;
 import com.linuxbox.enkive.message.search.AbstractMessageSearchService;
 import com.linuxbox.enkive.message.search.exception.MessageSearchException;
-import com.linuxbox.enkive.workspace.SearchResult;
+import com.linuxbox.enkive.workspace.searchResult.SearchResult;
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;

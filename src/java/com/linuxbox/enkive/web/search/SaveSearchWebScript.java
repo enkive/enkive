@@ -20,18 +20,20 @@
 package com.linuxbox.enkive.web.search;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.linuxbox.enkive.exception.EnkiveServletException;
 import com.linuxbox.enkive.web.EnkiveServlet;
 import com.linuxbox.enkive.web.WebScriptUtils;
-import com.linuxbox.enkive.workspace.SearchResult;
+import com.linuxbox.enkive.workspace.Workspace;
 import com.linuxbox.enkive.workspace.WorkspaceException;
 import com.linuxbox.enkive.workspace.WorkspaceService;
+import com.linuxbox.enkive.workspace.searchFolder.SearchFolder;
+import com.linuxbox.enkive.workspace.searchResult.SearchResult;
 
 public class SaveSearchWebScript extends EnkiveServlet {
 	/**
@@ -50,21 +52,41 @@ public class SaveSearchWebScript extends EnkiveServlet {
 	public void doGet(HttpServletRequest req, HttpServletResponse res)
 			throws IOException {
 
-		String searchId = WebScriptUtils.cleanGetParameter(req, "searchid");
+		ArrayList<String> failedSavedSearches = new ArrayList<String>();
+		String searchIds = WebScriptUtils.cleanGetParameter(req, "searchids");
 		String nameOfSavedSearch = WebScriptUtils
 				.cleanGetParameter(req, "name");
-		try {
-			SearchResult result = workspaceService.getSearchResult(searchId);
-			result.setSaved(true);
-			workspaceService.saveSearchResult(result);
-			if (LOGGER.isDebugEnabled())
-				LOGGER.debug("saved search at id " + searchId + " with name \""
-						+ nameOfSavedSearch + "\"");
-		} catch (WorkspaceException e) {
+
+		for (String searchId : searchIds.split(",")) {
+			if (!searchId.isEmpty()) {
+				try {
+					SearchResult result = workspaceService
+							.getSearchResult(searchId);
+					result.setSaved(true);
+					result.saveSearchResult();
+
+					Workspace workspace = workspaceService
+							.getActiveWorkspace(this.getPermissionService()
+									.getCurrentUsername());
+
+					SearchFolder searchFolder = workspace.getSearchFolder();
+					searchFolder.addSearchResult(result);
+					searchFolder.saveSearchFolder();
+
+					if (LOGGER.isDebugEnabled())
+						LOGGER.debug("saved search at id " + searchId
+								+ " with name \"" + nameOfSavedSearch + "\"");
+
+				} catch (WorkspaceException e) {
+					failedSavedSearches.add(searchId);
+				}
+			}
+		}
+		if (!failedSavedSearches.isEmpty()) {
 			respondError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, null,
 					res);
-			throw new EnkiveServletException("Could not mark search at UUID "
-					+ searchId + "as saved", e);
+			throw new IOException("Could not save searches with UUIDs "
+					+ failedSavedSearches.toString());
 		}
 	}
 }

@@ -90,27 +90,6 @@
 			value="${enkive.messagestore.collection.name}" />
 	</bean>
 
-	<bean id="WorkspaceService"
-		class="com.linuxbox.enkive.workspace.PermissionsEnforcingWorkspaceService">
-		<property name="authenticationService" ref="AuthenticationService" />
-		<property name="workspaceService" ref="MongoWorkspaceService" />
-		<property name="permissionService" ref="PermissionService" />
-	</bean>
-
-	<bean id="MongoWorkspaceService"
-		class="com.linuxbox.enkive.workspace.mongo.MongoWorkspaceService">
-		<constructor-arg ref="Mongo" />
-		<constructor-arg type="java.lang.String" value="${enkive.workspace.db.name}" />
-		<constructor-arg type="java.lang.String"
-			value="${enkive.workspaces.collection.name}" />
-		<constructor-arg type="java.lang.String"
-			value="${enkive.workspace.search.results.collection.name}" />
-		<constructor-arg type="java.lang.String"
-			value="${enkive.workspace.search.queries.collection.name}" />
-		<constructor-arg type="java.lang.String"
-			value="${enkive.workspace.userWorkspaces.collection.name}" />
-	</bean>
-
 	<!-- Scheduled Actions -->
 
 	<bean name="MessageRetentionPolicy"
@@ -164,4 +143,8 @@
 	</bean>
 
 	<bean id="ApplicationContextProvider" class="com.linuxbox.util.spring.ApplicationContextProvider" />
+
+	<!-- Makes sure all beans with PostConstruct or PreDestroy annotations get called appropriately -->
+	<bean id="CommonAnnotationBeanPostProcessor"
+		class="org.springframework.context.annotation.CommonAnnotationBeanPostProcessor" />
 </beans>
