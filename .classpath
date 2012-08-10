@@ -88,5 +88,15 @@
 	<classpathentry kind="var" path="ENKIVE_JAVA/lib/tools.jar"/>
 	<classpathentry kind="var" path="ENKIVE_JAVA/lib/dt.jar"/>
 	<classpathentry kind="var" path="ENKIVE_JAVA"/>
+	<classpathentry kind="lib" path="lib/james-imap/jutf7-1.0.0.jar"/>
+	<classpathentry kind="lib" path="lib/james-imap/netty-3.3.1.Final.jar"/>
+	<classpathentry kind="lib" path="lib/james-imap/commons-configuration-1.6.jar"/>
+	<classpathentry kind="lib" path="lib/james-imap/commons-io-2.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/james-imap/protocols-netty-1.6.2.jar"/>
+	<classpathentry kind="lib" path="lib/james-imap/james-server-protocols-library-3.0-beta4.jar" sourcepath="/home/lee/.m2/repository/org/apache/james/james-server-protocols-library/3.0-beta4/james-server-protocols-library-3.0-beta4-sources.jar"/>
+	<classpathentry kind="lib" path="lib/james-imap/james-server-filesystem-api-3.0-beta4.jar"/>
+	<classpathentry kind="lib" path="lib/james-imap/james-server-lifecycle-api-3.0-beta4.jar"/>
+	<classpathentry kind="lib" path="lib/james-imap/james-server-util-3.0-beta4.jar"/>
+	<classpathentry kind="lib" path="lib/james-imap/commons-collections-3.2.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
