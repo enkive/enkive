@@ -2,7 +2,7 @@ package com.linuxbox.enkive.teststats;
 
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_GATHERER_NAME;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_NUM_ENTRIES;
-import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIME_STAMP;
+import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIMESTAMP;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -20,6 +20,7 @@ import org.junit.Test;
 import com.linuxbox.enkive.TestingConstants;
 import com.linuxbox.enkive.docsearch.indri.IndriDocSearchQueryService;
 import com.linuxbox.enkive.statistics.KeyConsolidationHandler;
+import com.linuxbox.enkive.statistics.RawStats;
 import com.linuxbox.enkive.statistics.gathering.StatsMsgSearchGatherer;
 import com.linuxbox.enkive.statistics.gathering.mongodb.MongoGathererMessageSearchService;
 import com.mongodb.Mongo;
@@ -33,16 +34,18 @@ public class StatsMsgEntriesTest {
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		List<String> keys = new LinkedList<String>();
-		keys.add("numMsg:avg,max,min");
-		msgEntries = new StatsMsgSearchGatherer(name, "0 * * * * ?", keys);
-		MongoGathererMessageSearchService searchService;
-		searchService = new MongoGathererMessageSearchService(new Mongo(),
+		keys.add("numMsg:avg,max,min:Number of Messages:messages");
+		msgEntries = new StatsMsgSearchGatherer(name, "Message Statistics", "0 * * * * ?", keys);
+		MongoMessageSearchService searchService;
+		searchService = new MongoMessageSearchService(new Mongo(),
 				TestingConstants.MONGODB_TEST_DATABASE,
 				TestingConstants.MONGODB_TEST_MESSAGES_COLLECTION);
 		searchService.setDocSearchService(new IndriDocSearchQueryService());
 
 		msgEntries.setSearchService(searchService);
-		stats = msgEntries.getStatistics();
+		RawStats rawStats = msgEntries.getStatistics();
+		stats = rawStats.getStatsMap();
+		stats.put(STAT_TIMESTAMP, rawStats.getTimestamp());
 	}
 
 	@AfterClass
@@ -125,14 +128,14 @@ public class StatsMsgEntriesTest {
 
 	@Test
 	public void hasTimeStamp() {
-		Long time = ((Date) stats.get(STAT_TIME_STAMP)).getTime();
+		Long time = ((Date) stats.get(STAT_TIMESTAMP)).getTime();
 		assertTrue("runtime test exception in hasTimeStamp(): time = " + time,
 				time != null);
 	}
 
 	@Test
 	public void timeGTZero() {
-		Long time = ((Date) stats.get(STAT_TIME_STAMP)).getTime();
+		Long time = ((Date) stats.get(STAT_TIMESTAMP)).getTime();
 		assertTrue("runtime test exception in timeGTZero(): time = " + time,
 				time > 0);
 	}
@@ -143,8 +146,11 @@ public class StatsMsgEntriesTest {
 		Date endDate = new Date();
 		Map<String, Object> numEntriesStats = null;
 		try{
-			 numEntriesStats = msgEntries.getStatistics(
-				startDate, endDate);
+			RawStats rawStatsOnDate = msgEntries.getStatistics(
+					startDate, endDate);
+			
+			numEntriesStats = rawStatsOnDate.getStatsMap();
+			numEntriesStats.put(STAT_TIMESTAMP, rawStatsOnDate.getTimestamp());
 		} catch(Exception e) {
 			assertTrue("numEntriesCrashed", false);
 		}

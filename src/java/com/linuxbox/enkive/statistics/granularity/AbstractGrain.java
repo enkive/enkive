@@ -42,8 +42,6 @@ public abstract class AbstractGrain implements Grain {
 	}
 
 	public void storeConsolidatedData() {
-		//TODO
-//		System.out.println("consolidateData: " + consolidateData());
 		client.storeData(consolidateData());
 	}
 
@@ -57,16 +55,15 @@ public abstract class AbstractGrain implements Grain {
 	public void methodMapBuilder(String method, Object exampleData,
 			DescriptiveStatistics statsMaker, Map<String, Object> statData) {
 		if (method.equals(GRAIN_SUM)) {
-			statData.put(method, injectType(exampleData, statsMaker.getSum()));
+			statData.put(method, statsMaker.getSum());
 		} else if (method.equals(GRAIN_MAX)) {
-			statData.put(method, injectType(exampleData, statsMaker.getMax()));
+			statData.put(method, statsMaker.getMax());
 		} else if (method.equals(GRAIN_MIN)) {
-			statData.put(method, injectType(exampleData, statsMaker.getMin()));
+			statData.put(method, statsMaker.getMin());
 		} else if (method.equals(GRAIN_AVG)) {
-			statData.put(method, injectType(exampleData, statsMaker.getMean()));
+			statData.put(method, statsMaker.getMean());
 		} else if (method.equals(GRAIN_STD_DEV)) {
-			statData.put(method,
-			injectType(exampleData, statsMaker.getStandardDeviation()));
+			statData.put(method, statsMaker.getStandardDeviation());
 		}
 	}
 
@@ -153,27 +150,6 @@ public abstract class AbstractGrain implements Grain {
 			}
 		}
 		return null;
-	}
-
-	/**
-	 * This method uses an example data object from the map and converts the double value back
-	 * into whatever type that example data object was.
-	 * @param example - the example data objecvt
-	 * @param value - the double value to convert
-	 * @return converted value
-	 */
-	protected Object injectType(Object example, double value) {
-		Object result = null;
-		if (example instanceof Integer) {
-			result = (int) value;
-		} else if (example instanceof Long) {
-			result = (long) value;
-		} else if (example instanceof Double) {
-			result = value;
-		} else if (example instanceof Date) {
-			result = new Date((long) value);
-		}
-		return result;
 	}
 
 	/** determines if a path matches any of the ConsolidationDefinitions for a given gatherer
