@@ -33,7 +33,6 @@ import org.apache.commons.logging.LogFactory;
 import com.linuxbox.enkive.audit.AuditService;
 import com.linuxbox.enkive.workspace.AbstractWorkspaceService;
 import com.linuxbox.enkive.workspace.Workspace;
-import com.linuxbox.enkive.workspace.WorkspaceBuilder;
 import com.linuxbox.enkive.workspace.WorkspaceException;
 import com.linuxbox.enkive.workspace.WorkspaceServiceMBean;
 import com.mongodb.BasicDBList;

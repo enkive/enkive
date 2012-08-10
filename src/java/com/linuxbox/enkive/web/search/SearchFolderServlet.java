@@ -27,13 +27,8 @@ import static com.linuxbox.enkive.web.WebPageInfo.PAGE_POSITION_PARAMETER;
 import static com.linuxbox.enkive.web.WebPageInfo.PAGE_SIZE_PARAMETER;
 import static com.linuxbox.enkive.web.WebPageInfo.PAGING_LABEL;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -48,7 +43,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.tika.io.IOUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
