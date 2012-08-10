@@ -3,6 +3,7 @@
 {
 	width: 100%;
 	background-color: #476098;
+	padding-bottom:55px;
 }
 
 #footer_top

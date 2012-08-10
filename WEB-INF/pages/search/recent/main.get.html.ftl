@@ -2,6 +2,7 @@
 	<div class="scrollable">
 		<table id="saved_searches">
 			<tr>
+				<th><input type="checkbox" onclick="toggleChecked(this.checked)" /></th>
 				<th>
 					<a class="sortable" href="${uri}&sortBy=sortByDate&sortDir=-1">
 						<img src="${url.context}/resource/images/sort_arrow_desc.png" alt="Sort DESC" />
@@ -33,38 +34,23 @@
 				</#if>
 				" id="${search.searchId}">
 					<#assign searchDate = search.searchDate?datetime("yyyy-MM-dd_HH-mm-ss-SSS")>
+					<td class="search_action"><input type="checkbox" class="idcheckbox"  value="${search.searchId}"/></td>
 				  	<td>${searchDate}</td>
 				  	<td>
 					    <#list search.criteria as criteria>
 						  	<b>${criteria.parameter}:</b>${criteria.value}<br />
 				        </#list>
 				    </td>
-				    <td>${search.status}</td>	
+				    <td>${search.status}</td>
+				    <#if search.status == "RUNNING" || search.status == "QUEUED">
 					<td width="50px" class="search_action">
-					    <#if search.status == "COMPLETE" && !search.searchIsSaved>
-						    <table>
-						    	<tr>
-					    			<td class="noscript">
-					    				<a class="view_search" href="${url.context}/search/saved/view?searchid=${search.searchId}">VIEW</a>
-					    			</td>
-								    <td><input type="button" onClick='save_recent_search("${search.searchId}")' value="Save" /></td>
-								    <td><input type="button" onClick='delete_recent_search("${search.searchId}")' value="Delete" /></td>
-								</tr>
-							</table>
-						<#elseif search.status == "RUNNING" || search.status == "QUEUED">
-						    <table>
-						    	<tr>
-								    <td><input type="button" onClick='stop_search("${search.searchId}")' value="Request Stop" /></td>
-								</tr>
-							</table>
-						<#else>
-							<table>
-						    	<tr>
-								    <td><input type="button" onClick='delete_recent_search("${search.searchId}")' value="Delete" /></td>
-								</tr>
-							</table>
-						</#if>
+						<table>
+						    <tr>
+							    <td><input type="button" onClick='stop_search("${search.searchId}")' value="Request Stop" /></td>
+							</tr>
+						</table>
 					</td>
+					</#if>
 				</tr>
 			</#list>
 		</table>
@@ -72,4 +58,10 @@
 	<#assign uri = uri>
 	<#assign paging = paging>
 	<#include "*/templates/paging.ftl">
+	<table>
+		<tr>
+			<td><input type="button" onClick='save_recent_searches()' value="Save Selected Searches" /></td>
+			<td><input type="button" onClick='delete_recent_searches()' value="Delete Selected Searches" /></td>
+		</tr>
+	</table>
 </#if>

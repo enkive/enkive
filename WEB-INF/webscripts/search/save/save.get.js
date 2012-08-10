@@ -1,5 +1,5 @@
-var searchid = context.properties["searchid"];
+var searchids = context.properties["searchids"];
 
 var connector = remote.connect("enkive"); 
 
-connector.get("/search/save?searchid=" + searchid);
+connector.get("/search/save?searchids=" + searchids);

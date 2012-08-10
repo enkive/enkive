@@ -1,0 +1,13 @@
+<webscript kind="com.linuxbox.enkive.contentStream">
+	<shortname>Search Folder Export</shortname>
+	<description>Search Folder Export</description>
+	<url>/search/folder/export</url>
+	<format default="">argument</format>
+	<authentication>user</authentication>
+	<cache>
+		<never>true</never>
+		<public>false</public>
+		<mustrevalidate />
+	</cache>
+	<transaction>required</transaction>
+</webscript>
