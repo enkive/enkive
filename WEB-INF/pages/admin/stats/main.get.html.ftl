@@ -16,7 +16,7 @@
 	        </tr>
 	        
 	        <tr>
-	            <td>Statistic:</td>
+	            <td>Lines:</td>
 	            <td><div id="MethodBoxesDiv"></div></td>
 	        </tr>
 	        
@@ -111,7 +111,6 @@ function populateStats(vars) {
                     } catch (err) {//IE
                         stat.add(option);
                     }
-//                  populateMethods(vars[i][humanKey][statKey]);
 	             }
             }
          }

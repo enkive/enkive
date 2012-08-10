@@ -24,7 +24,7 @@
 		
 		var times = new Array();
 		for(i=0; i<data.length; i++){
-		    times.push(data[i].ts.max);
+		    times.push(data[i].ts.min);
 		}
 		
 		var values = new Array();
