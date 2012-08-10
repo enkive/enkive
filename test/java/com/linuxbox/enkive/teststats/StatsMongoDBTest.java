@@ -9,7 +9,7 @@ import static com.linuxbox.enkive.statistics.StatsConstants.STAT_NUM_EXTENT;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_NUM_INDEX;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_NUM_OBJS;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_GATHERER_NAME;
-import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIME_STAMP;
+import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIMESTAMP;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TOTAL_INDEX_SIZE;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TOTAL_SIZE;
 import static org.junit.Assert.assertNotNull;
@@ -28,6 +28,7 @@ import org.junit.Test;
 
 import com.linuxbox.enkive.TestingConstants;
 import com.linuxbox.enkive.statistics.KeyConsolidationHandler;
+import com.linuxbox.enkive.statistics.RawStats;
 import com.linuxbox.enkive.statistics.gathering.mongodb.StatsMongoDBGatherer;
 import com.mongodb.BasicDBObject;
 import com.mongodb.Mongo;
@@ -42,19 +43,22 @@ public class StatsMongoDBTest {
 	public static void setUpBeforeClass() throws Exception {
 		m = new Mongo();
 		List<String> keys = new LinkedList<String>();
-		keys.add("db:");
-		keys.add("numObj:avg,max,min");
-		keys.add("nColls:avg,max,min");
-		keys.add("avgOSz:avg,max,min");
-		keys.add("dataSz:avg,max,min");
-		keys.add("totSz:avg,max,min");
-		keys.add("numInd:avg,max,min");
-		keys.add("indSz:avg,max,min");
-		keys.add("numExt:avg,max,min");
-		keys.add("fileSz:avg,max,min");
+		keys.add("db::Database Name:");
+		keys.add("numObj:avg,max,min:Number of Objects:");
+		keys.add("nColls:avg,max,min:Number of Collections:");
+		keys.add("avgOSz:avg,max,min:Average Object Size:bytes");
+		keys.add("dataSz:avg,max,min:Data Size:bytes");
+		keys.add("totSz:avg,max,min:Total Size:bytes");
+		keys.add("numInd:avg,max,min:Number of Indexes");
+		keys.add("indSz:avg,max,min:Index Size:objects");
+		keys.add("numExt:avg,max,min:Number of Extents:");
+		keys.add("fileSz:avg,max,min:File Size:bytes");
 		dbStats = new StatsMongoDBGatherer(m,
-				TestingConstants.MONGODB_TEST_DATABASE, name, "0 * * * * ?", keys);
-		allStats = new BasicDBObject(dbStats.getStatistics());
+				TestingConstants.MONGODB_TEST_DATABASE, name, "Database Statistics", "0 * * * * ?", keys);
+		RawStats rawStats = dbStats.getStatistics();
+		Map<String, Object> rawMap = rawStats.getStatsMap();
+		rawMap.put(STAT_TIMESTAMP, rawStats.getTimestamp());
+		allStats = new BasicDBObject(rawMap);
 	}
 
 	@AfterClass
@@ -138,14 +142,14 @@ public class StatsMongoDBTest {
 
 	@Test
 	public void hasTimeStamp() {
-		Long time = ((Date) allStats.get(STAT_TIME_STAMP)).getTime();
+		Long time = ((Date) allStats.get(STAT_TIMESTAMP)).getTime();
 		assertTrue("runtime test exception in hasTimeStamp(): time = " + time,
 				time != null);
 	}
 
 	@Test
 	public void timeGTZero() {
-		Long time = ((Date) allStats.get(STAT_TIME_STAMP)).getTime();
+		Long time = ((Date) allStats.get(STAT_TIMESTAMP)).getTime();
 		assertTrue("runtime test exception in timeGTZero(): time = " + time,
 				time > 0);
 	}
