@@ -1,24 +1,34 @@
 package com.linuxbox.enkive.imap;
 
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.james.imap.decode.main.DefaultImapDecoder;
-import org.apache.james.imap.decode.parser.ImapParserFactory;
-import org.apache.james.imap.encode.base.EndImapEncoder;
-import org.apache.james.imap.message.response.UnpooledStatusResponseFactory;
+import org.apache.james.imap.decode.ImapDecoderFactory;
+import org.apache.james.imap.encode.ImapEncoderFactory;
+import org.apache.james.imap.encode.main.DefaultImapEncoderFactory;
+import org.apache.james.imap.main.DefaultImapDecoderFactory;
+import org.apache.james.imap.processor.main.DefaultImapProcessorFactory;
+import org.apache.james.mailbox.MailboxManager;
 import org.slf4j.Logger;
 
 public class ImapAccessServer {
 
 	public ImapAccessServer() {
+
+		MailboxManager mm = new EnkiveMailboxManager();
+
+		ImapDecoderFactory df = new DefaultImapDecoderFactory();
+		ImapEncoderFactory ef = new DefaultImapEncoderFactory();
+
+		DefaultImapProcessorFactory pf = new DefaultImapProcessorFactory();
+		pf.setMailboxManager(mm);
+		pf.setSubscriptionManager(new EnkiveSubscriptionManager());
+
 		EnkiveIMAPServer imapServer = new EnkiveIMAPServer();
 		Logger logger = new org.slf4j.impl.Log4jLoggerFactory()
 				.getLogger("com.linuxbox.enkive.imap");
 		imapServer.setLog(logger);
-		imapServer.setImapDecoder(new DefaultImapDecoder(
-				new UnpooledStatusResponseFactory(), new ImapParserFactory(
-						new UnpooledStatusResponseFactory())));
-		imapServer.setImapEncoder(new EnkiveImapEncoder());
-		imapServer.setImapProcessor(new EnkiveImapProcessor());
+		imapServer.setImapDecoder(df.buildImapDecoder());
+		imapServer.setImapEncoder(ef.buildImapEncoder());
+		imapServer.setImapProcessor(pf.buildImapProcessor());
 
 		HierarchicalConfiguration config = new HierarchicalConfiguration();
 		config.addProperty("connectionLimit", "50");
