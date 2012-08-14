@@ -203,5 +203,19 @@
 		<constructor-arg name="remover" ref="RemovalRunner" />
 		<constructor-arg name="schedule" value="0 0 * * * ?" />
 	</bean>
+	
+	<bean id="AttachmentsConsolidatedGatherer"
+		class="com.linuxbox.enkive.statistics.gathering.consolidated.AttachmentsConsolidatedGatherer">
+		<constructor-arg ref="Mongo" />
+		<constructor-arg name="dbName" value="${enkive.statistics.db.name}" />
+		<constructor-arg name="attachmentsColl" value="${enkive.docstore.fs.collection.name}" />
+		<constructor-arg name="statisticsColl" value="statistics"/>
+		<constructor-arg name="gathererName" value="AttachmentsConsolidatedGatherer"/>
+		<constructor-arg name="client" ref="StatisticsClient" />
+		<constructor-arg name="hrKeepTime" value="168"/>
+		<constructor-arg name="dayKeepTime" value="90"/>	
+		<constructor-arg name="wkKeepTime" value="20"/>
+		<constructor-arg name="monthKeepTime" value="24"/>
+	</bean>
 </beans>
 	

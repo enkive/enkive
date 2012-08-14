@@ -1,5 +1,6 @@
 package com.linuxbox.enkive.statistics.granularity;
 
+import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIMESTAMP;
 import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_AVG;
 import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MAX;
 import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MIN;
@@ -82,6 +83,10 @@ public abstract class AbstractGrain implements Grain {
 						new LinkedList<String>(), attribute.getKeys(),
 						serviceData);
 				mapToStore.put(GRAIN_TYPE, grainType);
+				Map<String, Object> dateMap = new HashMap<String, Object>();
+				dateMap.put(GRAIN_MIN, startDate);
+				dateMap.put(GRAIN_MAX, endDate);
+				mapToStore.put(STAT_TIMESTAMP, dateMap);
 				if (mapToStore.containsKey("_id")) {
 					mapToStore.remove("_id");
 				}
@@ -121,14 +126,6 @@ public abstract class AbstractGrain implements Grain {
 
 		}
 		return consolidatedMap;
-	}
-
-	/** 
-	 * @param serviceData all data pertaining to the weight 
-	 * @return the number of objects in serviceData
-	 */
-	protected int findWeight(Set<Map<String, Object>> serviceData) {
-		return serviceData.size();
 	}
 
 	/**
@@ -270,7 +267,6 @@ public abstract class AbstractGrain implements Grain {
 		} else if (stat instanceof Date) {
 			input = (double) ((Long) ((Date) stat).getTime()).longValue();
 		} else {
-			System.out.println(stat);
 			LOGGER.warn("statToDouble(Object stat)-unexpected Object type");
 		}
 		return input;

@@ -26,7 +26,8 @@ public class GathererAttributes {
 		this.keys = keys;
 		//serviceName and Timestamp must always be specified
 		keys.add(new KeyConsolidationHandler(STAT_GATHERER_NAME + "::Gatherer Name:"));
-		keys.add(new KeyConsolidationHandler(STAT_TIMESTAMP + ":" + GRAIN_MAX + "," + GRAIN_MIN + ":Time Stamp:"));
+		keys.add(new KeyConsolidationHandler(STAT_TIMESTAMP + "::Time Stamp:"));
+		//		keys.add(new KeyConsolidationHandler(STAT_TIMESTAMP + ":" + GRAIN_MAX + "," + GRAIN_MIN + ":Time Stamp:"));
 	}
 
 	/**
