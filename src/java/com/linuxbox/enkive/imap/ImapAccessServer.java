@@ -6,14 +6,24 @@ import org.apache.james.imap.encode.ImapEncoderFactory;
 import org.apache.james.imap.encode.main.DefaultImapEncoderFactory;
 import org.apache.james.imap.main.DefaultImapDecoderFactory;
 import org.apache.james.imap.processor.main.DefaultImapProcessorFactory;
-import org.apache.james.mailbox.MailboxManager;
+import org.apache.james.mailbox.exception.MailboxException;
 import org.slf4j.Logger;
 
 public class ImapAccessServer {
 
 	public ImapAccessServer() {
 
-		MailboxManager mm = new EnkiveMailboxManager();
+		EnkiveMailboxManager mm = new EnkiveMailboxManager(
+				new EnkiveMailboxSessionMapperFactory(),
+				new EnkiveImapAuthenticator(),
+				new EnkiveImapMailboxACLResolver(),
+				new EnkiveImapGroupMembershipResolver());
+		try {
+			mm.init();
+		} catch (MailboxException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 
 		ImapDecoderFactory df = new DefaultImapDecoderFactory();
 		ImapEncoderFactory ef = new DefaultImapEncoderFactory();
