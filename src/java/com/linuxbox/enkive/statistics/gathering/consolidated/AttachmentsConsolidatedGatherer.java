@@ -39,8 +39,8 @@ public class AttachmentsConsolidatedGatherer{
 	DB db;
 	DBCollection attachmentsColl;
 	String gathererName;
-	final Date startDate;
-	final Date endDate;
+	Date startDate;
+	Date endDate;
 	private int hrKeepTime;
 	private int dayKeepTime;
 	private int wkKeepTime;
@@ -63,10 +63,10 @@ public class AttachmentsConsolidatedGatherer{
 	@PostConstruct
 	public void init(){
 		System.out.println("Start: " + new Date());
-		consolidatePastHours();
-		consolidatePastDays();
-		consolidatePastWeeks();
-		consolidatePastMonths();
+		client.storeData(consolidatePastHours());
+		client.storeData(consolidatePastDays());
+		client.storeData(consolidatePastWeeks());
+		client.storeData(consolidatePastMonths());
 		System.out.println("End: " + new Date());
 	}
 	
@@ -75,20 +75,20 @@ public class AttachmentsConsolidatedGatherer{
 		return (Date)attachmentsColl.find().sort(sort).next().get(MONGO_UPLOAD_DATE);
 	}
 	
-	protected void consolidatePastHours(){
-		consolidatePast(GRAIN_HOUR);
+	protected  Set<Map<String, Object>> consolidatePastHours(){
+		return consolidatePast(GRAIN_HOUR);
 	}
 	
-	protected void consolidatePastDays(){
-		consolidatePast(GRAIN_DAY);
+	protected Set<Map<String, Object>> consolidatePastDays(){
+		return consolidatePast(GRAIN_DAY);
 	}
 	
-	protected void consolidatePastWeeks(){
-		consolidatePast(GRAIN_WEEK);
+	protected Set<Map<String, Object>> consolidatePastWeeks(){
+		return consolidatePast(GRAIN_WEEK);
 	}
 	
-	protected void consolidatePastMonths(){
-		consolidatePast(GRAIN_MONTH);
+	protected Set<Map<String, Object>> consolidatePastMonths(){
+		return consolidatePast(GRAIN_MONTH);
 	}
 	
 	private Calendar getStartCalendar(int grain){
@@ -105,25 +105,28 @@ public class AttachmentsConsolidatedGatherer{
 		
 		
 		if(grain == GRAIN_HOUR){
-			keepCalendar.add(Calendar.HOUR, -hrKeepTime);
+			keepCalendar.add(Calendar.HOUR_OF_DAY, -hrKeepTime);
 		} else if(grain == GRAIN_DAY){
-			startCalendar.set(Calendar.HOUR, 0);
-			
-			keepCalendar.set(Calendar.HOUR, 0);
+			startCalendar.set(Calendar.HOUR_OF_DAY, 0);
+			keepCalendar.set(Calendar.HOUR_OF_DAY, 0);
 			keepCalendar.add(Calendar.DATE,-dayKeepTime); 
 		} else if(grain == GRAIN_WEEK){
-			startCalendar.set(Calendar.HOUR, 0);
-			startCalendar.set(Calendar.DATE, 0);
+			startCalendar.set(Calendar.HOUR_OF_DAY, 0);
+			while(startCalendar.get(Calendar.DAY_OF_WEEK) != Calendar.SUNDAY){
+				startCalendar.add(Calendar.DATE, -1);
+			}
 			
-			keepCalendar.set(Calendar.HOUR, 0);
-			keepCalendar.set(Calendar.DATE, 0);
+			keepCalendar.set(Calendar.HOUR_OF_DAY, 0);
+			while(keepCalendar.get(Calendar.DAY_OF_WEEK) != Calendar.SUNDAY){
+				keepCalendar.add(Calendar.DATE, -1);
+			}
 			keepCalendar.add(Calendar.WEEK_OF_YEAR, -wkKeepTime);
 		} else if(grain == GRAIN_MONTH){
-			startCalendar.set(Calendar.HOUR, 0);
-			startCalendar.set(Calendar.DATE, 0);
+			startCalendar.set(Calendar.HOUR_OF_DAY, 0);
+			startCalendar.set(Calendar.DAY_OF_MONTH, 1);
 			
-			keepCalendar.set(Calendar.HOUR, 0);
-			keepCalendar.set(Calendar.DATE, 0);
+			keepCalendar.set(Calendar.HOUR_OF_DAY, 0);
+			keepCalendar.set(Calendar.DAY_OF_MONTH, 1);
 			keepCalendar.add(Calendar.MONTH,-monthKeepTime);
 		}
 		
@@ -134,17 +137,38 @@ public class AttachmentsConsolidatedGatherer{
 		return startCalendar;
 	}
 	
+	private Calendar getEndCalendar(int grain){
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(endDate);
+		if(grain >= GRAIN_DAY){
+			cal.set(Calendar.HOUR_OF_DAY, 0);
+		}
+		if(grain == GRAIN_WEEK){
+			while(cal.get(Calendar.DAY_OF_WEEK) != Calendar.SUNDAY){
+				cal.add(Calendar.DATE, -1);
+			}
+		}
+		if(grain >= GRAIN_MONTH){
+			cal.set(Calendar.DAY_OF_MONTH, 1);
+		}
+		return cal;
+	}
 	protected Set<Map<String, Object>> consolidatePast(int grain){
-		Calendar startCalendar = getStartCalendar(grain);	
+		Calendar startCalendar = getStartCalendar(grain);
+		
+		
 		Set<Map<String, Object>> consolidatedMaps = new HashSet<Map<String, Object>>();
 		if(startCalendar.getTimeInMillis() < endDate.getTime()){
 			Date startDate = startCalendar.getTime();
 			Calendar cal = Calendar.getInstance();
 			cal.setTime(startDate);
-			while(startDate.getTime() < endDate.getTime()){
+			
+			Calendar endCalendar = getEndCalendar(grain);
+//TODO			System.out.println("StartCalendar: " + startDate + " endDate: " + endCalendar.getTime());
+			while(startDate.getTime() < endCalendar.getTimeInMillis()){
 				Date start = cal.getTime();
 				if(grain == GRAIN_HOUR){
-					cal.add(Calendar.HOUR, 1);
+					cal.add(Calendar.HOUR_OF_DAY, 1);
 				} else if(grain == GRAIN_DAY){
 					cal.add(Calendar.DATE, 1);
 				} else if(grain == GRAIN_WEEK){
@@ -165,17 +189,20 @@ public class AttachmentsConsolidatedGatherer{
 	@SuppressWarnings("unchecked")
 	protected Date getEarliestStatisticDate(){
 		StatsQuery query = new StatsQuery("AttachmentStatsService", null);
-		Date earliestDate = new Date();
+		Calendar earliestDate = Calendar.getInstance();
 		for(Map<String, Object> statMap: client.queryStatistics(query)){
 			if(statMap.get(GRAIN_TYPE) != null){
 				Map<String, Object> tsMap = (Map<String, Object>)statMap.get(STAT_TIMESTAMP);
 				Date tempDate = (Date)tsMap.get(GRAIN_MIN);
-				if(earliestDate.getTime() > tempDate.getTime()){
-					earliestDate = tempDate;
+				if(earliestDate.getTimeInMillis() > tempDate.getTime()){
+					earliestDate.setTime(tempDate);
 				}
 			}
 		}
-		return earliestDate;
+		earliestDate.set(Calendar.MILLISECOND, 0);
+		earliestDate.set(Calendar.SECOND, 0);
+		earliestDate.set(Calendar.MINUTE, 0);
+		return earliestDate.getTime();
 	}
 	
 	protected Map<String, Object> getConsolidatedData(Date start, Date end, int grain){
