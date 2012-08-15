@@ -8,7 +8,6 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIMESTAMP;
 import com.linuxbox.enkive.statistics.RawStats;
 import com.linuxbox.enkive.statistics.StatsFilter;
 import com.linuxbox.enkive.statistics.StatsQuery;
@@ -195,9 +194,7 @@ public class StatsClient {
 	public void storeRawStatsData(List<RawStats> rawDataSet) {
 		Set<Map<String, Object>> dataToStore = new HashSet<Map<String, Object>>(); 
 		for(RawStats stat: rawDataSet){
-			Map<String, Object> dataMap = stat.getStatsMap();
-			dataMap.put(STAT_TIMESTAMP, stat.getTimestamp());
-			dataToStore.add(dataMap);
+			dataToStore.add(stat.toMap());
 		}
 		storeData(dataToStore);
 	}

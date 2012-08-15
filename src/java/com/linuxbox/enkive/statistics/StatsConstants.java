@@ -7,7 +7,6 @@ public interface StatsConstants {
 	public static String QUEUE_LENGTH = "queLen";
 	public static SimpleDateFormat SIMPLE_DATE = new SimpleDateFormat(
 			"yyyy-MM-dd-HH-mm-ss");
-	public static String STAT_AVG_ATTACH = "avgAtt";
 	public static String STAT_ATTACH_SIZE = "attSz";
 	public static String STAT_ATTACH_NUM = "attNum";
 	public static String STAT_AVG_OBJ_SIZE = "avgOSz";

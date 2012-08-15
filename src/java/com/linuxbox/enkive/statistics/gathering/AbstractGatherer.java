@@ -3,7 +3,6 @@ package com.linuxbox.enkive.statistics.gathering;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_GATHERER_NAME;
 
 import java.text.ParseException;
-import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -56,7 +55,8 @@ public abstract class AbstractGatherer implements GathererInterface {
 		if (keys == null) {
 			return getStatistics();
 		}
-		Map<String, Object> stats = getStatistics().getStatsMap();
+		RawStats result = getStatistics();
+		Map<String, Object> stats = result.getStatsMap();
 		Map<String, Object> selectedStats = VarsMaker.createMap();
 		for (String key : keys) {
 			if (stats.get(key) != null) {
@@ -64,8 +64,6 @@ public abstract class AbstractGatherer implements GathererInterface {
 			}
 		}
 		selectedStats.put(STAT_GATHERER_NAME, attributes.getName());
-		RawStats result = new RawStats();
-		result.setTimestamp(new Date());
 		result.setStatsMap(selectedStats);
 		return result;
 

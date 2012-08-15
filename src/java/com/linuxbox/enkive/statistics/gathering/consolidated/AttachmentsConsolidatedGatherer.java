@@ -62,6 +62,7 @@ public class AttachmentsConsolidatedGatherer{
 	
 	@PostConstruct
 	public void init(){
+//TODO
 		System.out.println("Start: " + new Date());
 		client.storeData(consolidatePastHours());
 		client.storeData(consolidatePastDays());
@@ -138,20 +139,20 @@ public class AttachmentsConsolidatedGatherer{
 	}
 	
 	private Calendar getEndCalendar(int grain){
-		Calendar cal = Calendar.getInstance();
-		cal.setTime(endDate);
+		Calendar endCalendar = Calendar.getInstance();
+		endCalendar.setTime(endDate);
 		if(grain >= GRAIN_DAY){
-			cal.set(Calendar.HOUR_OF_DAY, 0);
+			endCalendar.set(Calendar.HOUR_OF_DAY, 0);
 		}
 		if(grain == GRAIN_WEEK){
-			while(cal.get(Calendar.DAY_OF_WEEK) != Calendar.SUNDAY){
-				cal.add(Calendar.DATE, -1);
+			while(endCalendar.get(Calendar.DAY_OF_WEEK) != Calendar.SUNDAY){
+				endCalendar.add(Calendar.DATE, -1);
 			}
 		}
 		if(grain >= GRAIN_MONTH){
-			cal.set(Calendar.DAY_OF_MONTH, 1);
+			endCalendar.set(Calendar.DAY_OF_MONTH, 1);
 		}
-		return cal;
+		return endCalendar;
 	}
 	protected Set<Map<String, Object>> consolidatePast(int grain){
 		Calendar startCalendar = getStartCalendar(grain);
@@ -164,7 +165,6 @@ public class AttachmentsConsolidatedGatherer{
 			cal.setTime(startDate);
 			
 			Calendar endCalendar = getEndCalendar(grain);
-//TODO			System.out.println("StartCalendar: " + startDate + " endDate: " + endCalendar.getTime());
 			while(startDate.getTime() < endCalendar.getTimeInMillis()){
 				Date start = cal.getTime();
 				if(grain == GRAIN_HOUR){

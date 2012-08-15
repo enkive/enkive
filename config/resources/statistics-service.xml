@@ -91,11 +91,10 @@
 		<constructor-arg name="schedule" value="0 0/15 * * * ?" />
 		<property name="scheduler" ref="ScheduledJobsBean" />
 		<property name="storageService" ref="StatisticsStorer" />
-		<property name="interval" value="900000"/>
 		<property name="keys">	
 			<list>
-				<value>avgAtt:avg:Average Number of Attachments</value>
-				<value>maxAtt:max:Maximum Number of Attachments</value>
+				<value>attNum:avg:Number of Attachments:</value>
+				<value>attSz:avg:Attachment Size:bytes</value>
 			</list>
 		</property>	
 	</bean>
@@ -190,7 +189,7 @@
 		class="com.linuxbox.enkive.statistics.removal.RemovalJob">
 		<constructor-arg name="client" ref="StatisticsClient" />
 		<property name="rawKeepTime" value="2"/>
-		<property name="hrKeepTime" value="168"/>
+		<property name="hrKeepTime" value="96"/>
 		<property name="dayKeepTime" value="90"/>	
 		<property name="wkKeepTime" value="20"/>
 		<property name="monthKeepTime" value="24"/>
@@ -212,7 +211,7 @@
 		<constructor-arg name="statisticsColl" value="statistics"/>
 		<constructor-arg name="gathererName" value="AttachmentsConsolidatedGatherer"/>
 		<constructor-arg name="client" ref="StatisticsClient" />
-		<constructor-arg name="hrKeepTime" value="168"/>
+		<constructor-arg name="hrKeepTime" value="96"/>
 		<constructor-arg name="dayKeepTime" value="90"/>	
 		<constructor-arg name="wkKeepTime" value="20"/>
 		<constructor-arg name="monthKeepTime" value="24"/>

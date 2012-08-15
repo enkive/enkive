@@ -27,6 +27,7 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.linuxbox.enkive.statistics.InstantRawStats;
 import com.linuxbox.enkive.statistics.VarsMaker;
 import com.linuxbox.enkive.statistics.RawStats;
 import com.linuxbox.enkive.statistics.gathering.AbstractGatherer;
@@ -73,9 +74,7 @@ public class StatsMongoDBGatherer extends AbstractGatherer {
 		stats.put(STAT_NUM_EXTENT, temp.get(MONGO_NUM_EXTENT));
 		stats.put(STAT_FILE_SIZE, temp.get(MONGO_FILE_SIZE));
 
-		RawStats result = new RawStats();
-		result.setStatsMap(stats);
-		result.setTimestamp(new Date());
+		RawStats result = new InstantRawStats(stats, new Date());
 		return result;
 	}
 }

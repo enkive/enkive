@@ -5,6 +5,7 @@ import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIMESTAMP;
 import static com.linuxbox.enkive.statistics.gathering.mongodb.MongoConstants.MONGO_ID;
 import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_TYPE;
 import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MIN;
+import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MAX;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -27,7 +28,6 @@ import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import com.mongodb.Mongo;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_RAW;
 
 public class MongoStatsRetrievalService extends VarsMaker implements
 		StatsRetrievalService {
@@ -49,28 +49,17 @@ public class MongoStatsRetrievalService extends VarsMaker implements
 		DBObject mongoQuery = new BasicDBObject();
 		DBObject time = new BasicDBObject();
 		//put in a date
-		
-		if(query.grainType != null && query.grainType == GRAIN_RAW){
-			if(query.startTimestamp != null){
-				time.put("$gte", query.startTimestamp);
-			}
-			if(query.endTimestamp != null){
-				time.put("$lt", query.endTimestamp);
-			}
-			mongoQuery.put(STAT_TIMESTAMP, time);
-		} else {
-			if(query.startTimestamp != null){
-				time = new BasicDBObject();
-				time.put("$gte", query.startTimestamp);
-				mongoQuery.put(STAT_TIMESTAMP + "." + "min", time);
-			}
-			if(query.endTimestamp != null){
-				time = new BasicDBObject();
-				time.put("$lt", query.endTimestamp);
-				mongoQuery.put(STAT_TIMESTAMP + "." + "max", time);	
-			}
+		if(query.startTimestamp != null){
+			time = new BasicDBObject();
+			time.put("$gte", query.startTimestamp);
+			mongoQuery.put(STAT_TIMESTAMP + "." + GRAIN_MIN, time);
 		}
-		
+		if(query.endTimestamp != null){
+			time = new BasicDBObject();
+			time.put("$lt", query.endTimestamp);
+			mongoQuery.put(STAT_TIMESTAMP + "." + GRAIN_MAX, time);	
+		}
+
 		if(query.grainType != null){
 			if(query.grainType == 0){
 				mongoQuery.put(GRAIN_TYPE, null);

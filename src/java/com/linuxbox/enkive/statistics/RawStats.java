@@ -1,20 +1,30 @@
 package com.linuxbox.enkive.statistics;
 
+import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIMESTAMP;
+import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MAX;
+import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MIN;
+
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
-public class RawStats {
-    Date timestamp; // or should it be Calendar? do we have time zone info?
-    Map<String, Object> stats;
-    
-    public Date getTimestamp(){
-    	return timestamp;
-    }
-    
-    public void setTimestamp(Date timestamp){
-    	this.timestamp = timestamp;
-    }
-    
+public abstract class RawStats {
+	Map<String, Object> stats;
+	public abstract Date getStartDate();
+    public abstract Date getEndDate();
+    protected abstract void setStartDate(Date timestamp);
+    protected abstract void setEndDate(Date timestamp);
+	
+	public Map<String, Object> toMap() {
+		Map<String, Object> dateMap = new HashMap<String, Object>();
+		dateMap.put(GRAIN_MIN, getStartDate());
+		dateMap.put(GRAIN_MAX, getEndDate());
+		
+		Map<String, Object> statsMap = getStatsMap();
+		statsMap.put(STAT_TIMESTAMP, dateMap);
+		return statsMap;
+	}
+       
     public Map<String, Object> getStatsMap(){
     	return stats;
     }

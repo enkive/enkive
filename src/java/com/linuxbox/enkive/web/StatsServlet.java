@@ -87,7 +87,7 @@ public class StatsServlet extends EnkiveServlet {
 	/*
 	 * JSON formatting algorithm 
 	 * 1. get a map to use as template 
-	 * 2. recurse template until hit full path specified by attributes class 
+	 * 2. recurse template map until hit full path specified by attributes class 
 	 * 3. when full path loop over entire data on that path to build a sorted set
 	 * (sorted on ts.min) for each input to the set also include ts
 	 * 4. when done with that loop store that set under the path on the
@@ -366,8 +366,7 @@ public class StatsServlet extends EnkiveServlet {
 						if (keys != null) {
 							Map<String, Object> temp = new HashMap<String, Object>();
 							// 4. while looping build a second map for query
-							// second map will only have serviceName and date
-							// range
+							// second map will only have serviceName and date range
 							for (String key : keys) {
 								temp.put(key, 1);
 							}
@@ -408,8 +407,7 @@ public class StatsServlet extends EnkiveServlet {
 					List<RawStats> tempRawStats = client.gatherData(gatheringStats);
 					result = new LinkedList<Map<String,Object>>();
 					for(RawStats stats: tempRawStats){
-						Map<String,Object> statsMap = stats.getStatsMap();
-						statsMap.put(STAT_TIMESTAMP, stats.getTimestamp());
+						Map<String,Object> statsMap = stats.toMap();
 						result.add(statsMap);
 					}
 				} else {//output query data as formatted json

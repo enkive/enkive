@@ -9,6 +9,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import com.linuxbox.enkive.statistics.InstantRawStats;
 import com.linuxbox.enkive.statistics.VarsMaker;
 import com.linuxbox.enkive.statistics.RawStats;
 
@@ -31,9 +32,7 @@ public class StatsRuntimeGatherer extends AbstractGatherer {
 		stats.put(STAT_TOTAL_MEMORY, runtime.totalMemory());
 		stats.put(STAT_PROCESSORS, runtime.availableProcessors());
 		
-		RawStats result = new RawStats();
-		result.setTimestamp(new Date());
-		result.setStatsMap(stats);
+		RawStats result = new InstantRawStats(stats, new Date());
 		return result;
 	}
 }

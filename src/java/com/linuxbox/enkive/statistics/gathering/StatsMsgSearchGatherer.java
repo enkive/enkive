@@ -10,6 +10,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.linuxbox.enkive.message.search.exception.MessageSearchException;
+import com.linuxbox.enkive.statistics.InstantRawStats;
 import com.linuxbox.enkive.statistics.VarsMaker;
 import com.linuxbox.enkive.statistics.RawStats;
 
@@ -66,12 +67,10 @@ public class StatsMsgSearchGatherer extends AbstractGatherer {
 		} catch (MessageSearchException e) {
 			throw new GathererException(e);
 		}
-		Map<String, Object> statsData = VarsMaker.createMap();
-		statsData.put(STAT_NUM_ENTRIES, numEntries);
+		Map<String, Object> stats = VarsMaker.createMap();
+		stats.put(STAT_NUM_ENTRIES, numEntries);
 
-		RawStats result = new RawStats();
-		result.setTimestamp(new Date());
-		result.setStatsMap(statsData);
+		RawStats result = new InstantRawStats(stats, new Date());
 		return result;
 	}
 

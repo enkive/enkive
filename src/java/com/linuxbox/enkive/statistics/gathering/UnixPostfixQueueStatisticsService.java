@@ -12,6 +12,7 @@ import java.util.Map;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
+import com.linuxbox.enkive.statistics.InstantRawStats;
 import com.linuxbox.enkive.statistics.VarsMaker;
 import com.linuxbox.enkive.statistics.RawStats;
 
@@ -50,7 +51,7 @@ public class UnixPostfixQueueStatisticsService extends AbstractGatherer {
 		} catch (IOException e) {
 			stats.put(QUEUE_LENGTH + STATISTIC_CHECK_ERROR, e.toString());
 		}
-		RawStats result = new RawStats();
+		RawStats result = new InstantRawStats(stats, new Date());
 		return result;
 	}
 
@@ -67,9 +68,7 @@ public class UnixPostfixQueueStatisticsService extends AbstractGatherer {
 				selectedStats.put(key, stats.get(key));
 			}
 		}
-		RawStats result = new RawStats();
-		result.setTimestamp(new Date());
-		result.setStatsMap(selectedStats);
+		RawStats result = new InstantRawStats(selectedStats, new Date());
 		return result;
 	}
 }

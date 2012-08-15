@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.linuxbox.enkive.statistics.InstantRawStats;
 import com.linuxbox.enkive.statistics.RawStats;
 import com.linuxbox.enkive.statistics.gathering.AbstractGatherer;
 import com.linuxbox.enkive.statistics.gathering.GathererException;
@@ -41,9 +42,7 @@ public class StatsMongoMsgGatherer extends AbstractGatherer {
 		Map<String, Object> stats = new HashMap<String, Object>();
 		stats.put(ARCHIVE_SIZE, messageColl.count());
 		
-		RawStats result = new RawStats();
-		result.setStatsMap(stats);
-		result.setTimestamp(new Date());
+		RawStats result = new InstantRawStats(stats, new Date());
 		return result;
 	}
 }
