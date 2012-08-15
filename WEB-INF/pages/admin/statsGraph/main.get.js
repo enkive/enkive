@@ -26,4 +26,5 @@ if (auditEntryList != null) {
 	model.methods = "[" + methods + "]";
 	model.startDate = tsMin;
 	model.endDate = tsMax;
+	model.grain = grainType;
 }
