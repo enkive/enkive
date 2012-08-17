@@ -59,9 +59,19 @@
 	                
 	                if(interpolation == "step-before"){
 		                var insertDate = new Date(date.getTime());
-		                alert("insertDate: " + insertDate);
+		                if(grain == 1){//hourly
+	           			     date.setHours( (date.getHours()+1) );
+	            		} else if(grain == 1*24){//daily
+	                		date.setDate( (date.getDate()+1) );
+	            		} else if(grain == 1*24*7){//weekly
+	                		date.setDate( (date.getDate()+7) );
+	            		} else if(grain == 1*24*30){//monthly
+	                		date.setMonth( (date.getMonth()+1) );
+	            		}
 		                times.splice(i, 0, insertDate);
 		                indexes.push(i);
+		                i++;
+		                times.splice(i, 0, insertDate);
 		                i++;
 	                }
 	            }
@@ -101,13 +111,16 @@
 			    }
 			    
 			    for(var p in indexes){
+			    	var val = tempArray[p];
 			    	tempArray.splice(indexes[p], 0, null);
-//               		tempArray.splice(indexes[p], 0, 0);
-               		alert(tempArray);
+               		tempArray.splice(indexes[p], 0, val);
+               		tempArray.splice(indexes[p], 0, val);
+//               		alert(tempArray);
             	}
 				values.push(tempArray);
-			}
-
+			}		
+			
+			alert("indexes: " + indexes);
 			alert("times: " + times);
 			alert("value: " + values);
 	
@@ -284,6 +297,7 @@
 			.attr("text-anchor","middle")
 			.attr("startOffset","50%")
 			.text("Time");
+
 		} else {
 			$("#graph").html("<p><b>Requested data is unavailable</b></p>");
 		}
