@@ -8,13 +8,17 @@ import org.apache.james.mailbox.store.mail.MailboxMapper;
 import org.apache.james.mailbox.store.mail.MessageMapper;
 import org.apache.james.mailbox.store.user.SubscriptionMapper;
 
+import com.linuxbox.enkive.retriever.MessageRetrieverService;
+
 public class EnkiveMailboxSessionMapperFactory extends
 		MailboxSessionMapperFactory<Long> {
 
+	MessageRetrieverService retrieverService;
+	
 	@Override
 	protected MessageMapper<Long> createMessageMapper(MailboxSession session)
 			throws MailboxException {
-		return new EnkiveImapMessageMapper(session, new EnkiveImapStore());
+		return new EnkiveImapMessageMapper(session, new EnkiveImapStore(), retrieverService);
 	}
 
 	@Override
@@ -27,6 +31,14 @@ public class EnkiveMailboxSessionMapperFactory extends
 	protected SubscriptionMapper createSubscriptionMapper(MailboxSession session)
 			throws SubscriptionException {
 		return new EnkiveImapSubscriptionMapper(session);
+	}
+
+	public MessageRetrieverService getRetrieverService() {
+		return retrieverService;
+	}
+
+	public void setRetrieverService(MessageRetrieverService retrieverService) {
+		this.retrieverService = retrieverService;
 	}
 
 }

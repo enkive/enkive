@@ -14,12 +14,17 @@ import org.apache.james.mailbox.store.mail.AbstractMessageMapper;
 import org.apache.james.mailbox.store.mail.model.Mailbox;
 import org.apache.james.mailbox.store.mail.model.Message;
 
+import com.linuxbox.enkive.exception.CannotRetrieveException;
+import com.linuxbox.enkive.retriever.MessageRetrieverService;
+
 public class EnkiveImapMessageMapper extends AbstractMessageMapper<Long> {
 
+	MessageRetrieverService retrieverService;
+
 	public EnkiveImapMessageMapper(MailboxSession mailboxSession,
-			EnkiveImapStore store) {
+			EnkiveImapStore store, MessageRetrieverService retrieverService) {
 		super(mailboxSession, store, store);
-		// TODO Auto-generated constructor stub
+		this.retrieverService = retrieverService;
 	}
 
 	@Override
@@ -29,10 +34,19 @@ public class EnkiveImapMessageMapper extends AbstractMessageMapper<Long> {
 			int limit) throws MailboxException {
 		ArrayList<Message<Long>> messages = new ArrayList<Message<Long>>();
 		// TODO Auto-generated method stub
-		if (set.getUidFrom() < 1) {
-			messages.add(new EnkiveImapMessage());
-			System.out.println("HERE");
+		if (set.getUidFrom() < 1 || set.getType().toString().equals("ONE")) {
+			try {
+				com.linuxbox.enkive.message.Message message = retrieverService
+						.retrieve("e826e2fb14162842d9caf023163338d20e2820bb");
+				messages.add(new EnkiveImapMessage(message));
+				System.out.println("HERE");
+			} catch (CannotRetrieveException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
+		System.out.println(messages.size() + " " + set.getUidFrom() + " "
+				+ set.getUidTo() + " " + set.getType().toString());
 		return messages.iterator();
 	}
 
@@ -54,7 +68,7 @@ public class EnkiveImapMessageMapper extends AbstractMessageMapper<Long> {
 	public long countUnseenMessagesInMailbox(Mailbox<Long> mailbox)
 			throws MailboxException {
 		// TODO Auto-generated method stub
-		return 1;
+		return 0;
 	}
 
 	@Override
@@ -68,7 +82,7 @@ public class EnkiveImapMessageMapper extends AbstractMessageMapper<Long> {
 	public Long findFirstUnseenMessageUid(Mailbox<Long> mailbox)
 			throws MailboxException {
 		// TODO Auto-generated method stub
-		return (long) 1;
+		return (long) 0;
 	}
 
 	@Override
@@ -76,7 +90,6 @@ public class EnkiveImapMessageMapper extends AbstractMessageMapper<Long> {
 			throws MailboxException {
 		// TODO Auto-generated method stub
 		ArrayList<Long> messageIds = new ArrayList<Long>();
-		messageIds.add((long) 1);
 		return messageIds;
 	}
 

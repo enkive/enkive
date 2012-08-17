@@ -4,24 +4,7 @@
                     http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
                     http://www.springframework.org/schema/security 
                     http://www.springframework.org/schema/security/spring-security-3.0.3.xsd">
+                    
+    <beans:import resource="classpath:resources/authentication-service.xml" />
 
-	<http use-expressions="true" auto-config="false">
-		<intercept-url pattern="/**" access="isAuthenticated()" />
-		<form-login />
-	</http>
-
-<!--
-	<ldap-server url="ldap://10.1.1.55:389/dc=linuxbox,dc=com" />
-
-	<authentication-manager alias="authenticationManager">
-		<ldap-authentication-provider user-dn-pattern="uid={0},ou=people"/>
-	</authentication-manager>
--->
-	<authentication-manager alias="authenticationManager">
-		<authentication-provider>
-			<password-encoder hash="sha"/>
-			<user-service id="userDetailsService" properties="WEB-INF/users.properties" />
-		</authentication-provider>
-	</authentication-manager>
- 
 </beans:beans>

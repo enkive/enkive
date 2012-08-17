@@ -7,7 +7,6 @@ public class EnkiveImapMailbox extends SimpleMailbox<Long> {
 
 	public EnkiveImapMailbox(MailboxPath path, long uidValidity) {
 		super(path, uidValidity);
-		// TODO Auto-generated constructor stub
 	}
 
 }

@@ -11,17 +11,21 @@ import javax.mail.Flags;
 
 import org.apache.james.mailbox.store.mail.model.AbstractMessage;
 import org.apache.james.mailbox.store.mail.model.Property;
+import org.springframework.util.StringUtils;
+
+import com.linuxbox.enkive.message.Message;
 
 public class EnkiveImapMessage extends AbstractMessage<Long> {
 
-	public EnkiveImapMessage(){
-		
+	Message message;
+
+	public EnkiveImapMessage(Message message) {
+		this.message = message;
 	}
-	
+
 	@Override
 	public Date getInternalDate() {
-		// TODO Auto-generated method stub
-		return new Date();
+		return message.getDate();
 	}
 
 	@Override
@@ -39,13 +43,13 @@ public class EnkiveImapMessage extends AbstractMessage<Long> {
 	@Override
 	public void setUid(long uid) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void setModSeq(long modSeq) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
@@ -93,43 +97,64 @@ public class EnkiveImapMessage extends AbstractMessage<Long> {
 	@Override
 	public void setFlags(Flags flags) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public InputStream getBodyContent() throws IOException {
 		// TODO Auto-generated method stub
-		return new ByteArrayInputStream("TESTBODY".getBytes());
+		System.out.println("Get Body");
+		return new ByteArrayInputStream(""
+				.getBytes());
+		
 	}
 
 	@Override
+	public InputStream getFullContent() throws IOException {
+		System.out.println("Get Full");
+		return new ByteArrayInputStream(message.getReconstitutedEmail()
+				.getBytes());
+	}
+	
+	@Override
 	public String getMediaType() {
-		// TODO Auto-generated method stub
-		return "";
+		return message.getContentType();
 	}
 
 	@Override
 	public String getSubType() {
-		// TODO Auto-generated method stub
 		return "";
 	}
 
 	@Override
 	public long getFullContentOctets() {
-		// TODO Auto-generated method stub
+		try {
+			return message.getReconstitutedEmail().length();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		return 0;
 	}
 
 	@Override
 	public Long getTextualLineCount() {
-		// TODO Auto-generated method stub
-		return (long) 1;
+		long lineCount = 0;
+		try {
+			lineCount = StringUtils.countOccurrencesOf(
+					message.getReconstitutedEmail(), "\n");
+			System.out.println("line count is " + lineCount);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return lineCount;
 	}
 
 	@Override
 	public InputStream getHeaderContent() throws IOException {
-		// TODO Auto-generated method stub
-		return new ByteArrayInputStream("Subject: TEST".getBytes());
+		System.out.println("Get Header");
+		return new ByteArrayInputStream(message.getOriginalHeaders().getBytes());
 	}
 
 	@Override
@@ -142,7 +167,7 @@ public class EnkiveImapMessage extends AbstractMessage<Long> {
 	@Override
 	protected int getBodyStartOctet() {
 		// TODO Auto-generated method stub
-		return 1;
+		return 0;
 	}
 
 }

@@ -6,6 +6,7 @@ import java.util.List;
 import org.apache.james.mailbox.MailboxSession;
 import org.apache.james.mailbox.exception.MailboxException;
 import org.apache.james.mailbox.exception.MailboxNotFoundException;
+import org.apache.james.mailbox.model.MailboxConstants;
 import org.apache.james.mailbox.model.MailboxPath;
 import org.apache.james.mailbox.store.mail.MailboxMapper;
 import org.apache.james.mailbox.store.mail.model.Mailbox;
@@ -42,6 +43,7 @@ public class EnkiveImapMailboxMapper extends NonTransactionalMapper implements
 	public Mailbox<Long> findMailboxByPath(MailboxPath mailboxName)
 			throws MailboxException, MailboxNotFoundException {
 		// TODO Auto-generated method stub
+		System.out.println("find by path");
 		return new EnkiveImapMailbox(mailboxName, 1);
 	}
 
@@ -49,24 +51,25 @@ public class EnkiveImapMailboxMapper extends NonTransactionalMapper implements
 	public List<Mailbox<Long>> findMailboxWithPathLike(MailboxPath mailboxPath)
 			throws MailboxException {
 		// TODO Auto-generated method stub
-		ArrayList<Mailbox<Long>> mailboxes = new ArrayList<Mailbox<Long>>();
-		mailboxes.add(new EnkiveImapMailbox(mailboxPath, 1));
-		return mailboxes;
+		return list();
 	}
 
 	@Override
 	public boolean hasChildren(Mailbox<Long> mailbox, char delimiter)
 			throws MailboxException, MailboxNotFoundException {
 		// TODO Auto-generated method stub
+		System.out.println("has children");
 		return false;
 	}
 
 	@Override
 	public List<Mailbox<Long>> list() throws MailboxException {
-		// TODO Auto-generated method stub
-		// ArrayList<Mailbox<Long>> mailboxes = new ArrayList<Mailbox<Long>>();
-		// mailboxes.add(new EnkiveImapMailbox(mailboxName, 1));
-		// return mailboxes;
-		return null;
+		System.out.println("get list");
+		MailboxPath inboxPath = new MailboxPath(session.getPersonalSpace(), "Lee", MailboxConstants.INBOX);
+		MailboxPath testPath = new MailboxPath(session.getPersonalSpace(), "Lee", "TESTFOLDER");
+		ArrayList<Mailbox<Long>> mailboxes = new ArrayList<Mailbox<Long>>();
+		mailboxes.add(new EnkiveImapMailbox(inboxPath, 1));
+		mailboxes.add(new EnkiveImapMailbox(testPath, 2));
+		return mailboxes;
 	}
 }
