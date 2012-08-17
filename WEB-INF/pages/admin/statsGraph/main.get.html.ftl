@@ -112,10 +112,9 @@
 			    
 			    for(var p in indexes){
 			    	var val = tempArray[p];
+			    	tempArray.splice(indexes[p], 0, val);
+               		tempArray.splice(indexes[p], 0, val);
 			    	tempArray.splice(indexes[p], 0, null);
-               		tempArray.splice(indexes[p], 0, val);
-               		tempArray.splice(indexes[p], 0, val);
-//               		alert(tempArray);
             	}
 				values.push(tempArray);
 			}		
