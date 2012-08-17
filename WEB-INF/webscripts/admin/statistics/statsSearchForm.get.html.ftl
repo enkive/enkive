@@ -41,6 +41,17 @@
 	        </td>
 		</tr>
 		<tr>
+			<td>Graph Type:</td>
+	        <td>
+	        	<select name="graphType" id="graphTypeField" class="searchField">
+	            	<option value="step-before">Step</option>
+                	<option value="basis">Basis</option>
+                	<option value="monotone">Monotone</option>
+                	<option value="linear">Linear</option>
+                </ select>
+	        </td>
+		</tr>
+		<tr>
 			<td>
 				Earliest Date:
 			</td>

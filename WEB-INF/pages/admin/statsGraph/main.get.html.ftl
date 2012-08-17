@@ -10,7 +10,7 @@
 		if (serviceStats != null){
 			var data = serviceStats.${statName};
 			var methods = ${methods};
-			var interpolation = "step-before";
+			var interpolation = ${graph};
 	
 			var colors = ["steelblue","blue","cornflowerblue"];
 //add more		              "red","firebrick","maroon"];
@@ -34,10 +34,8 @@
 			var grain = ${grain}; 
 	        var indexes = new Array();
 	        for(var i = 1; i < times.length; i++){
-	            
-	            var datePrevious = new Date(times[i-1]);
-
 	            var date = new Date(times[i]);
+	            var datePrevious = new Date(times[i-1]);
 
 	            if(grain == 1){//hourly
 	                date.setHours( (date.getHours()-1) );
@@ -50,26 +48,13 @@
 	            }
 
 	            if(date.getTime() != datePrevious.getTime()){
-	                
 	                times.splice(i, 0, null);
-	                if(interpolation != "step-before"){
-	                	indexes.push(i);
-	                }
 	                i++;
+	                indexes.push(i);
 	                
 	                if(interpolation == "step-before"){
 		                var insertDate = new Date(date.getTime());
-		                if(grain == 1){//hourly
-	           			     date.setHours( (date.getHours()+1) );
-	            		} else if(grain == 1*24){//daily
-	                		date.setDate( (date.getDate()+1) );
-	            		} else if(grain == 1*24*7){//weekly
-	                		date.setDate( (date.getDate()+7) );
-	            		} else if(grain == 1*24*30){//monthly
-	                		date.setMonth( (date.getMonth()+1) );
-	            		}
 		                times.splice(i, 0, insertDate);
-		                indexes.push(i);
 		                i++;
 		                times.splice(i, 0, insertDate);
 		                i++;
@@ -117,11 +102,7 @@
 			    	tempArray.splice(indexes[p], 0, null);
             	}
 				values.push(tempArray);
-			}		
-			
-			alert("indexes: " + indexes);
-			alert("times: " + times);
-			alert("value: " + values);
+			}
 	
 			function getBiggest(d){
 				var max = 0;
@@ -218,12 +199,12 @@
 			    var cy = d3.select(pNode).attr("cy");
 			    return Math.round((y.invert(cy)*100))/100 + ", " + x.invert(cx);
 			}
-	
+	var step = 8;
 	//add legend & titles
 	        for(var methodIndex in methods){
 	            var path = paths[0][methodIndex];
 	            var l = path.getTotalLength();
-	            var step = 5;
+	            
 	            for(q = 0;q<=l;q+=step){
 	                var p = path.getPointAtLength(q);
 	                    axisGroup.selectAll("circle.line")

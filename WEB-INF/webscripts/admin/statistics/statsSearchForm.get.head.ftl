@@ -39,14 +39,16 @@
 	    var tsMin = $("#dateEarliestField").val();
 	    var tsMax = $("#dateLatestField").val();
 	    var grain = $("#grainField").val();
+	    var graphType = $("#graphTypeField").val();
 	    var queryString = '?gn=' + encodeURIComponent(gatherer) + '&stat='
 	        + encodeURIComponent(stat)  + '&ts.min='
 	        + encodeURIComponent(tsMin) + '&ts.max='
 	        + encodeURIComponent(tsMax) + '&gTyp='
 	        + encodeURIComponent(grain) + '&methods='
-	        + encodeURIComponent(statType);
+	        + encodeURIComponent(statType) + '&graphType=' 
+	        + encodeURIComponent(graphType);
 	    $('#graph').html('<center>' +
-	    '<p><b>Search is in progress...</b></p><br />' +
+	    '<p><b>Graphing...</b></p><br />' +
 	    '<img src=/ediscovery/resource/images/spinner.gif alt="Waiting for results" />' +
 	    '</center>');
 	    $('#graph')

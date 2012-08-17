@@ -5,6 +5,7 @@ var tsMax = context.properties["ts.max"];
 var grainType = context.properties["gTyp"];
 var statType = context.properties["statType"];
 var methods = context.properties["methods"];
+var graphType = context.properties["graphType"];
 // get a connector to the Enkive endpoint
 var connector = remote.connect("enkive");
 // retrieve the web script index page
@@ -27,4 +28,5 @@ if (auditEntryList != null) {
 	model.startDate = tsMin;
 	model.endDate = tsMax;
 	model.grain = grainType;
+	model.graph = "'" + graphType + "'";
 }
