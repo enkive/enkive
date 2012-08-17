@@ -10,45 +10,60 @@
 		if (serviceStats != null){
 			var data = serviceStats.${statName};
 			var methods = ${methods};
-	
+			var interpolation = "step-before";
 	
 			var colors = ["steelblue","blue","cornflowerblue"];
-		//add more		              "red","firebrick","maroon"];
+//add more		              "red","firebrick","maroon"];
 	
 			var fills = ["steelblue","blue", "cyan"];
-		//add more		             "orangered","tomato","crimson"];
+//add more		             "orangered","tomato","crimson"];
 			var times = new Array();
 			
 			function createDate(d){
 			   return new Date(d);
 			}
 			
+			if(interpolation == "step-before"){
+				times.push(data[0].ts.min);
+			}
+			
 			for(i=0; i<data.length; i++){
 			    times.push(data[i].ts.max);
 			}
-			
+
 			var grain = ${grain}; 
 	        var indexes = new Array();
 	        for(var i = 1; i < times.length; i++){
+	            
 	            var datePrevious = new Date(times[i-1]);
-	            
+
 	            var date = new Date(times[i]);
-	            
+
 	            if(grain == 1){//hourly
 	                date.setHours( (date.getHours()-1) );
 	            } else if(grain == 1*24){//daily
 	                date.setDate( (date.getDate()-1) );
 	            } else if(grain == 1*24*7){//weekly
 	                date.setDate( (date.getDate()-7) );
-	            } else if(grain == 1*24*7*30){//monthly
-	                date.setDate( (date.getMonth()-1) );
+	            } else if(grain == 1*24*30){//monthly
+	                date.setMonth( (date.getMonth()-1) );
 	            }
-	
+
 	            if(date.getTime() != datePrevious.getTime()){
-	                var insertDate = new Date(datePrevious.getTime());
-	                insertDate.setHours(datePrevious.getHours()+1);
-	                times.splice(i, 0, insertDate.toString());
-	                indexes.push(i);
+	                
+	                times.splice(i, 0, null);
+	                if(interpolation != "step-before"){
+	                	indexes.push(i);
+	                }
+	                i++;
+	                
+	                if(interpolation == "step-before"){
+		                var insertDate = new Date(date.getTime());
+		                alert("insertDate: " + insertDate);
+		                times.splice(i, 0, insertDate);
+		                indexes.push(i);
+		                i++;
+	                }
 	            }
 	        }
 			
@@ -60,32 +75,41 @@
 			if(startStr != ""){
 				startDate = new Date(startStr);
 			} else {
-				startDate = d3.min(times,  function(d) {  return createDate(d); });
+				startDate = new Date(times[0]);
 			}
 						
 			if(endStr != ""){
 				endDate = new Date(endStr);
 			} else {
-				endDate = d3.max(times,  function(d) {  return createDate(d); });
+				endDate = new Date(times[times.length-1]);
 			}
 
 			var values = new Array();
-			var str = "";
 			for(var i in methods){
-			    var m = methods[i];
+			    var key = methods[i];
 			    var tempArray = new Array();
-			    str = str + "[";
+			    var first = 1;//true
 			    for(var j in data){
-			        tempArray.push(data[j][m]);
-			        str = str + "," + data[j][m];
+				    if(interpolation == "step-before"){
+				    	if(first == 1){
+							tempArray.push(data[j][key]);
+							first = 0;//false
+						}
+					}
+					
+			        tempArray.push(data[j][key]);
 			    }
 			    
 			    for(var p in indexes){
-                tempArray.splice(indexes[p], 0, null);
-            }
-			    str = str + "]\n";
+			    	tempArray.splice(indexes[p], 0, null);
+//               		tempArray.splice(indexes[p], 0, 0);
+               		alert(tempArray);
+            	}
 				values.push(tempArray);
 			}
+
+			alert("times: " + times);
+			alert("value: " + values);
 	
 			function getBiggest(d){
 				var max = 0;
@@ -118,17 +142,17 @@
 			    attr("transform", "translate("+padding*1.5+","+padding/4+")");
 	
 	var line = d3.svg.line()
-				.defined(function() { return y != null; })
+				.defined(function(d, i) { return (times[i] != null); })
 			    .x(function(d, i) { return x(createDate(times[i])); })
 			    .y(y)
-			    .interpolate("basis");
+			    .interpolate(interpolation);
 	
 	var area = d3.svg.area()
 		    	.defined(line.defined())
 			    .x(line.x())
 			    .y0(y(0))
 			    .y1(line.y())
-			    .interpolate("basis");
+			    .interpolate(interpolation);
 	
 	//these paths are for tracing (not actually displayed)
 	var paths = graphGroup.selectAll(".line")

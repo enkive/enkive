@@ -36,7 +36,7 @@
 	            	<option value="1">Hourly</option>
                 	<option value="24">Daily</option>
                 	<option value="168">Weekly</option>
-                	<option value="744">Monthly</option>
+                	<option value="720">Monthly</option>
                 </ select>
 	        </td>
 		</tr>
