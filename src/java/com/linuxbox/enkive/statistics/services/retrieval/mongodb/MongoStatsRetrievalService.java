@@ -147,7 +147,7 @@ public class MongoStatsRetrievalService extends VarsMaker implements
 			}			
 			
 			if(filter != null){
-				allStats.addAll(coll.find(query, filter).sort(new BasicDBObject(STAT_TIMESTAMP + "." + GRAIN_MIN, 1)).toArray());
+				allStats.addAll(coll.find(query, filter).sort(new BasicDBObject(STAT_TIMESTAMP + "." + GRAIN_MAX, 1)).toArray());
 			} else {
 				allStats.addAll(coll.find(query).toArray());
 			}
@@ -173,9 +173,9 @@ public class MongoStatsRetrievalService extends VarsMaker implements
 					&& !filterMap.get(gathererName).isEmpty()) {
 				BasicDBObject filter = new BasicDBObject(
 						filterMap.get(gathererName));
-				allStats.addAll(coll.find(query, filter).sort(new BasicDBObject(STAT_TIMESTAMP + "." + GRAIN_MIN, 1)).toArray());
+				allStats.addAll(coll.find(query, filter).sort(new BasicDBObject(STAT_TIMESTAMP + "." + GRAIN_MAX, 1)).toArray());
 			} else {
-				allStats.addAll(coll.find(query).sort(new BasicDBObject(STAT_TIMESTAMP + "." + GRAIN_MIN, 1)).toArray());
+				allStats.addAll(coll.find(query).sort(new BasicDBObject(STAT_TIMESTAMP + "." + GRAIN_MAX, 1)).toArray());
 			}
 		}
 		List<Map<String, Object>> result = new LinkedList<Map<String, Object>>();

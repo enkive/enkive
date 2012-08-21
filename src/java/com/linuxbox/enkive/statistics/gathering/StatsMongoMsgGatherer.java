@@ -1,4 +1,4 @@
-package com.linuxbox.enkive.statistics.gathering.mongodb;
+package com.linuxbox.enkive.statistics.gathering;
 
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_ARCHIVE_SIZE;
 

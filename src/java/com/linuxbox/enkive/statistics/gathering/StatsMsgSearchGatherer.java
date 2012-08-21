@@ -18,8 +18,7 @@ public class StatsMsgSearchGatherer extends AbstractGatherer {
 	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.statistics.gathering");
 
-	long interval = 1000 * 60 * 60; // one hour (3600000 milliseconds) by
-									// default
+	long interval = 1000 * 60 * 60; // one hour (3600000 milliseconds)
 
 	GathererMessageSearchService searchService;
 
@@ -60,7 +59,6 @@ public class StatsMsgSearchGatherer extends AbstractGatherer {
 	 */
 	public RawStats getStatistics(Date startDate, Date endDate)
 			throws GathererException {
-
 		int numEntries;
 		try {
 			numEntries = searchService.getNumberOfMessages(startDate, endDate);

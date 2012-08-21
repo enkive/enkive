@@ -3,7 +3,8 @@ package com.linuxbox.enkive.statistics;
 import java.text.SimpleDateFormat;
 
 public interface StatsConstants {
-	public static String ARCHIVE_SIZE = "MsgArchive";
+	public static String STAT_ARCHIVE_SIZE = "MsgArchive";
+	public static String STAT_ATTACH_ARCHIVE_SIZE = "totAttSz";
 	public static String QUEUE_LENGTH = "queLen";
 	public static SimpleDateFormat SIMPLE_DATE = new SimpleDateFormat(
 			"yyyy-MM-dd-HH-mm-ss");
@@ -11,7 +12,7 @@ public interface StatsConstants {
 	public static String STAT_ATTACH_NUM = "attNum";
 	public static String STAT_AVG_OBJ_SIZE = "avgOSz";
 	public static String STAT_DATA_SIZE = "dataSz";
-
+	
 	// DBs only
 	public static String STAT_FILE_SIZE = "fileSz";
 	public static String STAT_FREE_MEMORY = "freeM";
@@ -30,6 +31,7 @@ public interface StatsConstants {
 	public static String STAT_NS = "ns";
 	public static String STAT_NUM_COLLECTIONS = "nColls";
 	// MsgEntries
+	public static String STAT_TOTAL_MSGS = "totMsg";
 	public static String STAT_NUM_ENTRIES = "numMsg";
 	public static String STAT_NUM_EXTENT = "numExt";
 
