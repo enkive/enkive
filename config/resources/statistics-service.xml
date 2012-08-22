@@ -39,7 +39,7 @@
 	</bean>
 
 	<bean id="MsgStatsService"
-		class="com.linuxbox.enkive.statistics.gathering.mongodb.StatsMsgGatherer">
+		class="com.linuxbox.enkive.statistics.gathering.StatsMsgGatherer">
 		<constructor-arg name="serviceName" value="MsgStatsService"/>
 		<constructor-arg name="humanName" value="Message Statistics"/>
 		<constructor-arg name="schedule" value="0 0 * * * ?" />

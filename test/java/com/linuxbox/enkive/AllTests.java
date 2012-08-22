@@ -35,7 +35,7 @@ import com.linuxbox.enkive.retriever.mongodb.MongoRetrieverServiceTest;
 import com.linuxbox.enkive.teststats.StatsMongoAttachTest;
 import com.linuxbox.enkive.teststats.StatsMongoCollTest;
 import com.linuxbox.enkive.teststats.StatsMongoDBTest;
-import com.linuxbox.enkive.teststats.StatsMsgEntriesTest;
+import com.linuxbox.enkive.teststats.StatsMsgTest;
 import com.linuxbox.enkive.teststats.StatsRuntimeTest;
 import com.linuxbox.util.HashingInputStreamTest;
 import com.linuxbox.util.mongodb.MongoLockingServiceTest;
@@ -47,7 +47,7 @@ import com.linuxbox.util.queueservice.mongodb.MongoQueueServiceTest;
 		MongoLockingServiceTest.class, MongoQueueServiceTest.class,
 		MongoGridDocStoreServiceTest.class, MongoArchivingServiceTest.class,
 		StatsMongoDBTest.class, StatsMongoCollTest.class,
-		StatsMsgEntriesTest.class, StatsRuntimeTest.class,
+		StatsMsgTest.class, StatsRuntimeTest.class,
 		StatsMongoAttachTest.class, MongoRetrieverServiceTest.class,
 		MongoMessageRetentionPolicyEnforcementTest.class, // has problems
 															// (infinite loop

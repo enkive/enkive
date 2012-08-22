@@ -1,10 +1,11 @@
-package com.linuxbox.enkive.statistics.gathering.mongodb;
+package com.linuxbox.enkive.statistics.gathering;
 
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_NUM_ENTRIES;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TOTAL_MSGS;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
@@ -29,8 +30,8 @@ public class StatsMsgGatherer extends AbstractGatherer {
 	protected DBCollection attachmentsColl;
 	GathererMessageSearchService searchService;
 	
-	public StatsMsgGatherer(String serviceName, String humanName, String schedule) {
-		super(serviceName, humanName, schedule);
+	public StatsMsgGatherer(String serviceName, String humanName, String schedule, List<String> keys) throws GathererException {
+		super(serviceName, humanName, schedule, keys);
 	}
 	
 	@Override
@@ -62,7 +63,6 @@ public class StatsMsgGatherer extends AbstractGatherer {
 		stats.put(STAT_NUM_ENTRIES, numEntries);
 
 		RawStats result = new RangedRawStats(stats, startDate, endDate);
-		System.out.println("result: " + result.toMap());
 		return result;
 	}
 	

@@ -19,19 +19,6 @@ import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.linuxbox.enkive.TestingConstants;
-import com.linuxbox.enkive.docsearch.indri.IndriDocSearchQueryService;
-import com.linuxbox.enkive.statistics.StatsQuery;
-import com.linuxbox.enkive.statistics.gathering.GathererAttributes;
-import com.linuxbox.enkive.statistics.gathering.GathererException;
-import com.linuxbox.enkive.statistics.gathering.GathererInterface;
-import com.linuxbox.enkive.statistics.gathering.StatsMsgSearchGatherer;
-import com.linuxbox.enkive.statistics.gathering.StatsRuntimeGatherer;
-import com.linuxbox.enkive.statistics.gathering.mongodb.MongoGathererMessageSearchService;
-import com.linuxbox.enkive.statistics.gathering.mongodb.StatsMongoAttachmentsGatherer;
-import com.linuxbox.enkive.statistics.gathering.mongodb.StatsMongoCollectionGatherer;
-import com.linuxbox.enkive.statistics.gathering.mongodb.StatsMongoDBGatherer;
-import com.linuxbox.enkive.statistics.gathering.mongodb.StatsMongoMsgGatherer;
 import com.linuxbox.enkive.statistics.StatsQuery;
 import com.linuxbox.enkive.statistics.gathering.GathererAttributes;
 import com.linuxbox.enkive.statistics.gathering.GathererException;
@@ -55,9 +42,9 @@ public class StatsMonthGrainTest {
 		// clean up if week was run...
 		Map<String, Object> queryMap = new HashMap<String, Object>();
 		queryMap.put(GRAIN_TYPE, GRAIN_DAY);
-		StatsQuery sQ = new StatsQuery(null, GRAIN_DAY);
+		StatsQuery statsQuery = new StatsQuery(null, GRAIN_DAY);
 		Set<Object> ids = new HashSet<Object>();
-		for (Map<String, Object> mapToDelete : client.queryStatistics(sQ)) {
+		for (Map<String, Object> mapToDelete : client.queryStatistics(statsQuery)) {
 			ids.add(mapToDelete.get("_id"));
 		}
 
@@ -69,9 +56,14 @@ public class StatsMonthGrainTest {
 		Set<Map<String, Object>> stats = (new DayGrain(client))
 				.consolidateData();
 		Map<String, Object> timeMap = new HashMap<String, Object>();
+		Calendar cal = Calendar.getInstance();
+		cal.set(Calendar.MILLISECOND, 0);
+		cal.set(Calendar.SECOND, 0);
+		cal.set(Calendar.MINUTE, 0);
+		cal.set(Calendar.HOUR, 0);
+		cal.set(Calendar.DAY_OF_MONTH, 1);
 		for (int i = 0; i < 10; i++) {
-			Calendar cal = Calendar.getInstance();
-			if (i < 5) {
+			if (i == 5) {
 				cal.add(Calendar.MONTH, -1);
 			}
 			timeMap.put(GRAIN_MAX, cal.getTime());

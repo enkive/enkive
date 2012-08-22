@@ -16,18 +16,6 @@ import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.linuxbox.enkive.TestingConstants;
-import com.linuxbox.enkive.docsearch.indri.IndriDocSearchQueryService;
-import com.linuxbox.enkive.statistics.gathering.GathererAttributes;
-import com.linuxbox.enkive.statistics.gathering.GathererException;
-import com.linuxbox.enkive.statistics.gathering.GathererInterface;
-import com.linuxbox.enkive.statistics.gathering.StatsMsgSearchGatherer;
-import com.linuxbox.enkive.statistics.gathering.StatsRuntimeGatherer;
-import com.linuxbox.enkive.statistics.gathering.mongodb.MongoGathererMessageSearchService;
-import com.linuxbox.enkive.statistics.gathering.mongodb.StatsMongoAttachmentsGatherer;
-import com.linuxbox.enkive.statistics.gathering.mongodb.StatsMongoCollectionGatherer;
-import com.linuxbox.enkive.statistics.gathering.mongodb.StatsMongoDBGatherer;
-import com.linuxbox.enkive.statistics.gathering.mongodb.StatsMongoMsgGatherer;
 import com.linuxbox.enkive.statistics.gathering.GathererAttributes;
 import com.linuxbox.enkive.statistics.gathering.GathererException;
 import com.linuxbox.enkive.statistics.granularity.DayGrain;
@@ -51,9 +39,13 @@ public class StatsDayGrainTest {
 		Set<Map<String, Object>> stats = (new HourGrain(client))
 				.consolidateData();
 		Map<String, Object> timeMap = new HashMap<String, Object>();
+		Calendar cal = Calendar.getInstance();
+		cal.set(Calendar.MILLISECOND, 0);
+		cal.set(Calendar.SECOND, 0);
+		cal.set(Calendar.MINUTE, 0);
+		cal.set(Calendar.HOUR, 0);
 		for (int i = 0; i < 10; i++) {
-			Calendar cal = Calendar.getInstance();
-			if (i < 5) {
+			if (i == 5) {
 				cal.add(Calendar.DATE, -1);
 			}
 			timeMap.put(GRAIN_MAX, cal.getTime());

@@ -3,6 +3,8 @@ package com.linuxbox.enkive.teststats;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_GATHERER_NAME;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_NUM_ENTRIES;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIMESTAMP;
+import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MAX;
+import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MIN;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -21,21 +23,22 @@ import com.linuxbox.enkive.TestingConstants;
 import com.linuxbox.enkive.docsearch.indri.IndriDocSearchQueryService;
 import com.linuxbox.enkive.statistics.KeyConsolidationHandler;
 import com.linuxbox.enkive.statistics.RawStats;
-import com.linuxbox.enkive.statistics.gathering.StatsMsgSearchGatherer;
+import com.linuxbox.enkive.statistics.gathering.StatsMsgGatherer;
 import com.linuxbox.enkive.statistics.gathering.mongodb.MongoGathererMessageSearchService;
 import com.mongodb.Mongo;
 
-public class StatsMsgEntriesTest {
+public class StatsMsgTest {
 
-	private static StatsMsgSearchGatherer msgEntries;
+	private static StatsMsgGatherer msgEntries;
 	private static Map<String, Object> stats;
 	private static String name = "MsgEntriesGatherer";
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		List<String> keys = new LinkedList<String>();
-		keys.add("numMsg:avg,max,min:Number of Messages:messages");
-		msgEntries = new StatsMsgSearchGatherer(name, "Message Statistics", "0 * * * * ?", keys);
+		keys.add("numMsg:avg:Number of Messages:");
+		keys.add("totMsg:avg:Total Number of Messages:");
+		msgEntries = new StatsMsgGatherer(name, "Message Statistics", "0 * * * * ?", keys);
 		MongoGathererMessageSearchService searchService;
 		searchService = new MongoGathererMessageSearchService(new Mongo(),
 				TestingConstants.MONGODB_TEST_DATABASE,
@@ -44,8 +47,7 @@ public class StatsMsgEntriesTest {
 
 		msgEntries.setSearchService(searchService);
 		RawStats rawStats = msgEntries.getStatistics();
-		stats = rawStats.getStatsMap();
-		stats.put(STAT_TIMESTAMP, rawStats.getTimestamp());
+		stats = rawStats.toMap();
 	}
 
 	@AfterClass
@@ -87,7 +89,7 @@ public class StatsMsgEntriesTest {
 					result = path.size() == 1;
 				} else {
 					result = checkFormat(
-							(Map<String, Object>) stats.get(statKey), path);
+					(Map<String, Object>) stats.get(statKey), path);
 				}
 				if (result) {
 					break;
@@ -105,6 +107,16 @@ public class StatsMsgEntriesTest {
 	}
 
 	@Test
+	public void attributesNotNull() {
+		assertTrue("msgEntries.getAttributes returned null", msgEntries.getAttributes() != null);
+		for (KeyConsolidationHandler key : msgEntries.getAttributes().getKeys()) {
+			LinkedList<String> path = key.getKey();
+			assertTrue("the format is incorrect for path: " + path,
+					checkFormat(stats, path));
+		}
+	}
+	
+	@Test
 	public void testAttributes() {
 		for (KeyConsolidationHandler key : msgEntries.getAttributes().getKeys()) {
 			LinkedList<String> path = key.getKey();
@@ -116,7 +128,7 @@ public class StatsMsgEntriesTest {
 	@Test
 	public void keyCountMatches() {
 		int numKeys = stats.keySet().size();
-		assertTrue("numKeys doesn't match: numKeys = " + numKeys, numKeys == 2);
+		assertTrue("numKeys doesn't match: numKeys = " + numKeys, numKeys == 3);
 	}
 
 	@Test
@@ -126,18 +138,30 @@ public class StatsMsgEntriesTest {
 		assertTrue(sn.equals(name));
 	}
 
+	@SuppressWarnings("unchecked")
 	@Test
 	public void hasTimeStamp() {
-		Long time = ((Date) stats.get(STAT_TIMESTAMP)).getTime();
+		Map<String, Object> time = (Map<String,Object>)stats.get(STAT_TIMESTAMP);
 		assertTrue("runtime test exception in hasTimeStamp(): time = " + time,
 				time != null);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Test
-	public void timeGTZero() {
-		Long time = ((Date) stats.get(STAT_TIMESTAMP)).getTime();
-		assertTrue("runtime test exception in timeGTZero(): time = " + time,
-				time > 0);
+	public void upperTimeGTZero() {
+		Map<String, Object> time = (Map<String,Object>)stats.get(STAT_TIMESTAMP);
+		Date date = ((Date) time.get(GRAIN_MAX));
+		assertTrue("runtime test exception in timeGTZero(): date = " + date,
+				date.getTime() > 0);
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Test
+	public void lowerTimeGTZero() {
+		Map<String, Object> time = (Map<String,Object>)stats.get(STAT_TIMESTAMP);
+		Date date = ((Date) time.get(GRAIN_MIN));
+		assertTrue("runtime test exception in timeGTZero(): date = " + date,
+				date.getTime() > 0);
 	}
 
 	@Test
@@ -149,8 +173,7 @@ public class StatsMsgEntriesTest {
 			RawStats rawStatsOnDate = msgEntries.getStatistics(
 					startDate, endDate);
 			
-			numEntriesStats = rawStatsOnDate.getStatsMap();
-			numEntriesStats.put(STAT_TIMESTAMP, rawStatsOnDate.getTimestamp());
+			numEntriesStats = rawStatsOnDate.toMap();
 		} catch(Exception e) {
 			assertTrue("numEntriesCrashed", false);
 		}

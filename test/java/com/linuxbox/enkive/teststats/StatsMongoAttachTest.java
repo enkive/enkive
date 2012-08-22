@@ -2,6 +2,10 @@ package com.linuxbox.enkive.teststats;
 
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_GATHERER_NAME;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIMESTAMP;
+import static com.linuxbox.enkive.statistics.StatsConstants.STAT_ATTACH_NUM;
+import static com.linuxbox.enkive.statistics.StatsConstants.STAT_ATTACH_SIZE;
+import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MAX;
+import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MIN;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -32,18 +36,14 @@ public class StatsMongoAttachTest {
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		List<String> keys = new LinkedList<String>();
-		keys.add("avgAtt:avg:Average Attachments:Average Attachments:attachments");
-		keys.add("maxAtt:max:Maximum Attachments:Maximum Attachments:attachments");
+		keys.add("attNum:avg:Number of Attachments:");
+		keys.add("attSz:avg:Attachment Size:bytes");
 		attach = new StatsMongoAttachmentsGatherer(new Mongo(),
 				TestingConstants.MONGODB_TEST_DATABASE,
 				TestingConstants.MONGODB_TEST_FSFILES_COLLECTION, name, "Attachment Statistics",
-				"0 * * * * ?", false, keys);
-		attach.setUpperDate(new Date());
-		attach.setLowerDate(new Date(0L));
+				"0 * * * * ?", keys);
 		RawStats rawData = attach.getStatistics();
-		Map<String, Object> rawDataMap = rawData.getStatsMap();
-		rawDataMap.put(STAT_TIMESTAMP, rawData.getTimestamp());
-		stats = rawDataMap;
+		stats = rawData.toMap();
 	}
 
 	@AfterClass
@@ -114,7 +114,7 @@ public class StatsMongoAttachTest {
 	@Test
 	public void keyCountMatches() {
 		int numKeys = stats.keySet().size();
-		assertTrue("numKeys doesn't match: numKeys = " + numKeys, numKeys == 3);
+		assertTrue("numKeys doesn't match: numKeys = " + numKeys, numKeys == 4);
 	}
 
 	@Test
@@ -124,65 +124,41 @@ public class StatsMongoAttachTest {
 		assertTrue(sn.equals(name));
 	}
 
+	@SuppressWarnings("unchecked")
 	@Test
 	public void hasTimeStamp() {
-		Long time = ((Date) stats.get(STAT_TIMESTAMP)).getTime();
+		Map<String, Object> time = (Map<String,Object>)stats.get(STAT_TIMESTAMP);
 		assertTrue("runtime test exception in hasTimeStamp(): time = " + time,
 				time != null);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Test
-	public void timeGTZero() {
-		Long time = ((Date) stats.get(STAT_TIMESTAMP)).getTime();
-		assertTrue("runtime test exception in timeGTZero(): time = " + time,
-				time > 0);
+	public void upperTimeGTZero() {
+		Map<String, Object> time = (Map<String,Object>)stats.get(STAT_TIMESTAMP);
+		Date date = ((Date) time.get(GRAIN_MAX));
+		assertTrue("runtime test exception in timeGTZero(): date = " + date,
+				date.getTime() > 0);
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Test
+	public void lowerTimeGTZero() {
+		Map<String, Object> time = (Map<String,Object>)stats.get(STAT_TIMESTAMP);
+		Date date = ((Date) time.get(GRAIN_MIN));
+		assertTrue("runtime test exception in timeGTZero(): date = " + date,
+				date.getTime() > 0);
 	}
 
 	@Test
-	public void testAvgNonZero() throws UnknownHostException, MongoException {
-		double avg = attach.getAvgAttachSize();
-		assertTrue("(avg = " + avg + ")", avg != 0.0);
+	public void testAttachSize() throws UnknownHostException, MongoException {
+		Object attachSz = stats.get(STAT_ATTACH_SIZE);
+		assertTrue("(max = " + attachSz + ")", ((Long)attachSz).longValue() >= 0.0);
 	}
 
 	@Test
-	public void testMaxNonZero() throws UnknownHostException, MongoException {
-		double max = attach.getMaxAttachSize();
-		assertTrue("(max = " + max + ")", max != 0.0);
+	public void testAttNum() throws UnknownHostException, MongoException {
+		Object attachNum = stats.get(STAT_ATTACH_NUM);
+		assertTrue("(attachNum = " + ((Integer)attachNum).intValue() + ")", ((Integer)attachNum).intValue() >= 0.0);
 	}
-
-	@Test
-	public void testAvgGTZero() throws UnknownHostException, MongoException {
-		double avg = attach.getAvgAttachSize();
-		assertTrue("(avg = " + avg + ")", avg > 0.0);
-	}
-
-	@Test
-	public void testMaxGTZero() throws UnknownHostException, MongoException {
-		long max = attach.getMaxAttachSize();
-		assertTrue("(max = " + max + ")", max > 0);
-	}
-
-	@Test
-	public void testAvgLTEMax() throws UnknownHostException, MongoException {
-		double avg = attach.getAvgAttachSize();
-		long max = attach.getMaxAttachSize();
-		assertTrue(" (avg = " + avg + ":max = " + max + ")", avg <= max);
-	}
-
-/* no entries is no longer an error case
-	@Test
-	public void testERR() throws UnknownHostException, MongoException {
-		attach = new StatsMongoAttachmentsGatherer(new Mongo(),
-				TestingConstants.MONGODB_TEST_DATABASE, "IHopeThIsMess3s1tUp!", "ErrorTest",
-				"AttachmentGatherer", "0 * * * * ?");
-		attach.setUpperDate(new Date(0L));
-		attach.setLowerDate(new Date(0L));
-		double max = attach.getMaxAttachSize();
-		double avg = attach.getAvgAttachSize();
-		assertTrue("(avg = " + avg + ")", avg == 0);
-		assertTrue("(max = " + max + ")", max == 0);
-		Map<String, Object> stats = attach.getStatistics().getStatsMap();
-		assertNull("in attach.getStatistics() " + stats + " is not null", stats);
-	}
-*/
 }

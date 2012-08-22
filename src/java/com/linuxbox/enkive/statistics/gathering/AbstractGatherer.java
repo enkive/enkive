@@ -29,7 +29,7 @@ public abstract class AbstractGatherer implements GathererInterface {
 	private String humanName;
 	private String schedule;
 
-	public AbstractGatherer(String serviceName, String humanName,
+	protected AbstractGatherer(String serviceName, String humanName,
 			String schedule) {
 		this.serviceName = serviceName;
 		this.humanName = humanName;

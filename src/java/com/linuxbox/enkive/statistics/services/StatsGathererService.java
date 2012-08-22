@@ -87,10 +87,12 @@ public class StatsGathererService extends VarsMaker {
 			Map<String, String[]> gathererKeys) throws ParseException,
 			GathererException {
 		if (statsGatherers == null) {
+			System.out.println("statsGatherers is null");
 			return null;
 		}
 
 		if (statsGatherers.isEmpty()) {
+			System.out.println("isEmpty");
 			return null;
 		}
 

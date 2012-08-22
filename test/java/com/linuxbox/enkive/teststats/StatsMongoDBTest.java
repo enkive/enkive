@@ -12,6 +12,8 @@ import static com.linuxbox.enkive.statistics.StatsConstants.STAT_GATHERER_NAME;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIMESTAMP;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TOTAL_INDEX_SIZE;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TOTAL_SIZE;
+import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MAX;
+import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MIN;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -56,9 +58,7 @@ public class StatsMongoDBTest {
 		dbStats = new StatsMongoDBGatherer(m,
 				TestingConstants.MONGODB_TEST_DATABASE, name, "Database Statistics", "0 * * * * ?", keys);
 		RawStats rawStats = dbStats.getStatistics();
-		Map<String, Object> rawMap = rawStats.getStatsMap();
-		rawMap.put(STAT_TIMESTAMP, rawStats.getTimestamp());
-		allStats = new BasicDBObject(rawMap);
+		allStats = new BasicDBObject(rawStats.toMap());
 	}
 
 	@AfterClass
@@ -140,18 +140,31 @@ public class StatsMongoDBTest {
 		assertTrue(sn.equals(name));
 	}
 
+
+	@SuppressWarnings("unchecked")
 	@Test
 	public void hasTimeStamp() {
-		Long time = ((Date) allStats.get(STAT_TIMESTAMP)).getTime();
+		Map<String, Object> time = (Map<String,Object>)allStats.get(STAT_TIMESTAMP);
 		assertTrue("runtime test exception in hasTimeStamp(): time = " + time,
 				time != null);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Test
-	public void timeGTZero() {
-		Long time = ((Date) allStats.get(STAT_TIMESTAMP)).getTime();
-		assertTrue("runtime test exception in timeGTZero(): time = " + time,
-				time > 0);
+	public void upperTimeGTZero() {
+		Map<String, Object> time = (Map<String,Object>)allStats.get(STAT_TIMESTAMP);
+		Date date = ((Date) time.get(GRAIN_MAX));
+		assertTrue("runtime test exception in timeGTZero(): date = " + date,
+				date.getTime() > 0);
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Test
+	public void lowerTimeGTZero() {
+		Map<String, Object> time = (Map<String,Object>)allStats.get(STAT_TIMESTAMP);
+		Date date = ((Date) time.get(GRAIN_MIN));
+		assertTrue("runtime test exception in timeGTZero(): date = " + date,
+				date.getTime() > 0);
 	}
 
 	@Test

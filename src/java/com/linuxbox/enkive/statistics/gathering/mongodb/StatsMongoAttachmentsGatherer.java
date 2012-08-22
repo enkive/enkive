@@ -10,6 +10,7 @@ import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_AV
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
@@ -18,6 +19,7 @@ import org.apache.commons.logging.LogFactory;
 import com.linuxbox.enkive.statistics.RangedRawStats;
 import com.linuxbox.enkive.statistics.RawStats;
 import com.linuxbox.enkive.statistics.gathering.AbstractGatherer;
+import com.linuxbox.enkive.statistics.gathering.GathererException;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
@@ -31,10 +33,10 @@ public class StatsMongoAttachmentsGatherer extends AbstractGatherer {
 	protected Mongo m;
 	protected DB db;
 	protected DBCollection attachmentsColl;
-
+	
 	public StatsMongoAttachmentsGatherer(Mongo m, String dbName, String attachmentsColl,
-			String serviceName, String humanName, String schedule) {
-		super(serviceName, humanName, schedule);
+			String serviceName, String humanName, String schedule, List<String> keys) throws GathererException {
+		super(serviceName, humanName, schedule, keys);
 		this.m = m;
 		this.db = m.getDB(dbName);
 		this.attachmentsColl = db.getCollection(attachmentsColl + ".files");

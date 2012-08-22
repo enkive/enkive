@@ -31,7 +31,6 @@ public class MessagesConsolidatedGatherer extends ConsolidatedGatherer{
 	
 	@PostConstruct
 	public void init(){
-//TODO		System.out.println("gathererName: " + gathererName);
 		System.out.println("Start: " + new Date());
 		consolidatePastHours();
 		consolidatePastDays();
@@ -52,6 +51,7 @@ public class MessagesConsolidatedGatherer extends ConsolidatedGatherer{
 		}
 		
 		if(totalMsgs == 0){
+			System.out.println("totalMsgs: " + totalMsgs);
 			return null;
 		}
 		

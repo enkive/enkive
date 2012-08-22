@@ -24,12 +24,12 @@ public abstract class RawStats {
 		statsMap.put(STAT_TIMESTAMP, dateMap);
 		return statsMap;
 	}
-       
+	
     public Map<String, Object> getStatsMap(){
     	return stats;
     }
     
     public void setStatsMap(Map<String, Object> stats){
     	this.stats = stats;
-    }    
+    }
 }

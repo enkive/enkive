@@ -166,6 +166,7 @@ public abstract class ConsolidatedGatherer {
 				if(consolidated != null){
 					result.add(consolidated);
 				} else {
+					System.out.println("null: start:" + start + "end: " + end);
 					break;
 				}
 			} catch (GathererException e) {

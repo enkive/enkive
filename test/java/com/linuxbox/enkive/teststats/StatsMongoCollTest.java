@@ -81,7 +81,7 @@ public class StatsMongoCollTest {
 				"0 * * * * ?", keys);
 		RawStats rawStats = collStats.getStatistics();
 		allStats = rawStats.getStatsMap();
-		allStats.put(STAT_TIMESTAMP, rawStats.getTimestamp());
+		allStats.put(STAT_TIMESTAMP, rawStats.getStartDate());
 		List<Object[]> data = new ArrayList<Object[]>();
 		System.out.println("Not testing the following empty DB's: ");
 		for (String name : db.getCollectionNames()) {

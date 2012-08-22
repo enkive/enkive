@@ -48,7 +48,6 @@ public class MongoStatsRetrievalService extends VarsMaker implements
 	private DBObject getQuery(StatsQuery query) {
 		DBObject mongoQuery = new BasicDBObject();
 		DBObject time = new BasicDBObject();
-		//put in a date
 		if(query.startTimestamp != null){
 			time = new BasicDBObject();
 			time.put("$gte", query.startTimestamp);
@@ -120,7 +119,6 @@ public class MongoStatsRetrievalService extends VarsMaker implements
 		for (DBObject entry : getQuerySet(query)) {
 			addMapToSet(entry, result);
 		}
-
 		return result;
 	}
 

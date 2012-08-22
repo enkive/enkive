@@ -6,6 +6,8 @@ import static com.linuxbox.enkive.statistics.StatsConstants.STAT_PROCESSORS;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_GATHERER_NAME;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIMESTAMP;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TOTAL_MEMORY;
+import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MIN;
+import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MAX;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -40,8 +42,7 @@ public class StatsRuntimeTest {
 		rtStat = new StatsRuntimeGatherer(
 				serviceName, "Runtime Statistics", "0 * * * * ?", keys);
 		RawStats rawStats = rtStat.getStatistics();
-		stats = rawStats.getStatsMap();
-		stats.put(STAT_TIMESTAMP, rawStats.getTimestamp());
+		stats = rawStats.toMap();
 	}
 
 	@AfterClass
@@ -122,18 +123,30 @@ public class StatsRuntimeTest {
 		assertTrue(sn.equals(serviceName));
 	}
 
+	@SuppressWarnings("unchecked")
 	@Test
 	public void hasTimeStamp() {
-		Date time = ((Date) stats.get(STAT_TIMESTAMP));
+		Map<String, Object> time = (Map<String,Object>)stats.get(STAT_TIMESTAMP);
 		assertTrue("runtime test exception in hasTimeStamp(): time = " + time,
 				time != null);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Test
-	public void timeGTZero() {
-		Date time = ((Date) stats.get(STAT_TIMESTAMP));
-		assertTrue("runtime test exception in timeGTZero(): time = " + time,
-				time.getTime() > 0);
+	public void upperTimeGTZero() {
+		Map<String, Object> time = (Map<String,Object>)stats.get(STAT_TIMESTAMP);
+		Date date = ((Date) time.get(GRAIN_MAX));
+		assertTrue("runtime test exception in timeGTZero(): date = " + date,
+				date.getTime() > 0);
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Test
+	public void lowerTimeGTZero() {
+		Map<String, Object> time = (Map<String,Object>)stats.get(STAT_TIMESTAMP);
+		Date date = ((Date) time.get(GRAIN_MIN));
+		assertTrue("runtime test exception in timeGTZero(): date = " + date,
+				date.getTime() > 0);
 	}
 
 	@Test

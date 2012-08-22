@@ -8,7 +8,6 @@ import java.net.UnknownHostException;
 import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -26,17 +25,15 @@ import org.quartz.SchedulerException;
 
 import com.linuxbox.enkive.TestingConstants;
 import com.linuxbox.enkive.docsearch.indri.IndriDocSearchQueryService;
-import com.linuxbox.enkive.message.search.mongodb.MongoMessageSearchService;
 import com.linuxbox.enkive.statistics.RawStats;
 import com.linuxbox.enkive.statistics.gathering.GathererException;
 import com.linuxbox.enkive.statistics.gathering.GathererInterface;
-import com.linuxbox.enkive.statistics.gathering.StatsMsgSearchGatherer;
+import com.linuxbox.enkive.statistics.gathering.StatsMsgGatherer;
 import com.linuxbox.enkive.statistics.gathering.StatsRuntimeGatherer;
 import com.linuxbox.enkive.statistics.gathering.mongodb.MongoGathererMessageSearchService;
 import com.linuxbox.enkive.statistics.gathering.mongodb.StatsMongoAttachmentsGatherer;
 import com.linuxbox.enkive.statistics.gathering.mongodb.StatsMongoCollectionGatherer;
 import com.linuxbox.enkive.statistics.gathering.mongodb.StatsMongoDBGatherer;
-import com.linuxbox.enkive.statistics.gathering.mongodb.StatsMongoMsgGatherer;
 import com.linuxbox.enkive.statistics.services.StatsClient;
 import com.linuxbox.enkive.statistics.services.StatsGathererService;
 import com.linuxbox.enkive.statistics.services.retrieval.StatsRetrievalException;
@@ -70,9 +67,9 @@ public class StatsMongoStorageAndRetrievalTest {
 				TestingConstants.MONGODB_TEST_COLL);
 		gatherTester = new StatsGathererService(map);
 		client = new StatsClient(gatherTester, storageTester, retrievalTester);
+		System.out.println("rawStats: " + gatherTester.gatherStats());
 		RawStats rawStats = gatherTester.gatherStats().iterator().next();
-		stats = rawStats.getStatsMap();
-		stats.put(STAT_TIMESTAMP,rawStats.getTimestamp());
+		stats = rawStats.toMap();
 	}
 
 	@Parameters
@@ -129,8 +126,9 @@ public class StatsMongoStorageAndRetrievalTest {
 				"* * * * * ?", keys);
 
 		keys = new LinkedList<String>();
-		keys.add("numMsg:avg,max,min:Number of Messages:");
-		StatsMsgSearchGatherer msgProp = new StatsMsgSearchGatherer(
+		keys.add("numMsg:avg:Number of Messages:");
+		keys.add("totMsg:avg:Total Number of Messages:");
+		StatsMsgGatherer msgProp = new StatsMsgGatherer(
 				"MsgPropGatherer", "Message Statistics", "* * * * * ?", keys);
 		MongoGathererMessageSearchService searchService = null;
 
@@ -147,38 +145,27 @@ public class StatsMongoStorageAndRetrievalTest {
 		msgProp.setSearchService(searchService);
 
 		keys = new LinkedList<String>();
-		keys.add("avgAtt:avg:Average Attachments:Average Attachments:attachments");
-		keys.add("maxAtt:max:Maximum Attachments:Maximum Attachments:attachments");
+		keys.add("avgAtt:avg:Average Attachments:number of attachments");
+		keys.add("maxAtt:max:Maximum Attachments:number of attachments");
 		StatsMongoAttachmentsGatherer attProp = new StatsMongoAttachmentsGatherer(
 				m, TestingConstants.MONGODB_TEST_DATABASE,
 				TestingConstants.MONGODB_TEST_DOCUMENTS_COLLECTION,
-				"AttachmentGatherer", "Attachment Statistics", "* * * * * ?", false, keys);
-		attProp.setLowerDate(new Date(0L));
-		attProp.setUpperDate(new Date());
-
-		keys = new LinkedList<String>();
-		keys.add("msgArchive:avg,max,min:Archive Size:messages");
-		GathererInterface msgStatProp = new StatsMongoMsgGatherer(m,
-				TestingConstants.MONGODB_TEST_DATABASE,
-				TestingConstants.MONGODB_TEST_MESSAGES_COLLECTION,
-				"MsgStatGatherer", "Archive Statistics","* * * * * ?", keys);
+				"AttachmentGatherer", "Attachment Statistics", "* * * * * ?", keys);
 
 		HashMap<String, GathererInterface> map1 = new HashMap<String, GathererInterface>();
 		HashMap<String, GathererInterface> map2 = new HashMap<String, GathererInterface>();
 		HashMap<String, GathererInterface> map3 = new HashMap<String, GathererInterface>();
 		HashMap<String, GathererInterface> map4 = new HashMap<String, GathererInterface>();
 		HashMap<String, GathererInterface> map5 = new HashMap<String, GathererInterface>();
-		HashMap<String, GathererInterface> map6 = new HashMap<String, GathererInterface>();
 
 		map1.put("DatabaseStatsService", dbProp);
 		map2.put("CollStatsService", collProp);
 		map3.put("RuntimeStatsService", runProp);
 		map4.put("MsgEntriesStatsService", msgProp);
 		map5.put("AttachstatsService", attProp);
-		map6.put("msgStatStatsService", msgStatProp);
 
 		Object[][] data = new Object[][] { { map1 }, { map2 }, { map3 },
-				{ map4 }, { map5 }, { map6 } };
+				{ map4 }, { map5 }};
 		return Arrays.asList(data);
 	}
 

@@ -24,12 +24,12 @@ public class RangedRawStats extends RawStats{
 	}
 
 	@Override
-	protected void setStartDate(Date timestamp) {
+	public void setStartDate(Date timestamp) {
 		this.startDate = timestamp;
 	}
 
 	@Override
-	protected void setEndDate(Date timestamp) {
+	public void setEndDate(Date timestamp) {
 		this.endDate = timestamp;
 	}
 }

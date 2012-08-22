@@ -4,21 +4,18 @@ import static com.linuxbox.enkive.statistics.StatsConstants.STAT_STORAGE_COLLECT
 
 import java.net.UnknownHostException;
 import java.text.ParseException;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import com.linuxbox.enkive.TestingConstants;
 import com.linuxbox.enkive.docsearch.indri.IndriDocSearchQueryService;
-import com.linuxbox.enkive.message.search.mongodb.MongoMessageSearchService;
 import com.linuxbox.enkive.statistics.gathering.GathererException;
 import com.linuxbox.enkive.statistics.gathering.GathererInterface;
-import com.linuxbox.enkive.statistics.gathering.StatsMsgSearchGatherer;
+import com.linuxbox.enkive.statistics.gathering.StatsMsgGatherer;
 import com.linuxbox.enkive.statistics.gathering.StatsRuntimeGatherer;
 import com.linuxbox.enkive.statistics.gathering.mongodb.StatsMongoAttachmentsGatherer;
 import com.linuxbox.enkive.statistics.gathering.mongodb.StatsMongoCollectionGatherer;
 import com.linuxbox.enkive.statistics.gathering.mongodb.StatsMongoDBGatherer;
-import com.linuxbox.enkive.statistics.gathering.mongodb.StatsMongoMsgGatherer;
 import com.linuxbox.enkive.statistics.services.StatsClient;
 import com.linuxbox.enkive.statistics.services.StatsGathererService;
 import com.linuxbox.enkive.statistics.services.retrieval.mongodb.MongoStatsRetrievalService;
@@ -36,9 +33,8 @@ public class TestHelper {
 	private static final String dbPropName = "dbGatherer";
 	private static final String collPropName = "collGatherer";
 	private static final String runPropName = "rtGatherer";
-	private static final String msgSearchPropName = "msgSearchGatherer";
+	private static final String msgSearchPropName = "msgGatherer";
 	private static final String attPropName = "attGatherer";
-	private static final String msgStatPropName = "msgGatherer";
 	
 	public static DBCollection GetTestCollection(){
 		if(m == null){
@@ -141,8 +137,9 @@ public class TestHelper {
 				"* * * * * ?", keys);
 		
 		keys = new LinkedList<String>();
-		keys.add("numMsg:avg,max,min:Number of Messages:messages");
-		StatsMsgSearchGatherer msgProp = new StatsMsgSearchGatherer(
+		keys.add("numMsg:avg:Number of Messages:");
+		keys.add("totMsg:avg:Total Number of Messages:");
+		StatsMsgGatherer msgProp = new StatsMsgGatherer(
 				msgSearchPropName, "Message Statistics", "* * * * * ?", keys);
 		MongoGathererMessageSearchService searchService = null;
 		try {
@@ -161,24 +158,14 @@ public class TestHelper {
 		StatsMongoAttachmentsGatherer attProp = new StatsMongoAttachmentsGatherer(
 				m, TestingConstants.MONGODB_TEST_DATABASE,
 				TestingConstants.MONGODB_TEST_DOCUMENTS_COLLECTION,
-				attPropName, "Attachment Statistics", "* * * * * ?", false, keys);
-		attProp.setLowerDate(new Date(0L));
-		attProp.setUpperDate(new Date());
-		
-		keys = new LinkedList<String>();
-		keys.add("msgArchive:avg,max,min:Archive Size:messages");
-		GathererInterface msgStatProp = new StatsMongoMsgGatherer(m,
-				TestingConstants.MONGODB_TEST_DATABASE,
-				TestingConstants.MONGODB_TEST_MESSAGES_COLLECTION,
-				msgStatPropName, "Archive Statistics", "* * * * * ?", keys);
+				attPropName, "Attachment Statistics", "* * * * * ?", keys);
 
 		HashMap<String, GathererInterface> gatherers = new HashMap<String, GathererInterface>();
 		gatherers.put("DatabaseStatsService", dbProp);
 		gatherers.put("CollStatsService", collProp);
 		gatherers.put("RuntimeStatsService", runProp);
-		gatherers.put("MsgEntriesStatsService", msgProp);
+		gatherers.put("MsgStatsService", msgProp);
 		gatherers.put("AttachstatsService", attProp);
-		gatherers.put("msgStatStatsService", msgStatProp);
 		return new StatsGathererService(gatherers);
 	}
 	
