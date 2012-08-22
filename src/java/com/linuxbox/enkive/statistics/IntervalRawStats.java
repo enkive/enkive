@@ -3,13 +3,15 @@ package com.linuxbox.enkive.statistics;
 import java.util.Date;
 import java.util.Map;
 
-public class InstantRawStats extends RawStats{
+public class IntervalRawStats extends RawStats{
 	Date startDate = null;
+	Date endDate = null;
 	
-	public InstantRawStats(Map<String, Object> stats, Date startDate){
+	public IntervalRawStats(Map<String, Object> stats, Date startDate, Date endDate){
 		setStartDate(startDate);
-		setEndDate(startDate);
+		setEndDate(endDate);
 		setStatsMap(stats);
+		isPoint = 0;
 	}
 	
 	@Override
@@ -19,7 +21,7 @@ public class InstantRawStats extends RawStats{
 
 	@Override
 	public Date getEndDate() {
-		return startDate;
+		return endDate;
 	}
 
 	@Override
@@ -29,6 +31,6 @@ public class InstantRawStats extends RawStats{
 
 	@Override
 	public void setEndDate(Date timestamp) {
-		setStartDate(timestamp);
+		this.endDate = timestamp;
 	}
 }

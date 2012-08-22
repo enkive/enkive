@@ -7,12 +7,13 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
-import com.linuxbox.enkive.statistics.InstantRawStats;
+import com.linuxbox.enkive.statistics.PointRawStats;
 import com.linuxbox.enkive.statistics.VarsMaker;
 import com.linuxbox.enkive.statistics.RawStats;
 
@@ -24,8 +25,8 @@ public class UnixPostfixQueueStatisticsService extends AbstractGatherer {
 	public static String POSTQUEUE_OUTPUT_MANIPULATOR_PIPELINE = " | grep Requests | cut -d' ' -f 5";
 
 	public UnixPostfixQueueStatisticsService(String serviceName,
-			String humanName, String schedule) {
-		super(serviceName, humanName, schedule);
+			String humanName, String schedule, List<String> keys) throws GathererException {
+		super(serviceName, humanName, schedule, keys);
 	}
 
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
@@ -51,7 +52,7 @@ public class UnixPostfixQueueStatisticsService extends AbstractGatherer {
 		} catch (IOException e) {
 			stats.put(QUEUE_LENGTH + STATISTIC_CHECK_ERROR, e.toString());
 		}
-		RawStats result = new InstantRawStats(stats, new Date());
+		RawStats result = new PointRawStats(stats, new Date());
 		return result;
 	}
 
@@ -68,7 +69,7 @@ public class UnixPostfixQueueStatisticsService extends AbstractGatherer {
 				selectedStats.put(key, stats.get(key));
 			}
 		}
-		RawStats result = new InstantRawStats(selectedStats, new Date());
+		RawStats result = new PointRawStats(selectedStats, new Date());
 		return result;
 	}
 }

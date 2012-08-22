@@ -21,7 +21,7 @@ import org.junit.Test;
 
 import com.linuxbox.enkive.TestingConstants;
 import com.linuxbox.enkive.docsearch.indri.IndriDocSearchQueryService;
-import com.linuxbox.enkive.statistics.KeyConsolidationHandler;
+import com.linuxbox.enkive.statistics.ConsolidationKeyHandler;
 import com.linuxbox.enkive.statistics.RawStats;
 import com.linuxbox.enkive.statistics.gathering.StatsMsgGatherer;
 import com.linuxbox.enkive.statistics.gathering.mongodb.MongoGathererMessageSearchService;
@@ -109,7 +109,7 @@ public class StatsMsgTest {
 	@Test
 	public void attributesNotNull() {
 		assertTrue("msgEntries.getAttributes returned null", msgEntries.getAttributes() != null);
-		for (KeyConsolidationHandler key : msgEntries.getAttributes().getKeys()) {
+		for (ConsolidationKeyHandler key : msgEntries.getAttributes().getKeys()) {
 			LinkedList<String> path = key.getKey();
 			assertTrue("the format is incorrect for path: " + path,
 					checkFormat(stats, path));
@@ -118,7 +118,7 @@ public class StatsMsgTest {
 	
 	@Test
 	public void testAttributes() {
-		for (KeyConsolidationHandler key : msgEntries.getAttributes().getKeys()) {
+		for (ConsolidationKeyHandler key : msgEntries.getAttributes().getKeys()) {
 			LinkedList<String> path = key.getKey();
 			assertTrue("the format is incorrect for path: " + path,
 					checkFormat(stats, path));

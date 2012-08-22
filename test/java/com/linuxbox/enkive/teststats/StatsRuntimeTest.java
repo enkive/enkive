@@ -22,7 +22,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.linuxbox.enkive.statistics.KeyConsolidationHandler;
+import com.linuxbox.enkive.statistics.ConsolidationKeyHandler;
 import com.linuxbox.enkive.statistics.RawStats;
 import com.linuxbox.enkive.statistics.gathering.StatsRuntimeGatherer;
 
@@ -103,7 +103,7 @@ public class StatsRuntimeTest {
 
 	@Test
 	public void testAttributes() {
-		for (KeyConsolidationHandler key : rtStat.getAttributes().getKeys()) {
+		for (ConsolidationKeyHandler key : rtStat.getAttributes().getKeys()) {
 			LinkedList<String> path = key.getKey();
 			assertTrue("the format is incorrect for path: " + path,
 					checkFormat(stats, path));

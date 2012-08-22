@@ -4,7 +4,6 @@ import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIMESTAMP;
 import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_AVG;
 import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MAX;
 import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MIN;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_STD_DEV;
 import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_SUM;
 import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_TYPE;
 
@@ -20,7 +19,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
-import com.linuxbox.enkive.statistics.KeyConsolidationHandler;
+import com.linuxbox.enkive.statistics.ConsolidationKeyHandler;
 import com.linuxbox.enkive.statistics.StatsQuery;
 import com.linuxbox.enkive.statistics.gathering.GathererAttributes;
 import com.linuxbox.enkive.statistics.services.StatsClient;
@@ -53,8 +52,8 @@ public abstract class AbstractGrain implements Grain {
 	 * @param statsMaker - the pre-populated DescriptiveStatstistics object to pull stats from
 	 * @param statData - the map to populate with consolidated data
 	 */
-	public void methodMapBuilder(String method, Object exampleData,
-			DescriptiveStatistics statsMaker, Map<String, Object> statData) {
+	public void methodMapBuilder(String method, DescriptiveStatistics statsMaker,
+			Map<String, Object> statData) {
 		if (method.equals(GRAIN_SUM)) {
 			statData.put(method, statsMaker.getSum());
 		} else if (method.equals(GRAIN_MAX)) {
@@ -63,11 +62,17 @@ public abstract class AbstractGrain implements Grain {
 			statData.put(method, statsMaker.getMin());
 		} else if (method.equals(GRAIN_AVG)) {
 			statData.put(method, statsMaker.getMean());
-		} else if (method.equals(GRAIN_STD_DEV)) {
-			statData.put(method, statsMaker.getStandardDeviation());
-		}
+		} 
 	}
 
+	public boolean isPointData(int isPoint){
+		if(isPoint == 1){
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
 	@Override
 	public Set<Map<String, Object>> consolidateData() {
 		Set<Map<String, Object>> storageData = new HashSet<Map<String, Object>>();
@@ -108,10 +113,10 @@ public abstract class AbstractGrain implements Grain {
 	protected Map<String, Object> generateConsolidatedMap(
 			Map<String, Object> templateData,
 			Map<String, Object> consolidatedMap, LinkedList<String> path,
-			List<KeyConsolidationHandler> statKeys, Set<Map<String, Object>> gathererData) {
+			List<ConsolidationKeyHandler> statKeys, Set<Map<String, Object>> gathererData) {
 		for (String key : templateData.keySet()) {
 			path.addLast(key);
-			KeyConsolidationHandler matchingDef = findMatchingPath(path, statKeys);
+			ConsolidationKeyHandler matchingDef = findMatchingPath(path, statKeys);
 			if (matchingDef != null) {
 				consolidateMaps(consolidatedMap, gathererData, matchingDef,
 						path);
@@ -157,8 +162,8 @@ public abstract class AbstractGrain implements Grain {
 	 * @return if it finds a matching path it returns the corresponding ConsolidationDefinition
 	 * if not it returns null
 	 */
-	private KeyConsolidationHandler findMatchingPath(List<String> path, List<KeyConsolidationHandler> keys) {
-		for (KeyConsolidationHandler def : keys) {// get one key definition
+	private ConsolidationKeyHandler findMatchingPath(List<String> path, List<ConsolidationKeyHandler> keys) {
+		for (ConsolidationKeyHandler def : keys) {// get one key definition
 			if (def.getMethods() == null) {
 				continue;
 			}
@@ -236,7 +241,7 @@ public abstract class AbstractGrain implements Grain {
 				if (cursor.get(key) instanceof Map) {
 					cursor = (Map<String, Object>) cursor.get(key);
 				} else {
-					// TODO NOAH: is there a reason we don't create the missing
+					// TODO is there a reason we don't create the missing
 					// intervening maps?
 					LOGGER.error("Cannot put data on path");
 					break;
@@ -248,10 +253,12 @@ public abstract class AbstractGrain implements Grain {
 	
 	public Set<Map<String, Object>> gathererFilter(String gathererName) {
 		StatsQuery query = new StatsQuery(gathererName, filterType, startDate, endDate);
-//TODO
-//		System.out.println(gathererName);
-//		System.out.println("Start: " + startDate + " end: " + endDate);
-		return client.queryStatistics(query);
+/*TODO		System.out.println("gn: " + query.gathererName);
+		System.out.println("type: " + query.grainType);
+		System.out.println("Start: " + query.startTimestamp);
+		System.out.println("End: " + query.endTimestamp);
+		System.out.println("filter: " + client.queryStatistics(query));
+*/		return client.queryStatistics(query);
 	}
 
 	/**
@@ -301,6 +308,6 @@ public abstract class AbstractGrain implements Grain {
 	 */
 	protected abstract void consolidateMaps(
 			Map<String, Object> consolidatedData,
-			Set<Map<String, Object>> serviceData, KeyConsolidationHandler keyDef,
+			Set<Map<String, Object>> serviceData, ConsolidationKeyHandler keyDef,
 			LinkedList<String> dataPath);
 }

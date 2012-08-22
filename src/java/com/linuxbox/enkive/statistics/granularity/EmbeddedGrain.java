@@ -3,10 +3,11 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
-
+import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_SUM;
+import static com.linuxbox.enkive.statistics.StatsConstants.STAT_IS_POINT;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
-import com.linuxbox.enkive.statistics.KeyConsolidationHandler;
+import com.linuxbox.enkive.statistics.ConsolidationKeyHandler;
 import com.linuxbox.enkive.statistics.services.StatsClient;
 
 public abstract class EmbeddedGrain extends AbstractGrain {
@@ -16,9 +17,10 @@ public abstract class EmbeddedGrain extends AbstractGrain {
 
 	@Override
 	protected void consolidateMaps(Map<String, Object> consolidatedData,
-			Set<Map<String, Object>> serviceData, KeyConsolidationHandler keyDef,
+			Set<Map<String, Object>> serviceData, ConsolidationKeyHandler keyDef,
 			LinkedList<String> dataPath) {
 		Map<String, Object> statConsolidatedData = new HashMap<String, Object>();
+		int isPoint = (Integer)serviceData.iterator().next().get(STAT_IS_POINT);
 		if (keyDef.getMethods() != null) {
 			//loop over stat consolidation methods
 			for (String method : keyDef.getMethods()) {
@@ -27,7 +29,11 @@ public abstract class EmbeddedGrain extends AbstractGrain {
 				dataVal = null;
 				//loop over data for consolidation Method
 				LinkedList<String> tempPath = new LinkedList<String>(dataPath);
-				tempPath.add(method);
+				if(isPointData(isPoint)){
+					tempPath.add(method);
+				} else {
+					tempPath.add(GRAIN_SUM);
+				}
 				double input = -1;
 				for (Map<String, Object> dataMap : serviceData) {
 					//go to end of path & get variable
@@ -44,7 +50,7 @@ public abstract class EmbeddedGrain extends AbstractGrain {
 					}
 				}
 				//store in map if method is valid
-				methodMapBuilder(method, dataVal, statsMaker,
+				methodMapBuilder(method, statsMaker,
 						statConsolidatedData);
 			}
 

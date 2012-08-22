@@ -22,7 +22,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.linuxbox.enkive.TestingConstants;
-import com.linuxbox.enkive.statistics.KeyConsolidationHandler;
+import com.linuxbox.enkive.statistics.ConsolidationKeyHandler;
 import com.linuxbox.enkive.statistics.RawStats;
 import com.linuxbox.enkive.statistics.gathering.mongodb.StatsMongoAttachmentsGatherer;
 import com.mongodb.Mongo;
@@ -104,7 +104,7 @@ public class StatsMongoAttachTest {
 
 	@Test
 	public void testAttributes() {
-		for (KeyConsolidationHandler key : attach.getAttributes().getKeys()) {
+		for (ConsolidationKeyHandler key : attach.getAttributes().getKeys()) {
 			LinkedList<String> path = key.getKey();
 			assertTrue("the format is incorrect for path: " + path,
 					checkFormat(stats, path));

@@ -18,7 +18,7 @@ import com.linuxbox.enkive.statistics.RawStats;
 import com.linuxbox.enkive.statistics.VarsMaker;
 import com.linuxbox.enkive.statistics.services.StatsStorageService;
 import com.linuxbox.enkive.statistics.services.storage.StatsStorageException;
-import com.linuxbox.enkive.statistics.KeyConsolidationHandler;
+import com.linuxbox.enkive.statistics.ConsolidationKeyHandler;
 
 public abstract class AbstractGatherer implements GathererInterface {
 	protected GathererAttributes attributes;
@@ -28,17 +28,12 @@ public abstract class AbstractGatherer implements GathererInterface {
 	private String serviceName;
 	private String humanName;
 	private String schedule;
-
-	protected AbstractGatherer(String serviceName, String humanName,
-			String schedule) {
+	
+	public AbstractGatherer(String serviceName, String humanName,
+			String schedule, List<String> keys) throws GathererException {
 		this.serviceName = serviceName;
 		this.humanName = humanName;
 		this.schedule = schedule;
-	}
-
-	public AbstractGatherer(String serviceName, String humanName,
-			String schedule, List<String> keys) throws GathererException {
-		this(serviceName, humanName, schedule);
 		setKeys(keys);
 	}
 
@@ -112,16 +107,16 @@ public abstract class AbstractGatherer implements GathererInterface {
 	 * @return returns the instantiated consolidation list
 	 * @throws GathererException
 	 */
-	protected List<KeyConsolidationHandler> keyBuilder(List<String> keyList)
+	protected List<ConsolidationKeyHandler> keyBuilder(List<String> keyList)
 			throws GathererException {
 		if (keyList == null) {
 			throw new GathererException("keys were not set for " + serviceName);
 		}
 
-		List<KeyConsolidationHandler> keys = new LinkedList<KeyConsolidationHandler>();
+		List<ConsolidationKeyHandler> keys = new LinkedList<ConsolidationKeyHandler>();
 		if (keyList != null) {
 			for (String key : keyList) {
-				keys.add(new KeyConsolidationHandler(key));
+				keys.add(new ConsolidationKeyHandler(key));
 			}
 		}
 		return keys;

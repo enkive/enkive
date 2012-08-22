@@ -31,7 +31,7 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 import com.linuxbox.enkive.TestingConstants;
-import com.linuxbox.enkive.statistics.KeyConsolidationHandler;
+import com.linuxbox.enkive.statistics.ConsolidationKeyHandler;
 import com.linuxbox.enkive.statistics.RawStats;
 import com.linuxbox.enkive.statistics.gathering.GathererException;
 import com.linuxbox.enkive.statistics.gathering.mongodb.StatsMongoCollectionGatherer;
@@ -157,7 +157,7 @@ public class StatsMongoCollTest {
 
 	@Test
 	public void testAttributes() {
-		for (KeyConsolidationHandler key : collStats.getAttributes().getKeys()) {
+		for (ConsolidationKeyHandler key : collStats.getAttributes().getKeys()) {
 			LinkedList<String> path = key.getKey();
 			assertTrue("the format is incorrect for path: " + path,
 					checkFormat(allStats, path));

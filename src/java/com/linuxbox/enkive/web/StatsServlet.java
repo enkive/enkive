@@ -48,7 +48,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.linuxbox.enkive.exception.CannotRetrieveException;
-import com.linuxbox.enkive.statistics.KeyConsolidationHandler;
+import com.linuxbox.enkive.statistics.ConsolidationKeyHandler;
 import com.linuxbox.enkive.statistics.RawStats;
 import com.linuxbox.enkive.statistics.StatsFilter;
 import com.linuxbox.enkive.statistics.StatsQuery;
@@ -95,7 +95,7 @@ public class StatsServlet extends EnkiveServlet {
 	 * 5. return Set<Map<String,Object>> as json by list constructor
 	 */
 	private Map<String, Object> consolidateMaps(
-			List<Map<String, Object>> serviceData, List<KeyConsolidationHandler> statKeys) {
+			List<Map<String, Object>> serviceData, List<ConsolidationKeyHandler> statKeys) {
 		if (serviceData.size() > 0) {
 			Map<String, Object> template = new HashMap<String, Object>(
 					serviceData.iterator().next());			
@@ -112,10 +112,10 @@ public class StatsServlet extends EnkiveServlet {
 
 	private void consolidateMapsHelper(Map<String, Object> templateData,
 			Map<String, Object> consolidatedMap, LinkedList<String> path,
-			List<KeyConsolidationHandler> statKeys, List<Map<String, Object>> serviceData) {
+			List<ConsolidationKeyHandler> statKeys, List<Map<String, Object>> serviceData) {
 		for (String key : templateData.keySet()) {
 			path.addLast(key);
-			KeyConsolidationHandler matchingConsolidationDefinition = findMatchingPath(path, statKeys);
+			ConsolidationKeyHandler matchingConsolidationDefinition = findMatchingPath(path, statKeys);
 			if (matchingConsolidationDefinition != null) {
 				TreeSet<Map<String, Object>> dataSet = new TreeSet<Map<String, Object>>(
 						new NumComparator());
@@ -236,8 +236,8 @@ public class StatsServlet extends EnkiveServlet {
 		}
 	}
 
-	private KeyConsolidationHandler findMatchingPath(List<String> path, List<KeyConsolidationHandler> keys) {
-		for (KeyConsolidationHandler def : keys) {// get one key definition
+	private ConsolidationKeyHandler findMatchingPath(List<String> path, List<ConsolidationKeyHandler> keys) {
+		for (ConsolidationKeyHandler def : keys) {// get one key definition
 			if (def.getMethods() == null) {
 				continue;
 			}

@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
 
-public class KeyConsolidationHandler {
+public class ConsolidationKeyHandler {
 	private String humanKey = null;
 	private String units = null;
 	private LinkedList<String> key;
@@ -20,7 +20,7 @@ public class KeyConsolidationHandler {
 	 * the consolidation method names indicate which consolidations to keep for
 	 * a given statistic.
 	 */
-	public KeyConsolidationHandler(String keyPath) {
+	public ConsolidationKeyHandler(String keyPath) {
 		parseAll(keyPath);
 	}
 

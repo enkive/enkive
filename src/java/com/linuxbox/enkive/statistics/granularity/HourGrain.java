@@ -2,6 +2,7 @@ package com.linuxbox.enkive.statistics.granularity;
 
 import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_HOUR;
 import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_RAW;
+import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_SUM;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -12,8 +13,9 @@ import java.util.Set;
 
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
-import com.linuxbox.enkive.statistics.KeyConsolidationHandler;
+import com.linuxbox.enkive.statistics.ConsolidationKeyHandler;
 import com.linuxbox.enkive.statistics.services.StatsClient;
+import static com.linuxbox.enkive.statistics.StatsConstants.STAT_IS_POINT;
 
 public class HourGrain extends AbstractGrain {
 	public HourGrain(StatsClient client) {
@@ -22,10 +24,11 @@ public class HourGrain extends AbstractGrain {
 
 	@Override
 	protected void consolidateMaps(Map<String, Object> consolidatedData,
-			Set<Map<String, Object>> serviceData, KeyConsolidationHandler keyDef,
+			Set<Map<String, Object>> serviceData, ConsolidationKeyHandler keyDef,
 			LinkedList<String> dataPath) {
 
 		if (keyDef.getMethods() != null) {
+			int isPoint = (Integer)serviceData.iterator().next().get(STAT_IS_POINT);
 			DescriptiveStatistics statsMaker = new DescriptiveStatistics();
 			Object dataVal = null;
 
@@ -45,7 +48,12 @@ public class HourGrain extends AbstractGrain {
 			// loop over methods to populate map with max, min, etc.
 			Map<String, Object> methodData = new HashMap<String, Object>();
 			for (String method : keyDef.getMethods()) {
-				methodMapBuilder(method, dataVal, statsMaker, methodData);
+				if(!method.equals(GRAIN_SUM)){//may not be user defined
+					methodMapBuilder(method, statsMaker, methodData);
+				}
+			}
+			if(!isPointData(isPoint)){//create sum
+				methodMapBuilder(GRAIN_SUM, statsMaker, methodData);
 			}
 			// store in new map on path
 			putOnPath(dataPath, consolidatedData, methodData);

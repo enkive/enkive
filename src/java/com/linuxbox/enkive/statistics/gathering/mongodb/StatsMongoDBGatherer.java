@@ -27,7 +27,7 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.linuxbox.enkive.statistics.InstantRawStats;
+import com.linuxbox.enkive.statistics.PointRawStats;
 import com.linuxbox.enkive.statistics.VarsMaker;
 import com.linuxbox.enkive.statistics.RawStats;
 import com.linuxbox.enkive.statistics.gathering.AbstractGatherer;
@@ -41,15 +41,7 @@ public class StatsMongoDBGatherer extends AbstractGatherer {
 			.getLog("com.linuxbox.enkive.statistics.gathering");
 
 	protected DB db;
-
 	protected Mongo m;
-
-	public StatsMongoDBGatherer(Mongo m, String dbName, String serviceName,
-			String humanName, String schedule) throws GathererException {
-		super(serviceName, humanName, schedule);
-		this.m = m;
-		db = m.getDB(dbName);
-	}
 
 	public StatsMongoDBGatherer(Mongo m, String dbName, String serviceName,
 			String humanName, String schedule, List<String> keys)
@@ -74,7 +66,7 @@ public class StatsMongoDBGatherer extends AbstractGatherer {
 		stats.put(STAT_NUM_EXTENT, temp.get(MONGO_NUM_EXTENT));
 		stats.put(STAT_FILE_SIZE, temp.get(MONGO_FILE_SIZE));
 
-		RawStats result = new InstantRawStats(stats, new Date());
+		RawStats result = new PointRawStats(stats, new Date());
 		return result;
 	}
 }

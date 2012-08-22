@@ -16,7 +16,7 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.linuxbox.enkive.statistics.RangedRawStats;
+import com.linuxbox.enkive.statistics.IntervalRawStats;
 import com.linuxbox.enkive.statistics.RawStats;
 import com.linuxbox.enkive.statistics.gathering.AbstractGatherer;
 import com.linuxbox.enkive.statistics.gathering.GathererException;
@@ -80,7 +80,7 @@ public class StatsMongoAttachmentsGatherer extends AbstractGatherer {
 		resultMap.put(STAT_ATTACH_NUM, dataCursor.count());
 		resultMap.put(STAT_GATHERER_NAME, "AttachmentStatsService");
 		
-		RawStats resultStats = new RangedRawStats(resultMap, startDate, endDate);
+		RawStats resultStats = new IntervalRawStats(resultMap, startDate, endDate);
 		
 		return resultStats;
 	}

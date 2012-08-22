@@ -9,16 +9,11 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import com.linuxbox.enkive.statistics.InstantRawStats;
+import com.linuxbox.enkive.statistics.PointRawStats;
 import com.linuxbox.enkive.statistics.VarsMaker;
 import com.linuxbox.enkive.statistics.RawStats;
 
-public class StatsRuntimeGatherer extends AbstractGatherer {
-
-	public StatsRuntimeGatherer(String serviceName, String humanName, String schedule) {
-		super(serviceName, humanName, schedule);
-	}
-	
+public class StatsRuntimeGatherer extends AbstractGatherer {	
 	public StatsRuntimeGatherer(String serviceName, String humanName, String schedule, List<String> keys) throws GathererException {
 		super(serviceName, humanName, schedule, keys);		
 	}
@@ -32,7 +27,7 @@ public class StatsRuntimeGatherer extends AbstractGatherer {
 		stats.put(STAT_TOTAL_MEMORY, runtime.totalMemory());
 		stats.put(STAT_PROCESSORS, runtime.availableProcessors());
 		
-		RawStats result = new InstantRawStats(stats, new Date());
+		RawStats result = new PointRawStats(stats, new Date());
 		return result;
 	}
 }

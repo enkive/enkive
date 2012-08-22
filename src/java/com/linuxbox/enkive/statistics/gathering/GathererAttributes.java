@@ -8,29 +8,29 @@ import java.util.List;
 
 import org.quartz.CronExpression;
 
-import com.linuxbox.enkive.statistics.KeyConsolidationHandler;
+import com.linuxbox.enkive.statistics.ConsolidationKeyHandler;
 
 public class GathererAttributes {
-	protected List<KeyConsolidationHandler> keys;
+	protected List<ConsolidationKeyHandler> keys;
 	protected CronExpression schedule;
 	protected String serviceName;
 	protected String humanName;
 
 	public GathererAttributes(String serviceName, String humanName, String schedule,
-			List<KeyConsolidationHandler> keys) throws ParseException {
+			List<ConsolidationKeyHandler> keys) throws ParseException {
 		this.humanName = humanName;
 		this.serviceName = serviceName;
 		this.schedule = new CronExpression(schedule);
 		this.keys = keys;
 		//serviceName and Timestamp must always be specified
-		keys.add(new KeyConsolidationHandler(STAT_GATHERER_NAME + "::Gatherer Name:"));
-		keys.add(new KeyConsolidationHandler(STAT_TIMESTAMP + "::Time Stamp:"));
+		keys.add(new ConsolidationKeyHandler(STAT_GATHERER_NAME + "::Gatherer Name:"));
+		keys.add(new ConsolidationKeyHandler(STAT_TIMESTAMP + "::Time Stamp:"));
 	}
 
 	/**
 	 * @return the consolidation handlers cooresponding to this gatherer
 	 */
-	public List<KeyConsolidationHandler> getKeys() {
+	public List<ConsolidationKeyHandler> getKeys() {
 		return keys;
 	}
 
