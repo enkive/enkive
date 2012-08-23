@@ -6,12 +6,11 @@ import java.util.Map;
 public class IntervalRawStats extends RawStats{
 	Date startDate = null;
 	Date endDate = null;
-	
+	Date pointDate = null;
 	public IntervalRawStats(Map<String, Object> stats, Date startDate, Date endDate){
 		setStartDate(startDate);
 		setEndDate(endDate);
 		setStatsMap(stats);
-		isPoint = 0;
 	}
 	
 	@Override
@@ -32,5 +31,15 @@ public class IntervalRawStats extends RawStats{
 	@Override
 	public void setEndDate(Date timestamp) {
 		this.endDate = timestamp;
+	}
+	
+	@Override
+	public Date getPointDate() {
+		return pointDate;
+	}
+
+	@Override
+	protected void setPointDate(Date timestamp) {
+		this.pointDate = timestamp;
 	}
 }

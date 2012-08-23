@@ -253,12 +253,7 @@ public abstract class AbstractGrain implements Grain {
 	
 	public Set<Map<String, Object>> gathererFilter(String gathererName) {
 		StatsQuery query = new StatsQuery(gathererName, filterType, startDate, endDate);
-/*TODO		System.out.println("gn: " + query.gathererName);
-		System.out.println("type: " + query.grainType);
-		System.out.println("Start: " + query.startTimestamp);
-		System.out.println("End: " + query.endTimestamp);
-		System.out.println("filter: " + client.queryStatistics(query));
-*/		return client.queryStatistics(query);
+		return client.queryStatistics(query);
 	}
 
 	/**

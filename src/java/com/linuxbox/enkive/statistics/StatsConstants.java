@@ -12,7 +12,7 @@ public interface StatsConstants {
 	public static String STAT_ATTACH_NUM = "attNum";
 	public static String STAT_AVG_OBJ_SIZE = "avgOSz";
 	public static String STAT_DATA_SIZE = "dataSz";
-	public static String STAT_IS_POINT = "isPnt";
+	public static String STAT_TS_POINT = "ptTime";
 	
 	// DBs only
 	public static String STAT_FILE_SIZE = "fileSz";

@@ -5,12 +5,12 @@ import java.util.Map;
 
 public class PointRawStats extends RawStats{
 	Date startDate = null;
+	Date pointDate = null;
 	
 	public PointRawStats(Map<String, Object> stats, Date startDate){
 		setStartDate(startDate);
 		setEndDate(startDate);
 		setStatsMap(stats);
-		isPoint = 1;
 	}
 	
 	@Override
@@ -31,5 +31,15 @@ public class PointRawStats extends RawStats{
 	@Override
 	public void setEndDate(Date timestamp) {
 		setStartDate(timestamp);
+	}
+
+	@Override
+	public Date getPointDate() {
+		return pointDate;
+	}
+
+	@Override
+	protected void setPointDate(Date timestamp) {
+		this.pointDate = timestamp;
 	}
 }
