@@ -9,7 +9,7 @@ public class ConsolidationKeyHandler {
 	private String units = null;
 	private LinkedList<String> key;
 	private Collection<String> methods;
-	
+	private boolean isPoint;
     
 	/**
 	 * @param keyPath is a string formatted in the following way:
@@ -40,6 +40,10 @@ public class ConsolidationKeyHandler {
 		return units;
 	}
 	
+	public boolean isPoint(){
+		return isPoint;
+	}
+	
 	/**
 	 * @param str is parsed using the semantics outlined in the constructor's comments 
 	 */
@@ -48,6 +52,14 @@ public class ConsolidationKeyHandler {
 		key = new LinkedList<String>(Arrays.asList(temp[0].split("\\.")));
 		if (temp[1] != null && !temp[1].equals("")) {
 			methods = Arrays.asList(temp[1].split(","));
+			if(temp[4] != null && !temp[4].equals("")){//will only apply to stats with methods
+				String type = temp[4];
+				if(type.equals("point")){
+					isPoint = true;
+				} else {
+					isPoint = false;
+				}
+			}
 		} else {
 			methods = null;
 		}

@@ -12,7 +12,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.linuxbox.enkive.message.search.exception.MessageSearchException;
-import com.linuxbox.enkive.statistics.IntervalRawStats;
 import com.linuxbox.enkive.statistics.RawStats;
 import com.linuxbox.enkive.statistics.VarsMaker;
 import com.linuxbox.enkive.statistics.gathering.AbstractGatherer;
@@ -58,11 +57,14 @@ public class StatsMsgGatherer extends AbstractGatherer {
 			throw new GathererException(e);
 		}
 		
-		Map<String, Object> stats = VarsMaker.createMap();		
-		stats.put(STAT_TOTAL_MSGS, totEntries);
-		stats.put(STAT_NUM_ENTRIES, numEntries);
+		
+		Map<String, Object> pointStats = VarsMaker.createMap();	
+		pointStats.put(STAT_TOTAL_MSGS, totEntries);
+		
+		Map<String, Object> intervalStats = VarsMaker.createMap();
+		intervalStats.put(STAT_NUM_ENTRIES, numEntries);
 
-		RawStats result = new IntervalRawStats(stats, startDate, endDate);
+		RawStats result = new RawStats(intervalStats, pointStats, startDate, endDate);
 		return result;
 	}
 	

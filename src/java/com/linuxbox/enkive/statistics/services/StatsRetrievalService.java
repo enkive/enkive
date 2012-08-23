@@ -4,8 +4,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.linuxbox.enkive.statistics.StatsFilter;
-import com.linuxbox.enkive.statistics.StatsQuery;
+import com.linuxbox.enkive.statistics.services.retrieval.StatsFilter;
+import com.linuxbox.enkive.statistics.services.retrieval.StatsQuery;
 import com.linuxbox.enkive.statistics.services.retrieval.StatsRetrievalException;
 import com.linuxbox.enkive.statistics.services.storage.StatsStorageException;
 
@@ -41,8 +41,7 @@ public interface StatsRetrievalService {
 
 	/**
 	 * Does a query on the backend that only returns specific keys as specified by the filterMap's
-	 * entries, note that they must always be using proper dot notation and each filter key's val
-	 * must be 1
+	 * entries
 	 * NOTE: serviceName and timestamp will always be returned regardless of filterMap
 	 * @param queryMap - the query object used to generate the query Must be of format:
 	 * {gathererName:{key:val, key:val...}...}
@@ -67,11 +66,9 @@ public interface StatsRetrievalService {
 	 */
 	public void remove(Set<Object> deletionSet) throws StatsRetrievalException;
 
-	/**
-	 * Equivalent to the coll.find() method
-	 * @return every object in the collection
-	 */
-//	public Set<Map<String, Object>> directQuery();
+	//TODO 
+	public Set<Map<String, Object>> queryStatistics(StatsQuery query,
+			StatsFilter filter) throws StatsRetrievalException;
 	
 	/**
 	 * Does a query on the backend without formatting the map at all (e.g. just 

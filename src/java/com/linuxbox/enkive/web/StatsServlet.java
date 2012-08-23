@@ -50,9 +50,9 @@ import org.json.JSONObject;
 import com.linuxbox.enkive.exception.CannotRetrieveException;
 import com.linuxbox.enkive.statistics.ConsolidationKeyHandler;
 import com.linuxbox.enkive.statistics.RawStats;
-import com.linuxbox.enkive.statistics.StatsFilter;
-import com.linuxbox.enkive.statistics.StatsQuery;
 import com.linuxbox.enkive.statistics.services.StatsClient;
+import com.linuxbox.enkive.statistics.services.retrieval.StatsFilter;
+import com.linuxbox.enkive.statistics.services.retrieval.StatsQuery;
 
 @SuppressWarnings("unchecked")
 public class StatsServlet extends EnkiveServlet {

@@ -1,6 +1,7 @@
 package com.linuxbox.enkive.statistics.granularity;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -22,7 +23,7 @@ public interface Grain {
 	 * @return returns the result of a query on the gatherer's name, grainType, and
 	 * consolidation date range
 	 */
-	public Set<Map<String, Object>> gathererFilter(String name);
+	public List<Set<Map<String, Object>>> gathererFilter(String name);
 	
 	/**
 	 * Sets the date range on which the consolidation will take place based on the time it

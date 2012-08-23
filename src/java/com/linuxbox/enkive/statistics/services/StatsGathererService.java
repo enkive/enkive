@@ -1,7 +1,5 @@
 package com.linuxbox.enkive.statistics.services;
 
-import static com.linuxbox.enkive.statistics.StatsConstants.STAT_GATHERER_NAME;
-
 import java.text.ParseException;
 import java.util.HashMap;
 import java.util.List;
@@ -86,6 +84,8 @@ public class StatsGathererService extends VarsMaker {
 	public List<RawStats> gatherStats(
 			Map<String, String[]> gathererKeys) throws ParseException,
 			GathererException {
+//TODO		
+/*		
 		if (statsGatherers == null) {
 			System.out.println("statsGatherers is null");
 			return null;
@@ -113,6 +113,8 @@ public class StatsGathererService extends VarsMaker {
 		}
 
 		return statsList;
+*/
+		return null;
 	}
 
 	/**

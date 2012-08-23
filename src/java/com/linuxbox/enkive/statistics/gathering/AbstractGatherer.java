@@ -46,8 +46,10 @@ public abstract class AbstractGatherer implements GathererInterface {
 	public abstract RawStats getStatistics() throws GathererException;
 
 	@Override
+	//TODO this needs work on repairing it via if only some are selected then you must
+	//determine if they are ranged or not
 	public RawStats getStatistics(String[] keys) throws GathererException {
-		if (keys == null) {
+/*		if (keys == null) {
 			return getStatistics();
 		}
 		RawStats result = getStatistics();
@@ -61,7 +63,8 @@ public abstract class AbstractGatherer implements GathererInterface {
 		selectedStats.put(STAT_GATHERER_NAME, attributes.getName());
 		result.setStatsMap(selectedStats);
 		return result;
-
+*/
+		return null;
 	}
 
 	/**

@@ -9,10 +9,10 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import com.linuxbox.enkive.statistics.RawStats;
-import com.linuxbox.enkive.statistics.StatsFilter;
-import com.linuxbox.enkive.statistics.StatsQuery;
 import com.linuxbox.enkive.statistics.gathering.GathererAttributes;
 import com.linuxbox.enkive.statistics.gathering.GathererException;
+import com.linuxbox.enkive.statistics.services.retrieval.StatsFilter;
+import com.linuxbox.enkive.statistics.services.retrieval.StatsQuery;
 import com.linuxbox.enkive.statistics.services.retrieval.StatsRetrievalException;
 import com.linuxbox.enkive.statistics.services.storage.StatsStorageException;
 
@@ -90,24 +90,6 @@ public class StatsClient {
 		return gathererService.getStatsGatherers(serviceName).get(serviceName)
 				.getAttributes();
 	}
-
-	/**
-	 * query the database using a query argument and a date range
-	 * @param stats - a map formatted in the following way: {gathererName:{stat:value, stat:value, ...}, ...}
-	 * @param startingTimestamp - the start date for the query-if null then epoche is used
-	 * @param endingTimestamp - the end date for the query-if null then current date is used
-	 * @return result of objects found with query
-	 */
-	public Set<Map<String, Object>> queryStatistics() {
-		try {
-			return retrievalService.queryStatistics();
-		} catch (StatsRetrievalException e) {
-			LOGGER.error(
-					"Client.queryStatistics(StatsQuery) StatsRetrievalException",
-					e);
-		}
-		return null;
-	}
 	
 	/**
 	 * query the database using a query argument and a date range
@@ -119,6 +101,17 @@ public class StatsClient {
 	public Set<Map<String, Object>> queryStatistics(StatsQuery query) {
 		try {
 			return retrievalService.queryStatistics(query);
+		} catch (StatsRetrievalException e) {
+			LOGGER.error(
+					"Client.queryStatistics(StatsQuery) StatsRetrievalException",
+					e);
+		}
+		return null;
+	}
+	
+	public Set<Map<String, Object>> queryStatistics(StatsQuery query, StatsFilter filter) {
+		try {
+			return retrievalService.queryStatistics(query, filter);
 		} catch (StatsRetrievalException e) {
 			LOGGER.error(
 					"Client.queryStatistics(StatsQuery) StatsRetrievalException",

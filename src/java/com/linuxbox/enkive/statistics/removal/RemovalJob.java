@@ -21,12 +21,9 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.linuxbox.enkive.statistics.StatsQuery;
 import com.linuxbox.enkive.statistics.services.StatsClient;
-
-//NOAH: I think the name for this class could be a little more descriptive. '
-//This appears to be a class meant to be run by a job, so saying that in the class name 
-//would make people weary of using it in any other way.
+import com.linuxbox.enkive.statistics.services.retrieval.StatsQuery;
+import com.linuxbox.enkive.statistics.services.retrieval.mongodb.MongoStatsDateQuery;
 
 public class RemovalJob {
 	protected final static Log LOGGER = LogFactory
@@ -74,7 +71,7 @@ public class RemovalJob {
 	 */
 	private void cleaner(int interval, int grainType) {
 		setDate(interval);
-		StatsQuery query = new StatsQuery(new Date(0L), dateFilter);
+		StatsQuery query = new MongoStatsDateQuery(new Date(0L), dateFilter);
 		query.grainType = grainType;
 		Set<Map<String, Object>> data = client.queryStatistics(query);
 		Set<Object> deletionSet = new HashSet<Object>();

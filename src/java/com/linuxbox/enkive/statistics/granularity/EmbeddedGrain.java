@@ -4,7 +4,6 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_SUM;
-import static com.linuxbox.enkive.statistics.StatsConstants.STAT_IS_POINT;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
 import com.linuxbox.enkive.statistics.ConsolidationKeyHandler;
@@ -20,7 +19,7 @@ public abstract class EmbeddedGrain extends AbstractGrain {
 			Set<Map<String, Object>> serviceData, ConsolidationKeyHandler keyDef,
 			LinkedList<String> dataPath) {
 		Map<String, Object> statConsolidatedData = new HashMap<String, Object>();
-		int isPoint = (Integer)serviceData.iterator().next().get(STAT_IS_POINT);
+//TODO
 		if (keyDef.getMethods() != null) {
 			//loop over stat consolidation methods
 			for (String method : keyDef.getMethods()) {
@@ -29,7 +28,7 @@ public abstract class EmbeddedGrain extends AbstractGrain {
 				dataVal = null;
 				//loop over data for consolidation Method
 				LinkedList<String> tempPath = new LinkedList<String>(dataPath);
-				if(isPointData(isPoint)){
+				if(keyDef.isPoint()){
 					tempPath.add(method);
 				} else {
 					tempPath.add(GRAIN_SUM);

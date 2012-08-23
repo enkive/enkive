@@ -13,7 +13,8 @@ public interface StatsConstants {
 	public static String STAT_AVG_OBJ_SIZE = "avgOSz";
 	public static String STAT_DATA_SIZE = "dataSz";
 	public static String STAT_TS_POINT = "ptTime";
-	
+	public static String STAT_INTERVAL = "ival";
+	public static String STAT_POINT = "pt";
 	// DBs only
 	public static String STAT_FILE_SIZE = "fileSz";
 	public static String STAT_FREE_MEMORY = "freeM";

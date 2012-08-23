@@ -1,6 +1,8 @@
 package com.linuxbox.enkive.statistics.granularity;
 
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIMESTAMP;
+import static com.linuxbox.enkive.statistics.StatsConstants.STAT_INTERVAL;
+import static com.linuxbox.enkive.statistics.StatsConstants.STAT_POINT;
 import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_AVG;
 import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MAX;
 import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MIN;
@@ -20,9 +22,12 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
 import com.linuxbox.enkive.statistics.ConsolidationKeyHandler;
-import com.linuxbox.enkive.statistics.StatsQuery;
 import com.linuxbox.enkive.statistics.gathering.GathererAttributes;
 import com.linuxbox.enkive.statistics.services.StatsClient;
+import com.linuxbox.enkive.statistics.services.retrieval.StatsFilter;
+import com.linuxbox.enkive.statistics.services.retrieval.StatsQuery;
+import com.linuxbox.enkive.statistics.services.retrieval.StatsTypeFilter;
+import com.linuxbox.enkive.statistics.services.retrieval.mongodb.MongoStatsQuery;
 
 @SuppressWarnings("unchecked")
 public abstract class AbstractGrain implements Grain {
@@ -64,29 +69,80 @@ public abstract class AbstractGrain implements Grain {
 			statData.put(method, statsMaker.getMean());
 		} 
 	}
-
-	public boolean isPointData(int isPoint){
-		if(isPoint == 1){
-			return true;
-		} else {
-			return false;
-		}
-	}
 	
 	@Override
 	public Set<Map<String, Object>> consolidateData() {
 		Set<Map<String, Object>> storageData = new HashSet<Map<String, Object>>();
 		for (GathererAttributes attribute : client.getAttributes()) {
 			String name = attribute.getName();
-			Set<Map<String, Object>> serviceData = gathererFilter(name);
+			List<Set<Map<String, Object>>> serviceData = gathererFilter(name);			
 			if (!serviceData.isEmpty()) {
-				Map<String, Object> example = new HashMap<String, Object>(
+				Map<String, Object> mapToStore = new HashMap<String,Object>();
+				
+				//Interval
+				Set<Map<String, Object>> intervalData = serviceData.get(0);
+				if(intervalData != null){
+					System.out.println("intervalData: " + intervalData);
+/*					System.out.println("interval");
+					System.out.println("next(): " + intervalData.iterator().next());
+					System.out.println("new: " + new HashMap<String, Object>((Map<String,Object>)intervalData.iterator().next()));
+*/					Map<String, Object> intervalTemplate = new HashMap<String, Object>((Map<String,Object>)intervalData.iterator().next());
+					Map<String, Object> intervalMapToStore = new HashMap<String, Object>(intervalTemplate);
+					
+					List<ConsolidationKeyHandler> intervalKeys = new LinkedList<ConsolidationKeyHandler>(); 
+					for(ConsolidationKeyHandler keyDef: attribute.getKeys()){
+						if(!keyDef.isPoint()){
+							intervalKeys.add(keyDef);
+						}
+					}
+					
+					generateConsolidatedMap(intervalTemplate, intervalMapToStore,
+							new LinkedList<String>(), intervalKeys,
+							intervalData);//going to need string for point/interval
+					mapToStore.put(STAT_INTERVAL, intervalMapToStore);
+				}
+				
+				//Point
+				Set<Map<String, Object>> pointData = serviceData.get(1);
+				if(pointData != null){
+					System.out.println("pointData: " + pointData);
+/*					System.out.println("points");
+					System.out.println("next(): " + pointData.iterator().next());
+					System.out.println("new: " + new HashMap<String, Object>((Map<String,Object>)pointData.iterator().next()));
+*/					Map<String, Object> pointTemplate = new HashMap<String, Object>((Map<String,Object>)pointData.iterator().next());
+					System.out.println("pointTemplate: " + pointTemplate);
+					Map<String, Object> pointMapToStore = new HashMap<String, Object>(pointTemplate);
+					
+					List<ConsolidationKeyHandler> pointKeys = new LinkedList<ConsolidationKeyHandler>(); 
+					for(ConsolidationKeyHandler keyDef: attribute.getKeys()){
+						if(keyDef.isPoint()){
+							pointKeys.add(keyDef);
+						}
+					}
+					
+					generateConsolidatedMap(pointTemplate, pointMapToStore,
+							new LinkedList<String>(), pointKeys,
+							pointData);
+					mapToStore.put(STAT_POINT, pointMapToStore);
+				}
+				
+				mapToStore.put(GRAIN_TYPE, grainType);
+				
+				Map<String, Object> dateMap = new HashMap<String, Object>();
+				dateMap.put(GRAIN_MIN, startDate);
+				dateMap.put(GRAIN_MAX, endDate);
+				
+				mapToStore.put(STAT_TIMESTAMP, dateMap);
+				
+				System.out.println("MapTOSTORE: " + mapToStore);
+				
+/*				Map<String, Object> example = new HashMap<String, Object>(
 						serviceData.iterator().next());
 				Map<String, Object> mapToStore = new HashMap<String, Object>(
 						example);
 				generateConsolidatedMap(example, mapToStore,
 						new LinkedList<String>(), attribute.getKeys(),
-						serviceData);
+						serviceData);//going to need string for point/interval
 				mapToStore.put(GRAIN_TYPE, grainType);
 				Map<String, Object> dateMap = new HashMap<String, Object>();
 				dateMap.put(GRAIN_MIN, startDate);
@@ -95,8 +151,9 @@ public abstract class AbstractGrain implements Grain {
 				if (mapToStore.containsKey("_id")) {
 					mapToStore.remove("_id");
 				}
+
 				storageData.add(mapToStore);
-			}
+*/			}
 		}
 		return storageData;
 	}
@@ -241,9 +298,8 @@ public abstract class AbstractGrain implements Grain {
 				if (cursor.get(key) instanceof Map) {
 					cursor = (Map<String, Object>) cursor.get(key);
 				} else {
-					// TODO is there a reason we don't create the missing
-					// intervening maps?
-					LOGGER.error("Cannot put data on path");
+					// TODO create the missing intervening maps
+					LOGGER.error("Path does not exist");
 					break;
 				}
 			}
@@ -251,9 +307,41 @@ public abstract class AbstractGrain implements Grain {
 		}
 	}
 	
-	public Set<Map<String, Object>> gathererFilter(String gathererName) {
-		StatsQuery query = new StatsQuery(gathererName, filterType, startDate, endDate);
-		return client.queryStatistics(query);
+	private Set<Map<String, Object>> getStatTypeData(String gathererName, String type){
+		StatsQuery intervalQuery = new MongoStatsQuery(gathererName, filterType, type, startDate, endDate);
+		StatsFilter intervalFilter = new StatsTypeFilter(type);
+		Set<Map<String, Object>> result = new HashSet<Map<String,Object>>();
+		for(Map<String, Object> statsMap: client.queryStatistics(intervalQuery, intervalFilter)){
+			statsMap.remove("_id");//TODO mongo specific pollution
+			
+			if(statsMap != null && !statsMap.isEmpty()){
+//TODO				System.out.println("result: " + result);
+				result.add((Map<String,Object>)statsMap.get(type));
+			}
+		}
+		return result;
+	}
+	
+	public List<Set<Map<String, Object>>> gathererFilter(String gathererName) {
+		List<Set<Map<String,Object>>> result = new LinkedList<Set<Map<String,Object>>>();
+		
+		//interval stats
+		Set<Map<String, Object>> intervalData = getStatTypeData(gathererName, STAT_INTERVAL);
+		if(!intervalData.isEmpty()){
+			result.add(intervalData);
+		} else {
+			result.add(null);
+		}
+		
+		//point stats
+		Set<Map<String, Object>> pointData = getStatTypeData(gathererName, STAT_POINT);
+		if(!pointData.isEmpty()){
+			result.add(pointData);
+		} else {
+			result.add(null);
+		}
+		
+		return result;
 	}
 
 	/**

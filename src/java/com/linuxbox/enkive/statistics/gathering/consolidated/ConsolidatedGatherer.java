@@ -17,9 +17,9 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.linuxbox.enkive.statistics.StatsQuery;
 import com.linuxbox.enkive.statistics.gathering.GathererException;
 import com.linuxbox.enkive.statistics.services.StatsClient;
+import com.linuxbox.enkive.statistics.services.retrieval.StatsQuery;
 
 public abstract class ConsolidatedGatherer {
 	protected final static Log LOGGER = LogFactory
@@ -32,7 +32,9 @@ public abstract class ConsolidatedGatherer {
 	protected int dayKeepTime;
 	protected int weekKeepTime;
 	protected int monthKeepTime;
-	
+//TODO use gatherer to gather statistics instead of redundant code
+//TODO ^populate with spring^
+//TODO
 	public ConsolidatedGatherer(String name, StatsClient client, int hrKeepTime, int dayKeepTime, int weekKeepTime, int monthKeepTime) {
 		this.client = client;
 		this.gathererName = name;

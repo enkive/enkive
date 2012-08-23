@@ -29,7 +29,6 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.linuxbox.enkive.statistics.PointRawStats;
 import com.linuxbox.enkive.statistics.VarsMaker;
 import com.linuxbox.enkive.statistics.RawStats;
 import com.linuxbox.enkive.statistics.gathering.AbstractGatherer;
@@ -54,17 +53,17 @@ public class StatsMongoCollectionGatherer extends AbstractGatherer {
 
 	@Override
 	public RawStats getStatistics() {
-		Map<String, Object> collStats = new HashMap<String, Object>();
+		Map<String, Object> pointStats = new HashMap<String, Object>();
 		for (String collName : db.getCollectionNames()) {
 			String key = collName;
 			if (collName.startsWith("$")) {
 				collName = collName.replaceFirst("$", "-");
 			}
 			collName = collName.replace('.', '-');
-			collStats.put(collName, getStats(key));
+			pointStats.put(collName, getStats(key));
 		}
 		
-		RawStats result = new PointRawStats(collStats, new Date());
+		RawStats result = new RawStats(null, pointStats, new Date(), new Date());
 		return result;
 	}
 	
@@ -84,9 +83,8 @@ public class StatsMongoCollectionGatherer extends AbstractGatherer {
 			}
 			selectedStats.put(collName, temp);
 		}
-//		selectedStats.put(STAT_GATHERER_NAME, attributes.getName());
 	
-		RawStats result = new PointRawStats(selectedStats, new Date());
+		RawStats result = new RawStats(null, selectedStats, new Date(), new Date());
 		return result;
 	}
 

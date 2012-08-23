@@ -15,7 +15,6 @@ import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
 import com.linuxbox.enkive.statistics.ConsolidationKeyHandler;
 import com.linuxbox.enkive.statistics.services.StatsClient;
-import static com.linuxbox.enkive.statistics.StatsConstants.STAT_IS_POINT;
 
 public class HourGrain extends AbstractGrain {
 	public HourGrain(StatsClient client) {
@@ -28,7 +27,7 @@ public class HourGrain extends AbstractGrain {
 			LinkedList<String> dataPath) {
 
 		if (keyDef.getMethods() != null) {
-			int isPoint = (Integer)serviceData.iterator().next().get(STAT_IS_POINT);
+			boolean isPoint = keyDef.isPoint();
 			DescriptiveStatistics statsMaker = new DescriptiveStatistics();
 			Object dataVal = null;
 
@@ -52,7 +51,7 @@ public class HourGrain extends AbstractGrain {
 					methodMapBuilder(method, statsMaker, methodData);
 				}
 			}
-			if(!isPointData(isPoint)){//create sum
+			if(!isPoint){//create sum
 				methodMapBuilder(GRAIN_SUM, statsMaker, methodData);
 			}
 			// store in new map on path
@@ -70,6 +69,9 @@ public class HourGrain extends AbstractGrain {
 		cal.add(Calendar.HOUR_OF_DAY, -1);
 		Date lowerDate = cal.getTime();	
 		setDates(upperDate, lowerDate);
+
+		//TODO
+		setDates(new Date(), lowerDate);
 	}
 
 	@Override

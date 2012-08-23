@@ -9,7 +9,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import com.linuxbox.enkive.statistics.PointRawStats;
 import com.linuxbox.enkive.statistics.VarsMaker;
 import com.linuxbox.enkive.statistics.RawStats;
 
@@ -20,14 +19,15 @@ public class StatsRuntimeGatherer extends AbstractGatherer {
 
 	@Override
 	public RawStats getStatistics() {
-		Map<String, Object> stats = VarsMaker.createMap();
+		System.out.println("gathering...");
+		Map<String, Object> intervalStats = VarsMaker.createMap();
 		Runtime runtime = Runtime.getRuntime();
-		stats.put(STAT_MAX_MEMORY, runtime.maxMemory());
-		stats.put(STAT_FREE_MEMORY, runtime.freeMemory());
-		stats.put(STAT_TOTAL_MEMORY, runtime.totalMemory());
-		stats.put(STAT_PROCESSORS, runtime.availableProcessors());
+		intervalStats.put(STAT_MAX_MEMORY, runtime.maxMemory());
+		intervalStats.put(STAT_FREE_MEMORY, runtime.freeMemory());
+		intervalStats.put(STAT_TOTAL_MEMORY, runtime.totalMemory());
+		intervalStats.put(STAT_PROCESSORS, runtime.availableProcessors());
 		
-		RawStats result = new PointRawStats(stats, new Date());
+		RawStats result = new RawStats(null, intervalStats, new Date(), new Date());
 		return result;
 	}
 }

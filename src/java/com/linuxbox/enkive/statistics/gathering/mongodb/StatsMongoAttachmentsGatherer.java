@@ -16,7 +16,6 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.linuxbox.enkive.statistics.IntervalRawStats;
 import com.linuxbox.enkive.statistics.RawStats;
 import com.linuxbox.enkive.statistics.gathering.AbstractGatherer;
 import com.linuxbox.enkive.statistics.gathering.GathererException;
@@ -56,7 +55,7 @@ public class StatsMongoAttachmentsGatherer extends AbstractGatherer {
 	}
 	
 	public RawStats getStatistics(Date startDate, Date endDate) {
-		Map<String, Object> resultMap = new HashMap<String, Object>();
+		Map<String, Object> intervalMap = new HashMap<String, Object>();
 		Map<String, Object> query = new HashMap<String, Object>();
 		Map<String, Object> innerQuery = new HashMap<String, Object>();
 		innerQuery.put("$gte", startDate);
@@ -76,11 +75,11 @@ public class StatsMongoAttachmentsGatherer extends AbstractGatherer {
 			avgAttSz = dataByteSz/dataCursor.count();
 		}
 		
-		resultMap.put(STAT_ATTACH_SIZE, avgAttSz);
-		resultMap.put(STAT_ATTACH_NUM, dataCursor.count());
-		resultMap.put(STAT_GATHERER_NAME, "AttachmentStatsService");
+		intervalMap.put(STAT_ATTACH_SIZE, avgAttSz);
+		intervalMap.put(STAT_ATTACH_NUM, dataCursor.count());
+		intervalMap.put(STAT_GATHERER_NAME, "AttachmentStatsService");
 		
-		RawStats resultStats = new IntervalRawStats(resultMap, startDate, endDate);
+		RawStats resultStats = new RawStats(intervalMap, null, startDate, endDate);
 		
 		return resultStats;
 	}

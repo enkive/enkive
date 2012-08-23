@@ -19,12 +19,12 @@ import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.linuxbox.enkive.statistics.StatsQuery;
 import com.linuxbox.enkive.statistics.gathering.GathererAttributes;
 import com.linuxbox.enkive.statistics.gathering.GathererException;
 import com.linuxbox.enkive.statistics.granularity.DayGrain;
 import com.linuxbox.enkive.statistics.granularity.MonthGrain;
 import com.linuxbox.enkive.statistics.services.StatsClient;
+import com.linuxbox.enkive.statistics.services.retrieval.StatsQuery;
 import com.mongodb.DBCollection;
 
 public class StatsMonthGrainTest {
