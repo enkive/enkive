@@ -22,9 +22,9 @@ package com.linuxbox.enkive.web;
 import static com.linuxbox.enkive.search.Constants.NUMERIC_SEARCH_FORMAT;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_GATHERER_NAME;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIMESTAMP;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MAX;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MIN;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_TYPE;
+import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_MAX;
+import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_MIN;
+import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_TYPE;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -53,6 +53,7 @@ import com.linuxbox.enkive.statistics.RawStats;
 import com.linuxbox.enkive.statistics.services.StatsClient;
 import com.linuxbox.enkive.statistics.services.retrieval.StatsFilter;
 import com.linuxbox.enkive.statistics.services.retrieval.StatsQuery;
+import com.linuxbox.enkive.statistics.services.retrieval.mongodb.MongoStatsQuery;
 
 @SuppressWarnings("unchecked")
 public class StatsServlet extends EnkiveServlet {
@@ -62,38 +63,14 @@ public class StatsServlet extends EnkiveServlet {
 
 	private StatsClient client;
 
-	/*
-	 * Servlet Algorithm 
-	 * 1. Get a DateRange for ts.min & ts.max 
-	 * 1.5 if no dateRange is specified find instant data 
-	 * 2. get allservice names 
-	 * 3. loop over service names to build filter map 
-	 * 4. while looping build a second map for query second map will only have
-	 * serviceName, date range, and (optional) grainType 
-	 * 5. query database using query map & filter map 
-	 * 6. format query data 
-	 * 7. return formatted data
-	 * Note. handle errors with log messages & thrown exceptions
-	 */
-
-	private final String tsMax = STAT_TIMESTAMP + "." + GRAIN_MAX;
-	private final String tsMin = STAT_TIMESTAMP + "." + GRAIN_MIN;
+	private final String tsMax = STAT_TIMESTAMP + "." + CONSOLIDATION_MAX;
+	private final String tsMin = STAT_TIMESTAMP + "." + CONSOLIDATION_MIN;
 
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
 		client = getStatsClient();
 	}
 
-	/*
-	 * JSON formatting algorithm 
-	 * 1. get a map to use as template 
-	 * 2. recurse template map until hit full path specified by attributes class 
-	 * 3. when full path loop over entire data on that path to build a sorted set
-	 * (sorted on ts.min) for each input to the set also include ts
-	 * 4. when done with that loop store that set under the path on the
-	 * consolidated data path 
-	 * 5. return Set<Map<String,Object>> as json by list constructor
-	 */
 	private Map<String, Object> consolidateMaps(
 			List<Map<String, Object>> serviceData, List<ConsolidationKeyHandler> statKeys) {
 		if (serviceData.size() > 0) {
@@ -165,8 +142,8 @@ public class StatsServlet extends EnkiveServlet {
 			
 			if (getDataVal(o1, path) != null && getDataVal(o2, path) != null) {
 				// if both maps have a num field, order them numerically
-				final Long min1 = ((Date) dateRange1.get(GRAIN_MIN)).getTime();
-				final Long min2 = ((Date) dateRange2.get(GRAIN_MIN)).getTime();
+				final Long min1 = ((Date) dateRange1.get(CONSOLIDATION_MIN)).getTime();
+				final Long min2 = ((Date) dateRange2.get(CONSOLIDATION_MIN)).getTime();
 
 				// tricky way of returning negative if i1<i2, positive if i1>i2,
 				// and 0 if the same
@@ -175,8 +152,8 @@ public class StatsServlet extends EnkiveServlet {
 				} else if (min1 > min2) {
 					return 1;
 				} else {					
-					Long max1 = ((Date) dateRange1.get(GRAIN_MAX)).getTime();
-					Long max2 = ((Date) dateRange2.get(GRAIN_MAX)).getTime();
+					Long max1 = ((Date) dateRange1.get(CONSOLIDATION_MAX)).getTime();
+					Long max2 = ((Date) dateRange2.get(CONSOLIDATION_MAX)).getTime();
 					if(max1 < max2){
 						return -1;
 					} else if(max1 > max2){
@@ -343,8 +320,8 @@ public class StatsServlet extends EnkiveServlet {
 						.getParameterValues(STAT_GATHERER_NAME);
 				Integer grainType = null;
 				
-				if (req.getParameter(GRAIN_TYPE) != null) {//optional
-					grainType = Integer.parseInt(req.getParameter(GRAIN_TYPE));
+				if (req.getParameter(CONSOLIDATION_TYPE) != null) {//optional
+					grainType = Integer.parseInt(req.getParameter(CONSOLIDATION_TYPE));
 				}
 				List<StatsQuery> queryList = null;
 				List<StatsFilter> filterList = null;
@@ -359,7 +336,7 @@ public class StatsServlet extends EnkiveServlet {
 					filterList = new LinkedList<StatsFilter>();
 					for (String serviceName : serviceNames) {
 					//	building query
-						StatsQuery query = new StatsQuery(serviceName, grainType, lowerTimestamp, upperTimestamp);
+						StatsQuery query = new MongoStatsQuery(serviceName, grainType, "any", lowerTimestamp, upperTimestamp);
 						StatsFilter filter = null;
 						String[] keys = req.getParameterValues(serviceName);
 					//	building filter

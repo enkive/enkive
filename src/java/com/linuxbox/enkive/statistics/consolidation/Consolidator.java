@@ -1,4 +1,4 @@
-package com.linuxbox.enkive.statistics.granularity;
+package com.linuxbox.enkive.statistics.consolidation;
 
 import java.util.Date;
 import java.util.List;
@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.Set;
 
 
-public interface Grain {
+public interface Consolidator {
 	/**
 	 * Consolidates data for all the stats gatherers defined in the client
 	 */

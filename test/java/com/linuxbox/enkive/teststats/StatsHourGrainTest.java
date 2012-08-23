@@ -1,8 +1,8 @@
 package com.linuxbox.enkive.teststats;
 
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_AVG;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MAX;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MIN;
+import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.GRAIN_AVG;
+import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.GRAIN_MAX;
+import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.GRAIN_MIN;
 import static org.junit.Assert.assertTrue;
 
 import java.text.ParseException;
@@ -17,10 +17,10 @@ import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.linuxbox.enkive.statistics.consolidation.HourConsolidator;
 import com.linuxbox.enkive.statistics.gathering.GathererAttributes;
 import com.linuxbox.enkive.statistics.gathering.GathererException;
 import com.linuxbox.enkive.statistics.RawStats;
-import com.linuxbox.enkive.statistics.granularity.HourGrain;
 import com.linuxbox.enkive.statistics.services.StatsClient;
 import com.linuxbox.enkive.statistics.services.StatsGathererService;
 import com.mongodb.DBCollection;
@@ -29,7 +29,7 @@ import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIMESTAMP;
 public class StatsHourGrainTest {
 	private static StatsGathererService gatherTester;
 	private static StatsClient client;
-	private static HourGrain grain;
+	private static HourConsolidator grain;
 	private static DBCollection coll;
 	private static long dataCount;
 
@@ -39,7 +39,7 @@ public class StatsHourGrainTest {
 		gatherTester = TestHelper.BuildGathererService();
 		coll = TestHelper.GetTestCollection();
 		client = TestHelper.BuildClient();
-		grain = new HourGrain(client);
+		grain = new HourConsolidator(client);
 
 		Calendar cal = Calendar.getInstance();
 		cal.set(Calendar.MILLISECOND, 0);

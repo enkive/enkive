@@ -1,12 +1,12 @@
 package com.linuxbox.enkive.statistics.gathering.consolidated;
 
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIMESTAMP;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_DAY;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_HOUR;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MIN;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MONTH;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_TYPE;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_WEEK;
+import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_DAY;
+import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_HOUR;
+import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_MIN;
+import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_MONTH;
+import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_TYPE;
+import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_WEEK;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -20,6 +20,7 @@ import org.apache.commons.logging.LogFactory;
 import com.linuxbox.enkive.statistics.gathering.GathererException;
 import com.linuxbox.enkive.statistics.services.StatsClient;
 import com.linuxbox.enkive.statistics.services.retrieval.StatsQuery;
+import com.linuxbox.enkive.statistics.services.retrieval.mongodb.MongoStatsQuery;
 
 public abstract class ConsolidatedGatherer {
 	protected final static Log LOGGER = LogFactory
@@ -54,18 +55,18 @@ public abstract class ConsolidatedGatherer {
 		end.set(Calendar.MINUTE, 0);
 		end.add(Calendar.HOUR_OF_DAY, -hrKeepTime);
 		
-		if(grain == GRAIN_HOUR){
+		if(grain == CONSOLIDATION_HOUR){
 			end.add(Calendar.HOUR_OF_DAY, -hrKeepTime);
-		} else if(grain == GRAIN_DAY){
+		} else if(grain == CONSOLIDATION_DAY){
 			end.set(Calendar.HOUR_OF_DAY, 0);
 			end.add(Calendar.DATE,-dayKeepTime); 
-		} else if(grain == GRAIN_WEEK){		
+		} else if(grain == CONSOLIDATION_WEEK){		
 			end.set(Calendar.HOUR_OF_DAY, 0);
 			while(end.get(Calendar.DAY_OF_WEEK) != Calendar.SUNDAY){
 				end.add(Calendar.DATE, -1);
 			}
 			end.add(Calendar.WEEK_OF_YEAR, -weekKeepTime);
-		} else if(grain == GRAIN_MONTH){
+		} else if(grain == CONSOLIDATION_MONTH){
 			end.set(Calendar.HOUR_OF_DAY, 0);
 			end.set(Calendar.DAY_OF_MONTH, 1);
 			end.add(Calendar.MONTH, -monthKeepTime);
@@ -79,9 +80,9 @@ public abstract class ConsolidatedGatherer {
 		c.set(Calendar.MILLISECOND, 0);
 		c.set(Calendar.SECOND, 0);
 		c.set(Calendar.MINUTE, 0);
-		setEndDate(GRAIN_HOUR);
+		setEndDate(CONSOLIDATION_HOUR);
 		if(c.getTimeInMillis() > endDate.getTime()){
-			client.storeData(consolidatePast(GRAIN_HOUR, c));
+			client.storeData(consolidatePast(CONSOLIDATION_HOUR, c));
 		}
 	}
 	
@@ -92,9 +93,9 @@ public abstract class ConsolidatedGatherer {
 		c.set(Calendar.SECOND, 0);
 		c.set(Calendar.MINUTE, 0);
 		c.set(Calendar.HOUR_OF_DAY, 0);
-		setEndDate(GRAIN_DAY);
+		setEndDate(CONSOLIDATION_DAY);
 		if(c.getTimeInMillis() > endDate.getTime()){
-			client.storeData(consolidatePast(GRAIN_DAY, c));
+			client.storeData(consolidatePast(CONSOLIDATION_DAY, c));
 		}
 	}
 	
@@ -108,9 +109,9 @@ public abstract class ConsolidatedGatherer {
 		while(c.get(Calendar.DAY_OF_WEEK) != Calendar.SUNDAY){
 			c.add(Calendar.DATE, -1);
 		}
-		setEndDate(GRAIN_WEEK);
+		setEndDate(CONSOLIDATION_WEEK);
 		if(c.getTimeInMillis() > endDate.getTime()){
-			client.storeData(consolidatePast(GRAIN_WEEK, c));
+			client.storeData(consolidatePast(CONSOLIDATION_WEEK, c));
 		}
 	}
 	
@@ -122,20 +123,21 @@ public abstract class ConsolidatedGatherer {
 		c.set(Calendar.MINUTE, 0);
 		c.set(Calendar.HOUR_OF_DAY, 0);
 		c.set(Calendar.DAY_OF_MONTH, 1);
-		setEndDate(GRAIN_MONTH);
+		setEndDate(CONSOLIDATION_MONTH);
 		if(c.getTimeInMillis() > endDate.getTime()){
-			client.storeData(consolidatePast(GRAIN_MONTH, c));
+			client.storeData(consolidatePast(CONSOLIDATION_MONTH, c));
 		}
 	}
 	
 	@SuppressWarnings("unchecked")
 	protected Date getEarliestStatisticDate(){
-		StatsQuery query = new StatsQuery(gathererName, null);
+//TODO
+		StatsQuery query = new MongoStatsQuery(gathererName, null);
 		Calendar earliestDate = Calendar.getInstance();
 		for(Map<String, Object> statMap: client.queryStatistics(query)){
-			if(statMap.get(GRAIN_TYPE) != null){
+			if(statMap.get(CONSOLIDATION_TYPE) != null){
 				Map<String, Object> tsMap = (Map<String, Object>)statMap.get(STAT_TIMESTAMP);
-				Date tempDate = (Date)tsMap.get(GRAIN_MIN);
+				Date tempDate = (Date)tsMap.get(CONSOLIDATION_MIN);
 				if(earliestDate.getTimeInMillis() > tempDate.getTime()){
 					earliestDate.setTime(tempDate);
 				}
@@ -153,13 +155,13 @@ public abstract class ConsolidatedGatherer {
 		System.out.print("grain: " + grain);
 		while(c.getTimeInMillis() > endDate.getTime()){
 			Date end = c.getTime();
-			if(grain == GRAIN_HOUR){
+			if(grain == CONSOLIDATION_HOUR){
 				c.add(Calendar.HOUR_OF_DAY, -1);
-			} else if(grain == GRAIN_DAY){
+			} else if(grain == CONSOLIDATION_DAY){
 				c.add(Calendar.DATE, -1);
-			} else if(grain == GRAIN_WEEK){
+			} else if(grain == CONSOLIDATION_WEEK){
 				c.add(Calendar.DATE, -7);
-			} else if(grain == GRAIN_MONTH){
+			} else if(grain == CONSOLIDATION_MONTH){
 				c.add(Calendar.MONTH, -1);
 			}
 			Date start = c.getTime();

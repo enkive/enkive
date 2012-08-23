@@ -1,16 +1,16 @@
-package com.linuxbox.enkive.statistics.granularity;
+package com.linuxbox.enkive.statistics.consolidation;
 
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_DAY;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MONTH;
+import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_DAY;
+import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_HOUR;
 
 import java.util.Calendar;
 import java.util.Date;
 
 import com.linuxbox.enkive.statistics.services.StatsClient;
 
-public class MonthGrain extends EmbeddedGrain {
+public class DayConsolidator extends EmbeddedConsolidator {
 
-	public MonthGrain(StatsClient client) {
+	public DayConsolidator(StatsClient client) {
 		super(client);
 	}
 
@@ -21,15 +21,14 @@ public class MonthGrain extends EmbeddedGrain {
 		cal.set(Calendar.SECOND, 0);
 		cal.set(Calendar.MINUTE, 0);
 		cal.set(Calendar.HOUR_OF_DAY, 0);
-		cal.set(Calendar.DATE, 1);
 		Date upperDate = cal.getTime();
-		cal.add(Calendar.MONTH, -1);
+		cal.add(Calendar.DATE, -1);
 		Date lowerDate = cal.getTime();
 		setDates(upperDate, lowerDate);
 	}
-	
+
 	@Override
 	public void setTypes() {
-		setTypes(GRAIN_MONTH, GRAIN_DAY);
+		setTypes(CONSOLIDATION_DAY, CONSOLIDATION_HOUR);
 	}
 }

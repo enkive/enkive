@@ -2,8 +2,8 @@ package com.linuxbox.enkive.statistics.services.retrieval.mongodb;
 
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_GATHERER_NAME;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIMESTAMP;
+import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_MAX;
 import static com.linuxbox.enkive.statistics.gathering.mongodb.MongoConstants.MONGO_ID;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MAX;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -128,7 +128,7 @@ public class MongoStatsRetrievalService extends VarsMaker implements
 			}			
 			
 			if(filter != null){
-				allStats.addAll(coll.find(query, filter).sort(new BasicDBObject(STAT_TIMESTAMP + "." + GRAIN_MAX, 1)).toArray());
+				allStats.addAll(coll.find(query, filter).sort(new BasicDBObject(STAT_TIMESTAMP + "." + CONSOLIDATION_MAX, 1)).toArray());
 			} else {
 				allStats.addAll(coll.find(query).toArray());
 			}
@@ -155,9 +155,9 @@ public class MongoStatsRetrievalService extends VarsMaker implements
 					&& !filterMap.get(gathererName).isEmpty()) {
 				BasicDBObject filter = new BasicDBObject(
 						filterMap.get(gathererName));
-				allStats.addAll(coll.find(query, filter).sort(new BasicDBObject(STAT_TIMESTAMP + "." + GRAIN_MAX, 1)).toArray());
+				allStats.addAll(coll.find(query, filter).sort(new BasicDBObject(STAT_TIMESTAMP + "." + CONSOLIDATION_MAX, 1)).toArray());
 			} else {
-				allStats.addAll(coll.find(query).sort(new BasicDBObject(STAT_TIMESTAMP + "." + GRAIN_MAX, 1)).toArray());
+				allStats.addAll(coll.find(query).sort(new BasicDBObject(STAT_TIMESTAMP + "." + CONSOLIDATION_MAX, 1)).toArray());
 			}
 		}
 		List<Map<String, Object>> result = new LinkedList<Map<String, Object>>();

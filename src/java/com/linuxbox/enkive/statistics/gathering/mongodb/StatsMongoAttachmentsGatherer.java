@@ -3,9 +3,9 @@ package com.linuxbox.enkive.statistics.gathering.mongodb;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_ATTACH_NUM;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_ATTACH_SIZE;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_GATHERER_NAME;
+import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_AVG;
 import static com.linuxbox.enkive.statistics.gathering.mongodb.MongoConstants.MONGO_LENGTH;
 import static com.linuxbox.enkive.statistics.gathering.mongodb.MongoConstants.MONGO_UPLOAD_DATE;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_AVG;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -68,7 +68,7 @@ public class StatsMongoAttachmentsGatherer extends AbstractGatherer {
 			dataByteSz+=(Long)(obj.get(MONGO_LENGTH));
 		}
 		Map<String,Object> innerNumAttach = new HashMap<String,Object>();
-		innerNumAttach.put(GRAIN_AVG, dataCursor.count());
+		innerNumAttach.put(CONSOLIDATION_AVG, dataCursor.count());
 		
 		long avgAttSz = 0;
 		if(dataCursor.count() != 0){

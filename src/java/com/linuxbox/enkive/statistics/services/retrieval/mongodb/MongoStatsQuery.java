@@ -5,9 +5,9 @@ import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIMESTAMP;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TS_POINT;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_POINT;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_INTERVAL;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MAX;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MIN;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_TYPE;
+import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_MAX;
+import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_MIN;
+import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_TYPE;
 
 import java.util.Date;
 import java.util.Map;
@@ -56,9 +56,9 @@ public class MongoStatsQuery extends StatsQuery{
 		
 		if(grainType != null){
 			if(grainType == 0){
-				mongoQuery.put(GRAIN_TYPE, null);
+				mongoQuery.put(CONSOLIDATION_TYPE, null);
 			} else {
-				mongoQuery.put(GRAIN_TYPE, grainType);
+				mongoQuery.put(CONSOLIDATION_TYPE, grainType);
 			}
 		}
 		
@@ -69,8 +69,8 @@ public class MongoStatsQuery extends StatsQuery{
 			tsStartKey = STAT_TIMESTAMP + "." + STAT_TS_POINT;
 			tsEndKey = tsStartKey;
 		} else {
-			tsStartKey = STAT_TIMESTAMP + "." + GRAIN_MIN;
-			tsEndKey   = STAT_TIMESTAMP + "." + GRAIN_MAX;
+			tsStartKey = STAT_TIMESTAMP + "." + CONSOLIDATION_MIN;
+			tsEndKey   = STAT_TIMESTAMP + "." + CONSOLIDATION_MAX;
 		}
 		
 		if(startTimestamp != null){

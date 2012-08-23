@@ -4,10 +4,10 @@ import static com.linuxbox.enkive.statistics.StatsConstants.STAT_GATHERER_NAME;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_NUM_ENTRIES;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIMESTAMP;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TOTAL_MSGS;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_AVG;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MAX;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MIN;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_TYPE;
+import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_AVG;
+import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_MAX;
+import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_MIN;
+import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_TYPE;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -56,15 +56,15 @@ public class MessagesConsolidatedGatherer extends ConsolidatedGatherer{
 		}
 		
 		Map<String, Object> dateMap = new HashMap<String, Object>();
-		dateMap.put(GRAIN_MIN, start);
-		dateMap.put(GRAIN_MAX, end);
+		dateMap.put(CONSOLIDATION_MIN, start);
+		dateMap.put(CONSOLIDATION_MAX, end);
 		
 		Map<String,Object> innerNumEntries = new HashMap<String,Object>();
-		innerNumEntries.put(GRAIN_AVG, numEntries);
+		innerNumEntries.put(CONSOLIDATION_AVG, numEntries);
 		Map<String,Object> innerTotalMsgs = new HashMap<String,Object>();
-		innerTotalMsgs.put(GRAIN_AVG, totalMsgs);
+		innerTotalMsgs.put(CONSOLIDATION_AVG, totalMsgs);
 		
-		result.put(GRAIN_TYPE, grain);
+		result.put(CONSOLIDATION_TYPE, grain);
 		result.put(STAT_TIMESTAMP, dateMap);
 		result.put(STAT_GATHERER_NAME, gathererName);
 		result.put(STAT_TOTAL_MSGS, innerTotalMsgs);

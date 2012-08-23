@@ -4,8 +4,8 @@ import static com.linuxbox.enkive.statistics.StatsConstants.STAT_GATHERER_NAME;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIMESTAMP;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_ATTACH_NUM;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_ATTACH_SIZE;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MAX;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MIN;
+import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.GRAIN_MAX;
+import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.GRAIN_MIN;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 

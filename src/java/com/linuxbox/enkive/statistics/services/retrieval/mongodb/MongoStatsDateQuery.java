@@ -1,9 +1,9 @@
 package com.linuxbox.enkive.statistics.services.retrieval.mongodb;
 
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIMESTAMP;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MAX;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MIN;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_TYPE;
+import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_MAX;
+import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_MIN;
+import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_TYPE;
 
 import java.util.Date;
 import java.util.Map;
@@ -32,8 +32,8 @@ public class MongoStatsDateQuery extends StatsQuery{
 		DBObject time = new BasicDBObject();
 		String tsStartKey;
 		String tsEndKey;
-		tsStartKey = STAT_TIMESTAMP + "." + GRAIN_MIN;
-		tsEndKey   = STAT_TIMESTAMP + "." + GRAIN_MAX;
+		tsStartKey = STAT_TIMESTAMP + "." + CONSOLIDATION_MIN;
+		tsEndKey   = STAT_TIMESTAMP + "." + CONSOLIDATION_MAX;
 		
 		if(startTimestamp != null){
 			time = new BasicDBObject();
@@ -48,9 +48,9 @@ public class MongoStatsDateQuery extends StatsQuery{
 		
 		if(grainType != null){
 			if(grainType == 0){
-				mongoQuery.put(GRAIN_TYPE, null);
+				mongoQuery.put(CONSOLIDATION_TYPE, null);
 			} else {
-				mongoQuery.put(GRAIN_TYPE, grainType);
+				mongoQuery.put(CONSOLIDATION_TYPE, grainType);
 			}
 		}
 		

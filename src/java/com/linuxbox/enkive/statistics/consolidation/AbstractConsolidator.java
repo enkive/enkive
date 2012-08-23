@@ -1,13 +1,13 @@
-package com.linuxbox.enkive.statistics.granularity;
+package com.linuxbox.enkive.statistics.consolidation;
 
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIMESTAMP;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_INTERVAL;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_POINT;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_AVG;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MAX;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MIN;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_SUM;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_TYPE;
+import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_AVG;
+import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_MAX;
+import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_MIN;
+import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_SUM;
+import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_TYPE;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -30,7 +30,7 @@ import com.linuxbox.enkive.statistics.services.retrieval.StatsTypeFilter;
 import com.linuxbox.enkive.statistics.services.retrieval.mongodb.MongoStatsQuery;
 
 @SuppressWarnings("unchecked")
-public abstract class AbstractGrain implements Grain {
+public abstract class AbstractConsolidator implements Consolidator {
 	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.statistics.granularity.AbstractGrain");
 	protected StatsClient client;
@@ -40,7 +40,7 @@ public abstract class AbstractGrain implements Grain {
 	protected boolean isEmbedded;
 	protected Date startDate;
 
-	public AbstractGrain(StatsClient client) {
+	public AbstractConsolidator(StatsClient client) {
 		this.client = client;
 		setDates();
 		setTypes();
@@ -59,13 +59,13 @@ public abstract class AbstractGrain implements Grain {
 	 */
 	public void methodMapBuilder(String method, DescriptiveStatistics statsMaker,
 			Map<String, Object> statData) {
-		if (method.equals(GRAIN_SUM)) {
+		if (method.equals(CONSOLIDATION_SUM)) {
 			statData.put(method, statsMaker.getSum());
-		} else if (method.equals(GRAIN_MAX)) {
+		} else if (method.equals(CONSOLIDATION_MAX)) {
 			statData.put(method, statsMaker.getMax());
-		} else if (method.equals(GRAIN_MIN)) {
+		} else if (method.equals(CONSOLIDATION_MIN)) {
 			statData.put(method, statsMaker.getMin());
-		} else if (method.equals(GRAIN_AVG)) {
+		} else if (method.equals(CONSOLIDATION_AVG)) {
 			statData.put(method, statsMaker.getMean());
 		} 
 	}
@@ -126,11 +126,11 @@ public abstract class AbstractGrain implements Grain {
 					mapToStore.put(STAT_POINT, pointMapToStore);
 				}
 				
-				mapToStore.put(GRAIN_TYPE, grainType);
+				mapToStore.put(CONSOLIDATION_TYPE, grainType);
 				
 				Map<String, Object> dateMap = new HashMap<String, Object>();
-				dateMap.put(GRAIN_MIN, startDate);
-				dateMap.put(GRAIN_MAX, endDate);
+				dateMap.put(CONSOLIDATION_MIN, startDate);
+				dateMap.put(CONSOLIDATION_MAX, endDate);
 				
 				mapToStore.put(STAT_TIMESTAMP, dateMap);
 				
@@ -143,10 +143,10 @@ public abstract class AbstractGrain implements Grain {
 				generateConsolidatedMap(example, mapToStore,
 						new LinkedList<String>(), attribute.getKeys(),
 						serviceData);//going to need string for point/interval
-				mapToStore.put(GRAIN_TYPE, grainType);
+				mapToStore.put(CONSOLIDATION_TYPE, grainType);
 				Map<String, Object> dateMap = new HashMap<String, Object>();
-				dateMap.put(GRAIN_MIN, startDate);
-				dateMap.put(GRAIN_MAX, endDate);
+				dateMap.put(CONSOLIDATION_MIN, startDate);
+				dateMap.put(CONSOLIDATION_MAX, endDate);
 				mapToStore.put(STAT_TIMESTAMP, dateMap);
 				if (mapToStore.containsKey("_id")) {
 					mapToStore.remove("_id");

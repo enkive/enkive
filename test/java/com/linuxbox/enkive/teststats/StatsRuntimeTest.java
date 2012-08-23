@@ -6,8 +6,8 @@ import static com.linuxbox.enkive.statistics.StatsConstants.STAT_PROCESSORS;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_GATHERER_NAME;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIMESTAMP;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TOTAL_MEMORY;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MIN;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MAX;
+import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.GRAIN_MAX;
+import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.GRAIN_MIN;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 

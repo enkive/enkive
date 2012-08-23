@@ -1,4 +1,4 @@
-package com.linuxbox.enkive.statistics.granularity;
+package com.linuxbox.enkive.statistics.consolidation;
 
 import java.util.Calendar;
 

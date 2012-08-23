@@ -1,11 +1,8 @@
 package com.linuxbox.enkive.statistics.gathering;
 
-import static com.linuxbox.enkive.statistics.StatsConstants.STAT_GATHERER_NAME;
-
 import java.text.ParseException;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
@@ -15,7 +12,6 @@ import org.springframework.scheduling.quartz.CronTriggerBean;
 import org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean;
 
 import com.linuxbox.enkive.statistics.RawStats;
-import com.linuxbox.enkive.statistics.VarsMaker;
 import com.linuxbox.enkive.statistics.services.StatsStorageService;
 import com.linuxbox.enkive.statistics.services.storage.StatsStorageException;
 import com.linuxbox.enkive.statistics.ConsolidationKeyHandler;

@@ -4,8 +4,8 @@ import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIMESTAMP;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TS_POINT;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_POINT;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_INTERVAL;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MAX;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MIN;
+import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_MAX;
+import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_MIN;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -53,9 +53,9 @@ public class RawStats {
     
 	public Map<String, Object> toMap() {
 		Map<String, Object> dateMap = new HashMap<String, Object>();
-		dateMap.put(GRAIN_MIN, getStartDate());
+		dateMap.put(CONSOLIDATION_MIN, getStartDate());
 		dateMap.put(STAT_TS_POINT, getPointDate());
-		dateMap.put(GRAIN_MAX, getEndDate());
+		dateMap.put(CONSOLIDATION_MAX, getEndDate());
 		
 		Map<String, Object> statsMap = new HashMap<String, Object>();
 		statsMap.put(STAT_TIMESTAMP, dateMap);

@@ -1,11 +1,11 @@
 package com.linuxbox.enkive.statistics.removal;
 
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_DAY;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_RAW;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_HOUR;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MONTH;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_TYPE;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_WEEK;
+import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_DAY;
+import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_HOUR;
+import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_MONTH;
+import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_RAW;
+import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_TYPE;
+import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_WEEK;
 import static com.linuxbox.enkive.statistics.removal.RemovalConstants.REMOVAL_DAY_ID;
 import static com.linuxbox.enkive.statistics.removal.RemovalConstants.REMOVAL_HOUR_ID;
 import static com.linuxbox.enkive.statistics.removal.RemovalConstants.REMOVAL_MONTH_ID;
@@ -59,7 +59,7 @@ public class RemovalJob {
 
 	private void cleanDay() {
 		if (dayKeepTime != -1) {
-			cleaner(REMOVAL_DAY_ID, GRAIN_DAY);
+			cleaner(REMOVAL_DAY_ID, CONSOLIDATION_DAY);
 		}
 	}
 
@@ -77,7 +77,7 @@ public class RemovalJob {
 		Set<Object> deletionSet = new HashSet<Object>();
 
 		for (Map<String, Object> map : data) {
-			Integer gType = (Integer) map.get(GRAIN_TYPE);
+			Integer gType = (Integer) map.get(CONSOLIDATION_TYPE);
 			if (gType != null) {
 				if (gType.equals(grainType)) {
 					deletionSet.add(map.get("_id"));
@@ -91,25 +91,25 @@ public class RemovalJob {
 
 	private void cleanHour() {
 		if (hrKeepTime != -1) {
-			cleaner(REMOVAL_HOUR_ID, GRAIN_HOUR);
+			cleaner(REMOVAL_HOUR_ID, CONSOLIDATION_HOUR);
 		}
 	}
 
 	private void cleanMonth() {
 		if (monthKeepTime != -1) {
-			cleaner(REMOVAL_MONTH_ID, GRAIN_MONTH);
+			cleaner(REMOVAL_MONTH_ID, CONSOLIDATION_MONTH);
 		}
 	}
 
 	private void cleanRaw() {
 		if (rawKeepTime != -1) {
-			cleaner(REMOVAL_RAW_ID, GRAIN_RAW);
+			cleaner(REMOVAL_RAW_ID, CONSOLIDATION_RAW);
 		}
 	}
 	
 	private void cleanWeek() {
 		if (wkKeepTime != -1) {
-			cleaner(REMOVAL_WEEK_ID, GRAIN_WEEK);
+			cleaner(REMOVAL_WEEK_ID, CONSOLIDATION_WEEK);
 		}
 	}
 	

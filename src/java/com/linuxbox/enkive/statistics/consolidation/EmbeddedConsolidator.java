@@ -1,16 +1,18 @@
-package com.linuxbox.enkive.statistics.granularity;
+package com.linuxbox.enkive.statistics.consolidation;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_SUM;
+
+import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_SUM;
+
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
 import com.linuxbox.enkive.statistics.ConsolidationKeyHandler;
 import com.linuxbox.enkive.statistics.services.StatsClient;
 
-public abstract class EmbeddedGrain extends AbstractGrain {
-	public EmbeddedGrain(StatsClient client) {
+public abstract class EmbeddedConsolidator extends AbstractConsolidator {
+	public EmbeddedConsolidator(StatsClient client) {
 		super(client);
 	}
 
@@ -31,7 +33,7 @@ public abstract class EmbeddedGrain extends AbstractGrain {
 				if(keyDef.isPoint()){
 					tempPath.add(method);
 				} else {
-					tempPath.add(GRAIN_SUM);
+					tempPath.add(CONSOLIDATION_SUM);
 				}
 				double input = -1;
 				for (Map<String, Object> dataMap : serviceData) {

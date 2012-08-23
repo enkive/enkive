@@ -3,8 +3,8 @@ package com.linuxbox.enkive.teststats;
 import static org.junit.Assert.assertTrue;
 
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIMESTAMP;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MAX;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MIN;
+import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.GRAIN_MAX;
+import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.GRAIN_MIN;
 
 import java.text.ParseException;
 import java.util.Date;

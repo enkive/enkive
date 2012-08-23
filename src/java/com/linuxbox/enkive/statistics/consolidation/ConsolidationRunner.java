@@ -1,4 +1,4 @@
-package com.linuxbox.enkive.statistics.granularity;
+package com.linuxbox.enkive.statistics.consolidation;
 
 import javax.annotation.PostConstruct;
 
@@ -12,7 +12,7 @@ import org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean;
 import com.linuxbox.enkive.statistics.removal.RemovalJob;
 import com.linuxbox.enkive.statistics.services.StatsClient;
 
-public class GrainRunner {
+public class ConsolidationRunner {
 	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.statistics.granularity.GrainRunner");
 	StatsClient client;
@@ -20,7 +20,7 @@ public class GrainRunner {
 	String schedule;
 	Scheduler scheduler;
 
-	public GrainRunner(StatsClient client, Scheduler scheduler,
+	public ConsolidationRunner(StatsClient client, Scheduler scheduler,
 			String schedule, RemovalJob remover) {
 		this.client = client;
 		this.scheduler = scheduler;
@@ -54,25 +54,25 @@ public class GrainRunner {
 		LOGGER.info("GrainRunner run() starting");
 		if (Granularity.HOUR.isMatch()) {
 			LOGGER.trace("GrainRunner hour() starting");
-			(new HourGrain(client)).storeConsolidatedData();
+			(new HourConsolidator(client)).storeConsolidatedData();
 			LOGGER.trace("GrainRunner hour() finished");
 		}
 
 		if (Granularity.DAY.isMatch()) {
 			LOGGER.trace("GrainRunner day() starting");
-			(new DayGrain(client)).storeConsolidatedData();
+			(new DayConsolidator(client)).storeConsolidatedData();
 			LOGGER.trace("GrainRunner day() finished");
 		}
 		
 		if (Granularity.WEEK.isMatch()) {
 			LOGGER.trace("GrainRunner week() starting");
-			(new WeekGrain(client)).storeConsolidatedData();
+			(new WeekConsolidator(client)).storeConsolidatedData();
 			LOGGER.trace("GrainRunner week() finished");
 		}
 
 		if (Granularity.MONTH.isMatch()) {
 			LOGGER.trace("GrainRunner month() starting");
-			(new MonthGrain(client)).storeConsolidatedData();
+			(new MonthConsolidator(client)).storeConsolidatedData();
 			LOGGER.trace("GrainRunner month() finished");
 		}
 		LOGGER.info("GrainRunner run() finished");

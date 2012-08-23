@@ -1,8 +1,8 @@
-package com.linuxbox.enkive.statistics.granularity;
+package com.linuxbox.enkive.statistics.consolidation;
 
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_HOUR;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_RAW;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_SUM;
+import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_HOUR;
+import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_RAW;
+import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_SUM;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -16,8 +16,8 @@ import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import com.linuxbox.enkive.statistics.ConsolidationKeyHandler;
 import com.linuxbox.enkive.statistics.services.StatsClient;
 
-public class HourGrain extends AbstractGrain {
-	public HourGrain(StatsClient client) {
+public class HourConsolidator extends AbstractConsolidator {
+	public HourConsolidator(StatsClient client) {
 		super(client);
 	}
 
@@ -47,12 +47,12 @@ public class HourGrain extends AbstractGrain {
 			// loop over methods to populate map with max, min, etc.
 			Map<String, Object> methodData = new HashMap<String, Object>();
 			for (String method : keyDef.getMethods()) {
-				if(!method.equals(GRAIN_SUM)){//may not be user defined
+				if(!method.equals(CONSOLIDATION_SUM)){//may not be user defined
 					methodMapBuilder(method, statsMaker, methodData);
 				}
 			}
 			if(!isPoint){//create sum
-				methodMapBuilder(GRAIN_SUM, statsMaker, methodData);
+				methodMapBuilder(CONSOLIDATION_SUM, statsMaker, methodData);
 			}
 			// store in new map on path
 			putOnPath(dataPath, consolidatedData, methodData);
@@ -76,6 +76,6 @@ public class HourGrain extends AbstractGrain {
 
 	@Override
 	public void setTypes() {
-		setTypes(GRAIN_HOUR, GRAIN_RAW);
+		setTypes(CONSOLIDATION_HOUR, CONSOLIDATION_RAW);
 	}
 }

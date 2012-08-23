@@ -5,12 +5,12 @@ import static com.linuxbox.enkive.statistics.StatsConstants.STAT_ATTACH_SIZE;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_GATHERER_NAME;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIMESTAMP;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_ATTACH_ARCHIVE_SIZE;
+import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_AVG;
+import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_MAX;
+import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_MIN;
+import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_TYPE;
 import static com.linuxbox.enkive.statistics.gathering.mongodb.MongoConstants.MONGO_LENGTH;
 import static com.linuxbox.enkive.statistics.gathering.mongodb.MongoConstants.MONGO_UPLOAD_DATE;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_AVG;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MAX;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MIN;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_TYPE;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -58,7 +58,7 @@ public class AttachmentsConsolidatedGatherer extends ConsolidatedGatherer{
 			dataByteSz+=(Long)(obj.get(MONGO_LENGTH));
 		}
 		Map<String,Object> innerNumAttach = new HashMap<String,Object>();
-		innerNumAttach.put(GRAIN_AVG, dataCursor.count());
+		innerNumAttach.put(CONSOLIDATION_AVG, dataCursor.count());
 		
 		Map<String,Object> innerAttachSz = new HashMap<String,Object>();
 		
@@ -67,20 +67,20 @@ public class AttachmentsConsolidatedGatherer extends ConsolidatedGatherer{
 			avgAttSz = dataByteSz/dataCursor.count();
 		}
 		
-		innerAttachSz.put(GRAIN_AVG, avgAttSz);
+		innerAttachSz.put(CONSOLIDATION_AVG, avgAttSz);
 		
 		Map<String,Object> innerAttArchiveSize = new HashMap<String,Object>();
-		innerAttArchiveSize.put(GRAIN_AVG, attachmentsColl.count());
+		innerAttArchiveSize.put(CONSOLIDATION_AVG, attachmentsColl.count());
 		
 		Map<String, Object> dateMap = new HashMap<String, Object>();
-		dateMap.put(GRAIN_MIN, start);
-		dateMap.put(GRAIN_MAX, end);
+		dateMap.put(CONSOLIDATION_MIN, start);
+		dateMap.put(CONSOLIDATION_MAX, end);
 		
 		result.put(STAT_ATTACH_SIZE, innerAttachSz);
 		result.put(STAT_ATTACH_NUM, innerNumAttach);
 		result.put(STAT_ATTACH_ARCHIVE_SIZE, innerAttArchiveSize);
 		result.put(STAT_TIMESTAMP, dateMap);
-		result.put(GRAIN_TYPE, grain);
+		result.put(CONSOLIDATION_TYPE, grain);
 		result.put(STAT_GATHERER_NAME, gathererName);
 		
 		return result;

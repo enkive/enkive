@@ -1,9 +1,9 @@
 package com.linuxbox.enkive.teststats;
 
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIMESTAMP;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_AVG;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MAX;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MIN;
+import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.GRAIN_AVG;
+import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.GRAIN_MAX;
+import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.GRAIN_MIN;
 import static org.junit.Assert.assertTrue;
 
 import java.text.ParseException;
@@ -16,16 +16,16 @@ import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.linuxbox.enkive.statistics.consolidation.DayConsolidator;
+import com.linuxbox.enkive.statistics.consolidation.WeekConsolidator;
 import com.linuxbox.enkive.statistics.gathering.GathererAttributes;
 import com.linuxbox.enkive.statistics.gathering.GathererException;
-import com.linuxbox.enkive.statistics.granularity.DayGrain;
-import com.linuxbox.enkive.statistics.granularity.WeekGrain;
 import com.linuxbox.enkive.statistics.services.StatsClient;
 import com.mongodb.DBCollection;
 
 public class StatsWeekGrainTest {
 	private static StatsClient client;
-	private static WeekGrain grain;
+	private static WeekConsolidator grain;
 	private static DBCollection coll;
 	private static long dataCount;
 
@@ -33,9 +33,9 @@ public class StatsWeekGrainTest {
 	public static void setUp() throws ParseException, GathererException {
 		coll = TestHelper.GetTestCollection();
 		client = TestHelper.BuildClient();
-		grain = new WeekGrain(client);
+		grain = new WeekConsolidator(client);
 
-		Set<Map<String, Object>> stats = (new DayGrain(client))
+		Set<Map<String, Object>> stats = (new DayConsolidator(client))
 				.consolidateData();
 		Map<String, Object> timeMap = new HashMap<String, Object>();
 		Calendar cal = Calendar.getInstance();
