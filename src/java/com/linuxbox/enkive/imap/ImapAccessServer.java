@@ -9,6 +9,9 @@ import org.apache.james.imap.main.DefaultImapDecoderFactory;
 import org.apache.james.imap.processor.main.DefaultImapProcessorFactory;
 import org.slf4j.Logger;
 
+import com.linuxbox.enkive.imap.mailbox.EnkiveMailboxManager;
+import com.linuxbox.enkive.imap.mailbox.EnkiveSubscriptionManager;
+
 public class ImapAccessServer {
 
 	EnkiveIMAPServer imapServer;

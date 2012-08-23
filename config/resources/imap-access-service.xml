@@ -11,15 +11,18 @@
 		<constructor-arg ref="EnkiveImapMailboxManager" />
 	</bean>
 
-	<bean id="EnkiveImapMailboxManager" class="com.linuxbox.enkive.imap.EnkiveMailboxManager">
-		<constructor-arg ref="EnkiveMailboxSessionMapperFactory" />
+	<bean id="EnkiveImapMailboxManager" class="com.linuxbox.enkive.imap.mailbox.EnkiveMailboxManager">
+		<constructor-arg ref="MongoEnkiveMailboxSessionMapperFactory" />
 		<constructor-arg ref="EnkiveImapSpringContextAuthenticator" />
 		<constructor-arg ref="EnkiveImapMailboxACLResolver" />
 		<constructor-arg ref="EnkiveImapGroupMembershipResolver" />
 	</bean>
 
-	<bean id="EnkiveMailboxSessionMapperFactory"
-		class="com.linuxbox.enkive.imap.EnkiveMailboxSessionMapperFactory">
+	<bean id="MongoEnkiveMailboxSessionMapperFactory"
+		class="com.linuxbox.enkive.imap.mailbox.mongo.MongoEnkiveMailboxSessionMapperFactory">
+		<constructor-arg ref="Mongo" />
+		<constructor-arg type="java.lang.String" value="${enkive.imap.db.name}" />
+		<constructor-arg type="java.lang.String" value="${enkive.imap.collection.name}" />
 		<property name="retrieverService" ref="MongoMessageRetrieverService" />
 	</bean>
 
@@ -28,7 +31,7 @@
 		<constructor-arg ref="authenticationManager" />
 	</bean>
 
-	<bean id="EnkiveImapMailboxACLResolver" class="com.linuxbox.enkive.imap.EnkiveImapMailboxACLResolver">
+	<bean id="EnkiveImapMailboxACLResolver" class="com.linuxbox.enkive.imap.mailbox.EnkiveImapMailboxACLResolver">
 	</bean>
 
 	<bean id="EnkiveImapGroupMembershipResolver"

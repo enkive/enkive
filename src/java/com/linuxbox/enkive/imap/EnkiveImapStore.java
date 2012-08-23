@@ -6,31 +6,32 @@ import org.apache.james.mailbox.store.mail.ModSeqProvider;
 import org.apache.james.mailbox.store.mail.UidProvider;
 import org.apache.james.mailbox.store.mail.model.Mailbox;
 
-public class EnkiveImapStore implements UidProvider<Long>, ModSeqProvider<Long> {
+public class EnkiveImapStore implements UidProvider<String>,
+		ModSeqProvider<String> {
 
 	@Override
-	public long nextModSeq(MailboxSession session, Mailbox<Long> mailbox)
+	public long nextModSeq(MailboxSession session, Mailbox<String> mailbox)
 			throws MailboxException {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
-	public long highestModSeq(MailboxSession session, Mailbox<Long> mailbox)
+	public long highestModSeq(MailboxSession session, Mailbox<String> mailbox)
 			throws MailboxException {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
-	public long nextUid(MailboxSession session, Mailbox<Long> mailbox)
+	public long nextUid(MailboxSession session, Mailbox<String> mailbox)
 			throws MailboxException {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
-	public long lastUid(MailboxSession session, Mailbox<Long> mailbox)
+	public long lastUid(MailboxSession session, Mailbox<String> mailbox)
 			throws MailboxException {
 		// TODO Auto-generated method stub
 		return 0;

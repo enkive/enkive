@@ -1,4 +1,4 @@
-package com.linuxbox.enkive.imap;
+package com.linuxbox.enkive.imap.message;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -15,7 +15,7 @@ import org.springframework.util.StringUtils;
 
 import com.linuxbox.enkive.message.Message;
 
-public class EnkiveImapMessage extends AbstractMessage<Long> {
+public class EnkiveImapMessage extends AbstractMessage<String> {
 
 	Message message;
 
@@ -29,9 +29,9 @@ public class EnkiveImapMessage extends AbstractMessage<Long> {
 	}
 
 	@Override
-	public Long getMailboxId() {
+	public String getMailboxId() {
 		// TODO Auto-generated method stub
-		return (long) 1;
+		return "";
 	}
 
 	@Override
@@ -85,13 +85,13 @@ public class EnkiveImapMessage extends AbstractMessage<Long> {
 	@Override
 	public boolean isRecent() {
 		// TODO Auto-generated method stub
-		return true;
+		return false;
 	}
 
 	@Override
 	public boolean isSeen() {
 		// TODO Auto-generated method stub
-		return false;
+		return true;
 	}
 
 	@Override
@@ -103,7 +103,6 @@ public class EnkiveImapMessage extends AbstractMessage<Long> {
 	@Override
 	public InputStream getBodyContent() throws IOException {
 		// TODO Auto-generated method stub
-		System.out.println("Get Body");
 		return new ByteArrayInputStream(""
 				.getBytes());
 		
@@ -153,7 +152,6 @@ public class EnkiveImapMessage extends AbstractMessage<Long> {
 
 	@Override
 	public InputStream getHeaderContent() throws IOException {
-		System.out.println("Get Header");
 		return new ByteArrayInputStream(message.getOriginalHeaders().getBytes());
 	}
 

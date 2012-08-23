@@ -1,4 +1,4 @@
-package com.linuxbox.enkive.imap;
+package com.linuxbox.enkive.imap.message;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -15,9 +15,11 @@ import org.apache.james.mailbox.store.mail.model.Mailbox;
 import org.apache.james.mailbox.store.mail.model.Message;
 
 import com.linuxbox.enkive.exception.CannotRetrieveException;
+import com.linuxbox.enkive.imap.EnkiveImapStore;
 import com.linuxbox.enkive.retriever.MessageRetrieverService;
 
-public class EnkiveImapMessageMapper extends AbstractMessageMapper<Long> {
+public abstract class EnkiveImapMessageMapper extends
+		AbstractMessageMapper<String> {
 
 	MessageRetrieverService retrieverService;
 
@@ -28,18 +30,20 @@ public class EnkiveImapMessageMapper extends AbstractMessageMapper<Long> {
 	}
 
 	@Override
-	public Iterator<Message<Long>> findInMailbox(Mailbox<Long> mailbox,
+	public Iterator<Message<String>> findInMailbox(Mailbox<String> mailbox,
 			MessageRange set,
 			org.apache.james.mailbox.store.mail.MessageMapper.FetchType type,
 			int limit) throws MailboxException {
-		ArrayList<Message<Long>> messages = new ArrayList<Message<Long>>();
+		ArrayList<Message<String>> messages = new ArrayList<Message<String>>();
 		// TODO Auto-generated method stub
+		System.out.println(set.toString());
 		if (set.getUidFrom() < 1 || set.getType().toString().equals("ONE")) {
 			try {
+				List<String> messageIds = getMailboxMessageIds(mailbox,
+						set.getUidFrom(), set.getUidTo(), limit);
 				com.linuxbox.enkive.message.Message message = retrieverService
-						.retrieve("e826e2fb14162842d9caf023163338d20e2820bb");
+						.retrieve(messageIds.get(0));
 				messages.add(new EnkiveImapMessage(message));
-				System.out.println("HERE");
 			} catch (CannotRetrieveException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -52,41 +56,36 @@ public class EnkiveImapMessageMapper extends AbstractMessageMapper<Long> {
 
 	@Override
 	public Map<Long, MessageMetaData> expungeMarkedForDeletionInMailbox(
-			Mailbox<Long> mailbox, MessageRange set) throws MailboxException {
+			Mailbox<String> mailbox, MessageRange set) throws MailboxException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public long countMessagesInMailbox(Mailbox<Long> mailbox)
-			throws MailboxException {
-		// TODO Auto-generated method stub
-		return 1;
-	}
+	public abstract long countMessagesInMailbox(Mailbox<String> mailbox)
+			throws MailboxException;
 
 	@Override
-	public long countUnseenMessagesInMailbox(Mailbox<Long> mailbox)
+	public long countUnseenMessagesInMailbox(Mailbox<String> mailbox)
 			throws MailboxException {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
-	public void delete(Mailbox<Long> mailbox, Message<Long> message)
+	public void delete(Mailbox<String> mailbox, Message<String> message)
 			throws MailboxException {
-		// TODO Auto-generated method stub
+		// Unsupported method
 
 	}
 
 	@Override
-	public Long findFirstUnseenMessageUid(Mailbox<Long> mailbox)
+	public Long findFirstUnseenMessageUid(Mailbox<String> mailbox)
 			throws MailboxException {
-		// TODO Auto-generated method stub
-		return (long) 0;
+		return null;
 	}
 
 	@Override
-	public List<Long> findRecentMessageUidsInMailbox(Mailbox<Long> mailbox)
+	public List<Long> findRecentMessageUidsInMailbox(Mailbox<String> mailbox)
 			throws MailboxException {
 		// TODO Auto-generated method stub
 		ArrayList<Long> messageIds = new ArrayList<Long>();
@@ -100,15 +99,15 @@ public class EnkiveImapMessageMapper extends AbstractMessageMapper<Long> {
 	}
 
 	@Override
-	protected MessageMetaData save(Mailbox<Long> mailbox, Message<Long> message)
+	protected MessageMetaData save(Mailbox<String> mailbox, Message<String> message)
 			throws MailboxException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	protected MessageMetaData copy(Mailbox<Long> mailbox, long uid,
-			long modSeq, Message<Long> original) throws MailboxException {
+	protected MessageMetaData copy(Mailbox<String> mailbox, long uid,
+			long modSeq, Message<String> original) throws MailboxException {
 		// TODO Auto-generated method stub
 		return new SimpleMessageMetaData(original);
 	}
@@ -130,5 +129,8 @@ public class EnkiveImapMessageMapper extends AbstractMessageMapper<Long> {
 		// TODO Auto-generated method stub
 
 	}
+
+	public abstract List<String> getMailboxMessageIds(Mailbox<String> mailbox,
+			long fromUid, long toUid, int limit);
 
 }

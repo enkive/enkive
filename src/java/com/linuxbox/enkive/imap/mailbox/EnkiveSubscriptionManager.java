@@ -1,4 +1,4 @@
-package com.linuxbox.enkive.imap;
+package com.linuxbox.enkive.imap.mailbox;
 
 import java.util.Collection;
 import java.util.HashSet;
