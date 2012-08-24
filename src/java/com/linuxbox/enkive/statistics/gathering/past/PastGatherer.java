@@ -1,6 +1,7 @@
 package com.linuxbox.enkive.statistics.gathering.past;
 
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIMESTAMP;
+import static com.linuxbox.enkive.statistics.StatsConstants.STAT_INTERVAL;
 import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_DAY;
 import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_HOUR;
 import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_MIN;
@@ -37,13 +38,14 @@ public abstract class PastGatherer {
 //TODO ^populate with spring^
 //TODO
 	public PastGatherer(String name, StatsClient client, int hrKeepTime, int dayKeepTime, int weekKeepTime, int monthKeepTime) {
+		System.out.println(name);
 		this.client = client;
 		this.gathererName = name;
 		this.hrKeepTime = hrKeepTime;
 		this.dayKeepTime = dayKeepTime;
 		this.weekKeepTime = weekKeepTime;
 		this.monthKeepTime = monthKeepTime;
-		statDate = getEarliestStatisticDate();
+		statDate = getEarliestStatDate();
 	}
 
 	protected abstract void init();
@@ -53,8 +55,6 @@ public abstract class PastGatherer {
 		end.set(Calendar.MILLISECOND, 0);
 		end.set(Calendar.SECOND, 0);
 		end.set(Calendar.MINUTE, 0);
-		end.add(Calendar.HOUR_OF_DAY, -hrKeepTime);
-		
 		if(grain == CONSOLIDATION_HOUR){
 			end.add(Calendar.HOUR_OF_DAY, -hrKeepTime);
 		} else if(grain == CONSOLIDATION_DAY){
@@ -81,6 +81,7 @@ public abstract class PastGatherer {
 		c.set(Calendar.SECOND, 0);
 		c.set(Calendar.MINUTE, 0);
 		setEndDate(CONSOLIDATION_HOUR);
+		
 		if(c.getTimeInMillis() > endDate.getTime()){
 			client.storeData(consolidatePast(CONSOLIDATION_HOUR, c));
 		}
@@ -130,9 +131,8 @@ public abstract class PastGatherer {
 	}
 	
 	@SuppressWarnings("unchecked")
-	protected Date getEarliestStatisticDate(){
-//TODO
-		StatsQuery query = new MongoStatsQuery(gathererName, null);
+	protected Date getEarliestStatDate(){
+		StatsQuery query = new MongoStatsQuery(gathererName, STAT_INTERVAL, new Date(0L), new Date());
 		Calendar earliestDate = Calendar.getInstance();
 		for(Map<String, Object> statMap: client.queryStatistics(query)){
 			if(statMap.get(CONSOLIDATION_TYPE) != null){
@@ -170,7 +170,6 @@ public abstract class PastGatherer {
 				if(consolidated != null){
 					result.add(consolidated);
 				} else {
-					System.out.println("null: start:" + start + "end: " + end);
 					break;
 				}
 			} catch (GathererException e) {
@@ -178,7 +177,7 @@ public abstract class PastGatherer {
 			}
 		}
 //TODO
-		System.out.println(" : " + result.size());
+		System.out.println(" size: " + result.size());
 		return result;
 	}
 	

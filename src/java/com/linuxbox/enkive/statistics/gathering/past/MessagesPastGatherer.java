@@ -19,14 +19,19 @@ import com.linuxbox.enkive.message.search.exception.MessageSearchException;
 
 import com.linuxbox.enkive.statistics.gathering.GathererException;
 import com.linuxbox.enkive.statistics.gathering.GathererMessageSearchService;
+import com.linuxbox.enkive.statistics.gathering.StatsMsgGatherer;
 import com.linuxbox.enkive.statistics.services.StatsClient;
 
 public class MessagesPastGatherer extends PastGatherer{
 	GathererMessageSearchService searchService;
+	protected StatsMsgGatherer msgGatherer;
 	
-	public MessagesPastGatherer(GathererMessageSearchService searchService, String name, StatsClient client, int hrKeepTime, int dayKeepTime, int weekKeepTime, int monthKeepTime) {
+	
+	public MessagesPastGatherer(GathererMessageSearchService searchService, String name, StatsClient client, StatsMsgGatherer msgGatherer, int hrKeepTime, int dayKeepTime, int weekKeepTime, int monthKeepTime) {
 		super(name, client, hrKeepTime, dayKeepTime, weekKeepTime, monthKeepTime);
 		this.searchService = searchService;
+		this.msgGatherer = msgGatherer;
+		System.out.println(msgGatherer.getAttributes().getKeys().iterator().next().getHumanKey());
 	}
 	
 	@PostConstruct

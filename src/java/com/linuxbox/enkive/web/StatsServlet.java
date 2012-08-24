@@ -21,6 +21,7 @@ package com.linuxbox.enkive.web;
 
 import static com.linuxbox.enkive.search.Constants.NUMERIC_SEARCH_FORMAT;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_GATHERER_NAME;
+import static com.linuxbox.enkive.statistics.StatsConstants.STAT_INTERVAL;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIMESTAMP;
 import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_MAX;
 import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_MIN;
@@ -53,6 +54,7 @@ import com.linuxbox.enkive.statistics.RawStats;
 import com.linuxbox.enkive.statistics.services.StatsClient;
 import com.linuxbox.enkive.statistics.services.retrieval.StatsFilter;
 import com.linuxbox.enkive.statistics.services.retrieval.StatsQuery;
+import com.linuxbox.enkive.statistics.services.retrieval.mongodb.MongoStatsFilter;
 import com.linuxbox.enkive.statistics.services.retrieval.mongodb.MongoStatsQuery;
 
 @SuppressWarnings("unchecked")
@@ -285,7 +287,7 @@ public class StatsServlet extends EnkiveServlet {
 				Date upperTimestamp = new Date();
 				Date lowerTimestamp = new Date(0L);
 				boolean noDate = true;
-				// 1. Get a DateRange for ts.min & ts.max
+				// Get a DateRange for ts.min & ts.max
 				if (req.getParameter(tsMax) != null) {
 					noDate = false;
 					if(!req.getParameter(tsMax).equals("")){
@@ -315,12 +317,11 @@ public class StatsServlet extends EnkiveServlet {
 					}
 				} 
 
-				// 2. get all service names
 				String[] serviceNames = req
 						.getParameterValues(STAT_GATHERER_NAME);
 				Integer grainType = null;
 				
-				if (req.getParameter(CONSOLIDATION_TYPE) != null) {//optional
+				if (req.getParameter(CONSOLIDATION_TYPE) != null) {
 					grainType = Integer.parseInt(req.getParameter(CONSOLIDATION_TYPE));
 				}
 				List<StatsQuery> queryList = null;
@@ -336,7 +337,7 @@ public class StatsServlet extends EnkiveServlet {
 					filterList = new LinkedList<StatsFilter>();
 					for (String serviceName : serviceNames) {
 					//	building query
-						StatsQuery query = new MongoStatsQuery(serviceName, grainType, "any", lowerTimestamp, upperTimestamp);
+						StatsQuery query = new MongoStatsQuery(serviceName, grainType, STAT_INTERVAL, lowerTimestamp, upperTimestamp);
 						StatsFilter filter = null;
 						String[] keys = req.getParameterValues(serviceName);
 					//	building filter
@@ -347,14 +348,11 @@ public class StatsServlet extends EnkiveServlet {
 							for (String key : keys) {
 								temp.put(key, 1);
 							}
-							filter = new StatsFilter(serviceName, temp);
+							filter = new MongoStatsFilter(serviceName, temp);
 						} else {
-							filter = new StatsFilter(serviceName, null);
+							filter = new MongoStatsFilter(serviceName, null);
 						}
 						queryList.add(query);
-						if(filter.keys != null){
-							filter.keys.put("_id", 1);
-						}
 						filterList.add(filter);
 					}
 				}	

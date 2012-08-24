@@ -3,6 +3,7 @@ package com.linuxbox.enkive.statistics.services.retrieval.mongodb;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_GATHERER_NAME;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIMESTAMP;
 import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_MAX;
+import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_MIN;
 import static com.linuxbox.enkive.statistics.gathering.mongodb.MongoConstants.MONGO_ID;
 
 import java.util.HashMap;
@@ -105,16 +106,13 @@ public class MongoStatsRetrievalService extends VarsMaker implements
 		DBObject mongoQuery  = new BasicDBObject(query.getQuery());
 		DBObject mongoFilter = getFilter(filter);
 		Set<Map<String, Object>> result = new HashSet<Map<String, Object>>();
-		System.out.println("mongoQuery: " + mongoQuery);
-		System.out.println("mongoFilter: " + mongoFilter);
 		for (DBObject entry : coll.find(mongoQuery, mongoFilter)) {
-//			System.out.println("queryStats(Q,F): " + entry);
 			addMapToSet(entry, result);
 		}
 		return result;
 	}
 	
-	//TODO lists must garrantee order
+	// lists guarantee order (ex: querylist[1] MUST correspond to filterlist[1])
 	public List<Map<String, Object>> queryStatistics(
 			List<StatsQuery> queryList,
 			List<StatsFilter> filterList)

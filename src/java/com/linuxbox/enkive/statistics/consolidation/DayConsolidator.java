@@ -25,6 +25,8 @@ public class DayConsolidator extends EmbeddedConsolidator {
 		cal.add(Calendar.DATE, -1);
 		Date lowerDate = cal.getTime();
 		setDates(upperDate, lowerDate);
+//TODO		
+		setDates(new Date(), lowerDate);
 	}
 
 	@Override

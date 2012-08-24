@@ -35,7 +35,6 @@ public class AttachmentsPastGatherer extends PastGatherer{
 	
 	@PostConstruct
 	public void init(){
-//TODO		System.out.println("gathererName: " + gathererName);
 		System.out.println("Start: " + new Date());
 		consolidatePastHours();
 		consolidatePastDays();

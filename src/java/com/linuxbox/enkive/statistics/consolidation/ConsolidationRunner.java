@@ -52,25 +52,25 @@ public class ConsolidationRunner {
 
 	public void run() {
 		LOGGER.info("GrainRunner run() starting");
-		if (Granularity.HOUR.isMatch()) {
+		if (ConsolidationTimeDefs.HOUR.isMatch()) {
 			LOGGER.trace("GrainRunner hour() starting");
 			(new HourConsolidator(client)).storeConsolidatedData();
 			LOGGER.trace("GrainRunner hour() finished");
 		}
-
-		if (Granularity.DAY.isMatch()) {
+//TODO
+//		if (ConsolidationTimeDefs.DAY.isMatch()) {
 			LOGGER.trace("GrainRunner day() starting");
 			(new DayConsolidator(client)).storeConsolidatedData();
 			LOGGER.trace("GrainRunner day() finished");
-		}
+//		}
 		
-		if (Granularity.WEEK.isMatch()) {
+		if (ConsolidationTimeDefs.WEEK.isMatch()) {
 			LOGGER.trace("GrainRunner week() starting");
 			(new WeekConsolidator(client)).storeConsolidatedData();
 			LOGGER.trace("GrainRunner week() finished");
 		}
 
-		if (Granularity.MONTH.isMatch()) {
+		if (ConsolidationTimeDefs.MONTH.isMatch()) {
 			LOGGER.trace("GrainRunner month() starting");
 			(new MonthConsolidator(client)).storeConsolidatedData();
 			LOGGER.trace("GrainRunner month() finished");

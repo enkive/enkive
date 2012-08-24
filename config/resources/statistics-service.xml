@@ -19,7 +19,7 @@
 		<constructor-arg type="java.lang.String" value="${enkive.statistics.db.name}" />
 		<constructor-arg name="serviceName" value="CollectionStatsService"/>
 		<constructor-arg name="humanName" value="Collection Statistics"/>
-		<constructor-arg name="schedule" value="0/15 * * * * ?" />
+		<constructor-arg name="schedule" value="0 0/20 * * * ?" />
 		<constructor-arg name="keys">
 			<list>
 				<value>*.ns::Name Space::</value>
@@ -42,7 +42,7 @@
 		class="com.linuxbox.enkive.statistics.gathering.StatsMsgGatherer">
 		<constructor-arg name="serviceName" value="MsgStatsService"/>
 		<constructor-arg name="humanName" value="Message Statistics"/>
-		<constructor-arg name="schedule" value="0 * * * * ?" />
+		<constructor-arg name="schedule" value="0 0 * * * ?" />
 		<constructor-arg name="keys">
 			<list>
 				<value>numMsg:avg:Number of Messages::interval</value>
@@ -71,7 +71,7 @@
 		<constructor-arg type="java.lang.String" value="${enkive.docstore.fs.collection.name}" />
 		<constructor-arg name="serviceName" value="AttachmentStatsService"/>
 		<constructor-arg name="humanName" value="Attachment Statistics"/>
-		<constructor-arg name="schedule" value="0 * * * * ?" />
+		<constructor-arg name="schedule" value="0 0 * * * ?" />
 		<constructor-arg name="keys">	
 			<list>
 				<value>attNum:avg:Number of Attachments::interval</value>
@@ -88,7 +88,7 @@
 		<constructor-arg type="java.lang.String" value="${enkive.statistics.db.name}" />
 		<constructor-arg name="serviceName" value="DatabaseStatsService"/>
 		<constructor-arg name="humanName" value="Database Statistics"/>
-		<constructor-arg name="schedule" value="0/15 * * * * ?" />
+		<constructor-arg name="schedule" value="0 0/20 * * * ?" />
 		<constructor-arg name="keys">	
 			<list>
 				<value>db::Database Name::</value>
@@ -111,7 +111,7 @@
 		class="com.linuxbox.enkive.statistics.gathering.StatsRuntimeGatherer">
 		<constructor-arg name="serviceName" value="RuntimeStatsService"/>
 		<constructor-arg name="humanName" value="Java Runtime Statistics"/>
-		<constructor-arg name="schedule" value="0/15 * * * * ?" />
+		<constructor-arg name="schedule" value="0 0/20 * * * ?" />
 		<constructor-arg name="keys">	
 			<list>
 				<value>freeM:avg,max,min:Free Memory:bytes:point</value>
@@ -178,15 +178,15 @@
 	</bean>
 		
 	<bean id="GrainRunner"
-		class="com.linuxbox.enkive.statistics.granularity.GrainRunner">
+		class="com.linuxbox.enkive.statistics.consolidation.ConsolidationRunner">
 		<constructor-arg name="client" ref="StatisticsClient" />
 		<constructor-arg name="scheduler" ref="ScheduledJobsBean" />
 		<constructor-arg name="remover" ref="RemovalRunner" />
-		<constructor-arg name="schedule" value="0 * * * * ?" />
+		<constructor-arg name="schedule" value="0 0 * * * ?" />
 	</bean>
-<!--	
-	<bean id="AttachmentsConsolidatedGatherer"
-		class="com.linuxbox.enkive.statistics.gathering.consolidated.AttachmentsConsolidatedGatherer">
+
+	<bean id="AttachmentsPastGatherer"
+		class="com.linuxbox.enkive.statistics.gathering.past.AttachmentsPastGatherer">
 		<constructor-arg ref="Mongo" />
 		<constructor-arg name="dbName" value="${enkive.statistics.db.name}" />
 		<constructor-arg name="attachmentsColl" value="${enkive.docstore.fs.collection.name}" />
@@ -199,16 +199,16 @@
 		<constructor-arg name="monthKeepTime" value="24"/>
 	</bean>
 	
-	<bean id="MessageConsolidatedGatherer"
-		class="com.linuxbox.enkive.statistics.gathering.consolidated.MessagesConsolidatedGatherer">
+	<bean id="MessagePastGatherer"
+		class="com.linuxbox.enkive.statistics.gathering.past.MessagesPastGatherer">
 		<constructor-arg name="searchService" ref="GathererMessageSearchService" />
 		<constructor-arg name="name" value="MsgStatsService" />
 		<constructor-arg name="client" ref="StatisticsClient" />
+		<constructor-arg name="msgGatherer" ref="MsgStatsService" />
 		<constructor-arg name="hrKeepTime" value="96"/>
 		<constructor-arg name="dayKeepTime" value="90"/>	
 		<constructor-arg name="weekKeepTime" value="20"/>
 		<constructor-arg name="monthKeepTime" value="24"/>
 	</bean>
--->
 </beans>
 	

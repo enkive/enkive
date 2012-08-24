@@ -1,11 +1,13 @@
 package com.linuxbox.enkive.statistics.services.retrieval.mongodb;
 
 import java.util.Map;
+
+import com.linuxbox.enkive.statistics.services.retrieval.StatsFilter;
+
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_GATHERER_NAME;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIMESTAMP;
 
-//TODO Refactor this doesn't neet the gatherername so long as tracked by intex
-public abstract class MongoStatsFilter {
+public class MongoStatsFilter extends StatsFilter {
 	public String gathererName;
 	public Map<String, Object> keys = null;
 	
@@ -18,6 +20,9 @@ public abstract class MongoStatsFilter {
 			keys.put(STAT_TIMESTAMP, 1);
 		}
 	}
-	
-	public abstract Map<String, Object> getFilter();
+
+	@Override
+	public Map<String, Object> getFilter() {
+		return keys;
+	}
 }

@@ -41,6 +41,12 @@ public class MongoStatsQuery extends StatsQuery{
 		setIsPointQuery(type);
 	}
 
+	public MongoStatsQuery(String gathererName, String type,
+			Date startTimestamp, Date endTimestamp) {
+		this(type, startTimestamp, endTimestamp);
+		this.gathererName = gathererName;
+	}
+	
 	public MongoStatsQuery(String gathererName, Integer grainType, String type,
 			Date startTimestamp, Date endTimestamp) {
 		this(gathererName, grainType, type);
@@ -50,6 +56,7 @@ public class MongoStatsQuery extends StatsQuery{
 	
 	public Map<String, Object> getQuery() {
 		Map<String, Object> mongoQuery = new BasicDBObject();
+		
 		if(gathererName != null){
 			mongoQuery.put(STAT_GATHERER_NAME, gathererName);
 		}
