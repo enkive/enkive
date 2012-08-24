@@ -1,4 +1,4 @@
-package com.linuxbox.enkive.statistics.gathering.consolidated;
+package com.linuxbox.enkive.statistics.gathering.past;
 
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIMESTAMP;
 import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_DAY;
@@ -22,7 +22,7 @@ import com.linuxbox.enkive.statistics.services.StatsClient;
 import com.linuxbox.enkive.statistics.services.retrieval.StatsQuery;
 import com.linuxbox.enkive.statistics.services.retrieval.mongodb.MongoStatsQuery;
 
-public abstract class ConsolidatedGatherer {
+public abstract class PastGatherer {
 	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.statistics.messagesConsolidatedGatherer");
 	protected Date endDate;
@@ -36,7 +36,7 @@ public abstract class ConsolidatedGatherer {
 //TODO use gatherer to gather statistics instead of redundant code
 //TODO ^populate with spring^
 //TODO
-	public ConsolidatedGatherer(String name, StatsClient client, int hrKeepTime, int dayKeepTime, int weekKeepTime, int monthKeepTime) {
+	public PastGatherer(String name, StatsClient client, int hrKeepTime, int dayKeepTime, int weekKeepTime, int monthKeepTime) {
 		this.client = client;
 		this.gathererName = name;
 		this.hrKeepTime = hrKeepTime;

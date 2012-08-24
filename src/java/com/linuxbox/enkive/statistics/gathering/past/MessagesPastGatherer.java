@@ -1,4 +1,4 @@
-package com.linuxbox.enkive.statistics.gathering.consolidated;
+package com.linuxbox.enkive.statistics.gathering.past;
 
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_GATHERER_NAME;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_NUM_ENTRIES;
@@ -21,10 +21,10 @@ import com.linuxbox.enkive.statistics.gathering.GathererException;
 import com.linuxbox.enkive.statistics.gathering.GathererMessageSearchService;
 import com.linuxbox.enkive.statistics.services.StatsClient;
 
-public class MessagesConsolidatedGatherer extends ConsolidatedGatherer{
+public class MessagesPastGatherer extends PastGatherer{
 	GathererMessageSearchService searchService;
 	
-	public MessagesConsolidatedGatherer(GathererMessageSearchService searchService, String name, StatsClient client, int hrKeepTime, int dayKeepTime, int weekKeepTime, int monthKeepTime) {
+	public MessagesPastGatherer(GathererMessageSearchService searchService, String name, StatsClient client, int hrKeepTime, int dayKeepTime, int weekKeepTime, int monthKeepTime) {
 		super(name, client, hrKeepTime, dayKeepTime, weekKeepTime, monthKeepTime);
 		this.searchService = searchService;
 	}

@@ -1,4 +1,4 @@
-package com.linuxbox.enkive.statistics.gathering.consolidated;
+package com.linuxbox.enkive.statistics.gathering.past;
 
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_ATTACH_NUM;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_ATTACH_SIZE;
@@ -25,10 +25,10 @@ import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.Mongo;
 
-public class AttachmentsConsolidatedGatherer extends ConsolidatedGatherer{
+public class AttachmentsPastGatherer extends PastGatherer{
 	DBCollection attachmentsColl;
 	
-	public AttachmentsConsolidatedGatherer(Mongo m, String dbName, String attachmentsColl, String statisticsColl, String name, StatsClient client, int hrKeepTime, int dayKeepTime, int weekKeepTime, int monthKeepTime) {
+	public AttachmentsPastGatherer(Mongo m, String dbName, String attachmentsColl, String statisticsColl, String name, StatsClient client, int hrKeepTime, int dayKeepTime, int weekKeepTime, int monthKeepTime) {
 		super(name, client, hrKeepTime, dayKeepTime, weekKeepTime, monthKeepTime);
 		this.attachmentsColl = m.getDB(dbName).getCollection(attachmentsColl + ".files");
 	}

@@ -362,7 +362,7 @@ public class StatsServlet extends EnkiveServlet {
 				List<Map<String, Object>> result = null;
 
 				if (noDate) {//no date range means get instant data
-					Map<String, String[]> gatheringStats = new HashMap<String, String[]>();
+/*TODO				Map<String, String[]> gatheringStats = new HashMap<String, String[]>();
 					for (StatsFilter tempFilter : filterList) {
 						if (tempFilter.keys != null) {
 							String keys[] = new String[tempFilter.keys
@@ -387,7 +387,7 @@ public class StatsServlet extends EnkiveServlet {
 						Map<String,Object> statsMap = stats.toMap();
 						result.add(statsMap);
 					}
-				} else {//output query data as formatted json
+*/				} else {//output query data as formatted json
 					List<Map<String, Object>> stats = client.queryStatistics(
 							queryList, filterList);
 					result = new LinkedList<Map<String, Object>>();
