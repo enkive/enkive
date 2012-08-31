@@ -18,6 +18,8 @@ import com.linuxbox.enkive.message.Message;
 public class EnkiveImapMessage extends AbstractMessage<String> {
 
 	Message message;
+	long uid;
+	String mailboxId = "";
 
 	public EnkiveImapMessage(Message message) {
 		this.message = message;
@@ -30,19 +32,18 @@ public class EnkiveImapMessage extends AbstractMessage<String> {
 
 	@Override
 	public String getMailboxId() {
-		// TODO Auto-generated method stub
-		return "";
+		return mailboxId;
 	}
 
 	@Override
 	public long getUid() {
 		// TODO Auto-generated method stub
-		return (long) 1;
+		return uid;
 	}
 
 	@Override
 	public void setUid(long uid) {
-		// TODO Auto-generated method stub
+		this.uid = uid;
 
 	}
 
@@ -103,6 +104,7 @@ public class EnkiveImapMessage extends AbstractMessage<String> {
 	@Override
 	public InputStream getBodyContent() throws IOException {
 		// TODO Auto-generated method stub
+		System.out.println("get body");
 		return new ByteArrayInputStream(""
 				.getBytes());
 		
@@ -117,7 +119,7 @@ public class EnkiveImapMessage extends AbstractMessage<String> {
 	
 	@Override
 	public String getMediaType() {
-		return message.getContentType();
+		return "";
 	}
 
 	@Override

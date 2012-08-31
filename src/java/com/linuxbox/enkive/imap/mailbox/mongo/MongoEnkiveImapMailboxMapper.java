@@ -39,19 +39,18 @@ public class MongoEnkiveImapMailboxMapper extends EnkiveImapMailboxMapper {
 
 	@Override
 	public List<Mailbox<String>> list() throws MailboxException {
-		System.out.println("listing");
 		ArrayList<Mailbox<String>> mailboxes = new ArrayList<Mailbox<String>>();
 		DBObject mailboxListObject = getMailboxList();
 		if (mailboxListObject != null) {
 			HashMap<String, String> mailboxTable = (HashMap<String, String>) mailboxListObject
 					.get("mailboxes");
-			System.out.println("listing " + mailboxTable.size());
 			for (String mailboxKey : mailboxTable.keySet()) {
+				System.out.println("listing mailbox " + mailboxKey);
 				MailboxPath mailboxPath = new MailboxPath(
 						session.getPersonalSpace(), session.getUser()
-								.getUserName(), mailboxKey);
+								.getUserName(), mailboxKey.replace("/", "."));
 				EnkiveImapMailbox mailbox = new EnkiveImapMailbox(mailboxPath,
-						1);
+						System.currentTimeMillis());
 				mailbox.setMailboxId(mailboxTable.get(mailboxKey));
 				mailboxes.add(mailbox);
 			}
@@ -83,11 +82,18 @@ public class MongoEnkiveImapMailboxMapper extends EnkiveImapMailboxMapper {
 		} else if (mailboxListObject != null) {
 			HashMap<String, String> mailboxTable = (HashMap<String, String>) mailboxListObject
 					.get("mailboxes");
-			if (mailboxTable.containsKey(mailboxName.getName())) {
+			String searchMailboxName = mailboxName.getName().replace(".", "/");
+			System.out.println("looking for mailbox " + searchMailboxName);
+			if (mailboxTable.containsKey(searchMailboxName)) {
+				// TODO Need to get correct uidvalidity
+				mailboxName.setName(searchMailboxName);
 				EnkiveImapMailbox mailbox = new EnkiveImapMailbox(mailboxName,
-						1);
-				mailbox.setMailboxId(mailboxTable.get(mailboxName.getName()));
+						System.currentTimeMillis());
+				mailbox.setMailboxId(mailboxTable.get(searchMailboxName));
 				return mailbox;
+			} else {
+				System.out.println("Trying to find mailbox "
+						+ mailboxName.getName());
 			}
 		}
 
@@ -97,39 +103,48 @@ public class MongoEnkiveImapMailboxMapper extends EnkiveImapMailboxMapper {
 	@Override
 	public List<Mailbox<String>> findMailboxWithPathLike(MailboxPath mailboxPath) {
 		String mailboxSearchPath = mailboxPath.getName();
+		System.out.println("FINDING MAILBOX LIKE " + mailboxSearchPath);
 		ArrayList<Mailbox<String>> mailboxes = new ArrayList<Mailbox<String>>();
-		DBObject mailboxListObject = getMailboxList();
-		if (mailboxListObject != null) {
-			System.out.println("finding " + mailboxSearchPath);
-			HashMap<String, String> mailboxTable = (HashMap<String, String>) mailboxListObject
-					.get("mailboxes");
-			Set<String> mailboxPaths = mailboxTable.keySet();
-			for (String mailboxKey : mailboxPaths) {
-				if (mailboxSearchPath.equals("%")
-						|| mailboxKey.matches(mailboxSearchPath)) {
-					MailboxPath matchingMailboxPath = new MailboxPath(
-							session.getPersonalSpace(), session.getUser()
-									.getUserName(), mailboxKey);
-					EnkiveImapMailbox mailbox = new EnkiveImapMailbox(
-							matchingMailboxPath, 4);
-					mailbox.setMailboxId(mailboxTable.get(mailboxKey));
-					mailboxes.add(mailbox);
-				}
-
+		if (mailboxSearchPath.equals("%"))
+			try {
+				return list();
+			} catch (MailboxException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
-		}
-		if (mailboxPath.getName().matches(MailboxConstants.INBOX)) {
-			System.out.println("Matched INBOX");
+		else if (mailboxPath.getName().matches(MailboxConstants.INBOX)) {
 			MailboxPath inboxPath = new MailboxPath(session.getPersonalSpace(),
 					session.getUser().getUserName(), MailboxConstants.INBOX);
 			mailboxes.add(new EnkiveImapMailbox(inboxPath, 1));
-		}
-		if (mailboxPath.getName().matches("Trash")) {
-			System.out.println("Matched Trash");
+		} else if (mailboxPath.getName().matches("Trash")) {
 			MailboxPath trashPath = new MailboxPath(session.getPersonalSpace(),
 					session.getUser().getUserName(), "Trash");
 			mailboxes.add(new EnkiveImapMailbox(trashPath, 1));
 
+		} else {
+			DBObject mailboxListObject = getMailboxList();
+			if (mailboxListObject != null) {
+				HashMap<String, String> mailboxTable = (HashMap<String, String>) mailboxListObject
+						.get("mailboxes");
+				Set<String> mailboxPaths = mailboxTable.keySet();
+				for (String mailboxKey : mailboxPaths) {
+					String updatedMailboxKey = mailboxKey.replace('/', '.');
+					System.out.println("SEARCHING FOR MAILBOX " + mailboxSearchPath);
+					String regex = mailboxSearchPath.replace(".", "+\\.+");
+					regex = regex.replace('%', '.') + "*";
+					if (updatedMailboxKey.matches(regex)) {
+						System.out.println("REGEX MATCHED " + updatedMailboxKey + " " + regex);
+						MailboxPath matchingMailboxPath = new MailboxPath(
+								session.getPersonalSpace(), session.getUser()
+										.getUserName(), updatedMailboxKey);
+						EnkiveImapMailbox mailbox = new EnkiveImapMailbox(
+								matchingMailboxPath, System.currentTimeMillis());
+						mailbox.setMailboxId(mailboxTable.get(mailboxKey));
+						mailboxes.add(mailbox);
+					}
+
+				}
+			}
 		}
 		return mailboxes;
 	}
@@ -138,15 +153,15 @@ public class MongoEnkiveImapMailboxMapper extends EnkiveImapMailboxMapper {
 	public boolean hasChildren(Mailbox<String> mailbox, char delimiter)
 			throws MailboxException, MailboxNotFoundException {
 		// TODO Auto-generated method stub
-		return false;
+		System.out.println("HAS CHILDREN " + mailbox.getName() + " DELIMITER "
+				+ delimiter);
+		return true;
 	}
 
 	protected DBObject getMailboxList() {
 		String user = session.getUser().getUserName();
-		System.out.println(user);
 		DBObject mailboxQuery = new BasicDBObject();
 		mailboxQuery.put("user", user);
-		System.out.println(mailboxQuery.toString());
 		return imapCollection.findOne(mailboxQuery);
 	}
 

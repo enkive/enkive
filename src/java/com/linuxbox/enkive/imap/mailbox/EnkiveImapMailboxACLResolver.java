@@ -9,6 +9,7 @@ import org.apache.james.mailbox.model.MailboxACL;
 import org.apache.james.mailbox.model.MailboxACL.MailboxACLEntryKey;
 import org.apache.james.mailbox.model.MailboxACL.MailboxACLRight;
 import org.apache.james.mailbox.model.MailboxACL.MailboxACLRights;
+import org.apache.james.mailbox.model.SimpleMailboxACL;
 
 public class EnkiveImapMailboxACLResolver implements MailboxACLResolver {
 
@@ -16,7 +17,7 @@ public class EnkiveImapMailboxACLResolver implements MailboxACLResolver {
 	public MailboxACL applyGlobalACL(MailboxACL resourceACL,
 			boolean resourceOwnerIsGroup) throws UnsupportedRightException {
 		// TODO Auto-generated method stub
-		return null;
+		return SimpleMailboxACL.OWNER_FULL_ACL;
 	}
 
 	@Override
@@ -26,7 +27,7 @@ public class EnkiveImapMailboxACLResolver implements MailboxACLResolver {
 			String resourceOwner, boolean resourceOwnerIsGroup)
 			throws UnsupportedRightException {
 		// TODO Auto-generated method stub
-		return false;
+		return true;
 	}
 
 	@Override
@@ -42,7 +43,9 @@ public class EnkiveImapMailboxACLResolver implements MailboxACLResolver {
 			String resourceOwner, boolean resourceOwnerIsGroup)
 			throws UnsupportedRightException {
 		// TODO Auto-generated method stub
-		return null;
+		MailboxACLRights[] rights = new MailboxACLRights[1];
+		rights[0] = SimpleMailboxACL.FULL_RIGHTS;
+		return rights;
 	}
 
 	@Override
@@ -51,7 +54,7 @@ public class EnkiveImapMailboxACLResolver implements MailboxACLResolver {
 			MailboxACL resourceACL, String resourceOwner,
 			boolean resourceOwnerIsGroup) throws UnsupportedRightException {
 		// TODO Auto-generated method stub
-		return null;
+		return SimpleMailboxACL.FULL_RIGHTS;
 	}
 
 }

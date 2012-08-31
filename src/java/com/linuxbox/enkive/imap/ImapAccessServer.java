@@ -40,7 +40,7 @@ public class ImapAccessServer {
 
 		HierarchicalConfiguration config = new HierarchicalConfiguration();
 		config.addProperty("connectionLimit", "50");
-		config.addProperty("plainAuthDisallowed", true);
+		//config.addProperty("plainAuthDisallowed", true);
 		config.addProperty("tls.[@startTLS]", true);
 		//config.addProperty("tls.supportedCipherSuites.cipherSuite", true);
 		config.addProperty("tls.keystore", "classpath:/imap/keystore");

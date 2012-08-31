@@ -1,6 +1,7 @@
 package com.linuxbox.enkive.imap.message;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -9,6 +10,7 @@ import org.apache.james.mailbox.MailboxSession;
 import org.apache.james.mailbox.exception.MailboxException;
 import org.apache.james.mailbox.model.MessageMetaData;
 import org.apache.james.mailbox.model.MessageRange;
+import org.apache.james.mailbox.model.MessageRange.Type;
 import org.apache.james.mailbox.store.SimpleMessageMetaData;
 import org.apache.james.mailbox.store.mail.AbstractMessageMapper;
 import org.apache.james.mailbox.store.mail.model.Mailbox;
@@ -34,31 +36,41 @@ public abstract class EnkiveImapMessageMapper extends
 			MessageRange set,
 			org.apache.james.mailbox.store.mail.MessageMapper.FetchType type,
 			int limit) throws MailboxException {
-		ArrayList<Message<String>> messages = new ArrayList<Message<String>>();
-		// TODO Auto-generated method stub
-		System.out.println(set.toString());
-		if (set.getUidFrom() < 1 || set.getType().toString().equals("ONE")) {
-			try {
-				List<String> messageIds = getMailboxMessageIds(mailbox,
-						set.getUidFrom(), set.getUidTo(), limit);
+		final ArrayList<Message<String>> messages;
+		final long from = set.getUidFrom();
+		final long to = set.getUidTo();
+
+		try {
+			ArrayList<Message<String>> tmpMsgArray = new ArrayList<Message<String>>();
+			Map<Long, String> messageIds = getMailboxMessageIds(mailbox, from,
+					to, limit);
+
+			System.out.println("MESSAGE ID SIZE " + messageIds.size());
+			System.out.println(set.toString());
+			for (Long messageUid : messageIds.keySet()) {
 				com.linuxbox.enkive.message.Message message = retrieverService
-						.retrieve(messageIds.get(0));
-				messages.add(new EnkiveImapMessage(message));
-			} catch (CannotRetrieveException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+						.retrieve(messageIds.get(messageUid));
+				EnkiveImapMessage enkiveImapMessage = new EnkiveImapMessage(
+						message);
+				enkiveImapMessage.setUid(messageUid);
+				System.out.println("UID IS " + enkiveImapMessage.getUid());
+				tmpMsgArray.add(enkiveImapMessage);
 			}
+			messages = tmpMsgArray;
+			messages.trimToSize();
+			return messages.iterator();
+		} catch (CannotRetrieveException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-		System.out.println(messages.size() + " " + set.getUidFrom() + " "
-				+ set.getUidTo() + " " + set.getType().toString());
-		return messages.iterator();
+		return null;
 	}
 
 	@Override
 	public Map<Long, MessageMetaData> expungeMarkedForDeletionInMailbox(
 			Mailbox<String> mailbox, MessageRange set) throws MailboxException {
 		// TODO Auto-generated method stub
-		return null;
+		return new HashMap<Long, MessageMetaData>();
 	}
 
 	@Override
@@ -87,7 +99,6 @@ public abstract class EnkiveImapMessageMapper extends
 	@Override
 	public List<Long> findRecentMessageUidsInMailbox(Mailbox<String> mailbox)
 			throws MailboxException {
-		// TODO Auto-generated method stub
 		ArrayList<Long> messageIds = new ArrayList<Long>();
 		return messageIds;
 	}
@@ -99,8 +110,8 @@ public abstract class EnkiveImapMessageMapper extends
 	}
 
 	@Override
-	protected MessageMetaData save(Mailbox<String> mailbox, Message<String> message)
-			throws MailboxException {
+	protected MessageMetaData save(Mailbox<String> mailbox,
+			Message<String> message) throws MailboxException {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -130,7 +141,7 @@ public abstract class EnkiveImapMessageMapper extends
 
 	}
 
-	public abstract List<String> getMailboxMessageIds(Mailbox<String> mailbox,
-			long fromUid, long toUid, int limit);
+	public abstract Map<Long, String> getMailboxMessageIds(
+			Mailbox<String> mailbox, long fromUid, long toUid, int limit);
 
 }
