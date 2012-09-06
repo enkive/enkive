@@ -129,7 +129,6 @@ public class MongoEnkiveImapMailboxMapper extends EnkiveImapMailboxMapper {
 				Set<String> mailboxPaths = mailboxTable.keySet();
 				for (String mailboxKey : mailboxPaths) {
 					String updatedMailboxKey = mailboxKey.replace('/', '.');
-					System.out.println("SEARCHING FOR MAILBOX " + mailboxSearchPath);
 					String regex = mailboxSearchPath.replace(".", "+\\.+");
 					regex = regex.replace('%', '.') + "*";
 					if (updatedMailboxKey.matches(regex)) {
