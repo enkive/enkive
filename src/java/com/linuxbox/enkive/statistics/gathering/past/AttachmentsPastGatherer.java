@@ -35,12 +35,10 @@ public class AttachmentsPastGatherer extends PastGatherer{
 	
 	@PostConstruct
 	public void init(){
-		System.out.println("Start: " + new Date());
 		consolidatePastHours();
 		consolidatePastDays();
 		consolidatePastWeeks();
 		consolidatePastMonths();
-		System.out.println("End: " + new Date());
 	}
 	
 	protected Map<String, Object> getConsolidatedData(Date start, Date end, int grain){

@@ -38,7 +38,6 @@ public abstract class PastGatherer {
 //TODO ^populate with spring^
 //TODO
 	public PastGatherer(String name, StatsClient client, int hrKeepTime, int dayKeepTime, int weekKeepTime, int monthKeepTime) {
-		System.out.println(name);
 		this.client = client;
 		this.gathererName = name;
 		this.hrKeepTime = hrKeepTime;
@@ -151,8 +150,7 @@ public abstract class PastGatherer {
 	
 	public Set<Map<String,Object>> consolidatePast(int grain, Calendar c){
 		Set<Map<String, Object>> result = new HashSet<Map<String, Object>>();
-//TODO
-		System.out.print("grain: " + grain);
+		
 		while(c.getTimeInMillis() > endDate.getTime()){
 			Date end = c.getTime();
 			if(grain == CONSOLIDATION_HOUR){
@@ -176,8 +174,6 @@ public abstract class PastGatherer {
 				LOGGER.error("Consolidated gatherer error on range " + start + " to " + end, e);
 			}
 		}
-//TODO
-		System.out.println(" size: " + result.size());
 		return result;
 	}
 	

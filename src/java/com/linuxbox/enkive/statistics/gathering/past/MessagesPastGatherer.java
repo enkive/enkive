@@ -31,17 +31,14 @@ public class MessagesPastGatherer extends PastGatherer{
 		super(name, client, hrKeepTime, dayKeepTime, weekKeepTime, monthKeepTime);
 		this.searchService = searchService;
 		this.msgGatherer = msgGatherer;
-		System.out.println(msgGatherer.getAttributes().getKeys().iterator().next().getHumanKey());
 	}
 	
 	@PostConstruct
 	public void init(){
-		System.out.println("Start: " + new Date());
 		consolidatePastHours();
 		consolidatePastDays();
 		consolidatePastWeeks();
 		consolidatePastMonths();
-		System.out.println("End: " + new Date());
 	}
 
 	protected Map<String, Object> getConsolidatedData(Date start, Date end, int grain) throws GathererException{
@@ -56,7 +53,6 @@ public class MessagesPastGatherer extends PastGatherer{
 		}
 		
 		if(totalMsgs == 0){
-			System.out.println("totalMsgs: " + totalMsgs);
 			return null;
 		}
 		

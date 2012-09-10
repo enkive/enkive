@@ -26,7 +26,7 @@ public interface GathererInterface {
 	 * @return a filtered version of the statistics
 	 * @throws GathererException
 	 */
-	public RawStats getStatistics(String[] keys)
+	public RawStats getStatistics(String[] intervalStats, String[] pointStats)
 			throws GathererException;
 
 	/**

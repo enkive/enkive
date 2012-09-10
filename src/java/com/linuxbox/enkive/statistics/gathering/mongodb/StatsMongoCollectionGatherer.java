@@ -60,40 +60,63 @@ public class StatsMongoCollectionGatherer extends AbstractGatherer {
 				collName = collName.replaceFirst("$", "-");
 			}
 			collName = collName.replace('.', '-');
-			pointStats.put(collName, getStats(key));
+			pointStats.put(collName, getPointStats(key));
 		}
 		
 		RawStats result = new RawStats(null, pointStats, new Date(), new Date());
 		return result;
 	}
 	
-	@Override
-	public RawStats getStatistics(String[] keys) {
-		if (keys == null) {
-			return getStatistics();
-		}
-		Map<String, Object> selectedStats = VarsMaker.createMap();
+	
+	public RawStats getStatistics(String[] intervalKeys, String[] pointKeys) {
+		Map<String, Object> pointResult = null;
+		Map<String, Object> intervalResult = null;
+		
 		for (String collName : db.getCollectionNames()) {
-			Map<String, Object> stats = getStats(collName);
-			Map<String, Object> temp = VarsMaker.createMap();
-			for (String key : keys) {
-				if (stats.get(key) != null) {
-					temp.put(key, stats.get(key));
+			Map<String, Object> pointData = getPointStats(collName);
+			Map<String, Object> intervalData = getIntervalStats(collName);
+			
+			if(intervalData != null && intervalKeys != null && intervalKeys.length != 0){
+				Map<String,Object> filteredIntervalData = new HashMap<String, Object>();
+				for(String statName: intervalKeys){
+					if(intervalData.containsKey(statName)){
+						filteredIntervalData.put(statName, intervalData.get(statName));
+					}
+				}
+				if(!filteredIntervalData.isEmpty()){
+					if(intervalResult == null){
+						intervalResult = new HashMap<String, Object>();
+					}
+					intervalResult.put(collName, filteredIntervalData);
 				}
 			}
-			selectedStats.put(collName, temp);
+			
+			if(pointData != null && pointKeys != null && pointKeys.length != 0){
+				Map<String, Object> filteredPointData = new HashMap<String, Object>();
+				for(String statName: pointKeys){
+					if(pointData.containsKey(statName)){
+						filteredPointData.put(statName,pointData.get(statName));
+					}
+				}
+				if(!filteredPointData.isEmpty()){
+					if(pointResult == null){
+						pointResult = new HashMap<String, Object>();
+					}
+					pointResult.put(collName, filteredPointData);
+				}
+			}
 		}
-	
-		RawStats result = new RawStats(null, selectedStats, new Date(), new Date());
+		
+		RawStats result = new RawStats(intervalResult, pointResult, new Date(), new Date());
 		return result;
 	}
 
 	/**
-	 * gets the statistics cooresponding to a given collection
+	 * gets the point statistics cooresponding to a given collection
 	 * @param collectionName - the name of the collection on which to gather stats
 	 * @return the stats collected
 	 */
-	private Map<String, Object> getStats(String collectionName) {
+	private Map<String, Object> getPointStats(String collectionName) {
 		if (db.collectionExists(collectionName)) {
 			Map<String, Object> stats = VarsMaker.createMap();
 			Map<String, Object> temp = db.getCollection(collectionName)
@@ -110,8 +133,17 @@ public class StatsMongoCollectionGatherer extends AbstractGatherer {
 			stats.put(STAT_INDEX_SIZES, temp.get(MONGO_INDEX_SIZES));
 			return stats;
 		} else {
-			LOGGER.warn("Collection " + collectionName + " does not exist");
+			LOGGER.warn("Collection " + collectionName + " could not be found");
 			return null;
 		}
+	}
+	
+	/**
+	 * gets the interval statistics cooresponding to a given collection
+	 * @param collectionName - the name of the collection on which to gather stats
+	 * @return the stats collected
+	 */
+	private Map<String, Object> getIntervalStats(String collectionName) {
+		return null;
 	}
 }

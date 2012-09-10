@@ -19,7 +19,6 @@ public class StatsRuntimeGatherer extends AbstractGatherer {
 
 	@Override
 	public RawStats getStatistics() {
-		System.out.println("gathering...");
 		Map<String, Object> intervalStats = VarsMaker.createMap();
 		Runtime runtime = Runtime.getRuntime();
 		intervalStats.put(STAT_MAX_MEMORY, runtime.maxMemory());

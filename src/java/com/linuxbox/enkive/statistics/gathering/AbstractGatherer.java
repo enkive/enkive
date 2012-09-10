@@ -1,9 +1,13 @@
 package com.linuxbox.enkive.statistics.gathering;
 
 import java.text.ParseException;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-
+import java.util.Map;
+import static com.linuxbox.enkive.statistics.StatsConstants.STAT_POINT;
+import static com.linuxbox.enkive.statistics.StatsConstants.STAT_INTERVAL;
 import javax.annotation.PostConstruct;
 
 import org.quartz.JobDetail;
@@ -41,26 +45,46 @@ public abstract class AbstractGatherer implements GathererInterface {
 	@Override
 	public abstract RawStats getStatistics() throws GathererException;
 
+	@SuppressWarnings("unchecked")
 	@Override
-	//TODO this needs work on repairing it via if only some are selected then you must
-	//determine if they are ranged or not
-	public RawStats getStatistics(String[] keys) throws GathererException {
-/*		if (keys == null) {
+	public RawStats getStatistics(String[] intervalKeys, String[] pointKeys) throws GathererException {
+		if (intervalKeys == null && pointKeys == null) {
 			return getStatistics();
 		}
-		RawStats result = getStatistics();
-		Map<String, Object> stats = result.getStatsMap();
-		Map<String, Object> selectedStats = VarsMaker.createMap();
-		for (String key : keys) {
-			if (stats.get(key) != null) {
-				selectedStats.put(key, stats.get(key));
+		RawStats rawStats = getStatistics();
+		Map<String, Object> data = rawStats.toMap();
+		
+		Map<String, Object> intervalData   = null;
+		Map<String, Object> intervalResult = null;
+		
+		if(data.containsKey(STAT_INTERVAL) && intervalKeys != null && intervalKeys.length != 0){
+			intervalData = (Map<String,Object>)data.get(STAT_INTERVAL);
+			intervalResult = new HashMap<String, Object>();
+			for(String statName: intervalKeys){
+				if(intervalData.containsKey(statName)){
+					intervalResult.put(statName, intervalData.get(statName));
+				}
 			}
 		}
-		selectedStats.put(STAT_GATHERER_NAME, attributes.getName());
-		result.setStatsMap(selectedStats);
+		
+		Map<String, Object> pointData   = null;
+		Map<String, Object> pointResult = null;
+		
+		if(data.containsKey(STAT_POINT) && pointKeys != null && pointKeys.length != 0){
+			pointData = (Map<String,Object>)data.get(STAT_POINT);
+			pointResult = new HashMap<String, Object>();
+			for(String statName: pointKeys){
+				if(pointData.containsKey(statName)){
+					pointResult.put(statName, pointData.get(statName));
+				}
+			}
+		}
+		
+		Date start = rawStats.getStartDate();
+		Date end   = rawStats.getEndDate();
+		RawStats result = new RawStats(intervalResult, pointResult, start, end);
+		
 		return result;
-*/
-		return null;
 	}
 
 	/**
