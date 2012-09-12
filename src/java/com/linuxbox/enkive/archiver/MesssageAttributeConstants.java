@@ -28,6 +28,7 @@ public interface MesssageAttributeConstants {
 	String TO = "to";
 	String CC = "cc";
 	String DATE = "date";
+	String ARCHIVE_TIME = "archive_time";
 	String SUBJECT = "subject";
 	String MESSAGE_ID = "message_id";
 	String MIME_VERSION = "mime_version";

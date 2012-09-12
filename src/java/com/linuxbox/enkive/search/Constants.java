@@ -27,6 +27,7 @@ import java.text.SimpleDateFormat;
 public class Constants {
 	public static final String SENDER_PARAMETER = "sender";
 	public static final String RECIPIENT_PARAMETER = "recipient";
+	public static final String DATE_TYPE = "dateType";
 	public static final String DATE_EARLIEST_PARAMETER = "dateEarliest";
 	public static final String DATE_LATEST_PARAMETER = "dateLatest";
 	public static final String SUBJECT_PARAMETER = "subject";
