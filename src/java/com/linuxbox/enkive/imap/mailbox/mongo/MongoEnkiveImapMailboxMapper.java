@@ -45,7 +45,6 @@ public class MongoEnkiveImapMailboxMapper extends EnkiveImapMailboxMapper {
 			HashMap<String, String> mailboxTable = (HashMap<String, String>) mailboxListObject
 					.get("mailboxes");
 			for (String mailboxKey : mailboxTable.keySet()) {
-				System.out.println("listing mailbox " + mailboxKey);
 				MailboxPath mailboxPath = new MailboxPath(
 						session.getPersonalSpace(), session.getUser()
 								.getUserName(), mailboxKey.replace("/", "."));
@@ -132,7 +131,6 @@ public class MongoEnkiveImapMailboxMapper extends EnkiveImapMailboxMapper {
 					String regex = mailboxSearchPath.replace(".", "+\\.+");
 					regex = regex.replace('%', '.') + "*";
 					if (updatedMailboxKey.matches(regex)) {
-						System.out.println("REGEX MATCHED " + updatedMailboxKey + " " + regex);
 						MailboxPath matchingMailboxPath = new MailboxPath(
 								session.getPersonalSpace(), session.getUser()
 										.getUserName(), updatedMailboxKey);
@@ -154,6 +152,8 @@ public class MongoEnkiveImapMailboxMapper extends EnkiveImapMailboxMapper {
 		// TODO Auto-generated method stub
 		System.out.println("HAS CHILDREN " + mailbox.getName() + " DELIMITER "
 				+ delimiter);
+		if (mailbox.getName().equals("INBOX") || mailbox.getName().equals("Trash"))
+			return false;
 		return true;
 	}
 

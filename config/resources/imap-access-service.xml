@@ -31,11 +31,29 @@
 		<constructor-arg ref="authenticationManager" />
 	</bean>
 
-	<bean id="EnkiveImapMailboxACLResolver" class="com.linuxbox.enkive.imap.mailbox.EnkiveImapMailboxACLResolver">
+	<bean id="EnkiveImapMailboxACLResolver"
+		class="com.linuxbox.enkive.imap.mailbox.EnkiveImapMailboxACLResolver">
 	</bean>
 
 	<bean id="EnkiveImapGroupMembershipResolver"
 		class="com.linuxbox.enkive.imap.EnkiveImapGroupMembershipResolver">
+	</bean>
+
+<!-- <bean id="MongoImapAccountCreator" class="com.linuxbox.enkive.imap.mongo.MongoImapAccountCreator">
+		<constructor-arg ref="Mongo" />
+		<constructor-arg type="java.lang.String" value="${enkive.imap.db.name}" />
+		<constructor-arg type="java.lang.String" value="${enkive.imap.collection.name}" />
+		<property name="searchService" ref="MongoImapAccountCreationMessageSearchService" />
+	</bean>
+ -->
+	<bean id="MongoImapAccountCreationMessageSearchService"
+		class="com.linuxbox.enkive.imap.mongo.MongoImapAccountCreationMessageSearchService">
+		<constructor-arg ref="Mongo" />
+		<constructor-arg type="java.lang.String" value="${enkive.messagestore.db.name}" />
+		<constructor-arg type="java.lang.String"
+			value="${enkive.messagestore.collection.name}" />
+		<property name="docSearchService" ref="DocSearchQueryService" />
+		<property name="searchResultBuilder" ref="SearchResultBuilder" />
 	</bean>
 
 </beans>

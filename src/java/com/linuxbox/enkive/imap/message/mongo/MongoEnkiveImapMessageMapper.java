@@ -1,13 +1,9 @@
 package com.linuxbox.enkive.imap.message.mongo;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
-
-import net.sf.cglib.core.CollectionUtils;
 
 import org.apache.james.mailbox.MailboxSession;
 import org.apache.james.mailbox.exception.MailboxException;
@@ -49,12 +45,16 @@ public class MongoEnkiveImapMessageMapper extends EnkiveImapMessageMapper {
 			mailboxQueryObject.put("_id",
 					ObjectId.massageToObjectId(mailbox.getMailboxId()));
 			DBObject mailboxObject = imapCollection.findOne(mailboxQueryObject);
-			@SuppressWarnings("unchecked")
-			Map<Long, String> messageIds = (Map<Long, String>) mailboxObject
-					.get("msgids");
-			messageCount = messageIds.size();
+
+			Map<Long, String> messageIds = null;
+			Object messageIdsMap = mailboxObject.get("msgids");
+			if (messageIdsMap instanceof Map) {
+				messageIds = (Map<Long, String>) messageIdsMap;
+			}
+
+			if (messageIds != null)
+				messageCount = messageIds.size();
 		}
-		System.out.println(mailbox.getName() + " " + messageCount);
 		return messageCount;
 	}
 
@@ -71,17 +71,23 @@ public class MongoEnkiveImapMessageMapper extends EnkiveImapMessageMapper {
 			mailboxQueryObject.put("_id",
 					ObjectId.massageToObjectId(mailbox.getMailboxId()));
 			DBObject mailboxObject = imapCollection.findOne(mailboxQueryObject);
-			Map<String, String> tmpMsgIds = (HashMap<String, String>) mailboxObject
-					.get("msgids");
+			Object messageIdsMap = mailboxObject.get("msgids");
+
+			Map<String, String> tmpMsgIds = null;
+			if (messageIdsMap instanceof HashMap) {
+				tmpMsgIds = (HashMap<String, String>) messageIdsMap;
+			}
+
+			if (tmpMsgIds == null)
+				return messageIds;
 
 			TreeSet<Long> sortedUids = new TreeSet<Long>();
 			for (String key : tmpMsgIds.keySet())
 				sortedUids.add(Long.parseLong(key));
 
-			if(fromUid > sortedUids.last()){
-				//Do Nothing
-			}
-			else if (fromUid < 0 && (toUid < 0 || toUid > sortedUids.last())) {
+			if (fromUid > sortedUids.last()) {
+				// Do Nothing
+			} else if (fromUid < 0 && (toUid < 0 || toUid > sortedUids.last())) {
 				for (String key : tmpMsgIds.keySet())
 					messageIds.put(Long.parseLong(key), tmpMsgIds.get(key));
 			} else if (fromUid == toUid) {
@@ -90,7 +96,7 @@ public class MongoEnkiveImapMessageMapper extends EnkiveImapMessageMapper {
 				SortedSet<Long> sortedSubSet = sortedUids
 						.tailSet(fromUid, true);
 				for (Long key : sortedSubSet)
-					messageIds.put(key, tmpMsgIds.get(key));
+					messageIds.put(key, tmpMsgIds.get(key.toString()));
 			} else {
 				SortedSet<Long> sortedSubSet = sortedUids
 						.subSet(fromUid, toUid);

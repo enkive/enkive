@@ -40,30 +40,31 @@ public abstract class EnkiveImapMessageMapper extends
 		final long from = set.getUidFrom();
 		final long to = set.getUidTo();
 
-		try {
-			ArrayList<Message<String>> tmpMsgArray = new ArrayList<Message<String>>();
-			Map<Long, String> messageIds = getMailboxMessageIds(mailbox, from,
-					to, limit);
+		ArrayList<Message<String>> tmpMsgArray = new ArrayList<Message<String>>();
+		Map<Long, String> messageIds = getMailboxMessageIds(mailbox, from, to,
+				limit);
 
-			System.out.println("MESSAGE ID SIZE " + messageIds.size());
-			System.out.println(set.toString());
-			for (Long messageUid : messageIds.keySet()) {
-				com.linuxbox.enkive.message.Message message = retrieverService
-						.retrieve(messageIds.get(messageUid));
+		for (Long messageUid : messageIds.keySet()) {
+			com.linuxbox.enkive.message.Message message;
+			try {
+				System.out.println("Retrieving message uid " + messageUid);
+				System.out.println(set.toString());
+				if(!messageIds.containsKey(messageUid))
+					System.out.println("Could not find messageUid " + messageUid);
+				message = retrieverService.retrieve(messageIds.get(messageUid));
+
 				EnkiveImapMessage enkiveImapMessage = new EnkiveImapMessage(
 						message);
 				enkiveImapMessage.setUid(messageUid);
-				System.out.println("UID IS " + enkiveImapMessage.getUid());
 				tmpMsgArray.add(enkiveImapMessage);
+			} catch (CannotRetrieveException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
-			messages = tmpMsgArray;
-			messages.trimToSize();
-			return messages.iterator();
-		} catch (CannotRetrieveException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
-		return null;
+		messages = tmpMsgArray;
+		messages.trimToSize();
+		return messages.iterator();
 	}
 
 	@Override
