@@ -8,8 +8,6 @@ import static com.linuxbox.enkive.statistics.StatsConstants.STAT_GATHERER_NAME;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIMESTAMP;
 
 public class MongoStatsFilter extends StatsFilter {
-	public String gathererName;
-	public Map<String, Object> keys = null;
 	
 	public MongoStatsFilter(String gathererName, Map<String, Object> keys){
 		this.gathererName = gathererName;

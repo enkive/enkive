@@ -5,7 +5,7 @@ import com.linuxbox.enkive.statistics.services.StatsStorageService;
 
 public interface GathererInterface {
 	/**
-	 * @return returns this gatherer's attributes class
+	 * @return returns the gatherer's attributes class
 	 */
 	public GathererAttributes getAttributes();
 
@@ -17,25 +17,28 @@ public interface GathererInterface {
 	public RawStats getStatistics() throws GathererException;
 
 	/**
-	 * gathers the statistics corresponding to this gatherer but filtered by the
-	 * string array 'keys'--only those keys in the array are returned
+	 * gathers the statistics corresponding to this gatherer and filters them based
+	 * on the arrays of keys given as arguments
 	 * 
-	 * NOTE: if the string array is null all keys are returned
+	 * NOTE: if both the string arrays are null throws a gathererException
 	 * 
-	 * @param keys - a string array of keys
-	 * @return a filtered version of the statistics
+	 * @param intervalStats - a string array of interval statistic keys
+	 * @param pointStats - a string array of point statistic keys
+	 * @return a rawStats class containing the statistics specified by the array arguments
+	 * (filters out all unspecified statistics) 
 	 * @throws GathererException
 	 */
 	public RawStats getStatistics(String[] intervalStats, String[] pointStats)
 			throws GathererException;
 
 	/**
-	 * @param storageService StatsStorageService to set gatherer to use
+	 * sets this gatherer's storage service
+	 * @param storageService - storage service to add to gatherer
 	 */
 	public void setStorageService(StatsStorageService storageService);
 
 	/**
-	 * if the result of the getStatistics() is not null store it
+	 * stores all statistics belonging to this gatherer
 	 * @throws GathererException 
 	 */
 	public void storeStats() throws GathererException;

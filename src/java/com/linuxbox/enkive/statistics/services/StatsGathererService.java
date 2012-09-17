@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
+import static com.linuxbox.enkive.statistics.StatsConstants.STAT_GATHERER_NAME;
 import javax.annotation.PostConstruct;
 
 import org.apache.commons.logging.Log;
@@ -82,39 +82,42 @@ public class StatsGathererService extends VarsMaker {
 	 * @throws GathererException
 	 */
 	public List<RawStats> gatherStats(
-			Map<String, String[]> gathererKeys) throws ParseException,
+			Map<String, String[]> gathererKeys) throws
 			GathererException {
-//TODO		
-/*		
 		if (statsGatherers == null) {
-			System.out.println("statsGatherers is null");
+			LOGGER.error("statsGatherers is null");
 			return null;
 		}
 
 		if (statsGatherers.isEmpty()) {
-			System.out.println("isEmpty");
+			LOGGER.error("statsGatherers is empty");
 			return null;
 		}
 
 		if (gathererKeys == null) {
-			gathererKeys = new HashMap<String, String[]>();
-			for (String gathererName : statsGatherers.keySet()) {
-				gathererKeys.put(gathererName, null);
-			}
+			LOGGER.error("gathererKeys is null");
+			return null;
+		} 
+		
+		if (gathererKeys.isEmpty()){
+			LOGGER.error("gathererKeys is empty");
+			return null;
 		}
 
-		List<RawStats> statsList = createList();
+		List<RawStats> statsList = createListOfRawStats();
+		
+		//TODO fix this to do point & interval 
 		for (String statName: gathererKeys.keySet()) {
 			RawStats gathererData = statsGatherers.get(statName)
-					.getStatistics(gathererKeys.get(statName));
-			gathererData.getStatsMap().put(STAT_GATHERER_NAME, statsGatherers.get(statName)
+					.getStatistics(gathererKeys.get(statName),gathererKeys.get(statName));
+			
+			Map<String, Object> result = gathererData.toMap();
+			result.put(STAT_GATHERER_NAME, statsGatherers.get(statName)
 					.getAttributes().getName());
 			statsList.add(gathererData);
 		}
 
 		return statsList;
-*/
-		return null;
 	}
 
 	/**

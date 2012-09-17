@@ -47,7 +47,9 @@ import org.apache.commons.logging.LogFactory;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
+import static com.linuxbox.enkive.statistics.VarsMaker.createMap;
+import static com.linuxbox.enkive.statistics.VarsMaker.createListOfMaps;
+import static com.linuxbox.enkive.statistics.VarsMaker.createLinkedListOfStrs;
 import com.linuxbox.enkive.exception.CannotRetrieveException;
 import com.linuxbox.enkive.statistics.ConsolidationKeyHandler;
 import com.linuxbox.enkive.statistics.RawStats;
@@ -76,10 +78,9 @@ public class StatsServlet extends EnkiveServlet {
 	private Map<String, Object> consolidateMaps(
 			List<Map<String, Object>> serviceData, List<ConsolidationKeyHandler> statKeys) {
 		if (serviceData.size() > 0) {
-			Map<String, Object> template = new HashMap<String, Object>(
-					serviceData.iterator().next());			
-			LinkedList<String> path = new LinkedList<String>();
-			Map<String, Object> result = new HashMap<String, Object>(template);
+			Map<String, Object> template = createMap(serviceData.iterator().next());			
+			LinkedList<String> path = createLinkedListOfStrs();
+			Map<String, Object> result = createMap(template);
 			consolidateMapsHelper(template, result, path, statKeys, serviceData);
 			result.remove(STAT_GATHERER_NAME);
 			result.remove(STAT_TIMESTAMP);
@@ -99,7 +100,7 @@ public class StatsServlet extends EnkiveServlet {
 				TreeSet<Map<String, Object>> dataSet = new TreeSet<Map<String, Object>>(
 						new NumComparator());
 				for (Map<String, Object> dataMap : serviceData) {
-					Map<String, Object> dataVal = new HashMap<String, Object>(getDataVal(dataMap, path));
+					Map<String, Object> dataVal = createMap(getDataVal(dataMap, path));
 					if (dataVal != null && !dataVal.isEmpty()) {
 						dataVal.put(STAT_TIMESTAMP, dataMap.get(STAT_TIMESTAMP));
 						dataSet.add(dataVal);
@@ -342,7 +343,7 @@ public class StatsServlet extends EnkiveServlet {
 						String[] keys = req.getParameterValues(serviceName);
 					//	building filter
 						if (keys != null) {
-							Map<String, Object> temp = new HashMap<String, Object>();
+							Map<String, Object> temp = createMap();
 							// 4. while looping build a second map for query
 							// second map will only have serviceName and date range
 							for (String key : keys) {
@@ -360,7 +361,7 @@ public class StatsServlet extends EnkiveServlet {
 				List<Map<String, Object>> result = null;
 
 				if (noDate) {//no date range means get instant data
-/*TODO				Map<String, String[]> gatheringStats = new HashMap<String, String[]>();
+					Map<String, String[]> gatheringStats = new HashMap<String, String[]>();
 					for (StatsFilter tempFilter : filterList) {
 						if (tempFilter.keys != null) {
 							String keys[] = new String[tempFilter.keys
@@ -380,24 +381,25 @@ public class StatsServlet extends EnkiveServlet {
 						}
 					}
 					List<RawStats> tempRawStats = client.gatherData(gatheringStats);
+					System.out.println("tempRawStats: " + tempRawStats);
 					result = new LinkedList<Map<String,Object>>();
 					for(RawStats stats: tempRawStats){
 						Map<String,Object> statsMap = stats.toMap();
 						result.add(statsMap);
 					}
-*/				} else {//output query data as formatted json
+				} else {//output query data as formatted json
 					List<Map<String, Object>> stats = client.queryStatistics(
 							queryList, filterList);
-					result = new LinkedList<Map<String, Object>>();
+					result = createListOfMaps();
 					for (String name : serviceNames) {	
-						List<Map<String, Object>> serviceStats = new LinkedList<Map<String, Object>>();
+						List<Map<String, Object>> serviceStats = createListOfMaps();
 						//populate service data
 						for (Map<String, Object> data : stats) {
 							if (data.get(STAT_GATHERER_NAME).equals(name)) {
 								serviceStats.add(data);
 							}
 						}
-						Map<String, Object> consolidatedMap = new HashMap<String, Object>();
+						Map<String, Object> consolidatedMap = createMap();
 						consolidatedMap.put(
 								name,
 								consolidateMaps(serviceStats, client

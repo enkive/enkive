@@ -56,8 +56,6 @@ public class StatsClient {
 	public List<RawStats> gatherData(Map<String, String[]> gathererFilter) {
 		try {
 			return gathererService.gatherStats(gathererFilter);
-		} catch (ParseException e) {
-			LOGGER.error("Client.gatherData(Map) ParseException", e);
 		} catch (GathererException e) {
 			LOGGER.error("Client.gatherData(Map) GathererException", e);
 		}

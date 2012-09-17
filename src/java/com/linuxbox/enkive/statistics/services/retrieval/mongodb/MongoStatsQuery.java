@@ -21,9 +21,6 @@ import com.mongodb.DBObject;
  * at or later than the start time stamp and less than (not less than or equal
  * to) the end time stamp. If either time stamp is null, then the query will not
  * consider it.
- * 
- * @author eric
- * 
  */
 public class MongoStatsQuery extends StatsQuery{
 	public String gathererName;

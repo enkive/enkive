@@ -13,14 +13,13 @@ import org.apache.commons.logging.LogFactory;
 
 import com.linuxbox.enkive.message.search.exception.MessageSearchException;
 import com.linuxbox.enkive.statistics.RawStats;
-import com.linuxbox.enkive.statistics.VarsMaker;
 import com.linuxbox.enkive.statistics.gathering.AbstractGatherer;
 import com.linuxbox.enkive.statistics.gathering.GathererException;
 import com.linuxbox.enkive.statistics.gathering.GathererMessageSearchService;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.Mongo;
-
+import static com.linuxbox.enkive.statistics.VarsMaker.createMap;
 public class StatsMsgGatherer extends AbstractGatherer {
 	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.statistics.gathering.StatsMsgGatherer");
@@ -29,8 +28,8 @@ public class StatsMsgGatherer extends AbstractGatherer {
 	protected DBCollection attachmentsColl;
 	GathererMessageSearchService searchService;
 	
-	public StatsMsgGatherer(String serviceName, String humanName, String schedule, List<String> keys) throws GathererException {
-		super(serviceName, humanName, schedule, keys);
+	public StatsMsgGatherer(String serviceName, String humanName, List<String> keys) throws GathererException {
+		super(serviceName, humanName,keys);
 	}
 	
 	@Override
@@ -58,10 +57,10 @@ public class StatsMsgGatherer extends AbstractGatherer {
 		}
 		
 		
-		Map<String, Object> pointStats = VarsMaker.createMap();	
+		Map<String, Object> pointStats = createMap();	
 		pointStats.put(STAT_TOTAL_MSGS, totEntries);
 		
-		Map<String, Object> intervalStats = VarsMaker.createMap();
+		Map<String, Object> intervalStats = createMap();
 		intervalStats.put(STAT_NUM_ENTRIES, numEntries);
 
 		RawStats result = new RawStats(intervalStats, pointStats, startDate, endDate);

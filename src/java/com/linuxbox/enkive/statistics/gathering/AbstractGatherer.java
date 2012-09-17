@@ -1,39 +1,28 @@
 package com.linuxbox.enkive.statistics.gathering;
 
-import java.text.ParseException;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_POINT;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_INTERVAL;
-import javax.annotation.PostConstruct;
-
-import org.quartz.JobDetail;
-import org.quartz.Scheduler;
-import org.springframework.scheduling.quartz.CronTriggerBean;
-import org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean;
 
 import com.linuxbox.enkive.statistics.RawStats;
 import com.linuxbox.enkive.statistics.services.StatsStorageService;
 import com.linuxbox.enkive.statistics.services.storage.StatsStorageException;
 import com.linuxbox.enkive.statistics.ConsolidationKeyHandler;
+import static com.linuxbox.enkive.statistics.VarsMaker.createMap;
 
 public abstract class AbstractGatherer implements GathererInterface {
 	protected GathererAttributes attributes;
-	protected Scheduler scheduler;
 	protected StatsStorageService storageService;
 	protected List<String> keys;
 	private String serviceName;
 	private String humanName;
-	private String schedule;
 	
-	public AbstractGatherer(String serviceName, String humanName,
-			String schedule, List<String> keys) throws GathererException {
+	public AbstractGatherer(String serviceName, String humanName, List<String> keys) throws GathererException {
 		this.serviceName = serviceName;
 		this.humanName = humanName;
-		this.schedule = schedule;
 		setKeys(keys);
 	}
 
@@ -49,7 +38,7 @@ public abstract class AbstractGatherer implements GathererInterface {
 	@Override
 	public RawStats getStatistics(String[] intervalKeys, String[] pointKeys) throws GathererException {
 		if (intervalKeys == null && pointKeys == null) {
-			return getStatistics();
+			throw new GathererException("intervalKeys and pointKeys are both null in getStatistics(String[], String[])");
 		}
 		RawStats rawStats = getStatistics();
 		Map<String, Object> data = rawStats.toMap();
@@ -59,7 +48,7 @@ public abstract class AbstractGatherer implements GathererInterface {
 		
 		if(data.containsKey(STAT_INTERVAL) && intervalKeys != null && intervalKeys.length != 0){
 			intervalData = (Map<String,Object>)data.get(STAT_INTERVAL);
-			intervalResult = new HashMap<String, Object>();
+			intervalResult = createMap();
 			for(String statName: intervalKeys){
 				if(intervalData.containsKey(statName)){
 					intervalResult.put(statName, intervalData.get(statName));
@@ -72,7 +61,7 @@ public abstract class AbstractGatherer implements GathererInterface {
 		
 		if(data.containsKey(STAT_POINT) && pointKeys != null && pointKeys.length != 0){
 			pointData = (Map<String,Object>)data.get(STAT_POINT);
-			pointResult = new HashMap<String, Object>();
+			pointResult = createMap();
 			for(String statName: pointKeys){
 				if(pointData.containsKey(statName)){
 					pointResult.put(statName, pointData.get(statName));
@@ -88,38 +77,9 @@ public abstract class AbstractGatherer implements GathererInterface {
 	}
 
 	/**
-	 * initialization method called to give quartz this gatherer
-	 * 
-	 * @throws Exception
-	 */
-	@PostConstruct
-	protected void init() throws Exception {
-		// create attributes
-		attributes = new GathererAttributes(serviceName, humanName, schedule,
-				keyBuilder(keys));
-
-		// create factory
-		MethodInvokingJobDetailFactoryBean jobDetail = new MethodInvokingJobDetailFactoryBean();
-		jobDetail.setTargetObject(this);
-		jobDetail.setName(attributes.getName());
-		jobDetail.setTargetMethod("storeStats");
-		jobDetail.setConcurrent(false);
-		jobDetail.afterPropertiesSet();
-
-		// create trigger
-		CronTriggerBean trigger = new CronTriggerBean();
-		trigger.setBeanName(attributes.getName());
-		trigger.setJobDetail((JobDetail) jobDetail.getObject());
-		trigger.setCronExpression(attributes.getSchedule());
-		trigger.afterPropertiesSet();
-
-		// add to schedule defined in spring xml
-		scheduler.scheduleJob((JobDetail) jobDetail.getObject(), trigger);
-	}
-
-	/**
-	 * builds the list of keyConsolidationHandlers in order to allow the raw
-	 * data created by this gatherer to be consolidated
+	 * builds the list of keyConsolidationHandlers that allow the attributes class
+	 * to define how data is stored by this gatherer (and how it should be accessed
+	 * for consolidation)
 	 * 
 	 * @param keyList
 	 *            - a list of dot-notation formatted strings:
@@ -145,10 +105,6 @@ public abstract class AbstractGatherer implements GathererInterface {
 		return keys;
 	}
 
-	public void setScheduler(Scheduler scheduler) {
-		this.scheduler = scheduler;
-	}
-
 	@Override
 	public void setStorageService(StatsStorageService storageService) {
 		this.storageService = storageService;
@@ -168,13 +124,6 @@ public abstract class AbstractGatherer implements GathererInterface {
 
 	public void setKeys(List<String> keys) throws GathererException {
 		this.keys = keys;
-		// create attributes
-		try {
-			attributes = new GathererAttributes(serviceName, humanName,
-					schedule, keyBuilder(keys));
-		} catch (ParseException e) {
-			throw new GathererException(
-					"parseException in attributes constructor", e);
-		}
+		attributes = new GathererAttributes(serviceName, humanName, keyBuilder(keys));
 	}
 }

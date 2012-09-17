@@ -3,7 +3,6 @@ package com.linuxbox.enkive.statistics.services.retrieval.mongodb;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_GATHERER_NAME;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIMESTAMP;
 import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_MAX;
-import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_MIN;
 import static com.linuxbox.enkive.statistics.gathering.mongodb.MongoConstants.MONGO_ID;
 
 import java.util.HashMap;
@@ -76,7 +75,7 @@ public class MongoStatsRetrievalService extends VarsMaker implements
 
 	@Override
 	public Set<Map<String, Object>> queryStatistics() {
-		Set<Map<String, Object>> result = new HashSet<Map<String, Object>>();
+		Set<Map<String, Object>> result = createSetOfMaps();
 		for (DBObject entry : coll.find()) {
 			addMapToSet(entry, result);
 		}
@@ -86,7 +85,7 @@ public class MongoStatsRetrievalService extends VarsMaker implements
 	
 	@Override
 	public Set<Map<String, Object>> queryStatistics(StatsQuery query) {
-		Set<Map<String, Object>> result = new HashSet<Map<String, Object>>();
+		Set<Map<String, Object>> result = createSetOfMaps();
 		for (DBObject entry : getQuerySet(query)) {
 			addMapToSet(entry, result);
 		}
@@ -105,7 +104,7 @@ public class MongoStatsRetrievalService extends VarsMaker implements
 		}
 		DBObject mongoQuery  = new BasicDBObject(query.getQuery());
 		DBObject mongoFilter = getFilter(filter);
-		Set<Map<String, Object>> result = new HashSet<Map<String, Object>>();
+		Set<Map<String, Object>> result = createSetOfMaps();
 		for (DBObject entry : coll.find(mongoQuery, mongoFilter)) {
 			addMapToSet(entry, result);
 		}
@@ -132,7 +131,7 @@ public class MongoStatsRetrievalService extends VarsMaker implements
 			}
 		}
 		
-		List<Map<String, Object>> result = new LinkedList<Map<String, Object>>();
+		List<Map<String, Object>> result = createListOfMaps();
 		for (DBObject entry : allStats) {
 			addMapToList(entry, result);
 		}
@@ -158,7 +157,7 @@ public class MongoStatsRetrievalService extends VarsMaker implements
 				allStats.addAll(coll.find(query).sort(new BasicDBObject(STAT_TIMESTAMP + "." + CONSOLIDATION_MAX, 1)).toArray());
 			}
 		}
-		List<Map<String, Object>> result = new LinkedList<Map<String, Object>>();
+		List<Map<String, Object>> result = createListOfMaps();
 		for (DBObject entry : allStats) {
 			addMapToList(entry, result);
 		}

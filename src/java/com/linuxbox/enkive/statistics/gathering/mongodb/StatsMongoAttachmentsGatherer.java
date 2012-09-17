@@ -9,7 +9,6 @@ import static com.linuxbox.enkive.statistics.gathering.mongodb.MongoConstants.MO
 
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -25,7 +24,7 @@ import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.Mongo;
-
+import static com.linuxbox.enkive.statistics.VarsMaker.createMap;
 public class StatsMongoAttachmentsGatherer extends AbstractGatherer {
 	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.statistics.gathering.StatsMongoAttachmentsGatherer");
@@ -34,8 +33,8 @@ public class StatsMongoAttachmentsGatherer extends AbstractGatherer {
 	protected DBCollection attachmentsColl;
 	
 	public StatsMongoAttachmentsGatherer(Mongo m, String dbName, String attachmentsColl,
-			String serviceName, String humanName, String schedule, List<String> keys) throws GathererException {
-		super(serviceName, humanName, schedule, keys);
+			String serviceName, String humanName, List<String> keys) throws GathererException {
+		super(serviceName, humanName, keys);
 		this.m = m;
 		this.db = m.getDB(dbName);
 		this.attachmentsColl = db.getCollection(attachmentsColl + ".files");
@@ -55,9 +54,9 @@ public class StatsMongoAttachmentsGatherer extends AbstractGatherer {
 	}
 	
 	public RawStats getStatistics(Date startDate, Date endDate) {
-		Map<String, Object> intervalMap = new HashMap<String, Object>();
-		Map<String, Object> query = new HashMap<String, Object>();
-		Map<String, Object> innerQuery = new HashMap<String, Object>();
+		Map<String, Object> intervalMap = createMap();
+		Map<String, Object> query = createMap();
+		Map<String, Object> innerQuery = createMap();
 		innerQuery.put("$gte", startDate);
 		innerQuery.put("$lt", endDate);
 		query.put(MONGO_UPLOAD_DATE, innerQuery);
@@ -67,7 +66,7 @@ public class StatsMongoAttachmentsGatherer extends AbstractGatherer {
 		for(DBObject obj: dataCursor){
 			dataByteSz+=(Long)(obj.get(MONGO_LENGTH));
 		}
-		Map<String,Object> innerNumAttach = new HashMap<String,Object>();
+		Map<String,Object> innerNumAttach = createMap();
 		innerNumAttach.put(CONSOLIDATION_AVG, dataCursor.count());
 		
 		long avgAttSz = 0;

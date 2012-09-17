@@ -9,17 +9,17 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import com.linuxbox.enkive.statistics.VarsMaker;
+import static com.linuxbox.enkive.statistics.VarsMaker.createMap;
 import com.linuxbox.enkive.statistics.RawStats;
 
 public class StatsRuntimeGatherer extends AbstractGatherer {	
-	public StatsRuntimeGatherer(String serviceName, String humanName, String schedule, List<String> keys) throws GathererException {
-		super(serviceName, humanName, schedule, keys);		
+	public StatsRuntimeGatherer(String serviceName, String humanName, List<String> keys) throws GathererException {
+		super(serviceName, humanName, keys);		
 	}
 
 	@Override
 	public RawStats getStatistics() {
-		Map<String, Object> intervalStats = VarsMaker.createMap();
+		Map<String, Object> intervalStats = createMap();
 		Runtime runtime = Runtime.getRuntime();
 		intervalStats.put(STAT_MAX_MEMORY, runtime.maxMemory());
 		intervalStats.put(STAT_FREE_MEMORY, runtime.freeMemory());

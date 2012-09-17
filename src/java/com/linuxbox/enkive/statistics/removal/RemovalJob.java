@@ -14,7 +14,6 @@ import static com.linuxbox.enkive.statistics.removal.RemovalConstants.REMOVAL_WE
 
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -24,6 +23,7 @@ import org.apache.commons.logging.LogFactory;
 import com.linuxbox.enkive.statistics.services.StatsClient;
 import com.linuxbox.enkive.statistics.services.retrieval.StatsQuery;
 import com.linuxbox.enkive.statistics.services.retrieval.mongodb.MongoStatsDateQuery;
+import static com.linuxbox.enkive.statistics.VarsMaker.createSetOfObjs;
 
 public class RemovalJob {
 	protected final static Log LOGGER = LogFactory
@@ -74,7 +74,7 @@ public class RemovalJob {
 		StatsQuery query = new MongoStatsDateQuery(new Date(0L), dateFilter);
 		query.grainType = grainType;
 		Set<Map<String, Object>> data = client.queryStatistics(query);
-		Set<Object> deletionSet = new HashSet<Object>();
+		Set<Object> deletionSet = createSetOfObjs();
 
 		for (Map<String, Object> map : data) {
 			Integer gType = (Integer) map.get(CONSOLIDATION_TYPE);
