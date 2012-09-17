@@ -110,6 +110,10 @@ public class MongoRetrieverService extends AbstractRetrieverService {
 			if (LOGGER.isWarnEnabled())
 				LOGGER.warn("Error retrieving message with UUID " + messageUUID);
 			throw new CannotRetrieveException(e);
+		} catch (Exception e) {
+			if (LOGGER.isWarnEnabled())
+				LOGGER.warn("Error retrieving message with UUID " + messageUUID);
+			throw new CannotRetrieveException(e);
 		}
 	}
 
