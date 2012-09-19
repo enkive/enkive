@@ -84,7 +84,6 @@ public class HourConsolidator extends AbstractConsolidator {
 				//Interval
 				Set<Map<String, Object>> intervalData = serviceData.get(0);
 				if(intervalData != null){
-//					System.out.println("intervalData: " + intervalData);
 					Map<String, Object> intervalTemplate = new HashMap<String, Object>((Map<String,Object>)intervalData.iterator().next());
 					Map<String, Object> intervalMapToStore = new HashMap<String, Object>(intervalTemplate);
 					
@@ -98,16 +97,12 @@ public class HourConsolidator extends AbstractConsolidator {
 					generateConsolidatedMap(intervalTemplate, intervalMapToStore,
 							new LinkedList<String>(), intervalKeys,
 							intervalData);//going to need string for point/interval
-//					mapToStore.put(STAT_INTERVAL, intervalMapToStore);
 					mapToStore.putAll(intervalMapToStore);
 				}
-				
 				//Point
 				Set<Map<String, Object>> pointData = serviceData.get(1);
 				if(pointData != null){
-//					System.out.println("pointData: " + pointData);
 					Map<String, Object> pointTemplate = new HashMap<String, Object>((Map<String,Object>)pointData.iterator().next());
-//					System.out.println("pointTemplate: " + pointTemplate);
 					Map<String, Object> pointMapToStore = new HashMap<String, Object>(pointTemplate);
 					
 					List<ConsolidationKeyHandler> pointKeys = new LinkedList<ConsolidationKeyHandler>(); 
@@ -120,7 +115,6 @@ public class HourConsolidator extends AbstractConsolidator {
 					generateConsolidatedMap(pointTemplate, pointMapToStore,
 							new LinkedList<String>(), pointKeys,
 							pointData);
-//					mapToStore.put(STAT_POINT, pointMapToStore);
 					mapToStore.putAll(pointMapToStore);
 				}
 																																										
@@ -135,7 +129,7 @@ public class HourConsolidator extends AbstractConsolidator {
 					
 					storageData.add(mapToStore);
 				}
-//				System.out.println("MapTOSTORE: " + mapToStore);
+				System.out.println("mapToStore: " + mapToStore);
 			}
 		}
 		return storageData;

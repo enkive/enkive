@@ -64,6 +64,7 @@ public class StatsMsgGatherer extends AbstractGatherer {
 		intervalStats.put(STAT_NUM_ENTRIES, numEntries);
 
 		RawStats result = new RawStats(intervalStats, pointStats, startDate, endDate);
+		System.out.println("result: " + result.toMap());
 		return result;
 	}
 	
@@ -71,3 +72,4 @@ public class StatsMsgGatherer extends AbstractGatherer {
 		this.searchService = searchService;
 	}
 }
+

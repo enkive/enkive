@@ -202,18 +202,18 @@
 	</bean>
 -->
 	<bean id="FifteenMinuteGatherers" class="java.util.LinkedList">
-    <constructor-arg>
-      <list>
-        <ref bean="RuntimeStatsService" />
-		<ref bean="MsgStatsService" />
-		<ref bean="CollectionStatsService" />
-		<ref bean="AttachmentStatsService" />
-		<ref bean="DatabaseStatsService" />
-      </list>      
-    </constructor-arg>
-  </bean>
+	    <constructor-arg>
+	      <list>
+	        <ref bean="RuntimeStatsService" />
+			<ref bean="MsgStatsService" />
+			<ref bean="CollectionStatsService" />
+			<ref bean="AttachmentStatsService" />
+			<ref bean="DatabaseStatsService" />
+	      </list>      
+	    </constructor-arg>
+  	</bean>
 
-<bean id="FifteenMinutesSchedulerService"
+	<bean id="FifteenMinutesSchedulerService"
 		class="com.linuxbox.enkive.statistics.gathering.GatheringScheduler">
 		<constructor-arg name="name" value="FifteenMinutesScheduler" />
 		<constructor-arg name="gatherers" ref="FifteenMinuteGatherers"/>

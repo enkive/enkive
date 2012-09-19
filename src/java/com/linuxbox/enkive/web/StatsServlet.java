@@ -329,8 +329,7 @@ public class StatsServlet extends EnkiveServlet {
 				List<StatsFilter> filterList = null;
 				
 				if (serviceNames == null) {
-					LOGGER.error("no valid data input");
-					throw new NullPointerException();
+					LOGGER.error("no valid data input", new NullPointerException());
 				}
 				
 				if (serviceNames != null) {
@@ -359,7 +358,7 @@ public class StatsServlet extends EnkiveServlet {
 				}	
 
 				List<Map<String, Object>> result = null;
-
+				
 				if (noDate) {//no date range means get instant data
 					Map<String, String[]> gatheringStats = new HashMap<String, String[]>();
 					for (StatsFilter tempFilter : filterList) {
@@ -381,7 +380,6 @@ public class StatsServlet extends EnkiveServlet {
 						}
 					}
 					List<RawStats> tempRawStats = client.gatherData(gatheringStats);
-					System.out.println("tempRawStats: " + tempRawStats);
 					result = new LinkedList<Map<String,Object>>();
 					for(RawStats stats: tempRawStats){
 						Map<String,Object> statsMap = stats.toMap();
@@ -390,6 +388,7 @@ public class StatsServlet extends EnkiveServlet {
 				} else {//output query data as formatted json
 					List<Map<String, Object>> stats = client.queryStatistics(
 							queryList, filterList);
+					
 					result = createListOfMaps();
 					for (String name : serviceNames) {	
 						List<Map<String, Object>> serviceStats = createListOfMaps();
