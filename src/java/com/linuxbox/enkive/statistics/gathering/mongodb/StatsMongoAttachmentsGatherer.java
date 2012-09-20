@@ -2,12 +2,10 @@ package com.linuxbox.enkive.statistics.gathering.mongodb;
 
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_ATTACH_NUM;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_ATTACH_SIZE;
-import static com.linuxbox.enkive.statistics.StatsConstants.STAT_GATHERER_NAME;
 import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_AVG;
 import static com.linuxbox.enkive.statistics.gathering.mongodb.MongoConstants.MONGO_LENGTH;
 import static com.linuxbox.enkive.statistics.gathering.mongodb.MongoConstants.MONGO_UPLOAD_DATE;
 
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -15,7 +13,6 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.linuxbox.enkive.statistics.RawStats;
 import com.linuxbox.enkive.statistics.gathering.AbstractGatherer;
 import com.linuxbox.enkive.statistics.gathering.GathererException;
 import com.mongodb.BasicDBObject;
@@ -39,26 +36,21 @@ public class StatsMongoAttachmentsGatherer extends AbstractGatherer {
 		this.db = m.getDB(dbName);
 		this.attachmentsColl = db.getCollection(attachmentsColl + ".files");
 	}
-	
+
 	@Override
-	public RawStats getStatistics() {
-		Calendar cal = Calendar.getInstance();
-		cal.set(Calendar.MILLISECOND, 0);
-		cal.set(Calendar.SECOND, 0);
-		cal.set(Calendar.MINUTE, 0);
-		Date endDate = cal.getTime();
-		cal.add(Calendar.HOUR, -1);
-		Date startDate = cal.getTime();
-		
-		return getStatistics(startDate, endDate);
+	protected Map<String, Object> getPointStatistics(Date startTimestamp,
+			Date endTimestamp) throws GathererException {
+		return null;
 	}
-	
-	public RawStats getStatistics(Date startDate, Date endDate) {
+
+	@Override
+	protected Map<String, Object> getIntervalStatistics(Date startTimestamp,
+			Date endTimestamp) throws GathererException {
 		Map<String, Object> intervalMap = createMap();
 		Map<String, Object> query = createMap();
 		Map<String, Object> innerQuery = createMap();
-		innerQuery.put("$gte", startDate);
-		innerQuery.put("$lt", endDate);
+		innerQuery.put("$gte", startTimestamp);
+		innerQuery.put("$lt", endTimestamp);
 		query.put(MONGO_UPLOAD_DATE, innerQuery);
 		long dataByteSz = 0;
 		DBCursor dataCursor = attachmentsColl.find(new BasicDBObject(query));
@@ -76,10 +68,7 @@ public class StatsMongoAttachmentsGatherer extends AbstractGatherer {
 		
 		intervalMap.put(STAT_ATTACH_SIZE, avgAttSz);
 		intervalMap.put(STAT_ATTACH_NUM, dataCursor.count());
-		intervalMap.put(STAT_GATHERER_NAME, "AttachmentStatsService");
 		
-		RawStats resultStats = new RawStats(intervalMap, null, startDate, endDate);
-		
-		return resultStats;
+		return intervalMap;
 	}
 }

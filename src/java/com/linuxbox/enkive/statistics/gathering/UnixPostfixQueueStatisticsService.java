@@ -11,10 +11,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
 
 import com.linuxbox.enkive.statistics.VarsMaker;
-import com.linuxbox.enkive.statistics.RawStats;
 
 public class UnixPostfixQueueStatisticsService extends AbstractGatherer {
 
@@ -28,7 +26,7 @@ public class UnixPostfixQueueStatisticsService extends AbstractGatherer {
 		super(serviceName, humanName, keys);
 	}
 
-	public void execute(JobExecutionContext arg0) throws JobExecutionException {
+	public void execute(JobExecutionContext arg0) throws GathererException {
 		System.out.println(getStatistics());
 	}
 
@@ -44,14 +42,20 @@ public class UnixPostfixQueueStatisticsService extends AbstractGatherer {
 	}
 
 	@Override
-	public RawStats getStatistics() {
+	protected Map<String, Object> getPointStatistics(Date startTimestamp,
+			Date endTimestamp) throws GathererException {
 		Map<String, Object> stats = VarsMaker.createMap();
 		try {
 			stats.put(QUEUE_LENGTH, getQueueLength());
 		} catch (IOException e) {
 			stats.put(QUEUE_LENGTH + STATISTIC_CHECK_ERROR, e.toString());
 		}
-		RawStats result = new RawStats(null, stats, new Date(), new Date());
-		return result;
+		return stats;
+	}
+
+	@Override
+	protected Map<String, Object> getIntervalStatistics(Date lowerTimestamp,
+			Date upperTimestamp) throws GathererException {
+		return null;
 	}
 }

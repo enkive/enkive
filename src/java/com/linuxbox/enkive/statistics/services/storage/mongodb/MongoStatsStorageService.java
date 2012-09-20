@@ -35,8 +35,12 @@ public class MongoStatsStorageService extends VarsMaker implements
 	@Override
 	public void storeStatistics(Set<Map<String, Object>> dataSet)
 			throws StatsStorageException {
-		for (Map<String, Object> map : dataSet) {
-			coll.insert(new BasicDBObject(map));
+		if(dataSet != null){		
+			for (Map<String, Object> map : dataSet) {
+				coll.insert(new BasicDBObject(map));
+			}
+		} else {
+			LOGGER.warn("dataSet is null nothing will be stored");
 		}
 	}
 

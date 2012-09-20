@@ -1,5 +1,6 @@
 package com.linuxbox.enkive.statistics.gathering;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -31,9 +32,37 @@ public abstract class AbstractGatherer implements GathererInterface {
 		return attributes;
 	}
 
+	//BY DEFAULT WE ASSUME 15 MINUTE INTERVALS
 	@Override
-	public abstract RawStats getStatistics() throws GathererException;
+	public RawStats getStatistics() throws GathererException {
+		int interval = 15;
+		Calendar cal = Calendar.getInstance();
+		cal.set(Calendar.MILLISECOND, 0);
+		cal.set(Calendar.SECOND, 0);
+		Date endDate = cal.getTime();
+		cal.add(Calendar.MINUTE, -interval);
+		Date startDate = cal.getTime();
+		
+		return getStatistics(startDate, endDate);
+	}
 
+	protected abstract Map<String, Object> getPointStatistics(Date startTimestamp,
+			Date endTimestamp) throws GathererException;
+	
+	protected abstract Map<String, Object> getIntervalStatistics(Date startTimestamp, Date endTimestamp) throws GathererException;
+	
+	@Override
+	public RawStats getStatistics(Date startTimestamp, Date endTimestamp) throws GathererException{
+		if(startTimestamp == null || endTimestamp == null){
+			throw new GathererException("A Date is null in getStatistics(Date, Date)");
+		}
+		
+		Map<String, Object> intervalStats = getIntervalStatistics(startTimestamp, endTimestamp);
+		Map<String, Object> pointStats = getPointStatistics(startTimestamp, endTimestamp);
+		
+		return new RawStats(intervalStats, pointStats, startTimestamp, endTimestamp);	
+	}
+	
 	@SuppressWarnings("unchecked")
 	@Override
 	public RawStats getStatistics(String[] intervalKeys, String[] pointKeys) throws GathererException {

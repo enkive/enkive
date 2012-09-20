@@ -29,7 +29,7 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.linuxbox.enkive.statistics.VarsMaker;
+import static com.linuxbox.enkive.statistics.VarsMaker.createMap;
 import com.linuxbox.enkive.statistics.RawStats;
 import com.linuxbox.enkive.statistics.gathering.AbstractGatherer;
 import com.linuxbox.enkive.statistics.gathering.GathererException;
@@ -67,7 +67,7 @@ public class StatsMongoCollectionGatherer extends AbstractGatherer {
 		return result;
 	}
 	
-	
+	@Override
 	public RawStats getStatistics(String[] intervalKeys, String[] pointKeys) {
 		Map<String, Object> pointResult = null;
 		Map<String, Object> intervalResult = null;
@@ -118,7 +118,7 @@ public class StatsMongoCollectionGatherer extends AbstractGatherer {
 	 */
 	private Map<String, Object> getPointStats(String collectionName) {
 		if (db.collectionExists(collectionName)) {
-			Map<String, Object> stats = VarsMaker.createMap();
+			Map<String, Object> stats = createMap();
 			Map<String, Object> temp = db.getCollection(collectionName)
 					.getStats();
 			stats.put(STAT_NS, temp.get(MONGO_NS));
@@ -146,4 +146,26 @@ public class StatsMongoCollectionGatherer extends AbstractGatherer {
 	private Map<String, Object> getIntervalStats(String collectionName) {
 		return null;
 	}
+
+	@Override
+	protected Map<String, Object> getPointStatistics(Date startTimestamp,
+			Date endTimestamp) throws GathererException {
+		Map<String, Object> pointStats = createMap();
+		for (String collName : db.getCollectionNames()) {
+			String key = collName;
+			if (collName.startsWith("$")) {
+				collName = collName.replaceFirst("$", "-");
+			}
+			collName = collName.replace('.', '-');
+			pointStats.put(collName, getPointStats(key));
+		}
+		return pointStats;
+	}
+
+	@Override
+	protected Map<String, Object> getIntervalStatistics(Date startTimestamp,
+			Date endTimestamp) throws GathererException {
+		return null;
+	}
+	
 }

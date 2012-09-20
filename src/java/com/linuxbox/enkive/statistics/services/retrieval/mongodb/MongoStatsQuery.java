@@ -4,8 +4,6 @@ import static com.linuxbox.enkive.statistics.StatsConstants.STAT_GATHERER_NAME;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIMESTAMP;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TS_POINT;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_POINT;
-import static com.linuxbox.enkive.statistics.StatsConstants.STAT_INTERVAL;
-import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_MAX;
 import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_MIN;
 import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_TYPE;
 
@@ -67,25 +65,22 @@ public class MongoStatsQuery extends StatsQuery{
 		}
 		
 		DBObject time = new BasicDBObject();
-		String tsStartKey;
-		String tsEndKey;
+		String tsKey;
 		if(isPointQuery){
-			tsStartKey = STAT_TIMESTAMP + "." + STAT_TS_POINT;
-			tsEndKey = tsStartKey;
+			tsKey = STAT_TIMESTAMP + "." + STAT_TS_POINT;
 		} else {
-			tsStartKey = STAT_TIMESTAMP + "." + CONSOLIDATION_MIN;
-			tsEndKey   = STAT_TIMESTAMP + "." + CONSOLIDATION_MAX;
+			tsKey = STAT_TIMESTAMP + "." + CONSOLIDATION_MIN; 	
 		}
 		
 		if(startTimestamp != null){
-			time = new BasicDBObject();
 			time.put("$gte", startTimestamp);
-			mongoQuery.put(tsStartKey, time);
 		}
 		if(endTimestamp != null){
-			time = new BasicDBObject();
-			time.put("$lt", endTimestamp);
-			mongoQuery.put(tsEndKey, time);	
+			time.put("$lt", endTimestamp);	
+		}
+		
+		if(!time.toMap().isEmpty()){
+			mongoQuery.put(tsKey, time);
 		}
 		
 		return mongoQuery;
@@ -94,8 +89,6 @@ public class MongoStatsQuery extends StatsQuery{
 	public void setIsPointQuery(String type){
 		if(type.equals(STAT_POINT)){
 			isPointQuery = true;
-		} else if(type.equals(STAT_INTERVAL)){
-			isPointQuery = false;
 		} else {
 			isPointQuery = false;//ie) consolidated
 		}

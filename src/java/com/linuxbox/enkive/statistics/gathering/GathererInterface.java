@@ -1,5 +1,7 @@
 package com.linuxbox.enkive.statistics.gathering;
 
+import java.util.Date;
+
 import com.linuxbox.enkive.statistics.RawStats;
 import com.linuxbox.enkive.statistics.services.StatsStorageService;
 
@@ -10,12 +12,22 @@ public interface GathererInterface {
 	public GathererAttributes getAttributes();
 
 	/**
-	 * gathers all the statistics corresponding to this gatherer
+	 * gathers the statistics corresponding to this gatherer
 	 * @return the gathered statistics
 	 * @throws GathererException
 	 */
 	public RawStats getStatistics() throws GathererException;
 
+	/**
+	 * used by some gatherers to get statistics from an interval
+	 * The rawStats don't actually have to use the dates provided
+	 * @param startTimestamp - is the idealized lowerbound date that this was run
+	 * @param endTimestamp - is the idealized upperbound date that this was run
+	 * @return the gathered statistics
+	 * @throws GathererException
+	 */
+	public RawStats getStatistics(Date startTimestamp, Date endTimestamp) throws GathererException;
+	
 	/**
 	 * gathers the statistics corresponding to this gatherer and filters them based
 	 * on the arrays of keys given as arguments
@@ -36,7 +48,7 @@ public interface GathererInterface {
 	 * @param storageService - storage service to add to gatherer
 	 */
 	public void setStorageService(StatsStorageService storageService);
-
+	
 	/**
 	 * stores all statistics belonging to this gatherer
 	 * @throws GathererException 

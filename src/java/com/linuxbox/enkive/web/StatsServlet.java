@@ -386,9 +386,13 @@ public class StatsServlet extends EnkiveServlet {
 						result.add(statsMap);
 					}
 				} else {//output query data as formatted json
+//TODO
+					System.out.println("Date Range");
 					List<Map<String, Object>> stats = client.queryStatistics(
 							queryList, filterList);
-					
+					System.out.println("QueryList: " + queryList);
+					System.out.println("FilterList: " + filterList.iterator().next().keys);
+					System.out.println("stats: " + stats);
 					result = createListOfMaps();
 					for (String name : serviceNames) {	
 						List<Map<String, Object>> serviceStats = createListOfMaps();

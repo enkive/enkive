@@ -97,7 +97,6 @@ public abstract class EmbeddedConsolidator extends AbstractConsolidator {
 			Set<Map<String, Object>> serviceData, ConsolidationKeyHandler keyDef,
 			LinkedList<String> dataPath) {
 		Map<String, Object> statConsolidatedData = new HashMap<String, Object>();
-//TODO
 		if (keyDef.getMethods() != null) {
 			//loop over stat consolidation methods
 			for (String method : keyDef.getMethods()) {

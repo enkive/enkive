@@ -26,9 +26,9 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.quartz.DateIntervalTrigger;
 
 import com.linuxbox.enkive.statistics.VarsMaker;
-import com.linuxbox.enkive.statistics.RawStats;
 import com.linuxbox.enkive.statistics.gathering.AbstractGatherer;
 import com.linuxbox.enkive.statistics.gathering.GathererException;
 import com.mongodb.BasicDBObject;
@@ -51,7 +51,8 @@ public class StatsMongoDBGatherer extends AbstractGatherer {
 	}
 
 	@Override
-	public RawStats getStatistics() {
+	protected Map<String, Object> getPointStatistics(Date startTimestamp,
+			Date endTimestamp) throws GathererException {
 		Map<String, Object> pointStats = VarsMaker.createMap();
 		BasicDBObject temp = db.getStats();
 		pointStats.put(STAT_NAME, db.getName());
@@ -64,8 +65,18 @@ public class StatsMongoDBGatherer extends AbstractGatherer {
 		pointStats.put(STAT_TOTAL_INDEX_SIZE, temp.get(MONGO_INDEX_SIZE));
 		pointStats.put(STAT_NUM_EXTENT, temp.get(MONGO_NUM_EXTENT));
 		pointStats.put(STAT_FILE_SIZE, temp.get(MONGO_FILE_SIZE));
+		
+		return pointStats;
+	}
 
-		RawStats result = new RawStats(null, pointStats, new Date(), new Date());
-		return result;
+	@Override
+	protected Map<String, Object> getIntervalStatistics(Date startTimestamp,
+			Date endTimestamp) throws GathererException {
+		return null;
+	}
+	
+	public static void main(String args[]){
+		DateIntervalTrigger trigger = new DateIntervalTrigger("trigger1", "group1", DateIntervalTrigger.IntervalUnit.SECOND, 1);
+		trigger.se
 	}
 }
