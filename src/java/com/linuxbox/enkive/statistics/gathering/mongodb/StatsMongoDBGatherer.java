@@ -26,7 +26,6 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.quartz.DateIntervalTrigger;
 
 import com.linuxbox.enkive.statistics.VarsMaker;
 import com.linuxbox.enkive.statistics.gathering.AbstractGatherer;
@@ -73,10 +72,5 @@ public class StatsMongoDBGatherer extends AbstractGatherer {
 	protected Map<String, Object> getIntervalStatistics(Date startTimestamp,
 			Date endTimestamp) throws GathererException {
 		return null;
-	}
-	
-	public static void main(String args[]){
-		DateIntervalTrigger trigger = new DateIntervalTrigger("trigger1", "group1", DateIntervalTrigger.IntervalUnit.SECOND, 1);
-		trigger.se
 	}
 }

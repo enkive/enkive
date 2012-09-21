@@ -54,4 +54,10 @@ public interface GathererInterface {
 	 * @throws GathererException 
 	 */
 	public void storeStats() throws GathererException;
+	
+	/**
+	 * stores all statistics in the supplied argument
+	 * @throws GathererException 
+	 */
+	public void storeStats(RawStats stats) throws GathererException;
 }

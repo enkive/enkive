@@ -41,18 +41,12 @@ public class HourConsolidator extends AbstractConsolidator {
 		StatsFilter filter = new StatsTypeFilter(type);
 		Set<Map<String, Object>> result = createSetOfMaps();
 		Set<Map<String, Object>> queryData = client.queryStatistics(query, filter);
-		System.out.println("Query: " + query.getQuery());
-		System.out.println("QueryData: " + queryData);
 		
 		for(Map<String, Object> statsMap: queryData){
 			statsMap.remove("_id");//WARNING mongo specific pollution
 			if(statsMap != null && !statsMap.isEmpty()){
-				System.out.println("add: " + statsMap);
 				result.add((Map<String,Object>)statsMap.get(type));
-			} else {
-				System.out.println("!add: " + statsMap);
 			}
-			
 		}
 		return result;
 	}
@@ -61,7 +55,6 @@ public class HourConsolidator extends AbstractConsolidator {
 		List<Set<Map<String,Object>>> result = new LinkedList<Set<Map<String,Object>>>();
 
 		//interval stats
-		System.out.println(STAT_INTERVAL);
 		Set<Map<String, Object>> intervalData = getStatTypeData(gathererName, STAT_INTERVAL);
 		if(!intervalData.isEmpty()){
 			result.add(intervalData);
@@ -69,7 +62,6 @@ public class HourConsolidator extends AbstractConsolidator {
 			result.add(null);
 		}
 		
-		System.out.println(STAT_POINT);
 		//point stats
 		Set<Map<String, Object>> pointData = getStatTypeData(gathererName, STAT_POINT);
 		if(!pointData.isEmpty()){
@@ -138,7 +130,6 @@ public class HourConsolidator extends AbstractConsolidator {
 				}
 			}
 		}
-		System.out.println("storageData: " + storageData);
 		return storageData;
 	}
 	
@@ -189,11 +180,6 @@ public class HourConsolidator extends AbstractConsolidator {
 		Date upperDate = cal.getTime();
 		cal.add(Calendar.HOUR_OF_DAY, -1);
 		Date lowerDate = cal.getTime();	
-		setDates(upperDate, lowerDate);
-		
-		//TODO delete
-		upperDate = new Date();
-		lowerDate = new Date(0);
 		setDates(upperDate, lowerDate);
 	}
 

@@ -32,7 +32,7 @@ public abstract class AbstractGatherer implements GathererInterface {
 		return attributes;
 	}
 
-	//BY DEFAULT WE ASSUME 15 MINUTE INTERVALS
+	//BY DEFAULT ASSUME 15 MINUTE INTERVALS
 	@Override
 	public RawStats getStatistics() throws GathererException {
 		int interval = 15;
@@ -142,7 +142,12 @@ public abstract class AbstractGatherer implements GathererInterface {
 	@Override
 	public void storeStats() throws GathererException {
 		RawStats stats = getStatistics();
-		if (stats != null) {
+		storeStats(stats);
+	}
+	
+	@Override
+	public void storeStats(RawStats stats) throws GathererException{
+		if(stats != null){
 			try {
 				storageService.storeStatistics(attributes.getName(), stats);
 			} catch (StatsStorageException e) {

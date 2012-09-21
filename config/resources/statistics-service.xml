@@ -172,7 +172,7 @@
 		<constructor-arg name="client" ref="StatisticsClient" />
 		<constructor-arg name="scheduler" ref="ScheduledJobsBean" />
 		<constructor-arg name="remover" ref="RemovalRunner" />
-		<constructor-arg name="schedule" value="0/20 * * * * ?" />
+		<constructor-arg name="schedule" value="0 0 * * * ?" />
 	</bean>
 <!--
 	<bean id="AttachmentsPastGatherer"
@@ -218,7 +218,7 @@
 		<constructor-arg name="name" value="FifteenMinutesScheduler" />
 		<constructor-arg name="gatherers" ref="FifteenMinuteGatherers"/>
 		<constructor-arg name="scheduler" ref="ScheduledJobsBean"/>
-		<constructor-arg name="schedule" value="0/10 * * * * ?" />
+		<constructor-arg name="schedule" value="0 * * * * ?" />
 	</bean>
 </beans>
 	
