@@ -1,5 +1,6 @@
 package com.linuxbox.enkive.imap.mailbox;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.james.mailbox.MailboxSession;
@@ -11,47 +12,43 @@ import org.apache.james.mailbox.store.user.model.Subscription;
 public class EnkiveImapSubscriptionMapper implements SubscriptionMapper {
 
 	MailboxSession session;
-	
-	public EnkiveImapSubscriptionMapper(MailboxSession session){
+
+	public EnkiveImapSubscriptionMapper(MailboxSession session) {
 		this.session = session;
 	}
-	
+
 	@Override
 	public void endRequest() {
-		// TODO Auto-generated method stub
 
 	}
 
 	@Override
 	public <T> T execute(Transaction<T> transaction) throws MailboxException {
-		// TODO Auto-generated method stub
-		return null;
+		throw new MailboxException("Subscriptions are not supported");
 	}
 
 	@Override
 	public Subscription findMailboxSubscriptionForUser(String user,
 			String mailbox) throws SubscriptionException {
-		// TODO Auto-generated method stub
-		return null;
+		throw new SubscriptionException();
 	}
 
 	@Override
 	public void save(Subscription subscription) throws SubscriptionException {
-		// TODO Auto-generated method stub
+		throw new SubscriptionException();
 
 	}
 
 	@Override
 	public List<Subscription> findSubscriptionsForUser(String user)
 			throws SubscriptionException {
-		// TODO Auto-generated method stub
-		return null;
+		//Return empty list, since this action is unsupported
+		return new ArrayList<Subscription>();
 	}
 
 	@Override
 	public void delete(Subscription subscription) throws SubscriptionException {
-		// TODO Auto-generated method stub
-
+		throw new SubscriptionException();
 	}
 
 }

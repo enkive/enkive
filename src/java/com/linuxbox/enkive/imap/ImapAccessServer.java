@@ -1,6 +1,8 @@
 package com.linuxbox.enkive.imap;
 
 import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.james.container.spring.filesystem.ResourceLoaderFileSystem;
 import org.apache.james.imap.decode.ImapDecoderFactory;
 import org.apache.james.imap.encode.ImapEncoderFactory;
@@ -15,12 +17,14 @@ import com.linuxbox.enkive.imap.mailbox.EnkiveSubscriptionManager;
 public class ImapAccessServer {
 
 	EnkiveIMAPServer imapServer;
-	
+	protected static final Log LOGGER = LogFactory
+			.getLog("com.linuxbox.enkive.imap");
+
 	public ImapAccessServer(EnkiveMailboxManager mm) {
-	
+
 		ResourceLoaderFileSystem filesystem = new ResourceLoaderFileSystem();
 		filesystem.setResourceLoader(new EnkiveResourceLoader());
-		
+
 		ImapDecoderFactory df = new DefaultImapDecoderFactory();
 		ImapEncoderFactory ef = new DefaultImapEncoderFactory();
 
@@ -29,7 +33,6 @@ public class ImapAccessServer {
 		pf.setSubscriptionManager(new EnkiveSubscriptionManager());
 
 		imapServer = new EnkiveIMAPServer(5000);
-		System.out.println(imapServer.getStartTLSSupported());
 		Logger logger = new org.slf4j.impl.Log4jLoggerFactory()
 				.getLogger("com.linuxbox.enkive.imap");
 		imapServer.setLog(logger);
@@ -39,33 +42,32 @@ public class ImapAccessServer {
 		imapServer.setFileSystem(filesystem);
 
 		HierarchicalConfiguration config = new HierarchicalConfiguration();
-		config.addProperty("connectionLimit", "50");
-		//config.addProperty("plainAuthDisallowed", true);
-		config.addProperty("tls.[@startTLS]", true);
-		//config.addProperty("tls.supportedCipherSuites.cipherSuite", true);
-		config.addProperty("tls.keystore", "classpath:/imap/keystore");
-		config.addProperty("tls.secret", "enkiveimap");
-		
+		config.addProperty("connectionLimit", "0");
+		config.addProperty("compress", "false");
+		// config.addProperty("plainAuthDisallowed", true);
+		// config.addProperty("tls.[@startTLS]", true);
+		// config.addProperty("tls.supportedCipherSuites.cipherSuite", true);
+		// config.addProperty("tls.keystore", "classpath:/imap/keystore");
+		// config.addProperty("tls.secret", "enkiveimap");
+
 		try {
 
 			imapServer.configure(config);
 
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LOGGER.error("Error initializing IMAP server", e);
 		}
 	}
-	
-	public void startup(){
+
+	public void startup() {
 		try {
 			imapServer.init();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LOGGER.error("Error initializing IMAP server", e);
 		}
 	}
-	
-	public void shutdown(){
+
+	public void shutdown() {
 		imapServer.unbind();
 	}
 

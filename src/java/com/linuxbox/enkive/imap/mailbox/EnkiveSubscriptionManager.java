@@ -9,38 +9,36 @@ import org.apache.james.mailbox.exception.SubscriptionException;
 
 public class EnkiveSubscriptionManager implements SubscriptionManager {
 
+	// This class is unsupported
 	@Override
 	public void startProcessingRequest(MailboxSession session) {
-		// TODO Auto-generated method stub
 
 	}
 
 	@Override
 	public void endProcessingRequest(MailboxSession session) {
-		// TODO Auto-generated method stub
 
 	}
 
 	@Override
 	public void subscribe(MailboxSession session, String mailbox)
 			throws SubscriptionException {
-		// TODO Auto-generated method stub
+		throw new SubscriptionException();
 
 	}
 
 	@Override
 	public Collection<String> subscriptions(MailboxSession session)
 			throws SubscriptionException {
+		// Return an empty collection, since this action is unsupported
 		Collection<String> subscriptions = new HashSet<String>();
-		// TODO Auto-generated method stub
 		return subscriptions;
 	}
 
 	@Override
 	public void unsubscribe(MailboxSession session, String mailbox)
 			throws SubscriptionException {
-		// TODO Auto-generated method stub
-
+		throw new SubscriptionException();
 	}
 
 }

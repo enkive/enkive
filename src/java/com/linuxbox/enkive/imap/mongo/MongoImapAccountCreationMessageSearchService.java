@@ -1,18 +1,15 @@
 package com.linuxbox.enkive.imap.mongo;
 
-import java.util.Calendar;
 import java.util.Date;
 
 import com.linuxbox.enkive.message.search.mongodb.MongoMessageSearchService;
 import com.mongodb.BasicDBObject;
+import com.mongodb.DBCursor;
+import com.mongodb.DBObject;
 import com.mongodb.Mongo;
 
 public class MongoImapAccountCreationMessageSearchService extends
 		MongoMessageSearchService {
-
-	// TODO This class should extend the functions provided in the search
-	// service
-	// to get the applicable range of dates to create the folders.
 
 	public MongoImapAccountCreationMessageSearchService(Mongo m, String dbName,
 			String collName) {
@@ -20,17 +17,25 @@ public class MongoImapAccountCreationMessageSearchService extends
 	}
 
 	public Date getEarliestMessageDate(String username) {
-		// Search for the earliest date, how best to do that?
 		BasicDBObject searchObject = new BasicDBObject();
-		Calendar startingDate = Calendar.getInstance();
-		startingDate.set(Calendar.YEAR, 1999);
-		startingDate.set(Calendar.DAY_OF_YEAR, 1);
-		
-		return startingDate.getTime();
+		BasicDBObject fieldLimitObject = new BasicDBObject();
+		fieldLimitObject.put("date", 1);
+		DBCursor cursor = messageColl.find(searchObject, fieldLimitObject)
+				.sort(fieldLimitObject).limit(1);
+		DBObject earliestDateObject = cursor.next();
+		Date earliestDate = (Date) earliestDateObject.get("date");
+		return earliestDate;
 	}
 
 	public Date getLatestMessageDate(String username) {
-		return new Date();
+		BasicDBObject searchObject = new BasicDBObject();
+		BasicDBObject fieldLimitObject = new BasicDBObject();
+		fieldLimitObject.put("date", 1);
+		DBCursor cursor = messageColl.find(searchObject, fieldLimitObject)
+				.sort(new BasicDBObject("date", -1)).limit(1);
+		DBObject latestDateObject = cursor.next();
+		Date latestDate = (Date) latestDateObject.get("date");
+		return latestDate;
 	}
 
 }

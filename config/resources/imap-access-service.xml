@@ -39,13 +39,13 @@
 		class="com.linuxbox.enkive.imap.EnkiveImapGroupMembershipResolver">
 	</bean>
 
-<!-- <bean id="MongoImapAccountCreator" class="com.linuxbox.enkive.imap.mongo.MongoImapAccountCreator">
+	<bean id="MongoImapAccountCreator" class="com.linuxbox.enkive.imap.mongo.MongoImapAccountCreator">
 		<constructor-arg ref="Mongo" />
 		<constructor-arg type="java.lang.String" value="${enkive.imap.db.name}" />
 		<constructor-arg type="java.lang.String" value="${enkive.imap.collection.name}" />
 		<property name="searchService" ref="MongoImapAccountCreationMessageSearchService" />
 	</bean>
- -->
+
 	<bean id="MongoImapAccountCreationMessageSearchService"
 		class="com.linuxbox.enkive.imap.mongo.MongoImapAccountCreationMessageSearchService">
 		<constructor-arg ref="Mongo" />

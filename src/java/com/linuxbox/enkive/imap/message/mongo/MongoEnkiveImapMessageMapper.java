@@ -13,6 +13,7 @@ import org.bson.types.ObjectId;
 
 import com.linuxbox.enkive.imap.EnkiveImapStore;
 import com.linuxbox.enkive.imap.message.EnkiveImapMessageMapper;
+import com.linuxbox.enkive.imap.mongo.MongoEnkiveImapConstants;
 import com.linuxbox.enkive.retriever.MessageRetrieverService;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
@@ -47,7 +48,8 @@ public class MongoEnkiveImapMessageMapper extends EnkiveImapMessageMapper {
 			DBObject mailboxObject = imapCollection.findOne(mailboxQueryObject);
 
 			Map<Long, String> messageIds = null;
-			Object messageIdsMap = mailboxObject.get("msgids");
+			Object messageIdsMap = mailboxObject
+					.get(MongoEnkiveImapConstants.MESSAGEIDS);
 			if (messageIdsMap instanceof Map) {
 				messageIds = (Map<Long, String>) messageIdsMap;
 			}
@@ -78,7 +80,7 @@ public class MongoEnkiveImapMessageMapper extends EnkiveImapMessageMapper {
 				tmpMsgIds = (HashMap<String, String>) messageIdsMap;
 			}
 
-			if (tmpMsgIds == null)
+			if (tmpMsgIds == null || tmpMsgIds.isEmpty())
 				return messageIds;
 
 			TreeSet<Long> sortedUids = new TreeSet<Long>();

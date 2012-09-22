@@ -10,13 +10,11 @@ import org.apache.james.mailbox.MailboxSession;
 import org.apache.james.mailbox.exception.MailboxException;
 import org.apache.james.mailbox.model.MessageMetaData;
 import org.apache.james.mailbox.model.MessageRange;
-import org.apache.james.mailbox.model.MessageRange.Type;
 import org.apache.james.mailbox.store.SimpleMessageMetaData;
 import org.apache.james.mailbox.store.mail.AbstractMessageMapper;
 import org.apache.james.mailbox.store.mail.model.Mailbox;
 import org.apache.james.mailbox.store.mail.model.Message;
 
-import com.linuxbox.enkive.exception.CannotRetrieveException;
 import com.linuxbox.enkive.imap.EnkiveImapStore;
 import com.linuxbox.enkive.retriever.MessageRetrieverService;
 
@@ -36,35 +34,22 @@ public abstract class EnkiveImapMessageMapper extends
 			MessageRange set,
 			org.apache.james.mailbox.store.mail.MessageMapper.FetchType type,
 			int limit) throws MailboxException {
-		final ArrayList<Message<String>> messages;
+		System.out.println(set);
+		ArrayList<EnkiveImapMessage> messages = new ArrayList<EnkiveImapMessage>();
 		final long from = set.getUidFrom();
 		final long to = set.getUidTo();
 
-		ArrayList<Message<String>> tmpMsgArray = new ArrayList<Message<String>>();
 		Map<Long, String> messageIds = getMailboxMessageIds(mailbox, from, to,
 				limit);
 
 		for (Long messageUid : messageIds.keySet()) {
-			com.linuxbox.enkive.message.Message message;
-			try {
-				System.out.println("Retrieving message uid " + messageUid);
-				System.out.println(set.toString());
-				if(!messageIds.containsKey(messageUid))
-					System.out.println("Could not find messageUid " + messageUid);
-				message = retrieverService.retrieve(messageIds.get(messageUid));
-
-				EnkiveImapMessage enkiveImapMessage = new EnkiveImapMessage(
-						message);
-				enkiveImapMessage.setUid(messageUid);
-				tmpMsgArray.add(enkiveImapMessage);
-			} catch (CannotRetrieveException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			EnkiveImapMessage enkiveImapMessage = new EnkiveImapMessage(
+					messageIds.get(messageUid), retrieverService);
+			enkiveImapMessage.setUid(messageUid.longValue());
+			messages.add(enkiveImapMessage);
 		}
-		messages = tmpMsgArray;
-		messages.trimToSize();
-		return messages.iterator();
+
+		return new EnkiveImapMessageIterator(messages);
 	}
 
 	@Override
@@ -106,7 +91,6 @@ public abstract class EnkiveImapMessageMapper extends
 
 	@Override
 	public void endRequest() {
-		// TODO Auto-generated method stub
 
 	}
 

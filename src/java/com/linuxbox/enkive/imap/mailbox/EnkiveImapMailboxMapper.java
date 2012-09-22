@@ -21,19 +21,16 @@ public abstract class EnkiveImapMailboxMapper extends NonTransactionalMapper
 
 	@Override
 	public void endRequest() {
-		// TODO Auto-generated method stub
 
 	}
 
 	@Override
 	public void save(Mailbox<String> mailbox) throws MailboxException {
-		// TODO Auto-generated method stub
 
 	}
 
 	@Override
 	public void delete(Mailbox<String> mailbox) throws MailboxException {
-		// TODO Auto-generated method stub
 
 	}
 

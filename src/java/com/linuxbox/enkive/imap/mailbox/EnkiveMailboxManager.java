@@ -1,5 +1,7 @@
 package com.linuxbox.enkive.imap.mailbox;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.james.mailbox.acl.GroupMembershipResolver;
 import org.apache.james.mailbox.acl.MailboxACLResolver;
 import org.apache.james.mailbox.exception.MailboxException;
@@ -9,6 +11,9 @@ import org.apache.james.mailbox.store.StoreMailboxManager;
 
 public class EnkiveMailboxManager extends StoreMailboxManager<String> {
 
+	protected static final Log LOGGER = LogFactory
+			.getLog("com.linuxbox.enkive.imap");
+	
 	public EnkiveMailboxManager(
 			MailboxSessionMapperFactory<String> mailboxSessionMapperFactory,
 			Authenticator authenticator, MailboxACLResolver aclResolver,
@@ -22,8 +27,7 @@ public class EnkiveMailboxManager extends StoreMailboxManager<String> {
 		try {
 			init();
 		} catch (MailboxException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LOGGER.warn("Could not initialize Enkive mailbox manager", e);
 		}
 	}
 
