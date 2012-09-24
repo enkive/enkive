@@ -5,11 +5,14 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.SortedMap;
 
 import org.apache.james.mailbox.MailboxSession;
 import org.apache.james.mailbox.exception.MailboxException;
 import org.apache.james.mailbox.model.MessageMetaData;
 import org.apache.james.mailbox.model.MessageRange;
+import org.apache.james.mailbox.model.MessageRange.Type;
 import org.apache.james.mailbox.store.SimpleMessageMetaData;
 import org.apache.james.mailbox.store.mail.AbstractMessageMapper;
 import org.apache.james.mailbox.store.mail.model.Mailbox;
@@ -17,6 +20,7 @@ import org.apache.james.mailbox.store.mail.model.Message;
 
 import com.linuxbox.enkive.imap.EnkiveImapStore;
 import com.linuxbox.enkive.retriever.MessageRetrieverService;
+import com.linuxbox.util.PreviousItemRemovingIterator;
 
 public abstract class EnkiveImapMessageMapper extends
 		AbstractMessageMapper<String> {
@@ -31,25 +35,53 @@ public abstract class EnkiveImapMessageMapper extends
 
 	@Override
 	public Iterator<Message<String>> findInMailbox(Mailbox<String> mailbox,
-			MessageRange set,
-			org.apache.james.mailbox.store.mail.MessageMapper.FetchType type,
-			int limit) throws MailboxException {
-		System.out.println(set);
-		ArrayList<EnkiveImapMessage> messages = new ArrayList<EnkiveImapMessage>();
+			MessageRange set, FetchType fType, int max) throws MailboxException {
+		final List<Message<String>> results;
 		final long from = set.getUidFrom();
 		final long to = set.getUidTo();
+		final Type type = set.getType();
 
-		Map<Long, String> messageIds = getMailboxMessageIds(mailbox, from, to,
-				limit);
-
-		for (Long messageUid : messageIds.keySet()) {
-			EnkiveImapMessage enkiveImapMessage = new EnkiveImapMessage(
-					messageIds.get(messageUid), retrieverService);
-			enkiveImapMessage.setUid(messageUid.longValue());
-			messages.add(enkiveImapMessage);
+		switch (type) {
+		default:
+		case ALL:
+			results = findMessagesInMailboxBetweenUIDs(mailbox, 0, -1, max);
+			break;
+		case FROM:
+			results = findMessagesInMailboxBetweenUIDs(mailbox, from, -1, max);
+			break;
+		case ONE:
+			results = findMessagesInMailboxBetweenUIDs(mailbox, from, from, max);
+			break;
+		case RANGE:
+			results = findMessagesInMailboxBetweenUIDs(mailbox, from, to, max);
+			break;
 		}
+		return new PreviousItemRemovingIterator<Message<String>>(
+				results.iterator());
 
-		return new EnkiveImapMessageIterator(messages);
+	}
+
+	private List<Message<String>> findMessagesInMailboxBetweenUIDs(
+			Mailbox<String> mailbox, long from, long to, int max)
+			throws MailboxException {
+		int cur = 0;
+		SortedMap<Long, String> uidMap = null;
+		uidMap = getMailboxMessageIds(mailbox, from, to);
+
+		ArrayList<Message<String>> messages = new ArrayList<Message<String>>();
+		for (Entry<Long, String> entry : uidMap.entrySet()) {
+			EnkiveImapMessage enkiveImapMessage = new EnkiveImapMessage(
+					entry.getValue(), retrieverService);
+			enkiveImapMessage.setUid(entry.getKey());
+			messages.add(enkiveImapMessage);
+			if (max != -1) {
+				cur++;
+				if (cur >= max)
+					break;
+			}
+		}
+		return messages;
+
 	}
 
 	@Override
@@ -126,7 +158,7 @@ public abstract class EnkiveImapMessageMapper extends
 
 	}
 
-	public abstract Map<Long, String> getMailboxMessageIds(
-			Mailbox<String> mailbox, long fromUid, long toUid, int limit);
+	public abstract SortedMap<Long, String> getMailboxMessageIds(
+			Mailbox<String> mailbox, long fromUid, long toUid);
 
 }

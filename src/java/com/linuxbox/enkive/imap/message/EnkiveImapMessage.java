@@ -9,6 +9,7 @@ import java.util.List;
 
 import javax.mail.Flags;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.james.mailbox.store.mail.model.AbstractMessage;
 import org.apache.james.mailbox.store.mail.model.Property;
 import org.springframework.util.StringUtils;
@@ -102,15 +103,16 @@ public class EnkiveImapMessage extends AbstractMessage<String> {
 
 	@Override
 	public InputStream getBodyContent() throws IOException {
-		// TODO Actually return body?
-		//Leverage parse message function from maildir implementation?
-		return new ByteArrayInputStream("".getBytes());
-
+		System.out.println("GET BODY CONTENT");
+		ByteArrayInputStream body = new ByteArrayInputStream(message.getReconstitutedEmail().getBytes());
+        IOUtils.skipFully(body, getBodyStartOctet());
+        return body;
 	}
 
 	@Override
 	public InputStream getFullContent() throws IOException {
 		loadMessage();
+		System.out.println("GET FULL CONTENT");
 		return new ByteArrayInputStream(message.getReconstitutedEmail()
 				.getBytes());
 	}
@@ -128,13 +130,15 @@ public class EnkiveImapMessage extends AbstractMessage<String> {
 	@Override
 	public long getFullContentOctets() {
 		loadMessage();
+		long length = 0;
 		try {
-			return message.getReconstitutedEmail().length();
+			length = message.getReconstitutedEmail().length();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return 0;
+		System.out.println("GET FULL CONTENT OCTETS " + length);
+		return length;
 	}
 
 	@Override
@@ -154,6 +158,7 @@ public class EnkiveImapMessage extends AbstractMessage<String> {
 	@Override
 	public InputStream getHeaderContent() throws IOException {
 		loadMessage();
+		System.out.println("GET HEADER CONTENT");
 		return new ByteArrayInputStream(message.getOriginalHeaders().getBytes());
 	}
 
@@ -167,8 +172,10 @@ public class EnkiveImapMessage extends AbstractMessage<String> {
 
 	@Override
 	protected int getBodyStartOctet() {
-		// TODO Auto-generated method stub
-		return 0;
+		loadMessage();
+		int length = message.getOriginalHeaders().length();
+		System.out.println("GET BODY START OCTET " + length);
+	    return length;
 	}
 
 	public Message getMessage() {

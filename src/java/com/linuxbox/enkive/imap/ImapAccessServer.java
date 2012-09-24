@@ -1,5 +1,7 @@
 package com.linuxbox.enkive.imap;
 
+import java.net.UnknownHostException;
+
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -13,6 +15,9 @@ import org.slf4j.Logger;
 
 import com.linuxbox.enkive.imap.mailbox.EnkiveMailboxManager;
 import com.linuxbox.enkive.imap.mailbox.EnkiveSubscriptionManager;
+import com.linuxbox.enkive.imap.mailbox.mongo.MongoEnkiveSubscriptionManager;
+import com.mongodb.Mongo;
+import com.mongodb.MongoException;
 
 public class ImapAccessServer {
 
@@ -30,7 +35,15 @@ public class ImapAccessServer {
 
 		DefaultImapProcessorFactory pf = new DefaultImapProcessorFactory();
 		pf.setMailboxManager(mm);
-		pf.setSubscriptionManager(new EnkiveSubscriptionManager());
+		try {
+			pf.setSubscriptionManager(new MongoEnkiveSubscriptionManager(new Mongo(), "enkive", "imap"));
+		} catch (UnknownHostException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (MongoException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 
 		imapServer = new EnkiveIMAPServer(5000);
 		Logger logger = new org.slf4j.impl.Log4jLoggerFactory()

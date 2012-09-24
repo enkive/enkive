@@ -2,7 +2,9 @@ package com.linuxbox.enkive.imap.message.mongo;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.SortedMap;
 import java.util.SortedSet;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.apache.james.mailbox.MailboxSession;
@@ -47,23 +49,24 @@ public class MongoEnkiveImapMessageMapper extends EnkiveImapMessageMapper {
 					ObjectId.massageToObjectId(mailbox.getMailboxId()));
 			DBObject mailboxObject = imapCollection.findOne(mailboxQueryObject);
 
-			Map<Long, String> messageIds = null;
+			Map<String, String> messageIds = null;
 			Object messageIdsMap = mailboxObject
 					.get(MongoEnkiveImapConstants.MESSAGEIDS);
 			if (messageIdsMap instanceof Map) {
-				messageIds = (Map<Long, String>) messageIdsMap;
+				messageIds = (Map<String, String>) messageIdsMap;
 			}
 
 			if (messageIds != null)
 				messageCount = messageIds.size();
 		}
+		System.out.println(mailbox.getName() + " SIZE IS " + messageCount);
 		return messageCount;
 	}
 
 	@Override
-	public Map<Long, String> getMailboxMessageIds(Mailbox<String> mailbox,
-			long fromUid, long toUid, int limit) {
-		Map<Long, String> messageIds = new HashMap<Long, String>();
+	public SortedMap<Long, String> getMailboxMessageIds(Mailbox<String> mailbox,
+			long fromUid, long toUid) {
+		SortedMap<Long, String> messageIds = new TreeMap<Long, String>();
 		if (mailbox.getName().equals(MailboxConstants.INBOX)) {
 			if (fromUid <= 1)
 				messageIds.put((long) 1,
@@ -89,23 +92,19 @@ public class MongoEnkiveImapMessageMapper extends EnkiveImapMessageMapper {
 
 			if (fromUid > sortedUids.last()) {
 				// Do Nothing
-			} else if (fromUid < 0 && (toUid < 0 || toUid > sortedUids.last())) {
-				for (String key : tmpMsgIds.keySet())
-					messageIds.put(Long.parseLong(key), tmpMsgIds.get(key));
-			} else if (fromUid == toUid) {
-				messageIds.put(fromUid, tmpMsgIds.get(String.valueOf(fromUid)));
-			} else if (fromUid > 0 && toUid < 0) {
+			} else if (toUid < 0){
 				SortedSet<Long> sortedSubSet = sortedUids
 						.tailSet(fromUid, true);
 				for (Long key : sortedSubSet)
 					messageIds.put(key, tmpMsgIds.get(key.toString()));
+			} else if (fromUid == toUid) {
+				messageIds.put(fromUid, tmpMsgIds.get(String.valueOf(fromUid)));
 			} else {
 				SortedSet<Long> sortedSubSet = sortedUids
 						.subSet(fromUid, toUid);
 				for (Long key : sortedSubSet)
 					messageIds.put(key, tmpMsgIds.get(key.toString()));
 			}
-
 		}
 		return messageIds;
 	}
