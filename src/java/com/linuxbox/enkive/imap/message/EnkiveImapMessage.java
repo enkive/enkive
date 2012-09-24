@@ -16,11 +16,13 @@ import org.springframework.util.StringUtils;
 
 import com.linuxbox.enkive.exception.CannotRetrieveException;
 import com.linuxbox.enkive.message.Message;
+import com.linuxbox.enkive.message.MessageSummary;
 import com.linuxbox.enkive.retriever.MessageRetrieverService;
 
 public class EnkiveImapMessage extends AbstractMessage<String> {
 
 	Message message;
+	MessageSummary summary;
 	long uid;
 	String mailboxId = "";
 	String messageId;
@@ -34,8 +36,8 @@ public class EnkiveImapMessage extends AbstractMessage<String> {
 
 	@Override
 	public Date getInternalDate() {
-		loadMessage();
-		return message.getDate();
+		loadSummary();
+		return summary.getDate();
 	}
 
 	@Override
@@ -57,7 +59,6 @@ public class EnkiveImapMessage extends AbstractMessage<String> {
 	@Override
 	public void setModSeq(long modSeq) {
 		// TODO Auto-generated method stub
-
 	}
 
 	@Override
@@ -103,16 +104,15 @@ public class EnkiveImapMessage extends AbstractMessage<String> {
 
 	@Override
 	public InputStream getBodyContent() throws IOException {
-		System.out.println("GET BODY CONTENT");
-		ByteArrayInputStream body = new ByteArrayInputStream(message.getReconstitutedEmail().getBytes());
-        IOUtils.skipFully(body, getBodyStartOctet());
-        return body;
+		ByteArrayInputStream body = new ByteArrayInputStream(message
+				.getReconstitutedEmail().getBytes());
+		IOUtils.skipFully(body, getBodyStartOctet());
+		return body;
 	}
 
 	@Override
 	public InputStream getFullContent() throws IOException {
 		loadMessage();
-		System.out.println("GET FULL CONTENT");
 		return new ByteArrayInputStream(message.getReconstitutedEmail()
 				.getBytes());
 	}
@@ -137,7 +137,6 @@ public class EnkiveImapMessage extends AbstractMessage<String> {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		System.out.println("GET FULL CONTENT OCTETS " + length);
 		return length;
 	}
 
@@ -157,9 +156,8 @@ public class EnkiveImapMessage extends AbstractMessage<String> {
 
 	@Override
 	public InputStream getHeaderContent() throws IOException {
-		loadMessage();
-		System.out.println("GET HEADER CONTENT");
-		return new ByteArrayInputStream(message.getOriginalHeaders().getBytes());
+		loadSummary();
+		return new ByteArrayInputStream(summary.getOriginalHeaders().getBytes());
 	}
 
 	@Override
@@ -172,10 +170,9 @@ public class EnkiveImapMessage extends AbstractMessage<String> {
 
 	@Override
 	protected int getBodyStartOctet() {
-		loadMessage();
-		int length = message.getOriginalHeaders().length();
-		System.out.println("GET BODY START OCTET " + length);
-	    return length;
+		loadSummary();
+		int length = summary.getOriginalHeaders().length();
+		return length;
 	}
 
 	public Message getMessage() {
@@ -190,6 +187,16 @@ public class EnkiveImapMessage extends AbstractMessage<String> {
 		if (message == null)
 			try {
 				message = retrieverService.retrieve(messageId);
+			} catch (CannotRetrieveException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+	}
+	
+	private void loadSummary() {
+		if (summary == null)
+			try {
+				summary = retrieverService.retrieveSummary(messageId);
 			} catch (CannotRetrieveException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

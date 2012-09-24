@@ -66,10 +66,17 @@ public abstract class AbstractMessage extends AbstractMessageSummary implements
 	}
 
 	@Override
-	public void setOriginalHeaders(String originalHeaders)
-			throws BadMessageException, IOException {
-		this.originalHeaders = originalHeaders;
-		parseHeaders(originalHeaders);
+	public void setOriginalHeaders(String originalHeaders) {
+		super.setOriginalHeaders(originalHeaders);
+		try {
+			parseHeaders(originalHeaders);
+		} catch (BadMessageException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	@Override

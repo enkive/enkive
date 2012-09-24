@@ -92,7 +92,6 @@ public class MongoRetrieverService extends AbstractRetrieverService {
 	@Override
 	public Message retrieve(String messageUUID) throws CannotRetrieveException {
 		try {
-			System.out.println(messageUUID);
 			DBObject messageObject = messageColl.findOne(messageUUID);
 			Message message = new MessageImpl();
 			message.setId(messageUUID);
@@ -147,6 +146,8 @@ public class MongoRetrieverService extends AbstractRetrieverService {
 		result.setTo((List<String>) messageObject.get(TO));
 
 		result.setCc((List<String>) messageObject.get(CC));
+		
+		result.setOriginalHeaders((String) messageObject.get(ORIGINAL_HEADERS));
 
 		return result;
 	}

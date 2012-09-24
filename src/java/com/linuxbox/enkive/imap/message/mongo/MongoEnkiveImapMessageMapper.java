@@ -59,7 +59,6 @@ public class MongoEnkiveImapMessageMapper extends EnkiveImapMessageMapper {
 			if (messageIds != null)
 				messageCount = messageIds.size();
 		}
-		System.out.println(mailbox.getName() + " SIZE IS " + messageCount);
 		return messageCount;
 	}
 
@@ -86,13 +85,12 @@ public class MongoEnkiveImapMessageMapper extends EnkiveImapMessageMapper {
 			if (tmpMsgIds == null || tmpMsgIds.isEmpty())
 				return messageIds;
 
-			TreeSet<Long> sortedUids = new TreeSet<Long>();
-			for (String key : tmpMsgIds.keySet())
-				sortedUids.add(Long.parseLong(key));
-
-			if (fromUid > sortedUids.last()) {
+			if (fromUid > tmpMsgIds.size()) {
 				// Do Nothing
 			} else if (toUid < 0){
+				TreeSet<Long> sortedUids = new TreeSet<Long>();
+				for (String key : tmpMsgIds.keySet())
+					sortedUids.add(Long.parseLong(key));
 				SortedSet<Long> sortedSubSet = sortedUids
 						.tailSet(fromUid, true);
 				for (Long key : sortedSubSet)
@@ -100,6 +98,9 @@ public class MongoEnkiveImapMessageMapper extends EnkiveImapMessageMapper {
 			} else if (fromUid == toUid) {
 				messageIds.put(fromUid, tmpMsgIds.get(String.valueOf(fromUid)));
 			} else {
+				TreeSet<Long> sortedUids = new TreeSet<Long>();
+				for (String key : tmpMsgIds.keySet())
+					sortedUids.add(Long.parseLong(key));
 				SortedSet<Long> sortedSubSet = sortedUids
 						.subSet(fromUid, toUid);
 				for (Long key : sortedSubSet)
