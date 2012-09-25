@@ -7,15 +7,57 @@
 		http://www.springframework.org/schema/context/spring-context-3.0.xsd"
 	default-init-method="startup" default-destroy-method="shutdown">
 
-	<bean id="IMAPServer" class="com.linuxbox.enkive.imap.ImapAccessServer">
-		<constructor-arg ref="EnkiveImapMailboxManager" />
+	<bean id="IMAPAccessServer" class="com.linuxbox.enkive.imap.ImapAccessServer">
+		<constructor-arg ref="EnkiveIMAPServer" />
 	</bean>
+
+	<bean id="EnkiveIMAPServer" class="com.linuxbox.enkive.imap.EnkiveIMAPServer">
+		<constructor-arg type="java.lang.String" value="imap/imap-server.conf" />
+		<property name="fileSystem" ref="ResourceLoaderFileSystem" />
+		<property name="imapDecoder" ref="ImapDecoderFactory" />
+		<property name="imapEncoder" ref="ImapEncoderFactory" />
+		<property name="imapProcessor" ref="ImapProcessorFactory" />
+	</bean>
+
+	<bean id="ImapDecoderFactory" class="org.apache.james.imap.main.DefaultImapDecoderFactory"
+		factory-method="createDecoder">
+	</bean>
+
+	<bean id="ImapEncoderFactory"
+		class="org.apache.james.imap.encode.main.DefaultImapEncoderFactory"
+		factory-method="createDefaultEncoder">
+		<constructor-arg ref="Localizer" />
+		<constructor-arg type="boolean" value="false" />
+	</bean>
+
+	<bean id="Localizer" class="org.apache.james.imap.encode.main.DefaultLocalizer" />
+
+	<bean id="ImapProcessorFactory"
+		class="org.apache.james.imap.processor.main.DefaultImapProcessorFactory"
+		factory-method="createDefaultProcessor">
+		<constructor-arg ref="EnkiveImapMailboxManager" />
+		<constructor-arg ref="EnkiveImapSubscriptionManager" />
+	</bean>
+
+	<bean id="ResourceLoaderFileSystem"
+		class="org.apache.james.container.spring.filesystem.ResourceLoaderFileSystem">
+		<property name="resourceLoader" ref="EnkiveResourceLoader" />
+	</bean>
+
+	<bean id="EnkiveResourceLoader" class="com.linuxbox.enkive.imap.EnkiveResourceLoader" />
 
 	<bean id="EnkiveImapMailboxManager" class="com.linuxbox.enkive.imap.mailbox.EnkiveMailboxManager">
 		<constructor-arg ref="MongoEnkiveMailboxSessionMapperFactory" />
 		<constructor-arg ref="EnkiveImapSpringContextAuthenticator" />
 		<constructor-arg ref="EnkiveImapMailboxACLResolver" />
 		<constructor-arg ref="EnkiveImapGroupMembershipResolver" />
+	</bean>
+
+	<bean id="EnkiveImapSubscriptionManager"
+		class="com.linuxbox.enkive.imap.mailbox.mongo.MongoEnkiveSubscriptionManager">
+		<constructor-arg ref="Mongo" />
+		<constructor-arg type="java.lang.String" value="${enkive.imap.db.name}" />
+		<constructor-arg type="java.lang.String" value="${enkive.imap.collection.name}" />
 	</bean>
 
 	<bean id="MongoEnkiveMailboxSessionMapperFactory"

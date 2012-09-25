@@ -16,7 +16,6 @@ public class EnkiveImapMailboxACLResolver implements MailboxACLResolver {
 	@Override
 	public MailboxACL applyGlobalACL(MailboxACL resourceACL,
 			boolean resourceOwnerIsGroup) throws UnsupportedRightException {
-		// TODO Auto-generated method stub
 		return SimpleMailboxACL.OWNER_FULL_ACL;
 	}
 
@@ -26,14 +25,12 @@ public class EnkiveImapMailboxACLResolver implements MailboxACLResolver {
 			MailboxACLRight right, MailboxACL resourceACL,
 			String resourceOwner, boolean resourceOwnerIsGroup)
 			throws UnsupportedRightException {
-		// TODO Auto-generated method stub
 		return true;
 	}
 
 	@Override
 	public boolean isReadWrite(MailboxACLRights mailboxACLRights,
 			Flags sharedFlags) throws UnsupportedRightException {
-		// TODO Auto-generated method stub
 		return true;
 	}
 
@@ -42,7 +39,6 @@ public class EnkiveImapMailboxACLResolver implements MailboxACLResolver {
 			GroupMembershipResolver groupMembershipResolver,
 			String resourceOwner, boolean resourceOwnerIsGroup)
 			throws UnsupportedRightException {
-		// TODO Auto-generated method stub
 		MailboxACLRights[] rights = new MailboxACLRights[1];
 		rights[0] = SimpleMailboxACL.FULL_RIGHTS;
 		return rights;
@@ -53,7 +49,6 @@ public class EnkiveImapMailboxACLResolver implements MailboxACLResolver {
 			GroupMembershipResolver groupMembershipResolver,
 			MailboxACL resourceACL, String resourceOwner,
 			boolean resourceOwnerIsGroup) throws UnsupportedRightException {
-		// TODO Auto-generated method stub
 		return SimpleMailboxACL.FULL_RIGHTS;
 	}
 

@@ -7,8 +7,8 @@ public class EnkiveImapGroupMembershipResolver implements
 
 	@Override
 	public boolean isMember(String user, String group) {
-		// TODO Auto-generated method stub
-		return true;
+		// XXX Groups are currently unsupported
+		return false;
 	}
 
 }

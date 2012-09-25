@@ -2,6 +2,13 @@ package com.linuxbox.enkive.imap;
 
 import org.apache.james.container.spring.resource.AbstractJamesResourceLoader;
 
+/**
+ * 
+ * This is a dummy class for enabling StartTLS with the James IMAP server
+ * 
+ * @author lee
+ * 
+ */
 public class EnkiveResourceLoader extends AbstractJamesResourceLoader {
 
 	@Override

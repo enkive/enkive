@@ -10,6 +10,7 @@ import java.util.SortedMap;
 
 import org.apache.james.mailbox.MailboxSession;
 import org.apache.james.mailbox.exception.MailboxException;
+import org.apache.james.mailbox.model.MailboxConstants;
 import org.apache.james.mailbox.model.MessageMetaData;
 import org.apache.james.mailbox.model.MessageRange;
 import org.apache.james.mailbox.model.MessageRange.Type;
@@ -41,20 +42,30 @@ public abstract class EnkiveImapMessageMapper extends
 		final long to = set.getUidTo();
 		final Type type = set.getType();
 
-		switch (type) {
-		default:
-		case ALL:
-			results = findMessagesInMailboxBetweenUIDs(mailbox, 0, -1, max);
-			break;
-		case FROM:
-			results = findMessagesInMailboxBetweenUIDs(mailbox, from, -1, max);
-			break;
-		case ONE:
-			results = findMessagesInMailboxBetweenUIDs(mailbox, from, from, max);
-			break;
-		case RANGE:
-			results = findMessagesInMailboxBetweenUIDs(mailbox, from, to, max);
-			break;
+		if (mailbox.getName().equals(MailboxConstants.INBOX)) {
+			results = new ArrayList<Message<String>>();
+			if (from <= 1)
+				results.add(new EnkiveImapTemplateMessage());
+		} else {
+
+			switch (type) {
+			default:
+			case ALL:
+				results = findMessagesInMailboxBetweenUIDs(mailbox, 0, -1, max);
+				break;
+			case FROM:
+				results = findMessagesInMailboxBetweenUIDs(mailbox, from, -1,
+						max);
+				break;
+			case ONE:
+				results = findMessagesInMailboxBetweenUIDs(mailbox, from, from,
+						max);
+				break;
+			case RANGE:
+				results = findMessagesInMailboxBetweenUIDs(mailbox, from, to,
+						max);
+				break;
+			}
 		}
 		return new PreviousItemRemovingIterator<Message<String>>(
 				results.iterator());
@@ -87,7 +98,6 @@ public abstract class EnkiveImapMessageMapper extends
 	@Override
 	public Map<Long, MessageMetaData> expungeMarkedForDeletionInMailbox(
 			Mailbox<String> mailbox, MessageRange set) throws MailboxException {
-		// TODO Auto-generated method stub
 		return new HashMap<Long, MessageMetaData>();
 	}
 
@@ -129,32 +139,27 @@ public abstract class EnkiveImapMessageMapper extends
 	@Override
 	protected MessageMetaData save(Mailbox<String> mailbox,
 			Message<String> message) throws MailboxException {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	protected MessageMetaData copy(Mailbox<String> mailbox, long uid,
 			long modSeq, Message<String> original) throws MailboxException {
-		// TODO Auto-generated method stub
 		return new SimpleMessageMetaData(original);
 	}
 
 	@Override
 	protected void begin() throws MailboxException {
-		// TODO Auto-generated method stub
 
 	}
 
 	@Override
 	protected void commit() throws MailboxException {
-		// TODO Auto-generated method stub
 
 	}
 
 	@Override
 	protected void rollback() throws MailboxException {
-		// TODO Auto-generated method stub
 
 	}
 

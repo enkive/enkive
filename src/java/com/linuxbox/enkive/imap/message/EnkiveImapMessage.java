@@ -10,6 +10,8 @@ import java.util.List;
 import javax.mail.Flags;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.james.mailbox.store.mail.model.AbstractMessage;
 import org.apache.james.mailbox.store.mail.model.Property;
 import org.springframework.util.StringUtils;
@@ -27,6 +29,9 @@ public class EnkiveImapMessage extends AbstractMessage<String> {
 	String mailboxId = "";
 	String messageId;
 	MessageRetrieverService retrieverService;
+
+	protected static final Log LOGGER = LogFactory
+			.getLog("com.linuxbox.enkive.imap");
 
 	public EnkiveImapMessage(String messageId,
 			MessageRetrieverService retrieverService) {
@@ -58,12 +63,12 @@ public class EnkiveImapMessage extends AbstractMessage<String> {
 
 	@Override
 	public void setModSeq(long modSeq) {
-		// TODO Auto-generated method stub
+		// Unused
 	}
 
 	@Override
 	public long getModSeq() {
-		// TODO Auto-generated method stub
+		// Unused
 		return 0;
 	}
 
@@ -134,8 +139,7 @@ public class EnkiveImapMessage extends AbstractMessage<String> {
 		try {
 			length = message.getReconstitutedEmail().length();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LOGGER.error("Error retrieving message with UUID " + messageId, e);
 		}
 		return length;
 	}
@@ -148,8 +152,7 @@ public class EnkiveImapMessage extends AbstractMessage<String> {
 			lineCount = StringUtils.countOccurrencesOf(
 					message.getReconstitutedEmail(), "\n");
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LOGGER.error("Error retrieving message with UUID " + messageId, e);
 		}
 		return lineCount;
 	}
@@ -162,9 +165,7 @@ public class EnkiveImapMessage extends AbstractMessage<String> {
 
 	@Override
 	public List<Property> getProperties() {
-		// TODO Auto-generated method stub
 		ArrayList<Property> properties = new ArrayList<Property>();
-
 		return properties;
 	}
 
@@ -188,18 +189,18 @@ public class EnkiveImapMessage extends AbstractMessage<String> {
 			try {
 				message = retrieverService.retrieve(messageId);
 			} catch (CannotRetrieveException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				LOGGER.error("Error retrieving message with UUID " + messageId,
+						e);
 			}
 	}
-	
+
 	private void loadSummary() {
 		if (summary == null)
 			try {
 				summary = retrieverService.retrieveSummary(messageId);
 			} catch (CannotRetrieveException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				LOGGER.error("Error retrieving message with UUID " + messageId,
+						e);
 			}
 	}
 

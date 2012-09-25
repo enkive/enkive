@@ -1,77 +1,20 @@
 package com.linuxbox.enkive.imap;
 
-import java.net.UnknownHostException;
-
-import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.james.container.spring.filesystem.ResourceLoaderFileSystem;
-import org.apache.james.imap.decode.ImapDecoderFactory;
-import org.apache.james.imap.encode.ImapEncoderFactory;
-import org.apache.james.imap.encode.main.DefaultImapEncoderFactory;
-import org.apache.james.imap.main.DefaultImapDecoderFactory;
-import org.apache.james.imap.processor.main.DefaultImapProcessorFactory;
-import org.slf4j.Logger;
-
-import com.linuxbox.enkive.imap.mailbox.EnkiveMailboxManager;
-import com.linuxbox.enkive.imap.mailbox.EnkiveSubscriptionManager;
-import com.linuxbox.enkive.imap.mailbox.mongo.MongoEnkiveSubscriptionManager;
-import com.mongodb.Mongo;
-import com.mongodb.MongoException;
+import org.apache.james.imapserver.netty.IMAPServer;
 
 public class ImapAccessServer {
 
-	EnkiveIMAPServer imapServer;
+	IMAPServer imapServer;
 	protected static final Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.imap");
 
-	public ImapAccessServer(EnkiveMailboxManager mm) {
-
-		ResourceLoaderFileSystem filesystem = new ResourceLoaderFileSystem();
-		filesystem.setResourceLoader(new EnkiveResourceLoader());
-
-		ImapDecoderFactory df = new DefaultImapDecoderFactory();
-		ImapEncoderFactory ef = new DefaultImapEncoderFactory();
-
-		DefaultImapProcessorFactory pf = new DefaultImapProcessorFactory();
-		pf.setMailboxManager(mm);
-		try {
-			pf.setSubscriptionManager(new MongoEnkiveSubscriptionManager(new Mongo(), "enkive", "imap"));
-		} catch (UnknownHostException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (MongoException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-
-		imapServer = new EnkiveIMAPServer(5000);
-		Logger logger = new org.slf4j.impl.Log4jLoggerFactory()
-				.getLogger("com.linuxbox.enkive.imap");
-		imapServer.setLog(logger);
-		imapServer.setImapDecoder(df.buildImapDecoder());
-		imapServer.setImapEncoder(ef.buildImapEncoder());
-		imapServer.setImapProcessor(pf.buildImapProcessor());
-		imapServer.setFileSystem(filesystem);
-
-		HierarchicalConfiguration config = new HierarchicalConfiguration();
-		config.addProperty("connectionLimit", "0");
-		config.addProperty("compress", "false");
-		// config.addProperty("plainAuthDisallowed", true);
-		// config.addProperty("tls.[@startTLS]", true);
-		// config.addProperty("tls.supportedCipherSuites.cipherSuite", true);
-		// config.addProperty("tls.keystore", "classpath:/imap/keystore");
-		// config.addProperty("tls.secret", "enkiveimap");
-
-		try {
-
-			imapServer.configure(config);
-
-		} catch (Exception e) {
-			LOGGER.error("Error initializing IMAP server", e);
-		}
+	public ImapAccessServer(IMAPServer imapServer) {
+		this.imapServer = imapServer;
 	}
 
+	//Convenience method for Spring
 	public void startup() {
 		try {
 			imapServer.init();

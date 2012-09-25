@@ -37,6 +37,7 @@ public class MongoEnkiveImapMessageMapper extends EnkiveImapMessageMapper {
 		imapCollection = imapDB.getCollection(imapCollectionName);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public long countMessagesInMailbox(Mailbox<String> mailbox)
 			throws MailboxException {
@@ -63,19 +64,17 @@ public class MongoEnkiveImapMessageMapper extends EnkiveImapMessageMapper {
 	}
 
 	@Override
-	public SortedMap<Long, String> getMailboxMessageIds(Mailbox<String> mailbox,
-			long fromUid, long toUid) {
+	public SortedMap<Long, String> getMailboxMessageIds(
+			Mailbox<String> mailbox, long fromUid, long toUid) {
 		SortedMap<Long, String> messageIds = new TreeMap<Long, String>();
-		if (mailbox.getName().equals(MailboxConstants.INBOX)) {
-			if (fromUid <= 1)
-				messageIds.put((long) 1,
-						"e826e2fb14162842d9caf023163338d20e2820bb");
-		} else if (mailbox.getMailboxId() != null) {
+		
+		if (mailbox.getMailboxId() != null) {
 			BasicDBObject mailboxQueryObject = new BasicDBObject();
 			mailboxQueryObject.put("_id",
 					ObjectId.massageToObjectId(mailbox.getMailboxId()));
 			DBObject mailboxObject = imapCollection.findOne(mailboxQueryObject);
-			Object messageIdsMap = mailboxObject.get("msgids");
+			Object messageIdsMap = mailboxObject
+					.get(MongoEnkiveImapConstants.MESSAGEIDS);
 
 			Map<String, String> tmpMsgIds = null;
 			if (messageIdsMap instanceof HashMap) {
@@ -87,7 +86,7 @@ public class MongoEnkiveImapMessageMapper extends EnkiveImapMessageMapper {
 
 			if (fromUid > tmpMsgIds.size()) {
 				// Do Nothing
-			} else if (toUid < 0){
+			} else if (toUid < 0) {
 				TreeSet<Long> sortedUids = new TreeSet<Long>();
 				for (String key : tmpMsgIds.keySet())
 					sortedUids.add(Long.parseLong(key));
