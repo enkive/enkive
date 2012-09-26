@@ -1,6 +1,7 @@
 package com.linuxbox.enkive.statistics.gathering;
 
 import java.text.ParseException;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -17,17 +18,34 @@ import org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean;
 public class GatheringScheduler {
 	protected List<GathererInterface> gatherers = new LinkedList<GathererInterface>();
 	protected CronExpression schedule;
+	protected int interval;
 	protected Scheduler scheduler;
 	protected MethodInvokingJobDetailFactoryBean jobDetail;
 	protected CronTriggerBean trigger;
 	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.statistics.gathering.GatheringScheduler");
+	protected Date lastFireTime = null;
 	
-	public GatheringScheduler(String name, List<GathererInterface> gatherers, Scheduler scheduler, String schedule){
+	private void setCronExpression() throws ParseException{
+		if(interval < 60){
+			this.schedule = new CronExpression("0 0/" + interval + " * * * ?");
+		}
+		else if(interval == 60){
+			this.schedule = new CronExpression("0 0 * * * ?");
+		} else {
+			interval = 15;
+			LOGGER.warn("Interval exceeds 60--reverting to 15min default interval");
+			this.schedule = new CronExpression("0 0/15 * * * ?");
+		}
+	}
+	
+	public GatheringScheduler(String name, List<GathererInterface> gatherers, Scheduler scheduler, int interval){
+		this.interval = interval;
 		this.gatherers = gatherers;
 		this.scheduler = scheduler;
 		try {
-			this.schedule = new CronExpression(schedule);
+			setCronExpression();
+			
 			//define factory
 			jobDetail = new MethodInvokingJobDetailFactoryBean();
 			jobDetail.setTargetObject(this);
@@ -58,18 +76,40 @@ public class GatheringScheduler {
 		}
 	}
 	
-	public void gatherAndStoreStats(){
+	private Date getEndTime(){
+		Calendar c;
+		long intervalMS = interval*60*1000;
+		if(lastFireTime == null){
+			c = Calendar.getInstance();
+			long r = c.getTimeInMillis()%intervalMS;
+			c.setTimeInMillis(c.getTimeInMillis()-r);
+		} else {
+			c = Calendar.getInstance();
+			c.setTimeInMillis(lastFireTime.getTime());
+		}
+	
+		return c.getTime();
+	}
+	
+	private Date getStartTime(Date endDate){
+		Calendar c = Calendar.getInstance();
+		c.setTime(endDate);
+		c.add(Calendar.MINUTE, -interval);
+		return c.getTime();
+	}
+	
+	public void gatherAndStoreStats(){	
+		Date endDate = getEndTime();
+		Date startDate = getStartTime(endDate);
+		lastFireTime = endDate;
+		System.out.println("TRIGGER:");
+		System.out.println("Start: " + new Date());
+		System.out.println("StartTime: " + startDate);
+		System.out.println("EndDate: " + endDate);
+		
 		for(GathererInterface gatherer: gatherers){
-			//TODO
-			Date startDate = new Date();
-			Date endDate = new Date();
-			System.out.println("TRIGGER:");
-			System.out.println("StartTime: " + trigger.getStartTime());
-			System.out.println("previousFireTime: " + trigger.getPreviousFireTime());
-			System.out.println("nextFireTime: " + trigger.getNextFireTime());
 			try {
-				gatherer.getStatistics(startDate,endDate);
-				//gatherer.storeStats(gatherer.getStatistics(startDate, endDate));
+				gatherer.storeStats(gatherer.getStatistics(startDate, endDate));
 			} catch (GathererException e) {
 				LOGGER.error("GathererException in GatheringScheduler for " + gatherer.getAttributes().getName(), e);
 			}

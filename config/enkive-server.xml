@@ -125,7 +125,7 @@
 		<property name="triggers">
 			<list>
 				<!-- Uncomment the next line to enable message retention policy -->
-				<!-- <ref bean="MessageRetentionTrigger" />  -->
+				<!-- <ref bean="MessageRetentionTrigger" /> -->
 			</list>
 		</property>
 	</bean>

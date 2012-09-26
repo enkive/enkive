@@ -52,12 +52,11 @@ public class ConsolidationRunner {
 
 	public void run() {
 		LOGGER.info("GrainRunner run() starting");
-//TODO
-//		if (ConsolidationTimeDefs.HOUR.isMatch()) {
+		if (ConsolidationTimeDefs.HOUR.isMatch()) {
 			LOGGER.trace("GrainRunner hour() starting");
 			(new HourConsolidator(client)).storeConsolidatedData();
 			LOGGER.trace("GrainRunner hour() finished");
-//		}
+		}
 
 		if (ConsolidationTimeDefs.DAY.isMatch()) {
 			LOGGER.trace("GrainRunner day() starting");
