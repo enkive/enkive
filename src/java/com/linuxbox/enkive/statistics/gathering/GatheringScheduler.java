@@ -24,6 +24,7 @@ public class GatheringScheduler {
 	protected CronTriggerBean trigger;
 	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.statistics.gathering.GatheringScheduler");
+	
 	protected Date lastFireTime = null;
 	
 	private void setCronExpression() throws ParseException{
@@ -77,18 +78,16 @@ public class GatheringScheduler {
 	}
 	
 	private Date getEndTime(){
-		Calendar c;
+		Date endTime = new Date();
 		long intervalMS = interval*60*1000;
-		if(lastFireTime == null){
-			c = Calendar.getInstance();
-			long r = c.getTimeInMillis()%intervalMS;
-			c.setTimeInMillis(c.getTimeInMillis()-r);
+		if(lastFireTime != null){
+			endTime.setTime(lastFireTime.getTime()+intervalMS);
 		} else {
-			c = Calendar.getInstance();
-			c.setTimeInMillis(lastFireTime.getTime());
+			long r = endTime.getTime()%intervalMS;
+			endTime.setTime(endTime.getTime()-r);
 		}
 	
-		return c.getTime();
+		return endTime;
 	}
 	
 	private Date getStartTime(Date endDate){
@@ -102,10 +101,6 @@ public class GatheringScheduler {
 		Date endDate = getEndTime();
 		Date startDate = getStartTime(endDate);
 		lastFireTime = endDate;
-		System.out.println("TRIGGER:");
-		System.out.println("Start: " + new Date());
-		System.out.println("StartTime: " + startDate);
-		System.out.println("EndDate: " + endDate);
 		
 		for(GathererInterface gatherer: gatherers){
 			try {

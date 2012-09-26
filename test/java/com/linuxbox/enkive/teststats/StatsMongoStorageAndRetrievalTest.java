@@ -88,48 +88,45 @@ public class StatsMongoStorageAndRetrievalTest {
 		coll.drop();
 
 		List<String> keys = new LinkedList<String>();
-		keys.add("db::Database Name:");
-		keys.add("numObj:avg,max,min:Number of Objects:");
-		keys.add("nColls:avg,max,min:Number of Collections:");
-		keys.add("avgOSz:avg,max,min:Average Object Size:bytes");
-		keys.add("dataSz:avg,max,min:Data Size:bytes");
-		keys.add("totSz:avg,max,min:Total Size:bytes");
-		keys.add("numInd:avg,max,min:Number of Indexes");
-		keys.add("indSz:avg,max,min:Index Size:objects");
-		keys.add("numExt:avg,max,min:Number of Extents:");
-		keys.add("fileSz:avg,max,min:File Size:bytes");
+		keys.add("db::Database Name::point");
+		keys.add("numObj:avg,max,min:Number of Objects::point");
+		keys.add("nColls:avg,max,min:Number of Collections::point");
+		keys.add("avgOSz:avg,max,min:Average Object Size:bytes:point");
+		keys.add("dataSz:avg,max,min:Data Size:bytes:point");
+		keys.add("totSz:avg,max,min:Total Size:bytes:point");
+		keys.add("numInd:avg,max,min:Number of Indexes:point");
+		keys.add("indSz:avg,max,min:Index Size:objects:point");
+		keys.add("numExt:avg,max,min:Number of Extents::point");
+		keys.add("fileSz:avg,max,min:File Size:bytes:point");
 		GathererInterface dbProp = new StatsMongoDBGatherer(m,
-				TestingConstants.MONGODB_TEST_DATABASE, "DBGatherer", "Database Statistics",
-				"* * * * * ?", keys);
+				TestingConstants.MONGODB_TEST_DATABASE, "DBGatherer", "Database Statistics", keys);
 
 		keys = new LinkedList<String>();
-		keys.add("*.ns::Namespace:");
-		keys.add("*.numObj:avg,max,min:Number of Objects:");
-		keys.add("*.avgOSz:avg,max,min:Average Object Size:bytes");
-		keys.add("*.dataSz:avg,max,min:Data Size:bytes");
-		keys.add("*.totSz:avg,max,min:Total Size:bytes");
-		keys.add("*.numExt:avg,max,min:Number of Extents:");
-		keys.add("*.lExSz:avg,max,min:Last Extent Size:bytes");
-		keys.add("*.numInd:avg,max,min:Number of Indexes:");
-		keys.add("*.indSz:avg,max,min:Index Size:objects");
-		keys.add("*.indSzs.*:avg,max,min:Index Sizes:objects");
+		keys.add("*.ns::Namespace::");
+		keys.add("*.numObj:avg,max,min:Number of Objects::point");
+		keys.add("*.avgOSz:avg,max,min:Average Object Size:bytes:point");
+		keys.add("*.dataSz:avg,max,min:Data Size:bytes:point");
+		keys.add("*.totSz:avg,max,min:Total Size:bytes:point");
+		keys.add("*.numExt:avg,max,min:Number of Extents::point");
+		keys.add("*.lExSz:avg,max,min:Last Extent Size:bytes:point");
+		keys.add("*.numInd:avg,max,min:Number of Indexes::point");
+		keys.add("*.indSz:avg,max,min:Index Size:objects:point");
+		keys.add("*.indSzs.*:avg,max,min:Index Sizes:objects:point");
 		GathererInterface collProp = new StatsMongoCollectionGatherer(m,
-				TestingConstants.MONGODB_TEST_DATABASE, "CollGatherer", "Collection Statistics",
-				"* * * * * ?", keys);
+				TestingConstants.MONGODB_TEST_DATABASE, "CollGatherer", "Collection Statistics", keys);
 
 		keys = new LinkedList<String>();
-		keys.add("freeM:avg,max,min:Free Memory:bytes");
-		keys.add("maxM:avg,max,min:Max Memory:bytes");
-		keys.add("totM:avg,max,min:Total Memory:bytes");
-		keys.add("cores:avg,max,min:Processors:");
-		GathererInterface runProp = new StatsRuntimeGatherer("RuntimeGatherer", "Runtime Statistics",
-				"* * * * * ?", keys);
+		keys.add("freeM:avg,max,min:Free Memory:bytes:point");
+		keys.add("maxM:avg,max,min:Max Memory:bytes:point");
+		keys.add("totM:avg,max,min:Total Memory:bytes:point");
+		keys.add("cores:avg,max,min:Processors::point");
+		GathererInterface runProp = new StatsRuntimeGatherer("RuntimeGatherer", "Runtime Statistics", keys);
 
 		keys = new LinkedList<String>();
-		keys.add("numMsg:avg:Number of Messages:");
-		keys.add("totMsg:avg:Total Number of Messages:");
+		keys.add("numMsg:avg:Number of Messages::interval");
+		keys.add("totMsg:avg:Total Number of Messages::point");
 		StatsMsgGatherer msgProp = new StatsMsgGatherer(
-				"MsgPropGatherer", "Message Statistics", "* * * * * ?", keys);
+				"MsgPropGatherer", "Message Statistics", keys);
 		MongoGathererMessageSearchService searchService = null;
 
 		try {
@@ -145,12 +142,12 @@ public class StatsMongoStorageAndRetrievalTest {
 		msgProp.setSearchService(searchService);
 
 		keys = new LinkedList<String>();
-		keys.add("avgAtt:avg:Average Attachments:number of attachments");
-		keys.add("maxAtt:max:Maximum Attachments:number of attachments");
+		keys.add("avgAtt:avg:Average Attachments:number of attachments:interval");
+		keys.add("maxAtt:max:Maximum Attachments:number of attachments:interval");
 		StatsMongoAttachmentsGatherer attProp = new StatsMongoAttachmentsGatherer(
 				m, TestingConstants.MONGODB_TEST_DATABASE,
 				TestingConstants.MONGODB_TEST_DOCUMENTS_COLLECTION,
-				"AttachmentGatherer", "Attachment Statistics", "* * * * * ?", keys);
+				"AttachmentGatherer", "Attachment Statistics", keys);
 
 		HashMap<String, GathererInterface> map1 = new HashMap<String, GathererInterface>();
 		HashMap<String, GathererInterface> map2 = new HashMap<String, GathererInterface>();

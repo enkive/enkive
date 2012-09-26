@@ -90,10 +90,23 @@ public class StatsClient {
 	}
 	
 	/**
+	 * query the database for all objects
+	 * @return result of objects found with query
+	 */
+	public Set<Map<String, Object>> queryStatistics() {
+		try {
+			return retrievalService.queryStatistics();
+		} catch (StatsRetrievalException e) {
+			LOGGER.error(
+					"Client.queryStatistics(StatsQuery) StatsRetrievalException",
+					e);
+		}
+		return null;
+	}
+	
+	/**
 	 * query the database using a query argument and a date range
-	 * @param stats - a map formatted in the following way: {gathererName:{stat:value, stat:value, ...}, ...}
-	 * @param startingTimestamp - the start date for the query-if null then epoche is used
-	 * @param endingTimestamp - the end date for the query-if null then current date is used
+	 * @param query the statsQuery used to get objects for this class
 	 * @return result of objects found with query
 	 */
 	public Set<Map<String, Object>> queryStatistics(StatsQuery query) {

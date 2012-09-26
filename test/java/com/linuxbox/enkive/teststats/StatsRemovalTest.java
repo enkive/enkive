@@ -3,8 +3,8 @@ package com.linuxbox.enkive.teststats;
 import static org.junit.Assert.assertTrue;
 
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIMESTAMP;
-import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.GRAIN_MAX;
-import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.GRAIN_MIN;
+import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_MAX;
+import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_MIN;
 
 import java.text.ParseException;
 import java.util.Date;
@@ -42,8 +42,8 @@ public class StatsRemovalTest {
 			statSet.add(temp);
 			if(temp.get(STAT_TIMESTAMP) instanceof Map){
 				Map<String, Object> dateMap = new HashMap<String, Object>();
-				dateMap.put(GRAIN_MIN, new Date(0L));
-				dateMap.put(GRAIN_MAX, new Date(0L));
+				dateMap.put(CONSOLIDATION_MIN, new Date(0L));
+				dateMap.put(CONSOLIDATION_MAX, new Date(0L));
 				temp.put(STAT_TIMESTAMP, dateMap);
 			} else {
 				temp.put(STAT_TIMESTAMP, new Date(0L));

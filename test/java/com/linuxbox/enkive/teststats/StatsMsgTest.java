@@ -1,10 +1,12 @@
 package com.linuxbox.enkive.teststats;
 
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_GATHERER_NAME;
+import static com.linuxbox.enkive.statistics.StatsConstants.STAT_INTERVAL;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_NUM_ENTRIES;
+import static com.linuxbox.enkive.statistics.StatsConstants.STAT_POINT;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIMESTAMP;
-import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.GRAIN_MAX;
-import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.GRAIN_MIN;
+import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_MAX;
+import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_MIN;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -36,9 +38,9 @@ public class StatsMsgTest {
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		List<String> keys = new LinkedList<String>();
-		keys.add("numMsg:avg:Number of Messages:");
-		keys.add("totMsg:avg:Total Number of Messages:");
-		msgEntries = new StatsMsgGatherer(name, "Message Statistics", "0 * * * * ?", keys);
+		keys.add("numMsg:avg:Number of Messages::interval");
+		keys.add("totMsg:avg:Total Number of Messages::point");
+		msgEntries = new StatsMsgGatherer(name, "Message Statistics", keys);
 		MongoGathererMessageSearchService searchService;
 		searchService = new MongoGathererMessageSearchService(new Mongo(),
 				TestingConstants.MONGODB_TEST_DATABASE,
@@ -109,26 +111,58 @@ public class StatsMsgTest {
 	@Test
 	public void attributesNotNull() {
 		assertTrue("msgEntries.getAttributes returned null", msgEntries.getAttributes() != null);
-		for (ConsolidationKeyHandler key : msgEntries.getAttributes().getKeys()) {
-			LinkedList<String> path = key.getKey();
-			assertTrue("the format is incorrect for path: " + path,
-					checkFormat(stats, path));
-		}
 	}
 	
 	@Test
 	public void testAttributes() {
 		for (ConsolidationKeyHandler key : msgEntries.getAttributes().getKeys()) {
 			LinkedList<String> path = key.getKey();
-			assertTrue("the format is incorrect for path: " + path,
-					checkFormat(stats, path));
+			if(path.contains(STAT_GATHERER_NAME) || path.contains(STAT_TIMESTAMP)){
+				continue;
+			}
+			if(key.isPoint()){
+				assertTrue("the format is incorrect for path: " + path, checkFormat((Map<String,Object>)stats.get(STAT_POINT), path));
+			} else {
+				assertTrue("the format is incorrect for path: " + path, checkFormat((Map<String,Object>)stats.get(STAT_INTERVAL), path));
+			}
 		}
 	}
 
 	@Test
-	public void keyCountMatches() {
-		int numKeys = stats.keySet().size();
-		assertTrue("numKeys doesn't match: numKeys = " + numKeys, numKeys == 3);
+	public void pointKeyCountMatches() {
+		int numKeys = 0;
+		int pointKeyCount = 0;
+		for(ConsolidationKeyHandler key : msgEntries.getAttributes().getKeys()){
+			if(key.isPoint() && key.getMethods() != null){
+				pointKeyCount++;
+			}
+		}
+		
+		if(stats.containsKey(STAT_POINT)){
+			Map<String, Object> pointStats = (Map<String,Object>)stats.get(STAT_POINT);
+			numKeys += pointStats.keySet().size();
+		}
+		
+		assertTrue("numKeys doesn't match: numKeys = " + numKeys, numKeys == pointKeyCount);
+	}
+	
+	@Test
+	public void intervalKeyCountMatches() {
+		int numKeys = 0;
+		int intervalKeyCount = 0;
+		for(ConsolidationKeyHandler key : msgEntries.getAttributes().getKeys()){
+			if(!key.isPoint() && key.getMethods() != null){
+				intervalKeyCount++;
+			}
+		}
+		
+		if(stats.containsKey(STAT_INTERVAL)){
+			Map<String, Object> intervalStats = (Map<String,Object>)stats.get(STAT_INTERVAL);
+			numKeys += intervalStats.keySet().size();
+		}
+		System.out.println("intervalKeyCount: " + intervalKeyCount);
+		System.out.println("numKeys: " + numKeys);
+		assertTrue("numKeys doesn't match: numKeys = " + numKeys, numKeys == intervalKeyCount);
 	}
 
 	@Test
@@ -150,7 +184,7 @@ public class StatsMsgTest {
 	@Test
 	public void upperTimeGTZero() {
 		Map<String, Object> time = (Map<String,Object>)stats.get(STAT_TIMESTAMP);
-		Date date = ((Date) time.get(GRAIN_MAX));
+		Date date = ((Date) time.get(CONSOLIDATION_MAX));
 		assertTrue("runtime test exception in timeGTZero(): date = " + date,
 				date.getTime() > 0);
 	}
@@ -159,7 +193,7 @@ public class StatsMsgTest {
 	@Test
 	public void lowerTimeGTZero() {
 		Map<String, Object> time = (Map<String,Object>)stats.get(STAT_TIMESTAMP);
-		Date date = ((Date) time.get(GRAIN_MIN));
+		Date date = ((Date) time.get(CONSOLIDATION_MIN));
 		assertTrue("runtime test exception in timeGTZero(): date = " + date,
 				date.getTime() > 0);
 	}
@@ -174,6 +208,7 @@ public class StatsMsgTest {
 					startDate, endDate);
 			
 			numEntriesStats = rawStatsOnDate.toMap();
+			numEntriesStats = (Map<String,Object>)numEntriesStats.get(STAT_INTERVAL);
 		} catch(Exception e) {
 			assertTrue("numEntriesCrashed", false);
 		}

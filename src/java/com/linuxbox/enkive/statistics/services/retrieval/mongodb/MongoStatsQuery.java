@@ -87,7 +87,7 @@ public class MongoStatsQuery extends StatsQuery{
 	}
 	
 	public void setIsPointQuery(String type){
-		if(type.equals(STAT_POINT)){
+		if(type != null && type.equals(STAT_POINT)){
 			isPointQuery = true;
 		} else {
 			isPointQuery = false;//ie) consolidated

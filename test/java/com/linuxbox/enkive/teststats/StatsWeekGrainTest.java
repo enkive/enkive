@@ -1,9 +1,9 @@
 package com.linuxbox.enkive.teststats;
 
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIMESTAMP;
-import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.GRAIN_AVG;
-import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.GRAIN_MAX;
-import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.GRAIN_MIN;
+import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_AVG;
+import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_MAX;
+import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_MIN;
 import static org.junit.Assert.assertTrue;
 
 import java.text.ParseException;
@@ -47,8 +47,8 @@ public class StatsWeekGrainTest {
 			if (i == 5) {
 				cal.add(Calendar.WEEK_OF_MONTH, -1);
 			}
-			timeMap.put(GRAIN_MAX, cal.getTime());
-			timeMap.put(GRAIN_MIN, cal.getTime());
+			timeMap.put(CONSOLIDATION_MAX, cal.getTime());
+			timeMap.put(CONSOLIDATION_MIN, cal.getTime());
 			for (Map<String, Object> data : stats) {
 				data.put(STAT_TIMESTAMP, timeMap);
 			}
@@ -79,15 +79,14 @@ public class StatsWeekGrainTest {
 	public void consolidationMethods() {
 		Set<Map<String, Object>> consolidatedData = grain.consolidateData();
 		assertTrue("the consolidated data is null", consolidatedData != null);
-		String methods[] = { GRAIN_AVG, GRAIN_MAX, GRAIN_MIN };
-		Object exampleData = new Integer(10);
+		String methods[] = { CONSOLIDATION_AVG, CONSOLIDATION_MAX, CONSOLIDATION_MIN };
 		DescriptiveStatistics statsMaker = new DescriptiveStatistics();
 		statsMaker.addValue(111);
 		statsMaker.addValue(11);
 		statsMaker.addValue(1);
 		Map<String, Object> statData = new HashMap<String, Object>();
 		for (String method : methods) {
-			grain.methodMapBuilder(method, exampleData, statsMaker, statData);
+			grain.methodMapBuilder(method, statsMaker, statData);
 		}
 		assertTrue("methodMapBuilder returned null", statData != null);
 	}

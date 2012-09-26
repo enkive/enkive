@@ -66,21 +66,20 @@ public class StatsMongoCollTest {
 		}
 		db = m.getDB(TestingConstants.MONGODB_TEST_DATABASE);
 		List<String> keys = new LinkedList<String>();
-		keys.add("*.ns::Namespace:");
-		keys.add("*.numObj:avg,max,min:Number of Objects:");
-		keys.add("*.avgOSz:avg,max,min:Average Object Size:bytes");
-		keys.add("*.dataSz:avg,max,min:Data Size:bytes");
-		keys.add("*.totSz:avg,max,min:Total Size:bytes");
-		keys.add("*.numExt:avg,max,min:Number of Extents:");
-		keys.add("*.lExSz:avg,max,min:Last Extent Size:bytes");
-		keys.add("*.numInd:avg,max,min:Number of Indexes:");
-		keys.add("*.indSz:avg,max,min:Index Size:objects");
-		keys.add("*.indSzs.*:avg,max,min:Index Sizes:objects");
+		keys.add("*.ns::Namespace::");
+		keys.add("*.numObj:avg,max,min:Number of Objects::point");
+		keys.add("*.avgOSz:avg,max,min:Average Object Size:bytes:point");
+		keys.add("*.dataSz:avg,max,min:Data Size:bytes:point");
+		keys.add("*.totSz:avg,max,min:Total Size:bytes:point");
+		keys.add("*.numExt:avg,max,min:Number of Extents::point");
+		keys.add("*.lExSz:avg,max,min:Last Extent Size:bytes:point");
+		keys.add("*.numInd:avg,max,min:Number of Indexes::point");
+		keys.add("*.indSz:avg,max,min:Index Size:objects:point");
+		keys.add("*.indSzs.*:avg,max,min:Index Sizes:objects:point");
 		collStats = new StatsMongoCollectionGatherer(m,
-				TestingConstants.MONGODB_TEST_DATABASE, "CollGatherer", "Collection Statistics",
-				"0 * * * * ?", keys);
+				TestingConstants.MONGODB_TEST_DATABASE, "CollGatherer", "Collection Statistics", keys);
 		RawStats rawStats = collStats.getStatistics();
-		allStats = rawStats.getStatsMap();
+		allStats = rawStats.toMap();
 		allStats.put(STAT_TIMESTAMP, rawStats.getStartDate());
 		List<Object[]> data = new ArrayList<Object[]>();
 		System.out.println("Not testing the following empty DB's: ");

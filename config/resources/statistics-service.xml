@@ -218,7 +218,7 @@
 		<constructor-arg name="name" value="FifteenMinutesScheduler" />
 		<constructor-arg name="gatherers" ref="FifteenMinuteGatherers"/>
 		<constructor-arg name="scheduler" ref="ScheduledJobsBean"/>
-		<constructor-arg name="interval" value="15" />
+		<constructor-arg name="interval" value="1" />
 	</bean>
 </beans>
 	

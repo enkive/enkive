@@ -1,8 +1,8 @@
 package com.linuxbox.enkive.teststats;
 
-import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.GRAIN_AVG;
-import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.GRAIN_MAX;
-import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.GRAIN_MIN;
+import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_AVG;
+import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_MAX;
+import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_MIN;
 import static org.junit.Assert.assertTrue;
 
 import java.text.ParseException;
@@ -56,11 +56,10 @@ public class StatsHourGrainTest {
 			for (RawStats data : stats) {
 				Map<String, Object> temp = data.toMap();
 				Map<String, Object> date = (Map<String,Object>)temp.get(STAT_TIMESTAMP);
-				date.put(GRAIN_MIN, cal.getTime());
-				date.put(GRAIN_MAX, cal.getTime());
+				date.put(CONSOLIDATION_MIN, cal.getTime());
+				date.put(CONSOLIDATION_MAX, cal.getTime());
 				statsToStore.add(temp);
 			}
-			System.out.println("statsToStore: " + statsToStore);
 			client.storeData(statsToStore);
 		}
 		dataCount = coll.count();
@@ -87,15 +86,14 @@ public class StatsHourGrainTest {
 	public void consolidationMethods() {
 		Set<Map<String, Object>> consolidatedData = grain.consolidateData();
 		assertTrue("the consolidated data is null", consolidatedData != null);
-		String methods[] = { GRAIN_AVG, GRAIN_MAX, GRAIN_MIN };
-		Object exampleData = new Integer(10);
+		String methods[] = { CONSOLIDATION_AVG, CONSOLIDATION_MAX, CONSOLIDATION_MIN };
 		DescriptiveStatistics statsMaker = new DescriptiveStatistics();
 		statsMaker.addValue(111);
 		statsMaker.addValue(11);
 		statsMaker.addValue(1);
 		Map<String, Object> statData = new HashMap<String, Object>();
 		for (String method : methods) {
-			grain.methodMapBuilder(method, exampleData, statsMaker, statData);
+			grain.methodMapBuilder(method, statsMaker, statData);
 		}
 		assertTrue("methodMapBuilder returned null", statData != null);
 	}

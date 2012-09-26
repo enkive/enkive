@@ -1,11 +1,11 @@
 package com.linuxbox.enkive.teststats;
 
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIMESTAMP;
-import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.GRAIN_AVG;
-import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.GRAIN_DAY;
-import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.GRAIN_MAX;
-import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.GRAIN_MIN;
-import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.GRAIN_TYPE;
+import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_AVG;
+import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_DAY;
+import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_MAX;
+import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_MIN;
+import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_TYPE;
 import static org.junit.Assert.assertTrue;
 
 import java.text.ParseException;
@@ -25,6 +25,7 @@ import com.linuxbox.enkive.statistics.gathering.GathererAttributes;
 import com.linuxbox.enkive.statistics.gathering.GathererException;
 import com.linuxbox.enkive.statistics.services.StatsClient;
 import com.linuxbox.enkive.statistics.services.retrieval.StatsQuery;
+import com.linuxbox.enkive.statistics.services.retrieval.mongodb.MongoStatsQuery;
 import com.mongodb.DBCollection;
 
 public class StatsMonthGrainTest {
@@ -41,8 +42,8 @@ public class StatsMonthGrainTest {
 
 		// clean up if week was run...
 		Map<String, Object> queryMap = new HashMap<String, Object>();
-		queryMap.put(GRAIN_TYPE, GRAIN_DAY);
-		StatsQuery statsQuery = new StatsQuery(null, GRAIN_DAY);
+		queryMap.put(CONSOLIDATION_TYPE, CONSOLIDATION_DAY);
+		StatsQuery statsQuery = new MongoStatsQuery(null, CONSOLIDATION_DAY, null);
 		Set<Object> ids = new HashSet<Object>();
 		for (Map<String, Object> mapToDelete : client.queryStatistics(statsQuery)) {
 			ids.add(mapToDelete.get("_id"));
@@ -66,8 +67,8 @@ public class StatsMonthGrainTest {
 			if (i == 5) {
 				cal.add(Calendar.MONTH, -1);
 			}
-			timeMap.put(GRAIN_MAX, cal.getTime());
-			timeMap.put(GRAIN_MIN, cal.getTime());
+			timeMap.put(CONSOLIDATION_MAX, cal.getTime());
+			timeMap.put(CONSOLIDATION_MIN, cal.getTime());
 			for (Map<String, Object> data : stats) {
 				data.put(STAT_TIMESTAMP, timeMap);
 			}
@@ -98,15 +99,14 @@ public class StatsMonthGrainTest {
 	public void consolidationMethods() {
 		Set<Map<String, Object>> consolidatedData = grain.consolidateData();
 		assertTrue("the consolidated data is null", consolidatedData != null);
-		String methods[] = { GRAIN_AVG, GRAIN_MAX, GRAIN_MIN };
-		Object exampleData = new Integer(10);
+		String methods[] = { CONSOLIDATION_AVG, CONSOLIDATION_MAX, CONSOLIDATION_MIN };
 		DescriptiveStatistics statsMaker = new DescriptiveStatistics();
 		statsMaker.addValue(111);
 		statsMaker.addValue(11);
 		statsMaker.addValue(1);
 		Map<String, Object> statData = new HashMap<String, Object>();
 		for (String method : methods) {
-			grain.methodMapBuilder(method, exampleData, statsMaker, statData);
+			grain.methodMapBuilder(method, statsMaker, statData);
 		}
 		assertTrue("methodMapBuilder returned null", statData != null);
 	}
