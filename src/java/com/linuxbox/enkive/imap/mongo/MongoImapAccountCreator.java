@@ -3,32 +3,31 @@ package com.linuxbox.enkive.imap.mongo;
 import static com.linuxbox.enkive.search.Constants.DATE_EARLIEST_PARAMETER;
 import static com.linuxbox.enkive.search.Constants.DATE_LATEST_PARAMETER;
 import static com.linuxbox.enkive.search.Constants.NUMERIC_SEARCH_FORMAT;
+import static com.linuxbox.enkive.search.Constants.RECIPIENT_PARAMETER;
+import static com.linuxbox.enkive.search.Constants.SENDER_PARAMETER;
 
-import java.net.UnknownHostException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.commons.lang.time.DateUtils;
 import org.bson.types.ObjectId;
 
+import com.linuxbox.enkive.imap.EnkiveImapAccountCreator;
 import com.linuxbox.enkive.message.search.exception.MessageSearchException;
-import com.linuxbox.enkive.permissions.PermissionService;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
+import com.mongodb.DBObject;
 import com.mongodb.Mongo;
-import com.mongodb.MongoException;
 
-public class MongoImapAccountCreator {
+public class MongoImapAccountCreator implements EnkiveImapAccountCreator {
 
 	Mongo m;
 	DB imapDB;
 	DBCollection imapCollection;
 	MongoImapAccountCreationMessageSearchService searchService;
-	PermissionService permissionService;
 
 	public MongoImapAccountCreator(Mongo m, String imapDBName,
 			String imapCollname) {
@@ -43,13 +42,19 @@ public class MongoImapAccountCreator {
 		Date earliestMessageDate = searchService
 				.getEarliestMessageDate(username);
 		Date latestMessageDate = searchService.getLatestMessageDate(username);
+
 		Calendar mailboxTime = Calendar.getInstance();
 		mailboxTime.setTime(earliestMessageDate);
 		Calendar endTime = Calendar.getInstance();
 		endTime.setTime(latestMessageDate);
 		mailboxTime = DateUtils.round(mailboxTime, Calendar.MONTH);
 		endTime = DateUtils.round(endTime, Calendar.MONTH);
-		endTime.add(Calendar.MONTH, 1);
+		Calendar today = Calendar.getInstance();
+
+		// If it's not the first of the month, we need to get up to, but not
+		// including the current day of the current month
+		if (today.get(Calendar.DATE) != 1)
+			endTime.add(Calendar.MONTH, 1);
 
 		while (mailboxTime.before(endTime)) {
 			BasicDBObject mailboxObject = new BasicDBObject();
@@ -61,6 +66,14 @@ public class MongoImapAccountCreator {
 			Calendar toDate = (Calendar) mailboxTime.clone();
 			toDate.set(Calendar.DAY_OF_MONTH,
 					mailboxTime.getActualMaximum(Calendar.DAY_OF_MONTH));
+
+			// Get everything up until yesterday, nightly job will add today's
+			// messages
+			if (toDate.after(today)) {
+				toDate = (Calendar) today.clone();
+				toDate.add(Calendar.DATE, -1);
+			}
+
 			Set<String> msgIds = getMailboxMessageIds(username,
 					mailboxTime.getTime(), toDate.getTime());
 			if (!msgIds.isEmpty()) {
@@ -92,23 +105,23 @@ public class MongoImapAccountCreator {
 			}
 			mailboxTime.add(Calendar.MONTH, 1);
 		}
-		//Setup Trash and Inbox
+		// Setup Trash and Inbox
 		BasicDBObject inboxObject = new BasicDBObject();
 		String inboxPath = "INBOX";
-		inboxObject.put(MongoEnkiveImapConstants.MESSAGEIDS, new HashMap<String, String>());
+		inboxObject.put(MongoEnkiveImapConstants.MESSAGEIDS,
+				new HashMap<String, String>());
 		imapCollection.insert(inboxObject);
 		ObjectId inboxId = (ObjectId) inboxObject.get("_id");
-		mailboxTable.put(inboxPath,
-				inboxId.toString());
-		
+		mailboxTable.put(inboxPath, inboxId.toString());
+
 		BasicDBObject trashObject = new BasicDBObject();
 		String trashPath = "Trash";
-		trashObject.put(MongoEnkiveImapConstants.MESSAGEIDS, new HashMap<String, String>());
+		trashObject.put(MongoEnkiveImapConstants.MESSAGEIDS,
+				new HashMap<String, String>());
 		imapCollection.insert(trashObject);
 		ObjectId trashId = (ObjectId) inboxObject.get("_id");
-		mailboxTable.put(trashPath,
-				trashId.toString());
-		
+		mailboxTable.put(trashPath, trashId.toString());
+
 		BasicDBObject rootMailboxObject = new BasicDBObject();
 		imapCollection.insert(rootMailboxObject);
 		ObjectId id = (ObjectId) rootMailboxObject.get("_id");
@@ -116,7 +129,7 @@ public class MongoImapAccountCreator {
 		userMailboxesObject.put(MongoEnkiveImapConstants.USER, username);
 		mailboxTable.put(MongoEnkiveImapConstants.ARCHIVEDMESSAGESFOLDERNAME,
 				id.toString());
-		
+
 		userMailboxesObject.put(MongoEnkiveImapConstants.MAILBOXES,
 				mailboxTable);
 		imapCollection.insert(userMailboxesObject);
@@ -125,10 +138,9 @@ public class MongoImapAccountCreator {
 	private Set<String> getMailboxMessageIds(String username, Date fromDate,
 			Date toDate) throws MessageSearchException {
 		HashMap<String, String> fields = new HashMap<String, String>();
-		//TODO Check for admin or add can read addresses
-		//permissionService.canReadAddresses(username);
-		// fields.put(SENDER_PARAMETER, username);
-		// fields.put(RECIPIENT_PARAMETER, username);
+
+		fields.put(SENDER_PARAMETER, username);
+		fields.put(RECIPIENT_PARAMETER, username);
 		fields.put(DATE_EARLIEST_PARAMETER,
 				NUMERIC_SEARCH_FORMAT.format(fromDate));
 		fields.put(DATE_LATEST_PARAMETER, NUMERIC_SEARCH_FORMAT.format(toDate));
@@ -144,28 +156,27 @@ public class MongoImapAccountCreator {
 		this.searchService = searchService;
 	}
 
-	public PermissionService getPermissionService() {
-		return permissionService;
+	@Override
+	public boolean accountExists(String username) {
+		BasicDBObject userMailboxesObject = new BasicDBObject();
+		userMailboxesObject.put(MongoEnkiveImapConstants.USER, username);
+		DBObject resultObject = imapCollection.findOne(userMailboxesObject);
+		return (resultObject != null);
+
 	}
 
-	public void setPermissionService(PermissionService permissionService) {
-		this.permissionService = permissionService;
-	}
+	@Override
+	public void addImapMessages(String username, Date fromDate, Date toDate)
+			throws MessageSearchException {
+		//Need to check if folder exists, if not create it and add to user mailbox list
+		
+		//Need to get all messages to add
+		Set<String> messageIdsToAdd = getMailboxMessageIds(username, fromDate, toDate);
+		//Need to add messages
+		//Get top UID, add from there
+		
+		// TODO Auto-generated method stub
 
-	public void startup() {
-		try {
-			createImapAccount("enkive");
-		} catch (MessageSearchException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-
-	public static void main(String[] args) throws UnknownHostException,
-			MongoException, MessageSearchException {
-		MongoImapAccountCreator accountCreator = new MongoImapAccountCreator(
-				new Mongo(), "enkive", "imap");
-		accountCreator.createImapAccount("enkive");
 	}
 
 }
