@@ -3,13 +3,14 @@ package com.linuxbox.enkive.imap.mongo;
 import static com.linuxbox.enkive.search.Constants.DATE_EARLIEST_PARAMETER;
 import static com.linuxbox.enkive.search.Constants.DATE_LATEST_PARAMETER;
 import static com.linuxbox.enkive.search.Constants.NUMERIC_SEARCH_FORMAT;
-import static com.linuxbox.enkive.search.Constants.RECIPIENT_PARAMETER;
 import static com.linuxbox.enkive.search.Constants.SENDER_PARAMETER;
+import static com.linuxbox.enkive.search.Constants.RECIPIENT_PARAMETER;
 
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Set;
+import java.util.TreeMap;
 
 import org.apache.commons.lang.time.DateUtils;
 import org.bson.types.ObjectId;
@@ -43,68 +44,16 @@ public class MongoImapAccountCreator implements EnkiveImapAccountCreator {
 				.getEarliestMessageDate(username);
 		Date latestMessageDate = searchService.getLatestMessageDate(username);
 
-		Calendar mailboxTime = Calendar.getInstance();
-		mailboxTime.setTime(earliestMessageDate);
-		Calendar endTime = Calendar.getInstance();
-		endTime.setTime(latestMessageDate);
-		mailboxTime = DateUtils.round(mailboxTime, Calendar.MONTH);
-		endTime = DateUtils.round(endTime, Calendar.MONTH);
+		Calendar latestMessageCalendar = Calendar.getInstance();
+		latestMessageCalendar.setTime(latestMessageDate);
+		DateUtils.round(latestMessageCalendar, Calendar.DATE);
 		Calendar today = Calendar.getInstance();
-
-		// If it's not the first of the month, we need to get up to, but not
-		// including the current day of the current month
-		if (today.get(Calendar.DATE) != 1)
-			endTime.add(Calendar.MONTH, 1);
-
-		while (mailboxTime.before(endTime)) {
-			BasicDBObject mailboxObject = new BasicDBObject();
-			String mailboxPath = MongoEnkiveImapConstants.ARCHIVEDMESSAGESFOLDERNAME
-					+ "/"
-					+ mailboxTime.get(Calendar.YEAR)
-					+ "/"
-					+ String.format("%02d", mailboxTime.get(Calendar.MONTH) + 1);
-			Calendar toDate = (Calendar) mailboxTime.clone();
-			toDate.set(Calendar.DAY_OF_MONTH,
-					mailboxTime.getActualMaximum(Calendar.DAY_OF_MONTH));
-
-			// Get everything up until yesterday, nightly job will add today's
-			// messages
-			if (toDate.after(today)) {
-				toDate = (Calendar) today.clone();
-				toDate.add(Calendar.DATE, -1);
-			}
-
-			Set<String> msgIds = getMailboxMessageIds(username,
-					mailboxTime.getTime(), toDate.getTime());
-			if (!msgIds.isEmpty()) {
-				if (!mailboxTable
-						.containsKey(MongoEnkiveImapConstants.ARCHIVEDMESSAGESFOLDERNAME
-								+ "/" + mailboxTime.get(Calendar.YEAR))) {
-					BasicDBObject yearMailboxObject = new BasicDBObject();
-					yearMailboxObject.put(MongoEnkiveImapConstants.MESSAGEIDS,
-							new HashMap<String, String>());
-					imapCollection.insert(yearMailboxObject);
-					ObjectId id = (ObjectId) yearMailboxObject.get("_id");
-					mailboxTable.put(
-							MongoEnkiveImapConstants.ARCHIVEDMESSAGESFOLDERNAME
-									+ "/" + mailboxTime.get(Calendar.YEAR),
-							id.toString());
-				}
-
-				HashMap<String, String> mailboxMsgIds = new HashMap<String, String>();
-				long i = 0;
-				for (String msgId : msgIds) {
-					i++;
-					mailboxMsgIds.put(((Long.toString(i))), msgId);
-				}
-				mailboxObject.put(MongoEnkiveImapConstants.MESSAGEIDS,
-						mailboxMsgIds);
-				imapCollection.insert(mailboxObject);
-				ObjectId id = (ObjectId) mailboxObject.get("_id");
-				mailboxTable.put(mailboxPath, id.toString());
-			}
-			mailboxTime.add(Calendar.MONTH, 1);
+		DateUtils.round(today, Calendar.DATE);
+		if (latestMessageCalendar.equals(today)) {
+			latestMessageCalendar.add(Calendar.DATE, -1);
+			latestMessageDate = latestMessageCalendar.getTime();
 		}
+
 		// Setup Trash and Inbox
 		BasicDBObject inboxObject = new BasicDBObject();
 		String inboxPath = "INBOX";
@@ -133,6 +82,8 @@ public class MongoImapAccountCreator implements EnkiveImapAccountCreator {
 		userMailboxesObject.put(MongoEnkiveImapConstants.MAILBOXES,
 				mailboxTable);
 		imapCollection.insert(userMailboxesObject);
+
+		addImapMessages(username, earliestMessageDate, latestMessageDate);
 	}
 
 	private Set<String> getMailboxMessageIds(String username, Date fromDate,
@@ -168,15 +119,111 @@ public class MongoImapAccountCreator implements EnkiveImapAccountCreator {
 	@Override
 	public void addImapMessages(String username, Date fromDate, Date toDate)
 			throws MessageSearchException {
-		//Need to check if folder exists, if not create it and add to user mailbox list
-		
-		//Need to get all messages to add
-		Set<String> messageIdsToAdd = getMailboxMessageIds(username, fromDate, toDate);
-		//Need to add messages
-		//Get top UID, add from there
-		
-		// TODO Auto-generated method stub
 
+		Calendar startTime = Calendar.getInstance();
+		startTime.setTime(fromDate);
+		Calendar endTime = Calendar.getInstance();
+		endTime.setTime(toDate);
+
+		while (startTime.before(endTime)) {
+			Calendar endOfMonth = (Calendar) startTime.clone();
+			endOfMonth.set(Calendar.DAY_OF_MONTH,
+					endOfMonth.getActualMaximum(Calendar.DAY_OF_MONTH));
+
+			if (endOfMonth.after(endTime))
+				endOfMonth = (Calendar) endTime.clone();
+
+			// Need to get all messages to add
+			Set<String> messageIdsToAdd = getMailboxMessageIds(username,
+					startTime.getTime(), endOfMonth.getTime());
+			// Need to add messages
+			// Get top UID, add from there
+			if (!messageIdsToAdd.isEmpty()) {
+				System.out.println(messageIdsToAdd.size());
+				// Need to check if folder exists, if not create it and add to
+				// user
+				// mailbox list
+				DBObject mailboxObject = getMessagesFolder(username,
+						startTime.getTime());
+
+				HashMap<String, String> mailboxMsgIds = (HashMap<String, String>) mailboxObject
+						.get(MongoEnkiveImapConstants.MESSAGEIDS);
+
+				TreeMap<String, String> sortedMsgIds = new TreeMap<String, String>();
+				sortedMsgIds.putAll(mailboxMsgIds);
+				long i = 0;
+				if (!sortedMsgIds.isEmpty())
+					i = Long.valueOf(sortedMsgIds.lastKey());
+
+				for (String msgId : messageIdsToAdd) {
+					i++;
+					mailboxMsgIds.put(((Long.toString(i))), msgId);
+				}
+				mailboxObject.put(MongoEnkiveImapConstants.MESSAGEIDS,
+						mailboxMsgIds);
+				
+				imapCollection.findAndModify(
+						new BasicDBObject("_id", mailboxObject.get("_id")),
+						mailboxObject);
+			}
+			startTime.set(Calendar.DAY_OF_MONTH, 1);
+			startTime.add(Calendar.MONTH, 1);
+		}
+	}
+
+	private DBObject getMessagesFolder(String username, Date date) {
+		Calendar mailboxTime = Calendar.getInstance();
+		mailboxTime.setTime(date);
+		DBObject mailboxObject = new BasicDBObject();
+		String mailboxPath = MongoEnkiveImapConstants.ARCHIVEDMESSAGESFOLDERNAME
+				+ "/"
+				+ mailboxTime.get(Calendar.YEAR)
+				+ "/"
+				+ String.format("%02d", mailboxTime.get(Calendar.MONTH) + 1);
+
+		// Get table of user mailboxes
+		BasicDBObject userMailboxesSearchObject = new BasicDBObject();
+		userMailboxesSearchObject.put(MongoEnkiveImapConstants.USER, username);
+		DBObject userMailboxesObject = imapCollection
+				.findOne(userMailboxesSearchObject);
+		// Check for mailbox we're looking for
+		@SuppressWarnings("unchecked")
+		HashMap<String, String> mailboxTable = (HashMap<String, String>) userMailboxesObject
+				.get(MongoEnkiveImapConstants.MAILBOXES);
+		// If it exists, return the associated object
+		// If it doesn't exist, create it, and any necessary upper level folders
+		if (mailboxTable.containsKey(mailboxPath)) {
+			DBObject mailboxSearchObject = new BasicDBObject();
+			mailboxSearchObject.put("_id",
+					ObjectId.massageToObjectId(mailboxTable.get(mailboxPath)));
+			mailboxObject = imapCollection.findOne(mailboxSearchObject);
+			return mailboxObject;
+		} else {
+			mailboxObject.put(MongoEnkiveImapConstants.MESSAGEIDS,
+					new HashMap<String, String>());
+			imapCollection.insert(mailboxObject);
+			ObjectId id = (ObjectId) mailboxObject.get("_id");
+			mailboxTable.put(mailboxPath, id.toString());
+		}
+
+		if (!mailboxTable
+				.containsKey(MongoEnkiveImapConstants.ARCHIVEDMESSAGESFOLDERNAME
+						+ "/" + mailboxTime.get(Calendar.YEAR))) {
+			BasicDBObject yearMailboxObject = new BasicDBObject();
+			yearMailboxObject.put(MongoEnkiveImapConstants.MESSAGEIDS,
+					new HashMap<String, String>());
+			imapCollection.insert(yearMailboxObject);
+			ObjectId id = (ObjectId) yearMailboxObject.get("_id");
+			mailboxTable.put(
+					MongoEnkiveImapConstants.ARCHIVEDMESSAGESFOLDERNAME + "/"
+							+ mailboxTime.get(Calendar.YEAR), id.toString());
+		}
+		userMailboxesObject.put(MongoEnkiveImapConstants.MAILBOXES,
+				mailboxTable);
+		imapCollection.findAndModify(userMailboxesSearchObject,
+				userMailboxesObject);
+		
+		return mailboxObject;
 	}
 
 }

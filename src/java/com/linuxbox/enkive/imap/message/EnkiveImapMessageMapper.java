@@ -45,7 +45,7 @@ public abstract class EnkiveImapMessageMapper extends
 		if (mailbox.getName().equals(MailboxConstants.INBOX)) {
 			results = new ArrayList<Message<String>>();
 			if (from <= 1)
-				results.add(new EnkiveImapTemplateMessage());
+				results.add(new EnkiveImapTemplateMessage("ImapInboxEmailTemplate.ftl"));
 		} else {
 
 			switch (type) {

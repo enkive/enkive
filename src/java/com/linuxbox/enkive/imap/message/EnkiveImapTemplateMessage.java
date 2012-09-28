@@ -1,141 +1,172 @@
 package com.linuxbox.enkive.imap.message;
 
+import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.mail.Flags;
 
 import org.apache.james.mailbox.store.mail.model.AbstractMessage;
 import org.apache.james.mailbox.store.mail.model.Property;
 
+import freemarker.template.Configuration;
+import freemarker.template.Template;
+import freemarker.template.TemplateException;
+
 public class EnkiveImapTemplateMessage extends AbstractMessage<String> {
+
+	Template messageBody;
+	Map<String, Object> root = new HashMap<String, Object>();
+	
+	String headers = "From: enkive@enkive.org\r\nTo: enkive@enkive.org\r\nSubject: Welcome to the Enkive IMAP Interface!\r\n\r\n";
+
+	public EnkiveImapTemplateMessage(String pathToTemplate) {
+		Configuration cfg = new Configuration();
+		File templatesDirectory = new File("config/templates");
+		try {
+			cfg.setDirectoryForTemplateLoading(templatesDirectory);
+			messageBody = cfg.getTemplate(pathToTemplate);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 
 	@Override
 	public Date getInternalDate() {
-		// TODO Auto-generated method stub
-		return null;
+		return new Date();
 	}
 
 	@Override
 	public String getMailboxId() {
-		// TODO Auto-generated method stub
-		return null;
+		return "INBOX";
 	}
 
 	@Override
 	public long getUid() {
-		// TODO Auto-generated method stub
-		return 0;
+		return 1;
 	}
 
 	@Override
 	public void setUid(long uid) {
-		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void setModSeq(long modSeq) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public long getModSeq() {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
 	public boolean isAnswered() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public boolean isDeleted() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public boolean isDraft() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public boolean isFlagged() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public boolean isRecent() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public boolean isSeen() {
-		// TODO Auto-generated method stub
-		return false;
+		return true;
 	}
 
 	@Override
 	public void setFlags(Flags flags) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public InputStream getBodyContent() throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		StringWriter stringWriter = new StringWriter();
+		try {
+			messageBody.process(root, stringWriter);
+		} catch (TemplateException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		StringBuffer message = stringWriter.getBuffer();
+		return new ByteArrayInputStream(message.toString().getBytes());
 	}
 
 	@Override
 	public String getMediaType() {
 		// TODO Auto-generated method stub
-		return null;
+		return "";
 	}
 
 	@Override
 	public String getSubType() {
 		// TODO Auto-generated method stub
-		return null;
+		return "";
 	}
 
 	@Override
 	public long getFullContentOctets() {
-		// TODO Auto-generated method stub
-		return 0;
+		StringWriter stringWriter = new StringWriter();
+		try {
+			messageBody.process(root, stringWriter);
+		} catch (TemplateException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		StringBuffer message = stringWriter.getBuffer();
+		return headers.length() + message.length();
 	}
 
 	@Override
 	public Long getTextualLineCount() {
 		// TODO Auto-generated method stub
-		return null;
+		return (long) 8;
 	}
 
 	@Override
 	public InputStream getHeaderContent() throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		return new ByteArrayInputStream(headers.getBytes());
 	}
 
 	@Override
 	public List<Property> getProperties() {
 		// TODO Auto-generated method stub
-		return null;
+		return new ArrayList<Property>();
 	}
 
 	@Override
 	protected int getBodyStartOctet() {
-		// TODO Auto-generated method stub
-		return 0;
+		return headers.length();
 	}
 
 }

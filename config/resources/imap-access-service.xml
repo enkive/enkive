@@ -69,7 +69,7 @@
 	</bean>
 
 	<bean id="EnkiveImapAccountCreatingSpringContextAuthenticator"
-		class="com.linuxbox.enkive.imap.authentication.EnkiveImapAccountCreatingAuthenticator >
+		class="com.linuxbox.enkive.imap.authentication.EnkiveImapAccountCreatingAuthenticator" >
 		<constructor-arg ref="EnkiveImapSpringContextAuthenticator" />
 		<constructor-arg ref="MongoImapAccountCreator" />
 	</bean>
