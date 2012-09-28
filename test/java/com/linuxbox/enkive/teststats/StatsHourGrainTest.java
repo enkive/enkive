@@ -7,11 +7,8 @@ import static org.junit.Assert.assertTrue;
 
 import java.text.ParseException;
 import java.util.Calendar;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.junit.BeforeClass;
@@ -25,7 +22,9 @@ import com.linuxbox.enkive.statistics.services.StatsClient;
 import com.linuxbox.enkive.statistics.services.StatsGathererService;
 import com.mongodb.DBCollection;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIMESTAMP;
-
+import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TS_POINT;
+import static com.linuxbox.enkive.statistics.VarsMaker.createListOfMaps;
+import static com.linuxbox.enkive.statistics.VarsMaker.createMap;
 public class StatsHourGrainTest {
 	private static StatsGathererService gatherTester;
 	private static StatsClient client;
@@ -47,17 +46,17 @@ public class StatsHourGrainTest {
 		cal.set(Calendar.MINUTE, 0);
 		for (int i = 0; i < 10; i++) {
 			List<RawStats> stats = gatherTester.gatherStats();
-			Set<Map<String,Object>> statsToStore = new HashSet<Map<String,Object>>();
+			List<Map<String,Object>> statsToStore = createListOfMaps();
 			if (i == 5) {
 				cal.add(Calendar.HOUR, -1);
 			}
-			System.out.println("i: " + i + " cal.time: " + cal.getTime());
 			
 			for (RawStats data : stats) {
 				Map<String, Object> temp = data.toMap();
 				Map<String, Object> date = (Map<String,Object>)temp.get(STAT_TIMESTAMP);
 				date.put(CONSOLIDATION_MIN, cal.getTime());
 				date.put(CONSOLIDATION_MAX, cal.getTime());
+				date.put(STAT_TS_POINT, cal.getTime());
 				statsToStore.add(temp);
 			}
 			client.storeData(statsToStore);
@@ -69,9 +68,18 @@ public class StatsHourGrainTest {
 	public void correctQueryTest() {
 		for (GathererAttributes attribute : client.getAttributes()) {
 			String name = attribute.getName();
-			int size = grain.gathererFilter(name).size();
-			grain.consolidateData();
-			assertTrue("incorrect number of objects for " + name + " : 5 vs. " + size, size == 5);
+			List<List<Map<String, Object>>> data = grain.gathererFilter(name);
+			List<Map<String, Object>> pData = data.get(0);
+			int pSize = 0;
+			if(pData != null){
+				pSize = pData.size();
+			}
+			List<Map<String, Object>> iData = data.get(1);
+			int iSize = 0;
+			if(iData != null){
+				iSize = iData.size();
+			}
+			assertTrue("incorrect number of objects for " + name + " : 5 vs. " + iSize + " & " + pSize, iSize == 5 || pSize == 5);
 		}
 	}
 
@@ -84,17 +92,18 @@ public class StatsHourGrainTest {
 
 	@Test
 	public void consolidationMethods() {
-		Set<Map<String, Object>> consolidatedData = grain.consolidateData();
+		List<Map<String, Object>> consolidatedData = grain.consolidateData();
 		assertTrue("the consolidated data is null", consolidatedData != null);
 		String methods[] = { CONSOLIDATION_AVG, CONSOLIDATION_MAX, CONSOLIDATION_MIN };
 		DescriptiveStatistics statsMaker = new DescriptiveStatistics();
 		statsMaker.addValue(111);
 		statsMaker.addValue(11);
 		statsMaker.addValue(1);
-		Map<String, Object> statData = new HashMap<String, Object>();
+		Map<String, Object> statData = createMap();
 		for (String method : methods) {
 			grain.methodMapBuilder(method, statsMaker, statData);
 		}
 		assertTrue("methodMapBuilder returned null", statData != null);
 	}
+
 }

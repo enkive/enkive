@@ -16,7 +16,7 @@ import org.springframework.scheduling.quartz.CronTriggerBean;
 import org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean;
 
 public class GatheringScheduler {
-	protected List<GathererInterface> gatherers = new LinkedList<GathererInterface>();
+	protected List<Gatherer> gatherers = new LinkedList<Gatherer>();
 	protected CronExpression schedule;
 	protected int interval;
 	protected Scheduler scheduler;
@@ -40,7 +40,7 @@ public class GatheringScheduler {
 		}
 	}
 	
-	public GatheringScheduler(String name, List<GathererInterface> gatherers, Scheduler scheduler, int interval){
+	public GatheringScheduler(String name, List<Gatherer> gatherers, Scheduler scheduler, int interval){
 		this.interval = interval;
 		this.gatherers = gatherers;
 		this.scheduler = scheduler;
@@ -102,7 +102,7 @@ public class GatheringScheduler {
 		Date startDate = getStartTime(endDate);
 		lastFireTime = endDate;
 		
-		for(GathererInterface gatherer: gatherers){
+		for(Gatherer gatherer: gatherers){
 			try {
 				gatherer.storeStats(gatherer.getStatistics(startDate, endDate));
 			} catch (GathererException e) {

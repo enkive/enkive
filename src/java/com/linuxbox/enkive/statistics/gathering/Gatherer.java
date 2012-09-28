@@ -1,11 +1,12 @@
 package com.linuxbox.enkive.statistics.gathering;
 
 import java.util.Date;
+import java.util.List;
 
 import com.linuxbox.enkive.statistics.RawStats;
 import com.linuxbox.enkive.statistics.services.StatsStorageService;
 
-public interface GathererInterface {
+public interface Gatherer {
 	/**
 	 * @return returns the gatherer's attributes class
 	 */
@@ -40,7 +41,7 @@ public interface GathererInterface {
 	 * (filters out all unspecified statistics) 
 	 * @throws GathererException
 	 */
-	public RawStats getStatistics(String[] intervalStats, String[] pointStats)
+	public RawStats getStatistics(List<String> intervalStats, List<String> pointStats)
 			throws GathererException;
 
 	/**

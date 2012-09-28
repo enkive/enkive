@@ -28,7 +28,7 @@ import com.linuxbox.enkive.statistics.RawStats;
 import com.linuxbox.enkive.statistics.gathering.StatsMsgGatherer;
 import com.linuxbox.enkive.statistics.gathering.mongodb.MongoGathererMessageSearchService;
 import com.mongodb.Mongo;
-
+@SuppressWarnings("unchecked")
 public class StatsMsgTest {
 
 	private static StatsMsgGatherer msgEntries;
@@ -64,7 +64,6 @@ public class StatsMsgTest {
 	public void tearDown() throws Exception {
 	}
 
-	@SuppressWarnings("unchecked")
 	public boolean checkFormat(Map<String, Object> stats,
 			LinkedList<String> path) {
 		if (path.contains(STAT_GATHERER_NAME)) {
@@ -172,7 +171,6 @@ public class StatsMsgTest {
 		assertTrue(sn.equals(name));
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
 	public void hasTimeStamp() {
 		Map<String, Object> time = (Map<String,Object>)stats.get(STAT_TIMESTAMP);
@@ -180,7 +178,6 @@ public class StatsMsgTest {
 				time != null);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
 	public void upperTimeGTZero() {
 		Map<String, Object> time = (Map<String,Object>)stats.get(STAT_TIMESTAMP);
@@ -189,7 +186,6 @@ public class StatsMsgTest {
 				date.getTime() > 0);
 	}
 	
-	@SuppressWarnings("unchecked")
 	@Test
 	public void lowerTimeGTZero() {
 		Map<String, Object> time = (Map<String,Object>)stats.get(STAT_TIMESTAMP);

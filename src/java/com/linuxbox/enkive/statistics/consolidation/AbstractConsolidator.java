@@ -9,7 +9,6 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -31,7 +30,7 @@ public abstract class AbstractConsolidator implements Consolidator {
 
 	public AbstractConsolidator(StatsClient client) {
 		this.client = client;
-		setDates();
+//		setDates();
 		setTypes();
 	}
 
@@ -60,7 +59,7 @@ public abstract class AbstractConsolidator implements Consolidator {
 	}
 	
 	@Override
-	public abstract Set<Map<String, Object>> consolidateData();
+	public abstract List<Map<String, Object>> consolidateData();
 
 	/** this method recurses through a given template map to add consolidated data to a new map
 	 * as defined by each key's ConsolidationDefinition
@@ -74,7 +73,7 @@ public abstract class AbstractConsolidator implements Consolidator {
 	protected Map<String, Object> generateConsolidatedMap(
 			Map<String, Object> templateData,
 			Map<String, Object> consolidatedMap, LinkedList<String> path,
-			List<ConsolidationKeyHandler> statKeys, Set<Map<String, Object>> gathererData) {
+			List<ConsolidationKeyHandler> statKeys, List<Map<String, Object>> gathererData) {
 		for (String key : templateData.keySet()) {
 			path.addLast(key);
 			ConsolidationKeyHandler matchingDef = findMatchingPath(path, statKeys);
@@ -211,7 +210,7 @@ public abstract class AbstractConsolidator implements Consolidator {
 		}
 	}
 	
-	public abstract List<Set<Map<String, Object>>> gathererFilter(String gathererName);
+	public abstract List<List<Map<String, Object>>> gathererFilter(String gathererName);
 
 	/**
 	 * converts a statistic object into a double
@@ -260,6 +259,6 @@ public abstract class AbstractConsolidator implements Consolidator {
 	 */
 	protected abstract void consolidateMaps(
 			Map<String, Object> consolidatedData,
-			Set<Map<String, Object>> serviceData, ConsolidationKeyHandler keyDef,
+			List<Map<String, Object>> serviceData, ConsolidationKeyHandler keyDef,
 			LinkedList<String> dataPath);
 }

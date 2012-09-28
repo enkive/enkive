@@ -38,6 +38,10 @@ public class VarsMaker {
 		return new LinkedList<Map<String, Object>>();
 	}
 	
+	public static List<List<Map<String, Object>>> createListOfLists() {
+		return new LinkedList<List<Map<String,Object>>>();
+	}
+	
 	public static LinkedList<String> createLinkedListOfStrs() {
 		return new LinkedList<String>();
 	}

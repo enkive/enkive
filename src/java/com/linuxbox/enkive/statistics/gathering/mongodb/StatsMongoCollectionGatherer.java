@@ -68,7 +68,7 @@ public class StatsMongoCollectionGatherer extends AbstractGatherer {
 	}
 	
 	@Override
-	public RawStats getStatistics(String[] intervalKeys, String[] pointKeys) {
+	public RawStats getStatistics(List<String> intervalKeys, List<String> pointKeys) {
 		Map<String, Object> pointResult = null;
 		Map<String, Object> intervalResult = null;
 		
@@ -76,7 +76,7 @@ public class StatsMongoCollectionGatherer extends AbstractGatherer {
 			Map<String, Object> pointData = getPointStats(collName);
 			Map<String, Object> intervalData = getIntervalStats(collName);
 			
-			if(intervalData != null && intervalKeys != null && intervalKeys.length != 0){
+			if(intervalData != null && intervalKeys != null && intervalKeys.size() != 0){
 				Map<String,Object> filteredIntervalData = new HashMap<String, Object>();
 				for(String statName: intervalKeys){
 					if(intervalData.containsKey(statName)){
@@ -91,7 +91,7 @@ public class StatsMongoCollectionGatherer extends AbstractGatherer {
 				}
 			}
 			
-			if(pointData != null && pointKeys != null && pointKeys.length != 0){
+			if(pointData != null && pointKeys != null && pointKeys.size() != 0){
 				Map<String, Object> filteredPointData = new HashMap<String, Object>();
 				for(String statName: pointKeys){
 					if(pointData.containsKey(statName)){

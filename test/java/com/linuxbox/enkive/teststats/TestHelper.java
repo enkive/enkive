@@ -10,7 +10,7 @@ import java.util.List;
 import com.linuxbox.enkive.TestingConstants;
 import com.linuxbox.enkive.docsearch.indri.IndriDocSearchQueryService;
 import com.linuxbox.enkive.statistics.gathering.GathererException;
-import com.linuxbox.enkive.statistics.gathering.GathererInterface;
+import com.linuxbox.enkive.statistics.gathering.Gatherer;
 import com.linuxbox.enkive.statistics.gathering.StatsMsgGatherer;
 import com.linuxbox.enkive.statistics.gathering.StatsRuntimeGatherer;
 import com.linuxbox.enkive.statistics.gathering.mongodb.StatsMongoAttachmentsGatherer;
@@ -105,11 +105,11 @@ public class TestHelper {
 		keys.add("avgOSz:avg,max,min:Average Object Size:bytes:point");
 		keys.add("dataSz:avg,max,min:Data Size:bytes:point");
 		keys.add("totSz:avg,max,min:Total Size:bytes:point");
-		keys.add("numInd:avg,max,min:Number of Indexes:point");
+		keys.add("numInd:avg,max,min:Number of Indexes::point");
 		keys.add("indSz:avg,max,min:Index Size:objects:point");
 		keys.add("numExt:avg,max,min:Number of Extents::point");
 		keys.add("fileSz:avg,max,min:File Size:bytes:point");
-		GathererInterface dbProp = new StatsMongoDBGatherer(m,
+		Gatherer dbProp = new StatsMongoDBGatherer(m,
 				TestingConstants.MONGODB_TEST_DATABASE, dbPropName, "Database Statistics", keys);
 		
 		keys = new LinkedList<String>();
@@ -123,7 +123,7 @@ public class TestHelper {
 		keys.add("*.numInd:avg,max,min:Number of Indexes::point");
 		keys.add("*.indSz:avg,max,min:Index Size:objects:point");
 		keys.add("*.indSzs.*:avg,max,min:Index Sizes:objects:point");
-		GathererInterface collProp = new StatsMongoCollectionGatherer(m,
+		Gatherer collProp = new StatsMongoCollectionGatherer(m,
 				TestingConstants.MONGODB_TEST_DATABASE, collPropName, "Collection Statistics", keys);
 		
 		keys = new LinkedList<String>();
@@ -131,7 +131,7 @@ public class TestHelper {
 		keys.add("maxM:avg,max,min:Max Memory:bytes:point");
 		keys.add("totM:avg,max,min:Total Memory:bytes:point");
 		keys.add("cores:avg,max,min:Processors::point");
-		GathererInterface runProp = new StatsRuntimeGatherer(runPropName, "Runtime Statistics", keys);
+		Gatherer runProp = new StatsRuntimeGatherer(runPropName, "Runtime Statistics", keys);
 		
 		keys = new LinkedList<String>();
 		keys.add("numMsg:avg:Number of Messages::interval");
@@ -157,7 +157,7 @@ public class TestHelper {
 				TestingConstants.MONGODB_TEST_DOCUMENTS_COLLECTION,
 				attPropName, "Attachment Statistics", keys);
 
-		HashMap<String, GathererInterface> gatherers = new HashMap<String, GathererInterface>();
+		HashMap<String, Gatherer> gatherers = new HashMap<String, Gatherer>();
 		gatherers.put("DatabaseStatsService", dbProp);
 		gatherers.put("CollStatsService", collProp);
 		gatherers.put("RuntimeStatsService", runProp);

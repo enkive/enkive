@@ -139,7 +139,7 @@ public class StatsMongoDBTest {
 			if(path.contains(STAT_GATHERER_NAME) || path.contains(STAT_TIMESTAMP)){
 				continue;
 			}
-			if(key.isPoint()){
+			if(key.isPoint() || path.contains(STAT_NAME)){
 				assertTrue("the format is incorrect for path: " + path, checkFormat(pointStats, path));
 			} else {
 				assertTrue("the format is incorrect for path: " + path, checkFormat(intervalStats, path));

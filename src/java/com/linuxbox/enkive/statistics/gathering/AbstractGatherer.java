@@ -14,7 +14,7 @@ import com.linuxbox.enkive.statistics.services.storage.StatsStorageException;
 import com.linuxbox.enkive.statistics.ConsolidationKeyHandler;
 import static com.linuxbox.enkive.statistics.VarsMaker.createMap;
 
-public abstract class AbstractGatherer implements GathererInterface {
+public abstract class AbstractGatherer implements Gatherer {
 	protected GathererAttributes attributes;
 	protected StatsStorageService storageService;
 	protected List<String> keys;
@@ -65,7 +65,7 @@ public abstract class AbstractGatherer implements GathererInterface {
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	public RawStats getStatistics(String[] intervalKeys, String[] pointKeys) throws GathererException {
+	public RawStats getStatistics(List<String> intervalKeys, List<String> pointKeys) throws GathererException {
 		if (intervalKeys == null && pointKeys == null) {
 			throw new GathererException("intervalKeys and pointKeys are both null in getStatistics(String[], String[])");
 		}
@@ -75,7 +75,7 @@ public abstract class AbstractGatherer implements GathererInterface {
 		Map<String, Object> intervalData   = null;
 		Map<String, Object> intervalResult = null;
 		
-		if(data.containsKey(STAT_INTERVAL) && intervalKeys != null && intervalKeys.length != 0){
+		if(data.containsKey(STAT_INTERVAL) && intervalKeys != null && intervalKeys.size() != 0){
 			intervalData = (Map<String,Object>)data.get(STAT_INTERVAL);
 			intervalResult = createMap();
 			for(String statName: intervalKeys){
@@ -88,7 +88,7 @@ public abstract class AbstractGatherer implements GathererInterface {
 		Map<String, Object> pointData   = null;
 		Map<String, Object> pointResult = null;
 		
-		if(data.containsKey(STAT_POINT) && pointKeys != null && pointKeys.length != 0){
+		if(data.containsKey(STAT_POINT) && pointKeys != null && pointKeys.size() != 0){
 			pointData = (Map<String,Object>)data.get(STAT_POINT);
 			pointResult = createMap();
 			for(String statName: pointKeys){

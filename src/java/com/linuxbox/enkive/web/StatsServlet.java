@@ -58,7 +58,6 @@ import com.linuxbox.enkive.statistics.services.retrieval.StatsFilter;
 import com.linuxbox.enkive.statistics.services.retrieval.StatsQuery;
 import com.linuxbox.enkive.statistics.services.retrieval.mongodb.MongoStatsFilter;
 import com.linuxbox.enkive.statistics.services.retrieval.mongodb.MongoStatsQuery;
-
 @SuppressWarnings("unchecked")
 public class StatsServlet extends EnkiveServlet {
 	protected static final Log LOGGER = LogFactory
@@ -360,39 +359,24 @@ public class StatsServlet extends EnkiveServlet {
 				List<Map<String, Object>> result = null;
 				
 				if (noDate) {//no date range means get instant data
-					Map<String, String[]> gatheringStats = new HashMap<String, String[]>();
+					Map<String, List<String>> gatheringStats = new HashMap<String, List<String>>();
 					for (StatsFilter tempFilter : filterList) {
 						if (tempFilter.keys != null) {
-							String keys[] = new String[tempFilter.keys
-									.keySet().toArray().length];
-							int i = 0;
-							for (Object obj : tempFilter.keys.keySet()) {
-								if (obj instanceof String) {
-									keys[i] = (String) obj;
-								} else {
-									keys[i] = obj.toString();
-								}
-								i++;
-							}
+							List<String> keys = new LinkedList<String>(tempFilter.keys.keySet());
 							gatheringStats.put(tempFilter.gathererName, keys);
 						} else {
 							gatheringStats.put(tempFilter.gathererName, null);
 						}
 					}
 					List<RawStats> tempRawStats = client.gatherData(gatheringStats);
-					result = new LinkedList<Map<String,Object>>();
+					result = createListOfMaps();
 					for(RawStats stats: tempRawStats){
 						Map<String,Object> statsMap = stats.toMap();
 						result.add(statsMap);
 					}
 				} else {//output query data as formatted json
-//TODO
-					System.out.println("Date Range");
 					List<Map<String, Object>> stats = client.queryStatistics(
 							queryList, filterList);
-					System.out.println("QueryList: " + queryList);
-					System.out.println("FilterList: " + filterList.iterator().next().keys);
-					System.out.println("stats: " + stats);
 					result = createListOfMaps();
 					for (String name : serviceNames) {	
 						List<Map<String, Object>> serviceStats = createListOfMaps();

@@ -13,6 +13,7 @@ import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstant
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -28,7 +29,7 @@ import com.linuxbox.enkive.statistics.services.retrieval.StatsQuery;
 import com.linuxbox.enkive.statistics.services.retrieval.StatsTypeFilter;
 import com.linuxbox.enkive.statistics.services.retrieval.mongodb.MongoStatsQuery;
 import static com.linuxbox.enkive.statistics.VarsMaker.createMap;
-import static com.linuxbox.enkive.statistics.VarsMaker.createSetOfMaps;
+import static com.linuxbox.enkive.statistics.VarsMaker.createListOfMaps;
 import static com.linuxbox.enkive.statistics.VarsMaker.createLinkedListOfStrs;
 public class HourConsolidator extends AbstractConsolidator {
 	public HourConsolidator(StatsClient client) {
@@ -36,26 +37,26 @@ public class HourConsolidator extends AbstractConsolidator {
 	}
 
 	@SuppressWarnings("unchecked")
-	private Set<Map<String, Object>> getStatTypeData(String gathererName, String type){
+	private List<Map<String, Object>> getStatTypeData(String gathererName, String type){
 		StatsQuery query = new MongoStatsQuery(gathererName, filterType, type, startDate, endDate);
 		StatsFilter filter = new StatsTypeFilter(type);
-		Set<Map<String, Object>> result = createSetOfMaps();
+		List<Map<String, Object>> result = createListOfMaps();
 		Set<Map<String, Object>> queryData = client.queryStatistics(query, filter);
-		
 		for(Map<String, Object> statsMap: queryData){
 			statsMap.remove("_id");//WARNING mongo specific pollution
+
 			if(statsMap != null && !statsMap.isEmpty()){
-				result.add((Map<String,Object>)statsMap.get(type));
+				result.add(new HashMap<String, Object>((Map<String,Object>)statsMap.get(type)));
 			}
 		}
 		return result;
 	}
 	
-	public List<Set<Map<String, Object>>> gathererFilter(String gathererName) {
-		List<Set<Map<String,Object>>> result = new LinkedList<Set<Map<String,Object>>>();
+	public List<List<Map<String, Object>>> gathererFilter(String gathererName) {
+		List<List<Map<String,Object>>> result = new LinkedList<List<Map<String,Object>>>();
 
 		//interval stats
-		Set<Map<String, Object>> intervalData = getStatTypeData(gathererName, STAT_INTERVAL);
+		List<Map<String, Object>> intervalData = getStatTypeData(gathererName, STAT_INTERVAL);
 		if(!intervalData.isEmpty()){
 			result.add(intervalData);
 		} else {
@@ -63,7 +64,7 @@ public class HourConsolidator extends AbstractConsolidator {
 		}
 		
 		//point stats
-		Set<Map<String, Object>> pointData = getStatTypeData(gathererName, STAT_POINT);
+		List<Map<String, Object>> pointData = getStatTypeData(gathererName, STAT_POINT);
 		if(!pointData.isEmpty()){
 			result.add(pointData);
 		} else {
@@ -73,16 +74,20 @@ public class HourConsolidator extends AbstractConsolidator {
 	}
 	
 	@Override
-	public Set<Map<String, Object>> consolidateData() {
-		Set<Map<String, Object>> storageData = createSetOfMaps();
+	public List<Map<String, Object>> consolidateData() {
+		if(endDate == null || startDate == null){
+			LOGGER.error("Cannot run consolidateData until dates are set");
+			throw new NullPointerException();
+		}
+		List<Map<String, Object>> storageData = createListOfMaps();
 		for (GathererAttributes attribute : client.getAttributes()) {
 			String name = attribute.getName();
-			List<Set<Map<String, Object>>> serviceData = gathererFilter(name);			
+			List<List<Map<String, Object>>> serviceData = gathererFilter(name);			
 			if (!serviceData.isEmpty()) {
 				Map<String, Object> mapToStore = createMap();
 				
 				//Interval
-				Set<Map<String, Object>> intervalData = serviceData.get(0);
+				List<Map<String, Object>> intervalData = serviceData.get(0);
 				if(intervalData != null){
 					Map<String, Object> intervalTemplate = createMap((Map<String,Object>)intervalData.iterator().next());
 					Map<String, Object> intervalMapToStore = createMap(intervalTemplate);
@@ -96,11 +101,11 @@ public class HourConsolidator extends AbstractConsolidator {
 					
 					generateConsolidatedMap(intervalTemplate, intervalMapToStore,
 							createLinkedListOfStrs(), intervalKeys,
-							intervalData);//going to need string for point/interval
+							intervalData);
 					mapToStore.putAll(intervalMapToStore);
 				}
 				//Point
-				Set<Map<String, Object>> pointData = serviceData.get(1);
+				List<Map<String, Object>> pointData = serviceData.get(1);
 				if(pointData != null){
 					Map<String, Object> pointTemplate = createMap((Map<String,Object>)pointData.iterator().next());
 					Map<String, Object> pointMapToStore = createMap(pointTemplate);
@@ -135,7 +140,7 @@ public class HourConsolidator extends AbstractConsolidator {
 	
 	@Override
 	protected void consolidateMaps(Map<String, Object> consolidatedData,
-			Set<Map<String, Object>> serviceData, ConsolidationKeyHandler keyDef,
+			List<Map<String, Object>> serviceData, ConsolidationKeyHandler keyDef,
 			LinkedList<String> dataPath) {
 
 		if (keyDef.getMethods() != null) {

@@ -15,7 +15,7 @@ import com.linuxbox.enkive.statistics.services.retrieval.StatsFilter;
 import com.linuxbox.enkive.statistics.services.retrieval.StatsQuery;
 import com.linuxbox.enkive.statistics.services.retrieval.StatsRetrievalException;
 import com.linuxbox.enkive.statistics.services.storage.StatsStorageException;
-
+import static com.linuxbox.enkive.statistics.VarsMaker.createListOfMaps;
 public class StatsClient {
 	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.statistics.services.StatsClient");
@@ -53,7 +53,7 @@ public class StatsClient {
 	 * @param gathererFilter - a map in the form {gathererName:[array of keys for that gatherer]}
 	 * @return stats returned after filter
 	 */
-	public List<RawStats> gatherData(Map<String, String[]> gathererFilter) {
+	public List<RawStats> gatherData(Map<String, List<String>> gathererFilter) {
 		try {
 			return gathererService.gatherStats(gathererFilter);
 		} catch (GathererException e) {
@@ -182,7 +182,7 @@ public class StatsClient {
 	 * stores data in the mongo database
 	 * @param dataToStore - the data to be stored 
 	 */
-	public void storeData(Set<Map<String, Object>> dataToStore) {
+	public void storeData(List<Map<String, Object>> dataToStore) {
 		try {
 			storageService.storeStatistics(dataToStore);
 		} catch (StatsStorageException e) {
@@ -196,7 +196,7 @@ public class StatsClient {
 	 * @param dataToStore - the data to be stored 
 	 */
 	public void storeRawStatsData(List<RawStats> rawDataSet) {
-		Set<Map<String, Object>> dataToStore = new HashSet<Map<String, Object>>(); 
+		List<Map<String, Object>> dataToStore = createListOfMaps(); 
 		for(RawStats stat: rawDataSet){
 			dataToStore.add(stat.toMap());
 		}

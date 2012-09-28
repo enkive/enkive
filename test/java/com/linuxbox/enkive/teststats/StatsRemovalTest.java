@@ -22,7 +22,7 @@ import com.linuxbox.enkive.statistics.RawStats;
 import com.linuxbox.enkive.statistics.services.StatsClient;
 import com.linuxbox.enkive.statistics.services.StatsGathererService;
 import com.linuxbox.enkive.teststats.TestHelper;
-
+import static com.linuxbox.enkive.statistics.VarsMaker.createListOfMaps;
 public class StatsRemovalTest {
 	private static StatsGathererService gatherTester;
 	private static StatsClient client;
@@ -36,7 +36,7 @@ public class StatsRemovalTest {
 	@Test
 	public void removeAllTest() throws ParseException, GathererException {
 		List<RawStats> stats = gatherTester.gatherStats();
-		Set<Map<String, Object>> statSet = new HashSet<Map<String, Object>>();
+		List<Map<String, Object>> statSet = createListOfMaps();
 		for (RawStats rawStats : stats) {
 			Map<String, Object> temp = rawStats.toMap();
 			statSet.add(temp);

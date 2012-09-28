@@ -19,6 +19,10 @@ public class ConsolidationRunner {
 	RemovalJob remover;
 	String schedule;
 	Scheduler scheduler;
+	Consolidator hourConsolidator;
+	Consolidator dayConsolidator;
+	Consolidator weekConsolidator;
+	Consolidator monthConsolidator;
 
 	public ConsolidationRunner(StatsClient client, Scheduler scheduler,
 			String schedule, RemovalJob remover) {
@@ -26,6 +30,10 @@ public class ConsolidationRunner {
 		this.scheduler = scheduler;
 		this.schedule = schedule;
 		this.remover = remover;
+		hourConsolidator = new HourConsolidator(client);
+		dayConsolidator = new DayConsolidator(client);
+		weekConsolidator = new WeekConsolidator(client);
+		monthConsolidator = new MonthConsolidator(client);
 		LOGGER.info("GrainRunner Initialized");
 	}
 
@@ -52,30 +60,38 @@ public class ConsolidationRunner {
 
 	public void run() {
 		LOGGER.info("GrainRunner run() starting");
-		if (ConsolidationTimeDefs.HOUR.isMatch()) {
+//		if (ConsolidationTimeDefs.HOUR.isMatch()) {
+			System.out.println("hour");
+			System.out.println(LOGGER.isTraceEnabled());
 			LOGGER.trace("GrainRunner hour() starting");
-			(new HourConsolidator(client)).storeConsolidatedData();
+			hourConsolidator.setDates();
+			hourConsolidator.storeConsolidatedData();
 			LOGGER.trace("GrainRunner hour() finished");
-		}
+//		}
 
 		if (ConsolidationTimeDefs.DAY.isMatch()) {
+		System.out.println("day");
 			LOGGER.trace("GrainRunner day() starting");
-			(new DayConsolidator(client)).storeConsolidatedData();
+			dayConsolidator.setDates();
+			dayConsolidator.storeConsolidatedData();
 			LOGGER.trace("GrainRunner day() finished");
 		}
 		
 		if (ConsolidationTimeDefs.WEEK.isMatch()) {
 			LOGGER.trace("GrainRunner week() starting");
-			(new WeekConsolidator(client)).storeConsolidatedData();
+			weekConsolidator.setDates();
+			weekConsolidator.storeConsolidatedData();
 			LOGGER.trace("GrainRunner week() finished");
 		}
 
 		if (ConsolidationTimeDefs.MONTH.isMatch()) {
 			LOGGER.trace("GrainRunner month() starting");
-			(new MonthConsolidator(client)).storeConsolidatedData();
+			monthConsolidator.setDates();
+			monthConsolidator.storeConsolidatedData();
 			LOGGER.trace("GrainRunner month() finished");
 		}
 		LOGGER.info("GrainRunner run() finished");
+		//don't run remover until consolidation is done
 		remover.cleanAll();
 	}
 }

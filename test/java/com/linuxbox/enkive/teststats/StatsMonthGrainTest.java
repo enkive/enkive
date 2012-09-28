@@ -13,6 +13,7 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
@@ -54,7 +55,7 @@ public class StatsMonthGrainTest {
 		}
 
 		// TODO
-		Set<Map<String, Object>> stats = (new DayConsolidator(client))
+		List<Map<String, Object>> stats = (new DayConsolidator(client))
 				.consolidateData();
 		Map<String, Object> timeMap = new HashMap<String, Object>();
 		Calendar cal = Calendar.getInstance();
@@ -81,7 +82,13 @@ public class StatsMonthGrainTest {
 	public void correctQueryTest() {
 		for (GathererAttributes attribute : client.getAttributes()) {
 			String name = attribute.getName();
-			int size = grain.gathererFilter(name).size();
+			System.out.println("name: " + name);
+			List<Map<String, Object>> data = grain.gathererFilter(name).get(0);
+			int size = 0;
+			if(data != null){
+				size = data.size();
+			}
+			System.out.println("size: " + size);
 			assertTrue(
 					"the query did not return the correct number of objects: 5 vs. "
 							+ size, size == 5);
@@ -97,7 +104,7 @@ public class StatsMonthGrainTest {
 
 	@Test
 	public void consolidationMethods() {
-		Set<Map<String, Object>> consolidatedData = grain.consolidateData();
+		List<Map<String, Object>> consolidatedData = grain.consolidateData();
 		assertTrue("the consolidated data is null", consolidatedData != null);
 		String methods[] = { CONSOLIDATION_AVG, CONSOLIDATION_MAX, CONSOLIDATION_MIN };
 		DescriptiveStatistics statsMaker = new DescriptiveStatistics();

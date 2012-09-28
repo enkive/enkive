@@ -27,7 +27,7 @@ import org.junit.Test;
 import com.linuxbox.enkive.statistics.ConsolidationKeyHandler;
 import com.linuxbox.enkive.statistics.RawStats;
 import com.linuxbox.enkive.statistics.gathering.StatsRuntimeGatherer;
-
+@SuppressWarnings("unchecked")
 public class StatsRuntimeTest {
 	private final static String serviceName = "RuntimeGatherer";
 	protected static StatsRuntimeGatherer rtStat = null;
@@ -58,7 +58,6 @@ public class StatsRuntimeTest {
 	public void tearDown() throws Exception {
 	}
 
-	@SuppressWarnings("unchecked")
 	public boolean checkFormat(Map<String, Object> stats,
 			LinkedList<String> path) {
 		if(stats == null || path.isEmpty()){

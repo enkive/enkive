@@ -1,8 +1,9 @@
 package com.linuxbox.enkive.statistics.services.storage.mongodb;
 
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_GATHERER_NAME;
+
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -33,7 +34,7 @@ public class MongoStatsStorageService extends VarsMaker implements
 	}
 
 	@Override
-	public void storeStatistics(Set<Map<String, Object>> dataSet)
+	public void storeStatistics(List<Map<String, Object>> dataSet)
 			throws StatsStorageException {
 		if(dataSet != null){		
 			for (Map<String, Object> map : dataSet) {

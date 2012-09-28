@@ -11,9 +11,9 @@ import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstant
 
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashSet;
+import java.util.HashList;
 import java.util.Map;
-import java.util.Set;
+import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -148,8 +148,8 @@ public abstract class PastGatherer {
 		return earliestDate.getTime();
 	}
 	
-	public Set<Map<String,Object>> consolidatePast(int grain, Calendar c){
-		Set<Map<String, Object>> result = new HashSet<Map<String, Object>>();
+	public List<Map<String,Object>> consolidatePast(int grain, Calendar c){
+		List<Map<String, Object>> result = new HashList<Map<String, Object>>();
 		
 		while(c.getTimeInMillis() > endDate.getTime()){
 			Date end = c.getTime();
