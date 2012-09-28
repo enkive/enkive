@@ -60,14 +60,12 @@ public class ConsolidationRunner {
 
 	public void run() {
 		LOGGER.info("GrainRunner run() starting");
-//		if (ConsolidationTimeDefs.HOUR.isMatch()) {
-			System.out.println("hour");
-			System.out.println(LOGGER.isTraceEnabled());
+		if (ConsolidationTimeDefs.HOUR.isMatch()) {
 			LOGGER.trace("GrainRunner hour() starting");
 			hourConsolidator.setDates();
 			hourConsolidator.storeConsolidatedData();
 			LOGGER.trace("GrainRunner hour() finished");
-//		}
+		}
 
 		if (ConsolidationTimeDefs.DAY.isMatch()) {
 		System.out.println("day");

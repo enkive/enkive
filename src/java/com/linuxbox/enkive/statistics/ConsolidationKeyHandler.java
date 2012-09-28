@@ -87,7 +87,6 @@ public class ConsolidationKeyHandler {
 	 *  using the semantics outlined in the constructor's comments 
 	 */
 	private void parseAll(String str) {
-		System.out.println(str);
 		String[] temp = str.split(":");
 		key = new LinkedList<String>(Arrays.asList(temp[0].split("\\.")));
 		if (temp[1] != null && !temp[1].equals("")) {
