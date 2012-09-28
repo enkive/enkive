@@ -82,13 +82,11 @@ public class StatsMonthGrainTest {
 	public void correctQueryTest() {
 		for (GathererAttributes attribute : client.getAttributes()) {
 			String name = attribute.getName();
-			System.out.println("name: " + name);
 			List<Map<String, Object>> data = grain.gathererFilter(name).get(0);
 			int size = 0;
 			if(data != null){
 				size = data.size();
 			}
-			System.out.println("size: " + size);
 			assertTrue(
 					"the query did not return the correct number of objects: 5 vs. "
 							+ size, size == 5);

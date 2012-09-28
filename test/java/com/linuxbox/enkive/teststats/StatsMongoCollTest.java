@@ -4,6 +4,8 @@ import static com.linuxbox.enkive.statistics.StatsConstants.STAT_AVG_OBJ_SIZE;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_DATA_SIZE;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_LAST_EXTENT_SIZE;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_NS;
+import static com.linuxbox.enkive.statistics.StatsConstants.STAT_POINT;
+import static com.linuxbox.enkive.statistics.StatsConstants.STAT_INTERVAL;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_NUM_EXTENT;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_NUM_INDEX;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_NUM_OBJS;
@@ -44,6 +46,7 @@ import com.mongodb.MongoException;
 public class StatsMongoCollTest {
 	private static StatsMongoCollectionGatherer collStats;
 	private static Map<String, Object> allStats;
+	private static Map<String, Object> pointStats;
 	private static DB db;
 	private String collName;
 	private static String name = "CollGatherer";
@@ -81,6 +84,7 @@ public class StatsMongoCollTest {
 		RawStats rawStats = collStats.getStatistics();
 		allStats = rawStats.toMap();
 		allStats.put(STAT_TIMESTAMP, rawStats.getStartDate());
+		pointStats = (Map<String,Object>) allStats.get(STAT_POINT);
 		List<Object[]> data = new ArrayList<Object[]>();
 		System.out.println("Not testing the following empty DB's: ");
 		for (String name : db.getCollectionNames()) {
@@ -113,7 +117,7 @@ public class StatsMongoCollTest {
 	// TODO: possibly move to main api in the future
 	public boolean checkFormat(Map<String, Object> stats,
 			LinkedList<String> path) {
-		if (path.contains(STAT_GATHERER_NAME)) {
+		if (path.contains(STAT_GATHERER_NAME) || path.contains(STAT_TIMESTAMP)) {
 			return true;
 		}
 
@@ -159,7 +163,7 @@ public class StatsMongoCollTest {
 		for (ConsolidationKeyHandler key : collStats.getAttributes().getKeys()) {
 			LinkedList<String> path = key.getKey();
 			assertTrue("the format is incorrect for path: " + path,
-					checkFormat(allStats, path));
+					checkFormat(pointStats, path));
 		}
 	}
 
@@ -186,12 +190,12 @@ public class StatsMongoCollTest {
 
 	@Test
 	public void collExistsTest() {
-		assertTrue(collName + " does not exist", allStats.containsKey(collName));
+		assertTrue(collName + " does not exist", pointStats.containsKey(collName));
 	}
 
 	@Test
 	public void namespaceExistsTest() {
-		Map<String, Object> obj = (Map<String, Object>) allStats.get(collName);
+		Map<String, Object> obj = (Map<String, Object>) pointStats.get(collName);
 		assertNotNull("in " + collName + " (obj = null)", obj);
 		assertTrue(
 				"in " + collName + "does not contain field(" + STAT_NS + ")",
@@ -200,7 +204,7 @@ public class StatsMongoCollTest {
 
 	@Test
 	public void keyCountMatches() {
-		int numKeys = ((Map<String, Object>) allStats.get(collName)).keySet()
+		int numKeys = ((Map<String, Object>) pointStats.get(collName)).keySet()
 				.size();
 		assertTrue("numKeys doesn't match: numKeys = " + numKeys, numKeys == 10);
 	}
@@ -208,7 +212,7 @@ public class StatsMongoCollTest {
 	// GT means 'greater than'
 	@Test
 	public void numObjsGTZeroTest() {
-		Map<String, Object> obj = (Map<String, Object>) allStats.get(collName);
+		Map<String, Object> obj = (Map<String, Object>) pointStats.get(collName);
 		assertNotNull("in " + collName + " (numObjs = null)",
 				(Integer) obj.get(STAT_NUM_OBJS));
 		int numObjs = ((Integer) obj.get(STAT_NUM_OBJS)).intValue();
@@ -218,7 +222,7 @@ public class StatsMongoCollTest {
 
 	@Test
 	public void avgObjsGTZeroTest() {
-		Map<String, Object> obj = (Map<String, Object>) allStats.get(collName);
+		Map<String, Object> obj = (Map<String, Object>) pointStats.get(collName);
 		assertNotNull("in " + collName + " (avgObjs = null)",
 				((Double) obj.get(STAT_AVG_OBJ_SIZE)));
 		double avgObjs = ((Double) obj.get(STAT_AVG_OBJ_SIZE)).doubleValue();
@@ -228,7 +232,7 @@ public class StatsMongoCollTest {
 
 	@Test
 	public void dataGTZeroTest() {
-		Map<String, Object> obj = (Map<String, Object>) allStats.get(collName);
+		Map<String, Object> obj = (Map<String, Object>) pointStats.get(collName);
 		assertNotNull("in " + collName + " (data = null)",
 				((Integer) obj.get(STAT_DATA_SIZE)));
 		int data = ((Integer) obj.get(STAT_DATA_SIZE)).intValue();
@@ -237,7 +241,7 @@ public class StatsMongoCollTest {
 
 	@Test
 	public void storageGTZeroTest() {
-		Map<String, Object> obj = (Map<String, Object>) allStats.get(collName);
+		Map<String, Object> obj = (Map<String, Object>) pointStats.get(collName);
 		assertNotNull("in " + collName + " (storage = null)",
 				((Integer) obj.get(STAT_TOTAL_SIZE)));
 		int storage = ((Integer) obj.get(STAT_TOTAL_SIZE)).intValue();
@@ -247,7 +251,7 @@ public class StatsMongoCollTest {
 
 	@Test
 	public void extentsGTZeroTest() {
-		Map<String, Object> obj = (Map<String, Object>) allStats.get(collName);
+		Map<String, Object> obj = (Map<String, Object>) pointStats.get(collName);
 		assertNotNull("in " + collName + " (numExtents = null)",
 				(Integer) obj.get(STAT_NUM_EXTENT));
 		int numExtents = ((Integer) obj.get(STAT_NUM_EXTENT)).intValue();
@@ -256,7 +260,7 @@ public class StatsMongoCollTest {
 
 	@Test
 	public void lastExtentSizeGTZeroTest() {
-		Map<String, Object> obj = (Map<String, Object>) allStats.get(collName);
+		Map<String, Object> obj = (Map<String, Object>) pointStats.get(collName);
 		assertNotNull("in " + collName + " (lastExtentsSize = null)",
 				((Integer) obj.get(STAT_LAST_EXTENT_SIZE)));
 		int lastExtentSize = ((Integer) obj.get(STAT_LAST_EXTENT_SIZE))
@@ -266,7 +270,7 @@ public class StatsMongoCollTest {
 
 	@Test
 	public void numIndexesGTEZeroTest() {
-		Map<String, Object> obj = (Map<String, Object>) allStats.get(collName);
+		Map<String, Object> obj = (Map<String, Object>) pointStats.get(collName);
 		assertNotNull("in " + collName + " (numIndexes = null)",
 				((Integer) obj.get(STAT_NUM_INDEX)));
 		int numIndexes = ((Integer) obj.get(STAT_NUM_INDEX)).intValue();
@@ -276,7 +280,7 @@ public class StatsMongoCollTest {
 
 	@Test
 	public void indexSizeGTEZeroTest() {
-		Map<String, Object> obj = (Map<String, Object>) allStats.get(collName);
+		Map<String, Object> obj = (Map<String, Object>) pointStats.get(collName);
 		assertNotNull("in " + collName + " (totalIndexSize = null)",
 				(Integer) obj.get(STAT_TOTAL_INDEX_SIZE));
 		Integer integer = (Integer) obj.get(STAT_TOTAL_INDEX_SIZE);

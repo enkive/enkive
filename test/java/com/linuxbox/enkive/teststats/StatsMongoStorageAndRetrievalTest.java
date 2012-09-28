@@ -67,7 +67,6 @@ public class StatsMongoStorageAndRetrievalTest {
 				TestingConstants.MONGODB_TEST_COLL);
 		gatherTester = new StatsGathererService(map);
 		client = new StatsClient(gatherTester, storageTester, retrievalTester);
-		System.out.println("rawStats: " + gatherTester.gatherStats());
 		RawStats rawStats = gatherTester.gatherStats().iterator().next();
 		stats = rawStats.toMap();
 	}
@@ -88,13 +87,13 @@ public class StatsMongoStorageAndRetrievalTest {
 		coll.drop();
 
 		List<String> keys = new LinkedList<String>();
-		keys.add("db::Database Name::point");
+		keys.add("db::Database Name::");
 		keys.add("numObj:avg,max,min:Number of Objects::point");
 		keys.add("nColls:avg,max,min:Number of Collections::point");
 		keys.add("avgOSz:avg,max,min:Average Object Size:bytes:point");
 		keys.add("dataSz:avg,max,min:Data Size:bytes:point");
 		keys.add("totSz:avg,max,min:Total Size:bytes:point");
-		keys.add("numInd:avg,max,min:Number of Indexes:point");
+		keys.add("numInd:avg,max,min:Number of Indexes::point");
 		keys.add("indSz:avg,max,min:Index Size:objects:point");
 		keys.add("numExt:avg,max,min:Number of Extents::point");
 		keys.add("fileSz:avg,max,min:File Size:bytes:point");

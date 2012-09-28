@@ -30,7 +30,7 @@ public abstract class AbstractConsolidator implements Consolidator {
 
 	public AbstractConsolidator(StatsClient client) {
 		this.client = client;
-//		setDates();
+		setDates();
 		setTypes();
 	}
 
