@@ -3,10 +3,11 @@ package com.linuxbox.enkive.imap.mongo;
 import static com.linuxbox.enkive.search.Constants.DATE_EARLIEST_PARAMETER;
 import static com.linuxbox.enkive.search.Constants.DATE_LATEST_PARAMETER;
 import static com.linuxbox.enkive.search.Constants.NUMERIC_SEARCH_FORMAT;
-import static com.linuxbox.enkive.search.Constants.SENDER_PARAMETER;
-import static com.linuxbox.enkive.search.Constants.RECIPIENT_PARAMETER;
+import static com.linuxbox.enkive.search.Constants.PERMISSIONS_RECIPIENT_PARAMETER;
+import static com.linuxbox.enkive.search.Constants.PERMISSIONS_SENDER_PARAMETER;
 
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Set;
@@ -15,11 +16,14 @@ import java.util.TreeMap;
 import org.apache.commons.lang.time.DateUtils;
 import org.bson.types.ObjectId;
 
+import com.linuxbox.enkive.exception.CannotGetPermissionsException;
 import com.linuxbox.enkive.imap.EnkiveImapAccountCreator;
 import com.linuxbox.enkive.message.search.exception.MessageSearchException;
+import com.linuxbox.enkive.permissions.PermissionService;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
+import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.Mongo;
 
@@ -29,6 +33,7 @@ public class MongoImapAccountCreator implements EnkiveImapAccountCreator {
 	DB imapDB;
 	DBCollection imapCollection;
 	MongoImapAccountCreationMessageSearchService searchService;
+	PermissionService permissionsService;
 
 	public MongoImapAccountCreator(Mongo m, String imapDBName,
 			String imapCollname) {
@@ -90,8 +95,25 @@ public class MongoImapAccountCreator implements EnkiveImapAccountCreator {
 			Date toDate) throws MessageSearchException {
 		HashMap<String, String> fields = new HashMap<String, String>();
 
-		fields.put(SENDER_PARAMETER, username);
-		fields.put(RECIPIENT_PARAMETER, username);
+		try {
+			if (!permissionsService.isAdmin()) {
+				Collection<String> addresses = permissionsService
+						.canReadAddresses(username);
+				StringBuilder addressesString = new StringBuilder();
+				for (String address : addresses) {
+					addressesString.append(address);
+					addressesString.append("; ");
+				}
+
+				fields.put(PERMISSIONS_SENDER_PARAMETER,
+						addressesString.toString());
+				fields.put(PERMISSIONS_RECIPIENT_PARAMETER,
+						addressesString.toString());
+			}
+		} catch (CannotGetPermissionsException e) {
+			throw new MessageSearchException(
+					"Could not get permissions for user imap creation.", e);
+		}
 		fields.put(DATE_EARLIEST_PARAMETER,
 				NUMERIC_SEARCH_FORMAT.format(fromDate));
 		fields.put(DATE_LATEST_PARAMETER, NUMERIC_SEARCH_FORMAT.format(toDate));
@@ -139,7 +161,6 @@ public class MongoImapAccountCreator implements EnkiveImapAccountCreator {
 			// Need to add messages
 			// Get top UID, add from there
 			if (!messageIdsToAdd.isEmpty()) {
-				System.out.println(messageIdsToAdd.size());
 				// Need to check if folder exists, if not create it and add to
 				// user
 				// mailbox list
@@ -161,10 +182,9 @@ public class MongoImapAccountCreator implements EnkiveImapAccountCreator {
 				}
 				mailboxObject.put(MongoEnkiveImapConstants.MESSAGEIDS,
 						mailboxMsgIds);
-				
-				imapCollection.findAndModify(
-						new BasicDBObject("_id", mailboxObject.get("_id")),
-						mailboxObject);
+
+				imapCollection.findAndModify(new BasicDBObject("_id",
+						mailboxObject.get("_id")), mailboxObject);
 			}
 			startTime.set(Calendar.DAY_OF_MONTH, 1);
 			startTime.add(Calendar.MONTH, 1);
@@ -222,8 +242,31 @@ public class MongoImapAccountCreator implements EnkiveImapAccountCreator {
 				mailboxTable);
 		imapCollection.findAndModify(userMailboxesSearchObject,
 				userMailboxesObject);
-		
+
 		return mailboxObject;
+	}
+	
+	public void updateImapAccounts() throws MessageSearchException {
+		BasicDBObject userMailboxSearchObject = new BasicDBObject(
+				MongoEnkiveImapConstants.USER, 1);
+		DBCursor userMailboxes = imapCollection.find(new BasicDBObject(),
+				userMailboxSearchObject);
+		// For each user
+		while (userMailboxes.hasNext()) {
+			DBObject userMailboxList = userMailboxes.next();
+			Calendar yesterday = Calendar.getInstance();
+			yesterday.add(Calendar.DATE, -1);
+			addImapMessages((String) userMailboxList
+					.get(MongoEnkiveImapConstants.USER), yesterday.getTime(), yesterday.getTime());
+		}
+	}
+
+	public PermissionService getPermissionsService() {
+		return permissionsService;
+	}
+
+	public void setPermissionsService(PermissionService permissionsService) {
+		this.permissionsService = permissionsService;
 	}
 
 }
