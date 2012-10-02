@@ -1,16 +1,16 @@
-package com.linuxbox.enkive.statistics.granularity;
+package com.linuxbox.enkive.statistics.consolidation;
 
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_DAY;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_WEEK;
+import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_DAY;
+import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_WEEK;
 
 import java.util.Calendar;
 import java.util.Date;
 
 import com.linuxbox.enkive.statistics.services.StatsClient;
 
-public class WeekGrain extends EmbeddedGrain {
+public class WeekConsolidator extends EmbeddedConsolidator {
 
-	public WeekGrain(StatsClient client) {
+	public WeekConsolidator(StatsClient client) {
 		super(client);
 	}
 
@@ -32,6 +32,6 @@ public class WeekGrain extends EmbeddedGrain {
 	
 	@Override
 	public void setTypes() {
-		setTypes(GRAIN_WEEK, GRAIN_DAY);
+		setTypes(CONSOLIDATION_WEEK, CONSOLIDATION_DAY);
 	}
 }

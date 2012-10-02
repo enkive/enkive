@@ -2,9 +2,8 @@ package com.linuxbox.enkive.statistics.services.retrieval.mongodb;
 
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_GATHERER_NAME;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIMESTAMP;
+import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_MAX;
 import static com.linuxbox.enkive.statistics.gathering.mongodb.MongoConstants.MONGO_ID;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_TYPE;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MIN;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -17,17 +16,16 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.bson.types.ObjectId;
 
-import com.linuxbox.enkive.statistics.StatsFilter;
-import com.linuxbox.enkive.statistics.StatsQuery;
 import com.linuxbox.enkive.statistics.VarsMaker;
 import com.linuxbox.enkive.statistics.services.StatsRetrievalService;
+import com.linuxbox.enkive.statistics.services.retrieval.StatsFilter;
+import com.linuxbox.enkive.statistics.services.retrieval.StatsQuery;
 import com.linuxbox.enkive.statistics.services.retrieval.StatsRetrievalException;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import com.mongodb.Mongo;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_RAW;
 
 public class MongoStatsRetrievalService extends VarsMaker implements
 		StatsRetrievalService {
@@ -44,46 +42,6 @@ public class MongoStatsRetrievalService extends VarsMaker implements
 		coll = db.getCollection(collectionName);
 		LOGGER.info("RetrievalService(Mongo, String) successfully created");
 	}
-
-	private DBObject getQuery(StatsQuery query) {
-		DBObject mongoQuery = new BasicDBObject();
-		DBObject time = new BasicDBObject();
-		//put in a date
-		
-		if(query.grainType != null && query.grainType == GRAIN_RAW){
-			if(query.startTimestamp != null){
-				time.put("$gte", query.startTimestamp);
-			}
-			if(query.endTimestamp != null){
-				time.put("$lt", query.endTimestamp);
-			}
-			mongoQuery.put(STAT_TIMESTAMP, time);
-		} else {
-			if(query.startTimestamp != null){
-				time = new BasicDBObject();
-				time.put("$gte", query.startTimestamp);
-				mongoQuery.put(STAT_TIMESTAMP + "." + "min", time);
-			}
-			if(query.endTimestamp != null){
-				time = new BasicDBObject();
-				time.put("$lt", query.endTimestamp);
-				mongoQuery.put(STAT_TIMESTAMP + "." + "max", time);	
-			}
-		}
-		
-		if(query.grainType != null){
-			if(query.grainType == 0){
-				mongoQuery.put(GRAIN_TYPE, null);
-			} else {
-				mongoQuery.put(GRAIN_TYPE, query.grainType);
-			}
-		}
-		
-		if(query.gathererName != null){
-			mongoQuery.put(STAT_GATHERER_NAME, query.gathererName);
-		}
-		return mongoQuery;
-	}
 	
 	/**
 	 * preforms a query on the database based on a query map
@@ -92,7 +50,7 @@ public class MongoStatsRetrievalService extends VarsMaker implements
 	 */
 	private Set<DBObject> getQuerySet(StatsQuery query) {
 		Set<DBObject> result = new HashSet<DBObject>();
-		result.addAll(coll.find(getQuery(query)).toArray());
+		result.addAll(coll.find(new BasicDBObject(query.getQuery())).toArray());
 		return result;
 	}
 
@@ -117,7 +75,7 @@ public class MongoStatsRetrievalService extends VarsMaker implements
 
 	@Override
 	public Set<Map<String, Object>> queryStatistics() {
-		Set<Map<String, Object>> result = new HashSet<Map<String, Object>>();
+		Set<Map<String, Object>> result = createSetOfMaps();
 		for (DBObject entry : coll.find()) {
 			addMapToSet(entry, result);
 		}
@@ -127,43 +85,53 @@ public class MongoStatsRetrievalService extends VarsMaker implements
 	
 	@Override
 	public Set<Map<String, Object>> queryStatistics(StatsQuery query) {
-		Set<Map<String, Object>> result = new HashSet<Map<String, Object>>();
+		Set<Map<String, Object>> result = createSetOfMaps();
 		for (DBObject entry : getQuerySet(query)) {
 			addMapToSet(entry, result);
 		}
-
 		return result;
 	}
 
 	private DBObject getFilter(StatsFilter filter){
-		return new BasicDBObject(filter.keys);
+		return new BasicDBObject(filter.getFilter());
 	}
 	
-	//list to garrantee order
+	@Override
+	public Set<Map<String, Object>> queryStatistics(StatsQuery query,
+			StatsFilter filter) throws StatsRetrievalException {
+		if(filter == null){
+			return queryStatistics(query);
+		}
+		DBObject mongoQuery  = new BasicDBObject(query.getQuery());
+		DBObject mongoFilter = getFilter(filter);
+		Set<Map<String, Object>> result = createSetOfMaps();
+		for (DBObject entry : coll.find(mongoQuery, mongoFilter)) {
+			addMapToSet(entry, result);
+		}
+		return result;
+	}
+	
+	// lists guarantee order (ex: querylist[1] MUST correspond to filterlist[1])
 	public List<Map<String, Object>> queryStatistics(
 			List<StatsQuery> queryList,
 			List<StatsFilter> filterList)
 			throws StatsRetrievalException {
 		List<DBObject> allStats = new LinkedList<DBObject>();
-		for (StatsQuery queryObject : queryList) {
-			DBObject query  = getQuery(queryObject);
+		for (int i = 0; i < queryList.size(); i++) {
+			DBObject query  = new BasicDBObject(queryList.get(i).getQuery());
 			DBObject filter = null;
-			if(filterList != null && !filterList.isEmpty()){
-				for(StatsFilter filterObject : filterList){
-					if(filterObject.gathererName.equals(queryObject.gathererName)){
-						filter = getFilter(filterObject);
-						break;
-					}
-				}
+			if(filterList != null && !filterList.isEmpty() && filterList.get(i) != null){
+				filter = getFilter(filterList.get(i));
 			}			
 			
 			if(filter != null){
-				allStats.addAll(coll.find(query, filter).sort(new BasicDBObject(STAT_TIMESTAMP + "." + GRAIN_MIN, 1)).toArray());
+				allStats.addAll(coll.find(query, filter).sort(new BasicDBObject(STAT_TIMESTAMP + "." + CONSOLIDATION_MAX, 1)).toArray());
 			} else {
 				allStats.addAll(coll.find(query).toArray());
 			}
 		}
-		List<Map<String, Object>> result = new LinkedList<Map<String, Object>>();
+		
+		List<Map<String, Object>> result = createListOfMaps();
 		for (DBObject entry : allStats) {
 			addMapToList(entry, result);
 		}
@@ -184,12 +152,12 @@ public class MongoStatsRetrievalService extends VarsMaker implements
 					&& !filterMap.get(gathererName).isEmpty()) {
 				BasicDBObject filter = new BasicDBObject(
 						filterMap.get(gathererName));
-				allStats.addAll(coll.find(query, filter).sort(new BasicDBObject(STAT_TIMESTAMP + "." + GRAIN_MIN, 1)).toArray());
+				allStats.addAll(coll.find(query, filter).sort(new BasicDBObject(STAT_TIMESTAMP + "." + CONSOLIDATION_MAX, 1)).toArray());
 			} else {
-				allStats.addAll(coll.find(query).sort(new BasicDBObject(STAT_TIMESTAMP + "." + GRAIN_MIN, 1)).toArray());
+				allStats.addAll(coll.find(query).sort(new BasicDBObject(STAT_TIMESTAMP + "." + CONSOLIDATION_MAX, 1)).toArray());
 			}
 		}
-		List<Map<String, Object>> result = new LinkedList<Map<String, Object>>();
+		List<Map<String, Object>> result = createListOfMaps();
 		for (DBObject entry : allStats) {
 			addMapToList(entry, result);
 		}

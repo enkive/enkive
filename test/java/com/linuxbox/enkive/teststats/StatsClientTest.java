@@ -7,17 +7,6 @@ import java.text.ParseException;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.linuxbox.enkive.TestingConstants;
-import com.linuxbox.enkive.docsearch.indri.IndriDocSearchQueryService;
-import com.linuxbox.enkive.statistics.gathering.GathererException;
-import com.linuxbox.enkive.statistics.gathering.GathererInterface;
-import com.linuxbox.enkive.statistics.gathering.StatsMsgSearchGatherer;
-import com.linuxbox.enkive.statistics.gathering.StatsRuntimeGatherer;
-import com.linuxbox.enkive.statistics.gathering.mongodb.MongoGathererMessageSearchService;
-import com.linuxbox.enkive.statistics.gathering.mongodb.StatsMongoAttachmentsGatherer;
-import com.linuxbox.enkive.statistics.gathering.mongodb.StatsMongoCollectionGatherer;
-import com.linuxbox.enkive.statistics.gathering.mongodb.StatsMongoDBGatherer;
-import com.linuxbox.enkive.statistics.gathering.mongodb.StatsMongoMsgGatherer;
 import com.linuxbox.enkive.statistics.gathering.GathererException;
 import com.linuxbox.enkive.statistics.services.StatsClient;
 
@@ -38,7 +27,7 @@ public class StatsClientTest {
 	@Test
 	public void correctNumGatherers() {
 		int size = client.gathererNames().size();
-		assertTrue("the number of gatherers is incorrect: " + size, size == 6);
+		assertTrue("the number of gatherers is incorrect: " + size, size == 5);
 	}
 
 	@Test

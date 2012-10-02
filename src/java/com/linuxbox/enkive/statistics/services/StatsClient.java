@@ -8,15 +8,14 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIMESTAMP;
 import com.linuxbox.enkive.statistics.RawStats;
-import com.linuxbox.enkive.statistics.StatsFilter;
-import com.linuxbox.enkive.statistics.StatsQuery;
 import com.linuxbox.enkive.statistics.gathering.GathererAttributes;
 import com.linuxbox.enkive.statistics.gathering.GathererException;
+import com.linuxbox.enkive.statistics.services.retrieval.StatsFilter;
+import com.linuxbox.enkive.statistics.services.retrieval.StatsQuery;
 import com.linuxbox.enkive.statistics.services.retrieval.StatsRetrievalException;
 import com.linuxbox.enkive.statistics.services.storage.StatsStorageException;
-
+import static com.linuxbox.enkive.statistics.VarsMaker.createListOfMaps;
 public class StatsClient {
 	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.statistics.services.StatsClient");
@@ -54,11 +53,9 @@ public class StatsClient {
 	 * @param gathererFilter - a map in the form {gathererName:[array of keys for that gatherer]}
 	 * @return stats returned after filter
 	 */
-	public List<RawStats> gatherData(Map<String, String[]> gathererFilter) {
+	public List<RawStats> gatherData(Map<String, List<String>> gathererFilter) {
 		try {
 			return gathererService.gatherStats(gathererFilter);
-		} catch (ParseException e) {
-			LOGGER.error("Client.gatherData(Map) ParseException", e);
 		} catch (GathererException e) {
 			LOGGER.error("Client.gatherData(Map) GathererException", e);
 		}
@@ -91,12 +88,9 @@ public class StatsClient {
 		return gathererService.getStatsGatherers(serviceName).get(serviceName)
 				.getAttributes();
 	}
-
+	
 	/**
-	 * query the database using a query argument and a date range
-	 * @param stats - a map formatted in the following way: {gathererName:{stat:value, stat:value, ...}, ...}
-	 * @param startingTimestamp - the start date for the query-if null then epoche is used
-	 * @param endingTimestamp - the end date for the query-if null then current date is used
+	 * query the database for all objects
 	 * @return result of objects found with query
 	 */
 	public Set<Map<String, Object>> queryStatistics() {
@@ -112,14 +106,23 @@ public class StatsClient {
 	
 	/**
 	 * query the database using a query argument and a date range
-	 * @param stats - a map formatted in the following way: {gathererName:{stat:value, stat:value, ...}, ...}
-	 * @param startingTimestamp - the start date for the query-if null then epoche is used
-	 * @param endingTimestamp - the end date for the query-if null then current date is used
+	 * @param query the statsQuery used to get objects for this class
 	 * @return result of objects found with query
 	 */
 	public Set<Map<String, Object>> queryStatistics(StatsQuery query) {
 		try {
 			return retrievalService.queryStatistics(query);
+		} catch (StatsRetrievalException e) {
+			LOGGER.error(
+					"Client.queryStatistics(StatsQuery) StatsRetrievalException",
+					e);
+		}
+		return null;
+	}
+	
+	public Set<Map<String, Object>> queryStatistics(StatsQuery query, StatsFilter filter) {
+		try {
+			return retrievalService.queryStatistics(query, filter);
 		} catch (StatsRetrievalException e) {
 			LOGGER.error(
 					"Client.queryStatistics(StatsQuery) StatsRetrievalException",
@@ -179,7 +182,7 @@ public class StatsClient {
 	 * stores data in the mongo database
 	 * @param dataToStore - the data to be stored 
 	 */
-	public void storeData(Set<Map<String, Object>> dataToStore) {
+	public void storeData(List<Map<String, Object>> dataToStore) {
 		try {
 			storageService.storeStatistics(dataToStore);
 		} catch (StatsStorageException e) {
@@ -193,11 +196,9 @@ public class StatsClient {
 	 * @param dataToStore - the data to be stored 
 	 */
 	public void storeRawStatsData(List<RawStats> rawDataSet) {
-		Set<Map<String, Object>> dataToStore = new HashSet<Map<String, Object>>(); 
+		List<Map<String, Object>> dataToStore = createListOfMaps(); 
 		for(RawStats stat: rawDataSet){
-			Map<String, Object> dataMap = stat.getStatsMap();
-			dataMap.put(STAT_TIMESTAMP, stat.getTimestamp());
-			dataToStore.add(dataMap);
+			dataToStore.add(stat.toMap());
 		}
 		storeData(dataToStore);
 	}

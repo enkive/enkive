@@ -1,8 +1,8 @@
-package com.linuxbox.enkive.statistics.granularity;
+package com.linuxbox.enkive.statistics.consolidation;
 
 import java.util.Calendar;
 
-public enum Granularity {
+public enum ConsolidationTimeDefs {
 	HOUR(-1, -1, -1, -1),// any hour (hourly controlled by cronTrigger)
 	DAY(0, -1, -1, -1), // first hour of any day 
 	WEEK(-1, -1, 1, -1), // first day of any week
@@ -14,7 +14,7 @@ public enum Granularity {
 
 	private int week;
 
-	Granularity(int hour, int dayOfMonth, int week, int month) {
+	ConsolidationTimeDefs(int hour, int dayOfMonth, int week, int month) {
 		this.hour = hour;
 		this.dayOfMonth = dayOfMonth;
 		this.week = week;

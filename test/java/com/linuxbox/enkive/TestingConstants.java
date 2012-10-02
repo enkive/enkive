@@ -21,17 +21,17 @@ package com.linuxbox.enkive;
 
 public interface TestingConstants {
 
-	String TEST_MESSAGE_DIRECTORY = "test/data/unitTestData";
-	String TEST_EMERGENCY_SAVE_ROOT = "test/emergencySaveFiles";
+	public static final String TEST_MESSAGE_DIRECTORY = "test/data/unitTestData";
+	public static final String TEST_EMERGENCY_SAVE_ROOT = "test/emergencySaveFiles";
 
-	String MONGODB_TEST_COLL = "statistics";
-	String MONGODB_TEST_DATABASE = "enkive-test";
-	String MONGODB_TEST_MESSAGES_COLLECTION = "messages-test";
-	String MONGODB_TEST_DOCUMENTS_COLLECTION = "documents-test";
-	String MONGODB_TEST_LOCK_COLLECTION = "lock-test";
-	String MONGODB_TEST_AUDIT_COLLECTION = "audit-test";
-	String MONGODB_TEST_QUEUE_COLLECTION = "queue-test";
-	String MONGODB_TEST_FSFILES_COLLECTION = "documents-test";
-	String MONGODB_TEST_CHUNKS_COLLECTION = "documents-test.chunks";
+	public static final String MONGODB_TEST_COLL = "statistics";
+	public static final String MONGODB_TEST_DATABASE = "enkive-test";
+	public static final String MONGODB_TEST_MESSAGES_COLLECTION = "messages-test";
+	public static final String MONGODB_TEST_DOCUMENTS_COLLECTION = "documents-test";
+	public static final String MONGODB_TEST_LOCK_COLLECTION = "lock-test";
+	public static final String MONGODB_TEST_AUDIT_COLLECTION = "audit-test";
+	public static final String MONGODB_TEST_QUEUE_COLLECTION = "queue-test";
+	public static final String MONGODB_TEST_FSFILES_COLLECTION = "documents-test";
+	public static final String MONGODB_TEST_CHUNKS_COLLECTION = "documents-test.chunks";
 
 }

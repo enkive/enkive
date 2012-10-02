@@ -21,6 +21,7 @@ package com.linuxbox.enkive.message.search.mongodb;
 
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.CC;
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.DATE;
+import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.ARCHIVE_TIME;
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.FROM;
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.MAIL_FROM;
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.MESSAGE_ID;
@@ -31,6 +32,7 @@ import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.AT
 import static com.linuxbox.enkive.search.Constants.CONTENT_PARAMETER;
 import static com.linuxbox.enkive.search.Constants.DATE_EARLIEST_PARAMETER;
 import static com.linuxbox.enkive.search.Constants.DATE_LATEST_PARAMETER;
+import static com.linuxbox.enkive.search.Constants.DATE_TYPE;
 import static com.linuxbox.enkive.search.Constants.LIMIT_PARAMETER;
 import static com.linuxbox.enkive.search.Constants.MESSAGE_ID_PARAMETER;
 import static com.linuxbox.enkive.search.Constants.NUMERIC_SEARCH_FORMAT;
@@ -260,7 +262,11 @@ public class MongoMessageSearchService extends AbstractMessageSearchService {
 						}
 					}
 				}
-				query.put(DATE, dateQuery);
+				if(fields.containsKey(DATE_TYPE) && fields.get(DATE_TYPE).equals(ARCHIVE_TIME)){
+					query.put(ARCHIVE_TIME, dateQuery);
+				} else {
+					query.put(DATE, dateQuery);
+				}
 			} else if (searchField.equals(SUBJECT_PARAMETER)) {
 				Pattern subjectRegex = Pattern.compile(fields.get(searchField),
 						Pattern.CASE_INSENSITIVE);

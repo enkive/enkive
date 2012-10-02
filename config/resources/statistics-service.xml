@@ -12,63 +12,42 @@
 		<constructor-arg name="dbName" value="${enkive.statistics.db.name}" />
 		<constructor-arg name="collectionName" value="${enkive.statistics.collection.name}" />
 	</bean>
-
-	<bean id="MsgStatsService"
-		class="com.linuxbox.enkive.statistics.gathering.mongodb.StatsMongoMsgGatherer">
-		<constructor-arg ref="Mongo" />
-		<constructor-arg name="dbName" value="${enkive.messagestore.db.name}" />
-		<constructor-arg name="collName" value="${enkive.messagestore.collection.name}" />
-		<constructor-arg name="serviceName" value="MsgStatsService"/>
-		<constructor-arg name="humanName" value="Message Archive Statistics"/>
-		<constructor-arg name="schedule" value="0 0/15 * * * ?" />
-		<property name="scheduler" ref="ScheduledJobsBean" />
-		<property name="storageService" ref="StatisticsStorer" />
-		<property name="keys">	
-			<list>
-				<value>MsgArchive:avg,max,min:Size of Archive:messages</value>
-			</list>
-		</property>	
-	</bean>
-
+	
 	<bean id="CollectionStatsService"
 		class="com.linuxbox.enkive.statistics.gathering.mongodb.StatsMongoCollectionGatherer">
 		<constructor-arg ref="Mongo" />
 		<constructor-arg type="java.lang.String" value="${enkive.statistics.db.name}" />
 		<constructor-arg name="serviceName" value="CollectionStatsService"/>
 		<constructor-arg name="humanName" value="Collection Statistics"/>
-		<constructor-arg name="schedule" value="0 0/15 * * * ?" />
-		<property name="scheduler" ref="ScheduledJobsBean" />
-		<property name="storageService" ref="StatisticsStorer" />
-		<property name="keys">	
+		<constructor-arg name="keys">
 			<list>
-				<value>*.ns::Name Space:</value>
-				<value>*.numObj:avg,max,min:Number of Objects:</value>
-				<value>*.avgOSz:avg,max,min:Average Object Size:bytes</value>
-				<value>*.dataSz:avg,max,min:Data Size:bytes</value>
-				<value>*.totSz:avg,max,min:Total Size:bytes</value>
-				<value>*.numExt:avg,max,min:Number of Extents:</value>
-				<value>*.lExSz:avg,max,min:Last Extent Size:bytes</value>
-				<value>*.numInd:avg,max,min:Number of Indexes:</value>
-				<value>*.indSz:avg,max,min:Index Size:objects</value>
-				<value>*.indSzs.*:avg,max,min:Index Sizes:objects</value>
+				<value>*.ns::Name Space::</value>
+				<value>*.numObj:avg,max,min:Number of Objects::point</value>
+				<value>*.avgOSz:avg,max,min:Average Object Size:bytes:point</value>
+				<value>*.dataSz:avg,max,min:Data Size:bytes:point</value>
+				<value>*.totSz:avg,max,min:Total Size:bytes:point</value>
+				<value>*.numExt:avg,max,min:Number of Extents::point</value>
+				<value>*.lExSz:avg,max,min:Last Extent Size:bytes:point</value>
+				<value>*.numInd:avg,max,min:Number of Indexes::point</value>
+				<value>*.indSz:avg,max,min:Index Size:objects:point</value>
+				<value>*.indSzs.*:avg,max,min:Index Sizes:objects:point</value>
 			</list>
-		</property>	
+		</constructor-arg>
+		<property name="storageService" ref="StatisticsStorer" />
 	</bean>
-	
-	<bean id="DetailedMsgStatsService"
-		class="com.linuxbox.enkive.statistics.gathering.StatsMsgSearchGatherer">
-		<constructor-arg name="serviceName" value="DetailedMsgStatsService"/>
+
+	<bean id="MsgStatsService"
+		class="com.linuxbox.enkive.statistics.gathering.StatsMsgGatherer">
+		<constructor-arg name="serviceName" value="MsgStatsService"/>
 		<constructor-arg name="humanName" value="Message Statistics"/>
-		<constructor-arg name="schedule" value="0 0/15 * * * ?" />
-		<property name="scheduler" ref="ScheduledJobsBean" />
+		<constructor-arg name="keys">
+			<list>
+				<value>numMsg:avg:Number of Messages::interval</value>
+				<value>totMsg:avg:Total Number of Messages::point</value>
+			</list>
+		</constructor-arg>
 		<property name="searchService" ref="GathererMessageSearchService" />
 		<property name="storageService" ref="StatisticsStorer" />
-		<property name="interval" value="900000"/>
-		<property name="keys">	
-			<list>
-				<value>numMsg:avg,max,min:Number of Messages:</value>
-			</list>
-		</property>	
 	</bean>
 	
 	<bean id="GathererMessageSearchService"
@@ -88,16 +67,13 @@
 		<constructor-arg type="java.lang.String" value="${enkive.docstore.fs.collection.name}" />
 		<constructor-arg name="serviceName" value="AttachmentStatsService"/>
 		<constructor-arg name="humanName" value="Attachment Statistics"/>
-		<constructor-arg name="schedule" value="0 0/15 * * * ?" />
-		<property name="scheduler" ref="ScheduledJobsBean" />
-		<property name="storageService" ref="StatisticsStorer" />
-		<property name="interval" value="900000"/>
-		<property name="keys">	
+		<constructor-arg name="keys">	
 			<list>
-				<value>avgAtt:avg:Average Number of Attachments</value>
-				<value>maxAtt:max:Maximum Number of Attachments</value>
+				<value>attNum:avg:Number of Attachments::interval</value>
+				<value>attSz:avg:Attachment Size:bytes:interval</value>
 			</list>
-		</property>	
+		</constructor-arg>	
+		<property name="storageService" ref="StatisticsStorer" />
 	</bean>
 	
 	<bean id="DatabaseStatsService"
@@ -106,48 +82,43 @@
 		<constructor-arg type="java.lang.String" value="${enkive.statistics.db.name}" />
 		<constructor-arg name="serviceName" value="DatabaseStatsService"/>
 		<constructor-arg name="humanName" value="Database Statistics"/>
-		<constructor-arg name="schedule" value="0 0/15 * * * ?" />
-		<property name="scheduler" ref="ScheduledJobsBean" />
-		<property name="storageService" ref="StatisticsStorer" />
-		<property name="keys">	
+		<constructor-arg name="keys">	
 			<list>
-				<value>db::Database Name:</value>
-				<value>numObj:avg,max,min:Number of Objects:</value>
-				<value>nColls:avg,max,min:Number of Collections:</value>
-				<value>avgOSz:avg,max,min:Average Object Size:bytes</value>
-				<value>dataSz:avg,max,min:Data Size:bytes</value>
-				<value>totSz:avg,max,min:Total Size:bytes</value>
-				<value>numInd:avg,max,min:Number of Indexes:</value>
-				<value>indSz:avg,max,min:Index Size:objects</value>
-				<value>numExt:avg,max,min:Number of Extents:</value>
-				<value>fileSz:avg,max,min:File Size:bytes</value>
+				<value>db::Database Name::</value>
+				<value>numObj:avg,max,min:Number of Objects::point</value>
+				<value>nColls:avg,max,min:Number of Collections::point</value>
+				<value>avgOSz:avg,max,min:Average Object Size:bytes:point</value>
+				<value>dataSz:avg,max,min:Data Size:bytes:point</value>
+				<value>totSz:avg,max,min:Total Size:bytes:point</value>
+				<value>numInd:avg,max,min:Number of Indexes::point</value>
+				<value>indSz:avg,max,min:Index Size:objects:point</value>
+				<value>numExt:avg,max,min:Number of Extents::point</value>
+				<value>fileSz:avg,max,min:File Size:bytes:point</value>
 			</list>
-		</property>	
+		</constructor-arg>	
+		<property name="storageService" ref="StatisticsStorer" />
 	</bean>
 	
 	<bean id="RuntimeStatsService"
 		class="com.linuxbox.enkive.statistics.gathering.StatsRuntimeGatherer">
 		<constructor-arg name="serviceName" value="RuntimeStatsService"/>
 		<constructor-arg name="humanName" value="Java Runtime Statistics"/>
-		<constructor-arg name="schedule" value="0 0/15 * * * ?" />
-		<property name="scheduler" ref="ScheduledJobsBean" />
-		<property name="storageService" ref="StatisticsStorer" />
-		<property name="keys">	
+		<constructor-arg name="keys">	
 			<list>
-				<value>freeM:avg,max,min:Free Memory:bytes</value>
-				<value>maxM:avg,max,min:Max Memory:bytes</value>
-				<value>totM:avg,max,min:Total Memory:bytes</value>
-				<value>cores:avg,max,min:Processors:</value>
+				<value>freeM:avg,max,min:Free Memory:bytes:point</value>
+				<value>maxM:avg,max,min:Max Memory:bytes:point</value>
+				<value>totM:avg,max,min:Total Memory:bytes:point</value>
+				<value>cores:avg,max,min:Processors::point</value>
 			</list>
-		</property>	
+		</constructor-arg>
+		<property name="storageService" ref="StatisticsStorer" />
 	</bean>
 
 	<bean id="StatisticsGatherer" class="com.linuxbox.enkive.statistics.services.StatsGathererService">
 		<constructor-arg>
 			<map>
-				<entry key="DetailedMsgStatsService" value-ref="DetailedMsgStatsService" />
+				<entry key="MsgStatsService" value-ref="MsgStatsService" />
 				<entry key="CollectionStatsService" value-ref="CollectionStatsService" />
-				<entry key="MsgStatsService" value-ref="MsgStatsService" /> 
 				<entry key="AttachmentStatsService" value-ref="AttachmentStatsService" />
 				<entry key="DatabaseStatsService" value-ref="DatabaseStatsService" />
 				<entry key="RuntimeStatsService" value-ref="RuntimeStatsService" />
@@ -190,18 +161,64 @@
 		class="com.linuxbox.enkive.statistics.removal.RemovalJob">
 		<constructor-arg name="client" ref="StatisticsClient" />
 		<property name="rawKeepTime" value="2"/>
-		<property name="hrKeepTime" value="168"/>
+		<property name="hrKeepTime" value="96"/>
 		<property name="dayKeepTime" value="90"/>	
 		<property name="wkKeepTime" value="20"/>
 		<property name="monthKeepTime" value="24"/>
 	</bean>
 		
 	<bean id="GrainRunner"
-		class="com.linuxbox.enkive.statistics.granularity.GrainRunner">
+		class="com.linuxbox.enkive.statistics.consolidation.ConsolidationRunner">
 		<constructor-arg name="client" ref="StatisticsClient" />
 		<constructor-arg name="scheduler" ref="ScheduledJobsBean" />
 		<constructor-arg name="remover" ref="RemovalRunner" />
 		<constructor-arg name="schedule" value="0 0 * * * ?" />
+	</bean>
+<!--
+	<bean id="AttachmentsPastGatherer"
+		class="com.linuxbox.enkive.statistics.gathering.past.AttachmentsPastGatherer">
+		<constructor-arg ref="Mongo" />
+		<constructor-arg name="dbName" value="${enkive.statistics.db.name}" />
+		<constructor-arg name="attachmentsColl" value="${enkive.docstore.fs.collection.name}" />
+		<constructor-arg name="statisticsColl" value="statistics"/>
+		<constructor-arg name="name" value="AttachmentStatsService"/>
+		<constructor-arg name="client" ref="StatisticsClient" />
+		<constructor-arg name="hrKeepTime" value="96"/>
+		<constructor-arg name="dayKeepTime" value="90"/>	
+		<constructor-arg name="weekKeepTime" value="20"/>
+		<constructor-arg name="monthKeepTime" value="24"/>
+	</bean>
+	
+	<bean id="MessagePastGatherer"
+		class="com.linuxbox.enkive.statistics.gathering.past.MessagesPastGatherer">
+		<constructor-arg name="searchService" ref="GathererMessageSearchService" />
+		<constructor-arg name="name" value="MsgStatsService" />
+		<constructor-arg name="client" ref="StatisticsClient" />
+		<constructor-arg name="msgGatherer" ref="MsgStatsService" />
+		<constructor-arg name="hrKeepTime" value="96"/>
+		<constructor-arg name="dayKeepTime" value="90"/>	
+		<constructor-arg name="weekKeepTime" value="20"/>
+		<constructor-arg name="monthKeepTime" value="24"/>
+	</bean>
+-->
+	<bean id="FifteenMinuteGatherers" class="java.util.LinkedList">
+	    <constructor-arg>
+	      <list>
+	        <ref bean="RuntimeStatsService" />
+			<ref bean="MsgStatsService" />
+			<ref bean="CollectionStatsService" />
+			<ref bean="AttachmentStatsService" />
+			<ref bean="DatabaseStatsService" />
+	      </list>      
+	    </constructor-arg>
+  	</bean>
+
+	<bean id="FifteenMinutesSchedulerService"
+		class="com.linuxbox.enkive.statistics.gathering.GatheringScheduler">
+		<constructor-arg name="name" value="FifteenMinutesScheduler" />
+		<constructor-arg name="gatherers" ref="FifteenMinuteGatherers"/>
+		<constructor-arg name="scheduler" ref="ScheduledJobsBean"/>
+		<constructor-arg name="interval" value="15" />
 	</bean>
 </beans>
 	

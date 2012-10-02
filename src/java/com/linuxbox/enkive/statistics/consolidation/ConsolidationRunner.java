@@ -1,4 +1,4 @@
-package com.linuxbox.enkive.statistics.granularity;
+package com.linuxbox.enkive.statistics.consolidation;
 
 import javax.annotation.PostConstruct;
 
@@ -12,20 +12,28 @@ import org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean;
 import com.linuxbox.enkive.statistics.removal.RemovalJob;
 import com.linuxbox.enkive.statistics.services.StatsClient;
 
-public class GrainRunner {
+public class ConsolidationRunner {
 	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.statistics.granularity.GrainRunner");
 	StatsClient client;
 	RemovalJob remover;
 	String schedule;
 	Scheduler scheduler;
+	Consolidator hourConsolidator;
+	Consolidator dayConsolidator;
+	Consolidator weekConsolidator;
+	Consolidator monthConsolidator;
 
-	public GrainRunner(StatsClient client, Scheduler scheduler,
+	public ConsolidationRunner(StatsClient client, Scheduler scheduler,
 			String schedule, RemovalJob remover) {
 		this.client = client;
 		this.scheduler = scheduler;
 		this.schedule = schedule;
 		this.remover = remover;
+		hourConsolidator = new HourConsolidator(client);
+		dayConsolidator = new DayConsolidator(client);
+		weekConsolidator = new WeekConsolidator(client);
+		monthConsolidator = new MonthConsolidator(client);
 		LOGGER.info("GrainRunner Initialized");
 	}
 
@@ -52,30 +60,36 @@ public class GrainRunner {
 
 	public void run() {
 		LOGGER.info("GrainRunner run() starting");
-		if (Granularity.HOUR.isMatch()) {
+		if (ConsolidationTimeDefs.HOUR.isMatch()) {
 			LOGGER.trace("GrainRunner hour() starting");
-			(new HourGrain(client)).storeConsolidatedData();
+			hourConsolidator.setDates();
+			hourConsolidator.storeConsolidatedData();
 			LOGGER.trace("GrainRunner hour() finished");
 		}
 
-		if (Granularity.DAY.isMatch()) {
+		if (ConsolidationTimeDefs.DAY.isMatch()) {
+		System.out.println("day");
 			LOGGER.trace("GrainRunner day() starting");
-			(new DayGrain(client)).storeConsolidatedData();
+			dayConsolidator.setDates();
+			dayConsolidator.storeConsolidatedData();
 			LOGGER.trace("GrainRunner day() finished");
 		}
 		
-		if (Granularity.WEEK.isMatch()) {
+		if (ConsolidationTimeDefs.WEEK.isMatch()) {
 			LOGGER.trace("GrainRunner week() starting");
-			(new WeekGrain(client)).storeConsolidatedData();
+			weekConsolidator.setDates();
+			weekConsolidator.storeConsolidatedData();
 			LOGGER.trace("GrainRunner week() finished");
 		}
 
-		if (Granularity.MONTH.isMatch()) {
+		if (ConsolidationTimeDefs.MONTH.isMatch()) {
 			LOGGER.trace("GrainRunner month() starting");
-			(new MonthGrain(client)).storeConsolidatedData();
+			monthConsolidator.setDates();
+			monthConsolidator.storeConsolidatedData();
 			LOGGER.trace("GrainRunner month() finished");
 		}
 		LOGGER.info("GrainRunner run() finished");
+		//don't run remover until consolidation is done
 		remover.cleanAll();
 	}
 }

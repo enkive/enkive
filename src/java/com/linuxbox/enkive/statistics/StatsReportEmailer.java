@@ -18,7 +18,7 @@
  * <http://www.gnu.org/licenses/>.
  *******************************************************************************/
 package com.linuxbox.enkive.statistics;
-
+/* needed if implemented
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_GATHERER_NAME;
 
 import java.io.ByteArrayOutputStream;
@@ -41,18 +41,20 @@ import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.quartz.SchedulerException;
 
 import com.linuxbox.enkive.statistics.gathering.GathererException;
-import com.linuxbox.enkive.statistics.services.StatsGathererService;
+
 import com.linuxbox.enkive.statistics.services.retrieval.StatsRetrievalException;
 
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
+*/
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import com.linuxbox.enkive.statistics.services.StatsGathererService;
 
 public class StatsReportEmailer {
 

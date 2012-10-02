@@ -7,13 +7,12 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
 
 import com.linuxbox.enkive.statistics.VarsMaker;
-import com.linuxbox.enkive.statistics.RawStats;
 
 public class UnixPostfixQueueStatisticsService extends AbstractGatherer {
 
@@ -23,11 +22,11 @@ public class UnixPostfixQueueStatisticsService extends AbstractGatherer {
 	public static String POSTQUEUE_OUTPUT_MANIPULATOR_PIPELINE = " | grep Requests | cut -d' ' -f 5";
 
 	public UnixPostfixQueueStatisticsService(String serviceName,
-			String humanName, String schedule) {
-		super(serviceName, humanName, schedule);
+			String humanName, List<String> keys) throws GathererException {
+		super(serviceName, humanName, keys);
 	}
 
-	public void execute(JobExecutionContext arg0) throws JobExecutionException {
+	public void execute(JobExecutionContext arg0) throws GathererException {
 		System.out.println(getStatistics());
 	}
 
@@ -43,33 +42,20 @@ public class UnixPostfixQueueStatisticsService extends AbstractGatherer {
 	}
 
 	@Override
-	public RawStats getStatistics() {
+	protected Map<String, Object> getPointStatistics(Date startTimestamp,
+			Date endTimestamp) throws GathererException {
 		Map<String, Object> stats = VarsMaker.createMap();
 		try {
 			stats.put(QUEUE_LENGTH, getQueueLength());
 		} catch (IOException e) {
 			stats.put(QUEUE_LENGTH + STATISTIC_CHECK_ERROR, e.toString());
 		}
-		RawStats result = new RawStats();
-		return result;
+		return stats;
 	}
 
 	@Override
-	public RawStats getStatistics(String[] keys) {
-		if (keys == null) {
-			return getStatistics();
-		}
-		Map<String, Object> stats = getStatistics().getStatsMap();
-		Map<String, Object> selectedStats = VarsMaker.createMap();
-
-		for (String key : keys) {
-			if (stats.get(key) != null) {
-				selectedStats.put(key, stats.get(key));
-			}
-		}
-		RawStats result = new RawStats();
-		result.setTimestamp(new Date());
-		result.setStatsMap(selectedStats);
-		return result;
+	protected Map<String, Object> getIntervalStatistics(Date lowerTimestamp,
+			Date upperTimestamp) throws GathererException {
+		return null;
 	}
 }

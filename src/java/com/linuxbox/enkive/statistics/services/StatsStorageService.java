@@ -1,7 +1,7 @@
 package com.linuxbox.enkive.statistics.services;
 
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import com.linuxbox.enkive.statistics.RawStats;
 import com.linuxbox.enkive.statistics.services.storage.StatsStorageException;
@@ -15,7 +15,7 @@ public interface StatsStorageService {
 	 * @param dataSet
 	 * @throws StatsStorageException
 	 */
-	void storeStatistics(Set<Map<String, Object>> dataSet)
+	void storeStatistics(List<Map<String, Object>> dataSet)
 			throws StatsStorageException;
 
 	/**

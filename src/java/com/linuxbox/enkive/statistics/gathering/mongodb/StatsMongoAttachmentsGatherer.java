@@ -1,210 +1,74 @@
 package com.linuxbox.enkive.statistics.gathering.mongodb;
 
-import static com.linuxbox.enkive.statistics.StatsConstants.STAT_AVG_ATTACH;
-import static com.linuxbox.enkive.statistics.StatsConstants.STAT_MAX_ATTACH;
+import static com.linuxbox.enkive.statistics.StatsConstants.STAT_ATTACH_NUM;
+import static com.linuxbox.enkive.statistics.StatsConstants.STAT_ATTACH_SIZE;
+import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_AVG;
 import static com.linuxbox.enkive.statistics.gathering.mongodb.MongoConstants.MONGO_LENGTH;
 import static com.linuxbox.enkive.statistics.gathering.mongodb.MongoConstants.MONGO_UPLOAD_DATE;
 
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.linuxbox.enkive.statistics.VarsMaker;
-import com.linuxbox.enkive.statistics.RawStats;
 import com.linuxbox.enkive.statistics.gathering.AbstractGatherer;
 import com.linuxbox.enkive.statistics.gathering.GathererException;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
+import com.mongodb.DBObject;
 import com.mongodb.Mongo;
-
+import static com.linuxbox.enkive.statistics.VarsMaker.createMap;
 public class StatsMongoAttachmentsGatherer extends AbstractGatherer {
 	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.statistics.gathering.StatsMongoAttachmentsGatherer");
-	protected String collectionName;
-	protected DB db;
-	protected Date lowerDate, upperDate;// uploadDate of attachment object
 	protected Mongo m;
-	protected long interval = 60 * 60 * 1000; //default interval is hour
+	protected DB db;
+	protected DBCollection attachmentsColl;
 	
-	// NOAH:TODO I think we need some help w/ the logic of resetDates. Who controls
-	// whether it's true/false and why? Who is supposed to check it and then set
-	// dates if it is true?
-	//
-	// if resetDates is false you must manually reset the upper & lower dates
-	private boolean resetDates;
-
-	public StatsMongoAttachmentsGatherer(Mongo m, String dbName, String coll,
-			String serviceName, String humanName, String schedule) {
-		super(serviceName, humanName, schedule);
+	public StatsMongoAttachmentsGatherer(Mongo m, String dbName, String attachmentsColl,
+			String serviceName, String humanName, List<String> keys) throws GathererException {
+		super(serviceName, humanName, keys);
 		this.m = m;
-		db = m.getDB(dbName);
-		collectionName = coll + ".files";
-		resetDates = true;
-	}
-	
-	/**
-	 * this constructor should only be used for testing
-	 * @param m
-	 * @param dbName
-	 * @param coll
-	 * @param serviceName
-	 * @param schedule
-	 * @param resetDates
-	 * @throws GathererException 
-	 */
-	public StatsMongoAttachmentsGatherer(Mongo m, String dbName, String coll,
-			String serviceName, String humanName, String schedule, boolean resetDates, List<String> keys) throws GathererException {
-		super(serviceName, humanName, schedule, keys);
-		this.m = m;
-		db = m.getDB(dbName);
-		collectionName = coll + ".files";
-		this.resetDates = resetDates;
-	}
-
-	/**
-	 * @param upperUploadDate - upper date in range (less than)
-	 * @param lowerUploadDate - lower date in range (greater than or equal to)
-	 * @return the average attachment size between two dates
-	 */
-	public double getAvgAttachSize(Date upperUploadDate, Date lowerUploadDate) {
-		DBCollection coll = db.getCollection(collectionName);
-		DBCursor cursor = coll.find(new BasicDBObject(makeDateQuery()));
-		double avgAttach;
-		if (cursor.hasNext()) {
-			int count = cursor.size();
-			long total = 0;
-			while (cursor.hasNext()) {
-				long temp = ((Long) cursor.next().get(MONGO_LENGTH))
-						.longValue();
-				total += temp;
-			}
-			avgAttach = (double) total / count;
-		} else {
-			avgAttach = 0;
-			LOGGER.warn("getAvgAttachSize()-No attachments between " + lowerUploadDate
-					+ " & " + upperUploadDate);
-		}
-		return avgAttach;
-	}
-	
-	/**
-	 * @return the average attachment size between two dates previously set by this class's
-	 * date setters
-	 */
-	public double getAvgAttachSize() {
-		return getAvgAttachSize(getUpperDate(), getLowerDate());
-	}
-
-	/**
-	 * @param upperUploadDate - upper date in range (less than)
-	 * @param lowerUploadDate - lower date in range (greater than or equal to)
-	 * @return the max attachment size between two dates
-	 */
-	public long getMaxAttachSize(Date upperDate, Date lowerDate) {
-		DBCollection coll = db.getCollection(collectionName);
-		DBCursor cursor = coll.find(new BasicDBObject(makeDateQuery()));
-		long max = -1;
-		if (cursor.hasNext()) {
-			while (cursor.hasNext()) {
-				long temp = ((Long) cursor.next().get(MONGO_LENGTH))
-						.longValue();
-				if (temp > max) {
-					max = temp;
-				}
-			}
-		} else {
-			LOGGER.warn("getMaxAttachSize()-No attachments between " + lowerDate
-					+ " & " + upperDate);
-			max = 0;
-		}
-		return max;
-	}
-	
-	/**
-	 * @return the max attachment size between two dates previously set by this class's
-	 * date setters
-	 */
-	public long getMaxAttachSize() {
-		return getMaxAttachSize(getUpperDate(), getLowerDate());
+		this.db = m.getDB(dbName);
+		this.attachmentsColl = db.getCollection(attachmentsColl + ".files");
 	}
 
 	@Override
-	public RawStats getStatistics() {
-		long currTime = System.currentTimeMillis();
-		if (resetDates) {
-			setUpperDate(new Date(currTime));
-			setLowerDate(new Date(currTime - interval));
-		}
-		if (upperDate == null) {
-			LOGGER.warn("upper == null current time used");
-			setUpperDate(new Date(currTime));
-		}
-		if (lowerDate == null) {
-			LOGGER.warn("lower == null beginning of time used");
-			setLowerDate(new Date(0L));
-		}
-		Map<String, Object> stats = new HashMap<String, Object>();
-		double avg = getAvgAttachSize();
-		long max = getMaxAttachSize();
+	protected Map<String, Object> getPointStatistics(Date startTimestamp,
+			Date endTimestamp) throws GathererException {
+		return null;
+	}
 
-		if (avg <= -1 || max <= -1) {
-			return null;
-		}
-		stats.put(STAT_AVG_ATTACH, avg);
-		stats.put(STAT_MAX_ATTACH, max);
+	@Override
+	protected Map<String, Object> getIntervalStatistics(Date startTimestamp,
+			Date endTimestamp) throws GathererException {
+		Map<String, Object> intervalMap = createMap();
+		Map<String, Object> query = createMap();
+		Map<String, Object> innerQuery = createMap();
+		innerQuery.put("$gte", startTimestamp);
+		innerQuery.put("$lt", endTimestamp);
+		query.put(MONGO_UPLOAD_DATE, innerQuery);
+		long dataByteSz = 0;
+		DBCursor dataCursor = attachmentsColl.find(new BasicDBObject(query));
 		
-		RawStats result = new RawStats();
-		result.setStatsMap(stats);
-		result.setTimestamp(new Date());
-		return result;
-	}
-
-	/**
-	 * creates the query object with which to query the database
-	 * @param upperUploadDate - upper date in range (less than)
-	 * @param lowerUploadDate - lower date in range (greater than or equal to)
-	 * @return
-	 */
-	private Map<String, Object> makeDateQuery(Date lowerUploadDate, Date upperUploadDate) {
-		Map<String, Object> dateQuery = VarsMaker.createMap();
-		dateQuery.put("$gte", lowerUploadDate);
-		dateQuery.put("$lt", upperUploadDate);
-		Map<String, Object> query = VarsMaker.createMap();
-		query.put(MONGO_UPLOAD_DATE, dateQuery);
-		return query;
-	}
-	
-	public Date getLowerDate() {
-		return lowerDate;
-	}
-	
-	public Date getUpperDate() {
-		return upperDate;
-	}
-
-	/**
-	 * @return the query object cooresponding to two dates previously set by this class's
-	 * date setters
-	 */
-	private Map<String, Object> makeDateQuery() {
-		return makeDateQuery(getLowerDate(), getUpperDate());
-	}
-	
-	public void setLowerDate(Date lower) {
-		this.lowerDate = lower;
-	}
-
-	public void setUpperDate(Date upper) {
-		this.upperDate = upper;
-	}
-	
-	public void setInterval(long interval){
-		this.interval = interval;
+		for(DBObject obj: dataCursor){
+			dataByteSz+=(Long)(obj.get(MONGO_LENGTH));
+		}
+		Map<String,Object> innerNumAttach = createMap();
+		innerNumAttach.put(CONSOLIDATION_AVG, dataCursor.count());
+		
+		long avgAttSz = 0;
+		if(dataCursor.count() != 0){
+			avgAttSz = dataByteSz/dataCursor.count();
+		}
+		
+		intervalMap.put(STAT_ATTACH_SIZE, avgAttSz);
+		intervalMap.put(STAT_ATTACH_NUM, dataCursor.count());
+		
+		return intervalMap;
 	}
 }

@@ -28,7 +28,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.linuxbox.enkive.statistics.VarsMaker;
-import com.linuxbox.enkive.statistics.RawStats;
 import com.linuxbox.enkive.statistics.gathering.AbstractGatherer;
 import com.linuxbox.enkive.statistics.gathering.GathererException;
 import com.mongodb.BasicDBObject;
@@ -40,42 +39,38 @@ public class StatsMongoDBGatherer extends AbstractGatherer {
 			.getLog("com.linuxbox.enkive.statistics.gathering");
 
 	protected DB db;
-
 	protected Mongo m;
 
 	public StatsMongoDBGatherer(Mongo m, String dbName, String serviceName,
-			String humanName, String schedule) throws GathererException {
-		super(serviceName, humanName, schedule);
-		this.m = m;
-		db = m.getDB(dbName);
-	}
-
-	public StatsMongoDBGatherer(Mongo m, String dbName, String serviceName,
-			String humanName, String schedule, List<String> keys)
+			String humanName, List<String> keys)
 			throws GathererException {
-		super(serviceName, humanName, schedule, keys);
+		super(serviceName, humanName, keys);
 		this.m = m;
 		db = m.getDB(dbName);
 	}
 
 	@Override
-	public RawStats getStatistics() {
-		Map<String, Object> stats = VarsMaker.createMap();
+	protected Map<String, Object> getPointStatistics(Date startTimestamp,
+			Date endTimestamp) throws GathererException {
+		Map<String, Object> pointStats = VarsMaker.createMap();
 		BasicDBObject temp = db.getStats();
-		stats.put(STAT_NAME, db.getName());
-		stats.put(STAT_NUM_COLLECTIONS, temp.get(MONGO_NUM_COLLECTIONS));
-		stats.put(STAT_NUM_OBJS, temp.get(MONGO_NUM_OBJS));
-		stats.put(STAT_AVG_OBJ_SIZE, temp.get(MONGO_AVG_OBJ_SIZE));
-		stats.put(STAT_DATA_SIZE, temp.get(MONGO_DATA_SIZE));
-		stats.put(STAT_TOTAL_SIZE, temp.get(MONGO_STORAGE_SIZE));
-		stats.put(STAT_NUM_INDEX, temp.get(MONGO_INDEXES));
-		stats.put(STAT_TOTAL_INDEX_SIZE, temp.get(MONGO_INDEX_SIZE));
-		stats.put(STAT_NUM_EXTENT, temp.get(MONGO_NUM_EXTENT));
-		stats.put(STAT_FILE_SIZE, temp.get(MONGO_FILE_SIZE));
+		pointStats.put(STAT_NAME, db.getName());
+		pointStats.put(STAT_NUM_COLLECTIONS, temp.get(MONGO_NUM_COLLECTIONS));
+		pointStats.put(STAT_NUM_OBJS, temp.get(MONGO_NUM_OBJS));
+		pointStats.put(STAT_AVG_OBJ_SIZE, temp.get(MONGO_AVG_OBJ_SIZE));
+		pointStats.put(STAT_DATA_SIZE, temp.get(MONGO_DATA_SIZE));
+		pointStats.put(STAT_TOTAL_SIZE, temp.get(MONGO_STORAGE_SIZE));
+		pointStats.put(STAT_NUM_INDEX, temp.get(MONGO_INDEXES));
+		pointStats.put(STAT_TOTAL_INDEX_SIZE, temp.get(MONGO_INDEX_SIZE));
+		pointStats.put(STAT_NUM_EXTENT, temp.get(MONGO_NUM_EXTENT));
+		pointStats.put(STAT_FILE_SIZE, temp.get(MONGO_FILE_SIZE));
+		
+		return pointStats;
+	}
 
-		RawStats result = new RawStats();
-		result.setStatsMap(stats);
-		result.setTimestamp(new Date());
-		return result;
+	@Override
+	protected Map<String, Object> getIntervalStatistics(Date startTimestamp,
+			Date endTimestamp) throws GathererException {
+		return null;
 	}
 }

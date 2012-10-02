@@ -1,41 +1,34 @@
-package com.linuxbox.enkive.statistics.granularity;
+package com.linuxbox.enkive.statistics.consolidation;
 
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_AVG;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MAX;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MIN;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_STD_DEV;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_SUM;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_TYPE;
+import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_AVG;
+import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_MAX;
+import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_MIN;
+import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_SUM;
 
 import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
-import com.linuxbox.enkive.statistics.KeyConsolidationHandler;
-import com.linuxbox.enkive.statistics.StatsQuery;
-import com.linuxbox.enkive.statistics.gathering.GathererAttributes;
+import com.linuxbox.enkive.statistics.ConsolidationKeyHandler;
 import com.linuxbox.enkive.statistics.services.StatsClient;
 
 @SuppressWarnings("unchecked")
-public abstract class AbstractGrain implements Grain {
+public abstract class AbstractConsolidator implements Consolidator {
 	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.statistics.granularity.AbstractGrain");
 	protected StatsClient client;
 	protected Date endDate;
 	protected Integer filterType;
-	protected int grainType;
+	protected int consolidationType;
 	protected boolean isEmbedded;
 	protected Date startDate;
 
-	public AbstractGrain(StatsClient client) {
+	public AbstractConsolidator(StatsClient client) {
 		this.client = client;
 		setDates();
 		setTypes();
@@ -52,44 +45,21 @@ public abstract class AbstractGrain implements Grain {
 	 * @param statsMaker - the pre-populated DescriptiveStatstistics object to pull stats from
 	 * @param statData - the map to populate with consolidated data
 	 */
-	public void methodMapBuilder(String method, Object exampleData,
-			DescriptiveStatistics statsMaker, Map<String, Object> statData) {
-		if (method.equals(GRAIN_SUM)) {
+	public void methodMapBuilder(String method, DescriptiveStatistics statsMaker,
+			Map<String, Object> statData) {
+		if (method.equals(CONSOLIDATION_SUM)) {
 			statData.put(method, statsMaker.getSum());
-		} else if (method.equals(GRAIN_MAX)) {
+		} else if (method.equals(CONSOLIDATION_MAX)) {
 			statData.put(method, statsMaker.getMax());
-		} else if (method.equals(GRAIN_MIN)) {
+		} else if (method.equals(CONSOLIDATION_MIN)) {
 			statData.put(method, statsMaker.getMin());
-		} else if (method.equals(GRAIN_AVG)) {
+		} else if (method.equals(CONSOLIDATION_AVG)) {
 			statData.put(method, statsMaker.getMean());
-		} else if (method.equals(GRAIN_STD_DEV)) {
-			statData.put(method, statsMaker.getStandardDeviation());
-		}
+		} 
 	}
-
+	
 	@Override
-	public Set<Map<String, Object>> consolidateData() {
-		Set<Map<String, Object>> storageData = new HashSet<Map<String, Object>>();
-		for (GathererAttributes attribute : client.getAttributes()) {
-			String name = attribute.getName();
-			Set<Map<String, Object>> serviceData = gathererFilter(name);
-			if (!serviceData.isEmpty()) {
-				Map<String, Object> example = new HashMap<String, Object>(
-						serviceData.iterator().next());
-				Map<String, Object> mapToStore = new HashMap<String, Object>(
-						example);
-				generateConsolidatedMap(example, mapToStore,
-						new LinkedList<String>(), attribute.getKeys(),
-						serviceData);
-				mapToStore.put(GRAIN_TYPE, grainType);
-				if (mapToStore.containsKey("_id")) {
-					mapToStore.remove("_id");
-				}
-				storageData.add(mapToStore);
-			}
-		}
-		return storageData;
-	}
+	public abstract List<Map<String, Object>> consolidateData();
 
 	/** this method recurses through a given template map to add consolidated data to a new map
 	 * as defined by each key's ConsolidationDefinition
@@ -103,10 +73,10 @@ public abstract class AbstractGrain implements Grain {
 	protected Map<String, Object> generateConsolidatedMap(
 			Map<String, Object> templateData,
 			Map<String, Object> consolidatedMap, LinkedList<String> path,
-			List<KeyConsolidationHandler> statKeys, Set<Map<String, Object>> gathererData) {
+			List<ConsolidationKeyHandler> statKeys, List<Map<String, Object>> gathererData) {
 		for (String key : templateData.keySet()) {
 			path.addLast(key);
-			KeyConsolidationHandler matchingDef = findMatchingPath(path, statKeys);
+			ConsolidationKeyHandler matchingDef = findMatchingPath(path, statKeys);
 			if (matchingDef != null) {
 				consolidateMaps(consolidatedMap, gathererData, matchingDef,
 						path);
@@ -121,14 +91,6 @@ public abstract class AbstractGrain implements Grain {
 
 		}
 		return consolidatedMap;
-	}
-
-	/** 
-	 * @param serviceData all data pertaining to the weight 
-	 * @return the number of objects in serviceData
-	 */
-	protected int findWeight(Set<Map<String, Object>> serviceData) {
-		return serviceData.size();
 	}
 
 	/**
@@ -160,8 +122,8 @@ public abstract class AbstractGrain implements Grain {
 	 * @return if it finds a matching path it returns the corresponding ConsolidationDefinition
 	 * if not it returns null
 	 */
-	private KeyConsolidationHandler findMatchingPath(List<String> path, List<KeyConsolidationHandler> keys) {
-		for (KeyConsolidationHandler def : keys) {// get one key definition
+	private ConsolidationKeyHandler findMatchingPath(List<String> path, List<ConsolidationKeyHandler> keys) {
+		for (ConsolidationKeyHandler def : keys) {// get one key definition
 			if (def.getMethods() == null) {
 				continue;
 			}
@@ -239,9 +201,8 @@ public abstract class AbstractGrain implements Grain {
 				if (cursor.get(key) instanceof Map) {
 					cursor = (Map<String, Object>) cursor.get(key);
 				} else {
-					// TODO NOAH: is there a reason we don't create the missing
-					// intervening maps?
-					LOGGER.error("Cannot put data on path");
+					// TODO create the missing intervening maps
+					LOGGER.error("Path does not exist");
 					break;
 				}
 			}
@@ -249,10 +210,7 @@ public abstract class AbstractGrain implements Grain {
 		}
 	}
 	
-	public Set<Map<String, Object>> gathererFilter(String gathererName) {
-		StatsQuery query = new StatsQuery(gathererName, filterType, startDate, endDate);
-		return client.queryStatistics(query);
-	}
+	public abstract List<List<Map<String, Object>>> gathererFilter(String gathererName);
 
 	/**
 	 * converts a statistic object into a double
@@ -270,7 +228,6 @@ public abstract class AbstractGrain implements Grain {
 		} else if (stat instanceof Date) {
 			input = (double) ((Long) ((Date) stat).getTime()).longValue();
 		} else {
-			System.out.println(stat);
 			LOGGER.warn("statToDouble(Object stat)-unexpected Object type");
 		}
 		return input;
@@ -285,8 +242,8 @@ public abstract class AbstractGrain implements Grain {
 	
 	public abstract void setTypes();
 	
-	public void setTypes(int grainType, Integer filterType){
-		this.grainType = grainType;
+	public void setTypes(int consolidationType, Integer filterType){
+		this.consolidationType = consolidationType;
 		this.filterType = filterType;
 	}
 
@@ -302,6 +259,6 @@ public abstract class AbstractGrain implements Grain {
 	 */
 	protected abstract void consolidateMaps(
 			Map<String, Object> consolidatedData,
-			Set<Map<String, Object>> serviceData, KeyConsolidationHandler keyDef,
+			List<Map<String, Object>> serviceData, ConsolidationKeyHandler keyDef,
 			LinkedList<String> dataPath);
 }

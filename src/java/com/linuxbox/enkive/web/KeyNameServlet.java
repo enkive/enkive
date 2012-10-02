@@ -16,7 +16,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.linuxbox.enkive.exception.CannotRetrieveException;
-import com.linuxbox.enkive.statistics.KeyConsolidationHandler;
+import com.linuxbox.enkive.statistics.ConsolidationKeyHandler;
 import com.linuxbox.enkive.statistics.gathering.GathererAttributes;
 import com.linuxbox.enkive.statistics.services.StatsClient;
 
@@ -42,7 +42,7 @@ public class KeyNameServlet extends EnkiveServlet {
 				for(GathererAttributes attribute: attributes){
 					if(!attribute.getName().equals("CollectionStatsService")){
 						Map<String, Object> keyMethods = new HashMap<String, Object>();
-						for(KeyConsolidationHandler key: attribute.getKeys()){
+						for(ConsolidationKeyHandler key: attribute.getKeys()){
 							String builtKey = "";
 							for(String keyPart: key.getKey()){
 								builtKey = builtKey + keyPart + ".";

@@ -1,10 +1,9 @@
 package com.linuxbox.enkive.statistics.services.storage.mongodb;
 
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_GATHERER_NAME;
-import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIMESTAMP;
 
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -35,10 +34,14 @@ public class MongoStatsStorageService extends VarsMaker implements
 	}
 
 	@Override
-	public void storeStatistics(Set<Map<String, Object>> dataSet)
+	public void storeStatistics(List<Map<String, Object>> dataSet)
 			throws StatsStorageException {
-		for (Map<String, Object> map : dataSet) {
-			coll.insert(new BasicDBObject(map));
+		if(dataSet != null){		
+			for (Map<String, Object> map : dataSet) {
+				coll.insert(new BasicDBObject(map));
+			}
+		} else {
+			LOGGER.warn("dataSet is null nothing will be stored");
 		}
 	}
 
@@ -47,8 +50,7 @@ public class MongoStatsStorageService extends VarsMaker implements
 			throws StatsStorageException {
 		Map<String, Object> result = createMap();
 		result.put(STAT_GATHERER_NAME, service);
-		result.put(STAT_TIMESTAMP, data.getTimestamp());
-		result.putAll(data.getStatsMap());
+		result.putAll(data.toMap());
 		coll.insert(new BasicDBObject(result));
 	}
 }
