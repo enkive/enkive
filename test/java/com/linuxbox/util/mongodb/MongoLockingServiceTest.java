@@ -23,6 +23,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 import org.junit.After;
@@ -36,6 +37,9 @@ import com.linuxbox.enkive.TestingConstants;
 import com.linuxbox.util.lockservice.LockReleaseException;
 import com.linuxbox.util.lockservice.mongodb.MongoLockService;
 import com.linuxbox.util.lockservice.mongodb.MongoLockService.LockRequestFailure;
+import com.linuxbox.util.mongodb.MongoIndexable.IndexDescription;
+import com.mongodb.BasicDBObjectBuilder;
+import com.mongodb.DBObject;
 import com.mongodb.Mongo;
 
 public class MongoLockingServiceTest {
@@ -50,6 +54,14 @@ public class MongoLockingServiceTest {
 		service = new MongoLockService(mongo,
 				TestingConstants.MONGODB_TEST_DATABASE,
 				TestingConstants.MONGODB_TEST_LOCK_COLLECTION);
+		List<IndexDescription> indexes = service.getPreferredIndexes();
+		for(IndexDescription index : indexes){
+			final DBObject options = BasicDBObjectBuilder.start()
+					.add("name", index.getName())
+					.add("unique", index.isUnique())
+					.add("background", false).get();
+			service.ensureIndex(index.getDescription(), options);
+		}
 		service.startup();
 	}
 

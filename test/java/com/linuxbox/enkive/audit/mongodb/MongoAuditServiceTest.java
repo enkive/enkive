@@ -36,6 +36,9 @@ import org.junit.Test;
 import com.linuxbox.enkive.TestingConstants;
 import com.linuxbox.enkive.audit.AuditEntry;
 import com.linuxbox.enkive.audit.AuditService;
+import com.linuxbox.util.mongodb.MongoIndexable.IndexDescription;
+import com.mongodb.BasicDBObjectBuilder;
+import com.mongodb.DBObject;
 import com.mongodb.Mongo;
 
 public class MongoAuditServiceTest {
@@ -62,6 +65,14 @@ public class MongoAuditServiceTest {
 		service = new MongoAuditService(mongo,
 				TestingConstants.MONGODB_TEST_DATABASE,
 				TestingConstants.MONGODB_TEST_AUDIT_COLLECTION + counter++);
+		List<IndexDescription> indexes = service.getPreferredIndexes();
+		for(IndexDescription index : indexes){
+			final DBObject options = BasicDBObjectBuilder.start()
+					.add("name", index.getName())
+					.add("unique", index.isUnique())
+					.add("background", false).get();
+			service.ensureIndex(index.getDescription(), options);
+		}
 		service.startup();
 	}
 
