@@ -43,9 +43,8 @@ public abstract class AbstractMessage extends AbstractMessageSummary implements
 	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.message");
 
-	protected String originalHeaders;
 	protected String mimeVersion;
-	protected String contentType;
+	protected String contentType = "";
 	protected String contentTransferEncoding;
 	protected ContentHeader contentHeader;
 	protected Header parsedHeader;
@@ -67,8 +66,13 @@ public abstract class AbstractMessage extends AbstractMessageSummary implements
 	}
 
 	@Override
-	public String getOriginalHeaders() {
-		return originalHeaders;
+	public ContentHeader getContentHeader() {
+		return contentHeader;
+	}
+
+	@Override
+	public void setContentHeader(ContentHeader contentHeader) {
+		this.contentHeader = contentHeader;
 	}
 
 	@Override
@@ -81,16 +85,6 @@ public abstract class AbstractMessage extends AbstractMessageSummary implements
 		} catch (IOException e) {
 			LOGGER.warn("Error parsing message headers", e);
 		}
-	}
-
-	@Override
-	public ContentHeader getContentHeader() {
-		return contentHeader;
-	}
-
-	@Override
-	public void setContentHeader(ContentHeader contentHeader) {
-		this.contentHeader = contentHeader;
 	}
 
 	@Override

@@ -113,25 +113,17 @@ public class MongoImapAccountCreator implements EnkiveImapAccountCreator {
 			Date toDate) throws MessageSearchException {
 		HashMap<String, String> fields = new HashMap<String, String>();
 
-		try {
-			if (!permissionsService.isAdmin()) {
-				Collection<String> addresses = permissionsService
-						.canReadAddresses(username);
-				StringBuilder addressesString = new StringBuilder();
-				for (String address : addresses) {
-					addressesString.append(address);
-					addressesString.append("; ");
-				}
-
-				fields.put(PERMISSIONS_SENDER_PARAMETER,
-						addressesString.toString());
-				fields.put(PERMISSIONS_RECIPIENT_PARAMETER,
-						addressesString.toString());
-			}
-		} catch (CannotGetPermissionsException e) {
-			throw new MessageSearchException(
-					"Could not get permissions for user imap creation.", e);
+		Collection<String> addresses = permissionsService
+				.canReadAddresses(username);
+		StringBuilder addressesString = new StringBuilder();
+		for (String address : addresses) {
+			addressesString.append(address);
+			addressesString.append("; ");
 		}
+
+		fields.put(PERMISSIONS_SENDER_PARAMETER, addressesString.toString());
+		fields.put(PERMISSIONS_RECIPIENT_PARAMETER, addressesString.toString());
+
 		fields.put(DATE_EARLIEST_PARAMETER,
 				NUMERIC_SEARCH_FORMAT.format(fromDate));
 		fields.put(DATE_LATEST_PARAMETER, NUMERIC_SEARCH_FORMAT.format(toDate));
