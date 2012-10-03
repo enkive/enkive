@@ -86,7 +86,6 @@ public class GatheringScheduler {
 			long r = endTime.getTime()%intervalMS;
 			endTime.setTime(endTime.getTime()-r);
 		}
-	
 		return endTime;
 	}
 	

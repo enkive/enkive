@@ -281,7 +281,7 @@ public class StatsServlet extends EnkiveServlet {
 	// Above is copied from abstract/embedded grainularity classes
 
 	public void doGet(HttpServletRequest req, HttpServletResponse resp) {
-		LOGGER.info("StatsServlet doGet started");
+		LOGGER.debug("StatsServlet doGet started");
 		try {
 			try {
 				Date upperTimestamp = new Date();
@@ -298,8 +298,6 @@ public class StatsServlet extends EnkiveServlet {
 							upperTimestamp = new Date();
 							LOGGER.error("Error Parsing Date: " + req.getParameter(tsMax), e);
 						}
-					} else {
-						LOGGER.warn("Warning: Max date is not defined");
 					}
 				}
 				if (req.getParameter(tsMin) != null) {
@@ -312,8 +310,6 @@ public class StatsServlet extends EnkiveServlet {
 							lowerTimestamp = new Date(0L);
 							LOGGER.error("Error Parsing Date: " + req.getParameter(tsMin), e);
 						}
-					} else {
-						LOGGER.warn("Warning: Min date is not defined");
 					}
 				} 
 
@@ -413,8 +409,7 @@ public class StatsServlet extends EnkiveServlet {
 				}
 			} catch (CannotRetrieveException e) {
 				respondError(HttpServletResponse.SC_UNAUTHORIZED, null, resp);
-				if (LOGGER.isErrorEnabled())
-					LOGGER.error("CannotRetrieveException", e);
+				LOGGER.error("CannotRetrieveException", e);
 			} catch (NullPointerException e) {
 				respondError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
 						null, resp);
@@ -423,6 +418,6 @@ public class StatsServlet extends EnkiveServlet {
 		} catch (IOException e) {
 			LOGGER.error("IOException thrown", e);
 		}
-		LOGGER.info("StatsServlet doGet finished");
+		LOGGER.debug("StatsServlet doGet finished");
 	}
 }
