@@ -29,9 +29,6 @@ import java.util.Random;
 
 public class SimpleRandomMessageGenerator extends AbstractMessageGenerator {
 
-	// TODO fix me
-	// "/home/lee/Storage/Projects/Enkive-3/workspace/Enkive/test/data/gutenbergData";
-
 	protected Random randGen;
 	protected String messageBodyDataDirectory;
 

@@ -139,7 +139,7 @@ public class RandomMessageGenerator extends AbstractMessageGenerator {
 
 	@Override
 	protected String generateSubject() {
-		return "Enkive Test Message 5";
+		return "Enkive Test Message";
 	}
 
 	@Override
