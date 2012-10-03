@@ -64,17 +64,21 @@
 			
 			var startStr = "${startDate}";
 			var startDate;
+			
+						
 			var endStr = "${endDate}";
 			var endDate;
-
+			
 			if(startStr != ""){
 				startDate = new Date(startStr);
+				startDate.setTime(startDate.getTime()+startDate.getTimezoneOffset()*60*1000);
 			} else {
 				startDate = new Date(times[0]);
 			}
 						
 			if(endStr != ""){
 				endDate = new Date(endStr);
+				endDate.setTime(endDate.getTime()+endDate.getTimezoneOffset()*60*1000+1000*60*60*24);
 			} else {
 				endDate = new Date(times[times.length-1]);
 			}
@@ -119,7 +123,7 @@
 	
 				return max;
 			}
-	
+			
 			var y = d3.scale.linear().domain([0, 1.1*d3.max(data, function(d) { return getBiggest(d); })]).range([height, 0]);
 			var x = d3.time.scale().domain([startDate, endDate]).range([1, width]);
 			var r = d3.scale.linear().domain([0, 1250]).range([1, 4]);
@@ -189,9 +193,9 @@
 			  .attr("class", "x axis")
 			  .attr("transform", "translate(0," + (height) + ")")
 			  .call(xAxis);
+			  
 			var legendpadding = 20;
 	        var legendOffset = height+50;
-	
 	
 	        function createTitle(node){
 			    var pNode = node.parentNode;

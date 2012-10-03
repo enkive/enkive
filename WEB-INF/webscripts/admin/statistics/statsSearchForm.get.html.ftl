@@ -1,7 +1,7 @@
 <table width="100%">
 	<tr>
 		<td colspan="2" align="center">
-				<input type="image" src="${url.context}/resource/images/clear_search_btn.png" alt="Clear Search" onClick="clearForm()"/>
+				<input type="image" src="${url.context}/resource/images/clear_search_btn.png" alt="Clear Search" onClick="resetForm()"/>
 		</td>
 	</tr>
 	<form name="statInput" method="GET" onSubmit="return loadStatGraph()">
@@ -56,7 +56,7 @@
 				Earliest Date:
 			</td>
 			<td>
-				<input type="text" name="dateEarliest" id="dateEarliestField" readonly="readonly" class="searchField"/>
+				<input type="text" name="dateEarliest" id="dateEarliestField" readonly="readonly" class="searchDateField"/>
 			</td>
 		</tr>
 		<tr>
@@ -64,7 +64,7 @@
 				Latest Date:
 			</td>
 			<td>
-				<input type="text" name="dateLatest" id="dateLatestField" readonly="readonly" class="searchField"/>
+				<input type="text" name="dateLatest" id="dateLatestField" readonly="readonly" class="searchDateField"/>
 			</td>
 		</tr>
 		<tr>
@@ -97,6 +97,13 @@ function populateAll(){
     }
     var stat = master.options[master.selectedIndex].text;
     populateStats(jsonMethodData.results[master.selectedIndex][stat]);
+}
+
+function resetForm(){
+	updateOptions();
+	$(".searchDateField").each(function() {
+		$(this).val("");
+	});
 }
 
 function updateOptions(){
