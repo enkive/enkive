@@ -140,9 +140,21 @@
 
 	<bean id="StatisticsEmailer" class="com.linuxbox.enkive.statistics.StatsReportEmailer">
 		<constructor-arg ref="StatisticsGatherer" />
-		<property name="to" value="lee@linuxbox.com" />
-		<property name="from" value="lee@linuxbox.com" />
-		<property name="mailHost" value="thunderbeast.private.linuxbox.com" />
+		<property name="to" value="${enkive.statistics.emailReport.to}" />
+		<property name="from" value="${enkive.statistics.emailReport.from}" />
+		<property name="mailHost" value="${enkive.statistics.emailReport.mailHost}" />
+	</bean>
+	
+	<bean id="StatisticsEmailerJob"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject" ref="StatisticsEmailer" />
+		<property name="targetMethod" value="sendReport" />
+		<property name="concurrent" value="false" />
+	 </bean>
+	 
+	 <bean id="StatisticsEmailerTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail" ref="StatisticsEmailerJob" />
+		<property name="cronExpression" value="0 0 3 * * ?" />
 	</bean>
 
 	<bean id="StatisticsWriter"

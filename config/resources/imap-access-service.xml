@@ -65,11 +65,11 @@
 		<constructor-arg ref="Mongo" />
 		<constructor-arg type="java.lang.String" value="${enkive.imap.db.name}" />
 		<constructor-arg type="java.lang.String" value="${enkive.imap.collection.name}" />
-		<property name="retrieverService" ref="MongoMessageRetrieverService" />
+		<property name="retrieverService" ref="RetentionPolicyEnforcingMessageRetrieverService" />
 	</bean>
 
 	<bean id="EnkiveImapAccountCreatingSpringContextAuthenticator"
-		class="com.linuxbox.enkive.imap.authentication.EnkiveImapAccountCreatingAuthenticator" >
+		class="com.linuxbox.enkive.imap.authentication.EnkiveImapAccountCreatingAuthenticator">
 		<constructor-arg ref="EnkiveImapSpringContextAuthenticator" />
 		<constructor-arg ref="MongoImapAccountCreator" />
 	</bean>
@@ -92,6 +92,7 @@
 		<constructor-arg type="java.lang.String" value="${enkive.imap.db.name}" />
 		<constructor-arg type="java.lang.String" value="${enkive.imap.collection.name}" />
 		<property name="searchService" ref="MongoImapAccountCreationMessageSearchService" />
+		<property name="permissionsService" ref="PermissionService" />
 	</bean>
 
 	<bean id="MongoImapAccountCreationMessageSearchService"
@@ -102,6 +103,50 @@
 			value="${enkive.messagestore.collection.name}" />
 		<property name="docSearchService" ref="DocSearchQueryService" />
 		<property name="searchResultBuilder" ref="SearchResultBuilder" />
+	</bean>
+
+	<bean name="ImapMessageRetentionPolicyEnforcer"
+		class="com.linuxbox.enkive.message.retention.imap.mongodb.MongoDBImapMessageRetentionPolicyEnforcer">
+		<constructor-arg ref="Mongo" />
+		<constructor-arg type="java.lang.String" value="${enkive.imap.db.name}" />
+		<constructor-arg type="java.lang.String"
+			value="${enkive.imap.collection.name}" />
+		<property name="searchService" ref="SystemMessageSearchService" />
+		<property name="retentionPolicy" ref="MessageRetentionPolicy" />
+		<property name="messageArchivingService" ref="MessageArchivingService" />
+	</bean>
+
+	<bean name="ImapMessageRetentionJob"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject" ref="ImapMessageRetentionPolicyEnforcer" />
+		<property name="targetMethod" value="enforceMessageRetentionPolicies" />
+		<property name="concurrent" value="false" />
+	</bean>
+
+	<bean id="ImapMessageRetentionTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail" ref="ImapMessageRetentionJob" />
+		<property name="cronExpression" value="0 0 3 * * ?" />
+	</bean>
+
+	<bean name="ImapAccountUpdateJob"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject" ref="MongoImapAccountCreator" />
+		<property name="targetMethod" value="updateImapAccounts" />
+		<property name="concurrent" value="false" />
+	</bean>
+
+	<bean id="ImapAccountUpdateTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail" ref="ImapAccountUpdateJob" />
+		<property name="cronExpression" value="0 0 3 * * ?" />
+	</bean>
+	<bean id="ImapScheduledJobsBean"
+		class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+		<property name="triggers">
+			<list>
+				<!-- Uncomment the next line to enable nightly IMAP account updating -->
+				<ref bean="ImapAccountUpdateTrigger" />
+			</list>
+		</property>
 	</bean>
 
 </beans>

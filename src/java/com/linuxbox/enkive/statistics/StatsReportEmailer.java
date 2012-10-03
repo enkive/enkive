@@ -18,8 +18,6 @@
  * <http://www.gnu.org/licenses/>.
  *******************************************************************************/
 package com.linuxbox.enkive.statistics;
-/* needed if implemented
-import static com.linuxbox.enkive.statistics.StatsConstants.STAT_GATHERER_NAME;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -28,7 +26,6 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.net.URISyntaxException;
 import java.text.ParseException;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -41,20 +38,18 @@ import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.quartz.SchedulerException;
 
 import com.linuxbox.enkive.statistics.gathering.GathererException;
-
+import com.linuxbox.enkive.statistics.services.StatsGathererService;
 import com.linuxbox.enkive.statistics.services.retrieval.StatsRetrievalException;
 
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
-*/
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import com.linuxbox.enkive.statistics.services.StatsGathererService;
 
 public class StatsReportEmailer {
 
@@ -69,7 +64,7 @@ public class StatsReportEmailer {
 	public StatsReportEmailer(StatsGathererService gather) {
 		this.gatherer = gather;
 	}
-/*
+
 	protected String buildReport() {
 		try {
 			return buildReportWithTemplate();
@@ -88,26 +83,14 @@ public class StatsReportEmailer {
 
 		Map<String, Object> root = new HashMap<String, Object>();
 		root.put("date", new Date());
-		// TODO: need to convert to using maps & sets rather than JSON
+		// TODO: Can this build a report from the previous day or time period
+		// rather than gather on demand?
 		List<RawStats> statistics = gatherer.gatherStats();
 
-		for (RawStats map : statistics) {
-			HashMap<String, Object> hMap = new HashMap<String, Object>(map);
-			root.put((String) map.get(STAT_GATHERER_NAME), hMap.toString());
+		for (RawStats rawStats : statistics) {
+			Map<String, Object> statsMap = rawStats.toMap();
+			root.put(rawStats.getGathererName(), statsMap);
 		}
-		
-		 * for (String serviceName : JSONObject.getNames(statistics)) {
-		 * Map<String, String> service = new HashMap<String, String>();
-		 * Set<Map<String, Object>> serviceStatistics = statistics.entrySet();
-		 * Map<String, Object> serviceStatistics[] =
-		 * statistics.toArray(serviceName);
-		 * 
-		 * for (int i = 0; i < serviceStatistics.length(); i++) { JSONObject
-		 * statistic = serviceStatistics.getJSONObject(i); for (String
-		 * statisticName : JSONObject.getNames(statistic)) {
-		 * service.put(statisticName, statistic.getString(statisticName)); } }
-		 * root.put(serviceName, service); }
-		 // Create the hash for ``latestProduct''
 		Template temp = cfg.getTemplate("StatisticsEmailTemplate.ftl");
 
 		ByteArrayOutputStream os = new ByteArrayOutputStream();
@@ -129,7 +112,7 @@ public class StatsReportEmailer {
 		return to;
 	}
 
-	public void sendReport(Collection<String> addresses) {
+	public void sendReport() {
 
 		// Get system properties
 		Properties properties = System.getProperties();
@@ -164,7 +147,7 @@ public class StatsReportEmailer {
 			mex.printStackTrace();
 		}
 	}
-*/
+
 	public void setFrom(String from) {
 		this.from = from;
 	}

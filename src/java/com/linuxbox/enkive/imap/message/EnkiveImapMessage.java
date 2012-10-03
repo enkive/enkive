@@ -28,6 +28,7 @@ public class EnkiveImapMessage extends AbstractMessage<String> {
 	long uid;
 	String mailboxId = "";
 	String messageId;
+	protected boolean messageExists;
 	MessageRetrieverService retrieverService;
 
 	protected static final Log LOGGER = LogFactory
@@ -37,6 +38,9 @@ public class EnkiveImapMessage extends AbstractMessage<String> {
 			MessageRetrieverService retrieverService) {
 		this.messageId = messageId;
 		this.retrieverService = retrieverService;
+		loadSummary();
+		if (summary != null)
+			messageExists = true;
 	}
 
 	@Override
@@ -184,13 +188,19 @@ public class EnkiveImapMessage extends AbstractMessage<String> {
 		this.message = message;
 	}
 
+	public boolean messageExists() {
+		return messageExists;
+	}
+
 	private void loadMessage() {
 		if (message == null)
 			try {
 				message = retrieverService.retrieve(messageId);
 			} catch (CannotRetrieveException e) {
-				LOGGER.error("Error retrieving message with UUID " + messageId,
-						e);
+				LOGGER.error("Error retrieving message with UUID " + messageId);
+			} catch (NullPointerException e) {
+				LOGGER.warn("Error retrieving message with UUID " + messageId
+						+ ". Message may be deleted.");
 			}
 	}
 
@@ -199,8 +209,10 @@ public class EnkiveImapMessage extends AbstractMessage<String> {
 			try {
 				summary = retrieverService.retrieveSummary(messageId);
 			} catch (CannotRetrieveException e) {
-				LOGGER.error("Error retrieving message with UUID " + messageId,
-						e);
+				LOGGER.error("Error retrieving message with UUID " + messageId);
+			} catch (NullPointerException e) {
+				LOGGER.warn("Error retrieving message with UUID " + messageId
+						+ ". Message may be deleted.");
 			}
 	}
 

@@ -45,7 +45,8 @@ public abstract class EnkiveImapMessageMapper extends
 		if (mailbox.getName().equals(MailboxConstants.INBOX)) {
 			results = new ArrayList<Message<String>>();
 			if (from <= 1)
-				results.add(new EnkiveImapTemplateMessage("ImapInboxEmailTemplate.ftl"));
+				results.add(new EnkiveImapTemplateMessage(
+						"ImapInboxEmailTemplate.ftl"));
 		} else {
 
 			switch (type) {
@@ -83,12 +84,14 @@ public abstract class EnkiveImapMessageMapper extends
 		for (Entry<Long, String> entry : uidMap.entrySet()) {
 			EnkiveImapMessage enkiveImapMessage = new EnkiveImapMessage(
 					entry.getValue(), retrieverService);
-			enkiveImapMessage.setUid(entry.getKey());
-			messages.add(enkiveImapMessage);
-			if (max != -1) {
-				cur++;
-				if (cur >= max)
-					break;
+			if (enkiveImapMessage.messageExists()) {
+				enkiveImapMessage.setUid(entry.getKey());
+				messages.add(enkiveImapMessage);
+				if (max != -1) {
+					cur++;
+					if (cur >= max)
+						break;
+				}
 			}
 		}
 		return messages;

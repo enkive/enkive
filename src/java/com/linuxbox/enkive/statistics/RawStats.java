@@ -42,14 +42,14 @@ public class RawStats {
 	/**
 	 * 
 	 */
-	public String getName(){
+	public String getGathererName(){
 		return gathererName;
 	}
 	
 	/**
 	 * 
 	 */
-	public void setName(String name){
+	public void setGathererName(String name){
 		this.gathererName = name;
 	}
 	
@@ -113,8 +113,8 @@ public class RawStats {
 		if(pointStats != null){
 			statsMap.put(STAT_POINT, pointStats);
 		}
-		if(getName() != null){
-			statsMap.put(STAT_GATHERER_NAME, getName());
+		if(getGathererName() != null){
+			statsMap.put(STAT_GATHERER_NAME, getGathererName());
 		}
 		
 		return statsMap;

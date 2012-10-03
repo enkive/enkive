@@ -121,11 +121,18 @@
 		<property name="cronExpression" value="0 0 3 * * ?" />
 	</bean>
 
-	<bean id="ScheduledJobsBean" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+	<bean id="ScheduledJobsBean"
+		class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
 		<property name="triggers">
 			<list>
-				<!-- Uncomment the next line to enable message retention policy -->
+				<!-- Uncomment the next line to enable message retention policy and have 
+					not enabled IMAP access -->
 				<!-- <ref bean="MessageRetentionTrigger" /> -->
+				<!-- Uncomment the next line to enable message retention policy and have 
+					enabled IMAP Access -->
+				<!-- <ref bean="ImapMessageRetentionTrigger" /> -->
+				<!-- Uncomment the next line to enable the nightly statistics report -->
+				<!-- <ref bean="StatisticsEmailerTrigger" />  -->
 			</list>
 		</property>
 	</bean>
@@ -144,7 +151,8 @@
 
 	<bean id="ApplicationContextProvider" class="com.linuxbox.util.spring.ApplicationContextProvider" />
 
-	<!-- Makes sure all beans with PostConstruct or PreDestroy annotations get called appropriately -->
+	<!-- Makes sure all beans with PostConstruct or PreDestroy annotations get 
+		called appropriately -->
 	<bean id="CommonAnnotationBeanPostProcessor"
 		class="org.springframework.context.annotation.CommonAnnotationBeanPostProcessor" />
 </beans>
