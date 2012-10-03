@@ -108,9 +108,9 @@
 	<bean name="ImapMessageRetentionPolicyEnforcer"
 		class="com.linuxbox.enkive.message.retention.imap.mongodb.MongoDBImapMessageRetentionPolicyEnforcer">
 		<constructor-arg ref="Mongo" />
-		<constructor-arg type="java.lang.String" value="${enkive.messagestore.db.name}" />
+		<constructor-arg type="java.lang.String" value="${enkive.imap.db.name}" />
 		<constructor-arg type="java.lang.String"
-			value="${enkive.messagestore.collection.name}" />
+			value="${enkive.imap.collection.name}" />
 		<property name="searchService" ref="SystemMessageSearchService" />
 		<property name="retentionPolicy" ref="MessageRetentionPolicy" />
 		<property name="messageArchivingService" ref="MessageArchivingService" />

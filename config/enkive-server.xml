@@ -130,7 +130,9 @@
 				<!-- <ref bean="MessageRetentionTrigger" /> -->
 				<!-- Uncomment the next line to enable message retention policy and have 
 					enabled IMAP Access -->
-				<ref bean="ImapMessageRetentionTrigger" />
+				<!-- <ref bean="ImapMessageRetentionTrigger" /> -->
+				<!-- Uncomment the next line to enable the nightly statistics report -->
+				<!-- <ref bean="StatisticsEmailerTrigger" />  -->
 			</list>
 		</property>
 	</bean>

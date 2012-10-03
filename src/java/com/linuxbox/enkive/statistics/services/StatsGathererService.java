@@ -87,7 +87,7 @@ public class StatsGathererService {
 			for(String gathererName: statsGatherers.keySet()){
 				Gatherer gatherer = statsGatherers.get(gathererName);
 				RawStats stats = gatherer.getStatistics();
-				stats.setName(gathererName);
+				stats.setGathererName(gathererName);
 				statsList.add(stats);
 			}
 			return statsList;
@@ -106,7 +106,7 @@ public class StatsGathererService {
 		for (String statName: gathererKeys.keySet()) {
 			RawStats stats = statsGatherers.get(statName)
 					.getStatistics(gathererKeys.get(statName),gathererKeys.get(statName));
-			stats.setName(statsGatherers.get(statName).getAttributes().getName());
+			stats.setGathererName(statsGatherers.get(statName).getAttributes().getName());
 			
 			statsList.add(stats);
 		}
