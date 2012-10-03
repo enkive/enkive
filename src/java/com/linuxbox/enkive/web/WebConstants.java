@@ -73,9 +73,8 @@ public interface WebConstants {
 	public static final String PERMISSION_ADMIN_TAG = "admin";
 	public static final String PERMISSION_CAN_READ_ALL_TAG = "can_read_all";
 	public static final String USER_AUTHORITIES = "userAuthorities";
-	
+
 	public static final String SORTBYDATE = "sortByDate";
 	public static final String SORTBYSTATUS = "sortByStatus";
-	
 
 }

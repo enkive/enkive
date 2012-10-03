@@ -26,8 +26,8 @@ import org.quartz.SchedulerException;
 import com.linuxbox.enkive.TestingConstants;
 import com.linuxbox.enkive.docsearch.indri.IndriDocSearchQueryService;
 import com.linuxbox.enkive.statistics.RawStats;
-import com.linuxbox.enkive.statistics.gathering.GathererException;
 import com.linuxbox.enkive.statistics.gathering.Gatherer;
+import com.linuxbox.enkive.statistics.gathering.GathererException;
 import com.linuxbox.enkive.statistics.gathering.StatsMsgGatherer;
 import com.linuxbox.enkive.statistics.gathering.StatsRuntimeGatherer;
 import com.linuxbox.enkive.statistics.gathering.mongodb.MongoGathererMessageSearchService;
@@ -56,9 +56,8 @@ public class StatsMongoStorageAndRetrievalTest {
 	private static DB db;
 	private static DBCollection coll;
 
-	public StatsMongoStorageAndRetrievalTest(
-			HashMap<String, Gatherer> map) throws GathererException,
-			SchedulerException, ParseException {
+	public StatsMongoStorageAndRetrievalTest(HashMap<String, Gatherer> map)
+			throws GathererException, SchedulerException, ParseException {
 		retrievalTester = new MongoStatsRetrievalService(m,
 				TestingConstants.MONGODB_TEST_DATABASE,
 				TestingConstants.MONGODB_TEST_COLL);
@@ -98,7 +97,8 @@ public class StatsMongoStorageAndRetrievalTest {
 		keys.add("numExt:avg,max,min:Number of Extents::point");
 		keys.add("fileSz:avg,max,min:File Size:bytes:point");
 		Gatherer dbProp = new StatsMongoDBGatherer(m,
-				TestingConstants.MONGODB_TEST_DATABASE, "DBGatherer", "Database Statistics", keys);
+				TestingConstants.MONGODB_TEST_DATABASE, "DBGatherer",
+				"Database Statistics", keys);
 
 		keys = new LinkedList<String>();
 		keys.add("*.ns::Namespace::");
@@ -112,20 +112,22 @@ public class StatsMongoStorageAndRetrievalTest {
 		keys.add("*.indSz:avg,max,min:Index Size:objects:point");
 		keys.add("*.indSzs.*:avg,max,min:Index Sizes:objects:point");
 		Gatherer collProp = new StatsMongoCollectionGatherer(m,
-				TestingConstants.MONGODB_TEST_DATABASE, "CollGatherer", "Collection Statistics", keys);
+				TestingConstants.MONGODB_TEST_DATABASE, "CollGatherer",
+				"Collection Statistics", keys);
 
 		keys = new LinkedList<String>();
 		keys.add("freeM:avg,max,min:Free Memory:bytes:point");
 		keys.add("maxM:avg,max,min:Max Memory:bytes:point");
 		keys.add("totM:avg,max,min:Total Memory:bytes:point");
 		keys.add("cores:avg,max,min:Processors::point");
-		Gatherer runProp = new StatsRuntimeGatherer("RuntimeGatherer", "Runtime Statistics", keys);
+		Gatherer runProp = new StatsRuntimeGatherer("RuntimeGatherer",
+				"Runtime Statistics", keys);
 
 		keys = new LinkedList<String>();
 		keys.add("numMsg:avg:Number of Messages::interval");
 		keys.add("totMsg:avg:Total Number of Messages::point");
-		StatsMsgGatherer msgProp = new StatsMsgGatherer(
-				"MsgPropGatherer", "Message Statistics", keys);
+		StatsMsgGatherer msgProp = new StatsMsgGatherer("MsgPropGatherer",
+				"Message Statistics", keys);
 		MongoGathererMessageSearchService searchService = null;
 
 		try {
@@ -161,7 +163,7 @@ public class StatsMongoStorageAndRetrievalTest {
 		map5.put("AttachstatsService", attProp);
 
 		Object[][] data = new Object[][] { { map1 }, { map2 }, { map3 },
-				{ map4 }, { map5 }};
+				{ map4 }, { map5 } };
 		return Arrays.asList(data);
 	}
 

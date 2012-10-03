@@ -12,8 +12,8 @@ import java.text.ParseException;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
@@ -44,9 +44,11 @@ public class StatsMonthGrainTest {
 		// clean up if week was run...
 		Map<String, Object> queryMap = new HashMap<String, Object>();
 		queryMap.put(CONSOLIDATION_TYPE, CONSOLIDATION_DAY);
-		StatsQuery statsQuery = new MongoStatsQuery(null, CONSOLIDATION_DAY, null);
+		StatsQuery statsQuery = new MongoStatsQuery(null, CONSOLIDATION_DAY,
+				null);
 		Set<Object> ids = new HashSet<Object>();
-		for (Map<String, Object> mapToDelete : client.queryStatistics(statsQuery)) {
+		for (Map<String, Object> mapToDelete : client
+				.queryStatistics(statsQuery)) {
 			ids.add(mapToDelete.get("_id"));
 		}
 
@@ -84,7 +86,7 @@ public class StatsMonthGrainTest {
 			String name = attribute.getName();
 			List<Map<String, Object>> data = grain.gathererFilter(name).get(0);
 			int size = 0;
-			if(data != null){
+			if (data != null) {
 				size = data.size();
 			}
 			assertTrue(
@@ -104,7 +106,8 @@ public class StatsMonthGrainTest {
 	public void consolidationMethods() {
 		List<Map<String, Object>> consolidatedData = grain.consolidateData();
 		assertTrue("the consolidated data is null", consolidatedData != null);
-		String methods[] = { CONSOLIDATION_AVG, CONSOLIDATION_MAX, CONSOLIDATION_MIN };
+		String methods[] = { CONSOLIDATION_AVG, CONSOLIDATION_MAX,
+				CONSOLIDATION_MIN };
 		DescriptiveStatistics statsMaker = new DescriptiveStatistics();
 		statsMaker.addValue(111);
 		statsMaker.addValue(11);

@@ -42,8 +42,7 @@ public class StatsMongoDBGatherer extends AbstractGatherer {
 	protected Mongo m;
 
 	public StatsMongoDBGatherer(Mongo m, String dbName, String serviceName,
-			String humanName, List<String> keys)
-			throws GathererException {
+			String humanName, List<String> keys) throws GathererException {
 		super(serviceName, humanName, keys);
 		this.m = m;
 		db = m.getDB(dbName);
@@ -64,7 +63,7 @@ public class StatsMongoDBGatherer extends AbstractGatherer {
 		pointStats.put(STAT_TOTAL_INDEX_SIZE, temp.get(MONGO_INDEX_SIZE));
 		pointStats.put(STAT_NUM_EXTENT, temp.get(MONGO_NUM_EXTENT));
 		pointStats.put(STAT_FILE_SIZE, temp.get(MONGO_FILE_SIZE));
-		
+
 		return pointStats;
 	}
 

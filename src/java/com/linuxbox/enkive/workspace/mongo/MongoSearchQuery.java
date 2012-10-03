@@ -1,6 +1,8 @@
 package com.linuxbox.enkive.workspace.mongo;
 
-import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.*;
+import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.SEARCHCRITERIA;
+import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.SEARCHNAME;
+import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.UUID;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -19,16 +21,17 @@ public class MongoSearchQuery extends SearchQuery {
 	protected Mongo m;
 	protected DB searchQueryDB;
 	protected DBCollection searchQueryColl;
-	
+
 	private final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.workspaces");
-	
-	public MongoSearchQuery(Mongo m, String searchQueryDBName, String searchQueryCollName){
+
+	public MongoSearchQuery(Mongo m, String searchQueryDBName,
+			String searchQueryCollName) {
 		this.m = m;
 		searchQueryDB = m.getDB(searchQueryDBName);
 		searchQueryColl = searchQueryDB.getCollection(searchQueryCollName);
 	}
-	
+
 	@Override
 	public void saveSearchQuery() throws WorkspaceException {
 		BasicDBObject searchQueryObject = new BasicDBObject();
@@ -43,7 +46,7 @@ public class MongoSearchQuery extends SearchQuery {
 				searchQueryObject.put(UUID, toUpdate.get(UUID));
 			}
 		}
-		if (searchQueryObject.getString(UUID) == null){
+		if (searchQueryObject.getString(UUID) == null) {
 			searchQueryColl.insert(searchQueryObject);
 			setId(searchQueryObject.getString(UUID));
 		}
@@ -55,11 +58,10 @@ public class MongoSearchQuery extends SearchQuery {
 	}
 
 	@Override
-	public void deleteSearchQuery()
-			throws WorkspaceException {
+	public void deleteSearchQuery() throws WorkspaceException {
 		DBObject searchQueryObject = searchQueryColl.findOne(ObjectId
 				.massageToObjectId(getId()));
 		searchQueryColl.remove(searchQueryObject);
 	}
-	
+
 }

@@ -16,6 +16,6 @@ public abstract class StatsQuery {
 	public Integer grainType;
 	public Date startTimestamp = null;
 	public Date endTimestamp = null;
-	
+
 	public abstract Map<String, Object> getQuery();
 }

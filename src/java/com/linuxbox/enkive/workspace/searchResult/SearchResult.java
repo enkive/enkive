@@ -55,14 +55,14 @@ public abstract class SearchResult {
 	protected String searchQueryId;
 	protected Boolean isSaved = false;
 	protected SearchQueryBuilder queryBuilder;
-	
+
 	public static String SORTBYDATE = "sortByDate";
 	public static String SORTBYNAME = "sortByName";
 	public static String SORTBYSUBJECT = "sortBySubject";
 	public static String SORTBYSENDER = "sortBySender";
 	public static String SORTBYRECEIVER = "sortByReceiver";
 	public static String SORTBYSTATUS = "sortByStatus";
-	
+
 	public static int SORT_ASC = 1;
 	public static int SORT_DESC = -1;
 
@@ -143,7 +143,7 @@ public abstract class SearchResult {
 	public void setSearchQueryBuilder(SearchQueryBuilder searchQueryBuilder) {
 		this.searchQueryBuilder = searchQueryBuilder;
 	}
-	
+
 	public abstract void sortSearchResultMessages(String sortBy, int sortDir)
 			throws WorkspaceException;
 }

@@ -13,6 +13,8 @@ import java.util.Map;
 
 import javax.mail.Flags;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.james.mailbox.store.mail.model.AbstractMessage;
 import org.apache.james.mailbox.store.mail.model.Property;
 
@@ -22,9 +24,12 @@ import freemarker.template.TemplateException;
 
 public class EnkiveImapTemplateMessage extends AbstractMessage<String> {
 
+	protected final static Log LOGGER = LogFactory
+			.getLog("com.linuxbox.enkive.imap");
+
 	Template messageBody;
 	Map<String, Object> root = new HashMap<String, Object>();
-	
+
 	String headers = "From: enkive@enkive.org\r\nTo: enkive@enkive.org\r\nSubject: Welcome to the Enkive IMAP Interface!\r\n\r\n";
 
 	public EnkiveImapTemplateMessage(String pathToTemplate) {
@@ -34,8 +39,7 @@ public class EnkiveImapTemplateMessage extends AbstractMessage<String> {
 			cfg.setDirectoryForTemplateLoading(templatesDirectory);
 			messageBody = cfg.getTemplate(pathToTemplate);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LOGGER.error("Error producing IMAP Inbox message from template", e);
 		}
 	}
 
@@ -102,7 +106,6 @@ public class EnkiveImapTemplateMessage extends AbstractMessage<String> {
 
 	@Override
 	public void setFlags(Flags flags) {
-		// TODO Auto-generated method stub
 
 	}
 
@@ -112,8 +115,7 @@ public class EnkiveImapTemplateMessage extends AbstractMessage<String> {
 		try {
 			messageBody.process(root, stringWriter);
 		} catch (TemplateException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LOGGER.error("Error producing IMAP Inbox message from template", e);
 		}
 		StringBuffer message = stringWriter.getBuffer();
 		return new ByteArrayInputStream(message.toString().getBytes());
@@ -121,13 +123,11 @@ public class EnkiveImapTemplateMessage extends AbstractMessage<String> {
 
 	@Override
 	public String getMediaType() {
-		// TODO Auto-generated method stub
 		return "";
 	}
 
 	@Override
 	public String getSubType() {
-		// TODO Auto-generated method stub
 		return "";
 	}
 
@@ -137,11 +137,9 @@ public class EnkiveImapTemplateMessage extends AbstractMessage<String> {
 		try {
 			messageBody.process(root, stringWriter);
 		} catch (TemplateException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LOGGER.error("Error producing IMAP Inbox message from template", e);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LOGGER.error("Error producing IMAP Inbox message from template", e);
 		}
 		StringBuffer message = stringWriter.getBuffer();
 		return headers.length() + message.length();
@@ -160,7 +158,6 @@ public class EnkiveImapTemplateMessage extends AbstractMessage<String> {
 
 	@Override
 	public List<Property> getProperties() {
-		// TODO Auto-generated method stub
 		return new ArrayList<Property>();
 	}
 

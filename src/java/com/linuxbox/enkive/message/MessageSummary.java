@@ -207,7 +207,7 @@ public interface MessageSummary {
 	 * @return the "To:" recipients of the message as a comma-separated string
 	 */
 	public abstract String getToStr();
-	
+
 	/**
 	 * 
 	 * @return All the headers starting just after the DATA (S|L)MPT command up
@@ -216,7 +216,7 @@ public interface MessageSummary {
 	 *         the original message byte for byte.
 	 */
 	public String getOriginalHeaders();
-	
+
 	/**
 	 * @param originalHeaders
 	 *            A string containing the original headers. It is assumed that

@@ -46,9 +46,9 @@ import com.linuxbox.util.queueservice.mongodb.MongoQueueServiceTest;
 		AbstractDocStoreServiceTest.class, MongoAuditServiceTest.class,
 		MongoLockingServiceTest.class, MongoQueueServiceTest.class,
 		MongoGridDocStoreServiceTest.class, MongoArchivingServiceTest.class,
-		StatsMongoDBTest.class, StatsMongoCollTest.class,
-		StatsMsgTest.class, StatsRuntimeTest.class,
-		StatsMongoAttachTest.class, MongoRetrieverServiceTest.class,
+		StatsMongoDBTest.class, StatsMongoCollTest.class, StatsMsgTest.class,
+		StatsRuntimeTest.class, StatsMongoAttachTest.class,
+		MongoRetrieverServiceTest.class,
 		MongoMessageRetentionPolicyEnforcementTest.class, // has problems
 															// (infinite loop
 															// problems)

@@ -29,7 +29,7 @@ public class WeekConsolidator extends EmbeddedConsolidator {
 		Date lowerDate = cal.getTime();
 		setDates(upperDate, lowerDate);
 	}
-	
+
 	@Override
 	public void setTypes() {
 		setTypes(CONSOLIDATION_WEEK, CONSOLIDATION_DAY);

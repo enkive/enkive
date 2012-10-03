@@ -17,9 +17,10 @@ public class GathererAttributes {
 		this.humanName = humanName;
 		this.serviceName = serviceName;
 		this.keys = keys;
-		
-		//serviceName and Timestamp must always be specified
-		keys.add(new ConsolidationKeyHandler(STAT_GATHERER_NAME + "::Gatherer Name:"));
+
+		// serviceName and Timestamp must always be specified
+		keys.add(new ConsolidationKeyHandler(STAT_GATHERER_NAME
+				+ "::Gatherer Name:"));
 		keys.add(new ConsolidationKeyHandler(STAT_TIMESTAMP + "::Time Stamp:"));
 	}
 
@@ -38,7 +39,8 @@ public class GathererAttributes {
 	}
 
 	/**
-	 * @return the human-readable name of the gatherer this attributes class belongs to
+	 * @return the human-readable name of the gatherer this attributes class
+	 *         belongs to
 	 */
 	public String getHumanName() {
 		return humanName;

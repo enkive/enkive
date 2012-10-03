@@ -24,14 +24,13 @@ public class GatheringScheduler {
 	protected CronTriggerBean trigger;
 	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.statistics.gathering.GatheringScheduler");
-	
+
 	protected Date lastFireTime = null;
-	
-	private void setCronExpression() throws ParseException{
-		if(interval < 60){
+
+	private void setCronExpression() throws ParseException {
+		if (interval < 60) {
 			this.schedule = new CronExpression("0 0/" + interval + " * * * ?");
-		}
-		else if(interval == 60){
+		} else if (interval == 60) {
 			this.schedule = new CronExpression("0 0 * * * ?");
 		} else {
 			interval = 15;
@@ -39,29 +38,30 @@ public class GatheringScheduler {
 			this.schedule = new CronExpression("0 0/15 * * * ?");
 		}
 	}
-	
-	public GatheringScheduler(String name, List<Gatherer> gatherers, Scheduler scheduler, int interval){
+
+	public GatheringScheduler(String name, List<Gatherer> gatherers,
+			Scheduler scheduler, int interval) {
 		this.interval = interval;
 		this.gatherers = gatherers;
 		this.scheduler = scheduler;
 		try {
 			setCronExpression();
-			
-			//define factory
+
+			// define factory
 			jobDetail = new MethodInvokingJobDetailFactoryBean();
 			jobDetail.setTargetObject(this);
-			jobDetail.setName(name+"job");
+			jobDetail.setName(name + "job");
 			jobDetail.setTargetMethod("gatherAndStoreStats");
 			jobDetail.setConcurrent(false);
 			jobDetail.afterPropertiesSet();
-			
-			//define trigger
+
+			// define trigger
 			this.trigger = new CronTriggerBean();
-			trigger.setBeanName(name+"TrigBean");
+			trigger.setBeanName(name + "TrigBean");
 			trigger.setJobDetail((JobDetail) jobDetail.getObject());
 			trigger.setCronExpression(schedule);
 			trigger.afterPropertiesSet();
-			
+
 			// add to schedule defined in spring xml
 			scheduler.scheduleJob((JobDetail) jobDetail.getObject(), trigger);
 		} catch (SchedulerException e) {
@@ -70,43 +70,45 @@ public class GatheringScheduler {
 			LOGGER.error("ClassNotFound Exception in " + name, e);
 		} catch (NoSuchMethodException e) {
 			LOGGER.error("NoSuchMethod Exception in " + name, e);
-		} catch (ParseException e){
-			LOGGER.error("Could not parse schedule in " + name + " (" + schedule + ")", e );
+		} catch (ParseException e) {
+			LOGGER.error("Could not parse schedule in " + name + " ("
+					+ schedule + ")", e);
 		} catch (Exception e) {
 			LOGGER.error("Exception in " + name, e);
 		}
 	}
-	
-	private Date getEndTime(){
+
+	private Date getEndTime() {
 		Date endTime = new Date();
-		long intervalMS = interval*60*1000;
-		if(lastFireTime != null){
-			endTime.setTime(lastFireTime.getTime()+intervalMS);
+		long intervalMS = interval * 60 * 1000;
+		if (lastFireTime != null) {
+			endTime.setTime(lastFireTime.getTime() + intervalMS);
 		} else {
-			long r = endTime.getTime()%intervalMS;
-			endTime.setTime(endTime.getTime()-r);
+			long r = endTime.getTime() % intervalMS;
+			endTime.setTime(endTime.getTime() - r);
 		}
-	
+
 		return endTime;
 	}
-	
-	private Date getStartTime(Date endDate){
+
+	private Date getStartTime(Date endDate) {
 		Calendar c = Calendar.getInstance();
 		c.setTime(endDate);
 		c.add(Calendar.MINUTE, -interval);
 		return c.getTime();
 	}
-	
-	public void gatherAndStoreStats(){	
+
+	public void gatherAndStoreStats() {
 		Date endDate = getEndTime();
 		Date startDate = getStartTime(endDate);
 		lastFireTime = endDate;
-		
-		for(Gatherer gatherer: gatherers){
+
+		for (Gatherer gatherer : gatherers) {
 			try {
 				gatherer.storeStats(gatherer.getStatistics(startDate, endDate));
 			} catch (GathererException e) {
-				LOGGER.error("GathererException in GatheringScheduler for " + gatherer.getAttributes().getName(), e);
+				LOGGER.error("GathererException in GatheringScheduler for "
+						+ gatherer.getAttributes().getName(), e);
 			}
 		}
 	}

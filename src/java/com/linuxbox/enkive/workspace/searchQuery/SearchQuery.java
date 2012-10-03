@@ -112,8 +112,8 @@ public abstract class SearchQuery {
 	public Collection<String> getCriteriaParameters() {
 		return criteria.keySet();
 	}
-	
+
 	public abstract void saveSearchQuery() throws WorkspaceException;
-	
+
 	public abstract void deleteSearchQuery() throws WorkspaceException;
 }

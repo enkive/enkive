@@ -1,9 +1,9 @@
 package com.linuxbox.enkive.statistics.services.retrieval.mongodb;
 
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_GATHERER_NAME;
+import static com.linuxbox.enkive.statistics.StatsConstants.STAT_POINT;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIMESTAMP;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TS_POINT;
-import static com.linuxbox.enkive.statistics.StatsConstants.STAT_POINT;
 import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_MIN;
 import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_TYPE;
 
@@ -20,16 +20,16 @@ import com.mongodb.DBObject;
  * to) the end time stamp. If either time stamp is null, then the query will not
  * consider it.
  */
-public class MongoStatsQuery extends StatsQuery{
+public class MongoStatsQuery extends StatsQuery {
 	public String gathererName;
 	public boolean isPointQuery;
-	
+
 	public MongoStatsQuery(String type, Date startTimestamp, Date endTimestamp) {
 		this.startTimestamp = startTimestamp;
 		this.endTimestamp = endTimestamp;
 		setIsPointQuery(type);
 	}
-	
+
 	public MongoStatsQuery(String gathererName, Integer grainType, String type) {
 		this.gathererName = gathererName;
 		this.grainType = grainType;
@@ -41,56 +41,56 @@ public class MongoStatsQuery extends StatsQuery{
 		this(type, startTimestamp, endTimestamp);
 		this.gathererName = gathererName;
 	}
-	
+
 	public MongoStatsQuery(String gathererName, Integer grainType, String type,
 			Date startTimestamp, Date endTimestamp) {
 		this(gathererName, grainType, type);
 		this.startTimestamp = startTimestamp;
 		this.endTimestamp = endTimestamp;
 	}
-	
+
 	public Map<String, Object> getQuery() {
 		Map<String, Object> mongoQuery = new BasicDBObject();
-		
-		if(gathererName != null){
+
+		if (gathererName != null) {
 			mongoQuery.put(STAT_GATHERER_NAME, gathererName);
 		}
-		
-		if(grainType != null){
-			if(grainType == 0){
+
+		if (grainType != null) {
+			if (grainType == 0) {
 				mongoQuery.put(CONSOLIDATION_TYPE, null);
 			} else {
 				mongoQuery.put(CONSOLIDATION_TYPE, grainType);
 			}
 		}
-		
+
 		DBObject time = new BasicDBObject();
 		String tsKey;
-		if(isPointQuery){
+		if (isPointQuery) {
 			tsKey = STAT_TIMESTAMP + "." + STAT_TS_POINT;
 		} else {
-			tsKey = STAT_TIMESTAMP + "." + CONSOLIDATION_MIN; 	
+			tsKey = STAT_TIMESTAMP + "." + CONSOLIDATION_MIN;
 		}
-		
-		if(startTimestamp != null){
+
+		if (startTimestamp != null) {
 			time.put("$gte", startTimestamp);
 		}
-		if(endTimestamp != null){
-			time.put("$lt", endTimestamp);	
+		if (endTimestamp != null) {
+			time.put("$lt", endTimestamp);
 		}
-		
-		if(!time.toMap().isEmpty()){
+
+		if (!time.toMap().isEmpty()) {
 			mongoQuery.put(tsKey, time);
 		}
-		
+
 		return mongoQuery;
 	}
-	
-	public void setIsPointQuery(String type){
-		if(type != null && type.equals(STAT_POINT)){
+
+	public void setIsPointQuery(String type) {
+		if (type != null && type.equals(STAT_POINT)) {
 			isPointQuery = true;
 		} else {
-			isPointQuery = false;//ie) consolidated
+			isPointQuery = false;// ie) consolidated
 		}
 	}
 }

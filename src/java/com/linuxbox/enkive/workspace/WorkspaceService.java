@@ -38,8 +38,8 @@ public interface WorkspaceService extends WorkspaceServiceMBean {
 
 	SearchResult getSearchResult(String searchResultId)
 			throws WorkspaceException;
-	
+
 	SearchFolder getSearchFolder(String searchFolderId)
-		throws WorkspaceException;
+			throws WorkspaceException;
 
 }

@@ -1,6 +1,7 @@
 package com.linuxbox.enkive.teststats;
 
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIMESTAMP;
+import static com.linuxbox.enkive.statistics.VarsMaker.createMap;
 import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_AVG;
 import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_MAX;
 import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_MIN;
@@ -22,7 +23,7 @@ import com.linuxbox.enkive.statistics.gathering.GathererAttributes;
 import com.linuxbox.enkive.statistics.gathering.GathererException;
 import com.linuxbox.enkive.statistics.services.StatsClient;
 import com.mongodb.DBCollection;
-import static com.linuxbox.enkive.statistics.VarsMaker.createMap;
+
 public class StatsWeekGrainTest {
 	private static StatsClient client;
 	private static WeekConsolidator grain;
@@ -63,7 +64,7 @@ public class StatsWeekGrainTest {
 			String name = attribute.getName();
 			List<Map<String, Object>> data = grain.gathererFilter(name).get(0);
 			int size = 0;
-			if(data != null){
+			if (data != null) {
 				size = data.size();
 			}
 			assertTrue(
@@ -83,7 +84,8 @@ public class StatsWeekGrainTest {
 	public void consolidationMethods() {
 		List<Map<String, Object>> consolidatedData = grain.consolidateData();
 		assertTrue("the consolidated data is null", consolidatedData != null);
-		String methods[] = { CONSOLIDATION_AVG, CONSOLIDATION_MAX, CONSOLIDATION_MIN };
+		String methods[] = { CONSOLIDATION_AVG, CONSOLIDATION_MAX,
+				CONSOLIDATION_MIN };
 		DescriptiveStatistics statsMaker = new DescriptiveStatistics();
 		statsMaker.addValue(111);
 		statsMaker.addValue(11);

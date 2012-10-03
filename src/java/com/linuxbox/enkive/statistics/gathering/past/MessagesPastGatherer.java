@@ -16,32 +16,34 @@ import java.util.Map;
 import javax.annotation.PostConstruct;
 
 import com.linuxbox.enkive.message.search.exception.MessageSearchException;
-
 import com.linuxbox.enkive.statistics.gathering.GathererException;
 import com.linuxbox.enkive.statistics.gathering.GathererMessageSearchService;
 import com.linuxbox.enkive.statistics.gathering.StatsMsgGatherer;
 import com.linuxbox.enkive.statistics.services.StatsClient;
 
-public class MessagesPastGatherer extends PastGatherer{
+public class MessagesPastGatherer extends PastGatherer {
 	GathererMessageSearchService searchService;
 	protected StatsMsgGatherer msgGatherer;
-	
-	
-	public MessagesPastGatherer(GathererMessageSearchService searchService, String name, StatsClient client, StatsMsgGatherer msgGatherer, int hrKeepTime, int dayKeepTime, int weekKeepTime, int monthKeepTime) {
-		super(name, client, hrKeepTime, dayKeepTime, weekKeepTime, monthKeepTime);
+
+	public MessagesPastGatherer(GathererMessageSearchService searchService,
+			String name, StatsClient client, StatsMsgGatherer msgGatherer,
+			int hrKeepTime, int dayKeepTime, int weekKeepTime, int monthKeepTime) {
+		super(name, client, hrKeepTime, dayKeepTime, weekKeepTime,
+				monthKeepTime);
 		this.searchService = searchService;
 		this.msgGatherer = msgGatherer;
 	}
-	
+
 	@PostConstruct
-	public void init(){
+	public void init() {
 		consolidatePastHours();
 		consolidatePastDays();
 		consolidatePastWeeks();
 		consolidatePastMonths();
 	}
 
-	protected Map<String, Object> getConsolidatedData(Date start, Date end, int grain) throws GathererException{
+	protected Map<String, Object> getConsolidatedData(Date start, Date end,
+			int grain) throws GathererException {
 		Map<String, Object> result = new HashMap<String, Object>();
 		int numEntries = 0;
 		int totalMsgs = 0;
@@ -51,20 +53,20 @@ public class MessagesPastGatherer extends PastGatherer{
 		} catch (MessageSearchException e) {
 			throw new GathererException(e);
 		}
-		
-		if(totalMsgs == 0){
+
+		if (totalMsgs == 0) {
 			return null;
 		}
-		
+
 		Map<String, Object> dateMap = new HashMap<String, Object>();
 		dateMap.put(CONSOLIDATION_MIN, start);
 		dateMap.put(CONSOLIDATION_MAX, end);
-		
-		Map<String,Object> innerNumEntries = new HashMap<String,Object>();
+
+		Map<String, Object> innerNumEntries = new HashMap<String, Object>();
 		innerNumEntries.put(CONSOLIDATION_AVG, numEntries);
-		Map<String,Object> innerTotalMsgs = new HashMap<String,Object>();
+		Map<String, Object> innerTotalMsgs = new HashMap<String, Object>();
 		innerTotalMsgs.put(CONSOLIDATION_AVG, totalMsgs);
-		
+
 		result.put(CONSOLIDATION_TYPE, grain);
 		result.put(STAT_TIMESTAMP, dateMap);
 		result.put(STAT_GATHERER_NAME, gathererName);

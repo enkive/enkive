@@ -1,5 +1,6 @@
 package com.linuxbox.enkive.statistics.removal;
 
+import static com.linuxbox.enkive.statistics.VarsMaker.createSetOfObjs;
 import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_DAY;
 import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_HOUR;
 import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_MONTH;
@@ -23,7 +24,6 @@ import org.apache.commons.logging.LogFactory;
 import com.linuxbox.enkive.statistics.services.StatsClient;
 import com.linuxbox.enkive.statistics.services.retrieval.StatsQuery;
 import com.linuxbox.enkive.statistics.services.retrieval.mongodb.MongoStatsDateQuery;
-import static com.linuxbox.enkive.statistics.VarsMaker.createSetOfObjs;
 
 public class RemovalJob {
 	protected final static Log LOGGER = LogFactory
@@ -43,7 +43,7 @@ public class RemovalJob {
 	/**
 	 * Each cleaner is run to determine if it can find any data that should be
 	 * deleted from the database at that particular time if the keepTime for a
-	 * cleaner was set to -1 that cleaner will not run NOTE: keepTimes do not 
+	 * cleaner was set to -1 that cleaner will not run NOTE: keepTimes do not
 	 * need to be set; they have default values, and any overwrite must be
 	 * greater than those default values
 	 */
@@ -64,10 +64,13 @@ public class RemovalJob {
 	}
 
 	/**
-	 * this method takes an identifier that determines a date range and a type of grainualarity and deletes all
-	 * the objects found in a query over these 
-	 * @param interval - the identifier that determines how the date is to be made
-	 * @param grainType - the type of grainularity to delete
+	 * this method takes an identifier that determines a date range and a type
+	 * of grainualarity and deletes all the objects found in a query over these
+	 * 
+	 * @param interval
+	 *            - the identifier that determines how the date is to be made
+	 * @param grainType
+	 *            - the type of grainularity to delete
 	 */
 	private void cleaner(int interval, int grainType) {
 		setDate(interval);
@@ -106,18 +109,21 @@ public class RemovalJob {
 			cleaner(REMOVAL_RAW_ID, CONSOLIDATION_RAW);
 		}
 	}
-	
+
 	private void cleanWeek() {
 		if (wkKeepTime != -1) {
 			cleaner(REMOVAL_WEEK_ID, CONSOLIDATION_WEEK);
 		}
 	}
-	
+
 	/**
-	 * generates a date cooresponding to the amount of time each
-	 * type of statistic should be kept. For instance, if monthKeepTime is set to 3 then 3
-	 * months will be subtracted from the current date and that date will be returned
-	 * @param time - the identifier corresponding to the amount of time to deduct
+	 * generates a date cooresponding to the amount of time each type of
+	 * statistic should be kept. For instance, if monthKeepTime is set to 3 then
+	 * 3 months will be subtracted from the current date and that date will be
+	 * returned
+	 * 
+	 * @param time
+	 *            - the identifier corresponding to the amount of time to deduct
 	 */
 	private void setDate(int time) {
 		Calendar cal = Calendar.getInstance();
@@ -145,8 +151,9 @@ public class RemovalJob {
 	}
 
 	/**
-	 * @param dayKeepTime the input must be greater than the default value or -1
-	 * (-1 means do not run this removal)
+	 * @param dayKeepTime
+	 *            the input must be greater than the default value or -1 (-1
+	 *            means do not run this removal)
 	 */
 	public void setDayKeepTime(int dayKeepTime) {
 		if (dayKeepTime >= REMOVAL_DAY_ID || dayKeepTime == -1) {
@@ -157,8 +164,9 @@ public class RemovalJob {
 	}
 
 	/**
-	 * @param hrKeepTime the input must be greater than the default value or -1
-	 * (-1 means do not run this removal)
+	 * @param hrKeepTime
+	 *            the input must be greater than the default value or -1 (-1
+	 *            means do not run this removal)
 	 */
 	public void setHrKeepTime(int hrKeepTime) {
 		if (hrKeepTime >= REMOVAL_HOUR_ID || hrKeepTime == -1) {
@@ -169,8 +177,9 @@ public class RemovalJob {
 	}
 
 	/**
-	 * @param monthKeepTime the input must be greater than the default value or -1
-	 * (-1 means do not run this removal)
+	 * @param monthKeepTime
+	 *            the input must be greater than the default value or -1 (-1
+	 *            means do not run this removal)
 	 */
 	public void setMonthKeepTime(int monthKeepTime) {
 		if (monthKeepTime >= REMOVAL_MONTH_ID || monthKeepTime == -1) {
@@ -179,10 +188,11 @@ public class RemovalJob {
 			LOGGER.warn("setMonthKeepTime input is invalid");
 		}
 	}
-	
+
 	/**
-	 * @param rawKeepTime the input must be greater than the default value or -1
-	 * (-1 means do not run this removal)
+	 * @param rawKeepTime
+	 *            the input must be greater than the default value or -1 (-1
+	 *            means do not run this removal)
 	 */
 	public void setRawKeepTime(int rawKeepTime) {
 		if (rawKeepTime >= REMOVAL_RAW_ID || rawKeepTime == -1) {
@@ -193,8 +203,9 @@ public class RemovalJob {
 	}
 
 	/**
-	 * @param wkKeepTime the input must be greater than the default value or -1
-	 * (-1 means do not run this removal)
+	 * @param wkKeepTime
+	 *            the input must be greater than the default value or -1 (-1
+	 *            means do not run this removal)
 	 */
 	public void setWkKeepTime(int wkKeepTime) {
 		if (wkKeepTime >= REMOVAL_WEEK_ID || wkKeepTime == -1) {

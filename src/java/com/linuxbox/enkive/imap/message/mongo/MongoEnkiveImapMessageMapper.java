@@ -67,7 +67,7 @@ public class MongoEnkiveImapMessageMapper extends EnkiveImapMessageMapper {
 	public SortedMap<Long, String> getMailboxMessageIds(
 			Mailbox<String> mailbox, long fromUid, long toUid) {
 		SortedMap<Long, String> messageIds = new TreeMap<Long, String>();
-		
+
 		if (mailbox.getMailboxId() != null) {
 			BasicDBObject mailboxQueryObject = new BasicDBObject();
 			mailboxQueryObject.put("_id",

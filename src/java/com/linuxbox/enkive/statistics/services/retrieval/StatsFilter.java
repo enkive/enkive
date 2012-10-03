@@ -6,5 +6,6 @@ import java.util.Map;
 public abstract class StatsFilter {
 	public String gathererName;
 	public Map<String, Object> keys = null;
+
 	public abstract Map<String, Object> getFilter();
 }

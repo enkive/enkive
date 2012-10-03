@@ -23,6 +23,9 @@ import static com.linuxbox.enkive.search.Constants.NUMERIC_SEARCH_FORMAT;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_GATHERER_NAME;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_INTERVAL;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIMESTAMP;
+import static com.linuxbox.enkive.statistics.VarsMaker.createLinkedListOfStrs;
+import static com.linuxbox.enkive.statistics.VarsMaker.createListOfMaps;
+import static com.linuxbox.enkive.statistics.VarsMaker.createMap;
 import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_MAX;
 import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_MIN;
 import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_TYPE;
@@ -47,9 +50,7 @@ import org.apache.commons.logging.LogFactory;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import static com.linuxbox.enkive.statistics.VarsMaker.createMap;
-import static com.linuxbox.enkive.statistics.VarsMaker.createListOfMaps;
-import static com.linuxbox.enkive.statistics.VarsMaker.createLinkedListOfStrs;
+
 import com.linuxbox.enkive.exception.CannotRetrieveException;
 import com.linuxbox.enkive.statistics.ConsolidationKeyHandler;
 import com.linuxbox.enkive.statistics.RawStats;
@@ -58,6 +59,7 @@ import com.linuxbox.enkive.statistics.services.retrieval.StatsFilter;
 import com.linuxbox.enkive.statistics.services.retrieval.StatsQuery;
 import com.linuxbox.enkive.statistics.services.retrieval.mongodb.MongoStatsFilter;
 import com.linuxbox.enkive.statistics.services.retrieval.mongodb.MongoStatsQuery;
+
 @SuppressWarnings("unchecked")
 public class StatsServlet extends EnkiveServlet {
 	protected static final Log LOGGER = LogFactory
@@ -75,9 +77,11 @@ public class StatsServlet extends EnkiveServlet {
 	}
 
 	private Map<String, Object> consolidateMaps(
-			List<Map<String, Object>> serviceData, List<ConsolidationKeyHandler> statKeys) {
+			List<Map<String, Object>> serviceData,
+			List<ConsolidationKeyHandler> statKeys) {
 		if (serviceData.size() > 0) {
-			Map<String, Object> template = createMap(serviceData.iterator().next());			
+			Map<String, Object> template = createMap(serviceData.iterator()
+					.next());
 			LinkedList<String> path = createLinkedListOfStrs();
 			Map<String, Object> result = createMap(template);
 			consolidateMapsHelper(template, result, path, statKeys, serviceData);
@@ -91,15 +95,18 @@ public class StatsServlet extends EnkiveServlet {
 
 	private void consolidateMapsHelper(Map<String, Object> templateData,
 			Map<String, Object> consolidatedMap, LinkedList<String> path,
-			List<ConsolidationKeyHandler> statKeys, List<Map<String, Object>> serviceData) {
+			List<ConsolidationKeyHandler> statKeys,
+			List<Map<String, Object>> serviceData) {
 		for (String key : templateData.keySet()) {
 			path.addLast(key);
-			ConsolidationKeyHandler matchingConsolidationDefinition = findMatchingPath(path, statKeys);
+			ConsolidationKeyHandler matchingConsolidationDefinition = findMatchingPath(
+					path, statKeys);
 			if (matchingConsolidationDefinition != null) {
 				TreeSet<Map<String, Object>> dataSet = new TreeSet<Map<String, Object>>(
 						new NumComparator());
 				for (Map<String, Object> dataMap : serviceData) {
-					Map<String, Object> dataVal = createMap(getDataVal(dataMap, path));
+					Map<String, Object> dataVal = createMap(getDataVal(dataMap,
+							path));
 					if (dataVal != null && !dataVal.isEmpty()) {
 						dataVal.put(STAT_TIMESTAMP, dataMap.get(STAT_TIMESTAMP));
 						dataSet.add(dataVal);
@@ -133,19 +140,22 @@ public class StatsServlet extends EnkiveServlet {
 			return null;
 		}
 
-		//Invariant: date ranges will never be the same
+		// Invariant: date ranges will never be the same
 		@Override
 		public int compare(Map<String, Object> o1, Map<String, Object> o2) {
 			List<String> path = new LinkedList<String>();
 			path.add(STAT_TIMESTAMP);
-			Map<String, Object> dateRange1 = (Map<String,Object>)getDataVal(o1, path);
-			Map<String, Object> dateRange2 = (Map<String,Object>)getDataVal(o1, path);
-			
-			
+			Map<String, Object> dateRange1 = (Map<String, Object>) getDataVal(
+					o1, path);
+			Map<String, Object> dateRange2 = (Map<String, Object>) getDataVal(
+					o1, path);
+
 			if (getDataVal(o1, path) != null && getDataVal(o2, path) != null) {
 				// if both maps have a num field, order them numerically
-				final Long min1 = ((Date) dateRange1.get(CONSOLIDATION_MIN)).getTime();
-				final Long min2 = ((Date) dateRange2.get(CONSOLIDATION_MIN)).getTime();
+				final Long min1 = ((Date) dateRange1.get(CONSOLIDATION_MIN))
+						.getTime();
+				final Long min2 = ((Date) dateRange2.get(CONSOLIDATION_MIN))
+						.getTime();
 
 				// tricky way of returning negative if i1<i2, positive if i1>i2,
 				// and 0 if the same
@@ -153,14 +163,16 @@ public class StatsServlet extends EnkiveServlet {
 					return -1;
 				} else if (min1 > min2) {
 					return 1;
-				} else {					
-					Long max1 = ((Date) dateRange1.get(CONSOLIDATION_MAX)).getTime();
-					Long max2 = ((Date) dateRange2.get(CONSOLIDATION_MAX)).getTime();
-					if(max1 < max2){
+				} else {
+					Long max1 = ((Date) dateRange1.get(CONSOLIDATION_MAX))
+							.getTime();
+					Long max2 = ((Date) dateRange2.get(CONSOLIDATION_MAX))
+							.getTime();
+					if (max1 < max2) {
 						return -1;
-					} else if(max1 > max2){
+					} else if (max1 > max2) {
 						return 1;
-					} else {//should never happen
+					} else {// should never happen
 						LOGGER.warn("numComparator attempting to store objects with same timestamp");
 						return 0;
 					}
@@ -179,7 +191,7 @@ public class StatsServlet extends EnkiveServlet {
 	}
 
 	// these functions are from the abstract gatherer function just
-	// repurposed to do the consolidation to an array instead of combining 
+	// repurposed to do the consolidation to an array instead of combining
 	// the values & reinserting.
 	protected Map<String, Object> getDataVal(Map<String, Object> dataMap,
 			List<String> path) {
@@ -207,7 +219,7 @@ public class StatsServlet extends EnkiveServlet {
 				if (cursor.get(key) instanceof Map) {
 					cursor = (Map<String, Object>) cursor.get(key);
 				} else {
-					//TODO create path that does not exist
+					// TODO create path that does not exist
 					LOGGER.error("Cannot put data on path");
 				}
 			}
@@ -215,7 +227,8 @@ public class StatsServlet extends EnkiveServlet {
 		}
 	}
 
-	private ConsolidationKeyHandler findMatchingPath(List<String> path, List<ConsolidationKeyHandler> keys) {
+	private ConsolidationKeyHandler findMatchingPath(List<String> path,
+			List<ConsolidationKeyHandler> keys) {
 		for (ConsolidationKeyHandler def : keys) {// get one key definition
 			if (def.getMethods() == null) {
 				continue;
@@ -231,7 +244,8 @@ public class StatsServlet extends EnkiveServlet {
 				continue;
 			}
 
-			while (pathIndex < path.size()) {// run through it to compare to path
+			while (pathIndex < path.size()) {// run through it to compare to
+												// path
 				if (defIndex >= keyString.size()) {
 					isMatch = false;
 					break;
@@ -290,13 +304,15 @@ public class StatsServlet extends EnkiveServlet {
 				// Get a DateRange for ts.min & ts.max
 				if (req.getParameter(tsMax) != null) {
 					noDate = false;
-					if(!req.getParameter(tsMax).equals("")){
-						try{
+					if (!req.getParameter(tsMax).equals("")) {
+						try {
 							upperTimestamp = NUMERIC_SEARCH_FORMAT.parse(req
-								.getParameter(tsMax));
-						} catch(ParseException e) {
+									.getParameter(tsMax));
+						} catch (ParseException e) {
 							upperTimestamp = new Date();
-							LOGGER.error("Error Parsing Date: " + req.getParameter(tsMax), e);
+							LOGGER.error(
+									"Error Parsing Date: "
+											+ req.getParameter(tsMax), e);
 						}
 					} else {
 						LOGGER.warn("Warning: Max date is not defined");
@@ -304,46 +320,53 @@ public class StatsServlet extends EnkiveServlet {
 				}
 				if (req.getParameter(tsMin) != null) {
 					noDate = false;
-					if(!req.getParameter(tsMin).equals("")){
-						try{
+					if (!req.getParameter(tsMin).equals("")) {
+						try {
 							lowerTimestamp = NUMERIC_SEARCH_FORMAT.parse(req
-								.getParameter(tsMin));
-						} catch(ParseException e) {
+									.getParameter(tsMin));
+						} catch (ParseException e) {
 							lowerTimestamp = new Date(0L);
-							LOGGER.error("Error Parsing Date: " + req.getParameter(tsMin), e);
+							LOGGER.error(
+									"Error Parsing Date: "
+											+ req.getParameter(tsMin), e);
 						}
 					} else {
 						LOGGER.warn("Warning: Min date is not defined");
 					}
-				} 
+				}
 
 				String[] serviceNames = req
 						.getParameterValues(STAT_GATHERER_NAME);
 				Integer grainType = null;
-				
+
 				if (req.getParameter(CONSOLIDATION_TYPE) != null) {
-					grainType = Integer.parseInt(req.getParameter(CONSOLIDATION_TYPE));
+					grainType = Integer.parseInt(req
+							.getParameter(CONSOLIDATION_TYPE));
 				}
 				List<StatsQuery> queryList = null;
 				List<StatsFilter> filterList = null;
-				
+
 				if (serviceNames == null) {
-					LOGGER.error("no valid data input", new NullPointerException());
+					LOGGER.error("no valid data input",
+							new NullPointerException());
 				}
-				
+
 				if (serviceNames != null) {
 					queryList = new LinkedList<StatsQuery>();
 					filterList = new LinkedList<StatsFilter>();
 					for (String serviceName : serviceNames) {
-					//	building query
-						StatsQuery query = new MongoStatsQuery(serviceName, grainType, STAT_INTERVAL, lowerTimestamp, upperTimestamp);
+						// building query
+						StatsQuery query = new MongoStatsQuery(serviceName,
+								grainType, STAT_INTERVAL, lowerTimestamp,
+								upperTimestamp);
 						StatsFilter filter = null;
 						String[] keys = req.getParameterValues(serviceName);
-					//	building filter
+						// building filter
 						if (keys != null) {
 							Map<String, Object> temp = createMap();
 							// 4. while looping build a second map for query
-							// second map will only have serviceName and date range
+							// second map will only have serviceName and date
+							// range
 							for (String key : keys) {
 								temp.put(key, 1);
 							}
@@ -354,33 +377,35 @@ public class StatsServlet extends EnkiveServlet {
 						queryList.add(query);
 						filterList.add(filter);
 					}
-				}	
+				}
 
 				List<Map<String, Object>> result = null;
-				
-				if (noDate) {//no date range means get instant data
+
+				if (noDate) {// no date range means get instant data
 					Map<String, List<String>> gatheringStats = new HashMap<String, List<String>>();
 					for (StatsFilter tempFilter : filterList) {
 						if (tempFilter.keys != null) {
-							List<String> keys = new LinkedList<String>(tempFilter.keys.keySet());
+							List<String> keys = new LinkedList<String>(
+									tempFilter.keys.keySet());
 							gatheringStats.put(tempFilter.gathererName, keys);
 						} else {
 							gatheringStats.put(tempFilter.gathererName, null);
 						}
 					}
-					List<RawStats> tempRawStats = client.gatherData(gatheringStats);
+					List<RawStats> tempRawStats = client
+							.gatherData(gatheringStats);
 					result = createListOfMaps();
-					for(RawStats stats: tempRawStats){
-						Map<String,Object> statsMap = stats.toMap();
+					for (RawStats stats : tempRawStats) {
+						Map<String, Object> statsMap = stats.toMap();
 						result.add(statsMap);
 					}
-				} else {//output query data as formatted json
+				} else {// output query data as formatted json
 					List<Map<String, Object>> stats = client.queryStatistics(
 							queryList, filterList);
 					result = createListOfMaps();
-					for (String name : serviceNames) {	
+					for (String name : serviceNames) {
 						List<Map<String, Object>> serviceStats = createListOfMaps();
-						//populate service data
+						// populate service data
 						for (Map<String, Object> data : stats) {
 							if (data.get(STAT_GATHERER_NAME).equals(name)) {
 								serviceStats.add(data);
@@ -390,7 +415,7 @@ public class StatsServlet extends EnkiveServlet {
 						consolidatedMap.put(
 								name,
 								consolidateMaps(serviceStats, client
-										.getAttributes(name).getKeys())); 
+										.getAttributes(name).getKeys()));
 						result.add(consolidatedMap);
 					}
 				}

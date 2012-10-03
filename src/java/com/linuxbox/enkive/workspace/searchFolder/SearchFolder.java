@@ -59,7 +59,7 @@ public abstract class SearchFolder {
 			messageIds.addAll(result.getMessageIds());
 		return messageIds;
 	}
-	
+
 	public Collection<String> getMessageIds(String sortField, int sortDir) {
 		Collection<String> messageIds = new HashSet<String>();
 		for (SearchFolderSearchResult result : results)
@@ -130,9 +130,9 @@ public abstract class SearchFolder {
 				}
 			} catch (CannotRetrieveException e) {
 				// Add errors to report
-				//if (LOGGER.isErrorEnabled())
-				//	LOGGER.error("Could not retrieve message with id"
-				//			+ messageId);
+				// if (LOGGER.isErrorEnabled())
+				// LOGGER.error("Could not retrieve message with id"
+				// + messageId);
 			}
 		}
 		mboxWriter.flush();
@@ -150,8 +150,8 @@ public abstract class SearchFolder {
 		// Create report in tempfile?
 
 		// Add report to tarfile
-		
-		//Close out stream
+
+		// Close out stream
 		tOut.finish();
 		outputStream.flush();
 		tOut.close();

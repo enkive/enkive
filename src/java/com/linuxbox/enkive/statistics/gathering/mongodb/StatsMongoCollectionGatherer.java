@@ -10,6 +10,7 @@ import static com.linuxbox.enkive.statistics.StatsConstants.STAT_NUM_INDEX;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_NUM_OBJS;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TOTAL_INDEX_SIZE;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TOTAL_SIZE;
+import static com.linuxbox.enkive.statistics.VarsMaker.createMap;
 import static com.linuxbox.enkive.statistics.gathering.mongodb.MongoConstants.MONGO_AVG_OBJ_SIZE;
 import static com.linuxbox.enkive.statistics.gathering.mongodb.MongoConstants.MONGO_COUNT;
 import static com.linuxbox.enkive.statistics.gathering.mongodb.MongoConstants.MONGO_INDEX_SIZES;
@@ -29,7 +30,6 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import static com.linuxbox.enkive.statistics.VarsMaker.createMap;
 import com.linuxbox.enkive.statistics.RawStats;
 import com.linuxbox.enkive.statistics.gathering.AbstractGatherer;
 import com.linuxbox.enkive.statistics.gathering.GathererException;
@@ -43,9 +43,10 @@ public class StatsMongoCollectionGatherer extends AbstractGatherer {
 	protected DB db;
 
 	protected Mongo m;
-	
+
 	public StatsMongoCollectionGatherer(Mongo m, String dbName,
-			String serviceName, String humanName, List<String> keys) throws GathererException {
+			String serviceName, String humanName, List<String> keys)
+			throws GathererException {
 		super(serviceName, humanName, keys);
 		this.m = m;
 		db = m.getDB(dbName);
@@ -62,58 +63,65 @@ public class StatsMongoCollectionGatherer extends AbstractGatherer {
 			collName = collName.replace('.', '-');
 			pointStats.put(collName, getPointStats(key));
 		}
-		
+
 		RawStats result = new RawStats(null, pointStats, new Date(), new Date());
 		return result;
 	}
-	
+
 	@Override
-	public RawStats getStatistics(List<String> intervalKeys, List<String> pointKeys) {
+	public RawStats getStatistics(List<String> intervalKeys,
+			List<String> pointKeys) {
 		Map<String, Object> pointResult = null;
 		Map<String, Object> intervalResult = null;
-		
+
 		for (String collName : db.getCollectionNames()) {
 			Map<String, Object> pointData = getPointStats(collName);
 			Map<String, Object> intervalData = getIntervalStats(collName);
-			
-			if(intervalData != null && intervalKeys != null && intervalKeys.size() != 0){
-				Map<String,Object> filteredIntervalData = new HashMap<String, Object>();
-				for(String statName: intervalKeys){
-					if(intervalData.containsKey(statName)){
-						filteredIntervalData.put(statName, intervalData.get(statName));
+
+			if (intervalData != null && intervalKeys != null
+					&& intervalKeys.size() != 0) {
+				Map<String, Object> filteredIntervalData = new HashMap<String, Object>();
+				for (String statName : intervalKeys) {
+					if (intervalData.containsKey(statName)) {
+						filteredIntervalData.put(statName,
+								intervalData.get(statName));
 					}
 				}
-				if(!filteredIntervalData.isEmpty()){
-					if(intervalResult == null){
+				if (!filteredIntervalData.isEmpty()) {
+					if (intervalResult == null) {
 						intervalResult = new HashMap<String, Object>();
 					}
 					intervalResult.put(collName, filteredIntervalData);
 				}
 			}
-			
-			if(pointData != null && pointKeys != null && pointKeys.size() != 0){
+
+			if (pointData != null && pointKeys != null && pointKeys.size() != 0) {
 				Map<String, Object> filteredPointData = new HashMap<String, Object>();
-				for(String statName: pointKeys){
-					if(pointData.containsKey(statName)){
-						filteredPointData.put(statName,pointData.get(statName));
+				for (String statName : pointKeys) {
+					if (pointData.containsKey(statName)) {
+						filteredPointData
+								.put(statName, pointData.get(statName));
 					}
 				}
-				if(!filteredPointData.isEmpty()){
-					if(pointResult == null){
+				if (!filteredPointData.isEmpty()) {
+					if (pointResult == null) {
 						pointResult = new HashMap<String, Object>();
 					}
 					pointResult.put(collName, filteredPointData);
 				}
 			}
 		}
-		
-		RawStats result = new RawStats(intervalResult, pointResult, new Date(), new Date());
+
+		RawStats result = new RawStats(intervalResult, pointResult, new Date(),
+				new Date());
 		return result;
 	}
 
 	/**
 	 * gets the point statistics cooresponding to a given collection
-	 * @param collectionName - the name of the collection on which to gather stats
+	 * 
+	 * @param collectionName
+	 *            - the name of the collection on which to gather stats
 	 * @return the stats collected
 	 */
 	private Map<String, Object> getPointStats(String collectionName) {
@@ -137,10 +145,12 @@ public class StatsMongoCollectionGatherer extends AbstractGatherer {
 			return null;
 		}
 	}
-	
+
 	/**
 	 * gets the interval statistics cooresponding to a given collection
-	 * @param collectionName - the name of the collection on which to gather stats
+	 * 
+	 * @param collectionName
+	 *            - the name of the collection on which to gather stats
 	 * @return the stats collected
 	 */
 	private Map<String, Object> getIntervalStats(String collectionName) {
@@ -167,5 +177,5 @@ public class StatsMongoCollectionGatherer extends AbstractGatherer {
 			Date endTimestamp) throws GathererException {
 		return null;
 	}
-	
+
 }

@@ -1,4 +1,5 @@
 package com.linuxbox.enkive.web;
+
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -31,27 +32,29 @@ public class KeyNameServlet extends EnkiveServlet {
 		super.init(config);
 		client = getStatsClient();
 	}
-	
+
 	public void doGet(HttpServletRequest req, HttpServletResponse resp) {
 		LOGGER.info("KeyNameServlet doGet started");
 		try {
 			try {
 				Set<GathererAttributes> attributes = client.getAttributes();
 				JSONArray result = new JSONArray();
-				
-				for(GathererAttributes attribute: attributes){
-					if(!attribute.getName().equals("CollectionStatsService")){
+
+				for (GathererAttributes attribute : attributes) {
+					if (!attribute.getName().equals("CollectionStatsService")) {
 						Map<String, Object> keyMethods = new HashMap<String, Object>();
-						for(ConsolidationKeyHandler key: attribute.getKeys()){
+						for (ConsolidationKeyHandler key : attribute.getKeys()) {
 							String builtKey = "";
-							for(String keyPart: key.getKey()){
+							for (String keyPart : key.getKey()) {
 								builtKey = builtKey + keyPart + ".";
 							}
-							builtKey = builtKey.substring(0, builtKey.length()-1);
-							if(key.getMethods() != null){
+							builtKey = builtKey.substring(0,
+									builtKey.length() - 1);
+							if (key.getMethods() != null) {
 								Map<String, Object> methodsMap = new HashMap<String, Object>();
 								Map<String, Object> innerKeyMap = new HashMap<String, Object>();
-								innerKeyMap.put("methods", (String[])key.getMethods().toArray());
+								innerKeyMap.put("methods", (String[]) key
+										.getMethods().toArray());
 								innerKeyMap.put("units", key.getUnits());
 								methodsMap.put(builtKey, innerKeyMap);
 								keyMethods.put(key.getHumanKey(), methodsMap);
@@ -64,8 +67,8 @@ public class KeyNameServlet extends EnkiveServlet {
 						result.put(humanKeyWrapper);
 					}
 				}
-				
-				try {	
+
+				try {
 					JSONObject statistics = new JSONObject();
 					statistics.put("results", result);
 					resp.getWriter().write(statistics.toString());

@@ -53,7 +53,6 @@ public class TaskPoolAsyncMessageSearchService implements MessageSearchService {
 	AuthenticationService authenticationService;
 	SearchResultBuilder searchResultBuilder;
 	SearchQueryBuilder searchQueryBuilder;
-	
 
 	public TaskPoolAsyncMessageSearchService(int corePoolSize, int maxPoolSize,
 			int keepAliveTime) {
@@ -61,14 +60,15 @@ public class TaskPoolAsyncMessageSearchService implements MessageSearchService {
 		searchExecutor = new CancellableProcessExecutor(corePoolSize,
 				maxPoolSize, keepAliveTime, TimeUnit.SECONDS, queue);
 	}
-	
+
 	@Override
 	public Future<SearchResult> searchAsync(HashMap<String, String> fields)
 			throws MessageSearchException {
 		String searchResultId = createSearchResult(fields);
 
 		Callable<SearchResult> searchCall = new AsynchronousSearchThread(
-				fields, searchResultId, messageSearchService, searchResultBuilder);
+				fields, searchResultId, messageSearchService,
+				searchResultBuilder);
 
 		try {
 			@SuppressWarnings("unchecked")

@@ -17,8 +17,8 @@ public class MongoSearchFolderSearchResultBuilder implements
 	DBCollection searchFolderSearchResultColl;
 	MongoSearchResultBuilder mSearchResultBuilder;
 
-	//XXX Need to set mongosearchutils
-	
+	// XXX Need to set mongosearchutils
+
 	MongoSearchFolderSearchResultBuilder(Mongo m,
 			String searchFolderSearchResultDBName,
 			String searchFolderSearchResultCollName) {
@@ -43,9 +43,10 @@ public class MongoSearchFolderSearchResultBuilder implements
 	public SearchFolderSearchResult getSearchResult(String id)
 			throws WorkspaceException {
 
-		SearchResult tempSearchResult = mSearchResultBuilder.getSearchResult(id);
+		SearchResult tempSearchResult = mSearchResultBuilder
+				.getSearchResult(id);
 		SearchFolderSearchResult result = buildSearchResult(tempSearchResult);
-		
+
 		return result;
 	}
 
@@ -62,7 +63,8 @@ public class MongoSearchFolderSearchResultBuilder implements
 				.getSearchQueryBuilder());
 		mSearchResult.setSearchQueryId(searchResult.getSearchQueryId());
 		mSearchResult.setTimestamp(searchResult.getTimestamp());
-		//TODO Can we have a check to see if this is actually a searchfolder result?
+		// TODO Can we have a check to see if this is actually a searchfolder
+		// result?
 		mSearchResult.saveSearchResult();
 		return mSearchResult;
 	}

@@ -7,12 +7,14 @@ import java.text.ParseException;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+
 import com.linuxbox.enkive.TestingConstants;
 import com.linuxbox.enkive.docsearch.indri.IndriDocSearchQueryService;
-import com.linuxbox.enkive.statistics.gathering.GathererException;
 import com.linuxbox.enkive.statistics.gathering.Gatherer;
+import com.linuxbox.enkive.statistics.gathering.GathererException;
 import com.linuxbox.enkive.statistics.gathering.StatsMsgGatherer;
 import com.linuxbox.enkive.statistics.gathering.StatsRuntimeGatherer;
+import com.linuxbox.enkive.statistics.gathering.mongodb.MongoGathererMessageSearchService;
 import com.linuxbox.enkive.statistics.gathering.mongodb.StatsMongoAttachmentsGatherer;
 import com.linuxbox.enkive.statistics.gathering.mongodb.StatsMongoCollectionGatherer;
 import com.linuxbox.enkive.statistics.gathering.mongodb.StatsMongoDBGatherer;
@@ -20,7 +22,6 @@ import com.linuxbox.enkive.statistics.services.StatsClient;
 import com.linuxbox.enkive.statistics.services.StatsGathererService;
 import com.linuxbox.enkive.statistics.services.retrieval.mongodb.MongoStatsRetrievalService;
 import com.linuxbox.enkive.statistics.services.storage.mongodb.MongoStatsStorageService;
-import com.linuxbox.enkive.statistics.gathering.mongodb.MongoGathererMessageSearchService;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.Mongo;
@@ -35,9 +36,9 @@ public class TestHelper {
 	private static final String runPropName = "rtGatherer";
 	private static final String msgSearchPropName = "msgGatherer";
 	private static final String attPropName = "attGatherer";
-	
-	public static DBCollection GetTestCollection(){
-		if(m == null){
+
+	public static DBCollection GetTestCollection() {
+		if (m == null) {
 			try {
 				m = new Mongo();
 			} catch (UnknownHostException e) {
@@ -50,8 +51,8 @@ public class TestHelper {
 		return db.getCollection(STAT_STORAGE_COLLECTION);
 	}
 
-	public static MongoStatsRetrievalService BuildRetrievalService(){
-		if(m == null){
+	public static MongoStatsRetrievalService BuildRetrievalService() {
+		if (m == null) {
 			try {
 				m = new Mongo();
 			} catch (UnknownHostException e) {
@@ -64,11 +65,12 @@ public class TestHelper {
 			coll.drop();
 		}
 		return new MongoStatsRetrievalService(m,
-				TestingConstants.MONGODB_TEST_DATABASE, TestingConstants.MONGODB_TEST_COLL);
+				TestingConstants.MONGODB_TEST_DATABASE,
+				TestingConstants.MONGODB_TEST_COLL);
 	}
-	
-	public static MongoStatsStorageService BuildStorageService(){
-		if(m == null){
+
+	public static MongoStatsStorageService BuildStorageService() {
+		if (m == null) {
 			try {
 				m = new Mongo();
 			} catch (UnknownHostException e) {
@@ -81,11 +83,13 @@ public class TestHelper {
 			coll.drop();
 		}
 		return new MongoStatsStorageService(m,
-				TestingConstants.MONGODB_TEST_DATABASE, TestingConstants.MONGODB_TEST_COLL);
+				TestingConstants.MONGODB_TEST_DATABASE,
+				TestingConstants.MONGODB_TEST_COLL);
 	}
-	
-	public static StatsGathererService BuildGathererService() throws ParseException, GathererException{
-		if(m == null){
+
+	public static StatsGathererService BuildGathererService()
+			throws ParseException, GathererException {
+		if (m == null) {
 			try {
 				m = new Mongo();
 			} catch (UnknownHostException e) {
@@ -110,8 +114,9 @@ public class TestHelper {
 		keys.add("numExt:avg,max,min:Number of Extents::point");
 		keys.add("fileSz:avg,max,min:File Size:bytes:point");
 		Gatherer dbProp = new StatsMongoDBGatherer(m,
-				TestingConstants.MONGODB_TEST_DATABASE, dbPropName, "Database Statistics", keys);
-		
+				TestingConstants.MONGODB_TEST_DATABASE, dbPropName,
+				"Database Statistics", keys);
+
 		keys = new LinkedList<String>();
 		keys.add("*.ns::Namespace::");
 		keys.add("*.numObj:avg,max,min:Number of Objects::point");
@@ -124,20 +129,22 @@ public class TestHelper {
 		keys.add("*.indSz:avg,max,min:Index Size:objects:point");
 		keys.add("*.indSzs.*:avg,max,min:Index Sizes:objects:point");
 		Gatherer collProp = new StatsMongoCollectionGatherer(m,
-				TestingConstants.MONGODB_TEST_DATABASE, collPropName, "Collection Statistics", keys);
-		
+				TestingConstants.MONGODB_TEST_DATABASE, collPropName,
+				"Collection Statistics", keys);
+
 		keys = new LinkedList<String>();
 		keys.add("freeM:avg,max,min:Free Memory:bytes:point");
 		keys.add("maxM:avg,max,min:Max Memory:bytes:point");
 		keys.add("totM:avg,max,min:Total Memory:bytes:point");
 		keys.add("cores:avg,max,min:Processors::point");
-		Gatherer runProp = new StatsRuntimeGatherer(runPropName, "Runtime Statistics", keys);
-		
+		Gatherer runProp = new StatsRuntimeGatherer(runPropName,
+				"Runtime Statistics", keys);
+
 		keys = new LinkedList<String>();
 		keys.add("numMsg:avg:Number of Messages::interval");
 		keys.add("totMsg:avg:Total Number of Messages::point");
-		StatsMsgGatherer msgProp = new StatsMsgGatherer(
-				msgSearchPropName, "Message Statistics", keys);
+		StatsMsgGatherer msgProp = new StatsMsgGatherer(msgSearchPropName,
+				"Message Statistics", keys);
 		MongoGathererMessageSearchService searchService = null;
 		try {
 			searchService = new MongoGathererMessageSearchService(m,
@@ -148,7 +155,7 @@ public class TestHelper {
 		}
 		searchService.setDocSearchService(new IndriDocSearchQueryService());
 		msgProp.setSearchService(searchService);
-		
+
 		keys = new LinkedList<String>();
 		keys.add("avgAtt:avg:Average Attachments:number of attachments:interval");
 		keys.add("maxAtt:max:Maximum Attachments:number of attachments:interval");
@@ -165,15 +172,16 @@ public class TestHelper {
 		gatherers.put("AttachstatsService", attProp);
 		return new StatsGathererService(gatherers);
 	}
-	
-	public static StatsClient BuildClient() throws GathererException, ParseException{
+
+	public static StatsClient BuildClient() throws GathererException,
+			ParseException {
 		MongoStatsRetrievalService retrievalTester = BuildRetrievalService();
 		MongoStatsStorageService storageTester = BuildStorageService();
 		StatsGathererService gatherTester = BuildGathererService();
 		return new StatsClient(gatherTester, storageTester, retrievalTester);
 	}
-	
-	public static void main(String args[]){
+
+	public static void main(String args[]) {
 		StatsClient client = null;
 		try {
 			client = TestHelper.BuildClient();
@@ -182,14 +190,14 @@ public class TestHelper {
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
-		if(client.gathererNames().size() == 6){
+		if (client.gathererNames().size() == 6) {
 			System.out.println("Success!");
 		} else {
 			System.out.println("Warning! (not enough gatherers)");
 		}
 		System.out.println("Gatherers:");
-		for(String name: client.gathererNames()){
+		for (String name : client.gathererNames()) {
 			System.out.println(name);
 		}
-	}	
+	}
 }

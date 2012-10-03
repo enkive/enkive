@@ -16,11 +16,12 @@ public class EnkiveIMAPServer extends IMAPServer {
 		Logger logger = new org.slf4j.impl.Log4jLoggerFactory()
 				.getLogger("com.linuxbox.enkive.imap");
 		setLog(logger);
-	    config = new XMLConfiguration(ClassLoader.getSystemResource(configurationPath));
+		config = new XMLConfiguration(
+				ClassLoader.getSystemResource(configurationPath));
 	}
 
-	//Convenience method for use with Spring
+	// Convenience method for use with Spring
 	public void startup() throws ConfigurationException {
-			configure(config);
+		configure(config);
 	}
 }

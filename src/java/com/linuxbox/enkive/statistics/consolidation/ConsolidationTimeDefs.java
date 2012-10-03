@@ -3,8 +3,8 @@ package com.linuxbox.enkive.statistics.consolidation;
 import java.util.Calendar;
 
 public enum ConsolidationTimeDefs {
-	HOUR(-1, -1, -1, -1),// any hour (hourly controlled by cronTrigger)
-	DAY(0, -1, -1, -1), // first hour of any day 
+	HOUR(-1, -1, -1, -1), // any hour (hourly controlled by cronTrigger)
+	DAY(0, -1, -1, -1), // first hour of any day
 	WEEK(-1, -1, 1, -1), // first day of any week
 	MONTH(-1, 1, -1, -1); // first day of any month
 	private int dayOfMonth;

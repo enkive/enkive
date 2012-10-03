@@ -19,9 +19,9 @@
  *******************************************************************************/
 package com.linuxbox.enkive.message.search.mongodb;
 
+import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.ARCHIVE_TIME;
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.CC;
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.DATE;
-import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.ARCHIVE_TIME;
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.FROM;
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.MAIL_FROM;
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.MESSAGE_ID;
@@ -262,7 +262,8 @@ public class MongoMessageSearchService extends AbstractMessageSearchService {
 						}
 					}
 				}
-				if(fields.containsKey(DATE_TYPE) && fields.get(DATE_TYPE).equals(ARCHIVE_TIME)){
+				if (fields.containsKey(DATE_TYPE)
+						&& fields.get(DATE_TYPE).equals(ARCHIVE_TIME)) {
 					query.put(ARCHIVE_TIME, dateQuery);
 				} else {
 					query.put(DATE, dateQuery);

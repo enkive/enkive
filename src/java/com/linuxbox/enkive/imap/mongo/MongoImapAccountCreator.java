@@ -245,7 +245,7 @@ public class MongoImapAccountCreator implements EnkiveImapAccountCreator {
 
 		return mailboxObject;
 	}
-	
+
 	public void updateImapAccounts() throws MessageSearchException {
 		BasicDBObject userMailboxSearchObject = new BasicDBObject(
 				MongoEnkiveImapConstants.USER, 1);
@@ -256,8 +256,9 @@ public class MongoImapAccountCreator implements EnkiveImapAccountCreator {
 			DBObject userMailboxList = userMailboxes.next();
 			Calendar yesterday = Calendar.getInstance();
 			yesterday.add(Calendar.DATE, -1);
-			addImapMessages((String) userMailboxList
-					.get(MongoEnkiveImapConstants.USER), yesterday.getTime(), yesterday.getTime());
+			addImapMessages(
+					(String) userMailboxList.get(MongoEnkiveImapConstants.USER),
+					yesterday.getTime(), yesterday.getTime());
 		}
 	}
 

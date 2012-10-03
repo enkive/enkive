@@ -1,5 +1,9 @@
 package com.linuxbox.enkive.teststats;
 
+import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIMESTAMP;
+import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TS_POINT;
+import static com.linuxbox.enkive.statistics.VarsMaker.createListOfMaps;
+import static com.linuxbox.enkive.statistics.VarsMaker.createMap;
 import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_AVG;
 import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_MAX;
 import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_MIN;
@@ -14,17 +18,14 @@ import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.linuxbox.enkive.statistics.RawStats;
 import com.linuxbox.enkive.statistics.consolidation.HourConsolidator;
 import com.linuxbox.enkive.statistics.gathering.GathererAttributes;
 import com.linuxbox.enkive.statistics.gathering.GathererException;
-import com.linuxbox.enkive.statistics.RawStats;
 import com.linuxbox.enkive.statistics.services.StatsClient;
 import com.linuxbox.enkive.statistics.services.StatsGathererService;
 import com.mongodb.DBCollection;
-import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIMESTAMP;
-import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TS_POINT;
-import static com.linuxbox.enkive.statistics.VarsMaker.createListOfMaps;
-import static com.linuxbox.enkive.statistics.VarsMaker.createMap;
+
 public class StatsHourGrainTest {
 	private static StatsGathererService gatherTester;
 	private static StatsClient client;
@@ -46,14 +47,15 @@ public class StatsHourGrainTest {
 		cal.set(Calendar.MINUTE, 0);
 		for (int i = 0; i < 10; i++) {
 			List<RawStats> stats = gatherTester.gatherStats();
-			List<Map<String,Object>> statsToStore = createListOfMaps();
+			List<Map<String, Object>> statsToStore = createListOfMaps();
 			if (i == 5) {
 				cal.add(Calendar.HOUR, -1);
 			}
-			
+
 			for (RawStats data : stats) {
 				Map<String, Object> temp = data.toMap();
-				Map<String, Object> date = (Map<String,Object>)temp.get(STAT_TIMESTAMP);
+				Map<String, Object> date = (Map<String, Object>) temp
+						.get(STAT_TIMESTAMP);
 				date.put(CONSOLIDATION_MIN, cal.getTime());
 				date.put(CONSOLIDATION_MAX, cal.getTime());
 				date.put(STAT_TS_POINT, cal.getTime());
@@ -71,15 +73,16 @@ public class StatsHourGrainTest {
 			List<List<Map<String, Object>>> data = grain.gathererFilter(name);
 			List<Map<String, Object>> pData = data.get(0);
 			int pSize = 0;
-			if(pData != null){
+			if (pData != null) {
 				pSize = pData.size();
 			}
 			List<Map<String, Object>> iData = data.get(1);
 			int iSize = 0;
-			if(iData != null){
+			if (iData != null) {
 				iSize = iData.size();
 			}
-			assertTrue("incorrect number of objects for " + name + " : 5 vs. " + iSize + " & " + pSize, iSize == 5 || pSize == 5);
+			assertTrue("incorrect number of objects for " + name + " : 5 vs. "
+					+ iSize + " & " + pSize, iSize == 5 || pSize == 5);
 		}
 	}
 
@@ -94,7 +97,8 @@ public class StatsHourGrainTest {
 	public void consolidationMethods() {
 		List<Map<String, Object>> consolidatedData = grain.consolidateData();
 		assertTrue("the consolidated data is null", consolidatedData != null);
-		String methods[] = { CONSOLIDATION_AVG, CONSOLIDATION_MAX, CONSOLIDATION_MIN };
+		String methods[] = { CONSOLIDATION_AVG, CONSOLIDATION_MAX,
+				CONSOLIDATION_MIN };
 		DescriptiveStatistics statsMaker = new DescriptiveStatistics();
 		statsMaker.addValue(111);
 		statsMaker.addValue(11);

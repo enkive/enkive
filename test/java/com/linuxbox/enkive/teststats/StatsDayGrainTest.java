@@ -35,7 +35,8 @@ public class StatsDayGrainTest {
 		client = TestHelper.BuildClient();
 		grain = new DayConsolidator(client);
 
-		List<Map<String, Object>> stats = (new HourConsolidator(client)).consolidateData();
+		List<Map<String, Object>> stats = (new HourConsolidator(client))
+				.consolidateData();
 		Map<String, Object> timeMap = new HashMap<String, Object>();
 		Calendar cal = Calendar.getInstance();
 		cal.set(Calendar.MILLISECOND, 0);
@@ -62,7 +63,7 @@ public class StatsDayGrainTest {
 			String name = attribute.getName();
 			List<Map<String, Object>> data = grain.gathererFilter(name).get(0);
 			int size = 0;
-			if(data != null){
+			if (data != null) {
 				size = data.size();
 			}
 			assertTrue(
@@ -82,7 +83,8 @@ public class StatsDayGrainTest {
 	public void consolidationMethods() {
 		List<Map<String, Object>> consolidatedData = grain.consolidateData();
 		assertTrue("the consolidated data is null", consolidatedData != null);
-		String methods[] = { CONSOLIDATION_AVG, CONSOLIDATION_MAX, CONSOLIDATION_MIN };
+		String methods[] = { CONSOLIDATION_AVG, CONSOLIDATION_MAX,
+				CONSOLIDATION_MIN };
 		DescriptiveStatistics statsMaker = new DescriptiveStatistics();
 		statsMaker.addValue(111);
 		statsMaker.addValue(11);

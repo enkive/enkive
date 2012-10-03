@@ -20,7 +20,7 @@ public abstract class EnkiveImapStore implements UidProvider<String>,
 			throws MailboxException {
 		return 1;
 	}
-	
+
 	@Override
 	public long nextUid(MailboxSession session, Mailbox<String> mailbox)
 			throws MailboxException {

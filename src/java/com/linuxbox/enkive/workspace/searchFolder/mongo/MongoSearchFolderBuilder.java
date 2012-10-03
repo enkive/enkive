@@ -23,7 +23,7 @@ public class MongoSearchFolderBuilder implements SearchFolderBuilder {
 	protected DBCollection searchFolderColl;
 	protected SearchFolderSearchResultBuilder searchResultBuilder;
 	protected MessageRetrieverService retrieverService;
-	
+
 	public MongoSearchFolderBuilder(Mongo m, String searchFolderDBName,
 			String searchFolderCollName,
 			SearchFolderSearchResultBuilder searchResultBuilder) {
@@ -36,8 +36,9 @@ public class MongoSearchFolderBuilder implements SearchFolderBuilder {
 
 	@Override
 	public SearchFolder getSearchFolder() {
-		SearchFolder searchFolder = new MongoSearchFolder(m, searchFolderDB.getName(),
-				searchFolderColl.getName(), searchResultBuilder);
+		SearchFolder searchFolder = new MongoSearchFolder(m,
+				searchFolderDB.getName(), searchFolderColl.getName(),
+				searchResultBuilder);
 		searchFolder.setRetrieverService(retrieverService);
 		searchFolder.saveSearchFolder();
 		return searchFolder;

@@ -42,7 +42,7 @@ public class MongoWorkspaceConstants {
 	public static String SEARCHSTATUS = "Status";
 	public static String SEARCHQUERYID = "SearchQueryId";
 	public static String SEARCHISSAVED = "IsSaved";
-	
+
 	// Search Query Constants
 	public static String SEARCHNAME = "SearchName";
 	public static String SEARCHCRITERIA = "SearchCriteria";

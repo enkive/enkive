@@ -29,9 +29,9 @@ import java.util.List;
 
 import com.linuxbox.enkive.workspace.searchFolder.SearchFolder;
 import com.linuxbox.enkive.workspace.searchFolder.SearchFolderBuilder;
-import com.linuxbox.enkive.workspace.searchResult.SearchResultComparator;
 import com.linuxbox.enkive.workspace.searchResult.SearchResult;
 import com.linuxbox.enkive.workspace.searchResult.SearchResultBuilder;
+import com.linuxbox.enkive.workspace.searchResult.SearchResultComparator;
 
 /**
  * A Workspace represents a place where the search history is kept. It's kind of

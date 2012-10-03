@@ -26,7 +26,8 @@ public class MongoStatsStorageService extends VarsMaker implements
 			.getLog("com.linuxbox.enkive.statistics.services.storage.mongodb");
 	private static Mongo m;
 
-	public MongoStatsStorageService(Mongo mongo, String dbName, String collectionName) {
+	public MongoStatsStorageService(Mongo mongo, String dbName,
+			String collectionName) {
 		m = mongo;
 		db = m.getDB(dbName);
 		coll = db.getCollection(collectionName);
@@ -36,7 +37,7 @@ public class MongoStatsStorageService extends VarsMaker implements
 	@Override
 	public void storeStatistics(List<Map<String, Object>> dataSet)
 			throws StatsStorageException {
-		if(dataSet != null){		
+		if (dataSet != null) {
 			for (Map<String, Object> map : dataSet) {
 				coll.insert(new BasicDBObject(map));
 			}

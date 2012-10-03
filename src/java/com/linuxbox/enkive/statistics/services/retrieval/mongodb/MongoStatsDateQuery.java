@@ -21,39 +21,39 @@ import com.mongodb.DBObject;
  * @author eric
  * 
  */
-public class MongoStatsDateQuery extends StatsQuery{
+public class MongoStatsDateQuery extends StatsQuery {
 	public MongoStatsDateQuery(Date startTimestamp, Date endTimestamp) {
 		this.startTimestamp = startTimestamp;
 		this.endTimestamp = endTimestamp;
 	}
-	
+
 	public Map<String, Object> getQuery() {
 		Map<String, Object> mongoQuery = new BasicDBObject();
 		DBObject time = new BasicDBObject();
 		String tsStartKey;
 		String tsEndKey;
 		tsStartKey = STAT_TIMESTAMP + "." + CONSOLIDATION_MIN;
-		tsEndKey   = STAT_TIMESTAMP + "." + CONSOLIDATION_MAX;
-		
-		if(startTimestamp != null){
+		tsEndKey = STAT_TIMESTAMP + "." + CONSOLIDATION_MAX;
+
+		if (startTimestamp != null) {
 			time = new BasicDBObject();
 			time.put("$gte", startTimestamp);
 			mongoQuery.put(tsStartKey, time);
 		}
-		if(endTimestamp != null){
+		if (endTimestamp != null) {
 			time = new BasicDBObject();
 			time.put("$lt", endTimestamp);
-			mongoQuery.put(tsEndKey, time);	
+			mongoQuery.put(tsEndKey, time);
 		}
-		
-		if(grainType != null){
-			if(grainType == 0){
+
+		if (grainType != null) {
+			if (grainType == 0) {
 				mongoQuery.put(CONSOLIDATION_TYPE, null);
 			} else {
 				mongoQuery.put(CONSOLIDATION_TYPE, grainType);
 			}
 		}
-		
+
 		return mongoQuery;
 	}
 }

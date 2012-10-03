@@ -56,8 +56,8 @@ public class MongoDBImapMessageRetentionPolicyEnforcer extends
 								.get(MongoEnkiveImapConstants.USER),
 						retentionPolicyDate);
 			} catch (ParseException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				LOGGER.error("Error removing imap folder for user "
+						+ userMailboxList.get(MongoEnkiveImapConstants.USER), e);
 			}
 		}
 
@@ -76,7 +76,8 @@ public class MongoDBImapMessageRetentionPolicyEnforcer extends
 				+ String.format("%02d", mailboxTime.get(Calendar.MONTH) + 1);
 
 		// Get table of user mailboxes
-		BasicDBObject userMailboxesSearchObject = new BasicDBObject(MongoEnkiveImapConstants.USER, username);
+		BasicDBObject userMailboxesSearchObject = new BasicDBObject(
+				MongoEnkiveImapConstants.USER, username);
 		DBObject userMailboxesObject = imapColl
 				.findOne(userMailboxesSearchObject);
 		// Check for mailbox we're looking for

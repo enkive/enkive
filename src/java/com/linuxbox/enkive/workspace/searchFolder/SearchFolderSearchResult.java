@@ -5,11 +5,11 @@ import com.linuxbox.enkive.workspace.searchResult.SearchResult;
 
 public abstract class SearchFolderSearchResult extends SearchResult {
 
-	public SearchFolderSearchResult(){
-		
+	public SearchFolderSearchResult() {
+
 	}
-	
-	public SearchFolderSearchResult(SearchResult searchResult){
+
+	public SearchFolderSearchResult(SearchResult searchResult) {
 		setExecutedBy(searchResult.getExecutedBy());
 		setMessageIds(searchResult.getMessageIds());
 		setSearchQueryBuilder(searchResult.getSearchQueryBuilder());

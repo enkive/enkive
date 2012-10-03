@@ -134,7 +134,6 @@ public class AdvancedSearch extends AbstractSearchWebScript {
 						TimeUnit.SECONDS);
 
 			} catch (Exception e) {
-				e.printStackTrace();
 				// catch various kinds of exceptions, including cancellations
 				result = null;
 			}

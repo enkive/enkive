@@ -36,16 +36,19 @@ public class MongoStatsRetrievalService extends VarsMaker implements
 			.getLog("com.linuxbox.enkive.statistics.services.retrieval.mongodb");
 	private static Mongo m;
 
-	public MongoStatsRetrievalService(Mongo mongo, String dbName, String collectionName) {
+	public MongoStatsRetrievalService(Mongo mongo, String dbName,
+			String collectionName) {
 		m = mongo;
 		db = m.getDB(dbName);
 		coll = db.getCollection(collectionName);
 		LOGGER.info("RetrievalService(Mongo, String) successfully created");
 	}
-	
+
 	/**
 	 * preforms a query on the database based on a query map
-	 * @param hmap - the formatted query map
+	 * 
+	 * @param hmap
+	 *            - the formatted query map
 	 * @return the query results as a set of maps
 	 */
 	private Set<DBObject> getQuerySet(StatsQuery query) {
@@ -55,21 +58,23 @@ public class MongoStatsRetrievalService extends VarsMaker implements
 	}
 
 	/**
-	 * Takes a DBObject, extracts the map from it, and inserts that map into
-	 * the given set. NOTE: warnings are suppressed because they are being
-	 * activated because the actual type of the map is not specified in the
-	 * dbObject but it should not matter so long as it conforms to Mongo's 
-	 * key:value format
-	 * @param entry -dbObject to extract map from
-	 * @param stats -set to add map to
+	 * Takes a DBObject, extracts the map from it, and inserts that map into the
+	 * given set. NOTE: warnings are suppressed because they are being activated
+	 * because the actual type of the map is not specified in the dbObject but
+	 * it should not matter so long as it conforms to Mongo's key:value format
+	 * 
+	 * @param entry
+	 *            -dbObject to extract map from
+	 * @param stats
+	 *            -set to add map to
 	 */
 	@SuppressWarnings("unchecked")
-	private void addMapToSet(DBObject entry, Set<Map<String, Object>> stats){
+	private void addMapToSet(DBObject entry, Set<Map<String, Object>> stats) {
 		stats.add(entry.toMap());
 	}
-	
+
 	@SuppressWarnings("unchecked")
-	private void addMapToList(DBObject entry, List<Map<String, Object>> stats){
+	private void addMapToList(DBObject entry, List<Map<String, Object>> stats) {
 		stats.add(entry.toMap());
 	}
 
@@ -82,7 +87,7 @@ public class MongoStatsRetrievalService extends VarsMaker implements
 
 		return result;
 	}
-	
+
 	@Override
 	public Set<Map<String, Object>> queryStatistics(StatsQuery query) {
 		Set<Map<String, Object>> result = createSetOfMaps();
@@ -92,17 +97,17 @@ public class MongoStatsRetrievalService extends VarsMaker implements
 		return result;
 	}
 
-	private DBObject getFilter(StatsFilter filter){
+	private DBObject getFilter(StatsFilter filter) {
 		return new BasicDBObject(filter.getFilter());
 	}
-	
+
 	@Override
 	public Set<Map<String, Object>> queryStatistics(StatsQuery query,
 			StatsFilter filter) throws StatsRetrievalException {
-		if(filter == null){
+		if (filter == null) {
 			return queryStatistics(query);
 		}
-		DBObject mongoQuery  = new BasicDBObject(query.getQuery());
+		DBObject mongoQuery = new BasicDBObject(query.getQuery());
 		DBObject mongoFilter = getFilter(filter);
 		Set<Map<String, Object>> result = createSetOfMaps();
 		for (DBObject entry : coll.find(mongoQuery, mongoFilter)) {
@@ -110,34 +115,37 @@ public class MongoStatsRetrievalService extends VarsMaker implements
 		}
 		return result;
 	}
-	
+
 	// lists guarantee order (ex: querylist[1] MUST correspond to filterlist[1])
 	public List<Map<String, Object>> queryStatistics(
-			List<StatsQuery> queryList,
-			List<StatsFilter> filterList)
+			List<StatsQuery> queryList, List<StatsFilter> filterList)
 			throws StatsRetrievalException {
 		List<DBObject> allStats = new LinkedList<DBObject>();
 		for (int i = 0; i < queryList.size(); i++) {
-			DBObject query  = new BasicDBObject(queryList.get(i).getQuery());
+			DBObject query = new BasicDBObject(queryList.get(i).getQuery());
 			DBObject filter = null;
-			if(filterList != null && !filterList.isEmpty() && filterList.get(i) != null){
+			if (filterList != null && !filterList.isEmpty()
+					&& filterList.get(i) != null) {
 				filter = getFilter(filterList.get(i));
-			}			
-			
-			if(filter != null){
-				allStats.addAll(coll.find(query, filter).sort(new BasicDBObject(STAT_TIMESTAMP + "." + CONSOLIDATION_MAX, 1)).toArray());
+			}
+
+			if (filter != null) {
+				allStats.addAll(coll
+						.find(query, filter)
+						.sort(new BasicDBObject(STAT_TIMESTAMP + "."
+								+ CONSOLIDATION_MAX, 1)).toArray());
 			} else {
 				allStats.addAll(coll.find(query).toArray());
 			}
 		}
-		
+
 		List<Map<String, Object>> result = createListOfMaps();
 		for (DBObject entry : allStats) {
 			addMapToList(entry, result);
 		}
 		return result;
 	}
-	
+
 	@Override
 	public List<Map<String, Object>> queryStatistics(
 			Map<String, Map<String, Object>> queryMap,
@@ -152,9 +160,15 @@ public class MongoStatsRetrievalService extends VarsMaker implements
 					&& !filterMap.get(gathererName).isEmpty()) {
 				BasicDBObject filter = new BasicDBObject(
 						filterMap.get(gathererName));
-				allStats.addAll(coll.find(query, filter).sort(new BasicDBObject(STAT_TIMESTAMP + "." + CONSOLIDATION_MAX, 1)).toArray());
+				allStats.addAll(coll
+						.find(query, filter)
+						.sort(new BasicDBObject(STAT_TIMESTAMP + "."
+								+ CONSOLIDATION_MAX, 1)).toArray());
 			} else {
-				allStats.addAll(coll.find(query).sort(new BasicDBObject(STAT_TIMESTAMP + "." + CONSOLIDATION_MAX, 1)).toArray());
+				allStats.addAll(coll
+						.find(query)
+						.sort(new BasicDBObject(STAT_TIMESTAMP + "."
+								+ CONSOLIDATION_MAX, 1)).toArray());
 			}
 		}
 		List<Map<String, Object>> result = createListOfMaps();

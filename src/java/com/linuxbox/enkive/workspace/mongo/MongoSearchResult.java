@@ -29,21 +29,21 @@ public class MongoSearchResult extends SearchResult {
 	DB searchResultsDB;
 	DBCollection searchResultsColl;
 	protected MongoSearchResultUtils searchResultUtils;
-	
+
 	private final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.workspaces");
-	
+
 	public MongoSearchResult(Mongo m, String searchResultsDBName,
-			String searchResultsCollName, SearchQueryBuilder queryBuilder){
+			String searchResultsCollName, SearchQueryBuilder queryBuilder) {
 		this.m = m;
 		searchResultsDB = m.getDB(searchResultsDBName);
-		searchResultsColl = searchResultsDB.getCollection(searchResultsCollName);
+		searchResultsColl = searchResultsDB
+				.getCollection(searchResultsCollName);
 		setSearchQueryBuilder(queryBuilder);
-	}	
+	}
 
 	@Override
-	public void saveSearchResult()
-			throws WorkspaceException {
+	public void saveSearchResult() throws WorkspaceException {
 
 		BasicDBObject searchResultObject = new BasicDBObject();
 		searchResultObject.put(EXECUTIONTIMESTAMP, getTimestamp());
@@ -61,25 +61,23 @@ public class MongoSearchResult extends SearchResult {
 				searchResultObject.put(UUID, toUpdate.get(UUID));
 			}
 		}
-		if (searchResultObject.getString(UUID) == null){
+		if (searchResultObject.getString(UUID) == null) {
 			searchResultsColl.insert(searchResultObject);
 			setId(searchResultObject.getString(UUID));
 		}
 
 		if (LOGGER.isInfoEnabled())
-			LOGGER.info("Saved Search Results - "
-					+ getId());
+			LOGGER.info("Saved Search Results - " + getId());
 
 	}
 
 	@Override
-	public void deleteSearchResult()
-			throws WorkspaceException {
+	public void deleteSearchResult() throws WorkspaceException {
 		DBObject searchResultObject = searchResultsColl.findOne(ObjectId
 				.massageToObjectId(getId()));
 		searchResultsColl.remove(searchResultObject);
 	}
-	
+
 	public void sortSearchResultMessages(String sortBy, int sortDir)
 			throws WorkspaceException {
 		Set<String> messageIds = getMessageIds();
@@ -104,5 +102,5 @@ public class MongoSearchResult extends SearchResult {
 	public void setSearchResultUtils(MongoSearchResultUtils searchResultUtils) {
 		this.searchResultUtils = searchResultUtils;
 	}
-	
+
 }

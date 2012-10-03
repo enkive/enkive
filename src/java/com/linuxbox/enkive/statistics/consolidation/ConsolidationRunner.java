@@ -68,13 +68,12 @@ public class ConsolidationRunner {
 		}
 
 		if (ConsolidationTimeDefs.DAY.isMatch()) {
-		System.out.println("day");
 			LOGGER.trace("GrainRunner day() starting");
 			dayConsolidator.setDates();
 			dayConsolidator.storeConsolidatedData();
 			LOGGER.trace("GrainRunner day() finished");
 		}
-		
+
 		if (ConsolidationTimeDefs.WEEK.isMatch()) {
 			LOGGER.trace("GrainRunner week() starting");
 			weekConsolidator.setDates();
@@ -89,7 +88,7 @@ public class ConsolidationRunner {
 			LOGGER.trace("GrainRunner month() finished");
 		}
 		LOGGER.info("GrainRunner run() finished");
-		//don't run remover until consolidation is done
+		// don't run remover until consolidation is done
 		remover.cleanAll();
 	}
 }

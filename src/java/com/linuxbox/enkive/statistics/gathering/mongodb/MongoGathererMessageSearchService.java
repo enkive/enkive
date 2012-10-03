@@ -1,9 +1,9 @@
 package com.linuxbox.enkive.statistics.gathering.mongodb;
 
+import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.ARCHIVE_TIME;
 import static com.linuxbox.enkive.search.Constants.DATE_EARLIEST_PARAMETER;
 import static com.linuxbox.enkive.search.Constants.DATE_LATEST_PARAMETER;
 import static com.linuxbox.enkive.search.Constants.DATE_TYPE;
-import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.ARCHIVE_TIME;
 import static com.linuxbox.enkive.statistics.StatsConstants.SIMPLE_DATE;
 
 import java.util.Date;
@@ -39,7 +39,7 @@ public class MongoGathererMessageSearchService extends
 
 		BasicDBObject query = buildQueryObject(fields);
 		DBCursor results = messageColl.find(query);
-		
+
 		int numOfMessages = results.count();
 		results.close();
 		return numOfMessages;

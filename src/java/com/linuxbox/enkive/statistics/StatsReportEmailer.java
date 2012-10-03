@@ -144,7 +144,7 @@ public class StatsReportEmailer {
 			// Send message
 			Transport.send(message);
 		} catch (MessagingException mex) {
-			mex.printStackTrace();
+			LOGGER.warn("Error sending statistics report email", mex);
 		}
 	}
 

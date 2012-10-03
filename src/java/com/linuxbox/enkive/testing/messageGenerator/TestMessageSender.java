@@ -69,7 +69,7 @@ public class TestMessageSender extends AbstractMessageImporter {
 		final String portString = args[1];
 		final String path = args[2];
 		final String numOfMessages = args[3];
-		
+
 		System.out.println(path);
 
 		TestMessageSender messageSender = new TestMessageSender(host,

@@ -31,12 +31,18 @@ import java.util.Set;
 import name.fraser.neil.plaintext.diff_match_patch;
 import name.fraser.neil.plaintext.diff_match_patch.Patch;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.james.mime4j.dom.Header;
 
 import com.linuxbox.enkive.exception.BadMessageException;
 
 public abstract class AbstractMessage extends AbstractMessageSummary implements
 		Message {
+
+	protected final static Log LOGGER = LogFactory
+			.getLog("com.linuxbox.enkive.message");
+
 	protected String originalHeaders;
 	protected String mimeVersion;
 	protected String contentType;
@@ -71,11 +77,9 @@ public abstract class AbstractMessage extends AbstractMessageSummary implements
 		try {
 			parseHeaders(originalHeaders);
 		} catch (BadMessageException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LOGGER.warn("Error parsing message headers", e);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LOGGER.warn("Error parsing message headers", e);
 		}
 	}
 

@@ -6,5 +6,5 @@ public class MongoEnkiveImapConstants {
 	public static String MAILBOXES = "mailboxes";
 	public static String MESSAGEIDS = "msgids";
 	public static String ARCHIVEDMESSAGESFOLDERNAME = "Archived Messages";
-	
+
 }

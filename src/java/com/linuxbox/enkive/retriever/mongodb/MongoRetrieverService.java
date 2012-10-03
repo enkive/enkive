@@ -146,7 +146,7 @@ public class MongoRetrieverService extends AbstractRetrieverService {
 		result.setTo((List<String>) messageObject.get(TO));
 
 		result.setCc((List<String>) messageObject.get(CC));
-		
+
 		result.setOriginalHeaders((String) messageObject.get(ORIGINAL_HEADERS));
 
 		return result;

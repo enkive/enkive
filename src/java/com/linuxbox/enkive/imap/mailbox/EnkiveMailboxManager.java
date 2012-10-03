@@ -13,7 +13,7 @@ public class EnkiveMailboxManager extends StoreMailboxManager<String> {
 
 	protected static final Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.imap");
-	
+
 	public EnkiveMailboxManager(
 			MailboxSessionMapperFactory<String> mailboxSessionMapperFactory,
 			Authenticator authenticator, MailboxACLResolver aclResolver,

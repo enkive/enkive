@@ -32,10 +32,10 @@ import org.springframework.scheduling.annotation.Async;
 
 import com.linuxbox.enkive.docsearch.DocSearchQueryService;
 import com.linuxbox.enkive.message.search.exception.MessageSearchException;
-import com.linuxbox.enkive.workspace.searchResult.SearchResult;
-import com.linuxbox.enkive.workspace.searchResult.SearchResultBuilder;
-import com.linuxbox.enkive.workspace.searchResult.SearchResult.Status;
 import com.linuxbox.enkive.workspace.WorkspaceException;
+import com.linuxbox.enkive.workspace.searchResult.SearchResult;
+import com.linuxbox.enkive.workspace.searchResult.SearchResult.Status;
+import com.linuxbox.enkive.workspace.searchResult.SearchResultBuilder;
 
 public abstract class AbstractMessageSearchService implements
 		MessageSearchService {
@@ -54,7 +54,8 @@ public abstract class AbstractMessageSearchService implements
 		try {
 			result = searchResultBuilder.getSearchResult();
 		} catch (WorkspaceException e) {
-			throw new MessageSearchException("Could not create new search result", e);
+			throw new MessageSearchException(
+					"Could not create new search result", e);
 		}
 		result.setMessageIds(searchImpl(fields));
 		result.setTimestamp(new Date());

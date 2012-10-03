@@ -68,7 +68,7 @@ public class AuditLoggingMessageSearchService implements MessageSearchService {
 			}
 		}
 	}
-	
+
 	public AuthenticationService getAuthenticationService() {
 		return authenticationService;
 	}

@@ -118,7 +118,8 @@ public abstract class AbstractSearchListServlet extends EnkiveServlet {
 			List<SearchResult> searchesSublist = (List<SearchResult>) pageInfo
 					.getSubList(searchResults);
 
-			searchesSublist = Workspace.sortSearchResults(searchesSublist, sortBy, sortDir);
+			searchesSublist = Workspace.sortSearchResults(searchesSublist,
+					sortBy, sortDir);
 
 			for (SearchResult searchResult : searchesSublist) {
 				try {

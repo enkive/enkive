@@ -28,8 +28,8 @@ public interface MongoConstants {
 	public static String MONGO_TOTAL_INDEX_SIZE = "totalIndexSize";
 	// Attachments
 	public static String MONGO_UPLOAD_DATE = "uploadDate";
-	
-	//msgs
+
+	// msgs
 	public static String MONGO_ARCHIVE_TIME = "archive_time";
 
 }

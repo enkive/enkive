@@ -105,7 +105,7 @@ public class ViewSavedResultsServlet extends EnkiveServlet {
 
 			SearchResult searchResult = workspaceService
 					.getSearchResult(searchId);
-			
+
 			if (sortBy != null && !sortBy.equals(""))
 				searchResult.sortSearchResultMessages(sortBy, sortDir);
 

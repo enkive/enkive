@@ -1,19 +1,21 @@
 package com.linuxbox.enkive.statistics.services;
 
+import static com.linuxbox.enkive.statistics.VarsMaker.createListOfRawStats;
+
 import java.text.ParseException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import static com.linuxbox.enkive.statistics.StatsConstants.STAT_GATHERER_NAME;
+
 import javax.annotation.PostConstruct;
-import static com.linuxbox.enkive.statistics.VarsMaker.createListOfRawStats;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.linuxbox.enkive.statistics.RawStats;
-import com.linuxbox.enkive.statistics.gathering.GathererException;
 import com.linuxbox.enkive.statistics.gathering.Gatherer;
+import com.linuxbox.enkive.statistics.gathering.GathererException;
 
 public class StatsGathererService {
 	protected final static Log LOGGER = LogFactory
@@ -41,15 +43,16 @@ public class StatsGathererService {
 		}
 	}
 
-	public StatsGathererService(Gatherer gatherer)
-			throws ParseException {
+	public StatsGathererService(Gatherer gatherer) throws ParseException {
 		statsGatherers = new HashMap<String, Gatherer>();
 		statsGatherers.put(gatherer.getAttributes().getName(), gatherer);
 	}
 
 	/**
 	 * adds the arg to the known gatherer list if it is not null
-	 * @param gatherer - gatherer to add
+	 * 
+	 * @param gatherer
+	 *            - gatherer to add
 	 */
 	public void addGatherer(Gatherer gatherer) {
 		String name = gatherer.getAttributes().getName();
@@ -60,54 +63,60 @@ public class StatsGathererService {
 			statsGatherers.put(name, gatherer);
 		}
 	}
-	
+
 	/**
 	 * returns every statistic from every known gatherer
+	 * 
 	 * @return returns a set corresponding to every statistic avaiable to gather
 	 * @throws ParseException
 	 * @throws GathererException
 	 */
-	public List<RawStats> gatherStats() throws ParseException, GathererException {
+	public List<RawStats> gatherStats() throws ParseException,
+			GathererException {
 		return gatherStats(null);
 	}
 
 	/**
-	 * gathers statistics filtered by the map argument--returns all stats if map is null
-	 * @param gathererKeys - map corresponding to the keys to be returned
-	 * Format: {gathererName:[key1, key2, key3,...], ...}
+	 * gathers statistics filtered by the map argument--returns all stats if map
+	 * is null
+	 * 
+	 * @param gathererKeys
+	 *            - map corresponding to the keys to be returned Format:
+	 *            {gathererName:[key1, key2, key3,...], ...}
 	 * @return filtered stats
 	 * @throws ParseException
 	 * @throws GathererException
 	 */
-	public List<RawStats> gatherStats(Map<String, List<String>> gathererKeys) throws
-			GathererException {
+	public List<RawStats> gatherStats(Map<String, List<String>> gathererKeys)
+			throws GathererException {
 		List<RawStats> statsList = createListOfRawStats();
-		
+
 		if (gathererKeys == null) {
-			for(String gathererName: statsGatherers.keySet()){
+			for (String gathererName : statsGatherers.keySet()) {
 				Gatherer gatherer = statsGatherers.get(gathererName);
 				RawStats stats = gatherer.getStatistics();
 				stats.setGathererName(gathererName);
 				statsList.add(stats);
 			}
 			return statsList;
-		} 
+		}
 
 		if (statsGatherers == null || statsGatherers.isEmpty()) {
 			LOGGER.error("statsGatherers is invalid");
 			return null;
-		}		
-		
-		if (gathererKeys.isEmpty()){
+		}
+
+		if (gathererKeys.isEmpty()) {
 			LOGGER.error("gathererKeys is empty");
 			return null;
 		}
 
-		for (String statName: gathererKeys.keySet()) {
-			RawStats stats = statsGatherers.get(statName)
-					.getStatistics(gathererKeys.get(statName),gathererKeys.get(statName));
-			stats.setGathererName(statsGatherers.get(statName).getAttributes().getName());
-			
+		for (String statName : gathererKeys.keySet()) {
+			RawStats stats = statsGatherers.get(statName).getStatistics(
+					gathererKeys.get(statName), gathererKeys.get(statName));
+			stats.setGathererName(statsGatherers.get(statName).getAttributes()
+					.getName());
+
 			statsList.add(stats);
 		}
 
@@ -123,7 +132,9 @@ public class StatsGathererService {
 
 	/**
 	 * takes a gathererName and returns the gatherer cooresponding to it
-	 * @param name a gathererName (should be from attributes class)
+	 * 
+	 * @param name
+	 *            a gathererName (should be from attributes class)
 	 * @return returns the gatherer cooresponding to the param
 	 */
 	public Map<String, Gatherer> getStatsGatherers(String name) {
@@ -145,7 +156,9 @@ public class StatsGathererService {
 
 	/**
 	 * remove a gatherer from the known gatherer map
-	 * @param name - a gatherer name (should be from attributes class)
+	 * 
+	 * @param name
+	 *            - a gatherer name (should be from attributes class)
 	 */
 	public void removeGatherer(String name) {
 		if (statsGatherers.containsKey(name)) {

@@ -75,8 +75,7 @@ public class SearchFolderServlet extends EnkiveServlet {
 	private static final long serialVersionUID = 1226107681645083623L;
 
 	protected static final Log LOGGER = LogFactory
-
-	.getLog("com.linuxbox.enkive.webscripts.search.folder");
+			.getLog("com.linuxbox.enkive.webscripts.search.folder");
 	protected WorkspaceService workspaceService;
 	protected MessageRetrieverService archiveService;
 
@@ -203,7 +202,8 @@ public class SearchFolderServlet extends EnkiveServlet {
 		try {
 			searchFolder.exportSearchFolder(outputStream);
 		} catch (Exception e) {
-			e.printStackTrace();
+			LOGGER.warn(
+					"Error exporting search folder " + searchFolder.getID(), e);
 		}
 	}
 }

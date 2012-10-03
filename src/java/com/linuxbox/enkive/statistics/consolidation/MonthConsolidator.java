@@ -27,7 +27,7 @@ public class MonthConsolidator extends EmbeddedConsolidator {
 		Date lowerDate = cal.getTime();
 		setDates(upperDate, lowerDate);
 	}
-	
+
 	@Override
 	public void setTypes() {
 		setTypes(CONSOLIDATION_MONTH, CONSOLIDATION_DAY);

@@ -31,10 +31,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextImpl;
 
 import com.linuxbox.enkive.message.search.exception.MessageSearchException;
-import com.linuxbox.enkive.workspace.searchResult.SearchResult;
-import com.linuxbox.enkive.workspace.searchResult.SearchResultBuilder;
-import com.linuxbox.enkive.workspace.searchResult.SearchResult.Status;
 import com.linuxbox.enkive.workspace.WorkspaceException;
+import com.linuxbox.enkive.workspace.searchResult.SearchResult;
+import com.linuxbox.enkive.workspace.searchResult.SearchResult.Status;
+import com.linuxbox.enkive.workspace.searchResult.SearchResultBuilder;
 
 public class AsynchronousSearchThread implements Callable<SearchResult> {
 

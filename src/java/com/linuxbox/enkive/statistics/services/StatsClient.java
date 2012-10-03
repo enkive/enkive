@@ -1,5 +1,7 @@
 package com.linuxbox.enkive.statistics.services;
 
+import static com.linuxbox.enkive.statistics.VarsMaker.createListOfMaps;
+
 import java.text.ParseException;
 import java.util.HashSet;
 import java.util.List;
@@ -8,6 +10,7 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import com.linuxbox.enkive.statistics.RawStats;
 import com.linuxbox.enkive.statistics.gathering.GathererAttributes;
 import com.linuxbox.enkive.statistics.gathering.GathererException;
@@ -15,7 +18,7 @@ import com.linuxbox.enkive.statistics.services.retrieval.StatsFilter;
 import com.linuxbox.enkive.statistics.services.retrieval.StatsQuery;
 import com.linuxbox.enkive.statistics.services.retrieval.StatsRetrievalException;
 import com.linuxbox.enkive.statistics.services.storage.StatsStorageException;
-import static com.linuxbox.enkive.statistics.VarsMaker.createListOfMaps;
+
 public class StatsClient {
 	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.statistics.services.StatsClient");
@@ -33,6 +36,7 @@ public class StatsClient {
 
 	/**
 	 * gathers raw statistics from every known gatherer in the gathererService
+	 * 
 	 * @return returns all statistics gathered from every known gatherer
 	 */
 	public List<RawStats> gatherData() {
@@ -48,9 +52,13 @@ public class StatsClient {
 	}
 
 	/**
-	 * takes a map and filters the raw statistics based on it. Each map contains keys corresponding
-	 * to a gatherer name followed by an string array of keys to return
-	 * @param gathererFilter - a map in the form {gathererName:[array of keys for that gatherer]}
+	 * takes a map and filters the raw statistics based on it. Each map contains
+	 * keys corresponding to a gatherer name followed by an string array of keys
+	 * to return
+	 * 
+	 * @param gathererFilter
+	 *            - a map in the form {gathererName:[array of keys for that
+	 *            gatherer]}
 	 * @return stats returned after filter
 	 */
 	public List<RawStats> gatherData(Map<String, List<String>> gathererFilter) {
@@ -81,16 +89,18 @@ public class StatsClient {
 	}
 
 	/**
-	 * @param serviceName - the servicename for which to return the gathererAttributes
+	 * @param serviceName
+	 *            - the servicename for which to return the gathererAttributes
 	 * @return gathererAttributes of the gatherer specified by the servicename
 	 */
 	public GathererAttributes getAttributes(String serviceName) {
 		return gathererService.getStatsGatherers(serviceName).get(serviceName)
 				.getAttributes();
 	}
-	
+
 	/**
 	 * query the database for all objects
+	 * 
 	 * @return result of objects found with query
 	 */
 	public Set<Map<String, Object>> queryStatistics() {
@@ -103,10 +113,12 @@ public class StatsClient {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * query the database using a query argument and a date range
-	 * @param query the statsQuery used to get objects for this class
+	 * 
+	 * @param query
+	 *            the statsQuery used to get objects for this class
 	 * @return result of objects found with query
 	 */
 	public Set<Map<String, Object>> queryStatistics(StatsQuery query) {
@@ -119,8 +131,9 @@ public class StatsClient {
 		}
 		return null;
 	}
-	
-	public Set<Map<String, Object>> queryStatistics(StatsQuery query, StatsFilter filter) {
+
+	public Set<Map<String, Object>> queryStatistics(StatsQuery query,
+			StatsFilter filter) {
 		try {
 			return retrievalService.queryStatistics(query, filter);
 		} catch (StatsRetrievalException e) {
@@ -131,13 +144,16 @@ public class StatsClient {
 		return null;
 	}
 
-	/** //TODO fix documentation
-	 * query the database and filter the result before returning
-	 * both arguments should be formated like so:
-	 * queryMap - {gathererName:{key:value, ...}, ...} 
-	 * filterMap - {gathererName:{key:1, key:1,...},...}
-	 * @param queryMap - the query object to use
-	 * @param filterMap - the keys to be returned for each service
+	/**
+	 * //TODO fix documentation query the database and filter the result before
+	 * returning both arguments should be formated like so: queryMap -
+	 * {gathererName:{key:value, ...}, ...} filterMap - {gathererName:{key:1,
+	 * key:1,...},...}
+	 * 
+	 * @param queryMap
+	 *            - the query object to use
+	 * @param filterMap
+	 *            - the keys to be returned for each service
 	 * @return the resultant set of objects from the database
 	 */
 	public List<Map<String, Object>> queryStatistics(
@@ -152,10 +168,10 @@ public class StatsClient {
 		}
 		return null;
 	}
-	
-	//TODO document
-	public List<Map<String, Object>> queryStatistics(
-			List<StatsQuery> query, List<StatsFilter> filter) {
+
+	// TODO document
+	public List<Map<String, Object>> queryStatistics(List<StatsQuery> query,
+			List<StatsFilter> filter) {
 		try {
 			return retrievalService.queryStatistics(query, filter);
 		} catch (StatsRetrievalException e) {
@@ -165,10 +181,12 @@ public class StatsClient {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * removes all objects in the parameter deletionset
-	 * @param deletionSet - a set of objectIds to be removed 
+	 * 
+	 * @param deletionSet
+	 *            - a set of objectIds to be removed
 	 */
 	public void remove(Set<Object> deletionSet) {
 		try {
@@ -180,7 +198,9 @@ public class StatsClient {
 
 	/**
 	 * stores data in the mongo database
-	 * @param dataToStore - the data to be stored 
+	 * 
+	 * @param dataToStore
+	 *            - the data to be stored
 	 */
 	public void storeData(List<Map<String, Object>> dataToStore) {
 		try {
@@ -189,15 +209,17 @@ public class StatsClient {
 			LOGGER.error("Client.storeData StatsStorageException", e);
 		}
 	}
-	
+
 	/**
-	 * converts the Set<rawData> into a Set<map> that can be stored in the mongo database
-	 * then stores it
-	 * @param dataToStore - the data to be stored 
+	 * converts the Set<rawData> into a Set<map> that can be stored in the mongo
+	 * database then stores it
+	 * 
+	 * @param dataToStore
+	 *            - the data to be stored
 	 */
 	public void storeRawStatsData(List<RawStats> rawDataSet) {
-		List<Map<String, Object>> dataToStore = createListOfMaps(); 
-		for(RawStats stat: rawDataSet){
+		List<Map<String, Object>> dataToStore = createListOfMaps();
+		for (RawStats stat : rawDataSet) {
 			dataToStore.add(stat.toMap());
 		}
 		storeData(dataToStore);

@@ -4,16 +4,16 @@ import static com.linuxbox.enkive.statistics.StatsConstants.STAT_FREE_MEMORY;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_MAX_MEMORY;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_PROCESSORS;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TOTAL_MEMORY;
+import static com.linuxbox.enkive.statistics.VarsMaker.createMap;
 
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import static com.linuxbox.enkive.statistics.VarsMaker.createMap;
-
-public class StatsRuntimeGatherer extends AbstractGatherer {	
-	public StatsRuntimeGatherer(String serviceName, String humanName, List<String> keys) throws GathererException {
-		super(serviceName, humanName, keys);		
+public class StatsRuntimeGatherer extends AbstractGatherer {
+	public StatsRuntimeGatherer(String serviceName, String humanName,
+			List<String> keys) throws GathererException {
+		super(serviceName, humanName, keys);
 	}
 
 	@Override

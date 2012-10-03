@@ -40,13 +40,20 @@ public abstract class AbstractConsolidator implements Consolidator {
 
 	/**
 	 * Builds a map that cooresponds to the consolidation methods
-	 * @param method - the method to use
-	 * @param exampleData - an example data object (for type consistancy after consolidation)
-	 * @param statsMaker - the pre-populated DescriptiveStatstistics object to pull stats from
-	 * @param statData - the map to populate with consolidated data
+	 * 
+	 * @param method
+	 *            - the method to use
+	 * @param exampleData
+	 *            - an example data object (for type consistancy after
+	 *            consolidation)
+	 * @param statsMaker
+	 *            - the pre-populated DescriptiveStatstistics object to pull
+	 *            stats from
+	 * @param statData
+	 *            - the map to populate with consolidated data
 	 */
-	public void methodMapBuilder(String method, DescriptiveStatistics statsMaker,
-			Map<String, Object> statData) {
+	public void methodMapBuilder(String method,
+			DescriptiveStatistics statsMaker, Map<String, Object> statData) {
 		if (method.equals(CONSOLIDATION_SUM)) {
 			statData.put(method, statsMaker.getSum());
 		} else if (method.equals(CONSOLIDATION_MAX)) {
@@ -55,28 +62,37 @@ public abstract class AbstractConsolidator implements Consolidator {
 			statData.put(method, statsMaker.getMin());
 		} else if (method.equals(CONSOLIDATION_AVG)) {
 			statData.put(method, statsMaker.getMean());
-		} 
+		}
 	}
-	
+
 	@Override
 	public abstract List<Map<String, Object>> consolidateData();
 
-	/** this method recurses through a given template map to add consolidated data to a new map
-	 * as defined by each key's ConsolidationDefinition
-	 * @param templateData - the map used to trace
-	 * @param consolidatedMap - the map being built
-	 * @param path - the path to variables being used for trace
-	 * @param statKeys - the list of a gatherer's consolidation definitions
-	 * @param gathererData- all the data cooresponding to a given gatherer
+	/**
+	 * this method recurses through a given template map to add consolidated
+	 * data to a new map as defined by each key's ConsolidationDefinition
+	 * 
+	 * @param templateData
+	 *            - the map used to trace
+	 * @param consolidatedMap
+	 *            - the map being built
+	 * @param path
+	 *            - the path to variables being used for trace
+	 * @param statKeys
+	 *            - the list of a gatherer's consolidation definitions
+	 * @param gathererData
+	 *            - all the data cooresponding to a given gatherer
 	 * @return returns the built consolidatedMap variable
 	 */
 	protected Map<String, Object> generateConsolidatedMap(
 			Map<String, Object> templateData,
 			Map<String, Object> consolidatedMap, LinkedList<String> path,
-			List<ConsolidationKeyHandler> statKeys, List<Map<String, Object>> gathererData) {
+			List<ConsolidationKeyHandler> statKeys,
+			List<Map<String, Object>> gathererData) {
 		for (String key : templateData.keySet()) {
 			path.addLast(key);
-			ConsolidationKeyHandler matchingDef = findMatchingPath(path, statKeys);
+			ConsolidationKeyHandler matchingDef = findMatchingPath(path,
+					statKeys);
 			if (matchingDef != null) {
 				consolidateMaps(consolidatedMap, gathererData, matchingDef,
 						path);
@@ -94,10 +110,13 @@ public abstract class AbstractConsolidator implements Consolidator {
 	}
 
 	/**
-	 * this method takes a map and a path and uses the path to trace down the map to a data object
-	 * it then returns that data
-	 * @param dataMap - the map the data will be extracted from
-	 * @param path - the path to traced on
+	 * this method takes a map and a path and uses the path to trace down the
+	 * map to a data object it then returns that data
+	 * 
+	 * @param dataMap
+	 *            - the map the data will be extracted from
+	 * @param path
+	 *            - the path to traced on
 	 * @return the found data object or null if path does not work
 	 */
 	protected Object getDataVal(Map<String, Object> dataMap, List<String> path) {
@@ -114,15 +133,21 @@ public abstract class AbstractConsolidator implements Consolidator {
 		return null;
 	}
 
-	/** determines if a path matches any of the ConsolidationDefinitions for a given gatherer
-	 * it does this by comparing each of the path's strings to each of the definition's strings
-	 * asterisks are considered 'any' and are skipped
-	 * @param path - the path to be checked
-	 * @param keys - the gatherer's consolidation definitions
-	 * @return if it finds a matching path it returns the corresponding ConsolidationDefinition
-	 * if not it returns null
+	/**
+	 * determines if a path matches any of the ConsolidationDefinitions for a
+	 * given gatherer it does this by comparing each of the path's strings to
+	 * each of the definition's strings asterisks are considered 'any' and are
+	 * skipped
+	 * 
+	 * @param path
+	 *            - the path to be checked
+	 * @param keys
+	 *            - the gatherer's consolidation definitions
+	 * @return if it finds a matching path it returns the corresponding
+	 *         ConsolidationDefinition if not it returns null
 	 */
-	private ConsolidationKeyHandler findMatchingPath(List<String> path, List<ConsolidationKeyHandler> keys) {
+	private ConsolidationKeyHandler findMatchingPath(List<String> path,
+			List<ConsolidationKeyHandler> keys) {
 		for (ConsolidationKeyHandler def : keys) {// get one key definition
 			if (def.getMethods() == null) {
 				continue;
@@ -185,10 +210,16 @@ public abstract class AbstractConsolidator implements Consolidator {
 		return null;
 	}
 
-	/** this method takes a data object and inserts it at the end of a path on a given map
-	 * @param path - the path to traverse
-	 * @param statsData - the map to insert data into
-	 * @param dataToAdd - the data to insert
+	/**
+	 * this method takes a data object and inserts it at the end of a path on a
+	 * given map
+	 * 
+	 * @param path
+	 *            - the path to traverse
+	 * @param statsData
+	 *            - the map to insert data into
+	 * @param dataToAdd
+	 *            - the data to insert
 	 */
 	protected void putOnPath(List<String> path, Map<String, Object> statsData,
 			Map<String, Object> dataToAdd) {
@@ -209,12 +240,15 @@ public abstract class AbstractConsolidator implements Consolidator {
 			index++;
 		}
 	}
-	
-	public abstract List<List<Map<String, Object>>> gathererFilter(String gathererName);
+
+	public abstract List<List<Map<String, Object>>> gathererFilter(
+			String gathererName);
 
 	/**
 	 * converts a statistic object into a double
-	 * @param stat the statistic object to convert
+	 * 
+	 * @param stat
+	 *            the statistic object to convert
 	 * @return a double representing the statistic object
 	 */
 	protected double statToDouble(Object stat) {
@@ -234,31 +268,36 @@ public abstract class AbstractConsolidator implements Consolidator {
 	}
 
 	public abstract void setDates();
-	
-	public void setDates(Date upperDate, Date lowerDate){
+
+	public void setDates(Date upperDate, Date lowerDate) {
 		this.startDate = lowerDate;
 		this.endDate = upperDate;
 	}
-	
+
 	public abstract void setTypes();
-	
-	public void setTypes(int consolidationType, Integer filterType){
+
+	public void setTypes(int consolidationType, Integer filterType) {
 		this.consolidationType = consolidationType;
 		this.filterType = filterType;
 	}
 
 	/**
-	 * This method gets consolidated data from the service data and inserts it into
-	 * the consolidateData map argument.
+	 * This method gets consolidated data from the service data and inserts it
+	 * into the consolidateData map argument.
 	 * 
-	 * @param consolidatedData map to insert consolidated Data into (must have valid dataPath)
-	 * if the path has data at the end it will be overwritten
-	 * @param serviceData - all data relating to a service
-	 * @param keyDef - defines the consolidation methods to use on the serviceData
-	 * @param dataPath - the path on which to store the data in the consolidatedMap
+	 * @param consolidatedData
+	 *            map to insert consolidated Data into (must have valid
+	 *            dataPath) if the path has data at the end it will be
+	 *            overwritten
+	 * @param serviceData
+	 *            - all data relating to a service
+	 * @param keyDef
+	 *            - defines the consolidation methods to use on the serviceData
+	 * @param dataPath
+	 *            - the path on which to store the data in the consolidatedMap
 	 */
 	protected abstract void consolidateMaps(
 			Map<String, Object> consolidatedData,
-			List<Map<String, Object>> serviceData, ConsolidationKeyHandler keyDef,
-			LinkedList<String> dataPath);
+			List<Map<String, Object>> serviceData,
+			ConsolidationKeyHandler keyDef, LinkedList<String> dataPath);
 }

@@ -19,7 +19,6 @@
  *******************************************************************************/
 package com.linuxbox.enkive.message;
 
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -201,12 +200,12 @@ public abstract class AbstractMessageSummary implements MessageSummary {
 	public void appendTo(String to) {
 		this.to.add(to);
 	}
-	
+
 	@Override
-	public void setOriginalHeaders(String originalHeaders){
+	public void setOriginalHeaders(String originalHeaders) {
 		this.originalHeaders = originalHeaders;
 	}
-	
+
 	@Override
 	public String getOriginalHeaders() {
 		return originalHeaders;

@@ -28,6 +28,7 @@ import com.linuxbox.enkive.statistics.RawStats;
 import com.linuxbox.enkive.statistics.gathering.StatsMsgGatherer;
 import com.linuxbox.enkive.statistics.gathering.mongodb.MongoGathererMessageSearchService;
 import com.mongodb.Mongo;
+
 @SuppressWarnings("unchecked")
 public class StatsMsgTest {
 
@@ -90,7 +91,7 @@ public class StatsMsgTest {
 					result = path.size() == 1;
 				} else {
 					result = checkFormat(
-					(Map<String, Object>) stats.get(statKey), path);
+							(Map<String, Object>) stats.get(statKey), path);
 				}
 				if (result) {
 					break;
@@ -109,20 +110,30 @@ public class StatsMsgTest {
 
 	@Test
 	public void attributesNotNull() {
-		assertTrue("msgEntries.getAttributes returned null", msgEntries.getAttributes() != null);
+		assertTrue("msgEntries.getAttributes returned null",
+				msgEntries.getAttributes() != null);
 	}
-	
+
 	@Test
 	public void testAttributes() {
 		for (ConsolidationKeyHandler key : msgEntries.getAttributes().getKeys()) {
 			LinkedList<String> path = key.getKey();
-			if(path.contains(STAT_GATHERER_NAME) || path.contains(STAT_TIMESTAMP)){
+			if (path.contains(STAT_GATHERER_NAME)
+					|| path.contains(STAT_TIMESTAMP)) {
 				continue;
 			}
-			if(key.isPoint()){
-				assertTrue("the format is incorrect for path: " + path, checkFormat((Map<String,Object>)stats.get(STAT_POINT), path));
+			if (key.isPoint()) {
+				assertTrue(
+						"the format is incorrect for path: " + path,
+						checkFormat(
+								(Map<String, Object>) stats.get(STAT_POINT),
+								path));
 			} else {
-				assertTrue("the format is incorrect for path: " + path, checkFormat((Map<String,Object>)stats.get(STAT_INTERVAL), path));
+				assertTrue(
+						"the format is incorrect for path: " + path,
+						checkFormat(
+								(Map<String, Object>) stats.get(STAT_INTERVAL),
+								path));
 			}
 		}
 	}
@@ -131,37 +142,41 @@ public class StatsMsgTest {
 	public void pointKeyCountMatches() {
 		int numKeys = 0;
 		int pointKeyCount = 0;
-		for(ConsolidationKeyHandler key : msgEntries.getAttributes().getKeys()){
-			if(key.isPoint() && key.getMethods() != null){
+		for (ConsolidationKeyHandler key : msgEntries.getAttributes().getKeys()) {
+			if (key.isPoint() && key.getMethods() != null) {
 				pointKeyCount++;
 			}
 		}
-		
-		if(stats.containsKey(STAT_POINT)){
-			Map<String, Object> pointStats = (Map<String,Object>)stats.get(STAT_POINT);
+
+		if (stats.containsKey(STAT_POINT)) {
+			Map<String, Object> pointStats = (Map<String, Object>) stats
+					.get(STAT_POINT);
 			numKeys += pointStats.keySet().size();
 		}
-		
-		assertTrue("numKeys doesn't match: numKeys = " + numKeys, numKeys == pointKeyCount);
+
+		assertTrue("numKeys doesn't match: numKeys = " + numKeys,
+				numKeys == pointKeyCount);
 	}
-	
+
 	@Test
 	public void intervalKeyCountMatches() {
 		int numKeys = 0;
 		int intervalKeyCount = 0;
-		for(ConsolidationKeyHandler key : msgEntries.getAttributes().getKeys()){
-			if(!key.isPoint() && key.getMethods() != null){
+		for (ConsolidationKeyHandler key : msgEntries.getAttributes().getKeys()) {
+			if (!key.isPoint() && key.getMethods() != null) {
 				intervalKeyCount++;
 			}
 		}
-		
-		if(stats.containsKey(STAT_INTERVAL)){
-			Map<String, Object> intervalStats = (Map<String,Object>)stats.get(STAT_INTERVAL);
+
+		if (stats.containsKey(STAT_INTERVAL)) {
+			Map<String, Object> intervalStats = (Map<String, Object>) stats
+					.get(STAT_INTERVAL);
 			numKeys += intervalStats.keySet().size();
 		}
 		System.out.println("intervalKeyCount: " + intervalKeyCount);
 		System.out.println("numKeys: " + numKeys);
-		assertTrue("numKeys doesn't match: numKeys = " + numKeys, numKeys == intervalKeyCount);
+		assertTrue("numKeys doesn't match: numKeys = " + numKeys,
+				numKeys == intervalKeyCount);
 	}
 
 	@Test
@@ -173,22 +188,25 @@ public class StatsMsgTest {
 
 	@Test
 	public void hasTimeStamp() {
-		Map<String, Object> time = (Map<String,Object>)stats.get(STAT_TIMESTAMP);
+		Map<String, Object> time = (Map<String, Object>) stats
+				.get(STAT_TIMESTAMP);
 		assertTrue("runtime test exception in hasTimeStamp(): time = " + time,
 				time != null);
 	}
 
 	@Test
 	public void upperTimeGTZero() {
-		Map<String, Object> time = (Map<String,Object>)stats.get(STAT_TIMESTAMP);
+		Map<String, Object> time = (Map<String, Object>) stats
+				.get(STAT_TIMESTAMP);
 		Date date = ((Date) time.get(CONSOLIDATION_MAX));
 		assertTrue("runtime test exception in timeGTZero(): date = " + date,
 				date.getTime() > 0);
 	}
-	
+
 	@Test
 	public void lowerTimeGTZero() {
-		Map<String, Object> time = (Map<String,Object>)stats.get(STAT_TIMESTAMP);
+		Map<String, Object> time = (Map<String, Object>) stats
+				.get(STAT_TIMESTAMP);
 		Date date = ((Date) time.get(CONSOLIDATION_MIN));
 		assertTrue("runtime test exception in timeGTZero(): date = " + date,
 				date.getTime() > 0);
@@ -199,13 +217,14 @@ public class StatsMsgTest {
 		Date startDate = new Date(0L);
 		Date endDate = new Date();
 		Map<String, Object> numEntriesStats = null;
-		try{
-			RawStats rawStatsOnDate = msgEntries.getStatistics(
-					startDate, endDate);
-			
+		try {
+			RawStats rawStatsOnDate = msgEntries.getStatistics(startDate,
+					endDate);
+
 			numEntriesStats = rawStatsOnDate.toMap();
-			numEntriesStats = (Map<String,Object>)numEntriesStats.get(STAT_INTERVAL);
-		} catch(Exception e) {
+			numEntriesStats = (Map<String, Object>) numEntriesStats
+					.get(STAT_INTERVAL);
+		} catch (Exception e) {
 			assertTrue("numEntriesCrashed", false);
 		}
 		int numEntries = (Integer) numEntriesStats.get(STAT_NUM_ENTRIES);

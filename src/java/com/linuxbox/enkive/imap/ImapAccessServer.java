@@ -14,7 +14,7 @@ public class ImapAccessServer {
 		this.imapServer = imapServer;
 	}
 
-	//Convenience method for Spring
+	// Convenience method for Spring
 	public void startup() {
 		try {
 			imapServer.init();

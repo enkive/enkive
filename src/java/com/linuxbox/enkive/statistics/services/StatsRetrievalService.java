@@ -28,26 +28,35 @@ public interface StatsRetrievalService {
 
 	/**
 	 * Does a query on the backend based on a query Object and a date range
-	 * @param stats - a map formatted as the following:
-	 * {GathererName:{key1:val1, key2:val2}, ...} each key must conform
-	 * to the correct dot notation (e.g. MessageCollection.indexes._id.count)
-	 * @param startingTimestamp -the starting date for the query
-	 * @param endingTimestamp -the ending date for the query
-	 * @return a set of object cooresponding to each of the object found by the query
+	 * 
+	 * @param stats
+	 *            - a map formatted as the following: {GathererName:{key1:val1,
+	 *            key2:val2}, ...} each key must conform to the correct dot
+	 *            notation (e.g. MessageCollection.indexes._id.count)
+	 * @param startingTimestamp
+	 *            -the starting date for the query
+	 * @param endingTimestamp
+	 *            -the ending date for the query
+	 * @return a set of object cooresponding to each of the object found by the
+	 *         query
 	 * @throws StatsRetrievalException
 	 */
-	public Set<Map<String, Object>> queryStatistics(
-			StatsQuery query) throws StatsRetrievalException;
+	public Set<Map<String, Object>> queryStatistics(StatsQuery query)
+			throws StatsRetrievalException;
 
 	/**
-	 * Does a query on the backend that only returns specific keys as specified by the filterMap's
-	 * entries
-	 * NOTE: serviceName and timestamp will always be returned regardless of filterMap
-	 * @param queryMap - the query object used to generate the query Must be of format:
-	 * {gathererName:{key:val, key:val...}...}
-	 * @param filterMap - the filter used to only return specific keys from all queryed objects
-	 * must be of format: {GathererName:{key:1, key:1...}...}
-	 * @return a set of objects only containing the 
+	 * Does a query on the backend that only returns specific keys as specified
+	 * by the filterMap's entries NOTE: serviceName and timestamp will always be
+	 * returned regardless of filterMap
+	 * 
+	 * @param queryMap
+	 *            - the query object used to generate the query Must be of
+	 *            format: {gathererName:{key:val, key:val...}...}
+	 * @param filterMap
+	 *            - the filter used to only return specific keys from all
+	 *            queryed objects must be of format: {GathererName:{key:1,
+	 *            key:1...}...}
+	 * @return a set of objects only containing the
 	 * @throws StatsRetrievalException
 	 */
 	public List<Map<String, Object>> queryStatistics(
@@ -55,27 +64,31 @@ public interface StatsRetrievalService {
 			Map<String, Map<String, Object>> filterMap)
 			throws StatsRetrievalException;
 
-	//TODO document
-	public List<Map<String, Object>> queryStatistics(
-			List<StatsQuery> query, List<StatsFilter> filter)
-			throws StatsRetrievalException;
+	// TODO document
+	public List<Map<String, Object>> queryStatistics(List<StatsQuery> query,
+			List<StatsFilter> filter) throws StatsRetrievalException;
+
 	/**
 	 * Removes every object cooresponding to a given objectID
-	 * @param deletionSet - a set of objectIds
+	 * 
+	 * @param deletionSet
+	 *            - a set of objectIds
 	 * @throws StatsRetrievalException
 	 */
 	public void remove(Set<Object> deletionSet) throws StatsRetrievalException;
 
-	//TODO 
+	// TODO
 	public Set<Map<String, Object>> queryStatistics(StatsQuery query,
 			StatsFilter filter) throws StatsRetrievalException;
-	
+
 	/**
-	 * Does a query on the backend without formatting the map at all (e.g. just 
+	 * Does a query on the backend without formatting the map at all (e.g. just
 	 * like the shell)
-	 * @param query a map that is the exact representation of a dbObject to query
-	 * the DB with
+	 * 
+	 * @param query
+	 *            a map that is the exact representation of a dbObject to query
+	 *            the DB with
 	 * @return set representing the query
 	 */
-//	public Set<Map<String, Object>> directQuery(Map<String, Object> query);
+	// public Set<Map<String, Object>> directQuery(Map<String, Object> query);
 }

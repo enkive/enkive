@@ -81,9 +81,8 @@ public class MongoSearchResultUtils {
 		return sortedIds;
 	}
 
-	public List<String> sortSearchResults(
-			Collection<String> searchResultIds, String sortField,
-			int sortDirection) {
+	public List<String> sortSearchResults(Collection<String> searchResultIds,
+			String sortField, int sortDirection) {
 		ArrayList<String> sortedIds = new ArrayList<String>();
 		// Only want to return the ids
 		BasicDBObject keys = new BasicDBObject();

@@ -76,7 +76,7 @@ public abstract class AbstractWorkspaceService implements WorkspaceService {
 			throws WorkspaceException {
 		return searchResultBuilder.getSearchResult(searchResultID);
 	}
-	
+
 	@Override
 	public SearchFolder getSearchFolder(String searchFolderID)
 			throws WorkspaceException {
