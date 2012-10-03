@@ -293,46 +293,47 @@ public class StatsServlet extends EnkiveServlet {
 	}
 
 	// Above is copied from abstract/embedded grainularity classes
-
 	public void doGet(HttpServletRequest req, HttpServletResponse resp) {
-		LOGGER.info("StatsServlet doGet started");
+		LOGGER.debug("StatsServlet doGet started");
 		try {
 			try {
-				Date upperTimestamp = new Date();
-				Date lowerTimestamp = new Date(0L);
+				Date endTimestamp = null;
+				Date startTimestamp = null;
 				boolean noDate = true;
 				// Get a DateRange for ts.min & ts.max
 				if (req.getParameter(tsMax) != null) {
 					noDate = false;
 					if (!req.getParameter(tsMax).equals("")) {
 						try {
-							upperTimestamp = NUMERIC_SEARCH_FORMAT.parse(req
-									.getParameter(tsMax));
+							endTimestamp = new Date(NUMERIC_SEARCH_FORMAT
+									.parse(req.getParameter(tsMax)).getTime()
+									+ 1000 * 60 * 60 * 24);
 						} catch (ParseException e) {
-							upperTimestamp = new Date();
+							endTimestamp = new Date();
 							LOGGER.error(
 									"Error Parsing Date: "
 											+ req.getParameter(tsMax), e);
 						}
-					} else {
-						LOGGER.warn("Warning: Max date is not defined");
 					}
+				} else {
+					endTimestamp = new Date();
 				}
 				if (req.getParameter(tsMin) != null) {
 					noDate = false;
+
 					if (!req.getParameter(tsMin).equals("")) {
 						try {
-							lowerTimestamp = NUMERIC_SEARCH_FORMAT.parse(req
+							startTimestamp = NUMERIC_SEARCH_FORMAT.parse(req
 									.getParameter(tsMin));
 						} catch (ParseException e) {
-							lowerTimestamp = new Date(0L);
+							startTimestamp = new Date(0L);
 							LOGGER.error(
 									"Error Parsing Date: "
 											+ req.getParameter(tsMin), e);
 						}
-					} else {
-						LOGGER.warn("Warning: Min date is not defined");
 					}
+				} else {
+					startTimestamp = new Date(0L);
 				}
 
 				String[] serviceNames = req
@@ -355,10 +356,12 @@ public class StatsServlet extends EnkiveServlet {
 					queryList = new LinkedList<StatsQuery>();
 					filterList = new LinkedList<StatsFilter>();
 					for (String serviceName : serviceNames) {
+
 						// building query
 						StatsQuery query = new MongoStatsQuery(serviceName,
-								grainType, STAT_INTERVAL, lowerTimestamp,
-								upperTimestamp);
+								grainType, STAT_INTERVAL, startTimestamp,
+								endTimestamp);
+
 						StatsFilter filter = null;
 						String[] keys = req.getParameterValues(serviceName);
 						// building filter
@@ -438,8 +441,7 @@ public class StatsServlet extends EnkiveServlet {
 				}
 			} catch (CannotRetrieveException e) {
 				respondError(HttpServletResponse.SC_UNAUTHORIZED, null, resp);
-				if (LOGGER.isErrorEnabled())
-					LOGGER.error("CannotRetrieveException", e);
+				LOGGER.error("CannotRetrieveException", e);
 			} catch (NullPointerException e) {
 				respondError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
 						null, resp);
@@ -448,6 +450,6 @@ public class StatsServlet extends EnkiveServlet {
 		} catch (IOException e) {
 			LOGGER.error("IOException thrown", e);
 		}
-		LOGGER.info("StatsServlet doGet finished");
+		LOGGER.debug("StatsServlet doGet finished");
 	}
 }

@@ -32,7 +32,7 @@ import com.linuxbox.enkive.statistics.services.StatsClient;
 
 public class ConsolidationRunner {
 	protected final static Log LOGGER = LogFactory
-			.getLog("com.linuxbox.enkive.statistics.granularity.GrainRunner");
+			.getLog("com.linuxbox.enkive.statistics.granularity.ConsolidationRunner");
 	StatsClient client;
 	RemovalJob remover;
 	String schedule;
@@ -52,7 +52,7 @@ public class ConsolidationRunner {
 		dayConsolidator = new DayConsolidator(client);
 		weekConsolidator = new WeekConsolidator(client);
 		monthConsolidator = new MonthConsolidator(client);
-		LOGGER.info("GrainRunner Initialized");
+		LOGGER.info("ConsolidationRunner Initialized");
 	}
 
 	@PostConstruct
@@ -60,14 +60,14 @@ public class ConsolidationRunner {
 		// create factory
 		MethodInvokingJobDetailFactoryBean jobDetail = new MethodInvokingJobDetailFactoryBean();
 		jobDetail.setTargetObject(this);
-		jobDetail.setName("GrainRunnerJob");
+		jobDetail.setName("ConsolidationRunnerJob");
 		jobDetail.setTargetMethod("run");
 		jobDetail.setConcurrent(false);
 		jobDetail.afterPropertiesSet();
 
 		// create trigger
 		CronTriggerBean trigger = new CronTriggerBean();
-		trigger.setBeanName("GrainRunnerTrigger");
+		trigger.setBeanName("ConsolidationRunnerTrigger");
 		trigger.setJobDetail((JobDetail) jobDetail.getObject());
 		trigger.setCronExpression(schedule);
 		trigger.afterPropertiesSet();
@@ -77,35 +77,35 @@ public class ConsolidationRunner {
 	}
 
 	public void run() {
-		LOGGER.info("GrainRunner run() starting");
+		LOGGER.info("ConsolidationRunner run() starting");
 		if (ConsolidationTimeDefs.HOUR.isMatch()) {
-			LOGGER.trace("GrainRunner hour() starting");
+			LOGGER.trace("ConsolidationRunner hour() starting");
 			hourConsolidator.setDates();
 			hourConsolidator.storeConsolidatedData();
-			LOGGER.trace("GrainRunner hour() finished");
+			LOGGER.trace("ConsolidationRunner hour() finished");
 		}
 
 		if (ConsolidationTimeDefs.DAY.isMatch()) {
-			LOGGER.trace("GrainRunner day() starting");
+			LOGGER.trace("ConsolidationRunner day() starting");
 			dayConsolidator.setDates();
 			dayConsolidator.storeConsolidatedData();
-			LOGGER.trace("GrainRunner day() finished");
+			LOGGER.trace("ConsolidationRunner day() finished");
 		}
 
 		if (ConsolidationTimeDefs.WEEK.isMatch()) {
-			LOGGER.trace("GrainRunner week() starting");
+			LOGGER.trace("ConsolidationRunner week() starting");
 			weekConsolidator.setDates();
 			weekConsolidator.storeConsolidatedData();
-			LOGGER.trace("GrainRunner week() finished");
+			LOGGER.trace("ConsolidationRunner week() finished");
 		}
 
 		if (ConsolidationTimeDefs.MONTH.isMatch()) {
-			LOGGER.trace("GrainRunner month() starting");
+			LOGGER.trace("ConsolidationRunner month() starting");
 			monthConsolidator.setDates();
 			monthConsolidator.storeConsolidatedData();
-			LOGGER.trace("GrainRunner month() finished");
+			LOGGER.trace("ConsolidationRunner month() finished");
 		}
-		LOGGER.info("GrainRunner run() finished");
+		LOGGER.info("ConsolidationRunner run() finished");
 		// don't run remover until consolidation is done
 		remover.cleanAll();
 	}
