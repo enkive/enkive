@@ -142,7 +142,7 @@
 		<constructor-arg ref="StatisticsGatherer" />
 		<property name="to" value="${enkive.statistics.emailReport.to}" />
 		<property name="from" value="${enkive.statistics.emailReport.from}" />
-		<property name="mailHost" value="${enkive.statistics.emailReport.mailHost}" />
+		<property name="mailHost" value="${enkive.statistics.emailReport.smtpHost}" />
 	</bean>
 	
 	<bean id="StatisticsEmailerJob"
