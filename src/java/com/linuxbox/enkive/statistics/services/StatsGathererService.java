@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import static com.linuxbox.enkive.statistics.StatsConstants.STAT_GATHERER_NAME;
 import javax.annotation.PostConstruct;
 import static com.linuxbox.enkive.statistics.VarsMaker.createListOfRawStats;
 import org.apache.commons.logging.Log;
