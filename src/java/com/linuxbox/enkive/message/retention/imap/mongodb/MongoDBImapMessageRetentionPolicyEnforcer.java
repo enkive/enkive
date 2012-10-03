@@ -76,8 +76,7 @@ public class MongoDBImapMessageRetentionPolicyEnforcer extends
 				+ String.format("%02d", mailboxTime.get(Calendar.MONTH) + 1);
 
 		// Get table of user mailboxes
-		BasicDBObject userMailboxesSearchObject = new BasicDBObject();
-		userMailboxesSearchObject.put(MongoEnkiveImapConstants.USER, username);
+		BasicDBObject userMailboxesSearchObject = new BasicDBObject(MongoEnkiveImapConstants.USER, username);
 		DBObject userMailboxesObject = imapColl
 				.findOne(userMailboxesSearchObject);
 		// Check for mailbox we're looking for
@@ -86,11 +85,10 @@ public class MongoDBImapMessageRetentionPolicyEnforcer extends
 				.get(MongoEnkiveImapConstants.MAILBOXES);
 		// If it exists, remove it
 		if (mailboxTable.containsKey(mailboxPath)) {
-			mailboxTable.remove(mailboxPath);
-			DBObject mailboxSearchObject = new BasicDBObject();
-			mailboxSearchObject.put("_id",
+			BasicDBObject mailboxSearchObject = new BasicDBObject("_id",
 					ObjectId.massageToObjectId(mailboxTable.get(mailboxPath)));
 			imapColl.remove(mailboxSearchObject);
+			mailboxTable.remove(mailboxPath);
 			userMailboxesObject.put(MongoEnkiveImapConstants.MAILBOXES,
 					mailboxTable);
 			imapColl.findAndModify(userMailboxesSearchObject,
