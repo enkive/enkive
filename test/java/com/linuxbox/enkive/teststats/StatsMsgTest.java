@@ -43,14 +43,14 @@ import com.linuxbox.enkive.TestingConstants;
 import com.linuxbox.enkive.docsearch.indri.IndriDocSearchQueryService;
 import com.linuxbox.enkive.statistics.ConsolidationKeyHandler;
 import com.linuxbox.enkive.statistics.RawStats;
-import com.linuxbox.enkive.statistics.gathering.StatsMsgGatherer;
+import com.linuxbox.enkive.statistics.gathering.StatsMessageGatherer;
 import com.linuxbox.enkive.statistics.gathering.mongodb.MongoGathererMessageSearchService;
 import com.mongodb.Mongo;
 
 @SuppressWarnings("unchecked")
 public class StatsMsgTest {
 
-	private static StatsMsgGatherer msgEntries;
+	private static StatsMessageGatherer msgEntries;
 	private static Map<String, Object> stats;
 	private static String name = "MsgEntriesGatherer";
 
@@ -59,7 +59,7 @@ public class StatsMsgTest {
 		List<String> keys = new LinkedList<String>();
 		keys.add("numMsg:avg:Number of Messages::interval");
 		keys.add("totMsg:avg:Total Number of Messages::point");
-		msgEntries = new StatsMsgGatherer(name, "Message Statistics", keys);
+		msgEntries = new StatsMessageGatherer(name, "Message Statistics", keys);
 		MongoGathererMessageSearchService searchService;
 		searchService = new MongoGathererMessageSearchService(new Mongo(),
 				TestingConstants.MONGODB_TEST_DATABASE,

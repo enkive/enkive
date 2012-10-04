@@ -53,7 +53,7 @@ import com.linuxbox.enkive.TestingConstants;
 import com.linuxbox.enkive.statistics.ConsolidationKeyHandler;
 import com.linuxbox.enkive.statistics.RawStats;
 import com.linuxbox.enkive.statistics.gathering.GathererException;
-import com.linuxbox.enkive.statistics.gathering.mongodb.StatsMongoCollectionGatherer;
+import com.linuxbox.enkive.statistics.gathering.mongodb.MongoStatsCollectionGatherer;
 import com.mongodb.DB;
 import com.mongodb.Mongo;
 import com.mongodb.MongoException;
@@ -61,7 +61,7 @@ import com.mongodb.MongoException;
 @SuppressWarnings("unchecked")
 @RunWith(value = Parameterized.class)
 public class StatsMongoCollTest {
-	private static StatsMongoCollectionGatherer collStats;
+	private static MongoStatsCollectionGatherer collStats;
 	private static Map<String, Object> allStats;
 	private static Map<String, Object> pointStats;
 	private static DB db;
@@ -96,7 +96,7 @@ public class StatsMongoCollTest {
 		keys.add("*.numInd:avg,max,min:Number of Indexes::point");
 		keys.add("*.indSz:avg,max,min:Index Size:objects:point");
 		keys.add("*.indSzs.*:avg,max,min:Index Sizes:objects:point");
-		collStats = new StatsMongoCollectionGatherer(m,
+		collStats = new MongoStatsCollectionGatherer(m,
 				TestingConstants.MONGODB_TEST_DATABASE, "CollGatherer",
 				"Collection Statistics", keys);
 		RawStats rawStats = collStats.getStatistics();

@@ -41,17 +41,17 @@ import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.Mongo;
 
-public class StatsMongoAttachmentsGatherer extends AbstractGatherer {
+public class MongoStatsAttachmentsGatherer extends AbstractGatherer {
 	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.statistics.gathering.StatsMongoAttachmentsGatherer");
 	protected Mongo m;
 	protected DB db;
 	protected DBCollection attachmentsColl;
 
-	public StatsMongoAttachmentsGatherer(Mongo m, String dbName,
-			String attachmentsColl, String serviceName, String humanName,
+	public MongoStatsAttachmentsGatherer(Mongo m, String dbName,
+			String attachmentsColl, String gathererName, String humanName,
 			List<String> keys) throws GathererException {
-		super(serviceName, humanName, keys);
+		super(gathererName, humanName, keys);
 		this.m = m;
 		this.db = m.getDB(dbName);
 		this.attachmentsColl = db.getCollection(attachmentsColl + ".files");

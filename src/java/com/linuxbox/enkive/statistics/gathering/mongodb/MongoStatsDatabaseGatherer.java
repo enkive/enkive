@@ -52,16 +52,16 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.Mongo;
 
-public class StatsMongoDBGatherer extends AbstractGatherer {
+public class MongoStatsDatabaseGatherer extends AbstractGatherer {
 	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.statistics.gathering");
 
 	protected DB db;
 	protected Mongo m;
 
-	public StatsMongoDBGatherer(Mongo m, String dbName, String serviceName,
+	public MongoStatsDatabaseGatherer(Mongo m, String dbName, String gathererName,
 			String humanName, List<String> keys) throws GathererException {
-		super(serviceName, humanName, keys);
+		super(gathererName, humanName, keys);
 		this.m = m;
 		db = m.getDB(dbName);
 	}

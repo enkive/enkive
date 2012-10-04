@@ -37,12 +37,12 @@ public abstract class AbstractGatherer implements Gatherer {
 	protected GathererAttributes attributes;
 	protected StatsStorageService storageService;
 	protected List<String> keys;
-	private String serviceName;
+	private String gathererName;
 	private String humanName;
 
-	public AbstractGatherer(String serviceName, String humanName,
+	public AbstractGatherer(String gathererName, String humanName,
 			List<String> keys) throws GathererException {
-		this.serviceName = serviceName;
+		this.gathererName = gathererName;
 		this.humanName = humanName;
 		setKeys(keys);
 	}
@@ -152,7 +152,7 @@ public abstract class AbstractGatherer implements Gatherer {
 	protected List<ConsolidationKeyHandler> keyBuilder(List<String> keyList)
 			throws GathererException {
 		if (keyList == null) {
-			throw new GathererException("keys were not set for " + serviceName);
+			throw new GathererException("keys were not set for " + gathererName);
 		}
 
 		List<ConsolidationKeyHandler> keys = new LinkedList<ConsolidationKeyHandler>();
@@ -188,7 +188,7 @@ public abstract class AbstractGatherer implements Gatherer {
 
 	public void setKeys(List<String> keys) throws GathererException {
 		this.keys = keys;
-		attributes = new GathererAttributes(serviceName, humanName,
+		attributes = new GathererAttributes(gathererName, humanName,
 				keyBuilder(keys));
 	}
 }

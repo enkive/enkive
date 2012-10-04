@@ -213,6 +213,8 @@ public class HourConsolidator extends AbstractConsolidator {
 		cal.add(Calendar.HOUR_OF_DAY, -1);
 		Date lowerDate = cal.getTime();
 		setDates(upperDate, lowerDate);
+		
+		setDates(new Date(), new Date(0L));
 	}
 
 	@Override

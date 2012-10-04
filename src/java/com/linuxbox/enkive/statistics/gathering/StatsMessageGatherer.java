@@ -34,7 +34,7 @@ import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.Mongo;
 
-public class StatsMsgGatherer extends AbstractGatherer {
+public class StatsMessageGatherer extends AbstractGatherer {
 	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.statistics.gathering.StatsMsgGatherer");
 	protected Mongo m;
@@ -42,9 +42,9 @@ public class StatsMsgGatherer extends AbstractGatherer {
 	protected DBCollection attachmentsColl;
 	GathererMessageSearchService searchService;
 
-	public StatsMsgGatherer(String serviceName, String humanName,
+	public StatsMessageGatherer(String gathererName, String humanName,
 			List<String> keys) throws GathererException {
-		super(serviceName, humanName, keys);
+		super(gathererName, humanName, keys);
 	}
 
 	public void setSearchService(GathererMessageSearchService searchService) {

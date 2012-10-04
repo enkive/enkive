@@ -49,10 +49,10 @@ public class RemovalJob {
 	StatsClient client;
 	private Date dateFilter;
 	private int dayKeepTime = REMOVAL_DAY_ID;
-	private int hrKeepTime = REMOVAL_HOUR_ID;
+	private int hourKeepTime = REMOVAL_HOUR_ID;
 	private int monthKeepTime = REMOVAL_MONTH_ID;
 	private int rawKeepTime = REMOVAL_RAW_ID;
-	private int wkKeepTime = REMOVAL_WEEK_ID;
+	private int weekKeepTime = REMOVAL_WEEK_ID;
 
 	public RemovalJob(StatsClient client) {
 		this.client = client;
@@ -111,7 +111,7 @@ public class RemovalJob {
 	}
 
 	private void cleanHour() {
-		if (hrKeepTime != -1) {
+		if (hourKeepTime != -1) {
 			cleaner(REMOVAL_HOUR_ID, CONSOLIDATION_HOUR);
 		}
 	}
@@ -129,7 +129,7 @@ public class RemovalJob {
 	}
 
 	private void cleanWeek() {
-		if (wkKeepTime != -1) {
+		if (weekKeepTime != -1) {
 			cleaner(REMOVAL_WEEK_ID, CONSOLIDATION_WEEK);
 		}
 	}
@@ -154,13 +154,13 @@ public class RemovalJob {
 			cal.add(Calendar.MONTH, -monthKeepTime);
 			break;
 		case REMOVAL_WEEK_ID:// week
-			cal.add(Calendar.WEEK_OF_YEAR, -wkKeepTime);
+			cal.add(Calendar.WEEK_OF_YEAR, -weekKeepTime);
 			break;
 		case REMOVAL_DAY_ID:// day
 			cal.add(Calendar.DATE, -dayKeepTime);
 			break;
 		case REMOVAL_HOUR_ID:// hour
-			cal.add(Calendar.HOUR, -hrKeepTime);
+			cal.add(Calendar.HOUR, -hourKeepTime);
 			break;
 		case REMOVAL_RAW_ID:// raw
 			cal.add(Calendar.HOUR, -rawKeepTime);
@@ -186,9 +186,9 @@ public class RemovalJob {
 	 *            the input must be greater than the default value or -1 (-1
 	 *            means do not run this removal)
 	 */
-	public void setHrKeepTime(int hrKeepTime) {
-		if (hrKeepTime >= REMOVAL_HOUR_ID || hrKeepTime == -1) {
-			this.hrKeepTime = hrKeepTime;
+	public void setHourKeepTime(int hourKeepTime) {
+		if (hourKeepTime >= REMOVAL_HOUR_ID || hourKeepTime == -1) {
+			this.hourKeepTime = hourKeepTime;
 		} else {
 			LOGGER.warn("setHrKeepTime input is invalid");
 		}
@@ -225,9 +225,9 @@ public class RemovalJob {
 	 *            the input must be greater than the default value or -1 (-1
 	 *            means do not run this removal)
 	 */
-	public void setWkKeepTime(int wkKeepTime) {
-		if (wkKeepTime >= REMOVAL_WEEK_ID || wkKeepTime == -1) {
-			this.wkKeepTime = wkKeepTime;
+	public void setWeekKeepTime(int weekKeepTime) {
+		if (weekKeepTime >= REMOVAL_WEEK_ID || weekKeepTime == -1) {
+			this.weekKeepTime = weekKeepTime;
 		} else {
 			LOGGER.warn("setWkKeepTime input is invalid");
 		}
