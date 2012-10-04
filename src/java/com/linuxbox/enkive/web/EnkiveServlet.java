@@ -96,7 +96,7 @@ public class EnkiveServlet extends HttpServlet {
 	public StatsClient getStatsClient() {
 		LOGGER.trace("getStatsClient -- enkiveServlet:" + this
 				+ "; appContext:" + appContext);
-		return appContext.getBean("StatisticsClient", StatsClient.class);
+		return appContext.getBean("StatsClientBean", StatsClient.class);
 	}
 
 	/**

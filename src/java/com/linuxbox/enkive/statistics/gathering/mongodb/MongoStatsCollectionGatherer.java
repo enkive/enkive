@@ -54,7 +54,7 @@ import com.linuxbox.enkive.statistics.gathering.GathererException;
 import com.mongodb.DB;
 import com.mongodb.Mongo;
 
-public class StatsMongoCollectionGatherer extends AbstractGatherer {
+public class MongoStatsCollectionGatherer extends AbstractGatherer {
 	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.statistics.gathering");
 
@@ -62,10 +62,10 @@ public class StatsMongoCollectionGatherer extends AbstractGatherer {
 
 	protected Mongo m;
 
-	public StatsMongoCollectionGatherer(Mongo m, String dbName,
-			String serviceName, String humanName, List<String> keys)
+	public MongoStatsCollectionGatherer(Mongo m, String dbName,
+			String gathererName, String humanName, List<String> keys)
 			throws GathererException {
-		super(serviceName, humanName, keys);
+		super(gathererName, humanName, keys);
 		this.m = m;
 		db = m.getDB(dbName);
 	}

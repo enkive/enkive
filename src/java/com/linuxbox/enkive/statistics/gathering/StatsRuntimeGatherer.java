@@ -29,9 +29,9 @@ import java.util.List;
 import java.util.Map;
 
 public class StatsRuntimeGatherer extends AbstractGatherer {
-	public StatsRuntimeGatherer(String serviceName, String humanName,
+	public StatsRuntimeGatherer(String gathererName, String humanName,
 			List<String> keys) throws GathererException {
-		super(serviceName, humanName, keys);
+		super(gathererName, humanName, keys);
 	}
 
 	@Override

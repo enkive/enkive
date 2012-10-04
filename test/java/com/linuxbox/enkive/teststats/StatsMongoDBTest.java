@@ -51,11 +51,11 @@ import org.junit.Test;
 
 import com.linuxbox.enkive.statistics.ConsolidationKeyHandler;
 import com.linuxbox.enkive.statistics.RawStats;
-import com.linuxbox.enkive.statistics.gathering.mongodb.StatsMongoDBGatherer;
+import com.linuxbox.enkive.statistics.gathering.mongodb.MongoStatsDatabaseGatherer;
 import com.mongodb.Mongo;
 
 public class StatsMongoDBTest {
-	private static StatsMongoDBGatherer dbStats;
+	private static MongoStatsDatabaseGatherer dbStats;
 	private static Map<String, Object> stats;
 	private static Map<String, Object> intervalStats;
 	private static Map<String, Object> pointStats;
@@ -76,7 +76,7 @@ public class StatsMongoDBTest {
 		keys.add("indSz:avg,max,min:Index Size:objects:point");
 		keys.add("numExt:avg,max,min:Number of Extents::point");
 		keys.add("fileSz:avg,max,min:File Size:bytes:point");
-		dbStats = new StatsMongoDBGatherer(m, MONGODB_TEST_DATABASE, name,
+		dbStats = new MongoStatsDatabaseGatherer(m, MONGODB_TEST_DATABASE, name,
 				"Database Statistics", keys);
 		RawStats rawStats = dbStats.getStatistics();
 		stats = rawStats.toMap();

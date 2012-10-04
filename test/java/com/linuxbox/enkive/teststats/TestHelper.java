@@ -30,12 +30,12 @@ import com.linuxbox.enkive.TestingConstants;
 import com.linuxbox.enkive.docsearch.indri.IndriDocSearchQueryService;
 import com.linuxbox.enkive.statistics.gathering.Gatherer;
 import com.linuxbox.enkive.statistics.gathering.GathererException;
-import com.linuxbox.enkive.statistics.gathering.StatsMsgGatherer;
+import com.linuxbox.enkive.statistics.gathering.StatsMessageGatherer;
 import com.linuxbox.enkive.statistics.gathering.StatsRuntimeGatherer;
 import com.linuxbox.enkive.statistics.gathering.mongodb.MongoGathererMessageSearchService;
-import com.linuxbox.enkive.statistics.gathering.mongodb.StatsMongoAttachmentsGatherer;
-import com.linuxbox.enkive.statistics.gathering.mongodb.StatsMongoCollectionGatherer;
-import com.linuxbox.enkive.statistics.gathering.mongodb.StatsMongoDBGatherer;
+import com.linuxbox.enkive.statistics.gathering.mongodb.MongoStatsAttachmentsGatherer;
+import com.linuxbox.enkive.statistics.gathering.mongodb.MongoStatsCollectionGatherer;
+import com.linuxbox.enkive.statistics.gathering.mongodb.MongoStatsDatabaseGatherer;
 import com.linuxbox.enkive.statistics.services.StatsClient;
 import com.linuxbox.enkive.statistics.services.StatsGathererService;
 import com.linuxbox.enkive.statistics.services.retrieval.mongodb.MongoStatsRetrievalService;
@@ -131,7 +131,7 @@ public class TestHelper {
 		keys.add("indSz:avg,max,min:Index Size:objects:point");
 		keys.add("numExt:avg,max,min:Number of Extents::point");
 		keys.add("fileSz:avg,max,min:File Size:bytes:point");
-		Gatherer dbProp = new StatsMongoDBGatherer(m,
+		Gatherer dbProp = new MongoStatsDatabaseGatherer(m,
 				TestingConstants.MONGODB_TEST_DATABASE, dbPropName,
 				"Database Statistics", keys);
 
@@ -146,7 +146,7 @@ public class TestHelper {
 		keys.add("*.numInd:avg,max,min:Number of Indexes::point");
 		keys.add("*.indSz:avg,max,min:Index Size:objects:point");
 		keys.add("*.indSzs.*:avg,max,min:Index Sizes:objects:point");
-		Gatherer collProp = new StatsMongoCollectionGatherer(m,
+		Gatherer collProp = new MongoStatsCollectionGatherer(m,
 				TestingConstants.MONGODB_TEST_DATABASE, collPropName,
 				"Collection Statistics", keys);
 
@@ -161,7 +161,7 @@ public class TestHelper {
 		keys = new LinkedList<String>();
 		keys.add("numMsg:avg:Number of Messages::interval");
 		keys.add("totMsg:avg:Total Number of Messages::point");
-		StatsMsgGatherer msgProp = new StatsMsgGatherer(msgSearchPropName,
+		StatsMessageGatherer msgProp = new StatsMessageGatherer(msgSearchPropName,
 				"Message Statistics", keys);
 		MongoGathererMessageSearchService searchService = null;
 		try {
@@ -177,7 +177,7 @@ public class TestHelper {
 		keys = new LinkedList<String>();
 		keys.add("avgAtt:avg:Average Attachments:number of attachments:interval");
 		keys.add("maxAtt:max:Maximum Attachments:number of attachments:interval");
-		StatsMongoAttachmentsGatherer attProp = new StatsMongoAttachmentsGatherer(
+		MongoStatsAttachmentsGatherer attProp = new MongoStatsAttachmentsGatherer(
 				m, TestingConstants.MONGODB_TEST_DATABASE,
 				TestingConstants.MONGODB_TEST_DOCUMENTS_COLLECTION,
 				attPropName, "Attachment Statistics", keys);
