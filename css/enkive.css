@@ -2,10 +2,10 @@ body
 {
 	padding: 0px;
 	margin: 0px;
+	background-color: #476098;
 	font-family: Helvetica;
 	font-size: 14px;
 	color: #333;
-	background-color: #ece6ed;
 	min-width: 1000px;
 }
 
@@ -78,8 +78,9 @@ a:hover
 #content
 {
 	clear: both;
+	background-color: #ece6ed;
 	min-height: 500px;
-	padding: 0px;
+	padding-bottom: 1px;
 	margin: 0px;
 }
 
