@@ -181,7 +181,7 @@
 		<constructor-arg name="client" ref="StatsClientBean" />
 		<constructor-arg name="scheduler" ref="ScheduledJobsBean" />
 		<constructor-arg name="remover" ref="RemovalRunnerBean" />
-		<constructor-arg name="schedule" value="0/5 * * * * ?" />
+		<constructor-arg name="schedule" value="0 0 * * * ?" />
 	</bean>
 
 	<bean id="ListOfGatherers" class="java.util.LinkedList">
@@ -201,7 +201,7 @@
 		<constructor-arg name="name" value="GathererScheduler" />
 		<constructor-arg name="gatherers" ref="ListOfGatherers"/>
 		<constructor-arg name="scheduler" ref="ScheduledJobsBean"/>
-		<constructor-arg name="interval" value="1" />
+		<constructor-arg name="interval" value="15" />
 	</bean>
 </beans>
 	

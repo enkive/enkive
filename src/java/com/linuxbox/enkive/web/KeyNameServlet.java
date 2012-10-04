@@ -59,7 +59,7 @@ public class KeyNameServlet extends EnkiveServlet {
 				JSONArray result = new JSONArray();
 
 				for (GathererAttributes attribute : attributes) {
-					if (!attribute.getName().equals("CollectionStatsService")) {
+					if (!attribute.getName().equals("CollectionStatsGatherer")) {
 						Map<String, Object> keyMethods = new HashMap<String, Object>();
 						for (ConsolidationKeyHandler key : attribute.getKeys()) {
 							String builtKey = "";
