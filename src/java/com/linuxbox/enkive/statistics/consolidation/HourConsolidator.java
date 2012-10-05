@@ -62,8 +62,7 @@ public class HourConsolidator extends AbstractConsolidator {
 				startDate, endDate);
 		StatsFilter filter = new StatsTypeFilter(type);
 		List<Map<String, Object>> result = createListOfMaps();
-		Set<Map<String, Object>> queryData = client.queryStatistics(query,
-				filter);
+		Set<Map<String, Object>> queryData = client.queryStatistics(query,filter);
 		for (Map<String, Object> statsMap : queryData) {
 			statsMap.remove("_id");// WARNING mongo specific pollution
 

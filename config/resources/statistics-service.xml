@@ -81,7 +81,6 @@
 		<constructor-arg name="humanName" value="Database Statistics"/>
 		<constructor-arg name="keys">	
 			<list>
-				<value>db::Database Name::</value>
 				<value>numObj:avg,max,min:Number of Objects::point</value>
 				<value>nColls:avg,max,min:Number of Collections::point</value>
 				<value>avgOSz:avg,max,min:Average Object Size:bytes:point</value>

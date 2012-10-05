@@ -71,7 +71,6 @@ public class MongoStatsDatabaseGatherer extends AbstractGatherer {
 			Date endTimestamp) throws GathererException {
 		Map<String, Object> pointStats = VarsMaker.createMap();
 		BasicDBObject temp = db.getStats();
-		pointStats.put(STAT_NAME, db.getName());
 		pointStats.put(STAT_NUM_COLLECTIONS, temp.get(MONGO_NUM_COLLECTIONS));
 		pointStats.put(STAT_NUM_OBJS, temp.get(MONGO_NUM_OBJS));
 		pointStats.put(STAT_AVG_OBJ_SIZE, temp.get(MONGO_AVG_OBJ_SIZE));
