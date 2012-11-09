@@ -32,6 +32,8 @@ import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstant
 
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
@@ -361,18 +363,13 @@ public class StatsServlet extends EnkiveServlet {
 						StatsQuery query = new MongoStatsQuery(serviceName,
 								grainType, STAT_INTERVAL, startTimestamp,
 								endTimestamp);
-
+						//TODO
+						System.out.println(query.getQuery());
 						StatsFilter filter = null;
 						String[] keys = req.getParameterValues(serviceName);
 						// building filter
 						if (keys != null) {
-							Map<String, Object> temp = createMap();
-							// 4. while looping build a second map for query
-							// second map will only have serviceName and date
-							// range
-							for (String key : keys) {
-								temp.put(key, 1);
-							}
+							List<String> temp = new ArrayList<String>(Arrays.asList(keys));
 							filter = new MongoStatsFilter(serviceName, temp);
 						} else {
 							filter = new MongoStatsFilter(serviceName, null);
@@ -422,11 +419,13 @@ public class StatsServlet extends EnkiveServlet {
 						result.add(consolidatedMap);
 					}
 				}
-
+				
 				try {
 					// 6. return data from query
 					JSONObject statistics = new JSONObject();
+					
 					statistics.put("results", new JSONArray(result.toArray()));
+					LOGGER.debug("Statistical Data: " + statistics);
 					resp.getWriter().write(statistics.toString());
 				} catch (IOException e) {
 					respondError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,

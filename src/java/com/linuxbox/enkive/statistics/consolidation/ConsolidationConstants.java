@@ -31,6 +31,6 @@ public class ConsolidationConstants {
 	public static String CONSOLIDATION_MIN = "min";
 	public static String CONSOLIDATION_SUM = "sum";
 	public static String CONSOLIDATION_TYPE = "gTyp";
-	public static String CONSOLIDATION_WEIGHT = "wgt";
-	public static String CONSOLIDATION_STD_DEV = "std";
+//	public static String CONSOLIDATION_WEIGHT = "wgt";
+//	public static String CONSOLIDATION_STD_DEV = "std";
 }

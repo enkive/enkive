@@ -84,7 +84,9 @@ public class MongoSearchResultBuilder implements SearchResultBuilder {
 				queryBuilder);
 		DBObject searchResultObject = searchResultsColl.findOne(ObjectId
 				.massageToObjectId(searchResultId));
-
+		if(searchResultObject == null){
+			LOGGER.error("SearchResultObject is null for searchResultId: " + searchResultId);
+		}
 		result.setId(searchResultId);
 		result.setTimestamp((Date) searchResultObject.get(EXECUTIONTIMESTAMP));
 		result.setExecutedBy((String) searchResultObject.get(EXECUTEDBY));
