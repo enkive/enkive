@@ -53,7 +53,8 @@ public abstract class AbstractConsolidator implements Consolidator {
 	}
 
 	public void storeConsolidatedData() {
-		client.storeData(consolidateData());
+		System.out.println("conslidatedData: " + consolidateData());
+		//		client.storeData(consolidateData());
 	}
 
 	/**

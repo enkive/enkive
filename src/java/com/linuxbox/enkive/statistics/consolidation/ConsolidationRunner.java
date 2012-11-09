@@ -46,7 +46,7 @@ public class ConsolidationRunner {
 			String schedule, RemovalJob remover) {
 		this.client = client;
 		this.scheduler = scheduler;
-		this.schedule = "0 0 * * * ?";
+		this.schedule = "0 * * * * ?";
 		this.remover = remover;
 		hourConsolidator = new HourConsolidator(client);
 		dayConsolidator = new DayConsolidator(client);
@@ -85,12 +85,12 @@ public class ConsolidationRunner {
 			LOGGER.trace("ConsolidationRunner hour() finished");
 		}
 
-		if (ConsolidationTimeDefs.DAY.isMatch()) {
+//		if (ConsolidationTimeDefs.DAY.isMatch()) {
 			LOGGER.trace("ConsolidationRunner day() starting");
 			dayConsolidator.setDates();
 			dayConsolidator.storeConsolidatedData();
 			LOGGER.trace("ConsolidationRunner day() finished");
-		}
+//		}
 
 		if (ConsolidationTimeDefs.WEEK.isMatch()) {
 			LOGGER.trace("ConsolidationRunner week() starting");

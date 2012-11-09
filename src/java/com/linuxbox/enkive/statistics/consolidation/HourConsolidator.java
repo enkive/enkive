@@ -189,8 +189,7 @@ public class HourConsolidator extends AbstractConsolidator {
 			// loop over methods to populate map with max, min, etc.
 			Map<String, Object> methodData = createMap();
 			for (String method : keyDef.getMethods()) {
-				if (!method.equals(CONSOLIDATION_SUM)) {// may not be user
-														// defined
+				if (!method.equals(CONSOLIDATION_SUM)) {// may not be user defined
 					methodMapBuilder(method, statsMaker, methodData);
 				}
 			}
@@ -199,6 +198,8 @@ public class HourConsolidator extends AbstractConsolidator {
 			}
 			// store in new map on path
 			putOnPath(dataPath, consolidatedData, methodData);
+			System.out.println("methodData: " + methodData);
+			System.out.println("conslidatedData: " + consolidatedData);
 		}
 	}
 
