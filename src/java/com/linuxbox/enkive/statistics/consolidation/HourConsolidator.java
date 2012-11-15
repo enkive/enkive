@@ -198,8 +198,6 @@ public class HourConsolidator extends AbstractConsolidator {
 			}
 			// store in new map on path
 			putOnPath(dataPath, consolidatedData, methodData);
-			System.out.println("methodData: " + methodData);
-			System.out.println("conslidatedData: " + consolidatedData);
 		}
 	}
 

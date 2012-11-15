@@ -125,7 +125,7 @@ public abstract class EmbeddedConsolidator extends AbstractConsolidator {
 				}
 			}
 		}
-		return null;//storageData;
+		return storageData;
 	}
 
 	@Override
