@@ -364,7 +364,6 @@ public class StatsServlet extends EnkiveServlet {
 								grainType, STAT_INTERVAL, startTimestamp,
 								endTimestamp);
 						//TODO
-						System.out.println(query.getQuery());
 						StatsFilter filter = null;
 						String[] keys = req.getParameterValues(serviceName);
 						// building filter
