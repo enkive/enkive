@@ -39,12 +39,11 @@ import static com.linuxbox.enkive.statistics.StatsConstants.STAT_STORAGE_COLLECT
 
 public class MongoStatsStorageService extends VarsMaker implements
 		StatsStorageService {
-	private static DBCollection coll;
-
+	private static Mongo m;
 	private static DB db;
+	private static DBCollection coll;
 	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.statistics.services.storage.mongodb");
-	private static Mongo m;
 
 	public MongoStatsStorageService(Mongo mongo) {
 		m = mongo;

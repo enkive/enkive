@@ -68,7 +68,7 @@ fi
 
 ENKIVE_LOG_PATH=${ENKIVE_HOME}/data/logs
 ENKIVE_PID_FILE=${ENKIVE_HOME}/data/enkive.pid
-ENKIVE_CLASSPATH=${ENKIVE_HOME}/enkive.jar:${ENKIVE_HOME}/lib/*:${ENKIVE_HOME}/lib/spring/*:${ENKIVE_HOME}/config:${JAVA_HOME}/lib/tools.jar
+ENKIVE_CLASSPATH=${ENKIVE_HOME}/enkive.jar:${ENKIVE_HOME}/lib/*:${ENKIVE_HOME}/lib/spring/*:${ENKIVE_HOME}/lib/james-imap/*:${ENKIVE_HOME}/config:${JAVA_HOME}/lib/tools.jar
 
 
 # the following should likely not be edited

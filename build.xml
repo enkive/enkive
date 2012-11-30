@@ -68,6 +68,7 @@
 		<jar destfile="${package.file.jar}">
 			<fileset dir="${bin.dir}" includes="com/**" />
 			<fileset dir="${bin.dir}" includes="name/**" />
+			<fileset dir="${bin.dir}" includes="org/**" />
 		</jar>
 	</target>
 

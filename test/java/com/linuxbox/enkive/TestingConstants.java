@@ -29,6 +29,8 @@ public interface TestingConstants {
 	public static final String MONGODB_TEST_MESSAGES_COLLECTION = "messages-test";
 	public static final String MONGODB_TEST_DOCUMENTS_COLLECTION = "documents-test";
 	public static final String MONGODB_TEST_LOCK_COLLECTION = "lock-test";
+	public static final String MONGODB_TEST_WORKSPACE_COLLECTION = "workspace-test";
+	public static final String MONGODB_TEST_QUERY_COLLECTION = "searchQuery-test";
 	public static final String MONGODB_TEST_AUDIT_COLLECTION = "audit-test";
 	public static final String MONGODB_TEST_QUEUE_COLLECTION = "queue-test";
 	public static final String MONGODB_TEST_FSFILES_COLLECTION = "documents-test";

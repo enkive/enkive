@@ -54,6 +54,9 @@ import com.linuxbox.enkive.exception.CannotRetrieveException;
 import com.linuxbox.enkive.message.Message;
 import com.linuxbox.enkive.message.search.mongodb.MongoMessageSearchService;
 import com.linuxbox.enkive.retriever.mongodb.MongoRetrieverService;
+import com.linuxbox.enkive.workspace.mongo.MongoSearchQueryBuilder;
+import com.linuxbox.enkive.workspace.mongo.MongoSearchResultBuilder;
+import com.linuxbox.enkive.workspace.searchResult.SearchResultBuilder;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
@@ -90,6 +93,11 @@ public class MongoMessageRetentionPolicyEnforcementTest {
 				TestingConstants.MONGODB_TEST_DATABASE,
 				TestingConstants.MONGODB_TEST_MESSAGES_COLLECTION);
 		searchService.setDocSearchService(docSearchService);
+		searchService.setSearchResultBuilder(new MongoSearchResultBuilder(m,
+				TestingConstants.MONGODB_TEST_DATABASE,
+				TestingConstants.MONGODB_TEST_WORKSPACE_COLLECTION, new MongoSearchQueryBuilder(m,
+						TestingConstants.MONGODB_TEST_DATABASE,
+						TestingConstants.MONGODB_TEST_QUERY_COLLECTION)));
 
 		archiver = new MongoArchivingService(m,
 				TestingConstants.MONGODB_TEST_DATABASE,
