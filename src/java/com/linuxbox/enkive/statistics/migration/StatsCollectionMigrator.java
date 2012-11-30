@@ -49,9 +49,14 @@ public class StatsCollectionMigrator {
 	}
 	
 	private void fixDailyData(Map<String, Object> statsData, Collection<String> methods){
+		double sum = -1;
 		if(methods.contains(CONSOLIDATION_AVG)){
-			
+			sum = (Double)statsData.get(CONSOLIDATION_AVG)*24;
+		} else if(methods.contains(CONSOLIDATION_MAX) && methods.contains(CONSOLIDATION_MIN)) {
+			sum = ((Double)statsData.get(CONSOLIDATION_MAX) + (Double)statsData.get(CONSOLIDATION_MIN))/2;
 		}
+		
+		statsData.put(CONSOLIDATION_SUM, sum);
 	}
 	
 	public StatsCollectionMigrator(Mongo m, StatsClient client){
