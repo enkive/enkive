@@ -37,12 +37,11 @@ import com.mongodb.Mongo;
 
 public class MongoStatsStorageService extends VarsMaker implements
 		StatsStorageService {
-	private static DBCollection coll;
-
+	private static Mongo m;
 	private static DB db;
+	private static DBCollection coll;
 	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.statistics.services.storage.mongodb");
-	private static Mongo m;
 
 	public MongoStatsStorageService(Mongo mongo, String dbName,
 			String collectionName) {
