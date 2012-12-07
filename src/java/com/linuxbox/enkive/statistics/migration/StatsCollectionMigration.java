@@ -2,9 +2,9 @@ package com.linuxbox.enkive.statistics.migration;
 
 import java.net.UnknownHostException;
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -13,8 +13,6 @@ import static com.linuxbox.enkive.statistics.StatsConstants.*;
 import com.linuxbox.enkive.statistics.ConsolidationKeyHandler;
 import com.linuxbox.enkive.statistics.gathering.GathererAttributes;
 import com.linuxbox.enkive.statistics.services.StatsClient;
-import com.linuxbox.enkive.statistics.services.retrieval.StatsQuery;
-import com.linuxbox.enkive.statistics.services.retrieval.mongodb.MongoStatsQuery;
 import com.linuxbox.util.dbmigration.DBInfo;
 import com.linuxbox.util.dbmigration.DBMigration;
 import com.linuxbox.util.dbmigration.DBMigrationException;
@@ -32,16 +30,16 @@ import com.mongodb.Mongo;
  * @author noah
  * 
  */
-public class StatsCollectionMigration extends DBMigration {
+public class StatsCollectionMigration {//extends DBMigration {
 	public StatsCollectionMigration(Mongo m, StatsClient client)
 			throws DBMigrationException {
-		super(null, 1, 12);
+//		super(null, 1, 12);
 		this.client = client;
 		this.m = m;
 		this.enkive = m.getDB("enkive");
 	}
 	
-	public StatsCollectionMigration(DBMigrator migrator, int fromVersion,
+/*	public StatsCollectionMigration(DBMigrator migrator, int fromVersion,
 			int toVersion, Mongo m, StatsClient client)
 			throws DBMigrationException {
 		super(migrator, fromVersion, toVersion);
@@ -49,7 +47,7 @@ public class StatsCollectionMigration extends DBMigration {
 		this.m = m;
 		this.enkive = m.getDB("enkive");
 	}	
-	
+*/	
 	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.statistics.migration");
 	StatsClient client;
@@ -83,8 +81,7 @@ public class StatsCollectionMigration extends DBMigration {
 	 * @param statsData
 	 * @param methods
 	 */
-	private void fixDailyData(Map<String, Object> statsData,
-			Collection<String> methods) {
+	private void fixDailyData(Map<String, Object> statsData, Collection<String> methods) {
 		double sum = -1;
 		if (methods.contains(CONSOLIDATION_AVG)) {
 			sum = (Double) statsData.get(CONSOLIDATION_AVG) * 24;
@@ -97,15 +94,39 @@ public class StatsCollectionMigration extends DBMigration {
 		statsData.put(CONSOLIDATION_SUM, sum);
 	}
 
+	/**
+	 * mutates the given statsMap to make sure it has sums in the relevant places
+	 * @param statsMap
+	 */
+	public void fixDailyStatsMap(Map<String, Object> statsMap) {
+		for(String key: statsMap.keySet()){
+			Object obj = statsMap.get(key);
+			if(obj instanceof Map && !key.equals(STAT_TIMESTAMP)){
+				Map<String, Object> nextMap = (Map<String, Object>)obj;
+				Set<String> keySet = nextMap.keySet();
+				if(keySet.contains(CONSOLIDATION_AVG)){
+					double sum = (Double) nextMap.get(CONSOLIDATION_AVG) * 24;
+					nextMap.put(CONSOLIDATION_SUM, sum);
+				} else if(keySet.contains(CONSOLIDATION_MAX) && keySet.contains(CONSOLIDATION_MIN)) {
+					double max = (Double) nextMap.get(CONSOLIDATION_MAX);
+					double min = (Double) nextMap.get(CONSOLIDATION_MIN);
+					double sum = (max + min)/2;
+					nextMap.put(CONSOLIDATION_SUM, sum);
+				} else {
+					fixDailyStatsMap(nextMap);
+				}
+			}
+		}
+	}
 	
 	
-	@Override
+//	@Override
 	public boolean migrate(DBInfo db) throws DBMigrationException {
 		if (enkive.collectionExists("statistics")) {
 			this.statsCollOld = enkive.getCollection("statistics");
 		} else {
-			// TODO fail
 			LOGGER.error("could not find statistics collection");
+			return false;
 		}
 
 		enkive.getCollection("statisticsV1_2_1").drop();
@@ -114,88 +135,63 @@ public class StatsCollectionMigration extends DBMigration {
 		Integer[] validGrainTypes = {null, CONSOLIDATION_HOUR, CONSOLIDATION_DAY};
 		DBObject goodEntriesQuery = new BasicDBObject(CONSOLIDATION_TYPE, new BasicDBObject("$in", validGrainTypes));
 		
-		//insert fixed data into the new collection one at a time
-		for(DBObject statData: statsCollOld.find(goodEntriesQuery, new BasicDBObject("_id", false)).toArray()){
+		List<DBObject> oldStatsData = statsCollOld.find(goodEntriesQuery, new BasicDBObject("_id", false)).toArray();
+		int count = 0;
+		for(DBObject statData: oldStatsData){
+			Map<String, Object> statDataMap = statData.toMap();
+			Integer  type = (Integer)statDataMap.get(CONSOLIDATION_TYPE);
+			
+			if(type != null && type == CONSOLIDATION_DAY){
+				System.out.println("before: " + statDataMap);
+				fixDailyStatsMap(statDataMap);
+				System.out.println("after: " + statDataMap);
+				count++;
+			}
+		}
+
+		System.exit(1);
+		
+		//insert fixed statsData into the new collection one at a time
+/*		for(DBObject statData: statsCollOld.find(goodEntriesQuery, new BasicDBObject("_id", false)).toArray()){
 			Map<String, Object> statDataMap = statData.toMap();
 			String gathererName = (String)statDataMap.get(STAT_GATHERER_NAME);
-			GathererAttributes attributes = client.getAttributes(gathererName);
-			if(gathererName.equals("CollectionStatsGatherer")){
-				for(ConsolidationKeyHandler keyHandler: attributes.getKeys()){
-					fixDailyData(getData(statDataMap, keyHandler.getKey()), keyHandler.getMethods());
-				}
+			Integer  type = (Integer)statDataMap.get(CONSOLIDATION_TYPE);
+			if(!gathererName.equals("CollectionStatsGatherer") && type == CONSOLIDATION_DAY){
+				GathererAttributes attributes = client.getAttributes(gathererName);
+//				for(ConsolidationKeyHandler keyHandler: attributes.getKeys()){
+				//	fixDailyData(getData(statDataMap, keyHandler.getKey()), keyHandler.getMethods());
+					System.out.println(statDataMap);
+					fixDailyStatsMap(statDataMap);
+					System.out.println(statDataMap);
+//				}
 			} else {
 				//TODO fix CollectionStatsGatherer
 			}
-			statsCollNew.insert(new BasicDBObject(statDataMap));
-		}
-		
-		//statsCollNew.insert(statsCollOld.find(,new BasicDBObject("_id", false)).toArray());
+*/
+//TODO			statsCollNew.insert(new BasicDBObject(statDataMap));
+//		}
+//TODO
 /*
-		// clear out bad weekly data
-		statsCollNew.remove(new BasicDBObject(CONSOLIDATION_TYPE,
-				CONSOLIDATION_WEEK));
-
-		// clear out bad monthly data
-		statsCollNew.remove(new BasicDBObject(CONSOLIDATION_TYPE,
-				CONSOLIDATION_MONTH));
-
-		StatsQuery query = null;
-
-		// get & fix daily data for creation
-		for (GathererAttributes attributes : client.getAttributes()) {
-			query = new MongoStatsQuery(attributes.getName(), CONSOLIDATION_DAY);
-			if (!attributes.getName().equals("CollectionStatsGatherer")) {
-				for (ConsolidationKeyHandler keyHandler : attributes.getKeys()) {
-					if (keyHandler.getMethods() != null) {
-						// get the data
-						for (Map<String, Object> statsData : client
-								.queryStatistics(query)) {
-							// fix data
-							fixDailyData(
-									getData(statsData, keyHandler.getKey()),
-									keyHandler.getMethods());
-						}
-					}
-				}
-			} else {
-				// TODO fix collection stats gatherer
-			}
-		}
-		
-		// TODO
-		// consolidate weekly from daily
-		// consolidate monthly from weekly
-
-		// drop the old statsCollectoin
-		//statsCollOld.drop();
-		// rename the new one 'statistics'
-		statsCollNew.rename(statsCollOld.getName(), true); //TODO the true specifies the drop target being removed...
-		*/
-		return false;
+		//if temp collection already exists delete it
+		enkive.getCollection("statisticsTEMP").drop();
+		//insert all of the old stats collection into it
+		enkive.getCollection("statatisticsTEMP").insert(statsCollOld.find().toArray());
+		//overwrite the old stats collection with the migrated one
+		statsCollNew.rename(statsCollOld.getName(), true);
+		//delete temp collection
+		enkive.getCollection("statisticsTEMP").drop();
+*/		return true;
 	}
 	
-	public static void main(String args[]) throws UnknownHostException, DBMigrationException{
-		Mongo m = new Mongo();
-		DB enkive = m.getDB("enkive");
-		DBCollection statsCollOld = enkive.getCollection("statistics");
-		DBCollection statsCollNew;
-		if (enkive.collectionExists("statistics")) {
-			statsCollOld = enkive.getCollection("statistics");
-		} else {
-			// TODO fail
-			LOGGER.error("could not find statistics collection");
-		}
-
-		enkive.getCollection("statisticsV1_2_1").drop();
-		statsCollNew = enkive.getCollection("statisticsV1_2_1");
-
-		// insert all the old data into the new statistics collection
-		Integer[] validGrainTypes = {null, CONSOLIDATION_HOUR, CONSOLIDATION_DAY};
-		DBObject oldStatsQuery = new BasicDBObject("$in", validGrainTypes);
-		DBObject goodEntriesQuery = new BasicDBObject(CONSOLIDATION_TYPE, oldStatsQuery);
-		for(DBObject statData: statsCollOld.find(goodEntriesQuery, new BasicDBObject("_id", false)).toArray()){
-			System.out.println("statData: " + statData.toString());
+	public static void main(String args[]){
+		try {
+			(new StatsCollectionMigration(new Mongo(), null)).migrate(null);
+		} catch (UnknownHostException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (DBMigrationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
-	
 }
