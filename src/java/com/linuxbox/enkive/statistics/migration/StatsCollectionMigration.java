@@ -31,10 +31,10 @@ import com.mongodb.Mongo;
  * 
  */
 public class StatsCollectionMigration {//extends DBMigration {
-	public StatsCollectionMigration(Mongo m, StatsClient client)
+	public StatsCollectionMigration(Mongo m)//, StatsClient client)
 			throws DBMigrationException {
 //		super(null, 1, 12);
-		this.client = client;
+//		this.client = client;
 		this.m = m;
 		this.enkive = m.getDB("enkive");
 	}
@@ -50,7 +50,7 @@ public class StatsCollectionMigration {//extends DBMigration {
 */	
 	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.statistics.migration");
-	StatsClient client;
+//	StatsClient client;
 	Mongo m;
 	DB enkive;
 	DBCollection metaColl;
@@ -104,16 +104,20 @@ public class StatsCollectionMigration {//extends DBMigration {
 			if(obj instanceof Map && !key.equals(STAT_TIMESTAMP)){
 				Map<String, Object> nextMap = (Map<String, Object>)obj;
 				Set<String> keySet = nextMap.keySet();
-				if(keySet.contains(CONSOLIDATION_AVG)){
-					double sum = (Double) nextMap.get(CONSOLIDATION_AVG) * 24;
-					nextMap.put(CONSOLIDATION_SUM, sum);
-				} else if(keySet.contains(CONSOLIDATION_MAX) && keySet.contains(CONSOLIDATION_MIN)) {
-					double max = (Double) nextMap.get(CONSOLIDATION_MAX);
-					double min = (Double) nextMap.get(CONSOLIDATION_MIN);
-					double sum = (max + min)/2;
-					nextMap.put(CONSOLIDATION_SUM, sum);
-				} else {
-					fixDailyStatsMap(nextMap);
+				if(!keySet.contains(CONSOLIDATION_SUM)){
+					if(keySet.contains(CONSOLIDATION_AVG)){
+						System.out.println("key: " + key);
+						double sum = (Double) nextMap.get(CONSOLIDATION_AVG) * 24;
+						nextMap.put(CONSOLIDATION_SUM, sum);
+						System.out.println(key +" sum: " + sum);
+					} else if(keySet.contains(CONSOLIDATION_MAX)) {
+						double max = (Double) nextMap.get(CONSOLIDATION_MAX);
+						double min = (Double) nextMap.get(CONSOLIDATION_MIN);
+						double sum = (max + min)/2;
+						nextMap.put(CONSOLIDATION_SUM, sum);
+					} else {
+						fixDailyStatsMap(nextMap);
+					}
 				}
 			}
 		}
@@ -136,7 +140,7 @@ public class StatsCollectionMigration {//extends DBMigration {
 		DBObject goodEntriesQuery = new BasicDBObject(CONSOLIDATION_TYPE, new BasicDBObject("$in", validGrainTypes));
 		
 		List<DBObject> oldStatsData = statsCollOld.find(goodEntriesQuery, new BasicDBObject("_id", false)).toArray();
-		int count = 0;
+		
 		for(DBObject statData: oldStatsData){
 			Map<String, Object> statDataMap = statData.toMap();
 			Integer  type = (Integer)statDataMap.get(CONSOLIDATION_TYPE);
@@ -145,8 +149,9 @@ public class StatsCollectionMigration {//extends DBMigration {
 				System.out.println("before: " + statDataMap);
 				fixDailyStatsMap(statDataMap);
 				System.out.println("after: " + statDataMap);
-				count++;
 			}
+			
+			statsCollNew.insert(new BasicDBObject(statDataMap));
 		}
 
 		System.exit(1);
@@ -185,7 +190,7 @@ public class StatsCollectionMigration {//extends DBMigration {
 	
 	public static void main(String args[]){
 		try {
-			(new StatsCollectionMigration(new Mongo(), null)).migrate(null);
+			(new StatsCollectionMigration(new Mongo())).migrate(null);
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
