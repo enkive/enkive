@@ -33,13 +33,14 @@ public class LdapSpringContextPermissionService extends
 
 	@Override
 	public Collection<String> canReadAddresses(String userId) {
-		Collection<String> addresses = new HashSet<String>();
+		Collection<String> addresses;
 
 		// If a specific field for email addresses is not listed
 		// attempt to build it from the dn
 		if (ldapEmailField != null && !ldapEmailField.isEmpty()) {
-			addresses.addAll(getEmailAddressesFromDn(ldapEmailField));
+			addresses = getEmailAddressesFromDn(ldapEmailField);
 		} else {
+			addresses = new HashSet<String>();
 			addresses.add(buildEmailAddressFromDc());
 		}
 
@@ -63,22 +64,39 @@ public class LdapSpringContextPermissionService extends
 		String email = getCurrentUsername() + "@"
 				+ emailDomain.substring(0, emailDomain.length() - 1);
 
+		LOGGER.trace("buildEmailAddressFromDc returning \"" + email + "\".");
+
 		return email;
 	}
 
 	protected Set<String> getEmailAddressesFromDn(String ldapEmailField) {
+		LOGGER.trace("getEmailAddressesFromDn entering with ldapEmailField equal to \""
+				+ ldapEmailField + "\".");
+		
 		Set<String> addresses = new HashSet<String>();
 		LdapUserDetails userDetails = (LdapUserDetails) SecurityContextHolder
 				.getContext().getAuthentication().getPrincipal();
 		String dn = userDetails.getDn();
+		LOGGER.trace("getEmailAddressesFromDn retrieved LDAP user details of \""
+				+ dn + "\".");
+
 		String[] dnList = StringUtils.delimitedListToStringArray(dn, ",");
 
 		for (String dnComponent : dnList) {
+			LOGGER.trace("getEmailAddressesFromDn considering \"" + dnComponent
+					+ "\".");
+
 			if (dnComponent.toLowerCase().startsWith(ldapEmailField + "=")) {
-				addresses
-						.add(dnComponent.substring(ldapEmailField.length() + 1));
+				final String value = dnComponent.substring(ldapEmailField
+						.length() + 1);
+				addresses.add(value);
+				LOGGER.trace("getEmailAddressesFromDn adding \"" + value
+						+ "\".");
 			}
 		}
+		
+		LOGGER.trace("getEmailAddressesFromDn exiting with list of " + addresses.size() + " email addresses.");
+
 		return addresses;
 	}
 
