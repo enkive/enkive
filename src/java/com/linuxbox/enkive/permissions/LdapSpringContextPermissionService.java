@@ -29,7 +29,6 @@ import org.springframework.util.StringUtils;
 
 public class LdapSpringContextPermissionService extends
 		SpringContextPermissionService {
-
 	protected String ldapEmailField;
 
 	@Override
@@ -40,8 +39,9 @@ public class LdapSpringContextPermissionService extends
 		// attempt to build it from the dn
 		if (ldapEmailField != null && !ldapEmailField.isEmpty()) {
 			addresses.addAll(getEmailAddressesFromDn(ldapEmailField));
-		} else
+		} else {
 			addresses.add(buildEmailAddressFromDc());
+		}
 
 		return addresses;
 	}
@@ -56,14 +56,14 @@ public class LdapSpringContextPermissionService extends
 		StringBuilder emailDomain = new StringBuilder();
 
 		for (String dnComponent : dnList) {
-			if (dnComponent.toLowerCase().startsWith("dc="))
+			if (dnComponent.toLowerCase().startsWith("dc=")) {
 				emailDomain.append(dnComponent.substring(3) + ".");
+			}
 		}
 		String email = getCurrentUsername() + "@"
 				+ emailDomain.substring(0, emailDomain.length() - 1);
 
 		return email;
-
 	}
 
 	protected Set<String> getEmailAddressesFromDn(String ldapEmailField) {
@@ -74,9 +74,10 @@ public class LdapSpringContextPermissionService extends
 		String[] dnList = StringUtils.delimitedListToStringArray(dn, ",");
 
 		for (String dnComponent : dnList) {
-			if (dnComponent.toLowerCase().startsWith(ldapEmailField + "="))
+			if (dnComponent.toLowerCase().startsWith(ldapEmailField + "=")) {
 				addresses
 						.add(dnComponent.substring(ldapEmailField.length() + 1));
+			}
 		}
 		return addresses;
 	}
@@ -88,5 +89,4 @@ public class LdapSpringContextPermissionService extends
 	public void setLdapEmailField(String ldapEmailField) {
 		this.ldapEmailField = ldapEmailField;
 	}
-
 }

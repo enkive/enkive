@@ -22,6 +22,8 @@ package com.linuxbox.enkive.permissions;
 import java.util.Collection;
 import java.util.HashSet;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.CollectionUtils;
@@ -32,7 +34,9 @@ import com.linuxbox.enkive.message.MessageSummary;
 import com.linuxbox.enkive.permissions.message.MessagePermissionsService;
 
 public class SpringContextPermissionService implements PermissionService {
-
+	protected final static Log LOGGER = LogFactory
+			.getLog("com.linuxbox.enkive.permissions");
+	
 	MessagePermissionsService messagePermissionService;
 
 	@Override
