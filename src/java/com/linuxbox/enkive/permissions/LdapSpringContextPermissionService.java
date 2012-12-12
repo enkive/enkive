@@ -72,7 +72,7 @@ public class LdapSpringContextPermissionService extends
 	protected Set<String> getEmailAddressesFromDn(String ldapEmailField) {
 		LOGGER.trace("getEmailAddressesFromDn entering with ldapEmailField equal to \""
 				+ ldapEmailField + "\".");
-		
+
 		Set<String> addresses = new HashSet<String>();
 		LdapUserDetails userDetails = (LdapUserDetails) SecurityContextHolder
 				.getContext().getAuthentication().getPrincipal();
@@ -94,8 +94,9 @@ public class LdapSpringContextPermissionService extends
 						+ "\".");
 			}
 		}
-		
-		LOGGER.trace("getEmailAddressesFromDn exiting with list of " + addresses.size() + " email addresses.");
+
+		LOGGER.trace("getEmailAddressesFromDn exiting with list of "
+				+ addresses.size() + " email addresses.");
 
 		return addresses;
 	}
@@ -105,6 +106,8 @@ public class LdapSpringContextPermissionService extends
 	}
 
 	public void setLdapEmailField(String ldapEmailField) {
+		LOGGER.trace("initializing LdapSpringContextPermissionService's LDAP email field to "
+				+ ldapEmailField);
 		this.ldapEmailField = ldapEmailField;
 	}
 }
