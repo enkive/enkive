@@ -32,7 +32,9 @@ public class MongoDBInfo implements DBInfo {
 
 	@Override
 	public int getCurrentVersion() throws DBMigrationException {
-		// TODO needs to call into the DB to get the current version number
+		mongo.getDB(dbName).getCollection("migratorService");
+		// TODO needs to call into the DB to get the current version number of the enkive services (return a set of all of them then
+		//simply pick which one you need
 		throw new DBMigrationException("unimplemented");
 	}
 }

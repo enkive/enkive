@@ -85,12 +85,12 @@ public class ConsolidationRunner {
 			LOGGER.trace("ConsolidationRunner hour() finished");
 		}
 
-//		if (ConsolidationTimeDefs.DAY.isMatch()) {
+		if (ConsolidationTimeDefs.DAY.isMatch()) {
 			LOGGER.trace("ConsolidationRunner day() starting");
 			dayConsolidator.setDates();
 			dayConsolidator.storeConsolidatedData();
 			LOGGER.trace("ConsolidationRunner day() finished");
-//		}
+		}
 
 		if (ConsolidationTimeDefs.WEEK.isMatch()) {
 			LOGGER.trace("ConsolidationRunner week() starting");
