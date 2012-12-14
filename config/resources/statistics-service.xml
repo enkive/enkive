@@ -202,5 +202,11 @@
 		<constructor-arg name="scheduler" ref="ScheduledJobsBean"/>
 		<constructor-arg name="interval" value="15" />
 	</bean>
+
+	<bean id="StatsMigration"
+		class="com.linuxbox.enkive.statistics.migration.StatsCollectionMigration">
+		<constructor-arg name="mongo"  ref="Mongo" />
+		<constructor-arg name="client" ref="StatsClientBean"/>
+	</bean>
 </beans>
 	

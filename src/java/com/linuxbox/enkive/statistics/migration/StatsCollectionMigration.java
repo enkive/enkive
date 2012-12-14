@@ -31,12 +31,13 @@ import com.mongodb.Mongo;
  * 
  */
 public class StatsCollectionMigration {//extends DBMigration {
-	public StatsCollectionMigration(Mongo m)//, StatsClient client)
+	public StatsCollectionMigration(Mongo mongo, StatsClient client)
 			throws DBMigrationException {
 //		super(null, 1, 12);
-//		this.client = client;
-		this.m = m;
+		this.client = client;
+		this.m = mongo;
 		this.enkive = m.getDB("enkive");
+		this.migrate(null);
 	}
 	
 /*	public StatsCollectionMigration(DBMigrator migrator, int fromVersion,
@@ -50,7 +51,7 @@ public class StatsCollectionMigration {//extends DBMigration {
 */	
 	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.statistics.migration");
-//	StatsClient client;
+	StatsClient client;
 	Mongo m;
 	DB enkive;
 	DBCollection metaColl;
@@ -74,30 +75,28 @@ public class StatsCollectionMigration {//extends DBMigration {
 
 	/**
 	 *  fix the daily data
-		if we have the average for the daily then multiply it by 24 to get
-		the sum
-		else if we have the max & min for the daily then average them
-		else store a -1 in the sum meaning no further consolidations may take place
+	 *	if we have the average for the daily then multiply it by 24 to get
+	 *	the sum
+	 *	else if we have the max & min for the daily then average them
+	 *	else store a -1 in the sum meaning no further consolidations may take place
 	 * @param statsData
 	 * @param methods
 	 */
 	private void fixDailyData(Map<String, Object> statsData, Collection<String> methods) {
-		double sum = -1;
-		if (methods.contains(CONSOLIDATION_AVG)) {
-			sum = (Double) statsData.get(CONSOLIDATION_AVG) * 24;
-		} else if (methods.contains(CONSOLIDATION_MAX)
-				&& methods.contains(CONSOLIDATION_MIN)) {
-			sum = ((Double) statsData.get(CONSOLIDATION_MAX) + (Double) statsData
-					.get(CONSOLIDATION_MIN)) / 2;
+		if(!statsData.containsKey(CONSOLIDATION_SUM)){//if already has sum don't change
+			double sum = -1;
+			if (methods.contains(CONSOLIDATION_AVG)) {
+				sum = (Double) statsData.get(CONSOLIDATION_AVG) * 24;
+			} else if (methods.contains(CONSOLIDATION_MAX)
+					&& methods.contains(CONSOLIDATION_MIN)) {
+				sum = ((Double) statsData.get(CONSOLIDATION_MAX) + (Double) statsData
+						.get(CONSOLIDATION_MIN)) / 2;
+			}
+			statsData.put(CONSOLIDATION_SUM, sum);
 		}
-		
-		statsData.put(CONSOLIDATION_SUM, sum);
 	}
 
-	/**
-	 * mutates the given statsMap to make sure it has sums in the relevant places
-	 * @param statsMap
-	 */
+/*	
 	public void fixDailyStatsMap(Map<String, Object> statsMap) {
 		for(String key: statsMap.keySet()){
 			Object obj = statsMap.get(key);
@@ -122,7 +121,7 @@ public class StatsCollectionMigration {//extends DBMigration {
 			}
 		}
 	}
-	
+*/	
 	
 //	@Override
 	public boolean migrate(DBInfo db) throws DBMigrationException {
@@ -139,64 +138,31 @@ public class StatsCollectionMigration {//extends DBMigration {
 		Integer[] validGrainTypes = {null, CONSOLIDATION_HOUR, CONSOLIDATION_DAY};
 		DBObject goodEntriesQuery = new BasicDBObject(CONSOLIDATION_TYPE, new BasicDBObject("$in", validGrainTypes));
 		
-		List<DBObject> oldStatsData = statsCollOld.find(goodEntriesQuery, new BasicDBObject("_id", false)).toArray();
-		
-		for(DBObject statData: oldStatsData){
-			Map<String, Object> statDataMap = statData.toMap();
-			Integer  type = (Integer)statDataMap.get(CONSOLIDATION_TYPE);
-			
-			if(type != null && type == CONSOLIDATION_DAY){
-				System.out.println("before: " + statDataMap);
-				fixDailyStatsMap(statDataMap);
-				System.out.println("after: " + statDataMap);
-			}
-			
-			statsCollNew.insert(new BasicDBObject(statDataMap));
-		}
-
-		System.exit(1);
-		
 		//insert fixed statsData into the new collection one at a time
-/*		for(DBObject statData: statsCollOld.find(goodEntriesQuery, new BasicDBObject("_id", false)).toArray()){
+		for(DBObject statData: statsCollOld.find(goodEntriesQuery, new BasicDBObject("_id", false)).toArray()){
 			Map<String, Object> statDataMap = statData.toMap();
 			String gathererName = (String)statDataMap.get(STAT_GATHERER_NAME);
 			Integer  type = (Integer)statDataMap.get(CONSOLIDATION_TYPE);
-			if(!gathererName.equals("CollectionStatsGatherer") && type == CONSOLIDATION_DAY){
+			if(!gathererName.equals("CollectionStatsGatherer") && type != null && type == CONSOLIDATION_DAY){
 				GathererAttributes attributes = client.getAttributes(gathererName);
-//				for(ConsolidationKeyHandler keyHandler: attributes.getKeys()){
-				//	fixDailyData(getData(statDataMap, keyHandler.getKey()), keyHandler.getMethods());
-					System.out.println(statDataMap);
-					fixDailyStatsMap(statDataMap);
-					System.out.println(statDataMap);
-//				}
-			} else {
-				//TODO fix CollectionStatsGatherer
+				for(ConsolidationKeyHandler keyHandler: attributes.getKeys()){				
+					if(!keyHandler.isPoint() && keyHandler.getMethods() != null){
+						fixDailyData(getData(statDataMap, keyHandler.getKey()), keyHandler.getMethods());
+					}				
+				}
 			}
-*/
-//TODO			statsCollNew.insert(new BasicDBObject(statDataMap));
-//		}
+			statsCollNew.insert(new BasicDBObject(statDataMap));
+		}
 //TODO
 /*
 		//if temp collection already exists delete it
-		enkive.getCollection("statisticsTEMP").drop();
+		enkive.getCollection("statisticsOLD").drop();
 		//insert all of the old stats collection into it
-		enkive.getCollection("statatisticsTEMP").insert(statsCollOld.find().toArray());
+		enkive.getCollection("statatisticsOLD").insert(statsCollOld.find().toArray());
 		//overwrite the old stats collection with the migrated one
 		statsCollNew.rename(statsCollOld.getName(), true);
 		//delete temp collection
-		enkive.getCollection("statisticsTEMP").drop();
+		enkive.getCollection("statisticsOLD").drop();
 */		return true;
-	}
-	
-	public static void main(String args[]){
-		try {
-			(new StatsCollectionMigration(new Mongo())).migrate(null);
-		} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (DBMigrationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 	}
 }
