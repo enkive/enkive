@@ -1,10 +1,6 @@
 package com.linuxbox.util.dbmigration;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public abstract class DBMigration {
-	static Map<Integer, DBMigration> migrations = new HashMap<Integer, DBMigration>();
 	int fromVersion;
 	int toVersion;
 

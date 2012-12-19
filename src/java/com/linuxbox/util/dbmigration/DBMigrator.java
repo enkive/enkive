@@ -27,8 +27,7 @@ public class DBMigrator {
 		while (fromVersion < toVersion) {
 			Integer newVersion = runNext(fromVersion);
 			if (newVersion == null) {
-				//TODO put stuff V here V
-				throw new DBMigrationException("Noah, please put something here");
+				throw new DBMigrationException(migratorName + " could not find the migration for version " + fromVersion);
 			}
 			fromVersion = newVersion;
 		}

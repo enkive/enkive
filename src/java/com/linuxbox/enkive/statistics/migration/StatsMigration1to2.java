@@ -15,20 +15,26 @@ import com.mongodb.Mongo;
  * @author noah
  * 
  */
-public class StatisticsMigration extends DBMigration {
-	public StatisticsMigration(DBMigrator migrator, int fromVersion,
-			int toVersion, Mongo m, String statisticsCollection)
+public class StatsMigration1to2 extends DBMigration {
+	DB enkive;
+	String statsColl;
+	
+	public StatsMigration1to2(DBMigrator migrator, Mongo m, String statisticsCollection)
 			throws DBMigrationException {
-		super(migrator, fromVersion, toVersion);
+		super(migrator, 1, 2);
 		this.enkive = m.getDB("enkive");
 		this.statsColl = statisticsCollection;
 	}
 	
-	DB enkive;
-	String statsColl;
-	
 	@Override
 	public boolean migrate(DBInfo db) throws DBMigrationException {
+		if(db.getCurrentVersion() >= 2){
+			return false;
+		}
+		
+		//we don't care about the data so we don't need to stash it while emptying the DB
+		//we also don't need to recreate the collection as the statistics service will
+		//do that automatically for us
 		enkive.getCollection(statsColl).drop();
 		
 		DBObject statsVersion = new BasicDBObject("service", "statistics");
