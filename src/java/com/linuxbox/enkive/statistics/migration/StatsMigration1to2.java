@@ -1,9 +1,12 @@
 package com.linuxbox.enkive.statistics.migration;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import com.linuxbox.util.dbmigration.DBInfo;
 import com.linuxbox.util.dbmigration.DBMigration;
 import com.linuxbox.util.dbmigration.DBMigrationException;
-import com.linuxbox.util.dbmigration.DBMigrator;
+//import com.linuxbox.util.dbmigration.DBMigrator;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBObject;
@@ -16,13 +19,16 @@ import com.mongodb.Mongo;
  * 
  */
 public class StatsMigration1to2 extends DBMigration {
+	protected final static Log LOGGER = LogFactory
+			.getLog("com.linuxbox.enkive.statistics.migration.StatsMigration1to2");
 	DB enkive;
 	String statsColl;
 	
-	public StatsMigration1to2(DBMigrator migrator, Mongo m, String statisticsCollection)
+	public StatsMigration1to2(Mongo m, String dbName, String statisticsCollection)
 			throws DBMigrationException {
-		super(migrator, 1, 2);
-		this.enkive = m.getDB("enkive");
+//		super(migrator, 1, 2);
+		super(1, 2);
+		this.enkive = m.getDB(dbName);
 		this.statsColl = statisticsCollection;
 	}
 	
@@ -32,6 +38,7 @@ public class StatsMigration1to2 extends DBMigration {
 			return false;
 		}
 		
+		LOGGER.info("Running statistics migration 1 to 2");
 		//we don't care about the data so we don't need to stash it while emptying the DB
 		//we also don't need to recreate the collection as the statistics service will
 		//do that automatically for us
