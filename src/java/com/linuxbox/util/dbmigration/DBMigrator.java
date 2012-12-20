@@ -1,7 +1,6 @@
 package com.linuxbox.util.dbmigration;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
@@ -19,13 +18,6 @@ public class DBMigrator {
 	public DBMigrator(String migratorName, DBInfo db) {
 		this.migratorName = migratorName;
 		this.db = db;
-	}
-	
-	public DBMigrator(String migratorName, DBInfo db, List<DBMigration> migration) throws DBMigrationException{
-		this(migratorName, db);
-		for(DBMigration m: migration){
-			registerMigration(m);
-		}
 	}
 
 	public void registerMigration(DBMigration migration)
@@ -77,6 +69,7 @@ public class DBMigrator {
 			return null;
 		} else {
 			nextMigration.migrate(db);
+			// NOAH: is this the best place to update the stored version number?
 			return nextMigration.toVersion;
 		}
 	}
