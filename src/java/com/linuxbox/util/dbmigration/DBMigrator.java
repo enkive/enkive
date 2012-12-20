@@ -1,7 +1,6 @@
 package com.linuxbox.util.dbmigration;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
@@ -21,14 +20,6 @@ public class DBMigrator {
 	protected DBMigrator(String migratorName, DBInfo db) {
 		this.migratorName = migratorName;
 		this.db = db;
-	}
-
-	public DBMigrator(String migratorName, DBInfo db,
-			List<DBMigration> migration) throws DBMigrationException {
-		this(migratorName, db);
-		for (DBMigration m : migration) {
-			registerMigration(m);
-		}
 	}
 
 	public void registerMigration(DBMigration migration)
@@ -54,13 +45,13 @@ public class DBMigrator {
 		return toVersion;
 	}
 
+	//TODO this will be replaced by the DBMigrationService
 	@PostConstruct
 	public void init() {
 		LOGGER.info("Running " + migratorName);
 		try {
 			runAll(db.getCurrentVersion());
 		} catch (DBMigrationException e) {
-			// TODO not sure what to do in this case
 			e.printStackTrace();
 		}
 	}
@@ -81,6 +72,7 @@ public class DBMigrator {
 			return null;
 		} else {
 			nextMigration.migrate(db);
+			//TODO Update version here?
 			return nextMigration.toVersion;
 		}
 	}

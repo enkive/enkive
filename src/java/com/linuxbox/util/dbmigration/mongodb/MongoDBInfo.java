@@ -31,7 +31,6 @@ public class MongoDBInfo implements DBInfo {
 		}
 	}
 
-	// I don't understand how these methods are supposed to be used.
 	public Mongo getMongo() {
 		return mongo;
 	}
