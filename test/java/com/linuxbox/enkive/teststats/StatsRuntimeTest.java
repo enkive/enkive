@@ -1,11 +1,33 @@
+/*******************************************************************************
+ * Copyright 2012 The Linux Box Corporation.
+ * 
+ * This file is part of Enkive CE (Community Edition).
+ * Enkive CE is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of
+ * the License, or (at your option) any later version.
+ * 
+ * Enkive CE is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Affero General Public
+ * License along with Enkive CE. If not, see
+ * <http://www.gnu.org/licenses/>.
+ ******************************************************************************/
 package com.linuxbox.enkive.teststats;
 
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_FREE_MEMORY;
+import static com.linuxbox.enkive.statistics.StatsConstants.STAT_GATHERER_NAME;
+import static com.linuxbox.enkive.statistics.StatsConstants.STAT_INTERVAL;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_MAX_MEMORY;
+import static com.linuxbox.enkive.statistics.StatsConstants.STAT_POINT;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_PROCESSORS;
-import static com.linuxbox.enkive.statistics.StatsConstants.STAT_SERVICE_NAME;
-import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIME_STAMP;
+import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIMESTAMP;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TOTAL_MEMORY;
+import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_MAX;
+import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_MIN;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -20,9 +42,11 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.linuxbox.enkive.statistics.KeyConsolidationHandler;
+import com.linuxbox.enkive.statistics.ConsolidationKeyHandler;
+import com.linuxbox.enkive.statistics.RawStats;
 import com.linuxbox.enkive.statistics.gathering.StatsRuntimeGatherer;
 
+@SuppressWarnings("unchecked")
 public class StatsRuntimeTest {
 	private final static String serviceName = "RuntimeGatherer";
 	protected static StatsRuntimeGatherer rtStat = null;
@@ -30,15 +54,16 @@ public class StatsRuntimeTest {
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		
+
 		List<String> keys = new LinkedList<String>();
-		keys.add("freeM:avg,max,min");
-		keys.add("maxM:avg,max,min");
-		keys.add("totM:avg,max,min");
-		keys.add("cores:avg,max,min");
-		rtStat = new StatsRuntimeGatherer(
-				serviceName, "0 * * * * ?", keys);
-		stats = rtStat.getStatistics();
+		keys.add("freeM:avg,max,min:Free Memory:bytes:point");
+		keys.add("maxM:avg,max,min:Max Memory:bytes:point");
+		keys.add("totM:avg,max,min:Total Memory:bytes:point");
+		keys.add("cores:avg,max,min:Processors::point");
+		rtStat = new StatsRuntimeGatherer(serviceName, "Runtime Statistics",
+				keys);
+		RawStats rawStats = rtStat.getStatistics();
+		stats = rawStats.toMap();
 	}
 
 	@AfterClass
@@ -53,16 +78,12 @@ public class StatsRuntimeTest {
 	public void tearDown() throws Exception {
 	}
 
-	@SuppressWarnings("unchecked")
 	public boolean checkFormat(Map<String, Object> stats,
 			LinkedList<String> path) {
-		if (path.contains(STAT_SERVICE_NAME)) {
-			return true;
-		}
-
-		if (path.isEmpty()) {
+		if (stats == null || path.isEmpty()) {
 			return false;
 		}
+
 		String key = path.getFirst();
 		if (path.size() == 1) {
 			if (key.equals("*"))
@@ -99,17 +120,67 @@ public class StatsRuntimeTest {
 
 	@Test
 	public void testAttributes() {
-		for (KeyConsolidationHandler key : rtStat.getAttributes().getKeys()) {
+		for (ConsolidationKeyHandler key : rtStat.getAttributes().getKeys()) {
 			LinkedList<String> path = key.getKey();
-			assertTrue("the format is incorrect for path: " + path,
-					checkFormat(stats, path));
+			if (path.contains(STAT_GATHERER_NAME)
+					|| path.contains(STAT_TIMESTAMP)) {
+				continue;
+			}
+			if (key.isPoint()) {
+				assertTrue(
+						"the format is incorrect for path: " + path,
+						checkFormat(
+								(Map<String, Object>) stats.get(STAT_POINT),
+								path));
+			} else {
+				assertTrue(
+						"the format is incorrect for path: " + path,
+						checkFormat(
+								(Map<String, Object>) stats.get(STAT_INTERVAL),
+								path));
+			}
 		}
 	}
 
 	@Test
-	public void keyCountMatches() {
-		int numKeys = stats.keySet().size();
-		assertTrue("numKeys doesn't match: numKeys = " + numKeys, numKeys == 5);
+	public void pointKeyCountMatches() {
+		int numKeys = 0;
+		int pointKeyCount = 0;
+		for (ConsolidationKeyHandler key : rtStat.getAttributes().getKeys()) {
+			if (key.isPoint() && key.getMethods() != null) {
+				pointKeyCount++;
+			}
+		}
+
+		if (stats.containsKey(STAT_POINT)) {
+			Map<String, Object> pointStats = (Map<String, Object>) stats
+					.get(STAT_POINT);
+			numKeys += pointStats.keySet().size();
+		}
+
+		assertTrue("numKeys doesn't match: numKeys = " + numKeys,
+				numKeys == pointKeyCount);
+	}
+
+	@Test
+	public void intervalKeyCountMatches() {
+		int numKeys = 0;
+		int intervalKeyCount = 0;
+		for (ConsolidationKeyHandler key : rtStat.getAttributes().getKeys()) {
+			if (!key.isPoint() && key.getMethods() != null) {
+				System.out.println("Human Name: " + key.getHumanKey());
+				intervalKeyCount++;
+			}
+		}
+
+		if (stats.containsKey(STAT_INTERVAL)) {
+			Map<String, Object> pointStats = (Map<String, Object>) stats
+					.get(STAT_INTERVAL);
+			numKeys += pointStats.keySet().size();
+		}
+
+		assertTrue("numKeys doesn't match: numKeys = " + numKeys,
+				numKeys == intervalKeyCount);
 	}
 
 	@Test
@@ -119,44 +190,67 @@ public class StatsRuntimeTest {
 		assertTrue(sn.equals(serviceName));
 	}
 
+	@SuppressWarnings("unchecked")
 	@Test
 	public void hasTimeStamp() {
-		Date time = ((Date) stats.get(STAT_TIME_STAMP));
+		Map<String, Object> time = (Map<String, Object>) stats
+				.get(STAT_TIMESTAMP);
 		assertTrue("runtime test exception in hasTimeStamp(): time = " + time,
 				time != null);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Test
-	public void timeGTZero() {
-		Date time = ((Date) stats.get(STAT_TIME_STAMP));
-		assertTrue("runtime test exception in timeGTZero(): time = " + time,
-				time.getTime() > 0);
+	public void upperTimeGTZero() {
+		Map<String, Object> time = (Map<String, Object>) stats
+				.get(STAT_TIMESTAMP);
+		Date date = ((Date) time.get(CONSOLIDATION_MAX));
+		assertTrue("runtime test exception in timeGTZero(): date = " + date,
+				date.getTime() > 0);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test
+	public void lowerTimeGTZero() {
+		Map<String, Object> time = (Map<String, Object>) stats
+				.get(STAT_TIMESTAMP);
+		Date date = ((Date) time.get(CONSOLIDATION_MIN));
+		assertTrue("runtime test exception in timeGTZero(): date = " + date,
+				date.getTime() > 0);
 	}
 
 	@Test
 	public void maxMem() {
-		long memory = ((Long) stats.get(STAT_MAX_MEMORY)).longValue();
+		Map<String, Object> ptStats = (Map<String, Object>) stats
+				.get(STAT_POINT);
+		long memory = ((Long) ptStats.get(STAT_MAX_MEMORY)).longValue();
 		assertTrue("runtime test exception in maxMem(): memory = " + memory,
 				memory > 0);
 	}
 
 	@Test
 	public void freeMem() {
-		long memory = ((Long) stats.get(STAT_FREE_MEMORY)).longValue();
+		Map<String, Object> ptStats = (Map<String, Object>) stats
+				.get(STAT_POINT);
+		long memory = ((Long) ptStats.get(STAT_FREE_MEMORY)).longValue();
 		assertTrue("runtime test exception in freeMem(): memory = " + memory,
 				memory > 0);
 	}
 
 	@Test
 	public void totalMem() {
-		long memory = ((Long) stats.get(STAT_TOTAL_MEMORY)).longValue();
+		Map<String, Object> ptStats = (Map<String, Object>) stats
+				.get(STAT_POINT);
+		long memory = ((Long) ptStats.get(STAT_TOTAL_MEMORY)).longValue();
 		assertTrue("runtime test exception in totalMem(): memory = " + memory,
 				memory > 0);
 	}
 
 	@Test
 	public void processors() {
-		int numProcessors = ((Integer) stats.get(STAT_PROCESSORS)).intValue();
+		Map<String, Object> ptStats = (Map<String, Object>) stats
+				.get(STAT_POINT);
+		int numProcessors = ((Integer) ptStats.get(STAT_PROCESSORS)).intValue();
 		assertTrue("runtime test exception in processors(): numProcessors = "
 				+ numProcessors, numProcessors > 0);
 	}

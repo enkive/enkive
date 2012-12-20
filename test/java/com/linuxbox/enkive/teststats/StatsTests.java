@@ -28,10 +28,10 @@ import org.junit.runners.Suite;
 @RunWith(Suite.class)
 @Suite.SuiteClasses({ StatsMongoAttachTest.class, StatsClientTest.class,
 		StatsMongoCollTest.class, StatsMongoDBTest.class,
-		StatsRemovalTest.class, StatsMsgEntriesTest.class,
-		StatsRuntimeTest.class, StatsMongoStorageAndRetrievalTest.class,
-		StatsHourGrainTest.class, StatsDayGrainTest.class,
-		StatsWeekGrainTest.class, StatsMonthGrainTest.class })
+		StatsRemovalTest.class, StatsMsgTest.class, StatsRuntimeTest.class,
+		StatsMongoStorageAndRetrievalTest.class, StatsHourGrainTest.class,
+		StatsDayGrainTest.class, StatsWeekGrainTest.class,
+		StatsMonthGrainTest.class })
 public class StatsTests {
 	public static Test suite() {
 		TestSuite suite = new TestSuite(StatsTests.class.getName());

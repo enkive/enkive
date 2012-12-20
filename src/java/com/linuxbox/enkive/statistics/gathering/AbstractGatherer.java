@@ -1,133 +1,167 @@
+/*******************************************************************************
+ * Copyright 2012 The Linux Box Corporation.
+ * 
+ * This file is part of Enkive CE (Community Edition).
+ * Enkive CE is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of
+ * the License, or (at your option) any later version.
+ * 
+ * Enkive CE is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Affero General Public
+ * License along with Enkive CE. If not, see
+ * <http://www.gnu.org/licenses/>.
+ ******************************************************************************/
 package com.linuxbox.enkive.statistics.gathering;
 
-import static com.linuxbox.enkive.statistics.StatsConstants.STAT_SERVICE_NAME;
-import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIME_STAMP;
+import static com.linuxbox.enkive.statistics.StatsConstants.STAT_INTERVAL;
+import static com.linuxbox.enkive.statistics.StatsConstants.STAT_POINT;
+import static com.linuxbox.enkive.statistics.VarsMaker.createMap;
 
-import java.text.ParseException;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.PostConstruct;
-
-import org.quartz.JobDetail;
-import org.quartz.Scheduler;
-import org.springframework.scheduling.quartz.CronTriggerBean;
-import org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean;
-
-import com.linuxbox.enkive.statistics.VarsMaker;
+import com.linuxbox.enkive.statistics.ConsolidationKeyHandler;
+import com.linuxbox.enkive.statistics.RawStats;
 import com.linuxbox.enkive.statistics.services.StatsStorageService;
 import com.linuxbox.enkive.statistics.services.storage.StatsStorageException;
-import com.linuxbox.enkive.statistics.KeyConsolidationHandler;
 
-public abstract class AbstractGatherer extends VarsMaker implements
-		GathererInterface {
+public abstract class AbstractGatherer implements Gatherer {
 	protected GathererAttributes attributes;
-	protected Scheduler scheduler;
 	protected StatsStorageService storageService;
 	protected List<String> keys;
-	private String serviceName;
-	private String schedule;
+	private String gathererName;
+	private String humanName;
 
-	public AbstractGatherer(String serviceName, String schedule) {
-		this.serviceName = serviceName;
-		this.schedule = schedule;
-	}
-	
-	public AbstractGatherer(String serviceName, String schedule, List<String> keys) throws GathererException {
-		this(serviceName, schedule);
+	public AbstractGatherer(String gathererName, String humanName,
+			List<String> keys) throws GathererException {
+		this.gathererName = gathererName;
+		this.humanName = humanName;
 		setKeys(keys);
 	}
-	
+
 	@Override
 	public GathererAttributes getAttributes() {
 		return attributes;
 	}
 
+	// BY DEFAULT ASSUME 15 MINUTE INTERVALS
 	@Override
-	public abstract Map<String, Object> getStatistics();
+	public RawStats getStatistics() throws GathererException {
+		int interval = 15;
+		Calendar cal = Calendar.getInstance();
+		cal.set(Calendar.MILLISECOND, 0);
+		cal.set(Calendar.SECOND, 0);
+		Date endDate = cal.getTime();
+		cal.add(Calendar.MINUTE, -interval);
+		Date startDate = cal.getTime();
+
+		return getStatistics(startDate, endDate);
+	}
+
+	protected abstract Map<String, Object> getPointStatistics(
+			Date startTimestamp, Date endTimestamp) throws GathererException;
+
+	protected abstract Map<String, Object> getIntervalStatistics(
+			Date startTimestamp, Date endTimestamp) throws GathererException;
 
 	@Override
-	public Map<String, Object> getStatistics(String[] keys) {
-		if (keys == null) {
-			return getStatistics();
+	public RawStats getStatistics(Date startTimestamp, Date endTimestamp)
+			throws GathererException {
+		if (startTimestamp == null || endTimestamp == null) {
+			throw new GathererException(
+					"A Date is null in getStatistics(Date, Date)");
 		}
-		Map<String, Object> stats = getStatistics();
-		Map<String, Object> selectedStats = createMap();
-		for (String key : keys) {
-			if (stats.get(key) != null) {
-				selectedStats.put(key, stats.get(key));
+
+		Map<String, Object> intervalStats = getIntervalStatistics(
+				startTimestamp, endTimestamp);
+		Map<String, Object> pointStats = getPointStatistics(startTimestamp,
+				endTimestamp);
+
+		return new RawStats(intervalStats, pointStats, startTimestamp,
+				endTimestamp);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public RawStats getStatistics(List<String> intervalKeys,
+			List<String> pointKeys) throws GathererException {
+		if (intervalKeys == null && pointKeys == null) {
+			throw new GathererException(
+					"intervalKeys and pointKeys are both null in getStatistics(String[], String[])");
+		}
+		RawStats rawStats = getStatistics();
+		Map<String, Object> data = rawStats.toMap();
+
+		Map<String, Object> intervalData = null;
+		Map<String, Object> intervalResult = null;
+
+		if (data.containsKey(STAT_INTERVAL) && intervalKeys != null
+				&& intervalKeys.size() != 0) {
+			intervalData = (Map<String, Object>) data.get(STAT_INTERVAL);
+			intervalResult = createMap();
+			for (String statName : intervalKeys) {
+				if (intervalData.containsKey(statName)) {
+					intervalResult.put(statName, intervalData.get(statName));
+				}
 			}
 		}
 
-		selectedStats.put(STAT_SERVICE_NAME, attributes.getName());
+		Map<String, Object> pointData = null;
+		Map<String, Object> pointResult = null;
 
-		if (selectedStats.get(STAT_TIME_STAMP) == null
-				&& stats.get(STAT_TIME_STAMP) != null) {
-			selectedStats.put(STAT_TIME_STAMP, stats.get(STAT_TIME_STAMP));
-		} else {
-			selectedStats.put(STAT_TIME_STAMP,
-					new Date());
+		if (data.containsKey(STAT_POINT) && pointKeys != null
+				&& pointKeys.size() != 0) {
+			pointData = (Map<String, Object>) data.get(STAT_POINT);
+			pointResult = createMap();
+			for (String statName : pointKeys) {
+				if (pointData.containsKey(statName)) {
+					pointResult.put(statName, pointData.get(statName));
+				}
+			}
 		}
 
-		return selectedStats;
-	}
-	
-	/**
-	 * initialization method called to give quartz this gatherer
-	 * @throws Exception
-	 */
-	@PostConstruct
-	protected void init() throws Exception {
-		// create attributes
-		attributes = new GathererAttributes(serviceName, schedule, keyBuilder(keys));
-		
-		// create factory
-		MethodInvokingJobDetailFactoryBean jobDetail = new MethodInvokingJobDetailFactoryBean();
-		jobDetail.setTargetObject(this);
-		jobDetail.setName(attributes.getName());
-		jobDetail.setTargetMethod("storeStats");
-		jobDetail.setConcurrent(false);
-		jobDetail.afterPropertiesSet();
+		Date start = rawStats.getStartDate();
+		Date end = rawStats.getEndDate();
+		RawStats result = new RawStats(intervalResult, pointResult, start, end);
 
-		// create trigger
-		CronTriggerBean trigger = new CronTriggerBean();
-		trigger.setBeanName(attributes.getName());
-		trigger.setJobDetail((JobDetail) jobDetail.getObject());
-		trigger.setCronExpression(attributes.getSchedule());
-		trigger.afterPropertiesSet();
-
-		// add to schedule defined in spring xml
-		scheduler.scheduleJob((JobDetail) jobDetail.getObject(), trigger);
+		return result;
 	}
 
 	/**
-	 * builds the list of keyConsolidationHandlers in order to allow the raw data created
-	 * by this gatherer to be consolidated
-	 * @param keyList - a list of dot-notation formatted strings: "coll.date:max,min,avg"
-	 * the key's levels are specified by periods and the key is separated from the methods by a 
-	 * colon. An asterisk may be used as an 'any' to go down a level in a map, such as:
-	 * "*.date:max,min,avg"
+	 * builds the list of keyConsolidationHandlers that allow the attributes
+	 * class to define how data is stored by this gatherer (and how it should be
+	 * accessed for consolidation)
+	 * 
+	 * @param keyList
+	 *            - a list of dot-notation formatted strings:
+	 *            "coll.date:max,min,avg" the key's levels are specified by
+	 *            periods and the key is separated from the methods by a colon.
+	 *            An asterisk may be used as an 'any' to go down a level in a
+	 *            map, such as: "*.date:max,min,avg"
 	 * @return returns the instantiated consolidation list
-	 * @throws GathererException 
+	 * @throws GathererException
 	 */
-	protected List<KeyConsolidationHandler> keyBuilder(List<String> keyList) throws GathererException {
-		if(keyList == null){
-			throw new GathererException("keys were not set for " + serviceName);
+	protected List<ConsolidationKeyHandler> keyBuilder(List<String> keyList)
+			throws GathererException {
+		if (keyList == null) {
+			throw new GathererException("keys were not set for " + gathererName);
 		}
-		
-		List<KeyConsolidationHandler> keys = new LinkedList<KeyConsolidationHandler>();
+
+		List<ConsolidationKeyHandler> keys = new LinkedList<ConsolidationKeyHandler>();
 		if (keyList != null) {
 			for (String key : keyList) {
-				keys.add(new KeyConsolidationHandler(key));
+				keys.add(new ConsolidationKeyHandler(key));
 			}
 		}
 		return keys;
-	}
-
-	public void setScheduler(Scheduler scheduler) {
-		this.scheduler = scheduler;
 	}
 
 	@Override
@@ -136,20 +170,25 @@ public abstract class AbstractGatherer extends VarsMaker implements
 	}
 
 	@Override
-	public void storeStats() throws StatsStorageException {
-		if (getStatistics() != null) {
-			storageService.storeStatistics(attributes.getName(),
-					getStatistics());
+	public void storeStats() throws GathererException {
+		RawStats stats = getStatistics();
+		storeStats(stats);
+	}
+
+	@Override
+	public void storeStats(RawStats stats) throws GathererException {
+		if (stats != null) {
+			try {
+				storageService.storeStatistics(attributes.getName(), stats);
+			} catch (StatsStorageException e) {
+				throw new GathererException(e);
+			}
 		}
 	}
 
 	public void setKeys(List<String> keys) throws GathererException {
 		this.keys = keys;
-		// create attributes
-		try {
-			attributes = new GathererAttributes(serviceName, schedule, keyBuilder(keys));
-		} catch (ParseException e) {
-			throw new GathererException("parseException in attributes constructor", e);
-		}
+		attributes = new GathererAttributes(gathererName, humanName,
+				keyBuilder(keys));
 	}
 }

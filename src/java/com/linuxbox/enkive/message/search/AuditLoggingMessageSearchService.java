@@ -23,7 +23,6 @@
 package com.linuxbox.enkive.message.search;
 
 import java.util.HashMap;
-import java.util.Set;
 import java.util.concurrent.Future;
 
 import org.apache.commons.logging.Log;
@@ -34,7 +33,7 @@ import com.linuxbox.enkive.audit.AuditServiceException;
 import com.linuxbox.enkive.authentication.AuthenticationException;
 import com.linuxbox.enkive.authentication.AuthenticationService;
 import com.linuxbox.enkive.message.search.exception.MessageSearchException;
-import com.linuxbox.enkive.workspace.SearchResult;
+import com.linuxbox.enkive.workspace.searchResult.SearchResult;
 
 public class AuditLoggingMessageSearchService implements MessageSearchService {
 
@@ -70,14 +69,6 @@ public class AuditLoggingMessageSearchService implements MessageSearchService {
 		}
 	}
 
-	@Override
-	public int countSearch(HashMap<String, String> fields)
-			throws MessageSearchException {
-		SearchResult search = search(fields);
-		Set<String> searchSet = search.getMessageIds();
-		return searchSet.size();
-	}
-	
 	public AuthenticationService getAuthenticationService() {
 		return authenticationService;
 	}

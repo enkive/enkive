@@ -20,7 +20,6 @@
 package com.linuxbox.enkive.message.search;
 
 import java.util.HashMap;
-import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
@@ -33,12 +32,14 @@ import org.apache.commons.logging.LogFactory;
 import com.linuxbox.enkive.authentication.AuthenticationException;
 import com.linuxbox.enkive.authentication.AuthenticationService;
 import com.linuxbox.enkive.message.search.exception.MessageSearchException;
-import com.linuxbox.enkive.workspace.SearchQuery;
-import com.linuxbox.enkive.workspace.SearchResult;
-import com.linuxbox.enkive.workspace.SearchResult.Status;
 import com.linuxbox.enkive.workspace.Workspace;
 import com.linuxbox.enkive.workspace.WorkspaceException;
 import com.linuxbox.enkive.workspace.WorkspaceService;
+import com.linuxbox.enkive.workspace.searchQuery.SearchQuery;
+import com.linuxbox.enkive.workspace.searchQuery.SearchQueryBuilder;
+import com.linuxbox.enkive.workspace.searchResult.SearchResult;
+import com.linuxbox.enkive.workspace.searchResult.SearchResult.Status;
+import com.linuxbox.enkive.workspace.searchResult.SearchResultBuilder;
 import com.linuxbox.util.threadpool.CancellableProcessExecutor;
 
 public class TaskPoolAsyncMessageSearchService implements MessageSearchService {
@@ -50,6 +51,8 @@ public class TaskPoolAsyncMessageSearchService implements MessageSearchService {
 	MessageSearchService messageSearchService;
 	WorkspaceService workspaceService;
 	AuthenticationService authenticationService;
+	SearchResultBuilder searchResultBuilder;
+	SearchQueryBuilder searchQueryBuilder;
 
 	public TaskPoolAsyncMessageSearchService(int corePoolSize, int maxPoolSize,
 			int keepAliveTime) {
@@ -59,21 +62,13 @@ public class TaskPoolAsyncMessageSearchService implements MessageSearchService {
 	}
 
 	@Override
-	public int countSearch(HashMap<String, String> fields)
-			throws MessageSearchException {
-		SearchResult search = search(fields);
-		Set<String> searchSet = search.getMessageIds();
-		return searchSet.size();
-	}
-	
-	@Override
 	public Future<SearchResult> searchAsync(HashMap<String, String> fields)
 			throws MessageSearchException {
-
 		String searchResultId = createSearchResult(fields);
 
 		Callable<SearchResult> searchCall = new AsynchronousSearchThread(
-				fields, searchResultId, messageSearchService, workspaceService);
+				fields, searchResultId, messageSearchService,
+				searchResultBuilder);
 
 		try {
 			@SuppressWarnings("unchecked")
@@ -93,11 +88,11 @@ public class TaskPoolAsyncMessageSearchService implements MessageSearchService {
 		boolean searchCancelled = false;
 
 		try {
-			SearchResult searchResult = workspaceService
+			SearchResult searchResult = searchResultBuilder
 					.getSearchResult(searchResultId);
 
 			searchResult.setStatus(Status.CANCEL_REQUESTED);
-			workspaceService.saveSearchResult(searchResult);
+			searchResult.saveSearchResult();
 
 			searchCancelled = searchExecutor.cancelSearch(searchResultId);
 
@@ -105,7 +100,7 @@ public class TaskPoolAsyncMessageSearchService implements MessageSearchService {
 				searchResult.setStatus(Status.CANCELED);
 			else
 				searchResult.setStatus(Status.ERROR);
-			workspaceService.saveSearchResult(searchResult);
+			searchResult.saveSearchResult();
 		} catch (WorkspaceException e) {
 			throw new MessageSearchException("Could not mark search "
 					+ searchResultId + " as canceled", e);
@@ -119,20 +114,19 @@ public class TaskPoolAsyncMessageSearchService implements MessageSearchService {
 		try {
 			Workspace workspace = workspaceService
 					.getActiveWorkspace(authenticationService.getUserName());
-			SearchQuery query = new SearchQuery();
+
+			SearchQuery query = searchQueryBuilder.getSearchQuery();
 			query.setCriteria(fields);
+			query.saveSearchQuery();
 
-			query.setId(workspaceService.saveSearchQuery(query));
-
-			SearchResult result = new SearchResult();
+			SearchResult result = searchResultBuilder.getSearchResult();
 			result.setSearchQueryId(query.getId());
 			result.setExecutedBy(authenticationService.getUserName());
 			result.setStatus(Status.QUEUED);
-			String resultId = workspaceService.saveSearchResult(result);
-			result.setId(resultId);
-			workspace.addSearchResult(resultId);
-			workspaceService.saveWorkspace(workspace);
-			return resultId;
+			result.saveSearchResult();
+			workspace.addSearchResult(result.getId());
+			workspace.saveWorkspace();
+			return result.getId();
 		} catch (WorkspaceException e) {
 			throw new MessageSearchException("Could not save search query", e);
 		} catch (AuthenticationException e) {
@@ -171,6 +165,22 @@ public class TaskPoolAsyncMessageSearchService implements MessageSearchService {
 	public void setAuthenticationService(
 			AuthenticationService authenticationService) {
 		this.authenticationService = authenticationService;
+	}
+
+	public SearchResultBuilder getSearchResultBuilder() {
+		return searchResultBuilder;
+	}
+
+	public void setSearchResultBuilder(SearchResultBuilder searchResultBuilder) {
+		this.searchResultBuilder = searchResultBuilder;
+	}
+
+	public SearchQueryBuilder getSearchQueryBuilder() {
+		return searchQueryBuilder;
+	}
+
+	public void setSearchQueryBuilder(SearchQueryBuilder searchQueryBuilder) {
+		this.searchQueryBuilder = searchQueryBuilder;
 	}
 
 }

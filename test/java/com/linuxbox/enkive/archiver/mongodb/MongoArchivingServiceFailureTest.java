@@ -105,7 +105,6 @@ public class MongoArchivingServiceFailureTest {
 	public void testMessageStore() throws CannotArchiveException,
 			FailedToEmergencySaveException, AuditServiceException, IOException {
 		String messageUUID = archiver.storeOrFindMessage(message);
-		System.out.println(messageUUID);
 		assertEquals("Identifiers should be the same",
 				archiver.findMessage(message), messageUUID);
 	}

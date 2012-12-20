@@ -12,9 +12,10 @@
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/cglib-2.2.2.jar"/>
 	<classpathentry kind="lib" path="lib/commons-math3-3.0.jar"/>
+	<classpathentry kind="lib" path="lib/james-imap/james-server-container-spring-3.0-beta4.jar" sourcepath="/home/lee/.m2/repository/org/apache/james/james-server-container-spring/3.0-beta4/james-server-container-spring-3.0-beta4-sources.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="lib" path="lib/spring/org.springframework.asm-3.0.5.RELEASE.jar"/>
-	<classpathentry kind="lib" path="lib/spring/org.springframework.beans-3.0.5.RELEASE.jar"/>
+	<classpathentry kind="lib" path="lib/spring/org.springframework.beans-3.0.5.RELEASE.jar" sourcepath="/home/lee/.m2/repository/org/springframework/spring-beans/3.0.5.RELEASE/spring-beans-3.0.5.RELEASE-sources.jar"/>
 	<classpathentry kind="lib" path="lib/spring/org.springframework.context-3.0.5.RELEASE.jar"/>
 	<classpathentry kind="lib" path="lib/spring/org.springframework.core-3.0.5.RELEASE.jar"/>
 	<classpathentry kind="lib" path="lib/spring/org.springframework.expression-3.0.5.RELEASE.jar"/>
@@ -82,11 +83,21 @@
 			<attribute name="javadoc_location" value="jar:platform:/resource/enkive2/lib/javadoc/apache-mime4j-storage-0.7.1-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="lib/mongo-2.7.3.jar"/>
 	<classpathentry kind="lib" path="lib/quartz-1.8.6.jar"/>
 	<classpathentry kind="lib" path="lib/freemarker-2.3.18.jar"/>
 	<classpathentry kind="var" path="ENKIVE_JAVA/lib/tools.jar"/>
 	<classpathentry kind="var" path="ENKIVE_JAVA/lib/dt.jar"/>
 	<classpathentry kind="var" path="ENKIVE_JAVA"/>
+	<classpathentry kind="lib" path="lib/james-imap/jutf7-1.0.0.jar"/>
+	<classpathentry kind="lib" path="lib/james-imap/netty-3.3.1.Final.jar" sourcepath="/home/lee/.m2/repository/io/netty/netty/3.3.1.Final/netty-3.3.1.Final-sources.jar"/>
+	<classpathentry kind="lib" path="lib/james-imap/commons-configuration-1.6.jar"/>
+	<classpathentry kind="lib" path="lib/james-imap/commons-io-2.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/james-imap/protocols-netty-1.6.2.jar"/>
+	<classpathentry kind="lib" path="lib/james-imap/james-server-protocols-library-3.0-beta4.jar" sourcepath="/home/lee/.m2/repository/org/apache/james/james-server-protocols-library/3.0-beta4/james-server-protocols-library-3.0-beta4-sources.jar"/>
+	<classpathentry kind="lib" path="lib/james-imap/james-server-filesystem-api-3.0-beta4.jar"/>
+	<classpathentry kind="lib" path="lib/james-imap/james-server-lifecycle-api-3.0-beta4.jar"/>
+	<classpathentry kind="lib" path="lib/james-imap/james-server-util-3.0-beta4.jar"/>
+	<classpathentry kind="lib" path="lib/james-imap/commons-collections-3.2.1.jar"/>
+	<classpathentry kind="lib" path="lib/mongo-2.9.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

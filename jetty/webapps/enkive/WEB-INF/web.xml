@@ -40,6 +40,10 @@
 		<servlet-class>com.linuxbox.enkive.web.search.AdvancedSearch</servlet-class>
 	</servlet>
 	<servlet>
+		<servlet-name>SearchFolderServlet</servlet-name>
+		<servlet-class>com.linuxbox.enkive.web.search.SearchFolderServlet</servlet-class>
+	</servlet>
+	<servlet>
 		<servlet-name>ViewSearchResultsServlet</servlet-name>
 		<servlet-class>com.linuxbox.enkive.web.search.ViewSavedResultsServlet</servlet-class>
 	</servlet>
@@ -62,6 +66,10 @@
 	<servlet>
 		<servlet-name>StatsServlet</servlet-name>
 		<servlet-class>com.linuxbox.enkive.web.StatsServlet</servlet-class>
+	</servlet>
+	<servlet>
+		<servlet-name>KeyNameServlet</servlet-name>
+		<servlet-class>com.linuxbox.enkive.web.KeyNameServlet</servlet-class>
 	</servlet>
 	<servlet>
 		<servlet-name>DeleteSearchServlet</servlet-name>
@@ -125,12 +133,20 @@
 		<url-pattern>/search/cancel</url-pattern>
 	</servlet-mapping>
 	<servlet-mapping>
+		<servlet-name>SearchFolderServlet</servlet-name>
+		<url-pattern>/search/searchFolder</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
 		<servlet-name>GetPermissionsServlet</servlet-name>
 		<url-pattern>/user/permissions</url-pattern>
 	</servlet-mapping>
 	<servlet-mapping>
 		<servlet-name>StatsServlet</servlet-name>
 		<url-pattern>/stats/statistics</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>KeyNameServlet</servlet-name>
+		<url-pattern>/stats/keys</url-pattern>
 	</servlet-mapping>
 
 	<error-page>

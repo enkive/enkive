@@ -1,9 +1,28 @@
+/*******************************************************************************
+ * Copyright 2012 The Linux Box Corporation.
+ * 
+ * This file is part of Enkive CE (Community Edition).
+ * Enkive CE is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of
+ * the License, or (at your option) any later version.
+ * 
+ * Enkive CE is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Affero General Public
+ * License along with Enkive CE. If not, see
+ * <http://www.gnu.org/licenses/>.
+ ******************************************************************************/
 package com.linuxbox.enkive.statistics.services;
 
-import static com.linuxbox.enkive.statistics.StatsConstants.STAT_SERVICE_NAME;
+import static com.linuxbox.enkive.statistics.VarsMaker.createListOfRawStats;
 
 import java.text.ParseException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -12,119 +31,130 @@ import javax.annotation.PostConstruct;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.linuxbox.enkive.statistics.VarsMaker;
+import com.linuxbox.enkive.statistics.RawStats;
+import com.linuxbox.enkive.statistics.gathering.Gatherer;
 import com.linuxbox.enkive.statistics.gathering.GathererException;
-import com.linuxbox.enkive.statistics.gathering.GathererInterface;
 
-public class StatsGathererService extends VarsMaker {
+public class StatsGathererService {
 	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.statistics.services");
 
-	protected Map<String, GathererInterface> statsGatherers = null;
+	protected Map<String, Gatherer> statsGatherers = null;
 
 	// needs to maintain that key is the name in attributes!
-	public StatsGathererService(Map<String, GathererInterface> statsGatherers)
+	public StatsGathererService(Map<String, Gatherer> statsGatherers)
 			throws ParseException {
-		this.statsGatherers = new HashMap<String, GathererInterface>();
+		this.statsGatherers = new HashMap<String, Gatherer>();
 		for (String key : statsGatherers.keySet()) {
-			GathererInterface gatherer = statsGatherers.get(key);
-			this.statsGatherers.put(gatherer.getAttributes().getName(),
-					gatherer);
+			Gatherer gatherer = statsGatherers.get(key);
+			this.statsGatherers.put(gatherer.getAttributes().getName(), gatherer);
 		}
 	}
 
-	public StatsGathererService(Set<GathererInterface> statsGatherers)
+	public StatsGathererService(Set<Gatherer> statsGatherers)
 			throws ParseException {
-		this.statsGatherers = new HashMap<String, GathererInterface>();
-		for (GathererInterface gatherer : statsGatherers) {
-			this.statsGatherers.put(gatherer.getAttributes().getName(),
-					gatherer);
+		this.statsGatherers = new HashMap<String, Gatherer>();
+		for (Gatherer gatherer : statsGatherers) {
+			this.statsGatherers.put(gatherer.getAttributes().getName(),	gatherer);
 		}
 	}
 
-	public StatsGathererService(GathererInterface gatherer)
-			throws ParseException {
-		statsGatherers = new HashMap<String, GathererInterface>();
+	public StatsGathererService(Gatherer gatherer) throws ParseException {
+		statsGatherers = new HashMap<String, Gatherer>();
 		statsGatherers.put(gatherer.getAttributes().getName(), gatherer);
 	}
 
 	/**
 	 * adds the arg to the known gatherer list if it is not null
-	 * @param gatherer - gatherer to add
+	 * 
+	 * @param gatherer
+	 *            - gatherer to add
 	 */
-	public void addGatherer(GathererInterface gatherer) {
+	public void addGatherer(Gatherer gatherer) {
 		String name = gatherer.getAttributes().getName();
 		if (statsGatherers != null) {
 			statsGatherers.put(name, gatherer);
 		} else {
-			statsGatherers = new HashMap<String, GathererInterface>();
+			statsGatherers = new HashMap<String, Gatherer>();
 			statsGatherers.put(name, gatherer);
 		}
 	}
 
 	/**
 	 * returns every statistic from every known gatherer
+	 * 
 	 * @return returns a set corresponding to every statistic avaiable to gather
 	 * @throws ParseException
 	 * @throws GathererException
 	 */
-	public Set<Map<String, Object>> gatherStats() throws ParseException,
+	public List<RawStats> gatherStats() throws ParseException,
 			GathererException {
 		return gatherStats(null);
 	}
 
 	/**
-	 * gathers statistics filtered by the map argument--returns all stats if map is null
-	 * @param gathererKeys - map corresponding to the keys to be returned
-	 * Format: {gathererName:[key1, key2, key3,...], ...}
+	 * gathers statistics filtered by the map argument--returns all stats if map
+	 * is null
+	 * 
+	 * @param gathererKeys
+	 *            - map corresponding to the keys to be returned Format:
+	 *            {gathererName:[key1, key2, key3,...], ...}
 	 * @return filtered stats
 	 * @throws ParseException
 	 * @throws GathererException
 	 */
-	public Set<Map<String, Object>> gatherStats(
-			Map<String, String[]> gathererKeys) throws ParseException,
-			GathererException {
-		if (statsGatherers == null) {
-			return null;
-		}
-
-		if (statsGatherers.isEmpty()) {
-			return null;
-		}
+	public List<RawStats> gatherStats(Map<String, List<String>> gathererKeys)
+			throws GathererException {
+		List<RawStats> statsList = createListOfRawStats();
 
 		if (gathererKeys == null) {
-			gathererKeys = new HashMap<String, String[]>();
 			for (String gathererName : statsGatherers.keySet()) {
-				gathererKeys.put(gathererName, null);
+				Gatherer gatherer = statsGatherers.get(gathererName);
+				RawStats stats = gatherer.getStatistics();
+				stats.setGathererName(gathererName);
+				statsList.add(stats);
 			}
+			return statsList;
 		}
 
-		Set<Map<String, Object>> statsSet = createSet();
-		for (String name : gathererKeys.keySet()) {
-			Map<String, Object> gathererData = statsGatherers.get(name)
-					.getStatistics(gathererKeys.get(name));
-			gathererData.put(STAT_SERVICE_NAME, statsGatherers.get(name)
-					.getAttributes().getName());
-			statsSet.add(gathererData);
+		if (statsGatherers == null || statsGatherers.isEmpty()) {
+			LOGGER.error("statsGatherers is invalid");
+			return null;
 		}
 
-		return statsSet;
+		if (gathererKeys.isEmpty()) {
+			LOGGER.error("gathererKeys is empty");
+			return null;
+		}
+
+		for (String statName : gathererKeys.keySet()) {
+			RawStats stats = statsGatherers.get(statName).getStatistics(
+					gathererKeys.get(statName), gathererKeys.get(statName));
+			stats.setGathererName(statsGatherers.get(statName).getAttributes()
+					.getName());
+
+			statsList.add(stats);
+		}
+
+		return statsList;
 	}
 
 	/**
 	 * @return returns the map of all known gatherers
 	 */
-	public Map<String, GathererInterface> getStatsGatherers() {
+	public Map<String, Gatherer> getStatsGatherers() {
 		return statsGatherers;
 	}
 
 	/**
 	 * takes a gathererName and returns the gatherer cooresponding to it
-	 * @param name a gathererName (should be from attributes class)
+	 * 
+	 * @param name
+	 *            a gathererName (should be from attributes class)
 	 * @return returns the gatherer cooresponding to the param
 	 */
-	public Map<String, GathererInterface> getStatsGatherers(String name) {
-		Map<String, GathererInterface> gathererMap = new HashMap<String, GathererInterface>();
+	public Map<String, Gatherer> getStatsGatherers(String name) {
+		Map<String, Gatherer> gathererMap = new HashMap<String, Gatherer>();
 		gathererMap.put(name, statsGatherers.get(name));
 		return gathererMap;
 	}
@@ -142,7 +172,9 @@ public class StatsGathererService extends VarsMaker {
 
 	/**
 	 * remove a gatherer from the known gatherer map
-	 * @param name - a gatherer name (should be from attributes class)
+	 * 
+	 * @param name
+	 *            - a gatherer name (should be from attributes class)
 	 */
 	public void removeGatherer(String name) {
 		if (statsGatherers.containsKey(name)) {

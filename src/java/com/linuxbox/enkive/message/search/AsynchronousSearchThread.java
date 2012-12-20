@@ -31,10 +31,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextImpl;
 
 import com.linuxbox.enkive.message.search.exception.MessageSearchException;
-import com.linuxbox.enkive.workspace.SearchResult;
-import com.linuxbox.enkive.workspace.SearchResult.Status;
 import com.linuxbox.enkive.workspace.WorkspaceException;
-import com.linuxbox.enkive.workspace.WorkspaceService;
+import com.linuxbox.enkive.workspace.searchResult.SearchResult;
+import com.linuxbox.enkive.workspace.searchResult.SearchResult.Status;
+import com.linuxbox.enkive.workspace.searchResult.SearchResultBuilder;
 
 public class AsynchronousSearchThread implements Callable<SearchResult> {
 
@@ -44,18 +44,18 @@ public class AsynchronousSearchThread implements Callable<SearchResult> {
 	private final Authentication searchingUserAuth;
 	private final String searchResultId;
 	private final HashMap<String, String> fields;
-	private final WorkspaceService workspaceService;
 	private final MessageSearchService messageSearchService;
+	private final SearchResultBuilder searchResultBuilder;
 
 	public AsynchronousSearchThread(HashMap<String, String> fields,
 			String searchResultId, MessageSearchService messageSearchService,
-			WorkspaceService workspaceService) {
+			SearchResultBuilder searchResultBuilder) {
 		SecurityContext ctx = SecurityContextHolder.getContext();
 		searchingUserAuth = ctx.getAuthentication();
 		this.searchResultId = searchResultId;
 		this.fields = fields;
-		this.workspaceService = workspaceService;
 		this.messageSearchService = messageSearchService;
+		this.searchResultBuilder = searchResultBuilder;
 	}
 
 	@Override
@@ -66,8 +66,7 @@ public class AsynchronousSearchThread implements Callable<SearchResult> {
 			SecurityContext ctx = new SecurityContextImpl();
 			ctx.setAuthentication(searchingUserAuth);
 			SecurityContextHolder.setContext(ctx);
-
-			searchResult = workspaceService.getSearchResult(searchResultId);
+			searchResult = searchResultBuilder.getSearchResult(searchResultId);
 			try {
 				markSearchResultRunning(searchResult);
 				SearchResult tmpSearchResult = messageSearchService
@@ -76,11 +75,11 @@ public class AsynchronousSearchThread implements Callable<SearchResult> {
 				searchResult.setTimestamp(tmpSearchResult.getTimestamp());
 				searchResult.setExecutedBy(tmpSearchResult.getExecutedBy());
 				searchResult.setStatus(Status.COMPLETE);
-				workspaceService.saveSearchResult(searchResult);
+				searchResult.saveSearchResult();
 
 			} catch (MessageSearchException e) {
 				searchResult.setStatus(Status.UNKNOWN);
-				workspaceService.saveSearchResult(searchResult);
+				searchResult.saveSearchResult();
 				if (LOGGER.isErrorEnabled())
 					LOGGER.error("Could not complete message search", e);
 			}
@@ -99,7 +98,7 @@ public class AsynchronousSearchThread implements Callable<SearchResult> {
 		try {
 			searchResult.setStatus(Status.RUNNING);
 			searchResult.setTimestamp(new Date());
-			workspaceService.saveSearchResult(searchResult);
+			searchResult.saveSearchResult();
 		} catch (WorkspaceException e) {
 			throw new MessageSearchException("Could not mark search "
 					+ searchResult.getId() + " as running", e);

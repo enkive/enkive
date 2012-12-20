@@ -88,7 +88,7 @@ public class SpringContextPermissionService implements PermissionService {
 	@Override
 	public Collection<String> canReadAddresses(String userId) {
 		Collection<String> addresses = new HashSet<String>();
-		addresses.add(getCurrentUsername());
+		addresses.add(userId);
 		return addresses;
 	}
 

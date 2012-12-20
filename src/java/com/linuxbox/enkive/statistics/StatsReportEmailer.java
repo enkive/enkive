@@ -19,8 +19,6 @@
  *******************************************************************************/
 package com.linuxbox.enkive.statistics;
 
-import static com.linuxbox.enkive.statistics.StatsConstants.STAT_SERVICE_NAME;
-
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -28,12 +26,11 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.net.URISyntaxException;
 import java.text.ParseException;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -86,26 +83,14 @@ public class StatsReportEmailer {
 
 		Map<String, Object> root = new HashMap<String, Object>();
 		root.put("date", new Date());
-		// TODO: need to convert to using maps & sets rather than JSON
-		Set<Map<String, Object>> statistics = gatherer.gatherStats();
+		// TODO: Can this build a report from the previous day or time period
+		// rather than gather on demand?
+		List<RawStats> statistics = gatherer.gatherStats();
 
-		for (Map<String, Object> map : statistics) {
-			HashMap<String, Object> hMap = new HashMap<String, Object>(map);
-			root.put((String) map.get(STAT_SERVICE_NAME), hMap.toString());
+		for (RawStats rawStats : statistics) {
+			Map<String, Object> statsMap = rawStats.toMap();
+			root.put(rawStats.getGathererName(), statsMap);
 		}
-		/*
-		 * for (String serviceName : JSONObject.getNames(statistics)) {
-		 * Map<String, String> service = new HashMap<String, String>();
-		 * Set<Map<String, Object>> serviceStatistics = statistics.entrySet();
-		 * Map<String, Object> serviceStatistics[] =
-		 * statistics.toArray(serviceName);
-		 * 
-		 * for (int i = 0; i < serviceStatistics.length(); i++) { JSONObject
-		 * statistic = serviceStatistics.getJSONObject(i); for (String
-		 * statisticName : JSONObject.getNames(statistic)) {
-		 * service.put(statisticName, statistic.getString(statisticName)); } }
-		 * root.put(serviceName, service); }
-		 */// Create the hash for ``latestProduct''
 		Template temp = cfg.getTemplate("StatisticsEmailTemplate.ftl");
 
 		ByteArrayOutputStream os = new ByteArrayOutputStream();
@@ -127,7 +112,7 @@ public class StatsReportEmailer {
 		return to;
 	}
 
-	public void sendReport(Collection<String> addresses) {
+	public void sendReport() {
 
 		// Get system properties
 		Properties properties = System.getProperties();
@@ -159,7 +144,7 @@ public class StatsReportEmailer {
 			// Send message
 			Transport.send(message);
 		} catch (MessagingException mex) {
-			mex.printStackTrace();
+			LOGGER.warn("Error sending statistics report email", mex);
 		}
 	}
 
@@ -174,5 +159,4 @@ public class StatsReportEmailer {
 	public void setTo(String to) {
 		this.to = to;
 	}
-
 }

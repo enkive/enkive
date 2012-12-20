@@ -1,17 +1,36 @@
+/*******************************************************************************
+ * Copyright 2012 The Linux Box Corporation.
+ * 
+ * This file is part of Enkive CE (Community Edition).
+ * Enkive CE is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of
+ * the License, or (at your option) any later version.
+ * 
+ * Enkive CE is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Affero General Public
+ * License along with Enkive CE. If not, see
+ * <http://www.gnu.org/licenses/>.
+ ******************************************************************************/
 package com.linuxbox.enkive.statistics.gathering;
 
 import static com.linuxbox.enkive.statistics.StatsConstants.QUEUE_LENGTH;
 import static com.linuxbox.enkive.statistics.StatsConstants.STATISTIC_CHECK_ERROR;
-import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIME_STAMP;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
+
+import com.linuxbox.enkive.statistics.VarsMaker;
 
 public class UnixPostfixQueueStatisticsService extends AbstractGatherer {
 
@@ -20,11 +39,12 @@ public class UnixPostfixQueueStatisticsService extends AbstractGatherer {
 	// public static String POSTFIX_QUEUE_COMMAND = "postqueue -p";
 	public static String POSTQUEUE_OUTPUT_MANIPULATOR_PIPELINE = " | grep Requests | cut -d' ' -f 5";
 
-	public UnixPostfixQueueStatisticsService(String serviceName, String schedule) {
-		super(serviceName, schedule);
+	public UnixPostfixQueueStatisticsService(String serviceName,
+			String humanName, List<String> keys) throws GathererException {
+		super(serviceName, humanName, keys);
 	}
 
-	public void execute(JobExecutionContext arg0) throws JobExecutionException {
+	public void execute(JobExecutionContext arg0) throws GathererException {
 		System.out.println(getStatistics());
 	}
 
@@ -40,31 +60,20 @@ public class UnixPostfixQueueStatisticsService extends AbstractGatherer {
 	}
 
 	@Override
-	public Map<String, Object> getStatistics() {
-		Map<String, Object> result = createMap();
+	protected Map<String, Object> getPointStatistics(Date startTimestamp,
+			Date endTimestamp) throws GathererException {
+		Map<String, Object> stats = VarsMaker.createMap();
 		try {
-			result.put(QUEUE_LENGTH, getQueueLength());
+			stats.put(QUEUE_LENGTH, getQueueLength());
 		} catch (IOException e) {
-			result.put(QUEUE_LENGTH + STATISTIC_CHECK_ERROR, e.toString());
+			stats.put(QUEUE_LENGTH + STATISTIC_CHECK_ERROR, e.toString());
 		}
-		return result;
+		return stats;
 	}
 
 	@Override
-	public Map<String, Object> getStatistics(String[] keys) {
-		if (keys == null) {
-			return getStatistics();
-		}
-		Map<String, Object> stats = getStatistics();
-		Map<String, Object> selectedStats = createMap();
-		for (String key : keys) {
-			if (stats.get(key) != null) {
-				selectedStats.put(key, stats.get(key));
-			}
-		}
-		selectedStats
-				.put(STAT_TIME_STAMP, new Date(System.currentTimeMillis()));
-
-		return selectedStats;
+	protected Map<String, Object> getIntervalStatistics(Date lowerTimestamp,
+			Date upperTimestamp) throws GathererException {
+		return null;
 	}
 }

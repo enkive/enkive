@@ -1,36 +1,51 @@
+/*******************************************************************************
+ * Copyright 2012 The Linux Box Corporation.
+ * 
+ * This file is part of Enkive CE (Community Edition).
+ * Enkive CE is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of
+ * the License, or (at your option) any later version.
+ * 
+ * Enkive CE is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Affero General Public
+ * License along with Enkive CE. If not, see
+ * <http://www.gnu.org/licenses/>.
+ ******************************************************************************/
 package com.linuxbox.enkive.statistics.gathering;
 
-import static com.linuxbox.enkive.statistics.StatsConstants.STAT_SERVICE_NAME;
-import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIME_STAMP;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MAX;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MIN;
+import static com.linuxbox.enkive.statistics.StatsConstants.STAT_GATHERER_NAME;
+import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIMESTAMP;
 
-import java.text.ParseException;
 import java.util.List;
 
-import org.quartz.CronExpression;
-
-import com.linuxbox.enkive.statistics.KeyConsolidationHandler;
+import com.linuxbox.enkive.statistics.ConsolidationKeyHandler;
 
 public class GathererAttributes {
-	protected List<KeyConsolidationHandler> keys;
-	protected CronExpression schedule;
+	protected List<ConsolidationKeyHandler> keys;
 	protected String serviceName;
+	protected String humanName;
 
-	public GathererAttributes(String serviceName, String schedule,
-			List<KeyConsolidationHandler> keys) throws ParseException {
+	public GathererAttributes(String serviceName, String humanName,
+			List<ConsolidationKeyHandler> keys) {
+		this.humanName = humanName;
 		this.serviceName = serviceName;
-		this.schedule = new CronExpression(schedule);
 		this.keys = keys;
-		//serviceName and Timestamp must always be specified
-		keys.add(new KeyConsolidationHandler(STAT_SERVICE_NAME + ":"));
-		keys.add(new KeyConsolidationHandler(STAT_TIME_STAMP + ":" + GRAIN_MAX + "," + GRAIN_MIN));
+
+		// serviceName and Timestamp must always be specified
+		keys.add(new ConsolidationKeyHandler(STAT_GATHERER_NAME
+				+ "::Gatherer Name:"));
+		keys.add(new ConsolidationKeyHandler(STAT_TIMESTAMP + "::Time Stamp:"));
 	}
 
 	/**
 	 * @return the consolidation handlers cooresponding to this gatherer
 	 */
-	public List<KeyConsolidationHandler> getKeys() {
+	public List<ConsolidationKeyHandler> getKeys() {
 		return keys;
 	}
 
@@ -42,9 +57,10 @@ public class GathererAttributes {
 	}
 
 	/**
-	 * @return the cronExpression schedule this gatherer runs on
+	 * @return the human-readable name of the gatherer this attributes class
+	 *         belongs to
 	 */
-	public CronExpression getSchedule() {
-		return schedule;
+	public String getHumanName() {
+		return humanName;
 	}
 }

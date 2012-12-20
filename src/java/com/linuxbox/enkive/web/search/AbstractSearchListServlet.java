@@ -41,11 +41,11 @@ import com.linuxbox.enkive.web.EnkiveServlet;
 import com.linuxbox.enkive.web.WebConstants;
 import com.linuxbox.enkive.web.WebPageInfo;
 import com.linuxbox.enkive.web.WebScriptUtils;
-import com.linuxbox.enkive.workspace.SearchQuery;
-import com.linuxbox.enkive.workspace.SearchResult;
 import com.linuxbox.enkive.workspace.Workspace;
 import com.linuxbox.enkive.workspace.WorkspaceException;
 import com.linuxbox.enkive.workspace.WorkspaceService;
+import com.linuxbox.enkive.workspace.searchQuery.SearchQuery;
+import com.linuxbox.enkive.workspace.searchResult.SearchResult;
 
 public abstract class AbstractSearchListServlet extends EnkiveServlet {
 	/**
@@ -66,6 +66,9 @@ public abstract class AbstractSearchListServlet extends EnkiveServlet {
 	public void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
 
+		String sortBy = null;
+		int sortDir = -1;
+
 		if (LOGGER.isDebugEnabled())
 			LOGGER.debug("Retrieving search list");
 		try {
@@ -74,9 +77,17 @@ public abstract class AbstractSearchListServlet extends EnkiveServlet {
 							WebPageInfo.PAGE_POSITION_PARAMETER),
 					WebScriptUtils.cleanGetParameter(req,
 							WebPageInfo.PAGE_SIZE_PARAMETER));
+			sortBy = WebScriptUtils.cleanGetParameter(req, "sortBy");
+			if (sortBy == null || sortBy.isEmpty())
+				sortBy = WebConstants.SORTBYDATE;
+			String sortDirString = WebScriptUtils.cleanGetParameter(req,
+					"sortDir");
+			if (sortDirString != null)
+				sortDir = Integer.parseInt(sortDirString);
 
 			JSONObject jObject = new JSONObject();
-			jObject.put(WebConstants.DATA_TAG, getWorkspaceSearches(pageInfo));
+			jObject.put(WebConstants.DATA_TAG,
+					getWorkspaceSearches(pageInfo, sortBy, sortDir));
 			jObject.put(WebPageInfo.PAGING_LABEL, pageInfo.getPageJSON());
 			String jsonString = jObject.toString();
 			resp.getWriter().write(jsonString);
@@ -91,13 +102,15 @@ public abstract class AbstractSearchListServlet extends EnkiveServlet {
 		}
 	}
 
-	protected JSONArray getWorkspaceSearches(WebPageInfo pageInfo) {
+	protected JSONArray getWorkspaceSearches(WebPageInfo pageInfo,
+			String sortBy, int sortDir) {
 		JSONArray searches = new JSONArray();
 
 		try {
 			Workspace workspace = workspaceService
 					.getActiveWorkspace(getAuthenticationService()
 							.getUserName());
+
 			List<SearchResult> searchResults = getSearches(workspace);
 
 			pageInfo.setItemTotal(searchResults.size());
@@ -105,11 +118,13 @@ public abstract class AbstractSearchListServlet extends EnkiveServlet {
 			List<SearchResult> searchesSublist = (List<SearchResult>) pageInfo
 					.getSubList(searchResults);
 
+			searchesSublist = Workspace.sortSearchResults(searchesSublist,
+					sortBy, sortDir);
+
 			for (SearchResult searchResult : searchesSublist) {
 				try {
 
-					SearchQuery searchQuery = workspaceService
-							.getSearchQuery(searchResult.getSearchQueryId());
+					SearchQuery searchQuery = searchResult.getSearchQuery();
 					JSONObject search = new JSONObject();
 					search.put(WebConstants.SEARCH_ID_TAG, searchResult.getId());
 

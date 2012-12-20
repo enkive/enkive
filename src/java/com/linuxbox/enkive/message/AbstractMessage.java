@@ -31,15 +31,20 @@ import java.util.Set;
 import name.fraser.neil.plaintext.diff_match_patch;
 import name.fraser.neil.plaintext.diff_match_patch.Patch;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.james.mime4j.dom.Header;
 
 import com.linuxbox.enkive.exception.BadMessageException;
 
 public abstract class AbstractMessage extends AbstractMessageSummary implements
 		Message {
-	protected String originalHeaders;
+
+	protected final static Log LOGGER = LogFactory
+			.getLog("com.linuxbox.enkive.message");
+
 	protected String mimeVersion;
-	protected String contentType;
+	protected String contentType = "";
 	protected String contentTransferEncoding;
 	protected ContentHeader contentHeader;
 	protected Header parsedHeader;
@@ -61,18 +66,6 @@ public abstract class AbstractMessage extends AbstractMessageSummary implements
 	}
 
 	@Override
-	public String getOriginalHeaders() {
-		return originalHeaders;
-	}
-
-	@Override
-	public void setOriginalHeaders(String originalHeaders)
-			throws BadMessageException, IOException {
-		this.originalHeaders = originalHeaders;
-		parseHeaders(originalHeaders);
-	}
-
-	@Override
 	public ContentHeader getContentHeader() {
 		return contentHeader;
 	}
@@ -80,6 +73,18 @@ public abstract class AbstractMessage extends AbstractMessageSummary implements
 	@Override
 	public void setContentHeader(ContentHeader contentHeader) {
 		this.contentHeader = contentHeader;
+	}
+
+	@Override
+	public void setOriginalHeaders(String originalHeaders) {
+		super.setOriginalHeaders(originalHeaders);
+		try {
+			parseHeaders(originalHeaders);
+		} catch (BadMessageException e) {
+			LOGGER.warn("Error parsing message headers", e);
+		} catch (IOException e) {
+			LOGGER.warn("Error parsing message headers", e);
+		}
 	}
 
 	@Override

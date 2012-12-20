@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+		http://www.springframework.org/schema/beans/spring-beans-3.0.xsd 
+		http://www.springframework.org/schema/context 
+		http://www.springframework.org/schema/context/spring-context-3.0.xsd"
+	default-init-method="startup" default-destroy-method="shutdown">
+
+	<bean id="IMAPAccessServer" class="com.linuxbox.enkive.imap.ImapAccessServer">
+		<constructor-arg ref="EnkiveIMAPServer" />
+	</bean>
+
+	<bean id="EnkiveIMAPServer" class="com.linuxbox.enkive.imap.EnkiveIMAPServer">
+		<constructor-arg type="java.lang.String" value="imap/imap-server.conf" />
+		<property name="fileSystem" ref="ResourceLoaderFileSystem" />
+		<property name="imapDecoder" ref="ImapDecoderFactory" />
+		<property name="imapEncoder" ref="ImapEncoderFactory" />
+		<property name="imapProcessor" ref="ImapProcessorFactory" />
+	</bean>
+
+	<bean id="ImapDecoderFactory" class="org.apache.james.imap.main.DefaultImapDecoderFactory"
+		factory-method="createDecoder">
+	</bean>
+
+	<bean id="ImapEncoderFactory"
+		class="org.apache.james.imap.encode.main.DefaultImapEncoderFactory"
+		factory-method="createDefaultEncoder">
+		<constructor-arg ref="Localizer" />
+		<constructor-arg type="boolean" value="false" />
+	</bean>
+
+	<bean id="Localizer" class="org.apache.james.imap.encode.main.DefaultLocalizer" />
+
+	<bean id="ImapProcessorFactory"
+		class="org.apache.james.imap.processor.main.DefaultImapProcessorFactory"
+		factory-method="createDefaultProcessor">
+		<constructor-arg ref="EnkiveImapMailboxManager" />
+		<constructor-arg ref="EnkiveImapSubscriptionManager" />
+	</bean>
+
+	<bean id="ResourceLoaderFileSystem"
+		class="org.apache.james.container.spring.filesystem.ResourceLoaderFileSystem">
+		<property name="resourceLoader" ref="EnkiveResourceLoader" />
+	</bean>
+
+	<bean id="EnkiveResourceLoader" class="com.linuxbox.enkive.imap.EnkiveResourceLoader" />
+
+	<bean id="EnkiveImapMailboxManager" class="com.linuxbox.enkive.imap.mailbox.EnkiveMailboxManager">
+		<constructor-arg ref="MongoEnkiveMailboxSessionMapperFactory" />
+		<constructor-arg ref="EnkiveImapAccountCreatingSpringContextAuthenticator" />
+		<constructor-arg ref="EnkiveImapMailboxACLResolver" />
+		<constructor-arg ref="EnkiveImapGroupMembershipResolver" />
+	</bean>
+
+	<bean id="EnkiveImapSubscriptionManager"
+		class="com.linuxbox.enkive.imap.mailbox.mongo.MongoEnkiveSubscriptionManager">
+		<constructor-arg ref="Mongo" />
+		<constructor-arg type="java.lang.String" value="${enkive.imap.db.name}" />
+		<constructor-arg type="java.lang.String" value="${enkive.imap.collection.name}" />
+	</bean>
+
+	<bean id="MongoEnkiveMailboxSessionMapperFactory"
+		class="com.linuxbox.enkive.imap.mailbox.mongo.MongoEnkiveMailboxSessionMapperFactory">
+		<constructor-arg ref="Mongo" />
+		<constructor-arg type="java.lang.String" value="${enkive.imap.db.name}" />
+		<constructor-arg type="java.lang.String" value="${enkive.imap.collection.name}" />
+		<property name="retrieverService" ref="RetentionPolicyEnforcingMessageRetrieverService" />
+	</bean>
+
+	<bean id="EnkiveImapAccountCreatingSpringContextAuthenticator"
+		class="com.linuxbox.enkive.imap.authentication.EnkiveImapAccountCreatingAuthenticator">
+		<constructor-arg ref="EnkiveImapSpringContextAuthenticator" />
+		<constructor-arg ref="MongoImapAccountCreator" />
+	</bean>
+
+	<bean id="EnkiveImapSpringContextAuthenticator"
+		class="com.linuxbox.enkive.imap.authentication.EnkiveImapSpringContextAuthenticator">
+		<constructor-arg ref="authenticationManager" />
+	</bean>
+
+	<bean id="EnkiveImapMailboxACLResolver"
+		class="com.linuxbox.enkive.imap.mailbox.EnkiveImapMailboxACLResolver">
+	</bean>
+
+	<bean id="EnkiveImapGroupMembershipResolver"
+		class="com.linuxbox.enkive.imap.EnkiveImapGroupMembershipResolver">
+	</bean>
+
+	<bean id="MongoImapAccountCreator" class="com.linuxbox.enkive.imap.mongo.MongoImapAccountCreator">
+		<constructor-arg ref="Mongo" />
+		<constructor-arg type="java.lang.String" value="${enkive.imap.db.name}" />
+		<constructor-arg type="java.lang.String" value="${enkive.imap.collection.name}" />
+		<property name="searchService" ref="MongoImapAccountCreationMessageSearchService" />
+		<property name="permissionsService" ref="PermissionService" />
+	</bean>
+
+	<bean id="MongoImapAccountCreationMessageSearchService"
+		class="com.linuxbox.enkive.imap.mongo.MongoImapAccountCreationMessageSearchService">
+		<constructor-arg ref="Mongo" />
+		<constructor-arg type="java.lang.String" value="${enkive.messagestore.db.name}" />
+		<constructor-arg type="java.lang.String"
+			value="${enkive.messagestore.collection.name}" />
+		<property name="docSearchService" ref="DocSearchQueryService" />
+		<property name="searchResultBuilder" ref="SearchResultBuilder" />
+	</bean>
+
+	<bean name="ImapMessageRetentionPolicyEnforcer"
+		class="com.linuxbox.enkive.message.retention.imap.mongodb.MongoDBImapMessageRetentionPolicyEnforcer">
+		<constructor-arg ref="Mongo" />
+		<constructor-arg type="java.lang.String" value="${enkive.imap.db.name}" />
+		<constructor-arg type="java.lang.String"
+			value="${enkive.imap.collection.name}" />
+		<property name="searchService" ref="SystemMessageSearchService" />
+		<property name="retentionPolicy" ref="MessageRetentionPolicy" />
+		<property name="messageArchivingService" ref="MessageArchivingService" />
+	</bean>
+
+	<bean name="ImapMessageRetentionJob"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject" ref="ImapMessageRetentionPolicyEnforcer" />
+		<property name="targetMethod" value="enforceMessageRetentionPolicies" />
+		<property name="concurrent" value="false" />
+	</bean>
+
+	<bean id="ImapMessageRetentionTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail" ref="ImapMessageRetentionJob" />
+		<property name="cronExpression" value="0 0 3 * * ?" />
+	</bean>
+
+	<bean name="ImapAccountUpdateJob"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject" ref="MongoImapAccountCreator" />
+		<property name="targetMethod" value="updateImapAccounts" />
+		<property name="concurrent" value="false" />
+	</bean>
+
+	<bean id="ImapAccountUpdateTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail" ref="ImapAccountUpdateJob" />
+		<property name="cronExpression" value="0 0 3 * * ?" />
+	</bean>
+	<bean id="ImapScheduledJobsBean"
+		class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+		<property name="triggers">
+			<list>
+				<!-- Uncomment the next line to enable nightly IMAP account updating -->
+				<ref bean="ImapAccountUpdateTrigger" />
+			</list>
+		</property>
+	</bean>
+
+</beans>

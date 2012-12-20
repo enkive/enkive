@@ -102,8 +102,16 @@ public class MongoRetrieverService extends AbstractRetrieverService {
 
 			return message;
 		} catch (IOException e) {
+			if (LOGGER.isWarnEnabled())
+				LOGGER.warn("Error retrieving message with UUID " + messageUUID);
 			throw new CannotRetrieveException(e);
 		} catch (BadMessageException e) {
+			if (LOGGER.isWarnEnabled())
+				LOGGER.warn("Error retrieving message with UUID " + messageUUID);
+			throw new CannotRetrieveException(e);
+		} catch (Exception e) {
+			if (LOGGER.isWarnEnabled())
+				LOGGER.warn("Error retrieving message with UUID " + messageUUID);
 			throw new CannotRetrieveException(e);
 		}
 	}
@@ -138,6 +146,8 @@ public class MongoRetrieverService extends AbstractRetrieverService {
 		result.setTo((List<String>) messageObject.get(TO));
 
 		result.setCc((List<String>) messageObject.get(CC));
+
+		result.setOriginalHeaders((String) messageObject.get(ORIGINAL_HEADERS));
 
 		return result;
 	}

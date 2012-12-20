@@ -1,9 +1,34 @@
+/*******************************************************************************
+ * Copyright 2012 The Linux Box Corporation.
+ * 
+ * This file is part of Enkive CE (Community Edition).
+ * Enkive CE is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of
+ * the License, or (at your option) any later version.
+ * 
+ * Enkive CE is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Affero General Public
+ * License along with Enkive CE. If not, see
+ * <http://www.gnu.org/licenses/>.
+ ******************************************************************************/
 package com.linuxbox.enkive.teststats;
 
-import static com.linuxbox.enkive.statistics.StatsConstants.STAT_SERVICE_NAME;
-import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIME_STAMP;
+import static com.linuxbox.enkive.TestingConstants.MONGODB_TEST_DATABASE;
+import static com.linuxbox.enkive.TestingConstants.MONGODB_TEST_FSFILES_COLLECTION;
+import static com.linuxbox.enkive.statistics.StatsConstants.STAT_ATTACH_NUM;
+import static com.linuxbox.enkive.statistics.StatsConstants.STAT_ATTACH_SIZE;
+import static com.linuxbox.enkive.statistics.StatsConstants.STAT_GATHERER_NAME;
+import static com.linuxbox.enkive.statistics.StatsConstants.STAT_INTERVAL;
+import static com.linuxbox.enkive.statistics.StatsConstants.STAT_POINT;
+import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIMESTAMP;
+import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_MAX;
+import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_MIN;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.net.UnknownHostException;
@@ -18,29 +43,27 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.linuxbox.enkive.TestingConstants;
-import com.linuxbox.enkive.statistics.KeyConsolidationHandler;
-import com.linuxbox.enkive.statistics.gathering.mongodb.StatsMongoAttachmentsGatherer;
+import com.linuxbox.enkive.statistics.ConsolidationKeyHandler;
+import com.linuxbox.enkive.statistics.RawStats;
+import com.linuxbox.enkive.statistics.gathering.mongodb.MongoStatsAttachmentsGatherer;
 import com.mongodb.Mongo;
 import com.mongodb.MongoException;
 
 public class StatsMongoAttachTest {
-	protected static StatsMongoAttachmentsGatherer attach;
+	protected static MongoStatsAttachmentsGatherer attach;
 	private static Map<String, Object> stats;
 	private static String name = "AttachmentGatherer";
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		List<String> keys = new LinkedList<String>();
-		keys.add("avgAtt:avg");
-		keys.add("maxAtt:max");
-		attach = new StatsMongoAttachmentsGatherer(new Mongo(),
-				TestingConstants.MONGODB_TEST_DATABASE,
-				TestingConstants.MONGODB_TEST_FSFILES_COLLECTION, name,
-				"0 * * * * ?", false, keys);
-		attach.setUpperDate(new Date());
-		attach.setLowerDate(new Date(0L));
-		stats = attach.getStatistics();
+		keys.add("attNum:avg:Number of Attachments::interval");
+		keys.add("attSz:avg:Attachment Size:bytes:interval");
+		attach = new MongoStatsAttachmentsGatherer(new Mongo(),
+				MONGODB_TEST_DATABASE, MONGODB_TEST_FSFILES_COLLECTION, name,
+				"Attachment Statistics", keys);
+		RawStats rawData = attach.getStatistics();
+		stats = rawData.toMap();
 	}
 
 	@AfterClass
@@ -58,7 +81,7 @@ public class StatsMongoAttachTest {
 	@SuppressWarnings("unchecked")
 	public boolean checkFormat(Map<String, Object> stats,
 			LinkedList<String> path) {
-		if (path.contains(STAT_SERVICE_NAME)) {
+		if (path.contains(STAT_GATHERER_NAME)) {
 			return true;
 		}
 
@@ -101,17 +124,67 @@ public class StatsMongoAttachTest {
 
 	@Test
 	public void testAttributes() {
-		for (KeyConsolidationHandler key : attach.getAttributes().getKeys()) {
+		for (ConsolidationKeyHandler key : attach.getAttributes().getKeys()) {
 			LinkedList<String> path = key.getKey();
-			assertTrue("the format is incorrect for path: " + path,
-					checkFormat(stats, path));
+			if (path.contains(STAT_GATHERER_NAME)
+					|| path.contains(STAT_TIMESTAMP)) {
+				continue;
+			}
+			if (key.isPoint()) {
+				assertTrue(
+						"the format is incorrect for path: " + path,
+						checkFormat(
+								(Map<String, Object>) stats.get(STAT_POINT),
+								path));
+			} else {
+				assertTrue(
+						"the format is incorrect for path: " + path,
+						checkFormat(
+								(Map<String, Object>) stats.get(STAT_INTERVAL),
+								path));
+			}
 		}
 	}
 
 	@Test
-	public void keyCountMatches() {
-		int numKeys = stats.keySet().size();
-		assertTrue("numKeys doesn't match: numKeys = " + numKeys, numKeys == 3);
+	public void pointKeyCountMatches() {
+		int numKeys = 0;
+		int pointKeyCount = 0;
+		for (ConsolidationKeyHandler key : attach.getAttributes().getKeys()) {
+			if (key.isPoint() && key.getMethods() != null) {
+				pointKeyCount++;
+			}
+		}
+
+		if (stats.containsKey(STAT_POINT)) {
+			Map<String, Object> pointStats = (Map<String, Object>) stats
+					.get(STAT_POINT);
+			numKeys += pointStats.keySet().size();
+		}
+
+		assertTrue("numKeys doesn't match: numKeys = " + numKeys,
+				numKeys == pointKeyCount);
+	}
+
+	@Test
+	public void intervalKeyCountMatches() {
+		int numKeys = 0;
+		int intervalKeyCount = 0;
+		for (ConsolidationKeyHandler key : attach.getAttributes().getKeys()) {
+			if (!key.isPoint() && key.getMethods() != null) {
+				intervalKeyCount++;
+			}
+		}
+
+		if (stats.containsKey(STAT_INTERVAL)) {
+			Map<String, Object> intervalStats = (Map<String, Object>) stats
+					.get(STAT_INTERVAL);
+			numKeys += intervalStats.keySet().size();
+		}
+		System.out.println("intervalKeyCount: " + intervalKeyCount);
+		System.out.println("numKeys: " + numKeys);
+		assertTrue("numKeys doesn't match: numKeys = " + numKeys,
+				numKeys == intervalKeyCount);
 	}
 
 	@Test
@@ -121,63 +194,50 @@ public class StatsMongoAttachTest {
 		assertTrue(sn.equals(name));
 	}
 
+	@SuppressWarnings("unchecked")
 	@Test
 	public void hasTimeStamp() {
-		Long time = ((Date) stats.get(STAT_TIME_STAMP)).getTime();
+		Map<String, Object> time = (Map<String, Object>) stats
+				.get(STAT_TIMESTAMP);
 		assertTrue("runtime test exception in hasTimeStamp(): time = " + time,
 				time != null);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Test
-	public void timeGTZero() {
-		Long time = ((Date) stats.get(STAT_TIME_STAMP)).getTime();
-		assertTrue("runtime test exception in timeGTZero(): time = " + time,
-				time > 0);
+	public void upperTimeGTZero() {
+		Map<String, Object> time = (Map<String, Object>) stats
+				.get(STAT_TIMESTAMP);
+		Date date = ((Date) time.get(CONSOLIDATION_MAX));
+		assertTrue("runtime test exception in timeGTZero(): date = " + date,
+				date.getTime() > 0);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test
+	public void lowerTimeGTZero() {
+		Map<String, Object> time = (Map<String, Object>) stats
+				.get(STAT_TIMESTAMP);
+		Date date = ((Date) time.get(CONSOLIDATION_MIN));
+		assertTrue("runtime test exception in timeGTZero(): date = " + date,
+				date.getTime() > 0);
 	}
 
 	@Test
-	public void testAvgNonZero() throws UnknownHostException, MongoException {
-		double avg = attach.getAvgAttachSize();
-		assertTrue("(avg = " + avg + ")", avg != 0.0);
+	public void testAttachSize() throws UnknownHostException, MongoException {
+		Map<String, Object> intervalStats = (Map<String, Object>) stats
+				.get(STAT_INTERVAL);
+		Object attachSz = intervalStats.get(STAT_ATTACH_SIZE);
+		assertTrue("(max = " + attachSz + ")",
+				((Long) attachSz).longValue() >= 0.0);
 	}
 
 	@Test
-	public void testMaxNonZero() throws UnknownHostException, MongoException {
-		double max = attach.getMaxAttachSize();
-		assertTrue("(max = " + max + ")", max != 0.0);
-	}
-
-	@Test
-	public void testAvgGTZero() throws UnknownHostException, MongoException {
-		double avg = attach.getAvgAttachSize();
-		assertTrue("(avg = " + avg + ")", avg > 0.0);
-	}
-
-	@Test
-	public void testMaxGTZero() throws UnknownHostException, MongoException {
-		long max = attach.getMaxAttachSize();
-		assertTrue("(max = " + max + ")", max > 0);
-	}
-
-	@Test
-	public void testAvgLTEMax() throws UnknownHostException, MongoException {
-		double avg = attach.getAvgAttachSize();
-		long max = attach.getMaxAttachSize();
-		assertTrue(" (avg = " + avg + ":max = " + max + ")", avg <= max);
-	}
-
-	@Test
-	public void testERR() throws UnknownHostException, MongoException {
-		attach = new StatsMongoAttachmentsGatherer(new Mongo(),
-				TestingConstants.MONGODB_TEST_DATABASE, "IHopeThIsMess3s1tUp!",
-				"AttachmentGatherer", "0 * * * * ?");
-		attach.setUpperDate(new Date());
-		attach.setLowerDate(new Date(0L));
-		double max = attach.getMaxAttachSize();
-		double avg = attach.getAvgAttachSize();
-		assertTrue("(avg = " + avg + ")", avg == -1);
-		assertTrue("(max = " + max + ")", max == -1);
-		Map<String, Object> stats = attach.getStatistics();
-		assertNull("in attach.getStatistics() " + stats + " is not null", stats);
+	public void testAttNum() throws UnknownHostException, MongoException {
+		Map<String, Object> intervalStats = (Map<String, Object>) stats
+				.get(STAT_INTERVAL);
+		Object attachNum = intervalStats.get(STAT_ATTACH_NUM);
+		assertTrue("(attachNum = " + ((Integer) attachNum).intValue() + ")",
+				((Integer) attachNum).intValue() >= 0.0);
 	}
 }

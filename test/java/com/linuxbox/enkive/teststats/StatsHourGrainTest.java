@@ -1,170 +1,85 @@
+/*******************************************************************************
+ * Copyright 2012 The Linux Box Corporation.
+ * 
+ * This file is part of Enkive CE (Community Edition).
+ * Enkive CE is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of
+ * the License, or (at your option) any later version.
+ * 
+ * Enkive CE is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Affero General Public
+ * License along with Enkive CE. If not, see
+ * <http://www.gnu.org/licenses/>.
+ ******************************************************************************/
 package com.linuxbox.enkive.teststats;
 
-import static com.linuxbox.enkive.statistics.StatsConstants.STAT_STORAGE_COLLECTION;
-import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIME_STAMP;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_AVG;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MAX;
-import static com.linuxbox.enkive.statistics.granularity.GrainConstants.GRAIN_MIN;
+import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIMESTAMP;
+import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TS_POINT;
+import static com.linuxbox.enkive.statistics.VarsMaker.createListOfMaps;
+import static com.linuxbox.enkive.statistics.VarsMaker.createMap;
+import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_AVG;
+import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_MAX;
+import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_MIN;
 import static org.junit.Assert.assertTrue;
 
-import java.net.UnknownHostException;
 import java.text.ParseException;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.linuxbox.enkive.TestingConstants;
-import com.linuxbox.enkive.docsearch.indri.IndriDocSearchQueryService;
-import com.linuxbox.enkive.message.search.mongodb.MongoMessageSearchService;
+import com.linuxbox.enkive.statistics.RawStats;
+import com.linuxbox.enkive.statistics.consolidation.HourConsolidator;
 import com.linuxbox.enkive.statistics.gathering.GathererAttributes;
 import com.linuxbox.enkive.statistics.gathering.GathererException;
-import com.linuxbox.enkive.statistics.gathering.GathererInterface;
-import com.linuxbox.enkive.statistics.gathering.StatsMsgSearchGatherer;
-import com.linuxbox.enkive.statistics.gathering.StatsRuntimeGatherer;
-import com.linuxbox.enkive.statistics.gathering.mongodb.StatsMongoAttachmentsGatherer;
-import com.linuxbox.enkive.statistics.gathering.mongodb.StatsMongoCollectionGatherer;
-import com.linuxbox.enkive.statistics.gathering.mongodb.StatsMongoDBGatherer;
-import com.linuxbox.enkive.statistics.gathering.mongodb.StatsMongoMsgGatherer;
-import com.linuxbox.enkive.statistics.granularity.HourGrain;
 import com.linuxbox.enkive.statistics.services.StatsClient;
 import com.linuxbox.enkive.statistics.services.StatsGathererService;
-import com.linuxbox.enkive.statistics.services.retrieval.mongodb.MongoStatsRetrievalService;
-import com.linuxbox.enkive.statistics.services.storage.mongodb.MongoStatsStorageService;
-import com.mongodb.DB;
 import com.mongodb.DBCollection;
-import com.mongodb.Mongo;
-import com.mongodb.MongoException;
 
 public class StatsHourGrainTest {
-
-	private static MongoStatsRetrievalService retrievalTester;
-	private static MongoStatsStorageService storageTester;
 	private static StatsGathererService gatherTester;
 	private static StatsClient client;
-	private static HourGrain grain;
-	private static Mongo m;
-	private static DB db;
+	private static HourConsolidator grain;
 	private static DBCollection coll;
 	private static long dataCount;
 
+	@SuppressWarnings("unchecked")
 	@BeforeClass
 	public static void setUp() throws ParseException, GathererException {
-		try {
-			m = new Mongo();
-		} catch (UnknownHostException e) {
-			e.printStackTrace();
-		} catch (MongoException e) {
-			e.printStackTrace();
-		}
-		db = m.getDB(TestingConstants.MONGODB_TEST_DATABASE);
-		coll = db.getCollection(STAT_STORAGE_COLLECTION);
-		coll.drop();
+		gatherTester = TestHelper.BuildGathererService();
+		coll = TestHelper.GetTestCollection();
+		client = TestHelper.BuildClient();
+		grain = new HourConsolidator(client);
 
-		List<String> keys = new LinkedList<String>();
-		keys.add("db:");
-		keys.add("numObj:avg,max,min");
-		keys.add("nColls:avg,max,min");
-		keys.add("avgOSz:avg,max,min");
-		keys.add("dataSz:avg,max,min");
-		keys.add("totSz:avg,max,min");
-		keys.add("numInd:avg,max,min");
-		keys.add("indSz:avg,max,min");
-		keys.add("numExt:avg,max,min");
-		keys.add("fileSz:avg,max,min");
-		GathererInterface dbProp = new StatsMongoDBGatherer(m,
-				TestingConstants.MONGODB_TEST_DATABASE, "DBGatherer",
-				"* * * * * ?", keys);
-		
-		keys = new LinkedList<String>();
-		keys.add("*.ns:");
-		keys.add("*.numObj:avg,max,min");
-		keys.add("*.avgOSz:avg,max,min");
-		keys.add("*.dataSz:avg,max,min");
-		keys.add("*.totSz:avg,max,min");
-		keys.add("*.numExt:avg,max,min");
-		keys.add("*.lExSz:avg,max,min");
-		keys.add("*.numInd:avg,max,min");
-		keys.add("*.indSz:avg,max,min");
-		keys.add("*.indSzs.*:avg,max,min");
-		GathererInterface collProp = new StatsMongoCollectionGatherer(m,
-				TestingConstants.MONGODB_TEST_DATABASE, "CollGatherer",
-				"* * * * * ?", keys);
-		
-		keys = new LinkedList<String>();
-		keys.add("freeM:avg,max,min");
-		keys.add("maxM:avg,max,min");
-		keys.add("totM:avg,max,min");
-		keys.add("cores:avg,max,min");
-		GathererInterface runProp = new StatsRuntimeGatherer("RuntimeGatherer",
-				"* * * * * ?", keys);
-		
-		keys = new LinkedList<String>();
-		keys.add("numMsg:avg,max,min");
-		StatsMsgSearchGatherer msgProp = new StatsMsgSearchGatherer(
-				"MsgPropGatherer", "* * * * * ?", keys);
-		MongoMessageSearchService searchService = null;
-		try {
-			searchService = new MongoMessageSearchService(new Mongo(),
-					TestingConstants.MONGODB_TEST_DATABASE,
-					TestingConstants.MONGODB_TEST_MESSAGES_COLLECTION);
-		} catch (UnknownHostException e) {
-			e.printStackTrace();
-		} catch (MongoException e) {
-			e.printStackTrace();
-		}
-		searchService.setDocSearchService(new IndriDocSearchQueryService());
-		msgProp.setSearchService(searchService);
-		
-		keys = new LinkedList<String>();
-		keys.add("avgAtt:avg");
-		keys.add("maxAtt:max");
-		StatsMongoAttachmentsGatherer attProp = new StatsMongoAttachmentsGatherer(
-				m, TestingConstants.MONGODB_TEST_DATABASE,
-				TestingConstants.MONGODB_TEST_DOCUMENTS_COLLECTION,
-				"AttachmentGatherer", "* * * * * ?", false, keys);
-		attProp.setLowerDate(new Date(0L));
-		attProp.setUpperDate(new Date());
-		
-		keys = new LinkedList<String>();
-		keys.add("msgArchive:avg,max,min");
-		GathererInterface msgStatProp = new StatsMongoMsgGatherer(m,
-				TestingConstants.MONGODB_TEST_DATABASE,
-				TestingConstants.MONGODB_TEST_MESSAGES_COLLECTION,
-				"MsgStatGatherer", "* * * * * ?", keys);
-
-		HashMap<String, GathererInterface> gatherers = new HashMap<String, GathererInterface>();
-		gatherers.put("DatabaseStatsService", dbProp);
-		gatherers.put("CollStatsService", collProp);
-		gatherers.put("RuntimeStatsService", runProp);
-		gatherers.put("MsgEntriesStatsService", msgProp);
-		gatherers.put("AttachstatsService", attProp);
-		gatherers.put("msgStatStatsService", msgStatProp);
-		retrievalTester = new MongoStatsRetrievalService(m,
-				TestingConstants.MONGODB_TEST_DATABASE, TestingConstants.MONGODB_TEST_COLL);
-		storageTester = new MongoStatsStorageService(m,
-				TestingConstants.MONGODB_TEST_DATABASE, TestingConstants.MONGODB_TEST_COLL);
-		gatherTester = new StatsGathererService(gatherers);
-		client = new StatsClient(gatherTester, storageTester, retrievalTester);
-		grain = new HourGrain(client);
-
+		Calendar cal = Calendar.getInstance();
+		cal.set(Calendar.MILLISECOND, 0);
+		cal.set(Calendar.SECOND, 0);
+		cal.set(Calendar.MINUTE, 0);
 		for (int i = 0; i < 10; i++) {
-			Set<Map<String, Object>> stats = gatherTester.gatherStats();
-			Calendar cal = Calendar.getInstance();
-			if (i < 5) {
+			List<RawStats> stats = gatherTester.gatherStats();
+			List<Map<String, Object>> statsToStore = createListOfMaps();
+			if (i == 5) {
 				cal.add(Calendar.HOUR, -1);
 			}
-			for (Map<String, Object> data : stats) {
-				data.put(STAT_TIME_STAMP, cal.getTime());
+
+			for (RawStats data : stats) {
+				Map<String, Object> temp = data.toMap();
+				Map<String, Object> date = (Map<String, Object>) temp
+						.get(STAT_TIMESTAMP);
+				date.put(CONSOLIDATION_MIN, cal.getTime());
+				date.put(CONSOLIDATION_MAX, cal.getTime());
+				date.put(STAT_TS_POINT, cal.getTime());
+				statsToStore.add(temp);
 			}
-			client.storeData(stats);
+			client.storeData(statsToStore);
 		}
 		dataCount = coll.count();
 	}
@@ -173,11 +88,19 @@ public class StatsHourGrainTest {
 	public void correctQueryTest() {
 		for (GathererAttributes attribute : client.getAttributes()) {
 			String name = attribute.getName();
-			int size = grain.gathererFilter(name).size();
-			grain.consolidateData();
-			assertTrue(
-					"the query did not return the correct number of objects: 5 vs. "
-							+ size, size == 5);
+			List<List<Map<String, Object>>> data = grain.gathererFilter(name);
+			List<Map<String, Object>> pData = data.get(0);
+			int pSize = 0;
+			if (pData != null) {
+				pSize = pData.size();
+			}
+			List<Map<String, Object>> iData = data.get(1);
+			int iSize = 0;
+			if (iData != null) {
+				iSize = iData.size();
+			}
+			assertTrue("incorrect number of objects for " + name + " : 5 vs. "
+					+ iSize + " & " + pSize, iSize == 5 || pSize == 5);
 		}
 	}
 
@@ -185,23 +108,24 @@ public class StatsHourGrainTest {
 	public void noDeletedDataTest() {
 		long count = coll.count();
 		assertTrue("data was deleted by consolidatation: dataCount before: "
-				+ dataCount + "dataCount now: " + count, count >= dataCount);
+				+ dataCount + " dataCount now: " + count, count >= dataCount);
 	}
 
 	@Test
 	public void consolidationMethods() {
-		Set<Map<String, Object>> consolidatedData = grain.consolidateData();
+		List<Map<String, Object>> consolidatedData = grain.consolidateData();
 		assertTrue("the consolidated data is null", consolidatedData != null);
-		String methods[] = { GRAIN_AVG, GRAIN_MAX, GRAIN_MIN };
-		Object exampleData = new Integer(10);
+		String methods[] = { CONSOLIDATION_AVG, CONSOLIDATION_MAX,
+				CONSOLIDATION_MIN };
 		DescriptiveStatistics statsMaker = new DescriptiveStatistics();
 		statsMaker.addValue(111);
 		statsMaker.addValue(11);
 		statsMaker.addValue(1);
-		Map<String, Object> statData = new HashMap<String, Object>();
+		Map<String, Object> statData = createMap();
 		for (String method : methods) {
-			grain.methodMapBuilder(method, exampleData, statsMaker, statData);
+			grain.methodMapBuilder(method, statsMaker, statData);
 		}
 		assertTrue("methodMapBuilder returned null", statData != null);
 	}
+
 }

@@ -24,7 +24,7 @@ import java.util.concurrent.Future;
 
 import com.linuxbox.enkive.docsearch.exception.DocSearchException;
 import com.linuxbox.enkive.message.search.exception.MessageSearchException;
-import com.linuxbox.enkive.workspace.SearchResult;
+import com.linuxbox.enkive.workspace.searchResult.SearchResult;
 
 public interface MessageSearchService {
 
@@ -39,18 +39,6 @@ public interface MessageSearchService {
 	 * @throws DocSearchException
 	 */
 	SearchResult search(HashMap<String, String> fields)
-			throws MessageSearchException;
-	
-	/**
-	 * Perform a search for a user and return an integer representing the number
-	 * of objects found.
-	 * 
-	 * @param fields
-	 * 
-	 * @return
-	 * @throws DocSearchException
-	 */
-	int countSearch(HashMap<String, String> fields)
 			throws MessageSearchException;
 
 	/**

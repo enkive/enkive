@@ -30,7 +30,6 @@ import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Set;
 import java.util.concurrent.Future;
 
 import org.apache.commons.logging.Log;
@@ -38,7 +37,7 @@ import org.apache.commons.logging.LogFactory;
 
 import com.linuxbox.enkive.message.retention.MessageRetentionPolicy;
 import com.linuxbox.enkive.message.search.exception.MessageSearchException;
-import com.linuxbox.enkive.workspace.SearchResult;
+import com.linuxbox.enkive.workspace.searchResult.SearchResult;
 
 public class RetentionPolicyEnforcingMessageSearchService implements
 		MessageSearchService {
@@ -61,14 +60,6 @@ public class RetentionPolicyEnforcingMessageSearchService implements
 	public Future<SearchResult> searchAsync(HashMap<String, String> fields)
 			throws MessageSearchException {
 		throw new MessageSearchException("Unimplemented");
-	}
-	
-	@Override
-	public int countSearch(HashMap<String, String> fields)
-			throws MessageSearchException {
-		SearchResult search = search(fields);
-		Set<String> searchSet = search.getMessageIds();
-		return searchSet.size();
 	}
 
 	@Override

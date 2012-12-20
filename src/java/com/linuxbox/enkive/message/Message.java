@@ -24,17 +24,7 @@ import java.io.Writer;
 
 import org.apache.james.mime4j.dom.Header;
 
-import com.linuxbox.enkive.exception.BadMessageException;
-
 public interface Message extends MessageSummary {
-	/**
-	 * 
-	 * @return All the headers starting just after the DATA (S|L)MPT command up
-	 *         to the blank line that separates the headers from the message
-	 *         content. Having the exact headers will allow us to re-constitute
-	 *         the original message byte for byte.
-	 */
-	public String getOriginalHeaders();
 
 	/**
 	 * 
@@ -69,18 +59,6 @@ public interface Message extends MessageSummary {
 	 * @param contentHeader
 	 */
 	public void setContentHeader(ContentHeader contentHeader);
-
-	/**
-	 * @param originalHeaders
-	 *            A string containing the original headers. It is assumed that
-	 *            these headers will be parsed at some point allowing methods
-	 *            like getTo() and getSubject() to return information from the
-	 *            original headers.
-	 * @throws IOException
-	 * @throws BadMessageException
-	 */
-	public void setOriginalHeaders(String originalHeaders)
-			throws BadMessageException, IOException;
 
 	/**
 	 * 

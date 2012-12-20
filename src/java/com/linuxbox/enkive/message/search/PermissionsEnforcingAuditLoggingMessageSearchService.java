@@ -31,7 +31,7 @@ import java.util.HashMap;
 import com.linuxbox.enkive.exception.CannotGetPermissionsException;
 import com.linuxbox.enkive.message.search.exception.MessageSearchException;
 import com.linuxbox.enkive.permissions.PermissionService;
-import com.linuxbox.enkive.workspace.SearchResult;
+import com.linuxbox.enkive.workspace.searchResult.SearchResult;
 
 public class PermissionsEnforcingAuditLoggingMessageSearchService extends
 		AuditLoggingMessageSearchService {

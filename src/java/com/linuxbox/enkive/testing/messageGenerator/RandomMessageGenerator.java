@@ -43,14 +43,15 @@ import org.apache.james.mime4j.dom.field.ContentTypeField;
 
 public class RandomMessageGenerator extends AbstractMessageGenerator {
 
-	public static String messageBodyDataDirectory = "test/data/text";
 	public static int DATE_RANGE = 365;
 
 	protected Random randGen;
+	protected String messageBodyDataDirectory;
 
-	public RandomMessageGenerator() {
+	public RandomMessageGenerator(String messageBodyDataDirectory) {
 		super();
 		randGen = new Random();
+		this.messageBodyDataDirectory = messageBodyDataDirectory;
 	}
 
 	@Override
@@ -75,11 +76,11 @@ public class RandomMessageGenerator extends AbstractMessageGenerator {
 			BodyPart bp = new MimeBodyPart();
 			bp.setText(generateMessageBody());
 			BodyPart nestedMessage = new MimeBodyPart();
-			MimeMessage nestedMimeMessage = new SimpleRandomMessageGenerator()
-					.generateMessage();
+			MimeMessage nestedMimeMessage = new SimpleRandomMessageGenerator(
+					messageBodyDataDirectory).generateMessage();
 			nestedMimeMessage.setSentDate(message.getSentDate());
-			nestedMessage.setContent(
-					new SimpleRandomMessageGenerator().generateMessage(),
+			nestedMessage.setContent(new SimpleRandomMessageGenerator(
+					messageBodyDataDirectory).generateMessage(),
 					ContentTypeField.TYPE_MESSAGE_RFC822);
 			mp.addBodyPart(bp);
 			mp.addBodyPart(nestedMessage);
@@ -100,12 +101,8 @@ public class RandomMessageGenerator extends AbstractMessageGenerator {
 	protected String generateMessageBody() {
 		InputStream is = null;
 		StringBuffer messageBody = new StringBuffer();
-		String workspaceDirectory = new File(".").getAbsolutePath();
 		try {
-			// File workspaceDirectory =
-			// workspace.getRoot().getLocation().toFile();
-			File messageBodyDataDir = new File(workspaceDirectory + "/"
-					+ messageBodyDataDirectory);
+			File messageBodyDataDir = new File(messageBodyDataDirectory);
 			File[] files = messageBodyDataDir.listFiles();
 
 			int fileToGet = randGen.nextInt(files.length);
@@ -142,7 +139,7 @@ public class RandomMessageGenerator extends AbstractMessageGenerator {
 
 	@Override
 	protected String generateSubject() {
-		return "Enkive Test Message 5";
+		return "Enkive Test Message";
 	}
 
 	@Override

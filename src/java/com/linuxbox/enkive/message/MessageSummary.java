@@ -19,6 +19,7 @@
  *******************************************************************************/
 package com.linuxbox.enkive.message;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -206,6 +207,26 @@ public interface MessageSummary {
 	 * @return the "To:" recipients of the message as a comma-separated string
 	 */
 	public abstract String getToStr();
+
+	/**
+	 * 
+	 * @return All the headers starting just after the DATA (S|L)MPT command up
+	 *         to the blank line that separates the headers from the message
+	 *         content. Having the exact headers will allow us to re-constitute
+	 *         the original message byte for byte.
+	 */
+	public String getOriginalHeaders();
+
+	/**
+	 * @param originalHeaders
+	 *            A string containing the original headers. It is assumed that
+	 *            these headers will be parsed at some point allowing methods
+	 *            like getTo() and getSubject() to return information from the
+	 *            original headers.
+	 * @throws IOException
+	 * @throws BadMessageException
+	 */
+	public void setOriginalHeaders(String originalHeaders);
 
 	/**
 	 * 

@@ -19,6 +19,7 @@
  *******************************************************************************/
 package com.linuxbox.enkive.message.search.mongodb;
 
+import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.ARCHIVE_TIME;
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.CC;
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.DATE;
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.FROM;
@@ -31,6 +32,7 @@ import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.AT
 import static com.linuxbox.enkive.search.Constants.CONTENT_PARAMETER;
 import static com.linuxbox.enkive.search.Constants.DATE_EARLIEST_PARAMETER;
 import static com.linuxbox.enkive.search.Constants.DATE_LATEST_PARAMETER;
+import static com.linuxbox.enkive.search.Constants.DATE_TYPE;
 import static com.linuxbox.enkive.search.Constants.LIMIT_PARAMETER;
 import static com.linuxbox.enkive.search.Constants.MESSAGE_ID_PARAMETER;
 import static com.linuxbox.enkive.search.Constants.NUMERIC_SEARCH_FORMAT;
@@ -56,7 +58,6 @@ import org.apache.commons.logging.LogFactory;
 import com.linuxbox.enkive.docsearch.exception.DocSearchException;
 import com.linuxbox.enkive.message.search.AbstractMessageSearchService;
 import com.linuxbox.enkive.message.search.exception.MessageSearchException;
-import com.linuxbox.enkive.workspace.SearchResult;
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
@@ -261,7 +262,12 @@ public class MongoMessageSearchService extends AbstractMessageSearchService {
 						}
 					}
 				}
-				query.put(DATE, dateQuery);
+				if (fields.containsKey(DATE_TYPE)
+						&& fields.get(DATE_TYPE).equals(ARCHIVE_TIME)) {
+					query.put(ARCHIVE_TIME, dateQuery);
+				} else {
+					query.put(DATE, dateQuery);
+				}
 			} else if (searchField.equals(SUBJECT_PARAMETER)) {
 				Pattern subjectRegex = Pattern.compile(fields.get(searchField),
 						Pattern.CASE_INSENSITIVE);
@@ -297,14 +303,6 @@ public class MongoMessageSearchService extends AbstractMessageSearchService {
 	public boolean cancelAsyncSearch(String searchId)
 			throws MessageSearchException {
 		throw new MessageSearchException("Unimplemented");
-	}
-
-	@Override
-	public int countSearch(HashMap<String, String> fields)
-			throws MessageSearchException {
-		SearchResult search = search(fields);
-		Set<String> searchSet = search.getMessageIds();
-		return searchSet.size();
 	}
 
 }

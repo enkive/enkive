@@ -52,10 +52,10 @@ import com.linuxbox.enkive.web.EnkiveServlet;
 import com.linuxbox.enkive.web.WebConstants;
 import com.linuxbox.enkive.web.WebPageInfo;
 import com.linuxbox.enkive.web.WebScriptUtils;
-import com.linuxbox.enkive.workspace.SearchQuery;
-import com.linuxbox.enkive.workspace.SearchResult;
 import com.linuxbox.enkive.workspace.WorkspaceException;
 import com.linuxbox.enkive.workspace.WorkspaceService;
+import com.linuxbox.enkive.workspace.searchQuery.SearchQuery;
+import com.linuxbox.enkive.workspace.searchResult.SearchResult;
 
 /**
  * This webscript is run when a user wants to see the results of a prior search,
@@ -82,8 +82,15 @@ public class ViewSavedResultsServlet extends EnkiveServlet {
 
 	public void doGet(HttpServletRequest req, HttpServletResponse res)
 			throws IOException {
+		String sortBy = null;
+		int sortDir = 1;
 		try {
 			String searchId = WebScriptUtils.cleanGetParameter(req, "id");
+			sortBy = WebScriptUtils.cleanGetParameter(req, "sortBy");
+			String sortDirString = WebScriptUtils.cleanGetParameter(req,
+					"sortDir");
+			if (sortDirString != null)
+				sortDir = Integer.parseInt(sortDirString);
 
 			WebPageInfo pageInfo = new WebPageInfo(
 					WebScriptUtils.cleanGetParameter(req,
@@ -98,8 +105,11 @@ public class ViewSavedResultsServlet extends EnkiveServlet {
 
 			SearchResult searchResult = workspaceService
 					.getSearchResult(searchId);
-			SearchQuery searchQuery = workspaceService
-					.getSearchQuery(searchResult.getSearchQueryId());
+
+			if (sortBy != null && !sortBy.equals(""))
+				searchResult.sortSearchResultMessages(sortBy, sortDir);
+
+			SearchQuery searchQuery = searchResult.getSearchQuery();
 
 			JSONObject jsonCriteria = new JSONObject();
 			/* Query */

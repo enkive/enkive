@@ -60,7 +60,7 @@ import com.linuxbox.enkive.retriever.MessageRetrieverService;
 import com.linuxbox.enkive.web.WebConstants;
 import com.linuxbox.enkive.web.WebPageInfo;
 import com.linuxbox.enkive.web.WebScriptUtils;
-import com.linuxbox.enkive.workspace.SearchResult;
+import com.linuxbox.enkive.workspace.searchResult.SearchResult;
 
 public class AdvancedSearch extends AbstractSearchWebScript {
 
