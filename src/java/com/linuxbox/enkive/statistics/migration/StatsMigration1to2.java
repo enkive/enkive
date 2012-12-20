@@ -5,6 +5,7 @@ import static com.linuxbox.util.dbmigration.DBMigrationConstants.SERVICE;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.core.annotation.Order;
 
 import com.linuxbox.util.dbmigration.DBInfo;
 import com.linuxbox.util.dbmigration.DBMigration;
@@ -20,6 +21,7 @@ import com.mongodb.Mongo;
  * @author noah
  * 
  */
+@Order(1)
 public class StatsMigration1to2 extends DBMigration {
 	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.statistics.migration.StatsMigration1to2");
@@ -44,8 +46,7 @@ public class StatsMigration1to2 extends DBMigration {
 		// we don't care about the data so we don't need to stash it while
 		// emptying the DB
 		// we also don't need to recreate the collection as the statistics
-		// service will
-		// do that automatically for us
+		// service will do that automatically for us
 		enkive.getCollection(statsColl).drop();
 
 		DBObject statsVersion = new BasicDBObject(SERVICE, STATS_SERVICE_NAME);

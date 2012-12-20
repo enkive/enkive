@@ -8,7 +8,9 @@ import javax.annotation.PostConstruct;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.core.annotation.Order;
 
+@Order(2)
 public class DBMigrator {
 	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.util.dbmigration.DBMigrator");
@@ -55,7 +57,6 @@ public class DBMigrator {
 	@PostConstruct
 	public void init() {
 		LOGGER.info("Running " + migratorName);
-		// System.out.println("Running " + migratorName);
 		try {
 			runAll(db.getCurrentVersion());
 		} catch (DBMigrationException e) {

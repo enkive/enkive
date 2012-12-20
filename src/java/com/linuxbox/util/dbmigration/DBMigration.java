@@ -4,6 +4,7 @@ public abstract class DBMigration {
 	int fromVersion;
 	int toVersion;
 
+	
 	public DBMigration(int fromVersion, int toVersion)
 			throws DBMigrationException {
 		this.fromVersion = fromVersion;
