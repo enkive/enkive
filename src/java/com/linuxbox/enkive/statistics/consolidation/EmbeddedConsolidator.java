@@ -120,7 +120,7 @@ public abstract class EmbeddedConsolidator extends AbstractConsolidator {
 					mapToStore.put(STAT_TIMESTAMP, dateMap);
 					mapToStore.put(CONSOLIDATION_TYPE, consolidationType);
 					mapToStore.put(STAT_GATHERER_NAME, attribute.getName());
-					
+
 					storageData.add(mapToStore);
 				}
 			}
@@ -135,8 +135,9 @@ public abstract class EmbeddedConsolidator extends AbstractConsolidator {
 		Map<String, Object> statConsolidatedData = new HashMap<String, Object>();
 		if (keyDef.getMethods() != null) {
 			// loop over stat consolidation methods
-			Collection<String> methods = new LinkedList<String>(keyDef.getMethods());
-			if(!keyDef.isPoint()){
+			Collection<String> methods = new LinkedList<String>(
+					keyDef.getMethods());
+			if (!keyDef.isPoint()) {
 				methods.add(CONSOLIDATION_SUM);
 			}
 			for (String method : methods) {

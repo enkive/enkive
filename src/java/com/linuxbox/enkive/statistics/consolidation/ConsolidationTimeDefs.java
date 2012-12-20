@@ -25,11 +25,11 @@ public enum ConsolidationTimeDefs {
 	DAY(0, -1, -1, -1), // first hour of any day
 	WEEK(0, -1, 1, -1), // Sunday of any week
 	MONTH(0, 1, -1, -1); // first day of any month
-	
+
 	private int hour;
 	private int dayOfMonth;// -1 means any
 	private int week;
-	private int month;	
+	private int month;
 
 	ConsolidationTimeDefs(int hour, int dayOfMonth, int week, int month) {
 		this.hour = hour;

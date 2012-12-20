@@ -15,7 +15,7 @@ public class DBMigrator {
 	String migratorName;
 	DBInfo db;
 
-	public DBMigrator(String migratorName, DBInfo db) {
+	protected DBMigrator(String migratorName, DBInfo db) {
 		this.migratorName = migratorName;
 		this.db = db;
 	}
@@ -34,7 +34,9 @@ public class DBMigrator {
 		while (fromVersion < toVersion) {
 			Integer newVersion = runNext(fromVersion);
 			if (newVersion == null) {
-				throw new DBMigrationException(migratorName + " could not find the migration for version " + fromVersion);
+				throw new DBMigrationException(migratorName
+						+ " could not find the migration for version "
+						+ fromVersion);
 			}
 			fromVersion = newVersion;
 		}
@@ -42,17 +44,17 @@ public class DBMigrator {
 	}
 
 	@PostConstruct
-	public void init(){
+	public void init() {
 		LOGGER.info("Running " + migratorName);
-//		System.out.println("Running " + migratorName);
+		// System.out.println("Running " + migratorName);
 		try {
 			runAll(db.getCurrentVersion());
 		} catch (DBMigrationException e) {
-			//TODO not sure what to do in this case
+			// TODO not sure what to do in this case
 			e.printStackTrace();
 		}
 	}
-	
+
 	public int runAll(int fromVersion) throws DBMigrationException {
 		Integer lastVersion = fromVersion;
 		Integer newVersion = runNext(lastVersion);

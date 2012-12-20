@@ -31,12 +31,12 @@ public class MongoStatsFilter extends StatsFilter {
 
 	public MongoStatsFilter(String gathererName, List<String> keyNames) {
 		this.gathererName = gathererName;
-		
+
 		if (keyNames != null) {
 			keyNames.add(STAT_GATHERER_NAME);
 			keyNames.add(STAT_TIMESTAMP);
 			keys = createMap();
-			for(String key: keyNames){
+			for (String key : keyNames) {
 				keys.put(key, 1);
 			}
 		}

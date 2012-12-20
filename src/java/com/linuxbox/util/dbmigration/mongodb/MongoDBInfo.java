@@ -1,5 +1,9 @@
 package com.linuxbox.util.dbmigration.mongodb;
 
+import static com.linuxbox.util.dbmigration.DBMigrationConstants.MIGRATOR_SERVICE_COLLECTION;
+import static com.linuxbox.util.dbmigration.DBMigrationConstants.SERVICE;
+import static com.linuxbox.util.dbmigration.DBMigrationConstants.VERSION;
+
 import com.linuxbox.util.dbmigration.DBInfo;
 import com.linuxbox.util.dbmigration.DBMigrationException;
 import com.mongodb.BasicDBObject;
@@ -13,18 +17,21 @@ public class MongoDBInfo implements DBInfo {
 	String serviceName;
 	DBCollection collection;
 	protected static DBCollection migratorColl = null;
-	
-	public MongoDBInfo(Mongo mongo, String dbName, String collectionName, String serviceName) {
+
+	public MongoDBInfo(Mongo mongo, String dbName, String collectionName,
+			String serviceName) {
 		this.mongo = mongo;
 		this.dbName = dbName;
 		this.collection = mongo.getDB(dbName).getCollection(collectionName);
 		this.serviceName = serviceName;
-		
-		if(mongo.getDB(dbName).collectionExists("migratorService")) {
-			migratorColl = mongo.getDB(dbName).getCollection("migratorService");
+
+		if (mongo.getDB(dbName).collectionExists(MIGRATOR_SERVICE_COLLECTION)) {
+			migratorColl = mongo.getDB(dbName).getCollection(
+					MIGRATOR_SERVICE_COLLECTION);
 		}
 	}
 
+	// I don't understand how these methods are supposed to be used.
 	public Mongo getMongo() {
 		return mongo;
 	}
@@ -39,18 +46,20 @@ public class MongoDBInfo implements DBInfo {
 
 	@Override
 	public int getCurrentVersion() throws DBMigrationException {
-		if(migratorColl != null) {
-			DBObject serviceVersionData = migratorColl.findOne(new BasicDBObject("service", serviceName));
+		if (migratorColl != null) {
+			DBObject serviceVersionData = migratorColl
+					.findOne(new BasicDBObject(SERVICE, serviceName));
 			Integer version = null;
-			
-			if(serviceVersionData != null){
-				version = (Integer)serviceVersionData.get("version");
+
+			if (serviceVersionData != null) {
+				version = (Integer) serviceVersionData.get(VERSION);
 			}
-			
-			if(version != null){
+
+			if (version != null) {
 				return version;
 			} else {
-				throw new DBMigrationException("The current version for the " + serviceName + " could not be found.");
+				throw new DBMigrationException("The current version for the "
+						+ serviceName + " could not be found.");
 			}
 		} else {
 			return 1;

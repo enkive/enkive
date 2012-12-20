@@ -56,6 +56,7 @@ public class StatsMigration1to2 extends DBMigration {
 		// statsVersion.put("version", 2);
 
 		// enkive.getCollection("migratorService").insert(statsVersion);
+
 		return true;
 	}
 }

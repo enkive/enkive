@@ -21,7 +21,6 @@ package com.linuxbox.enkive.statistics.gathering.mongodb;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_AVG_OBJ_SIZE;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_DATA_SIZE;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_FILE_SIZE;
-import static com.linuxbox.enkive.statistics.StatsConstants.STAT_NAME;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_NUM_COLLECTIONS;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_NUM_EXTENT;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_NUM_INDEX;
@@ -59,8 +58,9 @@ public class MongoStatsDatabaseGatherer extends AbstractGatherer {
 	protected DB db;
 	protected Mongo m;
 
-	public MongoStatsDatabaseGatherer(Mongo m, String dbName, String gathererName,
-			String humanName, List<String> keys) throws GathererException {
+	public MongoStatsDatabaseGatherer(Mongo m, String dbName,
+			String gathererName, String humanName, List<String> keys)
+			throws GathererException {
 		super(gathererName, humanName, keys);
 		this.m = m;
 		db = m.getDB(dbName);
