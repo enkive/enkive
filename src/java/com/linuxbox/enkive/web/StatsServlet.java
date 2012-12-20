@@ -363,12 +363,13 @@ public class StatsServlet extends EnkiveServlet {
 						StatsQuery query = new MongoStatsQuery(serviceName,
 								grainType, STAT_INTERVAL, startTimestamp,
 								endTimestamp);
-						//TODO
+						// TODO
 						StatsFilter filter = null;
 						String[] keys = req.getParameterValues(serviceName);
 						// building filter
 						if (keys != null) {
-							List<String> temp = new ArrayList<String>(Arrays.asList(keys));
+							List<String> temp = new ArrayList<String>(
+									Arrays.asList(keys));
 							filter = new MongoStatsFilter(serviceName, temp);
 						} else {
 							filter = new MongoStatsFilter(serviceName, null);
@@ -418,11 +419,11 @@ public class StatsServlet extends EnkiveServlet {
 						result.add(consolidatedMap);
 					}
 				}
-				
+
 				try {
 					// 6. return data from query
 					JSONObject statistics = new JSONObject();
-					
+
 					statistics.put("results", new JSONArray(result.toArray()));
 					LOGGER.debug("Statistical Data: " + statistics);
 					resp.getWriter().write(statistics.toString());

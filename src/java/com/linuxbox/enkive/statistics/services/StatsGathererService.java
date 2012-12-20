@@ -47,7 +47,8 @@ public class StatsGathererService {
 		this.statsGatherers = new HashMap<String, Gatherer>();
 		for (String key : statsGatherers.keySet()) {
 			Gatherer gatherer = statsGatherers.get(key);
-			this.statsGatherers.put(gatherer.getAttributes().getName(), gatherer);
+			this.statsGatherers.put(gatherer.getAttributes().getName(),
+					gatherer);
 		}
 	}
 
@@ -55,7 +56,8 @@ public class StatsGathererService {
 			throws ParseException {
 		this.statsGatherers = new HashMap<String, Gatherer>();
 		for (Gatherer gatherer : statsGatherers) {
-			this.statsGatherers.put(gatherer.getAttributes().getName(),	gatherer);
+			this.statsGatherers.put(gatherer.getAttributes().getName(),
+					gatherer);
 		}
 	}
 

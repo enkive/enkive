@@ -62,7 +62,8 @@ public class HourConsolidator extends AbstractConsolidator {
 				startDate, endDate);
 		StatsFilter filter = new StatsTypeFilter(type);
 		List<Map<String, Object>> result = createListOfMaps();
-		Set<Map<String, Object>> queryData = client.queryStatistics(query,filter);
+		Set<Map<String, Object>> queryData = client.queryStatistics(query,
+				filter);
 		for (Map<String, Object> statsMap : queryData) {
 			statsMap.remove("_id");// WARNING mongo specific pollution
 
@@ -189,7 +190,8 @@ public class HourConsolidator extends AbstractConsolidator {
 			// loop over methods to populate map with max, min, etc.
 			Map<String, Object> methodData = createMap();
 			for (String method : keyDef.getMethods()) {
-				if (!method.equals(CONSOLIDATION_SUM)) {// may not be user defined
+				if (!method.equals(CONSOLIDATION_SUM)) {// may not be user
+														// defined
 					methodMapBuilder(method, statsMaker, methodData);
 				}
 			}
@@ -217,6 +219,5 @@ public class HourConsolidator extends AbstractConsolidator {
 	public void setTypes() {
 		setTypes(CONSOLIDATION_HOUR, CONSOLIDATION_RAW);
 	}
-	
-	
+
 }

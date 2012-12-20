@@ -34,7 +34,6 @@ import java.util.TreeMap;
 import org.apache.commons.lang.time.DateUtils;
 import org.bson.types.ObjectId;
 
-import com.linuxbox.enkive.exception.CannotGetPermissionsException;
 import com.linuxbox.enkive.imap.EnkiveImapAccountCreator;
 import com.linuxbox.enkive.message.search.exception.MessageSearchException;
 import com.linuxbox.enkive.permissions.PermissionService;

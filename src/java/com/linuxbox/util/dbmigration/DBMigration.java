@@ -8,7 +8,7 @@ public abstract class DBMigration {
 			throws DBMigrationException {
 		this.fromVersion = fromVersion;
 		this.toVersion = toVersion;
-//		migrator.registerMigration(this);
+		// migrator.registerMigration(this);
 	}
 
 	public abstract boolean migrate(DBInfo db) throws DBMigrationException;
