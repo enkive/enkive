@@ -106,8 +106,8 @@ public class LdapSpringContextPermissionService extends
 	}
 
 	public void setLdapEmailField(String ldapEmailField) {
-		LOGGER.trace("initializing LdapSpringContextPermissionService's LDAP email field to "
-				+ ldapEmailField);
+		LOGGER.trace("initializing LdapSpringContextPermissionService's LDAP email field to \""
+				+ ldapEmailField + "\".");
 		this.ldapEmailField = ldapEmailField;
 	}
 }
