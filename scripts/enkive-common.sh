@@ -15,13 +15,13 @@
 # VARIABLES YOU MAY WANT TO CHANGE
 
 # path to top level of the Java JDK (must be a JDK and not a JRE); should contain "bin", "lib", and "lib/tools.jar"
-JAVA_HOME=/opt/java
+JAVA_HOME=${JAVA_HOME:-"/opt/java"}
 
 # path to the top level of enkive
-ENKIVE_HOME=/opt/enkive
+ENKIVE_HOME=${ENKIVE_HOME:-"/opt/enkive"}
 
 # path to directory that contains file "libindri_jni.so"
-INDRI_SO_PATH=/usr/local/lib
+INDRI_SO_PATH=${INDRI_SO_PATH:-"/usr/local/lib"}
 
 
 # TESTING OF THE ABOVE
@@ -29,17 +29,17 @@ INDRI_SO_PATH=/usr/local/lib
 errors=0
 
 if [ ! -f ${JAVA_HOME}/bin/javac -o ! -f ${JAVA_HOME}/lib/tools.jar ] ;then
-	echo JAVA_HOME is likely set incorrectly.
+	echo "JAVA_HOME (${JAVA_HOME}) is likely set incorrectly."
 	errors=1
 fi
 
 if [ ! -d ${ENKIVE_HOME}/config -o ! -d ${ENKIVE_HOME}/lib ] ;then
-	echo ENKIVE_HOME is likely set incorrectly.
+	echo "ENKIVE_HOME (${ENKIVE_HOME}) is likely set incorrectly."
 	errors=1
 fi
 
 if [ ! -f ${INDRI_SO_PATH}/libindri_jni.so ] ;then
-	echo INDRI_SO_PATH is likely set incorrectly.
+	echo "INDRI_SO_PATH (${INDRI_SO_PATH}) is likely set incorrectly."
 	errors=1
 fi
 
