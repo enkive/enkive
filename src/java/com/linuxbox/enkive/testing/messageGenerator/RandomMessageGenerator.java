@@ -113,6 +113,7 @@ public class RandomMessageGenerator extends AbstractMessageGenerator {
 			while ((s = dis.readLine()) != null) {
 				messageBody.append(s + System.getProperty("line.separator"));
 			}
+			dis.close();
 
 		} catch (Exception e) {
 			e.printStackTrace();
