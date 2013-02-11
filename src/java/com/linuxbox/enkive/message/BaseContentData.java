@@ -44,10 +44,10 @@ public interface BaseContentData {
 
 	/*
 	 * Perhaps we probably only need either getBinaryContent() or
-	 * transferBinaryContent() at this point. If they're trivially to implement,
+	 * transferBinaryContent() at this point. If they're trivial to implement,
 	 * we might as well have both. If it would be better just to implement one,
-	 * we can figure out which would be better from the Alfersco API's
-	 * perspective.
+	 * we can figure out which would be better from the perspective of other,
+	 * inter-related APIs.
 	 */
 
 	/**
