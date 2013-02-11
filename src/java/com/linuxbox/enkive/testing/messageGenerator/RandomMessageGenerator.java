@@ -19,15 +19,8 @@
  *******************************************************************************/
 package com.linuxbox.enkive.testing.messageGenerator;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Random;
 
 import javax.mail.BodyPart;
 import javax.mail.Message;
@@ -41,17 +34,12 @@ import javax.mail.internet.MimeMultipart;
 
 import org.apache.james.mime4j.dom.field.ContentTypeField;
 
-public class RandomMessageGenerator extends AbstractMessageGenerator {
+public class RandomMessageGenerator extends SimpleRandomMessageGenerator {
 
 	public static int DATE_RANGE = 365;
 
-	protected Random randGen;
-	protected String messageBodyDataDirectory;
-
 	public RandomMessageGenerator(String messageBodyDataDirectory) {
-		super();
-		randGen = new Random();
-		this.messageBodyDataDirectory = messageBodyDataDirectory;
+		super(messageBodyDataDirectory);
 	}
 
 	@Override
@@ -95,36 +83,6 @@ public class RandomMessageGenerator extends AbstractMessageGenerator {
 			e.printStackTrace();
 		}
 		return null;
-	}
-
-	@Override
-	protected String generateMessageBody() {
-		InputStream is = null;
-		StringBuffer messageBody = new StringBuffer();
-		try {
-			File messageBodyDataDir = new File(messageBodyDataDirectory);
-			File[] files = messageBodyDataDir.listFiles();
-
-			int fileToGet = randGen.nextInt(files.length);
-			is = new FileInputStream(files[fileToGet]);
-
-			BufferedReader dis = new BufferedReader(new InputStreamReader(is));
-			String s;
-			while ((s = dis.readLine()) != null) {
-				messageBody.append(s + System.getProperty("line.separator"));
-			}
-
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			try {
-				is.close();
-			} catch (IOException ioe) {
-
-			}
-
-		}
-		return messageBody.toString();
 	}
 
 	@Override
