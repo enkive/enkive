@@ -235,11 +235,14 @@ public class MongoRetrieverService extends AbstractRetrieverService {
 
 	private void setMessageProperties(Message message, DBObject messageObject)
 			throws IOException, BadMessageException {
-		if (messageObject.get(ORIGINAL_HEADERS) != null)
+		if (messageObject.get(ORIGINAL_HEADERS) != null) {
 			message.setOriginalHeaders((String) messageObject
 					.get(ORIGINAL_HEADERS));
-		if (messageObject.get(MESSAGE_DIFF) != null)
-			message.setMessageDiff(((String) messageObject.get(MESSAGE_DIFF)));
+		}
+		
+		if (messageObject.get(MESSAGE_DIFF) != null) {
+			message.setMessageDiff((String) messageObject.get(MESSAGE_DIFF));
+		}
 	}
 
 	private void setSinglePartHeaderProperties(SinglePartHeader header,
@@ -275,7 +278,6 @@ public class MongoRetrieverService extends AbstractRetrieverService {
 					e);
 		}
 		return attachment;
-
 	}
 
 }
