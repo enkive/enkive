@@ -50,8 +50,7 @@ public class AttachmentRetrieveServlet extends EnkiveServlet {
 					.retrieveAttachment(attachmentUUID);
 
 			String filename = attachment.getFilename();
-			if (attachment.getFilename() == null
-					|| attachment.getFilename().isEmpty()) {
+			if (filename == null || filename.isEmpty()) {
 				filename = "Message Body";
 			}
 			try {
@@ -69,14 +68,13 @@ public class AttachmentRetrieveServlet extends EnkiveServlet {
 						"error transferring attachment " + attachmentUUID
 								+ "; see server logs");
 			}
-
 		} catch (CannotRetrieveException e) {
-			if (LOGGER.isErrorEnabled())
+			if (LOGGER.isErrorEnabled()) {
 				LOGGER.error("error retrieving attachment " + attachmentUUID, e);
+			}
 			resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
 					"error retrieving attachment " + attachmentUUID
 							+ "; see server logs");
-
 		}
 	}
 }

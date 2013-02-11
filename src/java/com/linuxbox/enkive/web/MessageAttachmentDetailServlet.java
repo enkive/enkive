@@ -45,13 +45,11 @@ public class MessageAttachmentDetailServlet extends EnkiveServlet {
 
 	public void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
-
 		final String messageId = req.getParameter("message_id");
 		final MessageRetrieverService retriever = getMessageRetrieverService();
 
 		try {
 			final Message message = retriever.retrieve(messageId);
-
 			JSONArray attachments = new JSONArray();
 
 			for (String attachmentUUID : message.getContentHeader()
@@ -62,17 +60,22 @@ public class MessageAttachmentDetailServlet extends EnkiveServlet {
 				JSONObject attachmentObject = new JSONObject();
 
 				String filename = attachment.getFilename();
-				if (attachment.getFilename() == null
-						|| attachment.getFilename().isEmpty()) {
+				if (filename == null || filename.isEmpty()) {
 					filename = "Message Body";
 				}
-				attachmentObject.put("filename", filename);
+
+				String mimeType = attachment.getMimeType();
+				if (mimeType == null) {
+					mimeType = "";
+				}
+
 				attachmentObject.put("UUID", attachmentUUID);
+				attachmentObject.put("filename", filename);
+				attachmentObject.put("mimeType", mimeType);
 				attachments.put(attachmentObject);
-
 			}
+			
 			try {
-
 				JSONObject jObject = new JSONObject();
 				jObject.put(WebConstants.DATA_TAG, attachments);
 				String jsonString = jObject.toString();
@@ -85,16 +88,15 @@ public class MessageAttachmentDetailServlet extends EnkiveServlet {
 			}
 		} catch (CannotRetrieveException e) {
 			respondError(HttpServletResponse.SC_UNAUTHORIZED, null, resp);
-			if (LOGGER.isErrorEnabled())
+			if (LOGGER.isErrorEnabled()) {
 				LOGGER.error("Could not retrieve attachment");
-
+			}
 		} catch (JSONException e) {
 			respondError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, null,
 					resp);
-			if (LOGGER.isErrorEnabled())
+			if (LOGGER.isErrorEnabled()) {
 				LOGGER.error("Could not retrieve attachment");
+			}
 		}
-
 	}
-
 }

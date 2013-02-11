@@ -33,7 +33,6 @@ import com.linuxbox.enkive.message.Message;
 import com.linuxbox.enkive.retriever.MessageRetrieverService;
 
 public class MessageRetrieveServlet extends EnkiveServlet {
-
 	private static final long serialVersionUID = -2193199657369345679L;
 
 	@Override
@@ -45,14 +44,14 @@ public class MessageRetrieveServlet extends EnkiveServlet {
 	@Override
 	public void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException, ServletException {
-
 		final String messageId = req.getParameter("message_id");
 		final MessageRetrieverService retriever = getMessageRetrieverService();
 
 		try {
 			final Message message = retriever.retrieve(messageId);
-			if (LOGGER.isTraceEnabled())
+			if (LOGGER.isTraceEnabled()) {
 				LOGGER.trace("retrieving message " + messageId);
+			}
 
 			final ServletOutputStream outputStream = resp.getOutputStream();
 			BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(
@@ -60,8 +59,9 @@ public class MessageRetrieveServlet extends EnkiveServlet {
 			message.pushReconstitutedEmail(writer);
 			resp.flushBuffer();
 		} catch (CannotRetrieveException e) {
-			if (LOGGER.isErrorEnabled())
+			if (LOGGER.isErrorEnabled()) {
 				LOGGER.error("error retrieving message " + messageId, e);
+			}
 			respondError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
 					"error retrieving message " + messageId
 							+ "; see server logs", resp);
