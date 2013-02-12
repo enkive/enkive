@@ -23,8 +23,8 @@ import java.io.IOException;
 
 /**
  * When a MIME multi-part header has a series of parts, each has a header with a
- * few number of lines. Implementers of this interface are intended to perhaps
- * parse, store, and regenerate those single-part headers.
+ * few lines. Implementers of this interface are intended to perhaps parse,
+ * store, and regenerate those single-part headers.
  * 
  * @author eric
  * 

@@ -24,7 +24,7 @@ import java.text.ParseException;
 import java.util.Date;
 
 import com.linuxbox.enkive.exception.CannotRetrieveException;
-import com.linuxbox.enkive.message.EncodedContentData;
+import com.linuxbox.enkive.message.EncodedContentReadData;
 import com.linuxbox.enkive.message.Message;
 import com.linuxbox.enkive.message.MessageSummary;
 import com.linuxbox.enkive.message.retention.MessageRetentionPolicy;
@@ -84,7 +84,7 @@ public class RetentionPolicyEnforcingMessageRetrieverService extends
 	}
 
 	@Override
-	public EncodedContentData retrieveAttachment(String attachmentUUID)
+	public EncodedContentReadData retrieveAttachment(String attachmentUUID)
 			throws CannotRetrieveException {
 		return retrieverService.retrieveAttachment(attachmentUUID);
 	}

@@ -23,7 +23,7 @@ import java.util.Collection;
 import java.util.List;
 
 import com.linuxbox.enkive.exception.CannotRetrieveException;
-import com.linuxbox.enkive.message.EncodedContentData;
+import com.linuxbox.enkive.message.EncodedContentReadData;
 import com.linuxbox.enkive.message.Message;
 import com.linuxbox.enkive.message.MessageSummary;
 
@@ -55,7 +55,7 @@ public interface MessageRetrieverService {
 	 */
 	public Message retrieve(String messageUUID) throws CannotRetrieveException;
 
-	EncodedContentData retrieveAttachment(String attachmentUUID)
+	EncodedContentReadData retrieveAttachment(String attachmentUUID)
 			throws CannotRetrieveException;
 
 }

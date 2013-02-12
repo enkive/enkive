@@ -51,7 +51,7 @@ public class ContentDataDocument extends AbstractDocument {
 	}
 
 	@Override
-	public InputStream getEncodedContentStream() {
+	public InputStream getEncodedContentStream() throws DocStoreException {
 		return contentData.getBinaryContent();
 	}
 

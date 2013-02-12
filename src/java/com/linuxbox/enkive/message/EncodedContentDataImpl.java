@@ -29,5 +29,4 @@ public class EncodedContentDataImpl extends AbstractBaseContentData implements
 	public boolean isEmpty() {
 		return (data == null);
 	}
-
 }

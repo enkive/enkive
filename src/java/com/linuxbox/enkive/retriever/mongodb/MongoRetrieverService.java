@@ -60,6 +60,7 @@ import com.linuxbox.enkive.exception.CannotTransferMessageContentException;
 import com.linuxbox.enkive.message.ContentHeader;
 import com.linuxbox.enkive.message.EncodedContentData;
 import com.linuxbox.enkive.message.EncodedContentDataImpl;
+import com.linuxbox.enkive.message.EncodedContentReadData;
 import com.linuxbox.enkive.message.Message;
 import com.linuxbox.enkive.message.MessageImpl;
 import com.linuxbox.enkive.message.MessageSummary;
@@ -68,6 +69,7 @@ import com.linuxbox.enkive.message.MultiPartHeader;
 import com.linuxbox.enkive.message.MultiPartHeaderImpl;
 import com.linuxbox.enkive.message.SinglePartHeader;
 import com.linuxbox.enkive.message.SinglePartHeaderImpl;
+import com.linuxbox.enkive.message.docstore.DocumentEncodedContentData;
 import com.linuxbox.enkive.retriever.AbstractRetrieverService;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
@@ -190,7 +192,7 @@ public class MongoRetrieverService extends AbstractRetrieverService {
 		SinglePartHeader header = new SinglePartHeaderImpl();
 		setSinglePartHeaderProperties(header, contentHeaderObject);
 
-		EncodedContentData encodedContentData = null;
+		EncodedContentReadData encodedContentData = null;
 		encodedContentData = buildEncodedContentData((String) contentHeaderObject
 				.get(ATTACHMENT_ID));
 
@@ -215,21 +217,11 @@ public class MongoRetrieverService extends AbstractRetrieverService {
 		return multiPartHeader;
 	}
 
-	private EncodedContentData buildEncodedContentData(String attachmentUUID)
+	private EncodedContentReadData buildEncodedContentData(String attachmentUUID)
 			throws CannotRetrieveException, DocStoreException {
-		EncodedContentData encodedContentData = new EncodedContentDataImpl();
-		try {
-			Document document = docStoreService.retrieve(attachmentUUID);
-
-			encodedContentData.setBinaryContent(document
-					.getEncodedContentStream());
-			encodedContentData.setFilename(document.getFilename());
-			encodedContentData.setMimeType(document.getMimeType());
-			encodedContentData.setUUID(attachmentUUID);
-		} catch (CannotTransferMessageContentException e) {
-			throw new CannotRetrieveException(
-					"could not extract data from datastore", e);
-		}
+		Document document = docStoreService.retrieve(attachmentUUID);
+		DocumentEncodedContentData encodedContentData = new DocumentEncodedContentData(
+				attachmentUUID, document);
 		return encodedContentData;
 	}
 
@@ -239,7 +231,7 @@ public class MongoRetrieverService extends AbstractRetrieverService {
 			message.setOriginalHeaders((String) messageObject
 					.get(ORIGINAL_HEADERS));
 		}
-		
+
 		if (messageObject.get(MESSAGE_DIFF) != null) {
 			message.setMessageDiff((String) messageObject.get(MESSAGE_DIFF));
 		}
@@ -266,17 +258,17 @@ public class MongoRetrieverService extends AbstractRetrieverService {
 	}
 
 	@Override
-	public EncodedContentData retrieveAttachment(String attachmentUUID)
+	public EncodedContentReadData retrieveAttachment(String attachmentUUID)
 			throws CannotRetrieveException {
 
-		EncodedContentData attachment;
+		EncodedContentReadData attachment;
 		try {
 			attachment = buildEncodedContentData(attachmentUUID);
 		} catch (DocStoreException e) {
-
 			throw new CannotRetrieveException("Could not retrieve attachment",
 					e);
 		}
+		
 		return attachment;
 	}
 

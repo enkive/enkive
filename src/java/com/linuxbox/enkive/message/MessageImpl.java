@@ -96,7 +96,7 @@ public class MessageImpl extends AbstractMessage implements Message {
 		boolean isMultiPart = false;
 
 		// TODO Get line ending from message
-		String lineEnding = "\r\n";
+		final String lineEnding = "\r\n";
 
 		final MessageStreamParser stream = new MessageStreamParser(config);
 		stream.setRecursionMode(RecursionMode.M_NO_RECURSE);
@@ -215,10 +215,11 @@ public class MessageImpl extends AbstractMessage implements Message {
 						headerStack.push(mp2);
 					}
 					break;
-
-				}
-
-			}
+				default:
+					// ignore other tags
+					break;
+				} // switch
+			} // for
 		} catch (MimeException e) {
 			throw new BadMessageException(e);
 		} catch (MimeIOException e) {

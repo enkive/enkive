@@ -26,7 +26,7 @@ import com.linuxbox.enkive.audit.AuditService;
 import com.linuxbox.enkive.audit.AuditServiceException;
 import com.linuxbox.enkive.exception.CannotGetPermissionsException;
 import com.linuxbox.enkive.exception.CannotRetrieveException;
-import com.linuxbox.enkive.message.EncodedContentData;
+import com.linuxbox.enkive.message.EncodedContentReadData;
 import com.linuxbox.enkive.message.Message;
 import com.linuxbox.enkive.message.MessageSummary;
 import com.linuxbox.enkive.permissions.PermissionService;
@@ -92,7 +92,7 @@ public class PermissionsEnforcingMessageRetrieverService extends
 	}
 
 	@Override
-	public EncodedContentData retrieveAttachment(String attachmentUUID)
+	public EncodedContentReadData retrieveAttachment(String attachmentUUID)
 			throws CannotRetrieveException {
 		try {
 			if (permService.canReadAttachment(permService.getCurrentUsername(),

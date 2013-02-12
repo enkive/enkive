@@ -25,23 +25,7 @@ import java.nio.charset.Charset;
 
 import com.linuxbox.enkive.exception.CannotTransferMessageContentException;
 
-public interface BaseContentData {
-
-	/**
-	 * 
-	 * @return a string containing a hexadecimal number of 20 bytes/160 bits/40
-	 *         characters. The string has no spaces and all base-16 digits are
-	 *         in lower case (i.e., a-f and not A-F). For example, a string
-	 *         returned could be "2fd4e1c67a2d28fced849ee1bb76e7391b93eb12".
-	 */
-	public String getSha1String();
-
-	/**
-	 * 
-	 * @return array of 20 bytes (since SHA-1 produces a hash of 160 bits)
-	 */
-	public byte[] getSha1();
-
+public interface BaseContentData extends BaseContentReadData {
 	/*
 	 * Perhaps we probably only need either getBinaryContent() or
 	 * transferBinaryContent() at this point. If they're trivial to implement,
@@ -52,40 +36,11 @@ public interface BaseContentData {
 
 	/**
 	 * 
-	 * @return An InputStream that can be used to retrieve the entire binary
-	 *         content of the attachment/text. Given that MIME-encoded content
-	 *         ultimately is sent as text-encoded (e.g., base64), this will be
-	 *         the binary version of that.
-	 */
-	public InputStream getBinaryContent();
-
-	/**
-	 * 
-	 * @return A byte array that represents entire binary content of the
-	 *         attachment/text. Given that MIME-encoded content ultimately is
-	 *         sent as text-encoded (e.g., base64), this will be the binary
-	 *         version of that.
-	 */
-	public byte[] getByteContent();
-
-	/**
-	 * 
 	 * @param content
 	 *            A byte array that represents entire binary content of the
 	 *            attachment/text.
 	 */
 	public void setByteContent(byte[] content);
-
-	/**
-	 * Takes the binary content stored internally and dumps it to the
-	 * OutputStream passed in. Is responsible for flushing the output but not
-	 * for closing.
-	 * 
-	 * @param out
-	 *            the OutputStream to send the binary content to.
-	 */
-	public void transferBinaryContent(OutputStream out)
-			throws CannotTransferMessageContentException;
 
 	/**
 	 * Given an InputStream, reads the binary content and stores it internally.
@@ -104,5 +59,32 @@ public interface BaseContentData {
 	 * @param encoding
 	 */
 	public void setBinaryContent(String content, Charset encoding);
+
+	
+	/**
+	 * 
+	 * @return array of 20 bytes (since SHA-1 produces a hash of 160 bits)
+	 */
+	byte[] getSha1();
+
+	/**
+	 * 
+	 * @return A byte array that represents entire binary content of the
+	 *         attachment/text. Given that MIME-encoded content ultimately is
+	 *         sent as text-encoded (e.g., base64), this will be the binary
+	 *         version of that.
+	 */
+	byte[] getByteContent();
+
+	/**
+	 * Takes the binary content stored internally and dumps it to the
+	 * OutputStream passed in. Is responsible for flushing the output but not
+	 * for closing.
+	 * 
+	 * @param out
+	 *            the OutputStream to send the binary content to.
+	 */
+	void transferBinaryContent(OutputStream out)
+			throws CannotTransferMessageContentException;
 
 }

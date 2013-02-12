@@ -35,7 +35,7 @@ public class SinglePartHeaderImpl extends AbstractSinglePartHeader implements
 			.getLog("com.linuxbox.enkive.message");
 
 	public SinglePartHeaderImpl() {
-
+		// empty
 	}
 
 	@Override

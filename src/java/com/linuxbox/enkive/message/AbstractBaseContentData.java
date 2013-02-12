@@ -45,16 +45,13 @@ import com.linuxbox.util.StreamConnector;
  * would be sufficient.   
  */
 
-public abstract class AbstractBaseContentData implements BaseContentData {
+public abstract class AbstractBaseContentData extends AbstractEncodedReadData implements BaseContentData, EncodedContentReadData {
 	private static final String HASH_ALGORITHM = "SHA-1";
 
 	protected byte[] data;
 	protected byte[] hashBytes;
 	protected String hashString;
-	protected String UUID;
-	protected String filename;
-	protected String mimeType;
-
+	
 	public AbstractBaseContentData() {
 		super();
 		data = null;
@@ -159,24 +156,12 @@ public abstract class AbstractBaseContentData implements BaseContentData {
 		hashString = new String((new Hex()).encode(hashBytes));
 	}
 
-	public String getUUID() {
-		return UUID;
-	}
-
 	public void setUUID(String uUID) {
-		this.UUID = uUID;
-	}
-
-	public String getFilename() {
-		return filename;
+		this.uuid = uUID;
 	}
 
 	public void setFilename(String filename) {
 		this.filename = filename;
-	}
-
-	public String getMimeType() {
-		return mimeType;
 	}
 
 	public void setMimeType(String mimeType) {
