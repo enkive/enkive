@@ -190,7 +190,6 @@ public class StatsRuntimeTest {
 		assertTrue(sn.equals(serviceName));
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
 	public void hasTimeStamp() {
 		Map<String, Object> time = (Map<String, Object>) stats
@@ -199,7 +198,6 @@ public class StatsRuntimeTest {
 				time != null);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
 	public void upperTimeGTZero() {
 		Map<String, Object> time = (Map<String, Object>) stats
@@ -209,7 +207,6 @@ public class StatsRuntimeTest {
 				date.getTime() > 0);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
 	public void lowerTimeGTZero() {
 		Map<String, Object> time = (Map<String, Object>) stats
