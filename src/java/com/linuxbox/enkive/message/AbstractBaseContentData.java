@@ -27,7 +27,6 @@ import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
 
 import org.apache.commons.codec.binary.Hex;
 
@@ -63,12 +62,6 @@ public abstract class AbstractBaseContentData extends AbstractEncodedReadData im
 		return new ByteArrayInputStream(data);
 	}
 
-	@Override
-	public byte[] getByteContent() {
-		return Arrays.copyOf(data, data.length);
-	}
-
-	@Override
 	public byte[] getSha1() {
 		// only calculate hash when requested
 		if (hashBytes == null) {
@@ -106,14 +99,6 @@ public abstract class AbstractBaseContentData extends AbstractEncodedReadData im
 	public void setByteContent(byte[] content) {
 		clearHash();
 		data = content;
-	}
-
-	@Override
-	public void transferBinaryContent(OutputStream out)
-			throws CannotTransferMessageContentException {
-		ByteArrayInputStream input = new ByteArrayInputStream(data);
-		doTransfer(input, out);
-
 	}
 
 	private void doTransfer(InputStream input, OutputStream output)

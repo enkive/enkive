@@ -20,7 +20,6 @@
 package com.linuxbox.enkive.message;
 
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.nio.charset.Charset;
 
 import com.linuxbox.enkive.exception.CannotTransferMessageContentException;
@@ -59,32 +58,4 @@ public interface BaseContentData extends BaseContentReadData {
 	 * @param encoding
 	 */
 	public void setBinaryContent(String content, Charset encoding);
-
-	
-	/**
-	 * 
-	 * @return array of 20 bytes (since SHA-1 produces a hash of 160 bits)
-	 */
-	byte[] getSha1();
-
-	/**
-	 * 
-	 * @return A byte array that represents entire binary content of the
-	 *         attachment/text. Given that MIME-encoded content ultimately is
-	 *         sent as text-encoded (e.g., base64), this will be the binary
-	 *         version of that.
-	 */
-	byte[] getByteContent();
-
-	/**
-	 * Takes the binary content stored internally and dumps it to the
-	 * OutputStream passed in. Is responsible for flushing the output but not
-	 * for closing.
-	 * 
-	 * @param out
-	 *            the OutputStream to send the binary content to.
-	 */
-	void transferBinaryContent(OutputStream out)
-			throws CannotTransferMessageContentException;
-
 }
