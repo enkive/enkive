@@ -33,7 +33,7 @@ public abstract class AbstractContentHeader implements ContentHeader {
 	protected String lineEnding;
 	protected int maxLineLength;
 
-	protected EncodedContentData encodedContentData;
+	protected EncodedContentReadData encodedContentData;
 
 	public AbstractContentHeader() {
 		super();
@@ -135,12 +135,12 @@ public abstract class AbstractContentHeader implements ContentHeader {
 	}
 
 	@Override
-	public EncodedContentData getEncodedContentData() {
+	public EncodedContentReadData getEncodedContentData() {
 		return encodedContentData;
 	}
 
 	@Override
-	public void setEncodedContentData(EncodedContentData encodedContentData) {
+	public void setEncodedContentData(EncodedContentReadData encodedContentData) {
 		this.encodedContentData = encodedContentData;
 	}
 }

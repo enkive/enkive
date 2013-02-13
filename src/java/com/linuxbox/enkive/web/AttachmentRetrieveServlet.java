@@ -26,9 +26,13 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.io.IOUtils;
+
+import com.linuxbox.enkive.docstore.exception.DocStoreException;
 import com.linuxbox.enkive.exception.CannotRetrieveException;
 import com.linuxbox.enkive.exception.CannotTransferMessageContentException;
 import com.linuxbox.enkive.message.EncodedContentData;
+import com.linuxbox.enkive.message.EncodedContentReadData;
 import com.linuxbox.enkive.retriever.MessageRetrieverService;
 
 public class AttachmentRetrieveServlet extends EnkiveServlet {
@@ -46,7 +50,7 @@ public class AttachmentRetrieveServlet extends EnkiveServlet {
 		final MessageRetrieverService retriever = getMessageRetrieverService();
 
 		try {
-			EncodedContentData attachment = retriever
+			EncodedContentReadData attachment = retriever
 					.retrieveAttachment(attachmentUUID);
 
 			String filename = attachment.getFilename();
@@ -59,8 +63,8 @@ public class AttachmentRetrieveServlet extends EnkiveServlet {
 				resp.setCharacterEncoding("utf-8");
 				resp.setHeader("Content-disposition", "attachment;  "
 						+ filename);
-				attachment.transferBinaryContent(resp.getOutputStream());
-			} catch (CannotTransferMessageContentException e) {
+				IOUtils.copy(attachment.getBinaryContent(), resp.getOutputStream());
+			} catch (DocStoreException e) {
 				if (LOGGER.isErrorEnabled())
 					LOGGER.error("error transferring attachment  "
 							+ attachmentUUID, e);

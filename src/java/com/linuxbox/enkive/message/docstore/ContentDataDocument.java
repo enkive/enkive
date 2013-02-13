@@ -23,7 +23,7 @@ import java.io.InputStream;
 
 import com.linuxbox.enkive.docstore.AbstractDocument;
 import com.linuxbox.enkive.docstore.exception.DocStoreException;
-import com.linuxbox.enkive.message.EncodedContentData;
+import com.linuxbox.enkive.message.EncodedContentReadData;
 
 /**
  * This class acts as a bridge between the ContentData data type used by the
@@ -34,9 +34,9 @@ import com.linuxbox.enkive.message.EncodedContentData;
  * 
  */
 public class ContentDataDocument extends AbstractDocument {
-	private EncodedContentData contentData;
+	private EncodedContentReadData contentData;
 
-	public ContentDataDocument(EncodedContentData contentData, String mimeType,
+	public ContentDataDocument(EncodedContentReadData contentData, String mimeType,
 			String filename, String fileSuffix, String binaryEncoding) {
 		super(mimeType, filename, fileSuffix, binaryEncoding);
 		this.contentData = contentData;

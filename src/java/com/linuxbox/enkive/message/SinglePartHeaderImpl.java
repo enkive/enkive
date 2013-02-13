@@ -21,13 +21,17 @@ package com.linuxbox.enkive.message;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.io.Writer;
 import java.util.Set;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.james.mime4j.message.DefaultMessageBuilder;
 import org.apache.james.mime4j.stream.MimeConfig;
+
+import com.linuxbox.enkive.docstore.exception.DocStoreException;
 
 public class SinglePartHeaderImpl extends AbstractSinglePartHeader implements
 		SinglePartHeader {
@@ -66,17 +70,23 @@ public class SinglePartHeaderImpl extends AbstractSinglePartHeader implements
 
 	@Override
 	public void pushReconstitutedEmail(Writer output) throws IOException {
-		output.write(printSinglePartHeader());
-		output.flush();
+		try {
+			output.write(getOriginalHeaders());
+			output.write(getLineEnding());
+			IOUtils.copy(getEncodedContentData().getBinaryContent(), output);
+			output.write(getLineEnding());
+		} catch (DocStoreException e) {
+			throw new IOException(e);
+		} finally {
+			output.flush();
+		}
 	}
 
+	@Override
 	public String printSinglePartHeader() throws IOException {
-		StringBuilder part = new StringBuilder();
-		part.append(getOriginalHeaders());
-		part.append(getLineEnding());
-		part.append(new String(getEncodedContentData().getByteContent()));
-		part.append(getLineEnding());
-		return part.toString();
+		StringWriter w = new StringWriter();
+		pushReconstitutedEmail(w);
+		return w.toString();
 	}
 
 	@Override

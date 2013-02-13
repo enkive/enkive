@@ -32,6 +32,7 @@ import org.json.JSONObject;
 
 import com.linuxbox.enkive.exception.CannotRetrieveException;
 import com.linuxbox.enkive.message.EncodedContentData;
+import com.linuxbox.enkive.message.EncodedContentReadData;
 import com.linuxbox.enkive.message.Message;
 import com.linuxbox.enkive.retriever.MessageRetrieverService;
 
@@ -55,7 +56,7 @@ public class MessageAttachmentDetailServlet extends EnkiveServlet {
 			for (String attachmentUUID : message.getContentHeader()
 					.getAttachmentUUIDs()) {
 
-				EncodedContentData attachment = retriever
+				EncodedContentReadData attachment = retriever
 						.retrieveAttachment(attachmentUUID);
 				JSONObject attachmentObject = new JSONObject();
 
