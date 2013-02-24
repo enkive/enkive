@@ -7,33 +7,29 @@
 		<from>/proxy**</from>
 		<to>/service/proxy/$1</to>
 	</rule>
-	  <rule>
-        <from>/sessionServlet**</from>
-        <to>/sessionServlet</to>
-    </rule>
+	<rule>
+		<from>/sessionServlet**</from>
+		<to>/sessionServlet</to>
+	</rule>
 	<rule>
 		<from>/res/**</from>
 		<to>/service/resource/$1</to>
-	</rule>		
+	</rule>
 	<rule>
 		<from>/service/**</from>
 		<to>/service/$1</to>
 	</rule>
-			<rule>
-		<from>/service/**/</from>
-		<to>/service/$1</to>
-	</rule>	
+	<rule>
+		<from>/direct/**</from>
+		<to>/direct/$1</to>
+	</rule>
 	<rule>
 		<from>/**</from>
-		<to>/service/$1</to>
-	</rule>
-		<rule>
-		<from>/**/</from>
 		<to>/service/$1</to>
 	</rule>
 	<outbound-rule>
 		<from>/service/**</from>
 		<to>/$1</to>
 	</outbound-rule>
-		
+
 </urlrewrite>
