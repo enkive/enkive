@@ -19,6 +19,7 @@
  ******************************************************************************/
 package com.linuxbox.ediscovery.connector;
 
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,30 +35,37 @@ public class EnkiveConnector extends HttpConnector {
 
 	public EnkiveConnector(ConnectorDescriptor descriptor, String endpoint) {
 		super(descriptor, endpoint);
+		System.out.println("creating connector w/ descriptor " + descriptor);
 	}
 
 	@Override
-	public Response call(String uri, ConnectorContext context) {
-
+	public Response call(String uri, ConnectorContext context, InputStream in) {
 		Response response;
 		if (EndpointManager.allowConnect(this.endpoint)) {
 			EnkiveRemoteClient remoteClient = initRemoteClient(context);
 
 			// call client and process response
-			response = remoteClient.call(uri);
+			response = new EnkiveResponseFacade(remoteClient.call(uri, false, in));
+
 			if (!remoteClient.isAuthenticated()) {
 				ResponseStatus status = new ResponseStatus();
 				status.setCode(ResponseStatus.STATUS_FORBIDDEN);
 				response = new Response(status);
-			} else
+			} else {
 				processResponse(remoteClient, response);
-
+			}
 		} else {
 			ResponseStatus status = new ResponseStatus();
 			status.setCode(ResponseStatus.STATUS_INTERNAL_SERVER_ERROR);
 			response = new Response(status);
 		}
+
 		return response;
+	}
+
+	@Override
+	public Response call(String uri, ConnectorContext context) {
+		return call(uri, context, null);
 	}
 
 	@Override
@@ -82,7 +90,6 @@ public class EnkiveConnector extends HttpConnector {
 	}
 
 	protected EnkiveRemoteClient initRemoteClient(ConnectorContext context) {
-
 		// create a remote client
 		EnkiveRemoteClient remoteClient = new EnkiveRemoteClient(getEndpoint());
 		remoteClient
@@ -97,5 +104,4 @@ public class EnkiveConnector extends HttpConnector {
 
 		return remoteClient;
 	}
-
 }

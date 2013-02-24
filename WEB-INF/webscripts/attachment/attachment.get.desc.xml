@@ -3,5 +3,5 @@
   <description>Attachment Download</description>
   <url>/attachment</url>
   <authentication>user</authentication>
-  <format default="html">argument</format>
+  <format default="">argument</format>
 </webscript>

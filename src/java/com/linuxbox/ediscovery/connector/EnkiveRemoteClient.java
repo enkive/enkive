@@ -28,9 +28,15 @@ public class EnkiveRemoteClient extends RemoteClient {
 
 	protected String enkiveAuthenticationUrl;
 	protected boolean authenticated = true;
+	protected String defaultEncoding = null;
 
 	public EnkiveRemoteClient(String endpoint) {
 		super(endpoint);
+	}
+	
+	public EnkiveRemoteClient(String endpoint, String defaultEncoding) {
+		super(endpoint, defaultEncoding);
+		this.defaultEncoding = defaultEncoding;
 	}
 
 	protected URL processResponse(URL url,
@@ -60,6 +66,10 @@ public class EnkiveRemoteClient extends RemoteClient {
 
 	public void setAuthenticated(boolean authenticated) {
 		this.authenticated = authenticated;
+	}
+
+	public String getDefaultEncoding() {
+		return defaultEncoding;
 	}
 
 }

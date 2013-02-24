@@ -19,12 +19,15 @@
  ******************************************************************************/
 package com.linuxbox.ediscovery.webscripts;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
+import org.apache.commons.io.IOUtils;
 import org.springframework.extensions.webscripts.AbstractWebScript;
 import org.springframework.extensions.webscripts.ScriptProcessor;
 import org.springframework.extensions.webscripts.ScriptRemote;
@@ -35,13 +38,11 @@ import org.springframework.extensions.webscripts.connector.Response;
 import org.springframework.extensions.webscripts.connector.ResponseStatus;
 
 public class GetAttachment extends AbstractWebScript {
-
-	public static String ATTACHMENT_RETRIEVE_REST_URL = "/attachment/retrieve?attachmentid=";
+	protected static final String ATTACHMENT_RETRIEVE_REST_URL = "/attachment/retrieve?attachmentid=";
 
 	@Override
 	public void execute(WebScriptRequest req, WebScriptResponse res)
 			throws IOException {
-
 		ScriptDetails script = getExecuteScript(req.getContentType());
 		Map<String, Object> model = new HashMap<String, Object>();
 		Map<String, Object> scriptModel = createScriptParameters(req, res,
@@ -59,33 +60,31 @@ public class GetAttachment extends AbstractWebScript {
 
 		ScriptRemoteConnector connector = remote.connect("enkive");
 
-		Response resp = connector.call(ATTACHMENT_RETRIEVE_REST_URL
-				+ req.getParameterValues("attachmentid")[0]);
+		Response connectorResp = connector.call(ATTACHMENT_RETRIEVE_REST_URL
+				+ req.getParameter("attachmentid"));
 
-		if (resp.getStatus().getCode() == ResponseStatus.STATUS_FORBIDDEN) {
-			res.setStatus(resp.getStatus().getCode());
+		if (connectorResp.getStatus().getCode() == ResponseStatus.STATUS_FORBIDDEN) {
+			res.setStatus(connectorResp.getStatus().getCode());
 			BufferedWriter resWriter = new BufferedWriter(res.getWriter());
 			resWriter.write("You must be logged in to download attachments");
-			resWriter.flush();
 			resWriter.close();
-
 		} else {
-			res.setStatus(resp.getStatus().getCode());
-			for (String key : resp.getStatus().getHeaders().keySet()) {
-				res.setHeader(key, resp.getStatus().getHeaders().get(key));
+			res.setStatus(connectorResp.getStatus().getCode());
+			if (connectorResp.getEncoding() != null) {
+				res.setContentEncoding(connectorResp.getEncoding());
 			}
 
-			BufferedInputStream attachmentStream = new BufferedInputStream(
-					resp.getResponseStream());
-			BufferedWriter resWriter = new BufferedWriter(res.getWriter());
-			int read;
-			while ((read = attachmentStream.read()) != -1)
-				resWriter.write(read);
+			for (Entry<String, String> entry : connectorResp.getStatus()
+					.getHeaders().entrySet()) {
+				res.setHeader(entry.getKey(), entry.getValue());
+			}
 
-			resWriter.flush();
-			resWriter.close();
-			attachmentStream.close();
+			final InputStream in = connectorResp.getResponseStream();
+			final OutputStream out = res.getOutputStream();
+
+			IOUtils.copy(in, out);
+			IOUtils.closeQuietly(in);
+			IOUtils.closeQuietly(out);
 		}
 	}
-
 }
