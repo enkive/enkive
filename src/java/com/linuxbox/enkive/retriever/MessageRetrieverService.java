@@ -55,7 +55,13 @@ public interface MessageRetrieverService {
 	 */
 	public Message retrieve(String messageUUID) throws CannotRetrieveException;
 
+	/**
+	 * Returns a representation of the attachment from which further information can be extracted.
+	 * 
+	 * @param attachmentUUID
+	 * @return data representing the attachment
+	 * @throws CannotRetrieveException
+	 */
 	EncodedContentReadData retrieveAttachment(String attachmentUUID)
 			throws CannotRetrieveException;
-
 }

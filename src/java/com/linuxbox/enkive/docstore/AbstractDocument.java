@@ -21,6 +21,8 @@ package com.linuxbox.enkive.docstore;
 
 import java.io.InputStream;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.james.mime4j.codec.Base64InputStream;
 import org.apache.james.mime4j.codec.QuotedPrintableInputStream;
 import org.apache.james.mime4j.util.MimeUtil;
@@ -35,6 +37,10 @@ import com.linuxbox.enkive.docstore.exception.DocStoreException;
  * 
  */
 public abstract class AbstractDocument implements Document {
+	@SuppressWarnings("unused")
+	private final static Log LOGGER = LogFactory
+			.getLog("com.linuxbox.enkive.docstore");
+
 	protected String mimeType;
 	protected String fileExtension;
 	protected String binaryEncoding;

@@ -65,10 +65,10 @@ import com.linuxbox.enkive.workspace.searchResult.SearchResult;
  */
 public class SearchFolderServlet extends EnkiveServlet {
 
-	public static String VIEW_SEARCH_FOLDER = "view";
-	public static String REMOVE_SEARCH_FOLDER_MESSAGE = "remove_message";
-	public static String ADD_SEARCH_FOLDER_MESSAGE = "add_message";
-	public static String EXPORT_SEARCH_FOLDER = "export";
+	public static final String VIEW_SEARCH_FOLDER = "view";
+	public static final String REMOVE_SEARCH_FOLDER_MESSAGE = "remove_message";
+	public static final String ADD_SEARCH_FOLDER_MESSAGE = "add_message";
+	public static final String EXPORT_SEARCH_FOLDER = "export";
 	/**
 	 * 
 	 */
