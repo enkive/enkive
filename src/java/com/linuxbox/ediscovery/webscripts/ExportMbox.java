@@ -19,12 +19,13 @@
  ******************************************************************************/
 package com.linuxbox.ediscovery.webscripts;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.Writer;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.io.IOUtils;
 import org.springframework.extensions.webscripts.AbstractWebScript;
 import org.springframework.extensions.webscripts.ScriptProcessor;
 import org.springframework.extensions.webscripts.ScriptRemote;
@@ -36,8 +37,9 @@ import org.springframework.extensions.webscripts.connector.ResponseStatus;
 
 public class ExportMbox extends AbstractWebScript {
 
-	public static String MBOX_RETRIEVE_REST_URL = "/search/export/mbox?searchid=";
-	public static String EDISCOVERY_RECENT_SEARCH_URL = "/ediscovery/search/recent/view?searchid=";
+	protected static final String MBOX_RETRIEVE_REST_URL = "/search/export/mbox?searchid=";
+	protected static final String EDISCOVERY_RECENT_SEARCH_URL = "/ediscovery/search/recent/view?searchid=";
+	protected static final String EXPORT_FILENAME = "export.mbox";
 
 	@Override
 	public void execute(WebScriptRequest req, WebScriptResponse res)
@@ -76,23 +78,19 @@ public class ExportMbox extends AbstractWebScript {
 			// resWriter.close();
 		} else {
 			res.setContentType("text/plain");
-			res.setHeader("Content-disposition",
-					"attachment; filename=export.mbox");
+			res.setHeader("Content-disposition", "attachment; filename="
+					+ EXPORT_FILENAME);
 			res.setStatus(resp.getStatus().getCode());
 			for (String key : resp.getStatus().getHeaders().keySet()) {
 				res.setHeader(key, resp.getStatus().getHeaders().get(key));
 			}
 
-			BufferedInputStream mboxStream = new BufferedInputStream(
-					resp.getResponseStream());
-			BufferedWriter resWriter = new BufferedWriter(res.getWriter());
-			int read;
-			while ((read = mboxStream.read()) != -1)
-				resWriter.write(read);
+			InputStream in = resp.getResponseStream();
+			Writer out = res.getWriter();
 
-			resWriter.flush();
-			resWriter.close();
-			mboxStream.close();
+			IOUtils.copy(in, out);
+			IOUtils.closeQuietly(in);
+			IOUtils.closeQuietly(out);
 		}
 	}
 }
