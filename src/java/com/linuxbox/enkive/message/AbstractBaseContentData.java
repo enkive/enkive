@@ -23,16 +23,15 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.io.IOUtils;
 
 import com.linuxbox.enkive.exception.CannotTransferMessageContentException;
 import com.linuxbox.enkive.exception.EnkiveRuntimeException;
-import com.linuxbox.util.StreamConnector;
 
 /*
  * TODO
@@ -44,13 +43,13 @@ import com.linuxbox.util.StreamConnector;
  * would be sufficient.   
  */
 
-public abstract class AbstractBaseContentData extends AbstractEncodedReadData implements BaseContentData, EncodedContentReadData {
+public abstract class AbstractBaseContentData implements BaseContentData {
 	private static final String HASH_ALGORITHM = "SHA-1";
 
 	protected byte[] data;
 	protected byte[] hashBytes;
 	protected String hashString;
-	
+
 	public AbstractBaseContentData() {
 		super();
 		data = null;
@@ -58,7 +57,7 @@ public abstract class AbstractBaseContentData extends AbstractEncodedReadData im
 	}
 
 	@Override
-	public InputStream getBinaryContent() {
+	public InputStream getBinaryContent() throws ContentException {
 		return new ByteArrayInputStream(data);
 	}
 
@@ -83,10 +82,15 @@ public abstract class AbstractBaseContentData extends AbstractEncodedReadData im
 	public void setBinaryContent(InputStream contentStream)
 			throws CannotTransferMessageContentException {
 		clearHash();
-
-		ByteArrayOutputStream output = new ByteArrayOutputStream();
-		doTransfer(contentStream, output);
-		data = output.toByteArray();
+		try {
+			ByteArrayOutputStream output = new ByteArrayOutputStream();
+			IOUtils.copy(contentStream, output);
+			IOUtils.closeQuietly(contentStream);
+			IOUtils.closeQuietly(output);
+			data = output.toByteArray();
+		} catch (IOException e) {
+			throw new CannotTransferMessageContentException(e);
+		}
 	}
 
 	@Override
@@ -99,21 +103,6 @@ public abstract class AbstractBaseContentData extends AbstractEncodedReadData im
 	public void setByteContent(byte[] content) {
 		clearHash();
 		data = content;
-	}
-
-	private void doTransfer(InputStream input, OutputStream output)
-			throws CannotTransferMessageContentException {
-		try {
-			StreamConnector.transferForeground(input, output);
-		} catch (IOException e) {
-			throw new CannotTransferMessageContentException(e);
-		} finally {
-			try {
-				output.close();
-			} catch (IOException e) {
-				// empty
-			}
-		}
 	}
 
 	protected void clearHash() {
@@ -140,17 +129,4 @@ public abstract class AbstractBaseContentData extends AbstractEncodedReadData im
 		hashBytes = md.digest();
 		hashString = new String((new Hex()).encode(hashBytes));
 	}
-
-	public void setUUID(String uUID) {
-		this.uuid = uUID;
-	}
-
-	public void setFilename(String filename) {
-		this.filename = filename;
-	}
-
-	public void setMimeType(String mimeType) {
-		this.mimeType = mimeType;
-	}
-
 }

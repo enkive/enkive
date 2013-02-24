@@ -19,14 +19,69 @@
  *******************************************************************************/
 package com.linuxbox.enkive.message;
 
+import java.io.InputStream;
+
+import org.apache.james.mime4j.codec.Base64InputStream;
+import org.apache.james.mime4j.codec.QuotedPrintableInputStream;
+import org.apache.james.mime4j.util.MimeUtil;
+
 public class EncodedContentDataImpl extends AbstractBaseContentData implements
 		EncodedContentData {
+	
+	protected String uuid;
+	protected String filename;
+	protected String mimeType;
+	protected String transferEncoding;
 
-	public EncodedContentDataImpl() {
+	public EncodedContentDataImpl(String transferEncoding) {
 		super();
+		this.transferEncoding = transferEncoding;
 	}
 
 	public boolean isEmpty() {
 		return (data == null);
+	}
+	
+	public void setUUID(String uUID) {
+		this.uuid = uUID;
+	}
+
+	public void setFilename(String filename) {
+		this.filename = filename;
+	}
+
+	public void setMimeType(String mimeType) {
+		this.mimeType = mimeType;
+	}
+
+	@Override
+	public String getFilename() {
+		return filename;
+	}
+
+	@Override
+	public String getMimeType() {
+		return mimeType;
+	}
+
+	@Override
+	public String getUUID() {
+		return filename;
+	}
+
+	@Override
+	public InputStream getEncodedContent() throws ContentException {
+		return super.getBinaryContent();
+	}
+	
+	@Override
+	public InputStream getBinaryContent() throws ContentException {
+		if (MimeUtil.isBase64Encoding(transferEncoding)) {
+			return new Base64InputStream(super.getBinaryContent());
+		} else if (MimeUtil.isQuotedPrintableEncoded(transferEncoding)) {
+			return new QuotedPrintableInputStream(super.getBinaryContent());
+		} else {
+			return super.getBinaryContent();
+		}
 	}
 }

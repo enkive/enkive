@@ -36,11 +36,18 @@ public class MainJettyWebApps extends MainConsole {
 	}
 
 	protected void doEventLoop(ApplicationContext context) {
-		@SuppressWarnings("unused")
 		Server server = context.getBean("Server",
 				org.eclipse.jetty.server.Server.class);
 
 		super.doEventLoop(context);
+		
+		try {
+			server.stop();
+			System.exit(0);
+		} catch (Exception e) {
+			LOGGER.error("Error stopping Jetty server.", e);
+			System.exit(1);
+		}
 	}
 
 	/**

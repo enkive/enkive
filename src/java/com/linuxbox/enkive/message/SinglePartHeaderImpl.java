@@ -31,8 +31,6 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.james.mime4j.message.DefaultMessageBuilder;
 import org.apache.james.mime4j.stream.MimeConfig;
 
-import com.linuxbox.enkive.docstore.exception.DocStoreException;
-
 public class SinglePartHeaderImpl extends AbstractSinglePartHeader implements
 		SinglePartHeader {
 	private final static Log LOGGER = LogFactory
@@ -73,9 +71,9 @@ public class SinglePartHeaderImpl extends AbstractSinglePartHeader implements
 		try {
 			output.write(getOriginalHeaders());
 			output.write(getLineEnding());
-			IOUtils.copy(getEncodedContentData().getBinaryContent(), output);
+			IOUtils.copy(getEncodedContentData().getEncodedContent(), output);
 			output.write(getLineEnding());
-		} catch (DocStoreException e) {
+		} catch (ContentException e) {
 			throw new IOException(e);
 		} finally {
 			output.flush();

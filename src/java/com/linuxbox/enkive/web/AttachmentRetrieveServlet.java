@@ -20,6 +20,8 @@
 package com.linuxbox.enkive.web;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -28,10 +30,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.IOUtils;
 
-import com.linuxbox.enkive.docstore.exception.DocStoreException;
 import com.linuxbox.enkive.exception.CannotRetrieveException;
-import com.linuxbox.enkive.exception.CannotTransferMessageContentException;
-import com.linuxbox.enkive.message.EncodedContentData;
+import com.linuxbox.enkive.message.ContentException;
 import com.linuxbox.enkive.message.EncodedContentReadData;
 import com.linuxbox.enkive.retriever.MessageRetrieverService;
 
@@ -45,7 +45,6 @@ public class AttachmentRetrieveServlet extends EnkiveServlet {
 
 	public void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
-
 		String attachmentUUID = req.getParameter("attachmentid");
 		final MessageRetrieverService retriever = getMessageRetrieverService();
 
@@ -53,18 +52,25 @@ public class AttachmentRetrieveServlet extends EnkiveServlet {
 			EncodedContentReadData attachment = retriever
 					.retrieveAttachment(attachmentUUID);
 
+			// TODO : This file name does not appear to be what we want.
 			String filename = attachment.getFilename();
 			if (filename == null || filename.isEmpty()) {
 				filename = "Message Body";
 			}
+
 			try {
-				filename = "filename=" + filename;
 				resp.setContentType(attachment.getMimeType());
 				resp.setCharacterEncoding("utf-8");
-				resp.setHeader("Content-disposition", "attachment;  "
+				resp.setHeader("Content-disposition", "attachment;  filename="
 						+ filename);
-				IOUtils.copy(attachment.getBinaryContent(), resp.getOutputStream());
-			} catch (DocStoreException e) {
+
+				final InputStream in = attachment.getBinaryContent();
+				final OutputStream out = resp.getOutputStream();
+
+				IOUtils.copy(in, out);
+				IOUtils.closeQuietly(in);
+				IOUtils.closeQuietly(out);
+			} catch (ContentException e) {
 				if (LOGGER.isErrorEnabled())
 					LOGGER.error("error transferring attachment  "
 							+ attachmentUUID, e);

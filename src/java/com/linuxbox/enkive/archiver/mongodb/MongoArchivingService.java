@@ -76,6 +76,7 @@ import com.linuxbox.enkive.docstore.StoreRequestResult;
 import com.linuxbox.enkive.docstore.exception.DocStoreException;
 import com.linuxbox.enkive.exception.BadMessageException;
 import com.linuxbox.enkive.exception.CannotTransferMessageContentException;
+import com.linuxbox.enkive.message.ContentException;
 import com.linuxbox.enkive.message.ContentHeader;
 import com.linuxbox.enkive.message.Message;
 import com.linuxbox.enkive.message.MessageImpl;
@@ -141,7 +142,7 @@ public class MongoArchivingService extends AbstractMessageArchivingService
 					.equals(ContentTypeField.TYPE_MESSAGE_RFC822.toLowerCase())) {
 				String subMessageUUID = storeNestedMessage(message
 						.getContentHeader().getEncodedContentData()
-						.getBinaryContent(),
+						.getEncodedContent(),
 						message.getContentTransferEncoding());
 				if (!nested_message_ids.contains(subMessageUUID))
 					nested_message_ids.add(subMessageUUID);
@@ -156,6 +157,8 @@ public class MongoArchivingService extends AbstractMessageArchivingService
 		} catch (MongoException e) {
 			throw new CannotArchiveException(e);
 		} catch (DocStoreException e) {
+			throw new CannotArchiveException(e);
+		} catch (ContentException e) {
 			throw new CannotArchiveException(e);
 		}
 		if (LOGGER.isInfoEnabled())
@@ -179,7 +182,7 @@ public class MongoArchivingService extends AbstractMessageArchivingService
 	}
 
 	private BasicDBObject archiveContentHeader(ContentHeader contentHeader)
-			throws DocStoreException, CannotArchiveException,
+			throws DocStoreException, CannotArchiveException, ContentException,
 			FailedToEmergencySaveException, AuditServiceException {
 		BasicDBObject headerObject = new BasicDBObject();
 		if (contentHeader.isMultipart()) {
@@ -220,7 +223,7 @@ public class MongoArchivingService extends AbstractMessageArchivingService
 			if (singlePartHeader.getContentType().trim().toLowerCase()
 					.equals(ContentTypeField.TYPE_MESSAGE_RFC822.toLowerCase())) {
 				String subMessageUUID = storeNestedMessage(singlePartHeader
-						.getEncodedContentData().getBinaryContent(),
+						.getEncodedContentData().getEncodedContent(),
 						singlePartHeader.getContentTransferEncoding()
 								.toString());
 				if (!nested_message_ids.contains(subMessageUUID))

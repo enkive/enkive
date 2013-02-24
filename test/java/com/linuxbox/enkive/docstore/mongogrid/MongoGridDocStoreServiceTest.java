@@ -28,6 +28,7 @@ import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Reader;
 import java.security.MessageDigest;
 import java.util.UUID;
 
@@ -93,7 +94,7 @@ public class MongoGridDocStoreServiceTest {
 		Document outDoc = docStoreService.retrieve(result.getIdentifier());
 
 		BufferedReader r = new BufferedReader(new InputStreamReader(
-				outDoc.getEncodedContentStream(), Constants.PREFERRED_CHARSET));
+				outDoc.getDecodedContentStream(), Constants.PREFERRED_CHARSET));
 
 		assertEquals(testString, r.readLine());
 		assertNull(r.readLine());
@@ -114,7 +115,7 @@ public class MongoGridDocStoreServiceTest {
 
 		Document outDoc = docStoreService.retrieve(result.getIdentifier());
 
-		InputStream is = outDoc.getEncodedContentStream();
+		InputStream is = outDoc.getDecodedContentStream();
 
 		byte[] out = new byte[length];
 		int totalRead = 0;
@@ -183,7 +184,7 @@ public class MongoGridDocStoreServiceTest {
 		Document outDoc = docStoreService.retrieve(result.getIdentifier());
 
 		BufferedReader r = new BufferedReader(new InputStreamReader(
-				outDoc.getEncodedContentStream(), Constants.PREFERRED_CHARSET));
+				outDoc.getDecodedContentStream(), Constants.PREFERRED_CHARSET));
 
 		assertEquals(testString, r.readLine());
 		assertNull(r.readLine());

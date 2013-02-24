@@ -179,11 +179,12 @@ public class MessageImpl extends AbstractMessage implements Message {
 				// set the content_data
 				case T_BODY:
 					SinglePartHeader single = new SinglePartHeaderImpl();
-
-					EncodedContentDataImpl cd = new EncodedContentDataImpl();
+					final String transferEncoding = stream.getBodyDescriptor()
+							.getTransferEncoding();
+					EncodedContentDataImpl cd = new EncodedContentDataImpl(
+							transferEncoding);
 					cd.setBinaryContent(stream.getInputStream());
-					single.setContentTransferEncoding(stream
-							.getBodyDescriptor().getTransferEncoding());
+					single.setContentTransferEncoding(transferEncoding);
 
 					single.setOriginalHeaders(headers.toString());
 					single.parseHeaders(headers.toString(), config);

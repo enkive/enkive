@@ -23,6 +23,7 @@ import java.io.InputStream;
 
 import com.linuxbox.enkive.docstore.AbstractDocument;
 import com.linuxbox.enkive.docstore.exception.DocStoreException;
+import com.linuxbox.enkive.message.ContentException;
 import com.linuxbox.enkive.message.EncodedContentReadData;
 
 /**
@@ -36,8 +37,9 @@ import com.linuxbox.enkive.message.EncodedContentReadData;
 public class ContentDataDocument extends AbstractDocument {
 	private EncodedContentReadData contentData;
 
-	public ContentDataDocument(EncodedContentReadData contentData, String mimeType,
-			String filename, String fileSuffix, String binaryEncoding) {
+	public ContentDataDocument(EncodedContentReadData contentData,
+			String mimeType, String filename, String fileSuffix,
+			String binaryEncoding) {
 		super(mimeType, filename, fileSuffix, binaryEncoding);
 		this.contentData = contentData;
 	}
@@ -52,12 +54,19 @@ public class ContentDataDocument extends AbstractDocument {
 
 	@Override
 	public InputStream getEncodedContentStream() throws DocStoreException {
-		return contentData.getBinaryContent();
+		try {
+			return contentData.getEncodedContent();
+		} catch (ContentException e) {
+			throw new DocStoreException(e);
+		}
 	}
 
 	@Override
 	public InputStream getDecodedContentStream() throws DocStoreException {
-		throw new DocStoreException(
-				"decoded version of ContentData not available");
+		try {
+			return contentData.getBinaryContent();
+		} catch (ContentException e) {
+			throw new DocStoreException(e);
+		}
 	}
 }

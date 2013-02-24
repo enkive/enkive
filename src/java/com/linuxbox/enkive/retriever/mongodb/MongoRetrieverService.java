@@ -56,10 +56,7 @@ import com.linuxbox.enkive.docstore.Document;
 import com.linuxbox.enkive.docstore.exception.DocStoreException;
 import com.linuxbox.enkive.exception.BadMessageException;
 import com.linuxbox.enkive.exception.CannotRetrieveException;
-import com.linuxbox.enkive.exception.CannotTransferMessageContentException;
 import com.linuxbox.enkive.message.ContentHeader;
-import com.linuxbox.enkive.message.EncodedContentData;
-import com.linuxbox.enkive.message.EncodedContentDataImpl;
 import com.linuxbox.enkive.message.EncodedContentReadData;
 import com.linuxbox.enkive.message.Message;
 import com.linuxbox.enkive.message.MessageImpl;
@@ -69,7 +66,7 @@ import com.linuxbox.enkive.message.MultiPartHeader;
 import com.linuxbox.enkive.message.MultiPartHeaderImpl;
 import com.linuxbox.enkive.message.SinglePartHeader;
 import com.linuxbox.enkive.message.SinglePartHeaderImpl;
-import com.linuxbox.enkive.message.docstore.DocumentEncodedContentData;
+import com.linuxbox.enkive.message.docstore.DocumentEncodedContentReadData;
 import com.linuxbox.enkive.retriever.AbstractRetrieverService;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
@@ -220,7 +217,7 @@ public class MongoRetrieverService extends AbstractRetrieverService {
 	private EncodedContentReadData buildEncodedContentData(String attachmentUUID)
 			throws CannotRetrieveException, DocStoreException {
 		Document document = docStoreService.retrieve(attachmentUUID);
-		DocumentEncodedContentData encodedContentData = new DocumentEncodedContentData(
+		DocumentEncodedContentReadData encodedContentData = new DocumentEncodedContentReadData(
 				attachmentUUID, document);
 		return encodedContentData;
 	}

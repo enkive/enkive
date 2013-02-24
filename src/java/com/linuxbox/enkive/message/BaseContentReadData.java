@@ -2,8 +2,6 @@ package com.linuxbox.enkive.message;
 
 import java.io.InputStream;
 
-import com.linuxbox.enkive.docstore.exception.DocStoreException;
-
 public interface BaseContentReadData {
 
 	/**
@@ -22,5 +20,5 @@ public interface BaseContentReadData {
 	 *         ultimately is sent as text-encoded (e.g., base64), this will be
 	 *         the binary version of that.
 	 */
-	InputStream getBinaryContent() throws DocStoreException;
+	InputStream getBinaryContent() throws ContentException;
 }
