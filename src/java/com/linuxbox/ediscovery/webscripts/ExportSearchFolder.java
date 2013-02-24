@@ -20,6 +20,8 @@
 package com.linuxbox.ediscovery.webscripts;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 import org.apache.commons.io.IOUtils;
 import org.springframework.extensions.webscripts.AbstractWebScript;
@@ -29,12 +31,19 @@ import org.springframework.extensions.webscripts.WebScriptRequest;
 import org.springframework.extensions.webscripts.WebScriptResponse;
 import org.springframework.extensions.webscripts.connector.Response;
 import org.springframework.extensions.webscripts.connector.ResponseStatus;
-import org.springframework.util.FileCopyUtils;
 
+/**
+ * This class does not currently seem to be exposed in the e-discovery user
+ * interface. This presently does not seem to request a specific search folder
+ * from Enkive, so it's unclear how it might work.
+ * 
+ * @author eric
+ * 
+ */
 public class ExportSearchFolder extends AbstractWebScript {
-
-	public static String SEARCHFOLDER_EXPORT_REST_URL = "/search/searchFolder?action=export";
-	public static String EDISCOVERY_SEARCHFOLDER_URL = "/ediscovery/search/folder";
+	protected static final String SEARCHFOLDER_EXPORT_REST_URL = "/search/searchFolder?action=export";
+	protected static final String EDISCOVERY_SEARCHFOLDER_URL = "/ediscovery/search/folder";
+	protected static final String EXPORT_FILE_NAME = "SearchFolder.tar.gz";
 
 	protected ScriptRemote scriptRemote;
 
@@ -43,29 +52,32 @@ public class ExportSearchFolder extends AbstractWebScript {
 
 		ScriptRemoteConnector connector = scriptRemote.connect("enkive");
 
-		Response resp = connector.call(SEARCHFOLDER_EXPORT_REST_URL);
+		Response enkiveResponse = connector.call(SEARCHFOLDER_EXPORT_REST_URL);
 
-		if (resp.getStatus().getCode() == ResponseStatus.STATUS_FORBIDDEN) {
+		if (enkiveResponse.getStatus().getCode() == ResponseStatus.STATUS_FORBIDDEN) {
 			res.setContentType("text/plain");
 			res.setStatus(ResponseStatus.STATUS_MOVED_TEMPORARILY);
 			res.setHeader("Location", EDISCOVERY_SEARCHFOLDER_URL);
 		} else {
-			res.setHeader("Content-disposition",
-					"attachment; filename=SearchFolder.tar.gz");
+			res.setHeader("Content-disposition", "attachment; filename="
+					+ EXPORT_FILE_NAME);
 			res.setContentType("application/x-gzip");
-			res.setContentEncoding(resp.getEncoding());
-			res.setStatus(resp.getStatus().getCode());
-			for (String key : resp.getStatus().getHeaders().keySet()) {
-				res.setHeader(key, resp.getStatus().getHeaders().get(key));
+			res.setContentEncoding(enkiveResponse.getEncoding());
+			res.setStatus(enkiveResponse.getStatus().getCode());
+			for (String key : enkiveResponse.getStatus().getHeaders().keySet()) {
+				res.setHeader(key,
+						enkiveResponse.getStatus().getHeaders().get(key));
 			}
 			try {
-				IOUtils.copy(resp.getResponseStream(), res.getOutputStream());
-				//FileCopyUtils.copy(resp.getResponseStream(), res.getOutputStream());
+				InputStream in = enkiveResponse.getResponseStream();
+				OutputStream out = res.getOutputStream();
+				IOUtils.copy(in, out);
+				IOUtils.closeQuietly(in);
+				IOUtils.closeQuietly(out);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-
 		}
 	}
 
