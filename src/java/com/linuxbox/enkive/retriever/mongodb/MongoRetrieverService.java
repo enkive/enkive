@@ -27,6 +27,7 @@ import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.CONTENT_TR
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.CONTENT_TYPE;
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.DATE;
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.EPILOGUE;
+import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.FILENAME;
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.FROM;
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.MAIL_FROM;
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.MESSAGE_DIFF;
@@ -124,7 +125,6 @@ public class MongoRetrieverService extends AbstractRetrieverService {
 	@SuppressWarnings("unchecked")
 	@Override
 	public MessageSummary retrieveSummary(String messageUUID) {
-
 		DBObject messageObject = messageColl.findOne(messageUUID);
 		final MessageSummary result = new MessageSummaryImpl();
 		result.setId(messageUUID);
@@ -188,10 +188,11 @@ public class MongoRetrieverService extends AbstractRetrieverService {
 			throws CannotRetrieveException, IOException, DocStoreException {
 		SinglePartHeader header = new SinglePartHeaderImpl();
 		setSinglePartHeaderProperties(header, contentHeaderObject);
+		final String documentUuid = (String) contentHeaderObject
+				.get(ATTACHMENT_ID);
 
 		EncodedContentReadData encodedContentData = null;
-		encodedContentData = buildEncodedContentData((String) contentHeaderObject
-				.get(ATTACHMENT_ID));
+		encodedContentData = buildEncodedContentData(documentUuid);
 
 		header.setEncodedContentData(encodedContentData);
 
@@ -244,6 +245,7 @@ public class MongoRetrieverService extends AbstractRetrieverService {
 				.get(CONTENT_TRANSFER_ENCODING));
 		header.setContentType((String) headerObject.get(CONTENT_TYPE));
 		header.setContentID((String) headerObject.get(CONTENT_ID));
+		header.setFileName((String) headerObject.get(FILENAME));
 	}
 
 	private void setMultiPartHeaderProperties(MultiPartHeader header,
@@ -265,7 +267,7 @@ public class MongoRetrieverService extends AbstractRetrieverService {
 			throw new CannotRetrieveException("Could not retrieve attachment",
 					e);
 		}
-		
+
 		return attachment;
 	}
 
