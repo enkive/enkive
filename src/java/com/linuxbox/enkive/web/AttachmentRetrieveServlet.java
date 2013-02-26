@@ -37,6 +37,10 @@ import com.linuxbox.enkive.retriever.MessageRetrieverService;
 
 public class AttachmentRetrieveServlet extends EnkiveServlet {
 	private static final long serialVersionUID = 7489338160172966335L;
+	private static final String PARAM_ATTACHMENT_ID = "attachmentid";
+	private static final String PARAM_FILE_NAME = "fname";
+	private static final String PARAM_MIME_TYPE = "mtype";
+	private static final String DEFAULT_FILE_NAME = "Message Body";
 
 	@Override
 	public void init(ServletConfig config) throws ServletException {
@@ -45,21 +49,31 @@ public class AttachmentRetrieveServlet extends EnkiveServlet {
 
 	public void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
-		String attachmentUUID = req.getParameter("attachmentid");
 		final MessageRetrieverService retriever = getMessageRetrieverService();
+		final String attachmentUUID = req.getParameter(PARAM_ATTACHMENT_ID);
 
 		try {
 			EncodedContentReadData attachment = retriever
 					.retrieveAttachment(attachmentUUID);
 
-			// TODO : This file name does not appear to be what we want.
-			String filename = attachment.getFilename();
+			String filename = req.getParameter(PARAM_FILE_NAME);
 			if (filename == null || filename.isEmpty()) {
-				filename = "Message Body";
+				filename = attachment.getFilename();
+			}
+			if (filename == null || filename.isEmpty()) {
+				filename = DEFAULT_FILE_NAME;
 			}
 
+			String mimeType = req.getParameter(PARAM_MIME_TYPE);
+			if (mimeType == null || mimeType.isEmpty()) {
+				mimeType = attachment.getMimeType();
+			}
+
+			// is there a purpose to the nested trys?
 			try {
-				resp.setContentType(attachment.getMimeType());
+				if (mimeType != null) {
+					resp.setContentType(mimeType);
+				}
 				resp.setCharacterEncoding("utf-8");
 				resp.setHeader("Content-disposition", "attachment;  filename="
 						+ filename);
