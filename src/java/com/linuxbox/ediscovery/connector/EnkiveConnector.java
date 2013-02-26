@@ -35,7 +35,6 @@ public class EnkiveConnector extends HttpConnector {
 
 	public EnkiveConnector(ConnectorDescriptor descriptor, String endpoint) {
 		super(descriptor, endpoint);
-		System.out.println("creating connector w/ descriptor " + descriptor);
 	}
 
 	@Override
