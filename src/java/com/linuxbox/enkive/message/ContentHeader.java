@@ -21,6 +21,8 @@ package com.linuxbox.enkive.message;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.Deque;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.james.mime4j.stream.MimeConfig;
@@ -193,7 +195,7 @@ public interface ContentHeader {
 
 	/**
 	 * 
-	 * @return a set of all attachment types as MIME types (e.g., "text/plan"
+	 * @return a set of all attachment types as MIME types (e.g., "text/plain"
 	 *         and "text/html").
 	 */
 	public Set<String> getAttachmentTypes();
@@ -204,4 +206,27 @@ public interface ContentHeader {
 	 */
 	public Set<String> getAttachmentUUIDs();
 
+	/**
+	 * 
+	 * @return a summary of each attachment at or below this point in the header
+	 *         hierarchy
+	 */
+	public List<AttachmentSummary> getAttachmentSummaries();
+	
+	/**
+	 * Recursively build the list of attachment summaries. Since attachments can
+	 * be hierarchical, the positionsAbove is a list of integers indicating
+	 * where in the hierarchy a given attachment sits. For example, if it were
+	 * the list {2, 1, 3} then it would be the third sub-attachment, of the
+	 * first sub-attachment, of the second attachment. Since this is made for
+	 * human consumption, the indices are 1-based rather than 0-based.
+	 * 
+	 * @param result
+	 *            the list on which to add results
+	 * @param positionsAbove
+	 *            the list of positions above, so the hierarchy can be
+	 *            represented yet the result be flat
+	 */
+	public abstract void generateAttachmentSummaries(
+			List<AttachmentSummary> result, Deque<Integer> positionsAbove);
 }

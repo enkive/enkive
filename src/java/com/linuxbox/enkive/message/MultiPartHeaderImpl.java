@@ -21,6 +21,7 @@ package com.linuxbox.enkive.message;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.Deque;
 import java.util.List;
 import java.util.Set;
 
@@ -100,5 +101,17 @@ public class MultiPartHeaderImpl extends AbstractMultiPartHeader implements
 			result.addAll(header.getAttachmentUUIDs());
 		}
 		return result;
+	}
+	
+	@Override
+	public void generateAttachmentSummaries(List<AttachmentSummary> result,
+			Deque<Integer> positionsAbove) {
+		int counter = 1;
+		for (ContentHeader header : getPartHeaders()) {
+			positionsAbove.addLast(counter);
+			header.generateAttachmentSummaries(result, positionsAbove);
+			positionsAbove.removeLast();
+			++counter;
+		}
 	}
 }

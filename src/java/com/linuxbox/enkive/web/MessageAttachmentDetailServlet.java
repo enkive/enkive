@@ -31,12 +31,16 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.linuxbox.enkive.exception.CannotRetrieveException;
-import com.linuxbox.enkive.message.EncodedContentReadData;
+import com.linuxbox.enkive.message.AttachmentSummary;
 import com.linuxbox.enkive.message.Message;
 import com.linuxbox.enkive.retriever.MessageRetrieverService;
 
 public class MessageAttachmentDetailServlet extends EnkiveServlet {
 	private static final long serialVersionUID = 7489338160172966335L;
+	protected static final String KEY_UUID = "UUID";
+	protected static final String KEY_FILE_NAME = "filename";
+	protected static final String KEY_MIME_TYPE = "mimeType";
+	protected static final String PARAM_MSG_ID = "message_id";
 
 	@Override
 	public void init(ServletConfig config) throws ServletException {
@@ -45,23 +49,30 @@ public class MessageAttachmentDetailServlet extends EnkiveServlet {
 
 	public void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
-		final String messageId = req.getParameter("message_id");
+		final String messageId = req.getParameter(PARAM_MSG_ID);
 		final MessageRetrieverService retriever = getMessageRetrieverService();
 
 		try {
 			final Message message = retriever.retrieve(messageId);
+
 			JSONArray attachments = new JSONArray();
 
-			for (String attachmentUUID : message.getContentHeader()
-					.getAttachmentUUIDs()) {
-
-				EncodedContentReadData attachment = retriever
-						.retrieveAttachment(attachmentUUID);
+			for (AttachmentSummary attachment : message.getContentHeader()
+					.getAttachmentSummaries()) {
 				JSONObject attachmentObject = new JSONObject();
 
-				String filename = attachment.getFilename();
+				String filename = attachment.getFileName();
 				if (filename == null || filename.isEmpty()) {
-					filename = "Message Body";
+					final String positionString = attachment
+							.getPositionString();
+
+					// TODO: revisit this logic; best to assume first attachment
+					// is body?
+					if (positionString.equals("1")) {
+						filename = "Message-Body";
+					} else {
+						filename = "attachment-" + positionString;
+					}
 				}
 
 				String mimeType = attachment.getMimeType();
@@ -69,12 +80,12 @@ public class MessageAttachmentDetailServlet extends EnkiveServlet {
 					mimeType = "";
 				}
 
-				attachmentObject.put("UUID", attachmentUUID);
-				attachmentObject.put("filename", filename);
-				attachmentObject.put("mimeType", mimeType);
+				attachmentObject.put(KEY_UUID, attachment.getUuid());
+				attachmentObject.put(KEY_FILE_NAME, filename);
+				attachmentObject.put(KEY_MIME_TYPE, mimeType);
 				attachments.put(attachmentObject);
 			}
-			
+
 			try {
 				JSONObject jObject = new JSONObject();
 				jObject.put(WebConstants.DATA_TAG, attachments);

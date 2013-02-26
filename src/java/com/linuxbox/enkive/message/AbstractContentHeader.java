@@ -19,7 +19,10 @@
  *******************************************************************************/
 package com.linuxbox.enkive.message;
 
+import java.util.Deque;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 
 public abstract class AbstractContentHeader implements ContentHeader {
@@ -142,5 +145,13 @@ public abstract class AbstractContentHeader implements ContentHeader {
 	@Override
 	public void setEncodedContentData(EncodedContentReadData encodedContentData) {
 		this.encodedContentData = encodedContentData;
+	}
+
+	@Override
+	public List<AttachmentSummary> getAttachmentSummaries() {
+		List<AttachmentSummary> result = new LinkedList<AttachmentSummary>();
+		Deque<Integer> positionsAbove = new LinkedList<Integer>();
+		generateAttachmentSummaries(result, positionsAbove);
+		return result;
 	}
 }

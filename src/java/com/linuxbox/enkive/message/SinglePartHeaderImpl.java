@@ -23,12 +23,16 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.util.Deque;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.james.mime4j.dom.Message;
 import org.apache.james.mime4j.message.DefaultMessageBuilder;
+import org.apache.james.mime4j.message.MessageImpl;
 import org.apache.james.mime4j.stream.MimeConfig;
 
 public class SinglePartHeaderImpl extends AbstractSinglePartHeader implements
@@ -50,7 +54,7 @@ public class SinglePartHeaderImpl extends AbstractSinglePartHeader implements
 		ByteArrayInputStream dataStream = new ByteArrayInputStream(
 				partHeaders.getBytes());
 
-		org.apache.james.mime4j.dom.Message headers = new org.apache.james.mime4j.message.MessageImpl();
+		Message headers = new MessageImpl();
 		try {
 			DefaultMessageBuilder builder = new org.apache.james.mime4j.message.DefaultMessageBuilder();
 			builder.setMimeEntityConfig(config);
@@ -111,5 +115,15 @@ public class SinglePartHeaderImpl extends AbstractSinglePartHeader implements
 
 		result.add(getEncodedContentData().getUUID());
 		return result;
+	}
+
+	@Override
+	public void generateAttachmentSummaries(List<AttachmentSummary> result,
+			Deque<Integer> positionsAbove) {
+		final EncodedContentReadData content = getEncodedContentData();
+		final AttachmentSummary summary = new AttachmentSummary(
+				content.getUUID(), getFilename(), getContentType(),
+				positionsAbove);
+		result.add(summary);
 	}
 }
