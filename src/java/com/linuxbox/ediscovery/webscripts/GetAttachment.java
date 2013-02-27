@@ -23,6 +23,7 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -38,11 +39,20 @@ import org.springframework.extensions.webscripts.connector.Response;
 import org.springframework.extensions.webscripts.connector.ResponseStatus;
 
 public class GetAttachment extends AbstractWebScript {
-	protected static final String ATTACHMENT_RETRIEVE_REST_URL = "/attachment/retrieve?attachmentid=";
+	protected static final String ATTACHMENT_RETRIEVE_REST_URL = "/attachment/retrieve";
+	protected static final String PARAM_ID = "attachmentid";
+	protected static final String PARAM_FILE_NAME = "fname";
+	protected static final String PARAM_MIME_TYPE = "mtype";
+	protected static final String UTF8 = "UTF-8";
+	
 
 	@Override
 	public void execute(WebScriptRequest req, WebScriptResponse res)
 			throws IOException {
+		final String attachmentId = req.getParameter(PARAM_ID);
+		final String attachmentFileName = req.getParameter(PARAM_FILE_NAME);
+		final String attachmentMimeType = req.getParameter(PARAM_MIME_TYPE);
+		
 		ScriptDetails script = getExecuteScript(req.getContentType());
 		Map<String, Object> model = new HashMap<String, Object>();
 		Map<String, Object> scriptModel = createScriptParameters(req, res,
@@ -59,9 +69,32 @@ public class GetAttachment extends AbstractWebScript {
 				.unwrapValue(scriptModel.get("remote"));
 
 		ScriptRemoteConnector connector = remote.connect("enkive");
+		
+		StringBuilder uriBuilder = new StringBuilder(ATTACHMENT_RETRIEVE_REST_URL);
+		uriBuilder.append('?');
+		uriBuilder.append(PARAM_ID);
+		uriBuilder.append('=');
+		uriBuilder.append(URLEncoder.encode(attachmentId, UTF8));
+		
+		if (attachmentFileName != null && !attachmentFileName.isEmpty()) {
+			uriBuilder.append('&');
+			uriBuilder.append(PARAM_FILE_NAME);
+			uriBuilder.append('=');
+			uriBuilder.append(URLEncoder.encode(attachmentFileName, UTF8));			
+		}
+		
+		if (attachmentMimeType != null && !attachmentMimeType.isEmpty()) {
+			uriBuilder.append('&');
+			uriBuilder.append(PARAM_MIME_TYPE);
+			uriBuilder.append('=');
+			uriBuilder.append(URLEncoder.encode(attachmentMimeType, UTF8));				
+		}
+		
+		final String uri = uriBuilder.toString();
+		// FIXME remove
+		System.out.println("URL is " + uri);
 
-		Response connectorResp = connector.call(ATTACHMENT_RETRIEVE_REST_URL
-				+ req.getParameter("attachmentid"));
+		Response connectorResp = connector.call(uri);
 
 		if (connectorResp.getStatus().getCode() == ResponseStatus.STATUS_FORBIDDEN) {
 			res.setStatus(connectorResp.getStatus().getCode());

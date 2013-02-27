@@ -10,5 +10,6 @@ if (response.status == 200) {
 	model.text = response;
 	var attachmentsJSON = eval("(" + attachments + ")");
 	model.attachments = attachmentsJSON.data;
-} else
-	model.text = "Your session has expired.  You must login to view this message";
+} else {
+	model.text = "Your session has expired. You must login to view this message.";
+}
