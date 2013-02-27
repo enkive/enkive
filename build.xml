@@ -38,7 +38,7 @@
 
 	<target name="compile" description="Compiles src to ${bin.dir}">
 		<mkdir dir="${bin.dir}" />
-		<javac srcdir="${source.dir}/java" destdir="${bin.dir}" source="1.5" target="1.5" debug="on" fork="yes" deprecation="on">
+		<javac srcdir="${source.dir}/java" destdir="${bin.dir}" source="1.5" target="1.5" debug="on" fork="yes" deprecation="on" includeantruntime="false">
 		</javac>
 	</target>
 
