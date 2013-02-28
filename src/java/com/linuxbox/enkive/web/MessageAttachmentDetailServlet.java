@@ -68,7 +68,7 @@ public class MessageAttachmentDetailServlet extends EnkiveServlet {
 
 					// TODO: revisit this logic; best to assume first attachment
 					// is body?
-					if (positionString.equals("1")) {
+					if (positionString.isEmpty() || positionString.equals("1")) {
 						filename = "Message-Body";
 					} else {
 						filename = "attachment-" + positionString;
