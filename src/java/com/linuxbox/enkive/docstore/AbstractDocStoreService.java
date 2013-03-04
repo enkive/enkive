@@ -191,7 +191,7 @@ public abstract class AbstractDocStoreService implements DocStoreService {
 						hashingInputStream);
 			}
 
-			if (!storeResult.getAlreadyStored()) {
+			if (!storeResult.isAlreadyStored()) {
 				indexerQueueService.enqueue(storeResult.getIdentifier(),
 						storeResult.getShardKey(),
 						DocStoreConstants.QUEUE_ENTRY_INDEX_DOCUMENT);
@@ -208,7 +208,7 @@ public abstract class AbstractDocStoreService implements DocStoreService {
 				LOGGER.trace("TIMING: "
 						+ (endTime - startTime)
 						+ " ms to "
-						+ (storeResult.getAlreadyStored() ? "determine already stored document "
+						+ (storeResult.isAlreadyStored() ? "determine already stored document "
 								: "store document ")
 						+ storeResult.getIdentifier());
 			}

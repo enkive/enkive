@@ -100,7 +100,7 @@ public class TestMongoGridDocStore {
 			throws DocSearchException, DocStoreException {
 		final String identifier = storageResult.getIdentifier();
 
-		if (!storageResult.getAlreadyStored()) {
+		if (!storageResult.isAlreadyStored()) {
 			docIndexService.indexDocument(identifier);
 		}
 	}
@@ -112,9 +112,9 @@ public class TestMongoGridDocStore {
 		indexSet.add(result.getIdentifier());
 
 		System.out.println("archived string " + result.getIdentifier() + " "
-				+ (result.getAlreadyStored() ? "OLD" : "NEW"));
+				+ (result.isAlreadyStored() ? "OLD" : "NEW"));
 
-		if (INDEXING_METHOD == Indexing.PUSH && !result.getAlreadyStored()) {
+		if (INDEXING_METHOD == Indexing.PUSH && !result.isAlreadyStored()) {
 			index(result);
 		}
 	}
@@ -200,14 +200,14 @@ public class TestMongoGridDocStore {
 				StoreRequestResult result = docStoreService.store(d);
 
 				if (INDEXING_METHOD == Indexing.PUSH
-						&& !result.getAlreadyStored()) {
+						&& !result.isAlreadyStored()) {
 					index(result);
 				}
 
 				final String identifier = result.getIdentifier();
 				encodedIdentifierSet.add(identifier);
 				System.out.println("archived encoded " + identifier + " "
-						+ (result.getAlreadyStored() ? "OLD" : "NEW"));
+						+ (result.isAlreadyStored() ? "OLD" : "NEW"));
 			} catch (Throwable e) {
 				e.printStackTrace();
 			}

@@ -37,7 +37,7 @@ public class StoreRequestResultImpl implements StoreRequestResult {
 	}
 
 	@Override
-	public boolean getAlreadyStored() {
+	public boolean isAlreadyStored() {
 		return alreadyStored;
 	}
 

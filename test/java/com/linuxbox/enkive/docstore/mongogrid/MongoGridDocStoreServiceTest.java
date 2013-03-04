@@ -89,7 +89,7 @@ public class MongoGridDocStoreServiceTest {
 
 		StoreRequestResult result = docStoreService.storeKnownHash(
 				testDocument, hash, testData, testData.length);
-		assertFalse(result.getAlreadyStored());
+		assertFalse(result.isAlreadyStored());
 
 		Document outDoc = docStoreService.retrieve(result.getIdentifier());
 
@@ -111,7 +111,7 @@ public class MongoGridDocStoreServiceTest {
 
 		StoreRequestResult result = docStoreService.storeKnownHash(
 				testDocument, hash, testData, length);
-		assertFalse(result.getAlreadyStored());
+		assertFalse(result.isAlreadyStored());
 
 		Document outDoc = docStoreService.retrieve(result.getIdentifier());
 
@@ -179,7 +179,7 @@ public class MongoGridDocStoreServiceTest {
 		StoreRequestResult result = docStoreService.storeAndDetermineHash(
 				testDocument, in);
 
-		assertFalse(result.getAlreadyStored());
+		assertFalse(result.isAlreadyStored());
 
 		Document outDoc = docStoreService.retrieve(result.getIdentifier());
 
@@ -199,7 +199,7 @@ public class MongoGridDocStoreServiceTest {
 		StoreRequestResult result1 = docStoreService.storeKnownHash(
 				testDocument, testDocumentHash, testData, testData.length);
 
-		assertFalse(result1.getAlreadyStored());
+		assertFalse(result1.isAlreadyStored());
 
 		HashingInputStream doc1Input = new HashingInputStream(
 				getPrimedMessageDigest(testDocument), new ByteArrayInputStream(
@@ -208,7 +208,7 @@ public class MongoGridDocStoreServiceTest {
 		StoreRequestResult result2 = docStoreService.storeAndDetermineHash(
 				testDocument, doc1Input);
 
-		assertTrue(result2.getAlreadyStored());
+		assertTrue(result2.isAlreadyStored());
 
 		assertEquals("identifiers should be the same", result1.getIdentifier(),
 				result2.getIdentifier());
@@ -226,12 +226,12 @@ public class MongoGridDocStoreServiceTest {
 		StoreRequestResult result1 = docStoreService.storeAndDetermineHash(
 				testDocument, doc1Input);
 
-		assertFalse(result1.getAlreadyStored());
+		assertFalse(result1.isAlreadyStored());
 
 		StoreRequestResult result2 = docStoreService.storeKnownHash(
 				testDocument, testDocumentHash, testData, testData.length);
 
-		assertTrue(result2.getAlreadyStored());
+		assertTrue(result2.isAlreadyStored());
 
 		assertEquals("identifiers should be the same", result1.getIdentifier(),
 				result2.getIdentifier());
