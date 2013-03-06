@@ -72,19 +72,21 @@ public class PostfixFilterProcessor extends AbstractMailProcessor {
 
 	@Override
 	protected String processInput() throws SocketClosedException, IOException {
-		char character;
 		ArrayList<String> addresses = new ArrayList<String>();
-		String address = "";
+		char character;
+		StringBuffer address = new StringBuffer();
 		do {
 			character = (char) is.read();
-			if (character == ';' && !address.equals(""))
-				addresses.add(address);
-			else if (character != ' ')
-				address += character;
-			else {
-				if (!address.equals(""))
-					addresses.add(address);
-				address = "";
+			final boolean isEmpty = address.length() == 0;
+			if (character == ';' && !isEmpty) {
+				addresses.add(address.toString());
+			} else if (character != ' ') {
+				address.append(character);
+			} else {
+				if (!isEmpty) {
+					addresses.add(address.toString());
+				}
+				address.setLength(0);
 			}
 		} while (character != ';');
 
@@ -94,14 +96,13 @@ public class PostfixFilterProcessor extends AbstractMailProcessor {
 		StringBuilder sb = new StringBuilder();
 		String line;
 		BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-		while ((line = reader.readLine()) != null)
+		while ((line = reader.readLine()) != null) {
 			sb.append(line).append("\r\n");
+		}
 
 		os.writeBytes(RECEIVED_MESSAGE);
 		os.flush();
 
 		return sb.toString();
-
 	}
-
 }
