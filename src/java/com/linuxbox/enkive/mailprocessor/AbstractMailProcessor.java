@@ -239,8 +239,8 @@ public abstract class AbstractMailProcessor implements ArchivingProcessor,
 
 		processorState = SHUTTING_DOWN;
 		if (!closeInitiated) {
-			if (LOGGER.isFatalEnabled())
-				LOGGER.fatal("Shutting down mailprocessor");
+			if (LOGGER.isInfoEnabled())
+				LOGGER.info("Shutting down mailprocessor");
 			closeProcessor();
 			closeSessionResources();
 			try {

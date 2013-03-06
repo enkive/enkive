@@ -51,9 +51,10 @@ public abstract class AbstractMailboxImporter extends AbstractMessageImporter {
 	public void readMailDirectory(String subDir) throws MessagingException,
 			IOException {
 		int i = 1;
-		System.out.println(subDir + " - Starting");
-		while (!readMailDirectory(subDir, i, i + 100))
+		System.out.println(subDir + " - Started");
+		while (!readMailDirectory(subDir, i, i + 100)) {
 			i = i + 100;
+		}
 		System.out.println(subDir + " - Finished");
 	}
 
@@ -66,7 +67,7 @@ public abstract class AbstractMailboxImporter extends AbstractMessageImporter {
 			if (i <= messageTotal)
 				sendMessage(folder.getMessage(i));
 			if (messageCount % 100 == 0) {
-				System.out.println(messageCount + " Messages Sent");
+				System.out.println(messageCount + " Messages");
 			}
 		}
 		folder.close(false);
@@ -77,5 +78,4 @@ public abstract class AbstractMailboxImporter extends AbstractMessageImporter {
 			IOException;
 
 	protected abstract void setupSession();
-
 }
