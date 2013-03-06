@@ -20,6 +20,7 @@
 package com.linuxbox.enkive.importer;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
@@ -28,6 +29,12 @@ import javax.mail.Provider;
 import javax.mail.URLName;
 
 public class MboxReader extends AbstractMailboxImporter {
+	static class InboxFilenameFilter implements FilenameFilter {
+		@Override
+		public boolean accept(File dir, String name) {
+			return name.equals("Inbox");
+		}
+	}
 
 	static {
 		try {
@@ -37,17 +44,41 @@ public class MboxReader extends AbstractMailboxImporter {
 		}
 	}
 
-	MboxReader(String rootDir, String host, String port)
-			throws MessagingException, IOException {
-		super(rootDir, host, port, new URLName(new String("mbox://" + rootDir)));
+	static FilenameFilter INBOX_FILTER = new InboxFilenameFilter();
 
+	MboxReader(String rootPath, String host, String port)
+			throws MessagingException, IOException {
+		super(rootPath, host, port, new URLName(
+				new String("mbox://" + rootPath)));
 	}
 
 	@Override
 	public void readAllMessages() throws MessagingException, IOException {
 		File dir = new File(rootDir);
-		for (File mboxFile : dir.listFiles())
+		if (!dir.isDirectory()) {
+			throw new IOException("Was expecting \"" + rootDir
+					+ "\" to be a directory, but it is not.");
+		}
+		for (File mboxFile : dir.listFiles()) {
 			readMailDirectory(mboxFile.getName());
+		}
+	}
+
+	protected static String normalizeRootPath(String rootPath)
+			throws IOException {
+		File rootDir = new File(rootPath);
+		if (!rootDir.isDirectory()) {
+			throw new IOException("Expected " + rootPath
+					+ " to be a directory, but it is not.");
+		} else {
+			File[] inboxes = rootDir.listFiles(INBOX_FILTER);
+			if (inboxes.length == 0) {
+				System.err.println("Warning: expected to find an \"Inbox\" in "
+						+ rootPath + ", but did not.");
+			}
+		}
+
+		return rootDir.getCanonicalPath();
 	}
 
 	// Had to include gnumail, gnumailproviders, and inetlib in classpath
@@ -58,21 +89,23 @@ public class MboxReader extends AbstractMailboxImporter {
 			System.exit(1);
 		}
 
-		MboxReader reader = null;
-
-		final String path = args[0]; // path to home folder to Archive
+		String rootPath = args[0]; // path to home folder to Archive
 		final String host = args[1];
 		final String portString = args[2];
 
-		long startTime = System.currentTimeMillis();
+		MboxReader reader = null;
+
+		final long startTime = System.currentTimeMillis();
 		try {
-			reader = new MboxReader(path, host, portString);
+			rootPath = normalizeRootPath(rootPath);
+			reader = new MboxReader(rootPath, host, portString);
 			reader.setWriter();
 			reader.readAllMessages();
 			reader.closeWriter();
 		} catch (Exception e) {
-			System.err.println(e);
-			e.printStackTrace();
+			System.err.println("Error: " + e.getMessage());
+			// e.printStackTrace(System.err);
+			System.exit(1);
 		} finally {
 			long elapsedTime = System.currentTimeMillis() - startTime;
 			System.out.println();
