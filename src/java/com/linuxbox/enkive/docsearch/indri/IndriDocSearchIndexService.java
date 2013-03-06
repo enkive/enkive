@@ -19,6 +19,7 @@
  *******************************************************************************/
 package com.linuxbox.enkive.docsearch.indri;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -28,6 +29,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import lemurproject.indri.IndexEnvironment;
+import lemurproject.indri.IndexStatus;
 import lemurproject.indri.ParsedDocument;
 
 import org.apache.commons.logging.Log;
@@ -52,6 +54,26 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 
 	private final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.docsearch.indri");
+
+	static class IndexServiceIndexStatus extends IndexStatus {
+		@Override
+		public void status(int intCode, String path, String error,
+				int docsIndexed, int docsSeen) {
+			IndexStatus.action_code code = IndexStatus.action_code
+					.swigToEnum(intCode);
+			if (code == IndexStatus.action_code.FileClose) {
+				final File f = new File(path);
+				if (!f.delete()) {
+					LOGGER.error("could not delete temporary INDRI indexing file "
+							+ path);
+				}
+			} else if (code == IndexStatus.action_code.FileSkip) {
+				LOGGER.info("skipping file " + path);
+			} else if (code == IndexStatus.action_code.FileError) {
+				LOGGER.error("got error " + error + " with file " + path);
+			}
+		}
+	}
 
 	/*
 	 * These are used to obtain the locks.
@@ -93,6 +115,7 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 	private String repositoryPath;
 	private String tempStoragePath;
 	private File tempStorageDir;
+	private final IndexServiceIndexStatus indexStatus = new IndexServiceIndexStatus();
 
 	/**
 	 * How many documents to index before closing an index environment (which
@@ -327,6 +350,7 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 	private void indexDocumentAsFile(Document doc, String identifier)
 			throws DocSearchException, DocStoreException {
 		Reader input = null;
+		PrintWriter output = null;
 
 		try {
 			input = contentAnalyzer.parseIntoText(doc);
@@ -334,29 +358,25 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 			File tempFile = File.createTempFile("enkive-indri", ".txt",
 					tempStorageDir);
 
-			PrintWriter output = null;
+			output = new PrintWriter(new BufferedWriter(
+					new FileWriter(tempFile)));
+			output.println("<DOC>");
+			output.println("<" + NAME_FIELD + ">" + identifier + "</"
+					+ NAME_FIELD + ">");
+			output.println("<TEXT>");
+			StreamConnector.transferForeground(input, output);
+			output.println("</TEXT>");
+			output.println("</DOC>");
+			output.close();
 
-			try {
-				output = new PrintWriter(new FileWriter(tempFile));
-				output.println("<DOC>");
-				output.println("<" + NAME_FIELD + ">" + identifier + "</"
-						+ NAME_FIELD + ">");
-				output.println("<TEXT>");
-				StreamConnector.transferForeground(input, output);
-				output.println("</TEXT>");
-				output.println("</DOC>");
-				output.close();
-
-				synchronized (indexEnvironmentMutex) {
-					indexEnvironment.addFile(tempFile.getAbsolutePath(),
-							TRECTEXT_FORMAT);
-				}
-			} finally {
-				tempFile.delete();
+			synchronized (indexEnvironmentMutex) {
+				indexEnvironment.addFile(tempFile.getAbsolutePath(),
+						TRECTEXT_FORMAT);
 			}
 		} catch (IOException e) {
-			throw new DocStoreException("could not index document \""
-					+ identifier + "\"", e);
+			throw new DocStoreException(
+					"could not generate file to index document \"" + identifier
+							+ "\"", e);
 		} catch (Exception e) {
 			throw new DocSearchException("could not index document \""
 					+ identifier + "\"", e);
@@ -621,7 +641,7 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 			// re-open...MAYBE depending on how INDRI handles this.
 			indexEnvironment.setMemory(indexEnvironmentMemory);
 		}
-		indexEnvironment.open(repositoryPath);
+		indexEnvironment.open(repositoryPath, indexStatus);
 		indexEnvironmentDocCount = 0;
 		indexEnvironmentCreated = System.currentTimeMillis();
 	}
