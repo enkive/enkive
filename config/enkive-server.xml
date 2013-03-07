@@ -132,7 +132,7 @@
 					enabled IMAP Access -->
 				<!-- <ref bean="ImapMessageRetentionTrigger" /> -->
 				<!-- Uncomment the next line to enable the nightly statistics report -->
-				<!-- <ref bean="StatisticsEmailerTrigger" />  -->
+				<!-- <ref bean="StatisticsEmailerTrigger" /> -->
 			</list>
 		</property>
 	</bean>
@@ -141,7 +141,8 @@
 		lives on another server or a unique port, that can be configured once. -->
 
 	<bean id="Mongo" class="com.mongodb.Mongo" destroy-method="close">
-		<constructor-arg type="java.lang.String" value="localhost" />
+		<constructor-arg type="java.lang.String" value="${enkive.mongodb.host}" />
+		<constructor-arg type="int" value="${enkive.mongodb.port}" />
 	</bean>
 
 	<bean id="IndexShardingHelper" class="com.linuxbox.enkive.docstore.AbstractDocStoreService"
