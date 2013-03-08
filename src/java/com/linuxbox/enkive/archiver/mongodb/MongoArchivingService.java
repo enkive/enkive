@@ -71,7 +71,6 @@ import com.linuxbox.enkive.archiver.MessageLoggingText;
 import com.linuxbox.enkive.archiver.exceptions.CannotArchiveException;
 import com.linuxbox.enkive.archiver.exceptions.FailedToEmergencySaveException;
 import com.linuxbox.enkive.audit.AuditServiceException;
-import com.linuxbox.enkive.docstore.Document;
 import com.linuxbox.enkive.docstore.StoreRequestResult;
 import com.linuxbox.enkive.docstore.exception.DocStoreException;
 import com.linuxbox.enkive.exception.BadMessageException;
@@ -153,7 +152,6 @@ public class MongoArchivingService extends AbstractMessageArchivingService
 			messageObject.put(NESTED_MESSAGE_ID_LIST, nested_message_ids);
 			messageColl.insert(messageObject);
 			messageUUID = messageObject.getString(MESSAGE_UUID);
-
 		} catch (MongoException e) {
 			throw new CannotArchiveException(e);
 		} catch (DocStoreException e) {
@@ -181,6 +179,10 @@ public class MongoArchivingService extends AbstractMessageArchivingService
 		return messageUUID;
 	}
 
+	// FIXME: this seems like it's not Mongo dependent (well, except that it's
+	// returning a MongoDBObject), but instead dependent on
+	// the doc store service, so couldn't this be moved up to the
+	// AbstractMessageArchivingService class?
 	private BasicDBObject archiveContentHeader(ContentHeader contentHeader)
 			throws DocStoreException, CannotArchiveException, ContentException,
 			FailedToEmergencySaveException, AuditServiceException {
@@ -200,9 +202,9 @@ public class MongoArchivingService extends AbstractMessageArchivingService
 				partHeadersList.add(archiveContentHeader(partHeader));
 			}
 			headerObject.put(PART_HEADERS, partHeadersList);
-
 		} else {
-			SinglePartHeader singlePartHeader = (SinglePartHeader) contentHeader;
+			final SinglePartHeader singlePartHeader = (SinglePartHeader) contentHeader;
+
 			headerObject.put(CONTENT_HEADER_TYPE, SINGLE_PART_HEADER_TYPE);
 			headerObject.put(CONTENT_ID, singlePartHeader.getContentID());
 			headerObject.put(CONTENT_TYPE, singlePartHeader.getContentType());
@@ -234,15 +236,17 @@ public class MongoArchivingService extends AbstractMessageArchivingService
 			if (singlePartHeader.getFilename() != null)
 				fileExtension = singlePartHeader.getFilename().substring(
 						singlePartHeader.getFilename().lastIndexOf('.') + 1);
-			// Store the attachment
-			Document document = new ContentDataDocument(
+			// store the attachment
+			ContentDataDocument document = new ContentDataDocument(
 					singlePartHeader.getEncodedContentData(),
 					singlePartHeader.getContentType(), fileExtension,
 					singlePartHeader.getFilename(), singlePartHeader
 							.getContentTransferEncoding().toString());
 			StoreRequestResult docResult = docStoreService.store(document);
-			headerObject.put(ATTACHMENT_ID, docResult.getIdentifier());
-			attachment_ids.add(docResult.getIdentifier());
+
+			final String attachmentIdentifier = docResult.getIdentifier();
+			headerObject.put(ATTACHMENT_ID, attachmentIdentifier);
+			attachment_ids.add(attachmentIdentifier);
 		}
 
 		return headerObject;
