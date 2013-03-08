@@ -47,7 +47,7 @@ public interface MessageArchivingService {
 			FailedToEmergencySaveException,
 			AuditServiceException,
 			IOException,
-			com.linuxbox.enkive.archiver.exceptions.FailedToEmergencySaveException;
+			FailedToEmergencySaveException;
 
 	/**
 	 * Stores the given message and generates a unique identifier for the
