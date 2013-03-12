@@ -67,7 +67,6 @@
 			<attribute name="javadoc_location" value="jar:platform:/resource/enkive2/lib/javadoc/commons-lang-2.6-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="lib/tika-app-1.0.jar"/>
 	<classpathentry kind="lib" path="lib/quartz-1.8.6.jar"/>
 	<classpathentry kind="lib" path="lib/freemarker-2.3.18.jar"/>
 	<classpathentry kind="var" path="ENKIVE_JAVA/lib/tools.jar"/>
@@ -99,5 +98,6 @@
 			<attribute name="javadoc_location" value="jar:platform:/resource/enkive2/lib/javadoc/apache-mime4j-storage-0.7.2-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="lib/tika-app-1.3.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
