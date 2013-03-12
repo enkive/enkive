@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2012 The Linux Box Corporation.
+ * Copyright 2013 The Linux Box Corporation.
  *
  * This file is part of Enkive CE (Community Edition).
  *
@@ -24,7 +24,7 @@ public interface Copyright {
 	String BETA = "beta";
 	String PRODUCT = "Enkive CE ";
 	String VERSION = "1.2";
-	String COPYRIGHT = "Copyright 2012 The Linux Box Corporation; all rights "
+	String COPYRIGHT = "Copyright 2013 The Linux Box Corporation; all rights "
 			+ "reserved except those granted under license.";
 	String LICENSE = "Licensed under the GNU Affero General Public License "
 			+ "version 3 or later.";

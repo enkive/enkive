@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2012 The Linux Box Corporation.
+ * Copyright 2013 The Linux Box Corporation.
  *
  * This file is part of Enkive CE (Community Edition).
  *
