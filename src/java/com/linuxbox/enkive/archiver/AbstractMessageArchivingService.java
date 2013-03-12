@@ -20,6 +20,7 @@
 package com.linuxbox.enkive.archiver;
 
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -58,7 +59,7 @@ public abstract class AbstractMessageArchivingService implements
 	private final static long RANDOM_FILENAME_SUFFIX_RANGE = 2147480000;
 
 	protected DocStoreService docStoreService;
-	protected String emergencySaveRoot;
+	protected String emergencySavePath;
 	protected AuditService auditService;
 
 	@SuppressWarnings("serial")
@@ -216,33 +217,40 @@ public abstract class AbstractMessageArchivingService implements
 	private String saveToDisk(String messageData, String fileName)
 			throws FailedToEmergencySaveException,
 			SaveFileAlreadyExistsException {
-		final String filePath = getEmergencySaveRoot() + "/" + fileName;
-
+		File emergencySaveFile = null;
+		String emergencySaveFilePath = "UNKNOWN";
 		BufferedWriter out = null;
 		FileOutputStream fileStream = null;
 		try {
-			fileStream = new FileOutputStream(filePath);
+			emergencySaveFile = new File(getEmergencySaveRoot(), fileName);
+			emergencySaveFilePath = emergencySaveFile.getCanonicalPath();
+			fileStream = new FileOutputStream(emergencySaveFile);
 			FileLock lock = null;
 			try {
 				lock = fileStream.getChannel().tryLock();
 				if (lock == null) {
-					throw new SaveFileAlreadyExistsException(filePath);
+					throw new SaveFileAlreadyExistsException(
+							emergencySaveFilePath);
 				}
 
 				out = new BufferedWriter(new OutputStreamWriter(fileStream));
 				out.write(messageData);
 
-				if (LOGGER.isInfoEnabled())
-					LOGGER.info("Saved message to file: \"" + fileName + "\"");
-				return filePath;
+				if (LOGGER.isInfoEnabled()) {
+					LOGGER.info("Saved message to file: \""
+							+ emergencySaveFilePath + "\"");
+				}
+
+				return emergencySaveFilePath;
 			} finally {
 				if (lock != null) {
 					lock.release();
 				}
 			}
 		} catch (IOException e) {
-			if (LOGGER.isFatalEnabled())
+			if (LOGGER.isFatalEnabled()) {
 				LOGGER.fatal("Emergency save to disk failed. ", e);
+			}
 			throw new FailedToEmergencySaveException(e);
 		} finally {
 			try {
@@ -252,19 +260,47 @@ public abstract class AbstractMessageArchivingService implements
 					fileStream.close();
 				}
 			} catch (IOException e) {
-				if (LOGGER.isWarnEnabled())
-					LOGGER.warn("could not close emergency save file \""
-							+ filePath + "\".");
+				if (LOGGER.isWarnEnabled()) {
+					LOGGER.warn("Could not close emergency save file \""
+							+ emergencySavePath + "\".");
+				}
 			}
 		}
 	}
 
 	public String getEmergencySaveRoot() {
-		return emergencySaveRoot;
+		return emergencySavePath;
 	}
 
-	public void setEmergencySaveRoot(String emergencySaveRoot) {
-		this.emergencySaveRoot = emergencySaveRoot;
+	public void setEmergencySaveRoot(String emergencySavePath)
+			throws MessageArchivingServiceException {
+		this.emergencySavePath = emergencySavePath;
+
+		final File emergencySaveDir = new File(emergencySavePath);
+
+		if (!emergencySaveDir.exists()) {
+			if (!emergencySaveDir.mkdirs()) {
+				final String message = "Failed to create emergency save directory \""
+						+ emergencySavePath + "\".";
+				LOGGER.fatal(message);
+				throw new MessageArchivingServiceException(message);
+			} else {
+				LOGGER.info("Created emergency save directory \""
+						+ emergencySavePath + "\".");
+			}
+		}
+
+		if (!emergencySaveDir.isDirectory()) {
+			final String message = "Emergency save directory \""
+					+ emergencySavePath + "\" is not actually a directory.";
+			LOGGER.fatal(message);
+			throw new MessageArchivingServiceException(message);
+		} else if (!emergencySaveDir.canWrite()) {
+			final String message = "Unable to write to emergency save directory \""
+					+ emergencySavePath + "\"; please check permissions.";
+			LOGGER.fatal(message);
+			throw new MessageArchivingServiceException(message);
+		}
 	}
 
 	public AuditService getAuditService() {
