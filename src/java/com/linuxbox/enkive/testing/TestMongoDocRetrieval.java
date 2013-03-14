@@ -21,7 +21,6 @@ package com.linuxbox.enkive.testing;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.net.UnknownHostException;
 
 import com.linuxbox.enkive.docstore.Document;
 import com.linuxbox.enkive.docstore.mongogrid.ConvenienceMongoGridDocStoreService;
@@ -46,28 +45,18 @@ import com.linuxbox.util.StreamConnector;
  */
 
 public class TestMongoDocRetrieval {
-
+	// FIXME: Since this is defined in the spring configuration, it should be
+	// retrieved from there rather than hard-coded
 	private final static String DATABASE_NAME = "enkive";
+
+	// FIXME: Since this is defined in the spring configuration, it should be
+	// retrieved from there rather than hard-coded
 	private final static String GRIDFS_COLLECTION_NAME = "fs";
+
 	private final static String outputDir = "/tmp"; /* cmdline? */
-	
+
 	enum store_how {
 		ENCODED, DECODED
-	}
-
-	static MongoGridDocStoreService docStoreService;
-
-	private static Document retrieveEncoded(String identifier) {
-		Document d = null;
-		try {
-			d = docStoreService.retrieve(identifier);
-		}
-		catch (Throwable e) {
-			e.printStackTrace();
-		} finally {
-			/* nothing */
-		}		
-		return (d);
 	}
 
 	private static void storeAsFile(Document d, store_how how) {
@@ -76,15 +65,16 @@ public class TestMongoDocRetrieval {
 		try {
 			switch (how) {
 			case ENCODED:
-				f = new File(outputDir + "/" + d.getFilename() + "_enc."
+				f = new File(outputDir, d.getFilename() + "_enc."
 						+ d.getFileExtension());
 				fileStream = new FileOutputStream(f);
 				StreamConnector.transferForeground(d.getEncodedContentStream(),
 						fileStream);
 				break;
+
 			case DECODED:
 			default:
-				f = new File(outputDir + "/" + d.getFilename() + "_dec."
+				f = new File(outputDir, d.getFilename() + "_dec."
 						+ d.getFileExtension());
 				fileStream = new FileOutputStream(f);
 				StreamConnector.transferForeground(d.getDecodedContentStream(),
@@ -92,10 +82,9 @@ public class TestMongoDocRetrieval {
 				break;
 			}
 			fileStream.close();
-			System.out.println("retrieving " + d.getFilename() + " " + how + " to "
-					+ f.getCanonicalPath());
-		}
-		catch (Throwable e) {
+			System.out.println("retrieving " + d.getFilename() + " " + how
+					+ " to " + f.getCanonicalPath());
+		} catch (Throwable e) {
 			e.printStackTrace();
 		} finally {
 			try {
@@ -105,20 +94,19 @@ public class TestMongoDocRetrieval {
 			} catch (Exception e) {
 				// empty
 			}
-		}	
-		
+		}
 	}
-	
+
 	public static String getIdentifierOpt(String[] args) {
-		
-		/* XXX for now, just skip it */
 		String identifier = args[0];
-		
-		return (identifier);
+
+		return identifier;
 	}
 
 	public static void main(String[] args) {
 		System.out.println("Starting");
+
+		MongoGridDocStoreService docStoreService = null;
 
 		try {
 			docStoreService = new ConvenienceMongoGridDocStoreService(
@@ -127,28 +115,24 @@ public class TestMongoDocRetrieval {
 
 			String identifier = getIdentifierOpt(args);
 			if (identifier == null) {
-				System.out.println("usage:  program <identifier>");
+				System.out.println("usage: program <identifier>");
 				return;
 			}
-			Document d = retrieveEncoded(identifier);
-			
+
+			Document d = docStoreService.retrieve(identifier);
+
 			storeAsFile(d, store_how.ENCODED);
 			storeAsFile(d, store_how.DECODED);
-			
-			/* XXX need to release d? */
-
-		} catch (UnknownHostException e) {
-			e.printStackTrace();
 		} catch (Exception e) {
-			e.printStackTrace();
+			System.err.println(e);
+			e.printStackTrace(System.err);
 		} finally {
-
 			try {
 				if (docStoreService != null) {
 					docStoreService.shutdown();
 				}
 			} catch (Exception e) {
-				e.printStackTrace();
+				// empty
 			}
 		}
 
