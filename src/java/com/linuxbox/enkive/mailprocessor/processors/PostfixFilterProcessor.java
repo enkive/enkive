@@ -48,7 +48,6 @@ public class PostfixFilterProcessor extends AbstractMailProcessor {
 				os.writeBytes(ARCHIVED_MESSAGE);
 			else
 				os.writeBytes(FAILED_MESSAGE);
-			os.flush();
 			os.close();
 			is.close();
 		} catch (IOException e) {

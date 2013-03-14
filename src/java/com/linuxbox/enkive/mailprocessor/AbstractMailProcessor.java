@@ -74,6 +74,10 @@ public abstract class AbstractMailProcessor implements ArchivingProcessor,
 	private boolean initialized;
 	protected boolean multiMessage = false;
 	protected boolean processingComplete = false;
+
+	// FIXME: to make this multi-threading safe, it would be better to
+	// keep this as a local variable that's passed where it's needed; also this
+	// does not seem to be used when multiMessage is true
 	protected boolean messageSaved = false;
 
 	private ObjectName mBeanName;
