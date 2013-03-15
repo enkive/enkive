@@ -17,7 +17,7 @@
  * License along with Enkive CE. If not, see
  * <http://www.gnu.org/licenses/>.
  *******************************************************************************/
-package com.linuxbox.enkive;
+package com.linuxbox.enkive.tool.mongodb;
 
 import java.io.BufferedReader;
 import java.io.IOException;

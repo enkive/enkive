@@ -27,6 +27,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.linuxbox.enkive.audit.AuditService;
 import com.linuxbox.enkive.audit.AuditServiceException;
+import com.linuxbox.enkive.tool.mongodb.MongoDBIndexManager;
 
 public abstract class Main {
 	protected static final Log LOGGER = LogFactory
