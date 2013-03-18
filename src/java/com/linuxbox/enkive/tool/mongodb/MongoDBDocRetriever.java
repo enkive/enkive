@@ -28,6 +28,7 @@ import java.io.Reader;
 import org.apache.commons.io.IOUtils;
 import org.apache.tika.Tika;
 import org.apache.tika.metadata.Metadata;
+import org.apache.tika.mime.MimeType;
 import org.apache.tika.mime.MimeTypeException;
 import org.apache.tika.mime.MimeTypes;
 
@@ -70,15 +71,23 @@ public class MongoDBDocRetriever {
 			fileExtension = "." + fileExtension;
 		} else {
 			// use this file extension if attempts to fix below fail
-			fileExtension = "UNKNOWN";
+			fileExtension = ".UNKNOWN";
 
 			// try use Apache Tika to get the best possible extension given the
 			// mime type
-			final String mimeType = doc.getMimeType();
-			if (null != mimeType) {
+			final String mimeTypeString = doc.getMimeType();
+			System.out.println("Document claims to be of MIME type: "
+					+ mimeTypeString);
+			if (null != mimeTypeString) {
 				try {
-					fileExtension = MimeTypes.getDefaultMimeTypes()
-							.getRegisteredMimeType(mimeType).getExtension();
+					final MimeType mimeType = MimeTypes.getDefaultMimeTypes()
+							.getRegisteredMimeType(mimeTypeString);
+					if (null != mimeType) {
+						fileExtension = mimeType.getExtension();
+					} else {
+						System.out
+								.println("Cannot determine a standard file extension for that MIME type.");
+					}
 				} catch (MimeTypeException e) {
 					// empty; leaves fileExtension as "UNKNOWN"
 				}
