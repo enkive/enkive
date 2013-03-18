@@ -34,7 +34,6 @@ import java.util.TreeMap;
 import org.apache.commons.lang.time.DateUtils;
 import org.bson.types.ObjectId;
 
-import com.linuxbox.enkive.exception.CannotGetPermissionsException;
 import com.linuxbox.enkive.imap.EnkiveImapAccountCreator;
 import com.linuxbox.enkive.message.search.exception.MessageSearchException;
 import com.linuxbox.enkive.permissions.PermissionService;
@@ -144,8 +143,8 @@ public class MongoImapAccountCreator implements EnkiveImapAccountCreator {
 		BasicDBObject userMailboxesObject = new BasicDBObject();
 		userMailboxesObject.put(MongoEnkiveImapConstants.USER, username);
 		DBObject resultObject = imapCollection.findOne(userMailboxesObject);
+		
 		return (resultObject != null);
-
 	}
 
 	@Override
@@ -177,6 +176,7 @@ public class MongoImapAccountCreator implements EnkiveImapAccountCreator {
 				DBObject mailboxObject = getMessagesFolder(username,
 						startTime.getTime());
 
+				@SuppressWarnings("unchecked")
 				HashMap<String, String> mailboxMsgIds = (HashMap<String, String>) mailboxObject
 						.get(MongoEnkiveImapConstants.MESSAGEIDS);
 
@@ -279,5 +279,4 @@ public class MongoImapAccountCreator implements EnkiveImapAccountCreator {
 	public void setPermissionsService(PermissionService permissionsService) {
 		this.permissionsService = permissionsService;
 	}
-
 }

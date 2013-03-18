@@ -42,7 +42,6 @@ import com.mongodb.DBObject;
 import com.mongodb.Mongo;
 
 public class MongoEnkiveImapMessageMapper extends EnkiveImapMessageMapper {
-
 	Mongo m;
 	DB imapDB;
 	DBCollection imapCollection;
@@ -81,6 +80,7 @@ public class MongoEnkiveImapMessageMapper extends EnkiveImapMessageMapper {
 		return messageCount;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public SortedMap<Long, String> getMailboxMessageIds(
 			Mailbox<String> mailbox, long fromUid, long toUid) {
@@ -124,6 +124,7 @@ public class MongoEnkiveImapMessageMapper extends EnkiveImapMessageMapper {
 					messageIds.put(key, tmpMsgIds.get(key.toString()));
 			}
 		}
+		
 		return messageIds;
 	}
 }

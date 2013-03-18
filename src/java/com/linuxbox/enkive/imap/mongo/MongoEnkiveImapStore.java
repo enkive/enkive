@@ -34,7 +34,6 @@ import com.mongodb.DBObject;
 import com.mongodb.Mongo;
 
 public class MongoEnkiveImapStore extends EnkiveImapStore {
-
 	Mongo m;
 	DB imapDB;
 	DBCollection imapCollection;
@@ -53,21 +52,28 @@ public class MongoEnkiveImapStore extends EnkiveImapStore {
 				MongoEnkiveImapConstants.USER, session.getUser().getUserName());
 		DBObject userMailboxesObject = imapCollection
 				.findOne(userMailboxesSearchObject);
+		
+		@SuppressWarnings("unchecked")
 		HashMap<String, String> userMailboxes = (HashMap<String, String>) userMailboxesObject
 				.get(MongoEnkiveImapConstants.MAILBOXES);
+		
 		String mailboxKey = userMailboxes.get(mailbox.getName());
 		DBObject mailboxObject = imapCollection.findOne(new BasicDBObject(
 				"_id", ObjectId.massageToObjectId(mailboxKey)));
+		
+		@SuppressWarnings("unchecked")
 		HashMap<String, String> msgIds = (HashMap<String, String>) mailboxObject
 				.get(MongoEnkiveImapConstants.MESSAGEIDS);
+		
 		if (msgIds == null || msgIds.keySet() == null
-				|| msgIds.keySet().isEmpty())
+				|| msgIds.keySet().isEmpty()) {
 			return 1;
+		}
 		TreeSet<Long> sortedUids = new TreeSet<Long>();
 		for (String key : msgIds.keySet())
 			sortedUids.add(Long.parseLong(key));
+		
 		return sortedUids.last();
-
 	}
 
 }
