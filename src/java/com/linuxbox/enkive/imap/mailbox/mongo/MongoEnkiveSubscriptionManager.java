@@ -57,12 +57,13 @@ public class MongoEnkiveSubscriptionManager extends EnkiveSubscriptionManager {
 		DBObject searchObject = new BasicDBObject(
 				MongoEnkiveImapConstants.USER, session.getUser().getUserName());
 		DBObject userMailboxObject = imapCollection.findOne(searchObject);
+		
+		@SuppressWarnings("unchecked")
 		Map<String, String> mailboxes = (Map<String, String>) userMailboxObject
 				.get(MongoEnkiveImapConstants.MAILBOXES);
-		for (String mailboxName : mailboxes.keySet())
-			subscriptions.add(mailboxName);
+		
+		subscriptions.addAll(mailboxes.keySet());
 
 		return subscriptions;
 	}
-
 }

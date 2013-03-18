@@ -21,7 +21,6 @@ package com.linuxbox.enkive.imap.mailbox.mongo;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -63,8 +62,10 @@ public class MongoEnkiveImapMailboxMapper extends EnkiveImapMailboxMapper {
 		ArrayList<Mailbox<String>> mailboxes = new ArrayList<Mailbox<String>>();
 		DBObject mailboxListObject = getMailboxList();
 		if (mailboxListObject != null) {
+			@SuppressWarnings("unchecked")
 			HashMap<String, String> mailboxTable = (HashMap<String, String>) mailboxListObject
 					.get(MongoEnkiveImapConstants.MAILBOXES);
+			
 			for (String mailboxKey : mailboxTable.keySet()) {
 				MailboxPath mailboxPath = new MailboxPath(
 						session.getPersonalSpace(), session.getUser()
@@ -100,8 +101,10 @@ public class MongoEnkiveImapMailboxMapper extends EnkiveImapMailboxMapper {
 			return new EnkiveImapMailbox(trashPath, 1);
 
 		} else if (mailboxListObject != null) {
+			@SuppressWarnings("unchecked")
 			HashMap<String, String> mailboxTable = (HashMap<String, String>) mailboxListObject
 					.get(MongoEnkiveImapConstants.MAILBOXES);
+			
 			String searchMailboxName = mailboxName.getName().replace(".", "/");
 			if (mailboxTable.containsKey(searchMailboxName)) {
 				mailboxName.setName(searchMailboxName);
@@ -138,10 +141,11 @@ public class MongoEnkiveImapMailboxMapper extends EnkiveImapMailboxMapper {
 		} else {
 			DBObject mailboxListObject = getMailboxList();
 			if (mailboxListObject != null) {
+				@SuppressWarnings("unchecked")
 				HashMap<String, String> mailboxTable = (HashMap<String, String>) mailboxListObject
 						.get(MongoEnkiveImapConstants.MAILBOXES);
-				Set<String> mailboxPaths = mailboxTable.keySet();
-				for (String mailboxKey : mailboxPaths) {
+				
+				for (String mailboxKey : mailboxTable.keySet()) {
 					String updatedMailboxKey = mailboxKey.replace('/', '.');
 					String regex = mailboxSearchPath.replace(".", "+\\.+");
 					regex = regex.replace('%', '.') + "*";
@@ -154,10 +158,10 @@ public class MongoEnkiveImapMailboxMapper extends EnkiveImapMailboxMapper {
 						mailbox.setMailboxId(mailboxTable.get(mailboxKey));
 						mailboxes.add(mailbox);
 					}
-
 				}
 			}
 		}
+		
 		return mailboxes;
 	}
 
