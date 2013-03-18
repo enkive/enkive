@@ -19,6 +19,8 @@
  *******************************************************************************/
 package com.linuxbox.enkive.docsearch.indri;
 
+import static com.linuxbox.enkive.docsearch.indri.IndriDocSearchIndexService.IndexStorage.FILE;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -32,6 +34,7 @@ import lemurproject.indri.IndexEnvironment;
 import lemurproject.indri.IndexStatus;
 import lemurproject.indri.ParsedDocument;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -42,7 +45,6 @@ import com.linuxbox.enkive.docstore.DocStoreConstants;
 import com.linuxbox.enkive.docstore.DocStoreService;
 import com.linuxbox.enkive.docstore.Document;
 import com.linuxbox.enkive.docstore.exception.DocStoreException;
-import com.linuxbox.util.StreamConnector;
 import com.linuxbox.util.lockservice.LockAcquisitionException;
 import com.linuxbox.util.lockservice.LockReleaseException;
 import com.linuxbox.util.lockservice.LockService;
@@ -55,6 +57,9 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 	private final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.docsearch.indri");
 
+	// this should be true; can be false for debugging
+	private final static boolean REMOVE_TEMP_FILES = true;
+
 	static class IndexServiceIndexStatus extends IndexStatus {
 		@Override
 		public void status(int intCode, String path, String error,
@@ -62,10 +67,12 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 			IndexStatus.action_code code = IndexStatus.action_code
 					.swigToEnum(intCode);
 			if (code == IndexStatus.action_code.FileClose) {
-				final File f = new File(path);
-				if (!f.delete()) {
-					LOGGER.error("could not delete temporary INDRI indexing file "
-							+ path);
+				if (REMOVE_TEMP_FILES) {
+					final File f = new File(path);
+					if (!f.delete()) {
+						LOGGER.error("could not delete temporary INDRI indexing file "
+								+ path);
+					}
 				}
 			} else if (code == IndexStatus.action_code.FileSkip) {
 				LOGGER.info("skipping file " + path);
@@ -107,10 +114,7 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 	private static final String TEXT_FORMAT = "txt";
 	private static final String TRECTEXT_FORMAT = "trectext";
 	private static final long DOC_SIZE_IN_MEMORY_LIMIT = 8 * 1024; // 8 KB
-	// private static final IndexStorage INDEX_STORAGE = IndexStorage.BY_SIZE;
-	// private static final IndexStorage INDEX_STORAGE =
-	// IndexStorage.PARSED_DOCUMENT;
-	private static final IndexStorage INDEX_STORAGE = IndexStorage.FILE;
+	private static final IndexStorage INDEX_STORAGE = FILE;
 
 	private String repositoryPath;
 	private String tempStoragePath;
@@ -136,8 +140,8 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 
 	/**
 	 * NOTE: TODO : since all action through the IndexEnvironment is serialized
-	 * by getting actions off of a queue, this mutex is likely no longer
-	 * necessary. Once code is stable and working, look into removing it.
+	 * by getting actions off of a queue, this mutex may no longer be necessary.
+	 * Once code is stable and working, look into removing it.
 	 * 
 	 * Used to control access to the index environment; needed in case an
 	 * outside caller wants to refresh the index environment.
@@ -351,28 +355,35 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 			throws DocSearchException, DocStoreException {
 		Reader input = null;
 		PrintWriter output = null;
+		File tempFile = null;
+
+		// assume one is thrown until we know none was (i.e., at end of try
+		// block)
+		boolean exceptionThrown = true;
 
 		try {
-			input = contentAnalyzer.parseIntoText(doc);
-
-			File tempFile = File.createTempFile("enkive-indri", ".txt",
+			tempFile = File.createTempFile("enkive-indri", ".txt",
 					tempStorageDir);
 
+			input = contentAnalyzer.parseIntoText(doc);
 			output = new PrintWriter(new BufferedWriter(
 					new FileWriter(tempFile)));
 			output.println("<DOC>");
 			output.println("<" + NAME_FIELD + ">" + identifier + "</"
 					+ NAME_FIELD + ">");
 			output.println("<TEXT>");
-			StreamConnector.transferForeground(input, output);
+			IOUtils.copy(input, output);
 			output.println("</TEXT>");
 			output.println("</DOC>");
-			output.close();
+			IOUtils.closeQuietly(output);
+			IOUtils.closeQuietly(input);
 
 			synchronized (indexEnvironmentMutex) {
 				indexEnvironment.addFile(tempFile.getAbsolutePath(),
 						TRECTEXT_FORMAT);
 			}
+
+			exceptionThrown = false;
 		} catch (IOException e) {
 			throw new DocStoreException(
 					"could not generate file to index document \"" + identifier
@@ -381,12 +392,14 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 			throw new DocSearchException("could not index document \""
 					+ identifier + "\"", e);
 		} finally {
+			if (output != null) {
+				IOUtils.closeQuietly(output);
+			}
 			if (input != null) {
-				try {
-					input.close();
-				} catch (IOException e) {
-					// ignore
-				}
+				IOUtils.closeQuietly(input);
+			}
+			if (exceptionThrown && REMOVE_TEMP_FILES && null != tempFile) {
+				tempFile.delete();
 			}
 		}
 	}
@@ -495,17 +508,9 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 			case STRING:
 				docId = indexDocumentAsString(doc, identifier);
 				break;
-			case FILE:
-				indexDocumentAsFile(doc, identifier);
-				break;
 			case PARSED_DOCUMENT:
 				docId = indexDocumentAsParsedDocument2(doc, identifier);
 				break;
-			default:
-				if (LOGGER.isWarnEnabled())
-					LOGGER.warn("IndriSearchService::INDEX_STORAGE storage strategy has unexpected "
-							+ "value; using size as determiner");
-				// falling through
 			case BY_SIZE:
 				if (doc.getEncodedSize() > DOC_SIZE_IN_MEMORY_LIMIT) {
 					indexDocumentAsFile(doc, identifier);
@@ -513,13 +518,22 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 					docId = indexDocumentAsString(doc, identifier);
 				}
 				break;
+			default:
+				if (LOGGER.isWarnEnabled())
+					LOGGER.warn("IndriSearchService::INDEX_STORAGE storage strategy has unexpected "
+							+ "value; using size as determiner");
+				// falling through
+			case FILE:
+				indexDocumentAsFile(doc, identifier);
+				break;
 			}
 
 			// this will close the index environment and re-open it under
 			// certain conditions
 			indexPostProcessing();
-			if (LOGGER.isInfoEnabled())
+			if (LOGGER.isInfoEnabled()) {
 				LOGGER.info("indexed " + identifier);
+			}
 		} catch (DocStoreException e) {
 			throw e;
 		} catch (DocSearchException e) {
