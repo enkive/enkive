@@ -119,7 +119,7 @@ public class MongoAuditService implements AuditService, MongoIndexable {
 
 		final int indexCount = auditCollection.getIndexInfo().size();
 		// we expect 4 -- our 3 plus the default index on ObjectID
-		if (indexCount != 4) {
+		if (indexCount > 4) {
 			if (LOGGER.isWarnEnabled())
 				LOGGER.warn("the MongoAuditService may have extra indices (which could impact performance); expect 4 but have "
 						+ indexCount);
