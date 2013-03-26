@@ -57,7 +57,11 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 	private final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.docsearch.indri");
 
-	// this should be true; can be false for debugging
+	/**
+	 * Determines whether temporary files created so Indri can index them are
+	 * removed after either Indri is cone with them or if there was a problem
+	 * during indexing (perhaps by the text analyzer).
+	 */
 	private final static boolean REMOVE_TEMP_FILES = true;
 
 	static class IndexServiceIndexStatus extends IndexStatus {
@@ -362,7 +366,7 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 		boolean exceptionThrown = true;
 
 		try {
-			tempFile = File.createTempFile("enkive-indri", ".txt",
+			tempFile = File.createTempFile("enkive-indri-", ".trectext",
 					tempStorageDir);
 
 			input = contentAnalyzer.parseIntoText(doc);
