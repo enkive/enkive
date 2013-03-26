@@ -33,6 +33,7 @@ import org.bson.types.BSONTimestamp;
 import org.bson.types.ObjectId;
 
 import com.linuxbox.util.mongodb.MongoIndexable;
+import com.linuxbox.util.mongodb.UpdateFieldBuilder;
 import com.linuxbox.util.queueservice.AbstractQueueEntry;
 import com.linuxbox.util.queueservice.QueueEntry;
 import com.linuxbox.util.queueservice.QueueService;
@@ -54,6 +55,7 @@ public class MongoQueueService implements QueueService, MongoIndexable {
 	private static final String STATUS_FIELD = "status";
 	private static final String CREATED_AT_FIELD = "createdAt";
 	private static final String DEQUEUED_AT_FIELD = "dequeuedAt";
+	private static final String ERRORED_AT_FIELD = "erroredAt";
 	private static final String IDENTIFIER_FIELD = "identifier";
 	private static final String SHARD_KEY_FIELD = "shard";
 	private static final String NOTE_FIELD = "note";
@@ -69,12 +71,6 @@ public class MongoQueueService implements QueueService, MongoIndexable {
 
 	private static final DBObject QUERY_ENQUEUED_STATUS = new BasicDBObject(
 			STATUS_FIELD, STATUS_ENQUEUED);
-	private static final DBObject UPDATE_TO_DEQUEUED = new BasicDBObject(
-			DEQUEUED_AT_FIELD, new BSONTimestamp()).append(STATUS_FIELD,
-			STATUS_DEQUEUED);
-	private static final DBObject UPDATE_TO_ERROR = new BasicDBObject(
-			DEQUEUED_AT_FIELD, new BSONTimestamp()).append(STATUS_FIELD,
-			STATUS_ERROR);
 	private static final DBObject DEQUEUE_FIELDS = new BasicDBObject(
 			OBJECT_ID_KEY, 1).append(IDENTIFIER_FIELD, 1).append(NOTE_FIELD, 1)
 			.append(CREATED_AT_FIELD, 1).append(SHARD_KEY_FIELD, 1);
@@ -176,7 +172,7 @@ public class MongoQueueService implements QueueService, MongoIndexable {
 
 	private QueueEntry dequeueHelper(DBObject query) {
 		final DBObject result = queueCollection.findAndModify(query,
-				DEQUEUE_FIELDS, SORT_BY_CREATED_AT, false, UPDATE_TO_DEQUEUED,
+				DEQUEUE_FIELDS, SORT_BY_CREATED_AT, false, updateToDequeued(),
 				false, false);
 
 		if (result == null) {
@@ -218,7 +214,7 @@ public class MongoQueueService implements QueueService, MongoIndexable {
 			final DBObject query = new BasicDBObject(OBJECT_ID_KEY,
 					mongoEntry.mongoID);
 			final DBObject result = queueCollection.findAndModify(query,
-					UPDATE_TO_ERROR);
+					updateToError());
 			if (result == null) {
 				throw new QueueServiceException(
 						"could not finish queue entry \""
@@ -285,5 +281,15 @@ public class MongoQueueService implements QueueService, MongoIndexable {
 	@Override
 	public long getDocumentCount() throws MongoException {
 		return queueCollection.count();
+	}
+
+	private static DBObject updateToDequeued() {
+		return new UpdateFieldBuilder().set(DEQUEUED_AT_FIELD, new Date())
+				.set(STATUS_FIELD, STATUS_DEQUEUED).get();
+	}
+
+	private static DBObject updateToError() {
+		return new UpdateFieldBuilder().set(ERRORED_AT_FIELD, new Date())
+				.set(STATUS_FIELD, STATUS_ERROR).unset(DEQUEUED_AT_FIELD).get();
 	}
 }
