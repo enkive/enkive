@@ -30,6 +30,7 @@ import java.io.Reader;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Timer;
+import java.util.TimerTask;
 
 import lemurproject.indri.IndexEnvironment;
 import lemurproject.indri.IndexStatus;
@@ -63,7 +64,7 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 	 * removed after either Indri is done with them or if there were a problem
 	 * during indexing (perhaps by the text analyzer).
 	 */
-	private final static boolean REMOVE_TEMP_FILES = true;
+	private final static boolean REMOVE_TEMP_FILES = false;
 
 	/*
 	 * These are used to obtain the locks.
@@ -91,7 +92,7 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 	/**
 	 * How many seconds between creating a new IndexEnvironment;
 	 */
-	private static final int DEFAULT_INDEX_ENV_REFRESH_INTERVAL = 60;
+	private static final int DEFAULT_INDEX_ENV_REFRESH_INTERVAL = 299;
 	private static final int DEFAULT_QUERY_ENV_REFRESH_INTERVAL = 300;
 
 	private static final String TEXT_FORMAT = "txt";
@@ -560,6 +561,10 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 		}
 	}
 
+	public void refreshIndexEnvironment() throws DocSearchException {
+		indexEnvironmentManager.forceRefresh();
+	}
+
 	public String getRepositoryPath() {
 		return repositoryPath;
 	}
@@ -690,7 +695,8 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 		private IndexEnvironment indexEnvironment;
 		private boolean indexEnvironmentIsOpen = false;
 		private int actionsAttempted = 0;
-		private Timer t = null;
+		private Timer timer = new Timer();
+		private TimerTask indexEnvRefreshTask = new RefreshIndexEnvironmentTimerTask();
 
 		public IndriIndexEnvironmentManager() throws DocSearchException {
 			LOGGER.error("Have not implemented timer yet.");
@@ -738,8 +744,6 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 				return;
 			}
 
-			actionsAttempted = 0;
-
 			try {
 				if (indexEnvironmentMemory > 0) {
 					// in case it was changed, we can modify the amount at
@@ -748,6 +752,10 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 				}
 				indexEnvironment.open(repositoryPath, indexStatus);
 				indexEnvironmentIsOpen = true;
+				actionsAttempted = 0;
+				timer.schedule(indexEnvRefreshTask,
+						indexEnvironmentRefreshInterval * 1000);
+				LOGGER.trace("index environment opened");
 			} catch (Exception e) {
 				throw new DocSearchException(
 						"could not open an IndexEnvironment", e);
@@ -756,12 +764,15 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 
 		private synchronized void closeIndexEnvironment()
 				throws DocSearchException {
+			timer.cancel();
+
 			if (!indexEnvironmentIsOpen) {
 				return;
 			}
 
 			try {
 				indexEnvironment.close();
+				LOGGER.trace("index environment closed");
 			} catch (Exception e) {
 				throw new DocSearchException(
 						"could not close IndexEnvironment", e);
@@ -843,6 +854,20 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 			} catch (Exception e) {
 				throw new DocSearchException(
 						"could not construct an INDRI repository", e);
+			}
+		}
+
+		class RefreshIndexEnvironmentTimerTask extends TimerTask {
+			@Override
+			public void run() {
+				try {
+					LOGGER.trace("index environment refresh timer triggered");
+					closeIndexEnvironment();
+				} catch (DocSearchException e) {
+					LOGGER.error(
+							"Timer-based index environment refresh got error.",
+							e);
+				}
 			}
 		}
 	} // class IndexEnvironmentManager
