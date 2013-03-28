@@ -66,28 +66,21 @@ public abstract class AbstractDocSearchIndexService implements
 			try {
 				docStoreService.markAsIndexed(documentId);
 			} catch (DocStoreException e) {
-				if (LOGGER.isErrorEnabled()) {
-					LOGGER.error(
-							"Unable to mark document as having been indexed: "
-									+ documentId, e);
-				}
+				LOGGER.error("Unable to mark document as having been indexed: "
+						+ documentId, e);
 			}
 		}
 
 		protected void markAsErrorIndexing(String documentId,
 				Throwable exception) {
 			try {
-				if (LOGGER.isErrorEnabled()) {
-					LOGGER.error("Unable to index document: " + documentId,
-							exception);
-				}
+				LOGGER.error("Unable to index document: " + documentId,
+						exception);
 				docStoreService.markAsErrorIndexing(documentId);
 			} catch (DocStoreException e) {
-				if (LOGGER.isErrorEnabled()) {
-					LOGGER.error(
-							"Unable to mark document as having indexing error: "
-									+ documentId, e);
-				}
+				LOGGER.error(
+						"Unable to mark document as having indexing error: "
+								+ documentId, e);
 			}
 		}
 

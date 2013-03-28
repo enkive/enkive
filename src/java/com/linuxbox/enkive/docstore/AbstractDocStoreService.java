@@ -233,10 +233,8 @@ public abstract class AbstractDocStoreService implements DocStoreService {
 					} catch (QueueServiceException e) {
 						// TODO should we throw an exception out or is logging
 						// the problem enough?
-						if (LOGGER.isErrorEnabled())
-							LOGGER.error(
-									"could not add removal of document to queue",
-									e);
+						LOGGER.error(
+								"could not add removal of document to queue", e);
 					}
 				}
 

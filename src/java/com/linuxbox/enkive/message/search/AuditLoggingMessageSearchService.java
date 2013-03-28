@@ -60,11 +60,9 @@ public class AuditLoggingMessageSearchService implements MessageSearchService {
 				auditService.addEvent(AuditService.SEARCH_PERFORMED,
 						authenticationService.getUserName(), fields.toString());
 			} catch (AuditServiceException e) {
-				if (LOGGER.isErrorEnabled())
-					LOGGER.error("could not audit user search request", e);
+				LOGGER.error("could not audit user search request", e);
 			} catch (AuthenticationException e) {
-				if (LOGGER.isErrorEnabled())
-					LOGGER.error("could not get user for audit log", e);
+				LOGGER.error("could not get user for audit log", e);
 			}
 		}
 	}

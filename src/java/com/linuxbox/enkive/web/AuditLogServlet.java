@@ -103,8 +103,7 @@ public class AuditLogServlet extends EnkiveServlet {
 						getPermissionService().getCurrentUsername(),
 						resultsString);
 			} catch (AuditServiceException e) {
-				if (LOGGER.isErrorEnabled())
-					LOGGER.error("error creating audit entry ", e);
+				LOGGER.error("error creating audit entry ", e);
 				resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
 						"error creating audit entry " + "; see server logs");
 
@@ -114,8 +113,7 @@ public class AuditLogServlet extends EnkiveServlet {
 			}
 
 		} catch (JSONException e) {
-			if (LOGGER.isErrorEnabled())
-				LOGGER.error("JSONException", e);
+			LOGGER.error("JSONException", e);
 			resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
 					"error transcribing audit trail entries to JSON; see server logs");
 		} finally {
@@ -124,8 +122,7 @@ public class AuditLogServlet extends EnkiveServlet {
 			try {
 				resp.getWriter().write(jsonResultString);
 			} catch (IOException e) {
-				if (LOGGER.isErrorEnabled())
-					LOGGER.error("Could not write JSON response");
+				LOGGER.error("Could not write JSON response");
 			}
 
 		}

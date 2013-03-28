@@ -85,8 +85,7 @@ public class MailDirProcessor extends AbstractMailProcessor {
 			// check for closed socket / end-of-stream
 			if (character < 0) {
 				if (!addresses.isEmpty() || !address.isEmpty()) {
-					if (LOGGER.isErrorEnabled())
-						LOGGER.error("MailDirProcessor: socket closed after reading address data");
+					LOGGER.error("MailDirProcessor: socket closed after reading address data");
 					throw new MessageIncompleteException(
 							"socket closed while reading address line");
 				}
@@ -158,12 +157,9 @@ public class MailDirProcessor extends AbstractMailProcessor {
 
 			// log anything unexpected
 			if (mailboxes.size() != 1) {
-				if (LOGGER.isErrorEnabled())
-					LOGGER.error("Email address header "
-							+ headerTypeDescription
-							+ "(\""
-							+ strippedAddress
-							+ "\") could not be parsed as a single email address.");
+				LOGGER.error("Email address header " + headerTypeDescription
+						+ "(\"" + strippedAddress
+						+ "\") could not be parsed as a single email address.");
 			}
 
 			// return something reasonable if possible; null otherwise

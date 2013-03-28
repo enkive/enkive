@@ -52,8 +52,7 @@ public abstract class AbstractJsonServlet extends EnkiveServlet {
 			}
 			errors.put(errorMessage);
 		} catch (JSONException e) {
-			if (LOGGER.isErrorEnabled())
-				LOGGER.error("could not add error to JSON query result");
+			LOGGER.error("could not add error to JSON query result");
 		}
 	}
 
@@ -63,8 +62,7 @@ public abstract class AbstractJsonServlet extends EnkiveServlet {
 		try {
 			response.getWriter().write(jsonResultString);
 		} catch (IOException e) {
-			if (LOGGER.isErrorEnabled())
-				LOGGER.error("Could not write webscript response");
+			LOGGER.error("Could not write webscript response");
 		}
 	}
 }

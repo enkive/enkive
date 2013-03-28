@@ -67,8 +67,7 @@ public class SqlDbAuditService implements AuditService {
 				LOGGER.info("description column size is "
 						+ descriptionColumnSize);
 		} catch (AuditServiceException e) {
-			if (LOGGER.isErrorEnabled())
-				LOGGER.error("could not determine column size for description in events table");
+			LOGGER.error("could not determine column size for description in events table");
 		}
 	}
 
@@ -104,16 +103,14 @@ public class SqlDbAuditService implements AuditService {
 						resultSet.close();
 					}
 				} catch (SQLException e) {
-					if (LOGGER.isErrorEnabled())
-						LOGGER.error("cannot close result set", e);
+					LOGGER.error("cannot close result set", e);
 				}
 				try {
 					if (statement != null) {
 						statement.close();
 					}
 				} catch (SQLException e) {
-					if (LOGGER.isErrorEnabled())
-						LOGGER.error("cannot close statement", e);
+					LOGGER.error("cannot close statement", e);
 				}
 				try {
 					if (connection != null) {
@@ -287,8 +284,7 @@ public class SqlDbAuditService implements AuditService {
 				results.add(new AuditEntry(Integer.toString(id), timestamp,
 						eventCode, username, description));
 			} catch (SQLException e) {
-				if (LOGGER.isErrorEnabled())
-					LOGGER.error("Could not return audit entry", e);
+				LOGGER.error("Could not return audit entry", e);
 			}
 		}
 		return results;

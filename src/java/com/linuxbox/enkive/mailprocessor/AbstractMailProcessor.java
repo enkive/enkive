@@ -155,8 +155,7 @@ public abstract class AbstractMailProcessor implements ArchivingProcessor,
 		try {
 			archiver.shutdown();
 		} catch (MessageArchivingServiceException e) {
-			if (LOGGER.isErrorEnabled())
-				LOGGER.error("Could not shutdown mail processor", e);
+			LOGGER.error("Could not shutdown mail processor", e);
 		}
 	}
 
@@ -198,22 +197,18 @@ public abstract class AbstractMailProcessor implements ArchivingProcessor,
 					throw e;
 				} catch (MessageIncompleteException e) {
 					processorState = ERROR_HANDLING;
-					if (LOGGER.isFatalEnabled())
-						LOGGER.fatal(
-								"socket closed with only partial message read",
-								e);
+					LOGGER.fatal(
+							"socket closed with only partial message read", e);
 					messageSaved = archiver.emergencySave(e.getData(), true);
 					processingComplete = true;
 				} catch (BadMessageException e) {
 					processorState = ERROR_HANDLING;
-					if (LOGGER.isFatalEnabled())
-						LOGGER.fatal(
-								"could not create message object to archive", e);
+					LOGGER.fatal("could not create message object to archive",
+							e);
 					messageSaved = archiver.emergencySave(data);
 				} catch (Exception e) {
 					processorState = ERROR_HANDLING;
-					if (LOGGER.isFatalEnabled())
-						LOGGER.fatal("could not archive message", e);
+					LOGGER.fatal("could not archive message", e);
 					archiver.emergencySave(data);
 					messageSaved = false;
 				}
@@ -230,8 +225,7 @@ public abstract class AbstractMailProcessor implements ArchivingProcessor,
 		} catch (Exception e) {
 			processorState = ERROR_HANDLING;
 			messageSaved = false;
-			if (LOGGER.isErrorEnabled())
-				LOGGER.error("Message archival preparation failure", e);
+			LOGGER.error("Message archival preparation failure", e);
 			try {
 				auditService.addEvent(AuditService.MESSAGE_ARCHIVE_FAILURE,
 						AuditService.USER_SYSTEM,
@@ -250,8 +244,7 @@ public abstract class AbstractMailProcessor implements ArchivingProcessor,
 			try {
 				archiver.shutdown();
 			} catch (MessageArchivingServiceException e) {
-				if (LOGGER.isErrorEnabled())
-					LOGGER.error("Could not shutdown archiver", e);
+				LOGGER.error("Could not shutdown archiver", e);
 			}
 			server.processorClosed(this);
 		}
@@ -303,8 +296,7 @@ public abstract class AbstractMailProcessor implements ArchivingProcessor,
 		try {
 			return new MessageImpl(data);
 		} catch (BadMessageException e) {
-			if (LOGGER.isErrorEnabled())
-				LOGGER.error("unable to archive", e);
+			LOGGER.error("unable to archive", e);
 			throw new BadMessageException(e);
 		} catch (CannotTransferMessageContentException e) {
 			throw new BadMessageException(e);

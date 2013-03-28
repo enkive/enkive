@@ -103,7 +103,6 @@ public class KeyNameServlet extends EnkiveServlet {
 				}
 			} catch (CannotRetrieveException e) {
 				respondError(HttpServletResponse.SC_UNAUTHORIZED, null, resp);
-				if (LOGGER.isErrorEnabled())
 					LOGGER.error("CannotRetrieveException", e);
 			} catch (NullPointerException e) {
 				respondError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,

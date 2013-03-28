@@ -36,8 +36,7 @@ public class MultiPartHeaderImpl extends AbstractMultiPartHeader implements
 
 	@Override
 	public void parseHeaders(String someContentHeader) {
-		if (LOGGER.isErrorEnabled())
-			LOGGER.error("unimplemented MultiPartHeaderImpl:parseHeaders is being called");
+		LOGGER.error("unimplemented MultiPartHeaderImpl:parseHeaders is being called");
 	}
 
 	@Override
@@ -102,7 +101,7 @@ public class MultiPartHeaderImpl extends AbstractMultiPartHeader implements
 		}
 		return result;
 	}
-	
+
 	@Override
 	public void generateAttachmentSummaries(List<AttachmentSummary> result,
 			Deque<Integer> positionsAbove) {

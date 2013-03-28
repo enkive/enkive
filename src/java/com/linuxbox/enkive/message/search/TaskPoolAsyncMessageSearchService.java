@@ -76,8 +76,7 @@ public class TaskPoolAsyncMessageSearchService implements MessageSearchService {
 					.submit(searchResultId, searchCall);
 			return searchFuture;
 		} catch (Exception e) {
-			if (LOGGER.isErrorEnabled())
-				LOGGER.error("Error with asynchronous search", e);
+			LOGGER.error("Error with asynchronous search", e);
 		}
 		return null;
 	}

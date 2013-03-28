@@ -119,9 +119,8 @@ public class ViewSavedResultsServlet extends EnkiveServlet {
 					jsonCriteria.put(parameter, value);
 				}
 			} catch (JSONException e) {
-				if (LOGGER.isErrorEnabled())
-					LOGGER.error("could not return search criteria for search "
-							+ searchId, e);
+				LOGGER.error("could not return search criteria for search "
+						+ searchId, e);
 			}
 			dataJSON.put(QUERY_TAG, jsonCriteria);
 
@@ -146,8 +145,7 @@ public class ViewSavedResultsServlet extends EnkiveServlet {
 
 				dataJSON.put(RESULTS_TAG, jsonMessageSummaryList);
 			} catch (CannotRetrieveException e) {
-				if (LOGGER.isErrorEnabled())
-					LOGGER.error("Could not access result message list", e);
+				LOGGER.error("Could not access result message list", e);
 				// throw new WebScriptException(
 				// "Could not access query result message list", e);
 			}

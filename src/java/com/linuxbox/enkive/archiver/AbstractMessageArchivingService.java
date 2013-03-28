@@ -98,10 +98,9 @@ public abstract class AbstractMessageArchivingService implements
 				uuid = storeMessage(message);
 			}
 		} catch (Exception e) {
-			if (LOGGER.isErrorEnabled())
-				LOGGER.error(
-						"Could not archive Message "
-								+ message.getCleanMessageId(), e);
+			LOGGER.error(
+					"Could not archive Message " + message.getCleanMessageId(),
+					e);
 			emergencySave(message.getReconstitutedEmail());
 		}
 		return uuid;
@@ -248,9 +247,7 @@ public abstract class AbstractMessageArchivingService implements
 				}
 			}
 		} catch (IOException e) {
-			if (LOGGER.isFatalEnabled()) {
-				LOGGER.fatal("Emergency save to disk failed. ", e);
-			}
+			LOGGER.fatal("Emergency save to disk failed. ", e);
 			throw new FailedToEmergencySaveException(e);
 		} finally {
 			try {

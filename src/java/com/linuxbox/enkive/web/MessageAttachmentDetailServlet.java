@@ -99,15 +99,11 @@ public class MessageAttachmentDetailServlet extends EnkiveServlet {
 			}
 		} catch (CannotRetrieveException e) {
 			respondError(HttpServletResponse.SC_UNAUTHORIZED, null, resp);
-			if (LOGGER.isErrorEnabled()) {
-				LOGGER.error("Could not retrieve attachment");
-			}
+			LOGGER.error("Could not retrieve attachment");
 		} catch (JSONException e) {
 			respondError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, null,
 					resp);
-			if (LOGGER.isErrorEnabled()) {
-				LOGGER.error("Could not retrieve attachment");
-			}
+			LOGGER.error("Could not retrieve attachment");
 		}
 	}
 }

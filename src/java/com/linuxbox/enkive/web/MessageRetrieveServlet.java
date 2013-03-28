@@ -59,9 +59,7 @@ public class MessageRetrieveServlet extends EnkiveServlet {
 			message.pushReconstitutedEmail(writer);
 			resp.flushBuffer();
 		} catch (CannotRetrieveException e) {
-			if (LOGGER.isErrorEnabled()) {
-				LOGGER.error("error retrieving message " + messageId, e);
-			}
+			LOGGER.error("error retrieving message " + messageId, e);
 			respondError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
 					"error retrieving message " + messageId
 							+ "; see server logs", resp);

@@ -80,12 +80,10 @@ public class AsynchronousSearchThread implements Callable<SearchResult> {
 			} catch (MessageSearchException e) {
 				searchResult.setStatus(Status.UNKNOWN);
 				searchResult.saveSearchResult();
-				if (LOGGER.isErrorEnabled())
-					LOGGER.error("Could not complete message search", e);
+				LOGGER.error("Could not complete message search", e);
 			}
 		} catch (WorkspaceException e) {
-			if (LOGGER.isErrorEnabled())
-				LOGGER.error("Could not complete message search", e);
+			LOGGER.error("Could not complete message search", e);
 		} finally {
 			SecurityContextHolder.clearContext();
 		}

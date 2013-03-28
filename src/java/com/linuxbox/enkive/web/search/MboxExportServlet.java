@@ -103,9 +103,8 @@ public class MboxExportServlet extends EnkiveServlet {
 				} catch (CannotRetrieveException e) {
 					respondError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
 							null, res);
-					if (LOGGER.isErrorEnabled())
-						LOGGER.error("Could not retrieve message with id"
-								+ messageId);
+					LOGGER.error("Could not retrieve message with id"
+							+ messageId);
 				}
 				writer.write("\r\n");
 				auditService.addEvent(AuditService.SEARCH_EXPORTED,

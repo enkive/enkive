@@ -155,21 +155,17 @@ public class EnkiveFiltersBean {
 								+ header.getTextContent());
 				}
 			}
+
 			filterFile.close();
 		} catch (FileNotFoundException e) {
-			if (LOGGER.isFatalEnabled())
-				LOGGER.fatal("Could not find enkive-filters.xml, Filters not initialized");
+			LOGGER.fatal("Could not find enkive-filters.xml, Filters not initialized");
 		} catch (IOException e) {
-			if (LOGGER.isFatalEnabled())
-				LOGGER.fatal("Could not read file enkive-filters.xml, Filters not initialized");
+			LOGGER.fatal("Could not read file enkive-filters.xml, Filters not initialized");
 		} catch (ParserConfigurationException e) {
-			if (LOGGER.isFatalEnabled())
-				LOGGER.fatal("Could not initialize parser for enkive-filters.xml, Filters not initialized");
+			LOGGER.fatal("Could not initialize parser for enkive-filters.xml, Filters not initialized");
 		} catch (SAXException e) {
-			if (LOGGER.isFatalEnabled())
-				LOGGER.fatal("Could not parse enkive-filters.xml, Filters not initialized");
+			LOGGER.fatal("Could not parse enkive-filters.xml, Filters not initialized");
 		}
-
 	}
 
 	protected void shutdown() {

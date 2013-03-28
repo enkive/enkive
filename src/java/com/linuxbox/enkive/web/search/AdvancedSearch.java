@@ -166,15 +166,12 @@ public class AdvancedSearch extends AbstractSearchWebScript {
 			}
 			jsonResult.put(DATA_TAG, jsonData);
 		} catch (JSONException e) {
-			if (LOGGER.isErrorEnabled())
-				LOGGER.error("JSONException", e);
+			LOGGER.error("JSONException", e);
 			respondError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, null,
 					res);
 			throw new EnkiveServletException("Unable to serialize JSON");
 		} catch (CannotRetrieveException e) {
-			if (LOGGER.isFatalEnabled())
-				LOGGER.fatal(
-						"could not retrieve message summaries from archive", e);
+			LOGGER.fatal("could not retrieve message summaries from archive", e);
 			respondError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, null,
 					res);
 			throw new EnkiveServletException("Unable to access repository");

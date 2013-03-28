@@ -60,8 +60,7 @@ public class SinglePartHeaderImpl extends AbstractSinglePartHeader implements
 			builder.setMimeEntityConfig(config);
 			headers = builder.parseMessage(dataStream);
 		} catch (Exception e) {
-			if (LOGGER.isErrorEnabled())
-				LOGGER.error("Could not parse headers for message", e);
+			LOGGER.error("Could not parse headers for message", e);
 		}
 
 		setContentDisposition(headers.getDispositionType());

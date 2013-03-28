@@ -94,8 +94,7 @@ public abstract class AbstractSearchListServlet extends EnkiveServlet {
 			if (LOGGER.isDebugEnabled())
 				LOGGER.debug("Returned search list");
 		} catch (JSONException e) {
-			if (LOGGER.isErrorEnabled())
-				LOGGER.error("Error retrieving search list", e);
+			LOGGER.error("Error retrieving search list", e);
 			respondError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, null,
 					resp);
 			throw new EnkiveServletException("Unable to serialize JSON");

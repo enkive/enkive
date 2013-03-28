@@ -204,8 +204,7 @@ public class MongoGridDocStoreService extends AbstractDocStoreService implements
 				documentLockingService.releaseLock(identifier);
 			}
 		} catch (Exception e) {
-			if (LOGGER.isErrorEnabled())
-				LOGGER.error("Could not save document to gridfs", e);
+			LOGGER.error("Could not save document to MongoDB GridFS", e);
 			throw new DocStoreException(e);
 		}
 	}

@@ -111,18 +111,16 @@ public abstract class AbstractSocketServer implements EnkiveServer {
 			// LOGGER.debug("SocketException", e); catch it separately so it
 			// isn't caught below in the catch for general exceptions
 			if (!hasSocket) {
-				if (LOGGER.isErrorEnabled())
-					LOGGER.error("unexpected socket exception", e);
+				LOGGER.error("unexpected socket exception", e);
 			}
 		} catch (Exception e) {
-			if (LOGGER.isErrorEnabled())
-				LOGGER.error("Error running server or launching session.", e);
+			LOGGER.error("Error running server or launching session.", e);
 		} catch (Throwable e) {
-			if (LOGGER.isFatalEnabled())
-				LOGGER.fatal("Unexpected error in server thread.", e);
+			LOGGER.fatal("Unexpected error in server thread.", e);
 		} finally {
-			if (LOGGER.isTraceEnabled())
+			if (LOGGER.isTraceEnabled()) {
 				LOGGER.trace(serviceName + " server has left run loop");
+			}
 		}
 
 		shutdownProcessors();

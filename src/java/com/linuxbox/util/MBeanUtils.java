@@ -44,8 +44,7 @@ public class MBeanUtils {
 					mBeanInterface);
 			return registerMBean(standardMBean, type, name, null);
 		} catch (NotCompliantMBeanException e) {
-			if (LOGGER.isErrorEnabled())
-				LOGGER.error("noncompliant mbean", e);
+			LOGGER.error("noncompliant mbean", e);
 		}
 
 		return null;
@@ -75,17 +74,15 @@ public class MBeanUtils {
 			server.registerMBean(mBean, objName);
 			return objName;
 		} catch (InstanceAlreadyExistsException e) {
-			if (LOGGER.isWarnEnabled())
+			if (LOGGER.isWarnEnabled()) {
 				LOGGER.warn("tried to re-register mbean", e);
+			}
 		} catch (MBeanRegistrationException e) {
-			if (LOGGER.isErrorEnabled())
-				LOGGER.error("could not register mbean", e);
+			LOGGER.error("could not register mbean", e);
 		} catch (NotCompliantMBeanException e) {
-			if (LOGGER.isErrorEnabled())
-				LOGGER.error("noncompliant mbean", e);
+			LOGGER.error("noncompliant mbean", e);
 		} catch (MalformedObjectNameException e) {
-			if (LOGGER.isErrorEnabled())
-				LOGGER.error("noncompliant mbean name", e);
+			LOGGER.error("noncompliant mbean name", e);
 		}
 
 		return null;
@@ -100,11 +97,9 @@ public class MBeanUtils {
 			MBeanServer server = ManagementFactory.getPlatformMBeanServer();
 			server.unregisterMBean(name);
 		} catch (MBeanRegistrationException e) {
-			if (LOGGER.isErrorEnabled())
-				LOGGER.error("could not unregister mbean " + name, e);
+			LOGGER.error("could not unregister mbean " + name, e);
 		} catch (InstanceNotFoundException e) {
-			if (LOGGER.isErrorEnabled())
-				LOGGER.error("could not find mbean " + name, e);
+			LOGGER.error("could not find mbean " + name, e);
 		}
 	}
 }

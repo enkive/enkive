@@ -51,8 +51,7 @@ public class PostfixFilterProcessor extends AbstractMailProcessor {
 			os.close();
 			is.close();
 		} catch (IOException e) {
-			if (LOGGER.isErrorEnabled())
-				LOGGER.error("Error closing streams to filter client");
+			LOGGER.error("Error closing streams to filter client");
 		}
 	}
 

@@ -85,17 +85,14 @@ public class AttachmentRetrieveServlet extends EnkiveServlet {
 				IOUtils.closeQuietly(in);
 				IOUtils.closeQuietly(out);
 			} catch (ContentException e) {
-				if (LOGGER.isErrorEnabled())
-					LOGGER.error("error transferring attachment  "
-							+ attachmentUUID, e);
+				LOGGER.error(
+						"error transferring attachment  " + attachmentUUID, e);
 				resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
 						"error transferring attachment " + attachmentUUID
 								+ "; see server logs");
 			}
 		} catch (CannotRetrieveException e) {
-			if (LOGGER.isErrorEnabled()) {
-				LOGGER.error("error retrieving attachment " + attachmentUUID, e);
-			}
+			LOGGER.error("error retrieving attachment " + attachmentUUID, e);
 			resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
 					"error retrieving attachment " + attachmentUUID
 							+ "; see server logs");

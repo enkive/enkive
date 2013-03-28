@@ -71,9 +71,7 @@ public abstract class Main {
 			auditService.addEvent(AuditService.SYSTEM_SHUTDOWN, USER,
 					DESCRIPTION);
 		} catch (AuditServiceException e) {
-			if (LOGGER.isErrorEnabled())
-				LOGGER.error(
-						"received AuditServiceException: " + e.getMessage(), e);
+			LOGGER.error("received AuditServiceException: " + e.getMessage(), e);
 		}
 
 		context.close();

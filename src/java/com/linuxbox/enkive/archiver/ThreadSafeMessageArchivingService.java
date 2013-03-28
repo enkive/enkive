@@ -90,10 +90,9 @@ public class ThreadSafeMessageArchivingService implements
 				}
 			}
 		} catch (Exception e) {
-			if (LOGGER.isErrorEnabled())
-				LOGGER.error(
-						"Could not archive Message "
-								+ message.getCleanMessageId(), e);
+			LOGGER.error(
+					"Could not archive Message " + message.getCleanMessageId(),
+					e);
 			emergencySave(message.getReconstitutedEmail());
 		}
 		return uuid;
