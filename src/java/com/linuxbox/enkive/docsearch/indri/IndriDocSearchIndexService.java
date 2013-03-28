@@ -64,7 +64,7 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 	 * removed after either Indri is done with them or if there were a problem
 	 * during indexing (perhaps by the text analyzer).
 	 */
-	private final static boolean REMOVE_TEMP_FILES = false;
+	private final static boolean REMOVE_TEMP_FILES = true;
 
 	/*
 	 * These are used to obtain the locks.
@@ -85,16 +85,19 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 
 	/**
 	 * How many documents can be indexed under a given IndexEnvironment before
-	 * it's closed and re-created.
+	 * it's closed and re-created. Set to non-positive value if no limit should
+	 * be enforced.
 	 */
-	private static final int DEFAULT_INDEX_ENV_DOC_LIMIT = 25;
+	private static final int DEFAULT_INDEX_ENV_DOC_LIMIT = 0;
 
 	/**
-	 * How many seconds between creating a new IndexEnvironment;
+	 * How many seconds between creating a new IndexEnvironment
 	 */
-	private static final int DEFAULT_INDEX_ENV_REFRESH_INTERVAL = 299;
-	private static final int DEFAULT_QUERY_ENV_REFRESH_INTERVAL = 300;
+	private static final int DEFAULT_INDEX_ENV_REFRESH_INTERVAL = 5 * 60; // 5
+																			// minutes
 
+	private static final int DEFAULT_QUERY_ENV_REFRESH_INTERVAL = 5 * 60; // 5
+																			// minutes
 	private static final String TEXT_FORMAT = "txt";
 	private static final String TRECTEXT_FORMAT = "trectext";
 	private static final long DOC_SIZE_IN_MEMORY_LIMIT = 8 * 1024; // 8 KB
@@ -108,7 +111,8 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 
 	/**
 	 * How many documents to index before closing an index environment (which
-	 * causes a save-to-disk) and opening a new one.
+	 * causes a save-to-disk) and opening a new one. Should be non-positive if
+	 * no limit should be enforced.
 	 */
 	private int indexEnvironmentDocLimit = DEFAULT_INDEX_ENV_DOC_LIMIT;
 
@@ -696,10 +700,9 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 		private boolean indexEnvironmentIsOpen = false;
 		private int actionsAttempted = 0;
 		private Timer timer = new Timer();
-		private TimerTask indexEnvRefreshTask = new RefreshIndexEnvironmentTimerTask();
+		private TimerTask indexEnvRefreshTask = null;
 
 		public IndriIndexEnvironmentManager() throws DocSearchException {
-			LOGGER.error("Have not implemented timer yet.");
 			createIndexEnvironment();
 		}
 
@@ -717,6 +720,13 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 				return result;
 			} finally {
 				++actionsAttempted;
+				if (indexEnvironmentDocLimit > 0
+						&& actionsAttempted >= indexEnvironmentDocLimit) {
+					if (LOGGER.isInfoEnabled()) {
+						LOGGER.info("Index environment document action limit reached triggering index environment refresh.");
+					}
+					closeIndexEnvironment();
+				}
 			}
 		}
 
@@ -753,9 +763,16 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 				indexEnvironment.open(repositoryPath, indexStatus);
 				indexEnvironmentIsOpen = true;
 				actionsAttempted = 0;
+				if (indexEnvRefreshTask != null) {
+					indexEnvRefreshTask.cancel();
+				}
+				indexEnvRefreshTask = new RefreshIndexEnvironmentTimerTask();
 				timer.schedule(indexEnvRefreshTask,
-						indexEnvironmentRefreshInterval * 1000);
-				LOGGER.trace("index environment opened");
+						1000 * indexEnvironmentRefreshInterval);
+
+				if (LOGGER.isTraceEnabled()) {
+					LOGGER.trace("index environment opened");
+				}
 			} catch (Exception e) {
 				throw new DocSearchException(
 						"could not open an IndexEnvironment", e);
@@ -764,10 +781,13 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 
 		private synchronized void closeIndexEnvironment()
 				throws DocSearchException {
-			timer.cancel();
-
 			if (!indexEnvironmentIsOpen) {
 				return;
+			}
+
+			if (null != indexEnvRefreshTask) {
+				indexEnvRefreshTask.cancel();
+				indexEnvRefreshTask = null;
 			}
 
 			try {
