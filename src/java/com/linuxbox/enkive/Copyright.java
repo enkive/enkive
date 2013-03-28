@@ -19,13 +19,15 @@
  *******************************************************************************/
 package com.linuxbox.enkive;
 
+import static com.linuxbox.util.Version.Type.ALPHA;
+
+import com.linuxbox.util.Version;
+
 public interface Copyright {
-	String ALPHA = "alpha";
-	String BETA = "beta";
-	String PRODUCT = "Enkive CE";
-	String VERSION = "1.3 " + ALPHA;
-	String COPYRIGHT = "Copyright 2013 The Linux Box Corporation; all rights "
+	final static String PRODUCT = "Enkive CE";
+	final static String COPYRIGHT = "Copyright 2013 The Linux Box Corporation; all rights "
 			+ "reserved except those granted under license.";
-	String LICENSE = "Licensed under the GNU Affero General Public License "
+	final static String LICENSE = "Licensed under the GNU Affero General Public License "
 			+ "version 3 or later.";
+	final static Version VERSION = new Version(1, 3, ALPHA);
 }
