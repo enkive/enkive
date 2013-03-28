@@ -62,17 +62,32 @@ public abstract class AbstractDocSearchIndexService implements
 			sleeper = new InterruptableSleeper();
 		}
 
-		void markAsErrorIndexing(String documentId, Throwable exception) {
+		protected void markAsIndexed(String documentId) {
 			try {
-				if (LOGGER.isErrorEnabled())
+				docStoreService.markAsIndexed(documentId);
+			} catch (DocStoreException e) {
+				if (LOGGER.isErrorEnabled()) {
+					LOGGER.error(
+							"Unable to mark document as having been indexed: "
+									+ documentId, e);
+				}
+			}
+		}
+
+		protected void markAsErrorIndexing(String documentId,
+				Throwable exception) {
+			try {
+				if (LOGGER.isErrorEnabled()) {
 					LOGGER.error("Unable to index document: " + documentId,
 							exception);
+				}
 				docStoreService.markAsErrorIndexing(documentId);
 			} catch (DocStoreException e) {
-				if (LOGGER.isErrorEnabled())
+				if (LOGGER.isErrorEnabled()) {
 					LOGGER.error(
 							"Unable to mark document as having indexing error: "
 									+ documentId, e);
+				}
 			}
 		}
 
@@ -109,8 +124,9 @@ public abstract class AbstractDocSearchIndexService implements
 							break;
 						}
 					} catch (QueueServiceException e) {
-						if (LOGGER.isErrorEnabled())
+						if (LOGGER.isErrorEnabled()) {
 							LOGGER.error("could not access indexer queue", e);
+						}
 						break;
 					}
 
@@ -129,9 +145,11 @@ public abstract class AbstractDocSearchIndexService implements
 					case QUEUE_ENTRY_INDEX_DOCUMENT:
 						try {
 							doIndexDocument(documentId);
+							markAsIndexed(documentId);
 						} catch (Exception e) {
-							if (LOGGER.isWarnEnabled())
-								LOGGER.warn("got exception while indexing", e);
+							if (LOGGER.isErrorEnabled()) {
+								LOGGER.error("got exception while indexing", e);
+							}
 							markAsErrorIndexing(documentId, e);
 							error = true;
 						}
@@ -140,33 +158,32 @@ public abstract class AbstractDocSearchIndexService implements
 						try {
 							doRemoveDocument(documentId);
 						} catch (Exception e) {
-							if (LOGGER.isErrorEnabled())
+							if (LOGGER.isErrorEnabled()) {
 								LOGGER.error(
 										"got exception while trying to remove \""
 												+ documentId + "\"", e);
+							}
 							error = true;
 						}
 						break;
 					default:
-						if (LOGGER.isErrorEnabled())
+						if (LOGGER.isErrorEnabled()) {
 							LOGGER.error("could not interpret note of \""
 									+ entry.getNote() + "\"");
+						}
 					}
 
 					try {
-						if (error) {
-							indexerQueueService.markEntryAsError(entry);
-						} else {
-							indexerQueueService.finishEntry(entry);
-						}
+						indexerQueueService.finishEntry(entry);
 					} catch (QueueServiceException e) {
-						if (LOGGER.isErrorEnabled())
+						if (LOGGER.isErrorEnabled()) {
 							LOGGER.error("could note finalize indexer queue entry (\""
 									+ documentId + "\" / " + note + ")");
+						}
 					} finally {
-						if (LOGGER.isTraceEnabled()) {
+						if (LOGGER.isInfoEnabled()) {
 							final long endTime = System.currentTimeMillis();
-							LOGGER.trace("TIMING: "
+							LOGGER.info("timing: "
 									+ (endTime - startTime)
 									+ " ms to "
 									+ (note == QUEUE_ENTRY_INDEX_DOCUMENT ? "index "
