@@ -8,8 +8,7 @@ import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
-
-public class DBMigrationService implements ApplicationContextAware{
+public class DBMigrationService implements ApplicationContextAware {
 	ApplicationContext applicationContext;
 	protected List<DBMigrator> migrators;
 
@@ -18,11 +17,11 @@ public class DBMigrationService implements ApplicationContextAware{
 			throws BeansException {
 		this.applicationContext = context;
 	}
-	
+
 	@PostConstruct
-	public void runMigrators(){
-		for(DBMigrator migrator: migrators){
-			//TODO run all the migrations
+	public void runMigrators() {
+		for (DBMigrator migrator : migrators) {
+			// TODO run all the migrations
 		}
 	}
 }

@@ -14,8 +14,14 @@ import com.mongodb.Mongo;
 public class MongoDBInfo implements DBInfo {
 	Mongo mongo;
 	String dbName;
-	String serviceName;
 	DBCollection collection;
+
+	/**
+	 * The service (e.g., audit log service) for which this db information is
+	 * for.
+	 */
+	String serviceName;
+
 	protected static DBCollection migratorColl = null;
 
 	public MongoDBInfo(Mongo mongo, String dbName, String collectionName,
@@ -61,7 +67,7 @@ public class MongoDBInfo implements DBInfo {
 						+ serviceName + " could not be found.");
 			}
 		} else {
-			return 1;
+			return 0;
 		}
 	}
 }
