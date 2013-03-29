@@ -19,7 +19,7 @@ import com.linuxbox.util.dbmigration.mongodb.MongoDBInfo;
 @Order(1)
 public class StatsMigration0to1 extends DBMigration {
 	protected final static Log LOGGER = LogFactory
-			.getLog("com.linuxbox.enkive.statistics.migration.StatsMigration1to2");
+			.getLog("com.linuxbox.enkive.statistics.migration.StatsMigration0to1");
 
 	public StatsMigration0to1(DBMigrator migrator) throws DBMigrationException {
 		super(migrator, 0, 1);
