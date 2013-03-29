@@ -27,6 +27,7 @@ import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstant
 import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_SUM;
 import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_TYPE;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -134,7 +135,12 @@ public abstract class EmbeddedConsolidator extends AbstractConsolidator {
 		Map<String, Object> statConsolidatedData = new HashMap<String, Object>();
 		if (keyDef.getMethods() != null) {
 			// loop over stat consolidation methods
-			for (String method : keyDef.getMethods()) {
+			Collection<String> methods = new LinkedList<String>(
+					keyDef.getMethods());
+			if (!keyDef.isPoint()) {
+				methods.add(CONSOLIDATION_SUM);
+			}
+			for (String method : methods) {
 				DescriptiveStatistics statsMaker = new DescriptiveStatistics();
 				Object dataVal = null;
 				dataVal = null;
@@ -153,7 +159,6 @@ public abstract class EmbeddedConsolidator extends AbstractConsolidator {
 					if (dataVal != null) {
 						// extract relevant data from end of path
 						input = statToDouble(dataVal);
-
 						if (input > -1) {
 							// add to stat maker if relevant
 							statsMaker.addValue(input);

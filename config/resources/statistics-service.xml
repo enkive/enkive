@@ -3,7 +3,27 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd"
 	default-init-method="startup" default-destroy-method="shutdown">
+<!--	
+	<bean id="StatsDBInfo"
+		class="com.linuxbox.util.dbmigration.mongodb.MongoDBInfo">
+		<constructor-arg ref="Mongo" />
+		<constructor-arg name="dbName" value="${enkive.statistics.db.name}" />
+		<constructor-arg name="collectionName" value="${enkive.statistics.collection.name}" />
+		<constructor-arg name="serviceName" value="statistics" />
+	</bean>
 	
+	
+	<bean id="StatsMigrator"
+		class="com.linuxbox.util.dbmigration.DBMigrator">
+		<constructor-arg name="migratorName" value="StatsMigrator" />
+		<constructor-arg ref="StatsDBInfo" />
+	</bean>
+	
+	<bean id="StatsMigration1To2"
+		class = "com.linuxbox.enkive.statistics.migration.StatsMigration1to2">
+		<constructor-arg ref="StatsMigrator" />
+	</bean>
+-->	
 	<bean id="StatsStorageServiceBean" 
 		class="com.linuxbox.enkive.statistics.services.storage.mongodb.MongoStatsStorageService">
 		<constructor-arg ref="Mongo" />
@@ -81,7 +101,6 @@
 		<constructor-arg name="humanName" value="Database Statistics"/>
 		<constructor-arg name="keys">	
 			<list>
-				<value>db::Database Name::</value>
 				<value>numObj:avg,max,min:Number of Objects::point</value>
 				<value>nColls:avg,max,min:Number of Collections::point</value>
 				<value>avgOSz:avg,max,min:Average Object Size:bytes:point</value>

@@ -219,4 +219,5 @@ public class HourConsolidator extends AbstractConsolidator {
 	public void setTypes() {
 		setTypes(CONSOLIDATION_HOUR, CONSOLIDATION_RAW);
 	}
+
 }

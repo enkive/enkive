@@ -46,7 +46,7 @@ public class ConsolidationRunner {
 			String schedule, RemovalJob remover) {
 		this.client = client;
 		this.scheduler = scheduler;
-		this.schedule = schedule;
+		this.schedule = "0 0 * * * ?";
 		this.remover = remover;
 		hourConsolidator = new HourConsolidator(client);
 		dayConsolidator = new DayConsolidator(client);

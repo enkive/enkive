@@ -20,20 +20,25 @@ package com.linuxbox.enkive.statistics.services.retrieval.mongodb;
 
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_GATHERER_NAME;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_TIMESTAMP;
+import static com.linuxbox.enkive.statistics.VarsMaker.createMap;
 
+import java.util.List;
 import java.util.Map;
 
 import com.linuxbox.enkive.statistics.services.retrieval.StatsFilter;
 
 public class MongoStatsFilter extends StatsFilter {
 
-	public MongoStatsFilter(String gathererName, Map<String, Object> keys) {
+	public MongoStatsFilter(String gathererName, List<String> keyNames) {
 		this.gathererName = gathererName;
-		this.keys = keys;
 
-		if (keys != null) {
-			keys.put(STAT_GATHERER_NAME, 1);
-			keys.put(STAT_TIMESTAMP, 1);
+		if (keyNames != null) {
+			keyNames.add(STAT_GATHERER_NAME);
+			keyNames.add(STAT_TIMESTAMP);
+			keys = createMap();
+			for (String key : keyNames) {
+				keys.put(key, 1);
+			}
 		}
 	}
 

@@ -23,14 +23,13 @@ import java.util.Calendar;
 public enum ConsolidationTimeDefs {
 	HOUR(-1, -1, -1, -1), // any hour (hourly controlled by cronTrigger)
 	DAY(0, -1, -1, -1), // first hour of any day
-	WEEK(-1, -1, 1, -1), // first day of any week
-	MONTH(-1, 1, -1, -1); // first day of any month
-	private int dayOfMonth;
-	// -1 means any
-	private int hour;
-	private int month;
+	WEEK(0, -1, 1, -1), // Sunday of any week
+	MONTH(0, 1, -1, -1); // first day of any month
 
+	private int hour;
+	private int dayOfMonth;// -1 means any
 	private int week;
+	private int month;
 
 	ConsolidationTimeDefs(int hour, int dayOfMonth, int week, int month) {
 		this.hour = hour;
@@ -41,7 +40,10 @@ public enum ConsolidationTimeDefs {
 
 	public boolean isMatch() {
 		final Calendar c = Calendar.getInstance();
+		return isMatch(c);
+	}
 
+	public boolean isMatch(Calendar c) {
 		if (hour >= 0 && hour != c.get(Calendar.HOUR_OF_DAY)) {
 			return false;
 		}
@@ -50,8 +52,7 @@ public enum ConsolidationTimeDefs {
 			return false;
 		}
 
-		if (week >= 0 && c.get(Calendar.DAY_OF_WEEK) != Calendar.SUNDAY
-				&& hour != c.get(Calendar.HOUR_OF_DAY)) {
+		if (week >= 0 && c.get(Calendar.DAY_OF_WEEK) != Calendar.SUNDAY) {
 			return false;
 		}
 

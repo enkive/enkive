@@ -60,6 +60,10 @@ public class MongoStatsQuery extends StatsQuery {
 		this.gathererName = gathererName;
 	}
 
+	public MongoStatsQuery(String gathererName, Integer grainType) {
+		this(gathererName, grainType, null);
+	}
+
 	public MongoStatsQuery(String gathererName, Integer grainType, String type,
 			Date startTimestamp, Date endTimestamp) {
 		this(gathererName, grainType, type);

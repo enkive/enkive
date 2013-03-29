@@ -19,6 +19,8 @@
 package com.linuxbox.enkive.statistics.services.storage.mongodb;
 
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_GATHERER_NAME;
+import static com.linuxbox.enkive.statistics.StatsConstants.STAT_STORAGE_COLLECTION;
+import static com.linuxbox.enkive.statistics.StatsConstants.STAT_STORAGE_DB;
 
 import java.util.List;
 import java.util.Map;
@@ -37,12 +39,18 @@ import com.mongodb.Mongo;
 
 public class MongoStatsStorageService extends VarsMaker implements
 		StatsStorageService {
-	private static DBCollection coll;
-
+	private static Mongo m;
 	private static DB db;
+	private static DBCollection coll;
 	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.statistics.services.storage.mongodb");
-	private static Mongo m;
+
+	public MongoStatsStorageService(Mongo mongo) {
+		m = mongo;
+		db = m.getDB(STAT_STORAGE_DB);
+		coll = db.getCollection(STAT_STORAGE_COLLECTION);
+		LOGGER.info("StorageService successfully created");
+	}
 
 	public MongoStatsStorageService(Mongo mongo, String dbName,
 			String collectionName) {
