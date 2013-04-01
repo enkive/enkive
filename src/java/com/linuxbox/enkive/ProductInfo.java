@@ -20,14 +20,20 @@
 package com.linuxbox.enkive;
 
 import static com.linuxbox.util.Version.Type.ALPHA;
+import static com.linuxbox.util.Version.Type.PRODUCTION;
 
 import com.linuxbox.util.Version;
 
-public interface Copyright {
+public interface ProductInfo {
+	// history of released versions with monotonically increasing ordinals;
+	// maintaining this history allows for DB migrations
+	final static Version V1_2P = new Version(1, 2, PRODUCTION, 0);
+	final static Version V1_3A = new Version(1, 3, ALPHA, 1);
+
 	final static String PRODUCT = "Enkive CE";
 	final static String COPYRIGHT = "Copyright 2013 The Linux Box Corporation; all rights "
 			+ "reserved except those granted under license.";
 	final static String LICENSE = "Licensed under the GNU Affero General Public License "
 			+ "version 3 or later.";
-	final static Version VERSION = new Version(1, 3, ALPHA);
+	final static Version VERSION = V1_3A;
 }

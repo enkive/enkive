@@ -19,10 +19,10 @@
  *******************************************************************************/
 package com.linuxbox.enkive;
 
-import static com.linuxbox.enkive.Copyright.COPYRIGHT;
-import static com.linuxbox.enkive.Copyright.LICENSE;
-import static com.linuxbox.enkive.Copyright.PRODUCT;
-import static com.linuxbox.enkive.Copyright.VERSION;
+import static com.linuxbox.enkive.ProductInfo.COPYRIGHT;
+import static com.linuxbox.enkive.ProductInfo.LICENSE;
+import static com.linuxbox.enkive.ProductInfo.PRODUCT;
+import static com.linuxbox.enkive.ProductInfo.VERSION;
 
 import java.io.BufferedReader;
 import java.io.IOException;

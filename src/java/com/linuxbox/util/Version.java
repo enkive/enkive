@@ -1,8 +1,16 @@
 package com.linuxbox.util;
 
-public class Version {
+public class Version implements Comparable<Version> {
+	public static class VersionException extends RuntimeException {
+		private static final long serialVersionUID = -8848841261513645899L;
+
+		protected VersionException(String message) {
+			super(message);
+		}
+	}
+
 	public static enum Type {
-		ALPHA("alpha", "a"), BETA("beta", "b"), RELEASE_CANDIDATE(
+		UNUSED("UNUSED", "UNUSED"), ALPHA("alpha", "a"), BETA("beta", "b"), RELEASE_CANDIDATE(
 				"release candidate", "rc"), PRODUCTION("production", "");
 
 		final String name;
@@ -20,30 +28,44 @@ public class Version {
 
 	public final String versionString;
 
-	/**
-	 * An ordinal value to make comparing versions easier. It's a set of four
-	 * bit fields listed here from least to most significant:
-	 * 
-	 * # 12 bits reserved
-	 * 
-	 * # 3 bits for VersionType
-	 * 
-	 * # 10 bits for minor number
-	 * 
-	 * # 6 bits for major number
-	 * 
-	 */
 	public final int versionOrdinal;
 
-	public Version(int major, int minor, Type type) {
+	static int lastOrdinalSeen = Integer.MIN_VALUE;
+
+	public Version(int major, int minor, Type type, int ordinal)
+			throws VersionException {
 		this.major = major;
 		this.minor = minor;
 		this.type = type;
 		this.versionString = major + "." + minor + type.abbreviation;
-		this.versionOrdinal = major << 25 | minor << 15 | type.ordinal() << 12;
+		this.versionOrdinal = ordinal;
+		checkOrdinal();
+	}
+
+	public Version(String versionString, int ordinal) throws VersionException {
+		this.major = -1;
+		this.minor = -1;
+		this.type = Type.UNUSED;
+		this.versionString = versionString;
+		this.versionOrdinal = ordinal;
+		checkOrdinal();
+	}
+
+	protected void checkOrdinal() throws VersionException {
+		if (versionOrdinal <= lastOrdinalSeen) {
+			throw new VersionException(
+					"version ordinals not monotonically increasing");
+		} else {
+			lastOrdinalSeen = versionOrdinal;
+		}
 	}
 
 	public String toString() {
 		return versionString;
+	}
+
+	@Override
+	public int compareTo(Version other) {
+		return versionOrdinal - other.versionOrdinal;
 	}
 }
