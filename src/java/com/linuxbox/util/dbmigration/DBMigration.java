@@ -1,9 +1,15 @@
 package com.linuxbox.util.dbmigration;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 public abstract class DBMigration {
-	int fromVersion;
-	int toVersion;
-	DBMigrator migrator;
+	protected final static Log LOGGER = LogFactory
+			.getLog("com.linuxbox.enkive.util.dbmigration.DBMigration.<SUBCLASS>");
+
+	final int fromVersion;
+	final int toVersion;
+	final DBMigrator migrator;
 
 	public DBMigration(DBMigrator migrator, int fromVersion, int toVersion)
 			throws DBMigrationException {

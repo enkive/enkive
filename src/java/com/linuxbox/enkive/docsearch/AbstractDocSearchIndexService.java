@@ -271,6 +271,8 @@ public abstract class AbstractDocSearchIndexService implements
 
 	@Override
 	public final void startup() throws DocSearchException {
+		LOGGER.info("Document indexing service starting.");
+
 		// first I start up if there's anything I need to do for them
 		if (indexerQueueService == null) {
 			throw new DocSearchException("no indexer queue service was set");
@@ -312,8 +314,11 @@ public abstract class AbstractDocSearchIndexService implements
 		subShutdown();
 
 		// then I shut down anything else
-		if (LOGGER.isTraceEnabled())
+		if (LOGGER.isTraceEnabled()) {
 			LOGGER.trace("finished shutdown of DocSearchIndexService");
+		}
+		
+		LOGGER.info("Document indexing service shut down.");
 	}
 
 	@Override

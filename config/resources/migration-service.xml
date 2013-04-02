@@ -4,6 +4,8 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd"
 	default-init-method="startup" default-destroy-method="shutdown">
 
+	<bean id="MigrationService" class="com.linuxbox.util.dbmigration.DBMigrationService" />
+
 	<bean id="StatsDBInfo" class="com.linuxbox.util.dbmigration.mongodb.MongoDBInfo">
 		<constructor-arg ref="Mongo" />
 		<constructor-arg name="dbName" value="${enkive.statistics.db.name}" />
@@ -12,13 +14,16 @@
 		<constructor-arg name="serviceName" value="statistics" />
 	</bean>
 
-	<bean id="StatsMigration0To1"
-		class="com.linuxbox.enkive.statistics.migration.StatsMigration0to1">
-		<constructor-arg ref="StatsMigrator" />
-	</bean>
-
 	<bean id="StatsMigrator" class="com.linuxbox.util.dbmigration.DBMigrator">
 		<constructor-arg name="migratorName" value="StatsMigrator" />
-		<constructor-arg ref="StatsDBInfo" />
+		<constructor-arg name="db" ref="StatsDBInfo" />
+		<constructor-arg name="defaultPackage"
+			value="com.linuxbox.enkive.statistics.migration" />
+		<constructor-arg name="migrations">
+			<list>
+				<value>StatsMigration0To1</value>
+				<value>StatsMigration1To2</value>
+			</list>
+		</constructor-arg>
 	</bean>
 </beans>
