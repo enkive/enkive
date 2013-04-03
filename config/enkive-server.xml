@@ -77,19 +77,21 @@
 		class="com.linuxbox.enkive.authentication.SpringSecurityAuthenticationService">
 	</bean>
 
-<!--
+    <!--
+
+	<bean id="PermissionService"
+		class="com.linuxbox.enkive.permissions.LdapSpringContextPermissionService">
+		<property name="messagePermissionService" ref="MessagePermissionsService" />
+		<property name="ldapEmailAttributes" value="${enkive.permissions.ldap.email.attributes}" />
+	</bean>
+	
+	-->
+
 	<bean id="PermissionService"
 		class="com.linuxbox.enkive.permissions.SpringContextPermissionService">
 		<property name="messagePermissionService" ref="MessagePermissionsService" />
 	</bean>
--->
 	
-	<bean id="PermissionService"
-		class="com.linuxbox.enkive.permissions.LdapSpringContextPermissionService">
-		<property name="messagePermissionService" ref="MessagePermissionsService" />
-		<property name="ldapEmailField" value="${ldap.emailField}" />
-	</bean>
-
 	<bean id="MessagePermissionsService"
 		class="com.linuxbox.enkive.permissions.message.MongoMessagePermissionsService">
 		<constructor-arg ref="Mongo" />

@@ -29,16 +29,16 @@ import org.springframework.util.StringUtils;
 
 public class LdapSpringContextPermissionService extends
 		SpringContextPermissionService {
-	protected String ldapEmailField;
+	protected String ldapEmailAttributes;
 
 	@Override
 	public Collection<String> canReadAddresses(String userId) {
 		Collection<String> addresses;
 
-		// If a specific field for email addresses is not listed
+		// if a specific field for email addresses is not listed
 		// attempt to build it from the dn
-		if (ldapEmailField != null && !ldapEmailField.isEmpty()) {
-			addresses = getEmailAddressesFromDn(ldapEmailField);
+		if (ldapEmailAttributes != null && !ldapEmailAttributes.isEmpty()) {
+			addresses = getEmailAddressesFromDn(ldapEmailAttributes);
 		} else {
 			addresses = new HashSet<String>();
 			addresses.add(buildEmailAddressFromDc());
@@ -101,13 +101,14 @@ public class LdapSpringContextPermissionService extends
 		return addresses;
 	}
 
-	public String getLdapEmailField() {
-		return ldapEmailField;
+	public String getLdapEmailAttributes() {
+		return ldapEmailAttributes;
 	}
 
-	public void setLdapEmailField(String ldapEmailField) {
+	public void setLdapEmailAttributes(String ldapEmailAttributes) {
 		LOGGER.trace("initializing LdapSpringContextPermissionService's LDAP email field to \""
-				+ ldapEmailField + "\".");
-		this.ldapEmailField = ldapEmailField;
+				+ ldapEmailAttributes + "\".");
+
+		this.ldapEmailAttributes = ldapEmailAttributes;
 	}
 }
