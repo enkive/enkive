@@ -17,6 +17,7 @@
 		<property name="emailAddressAttributes" value="$enkive.permissions.ldap.email.attributes" />
 	</bean>
 
+
 	<ldap-server url="ldap://10.1.1.55:389/dc=linuxbox,dc=com" />
 
 	<authentication-manager alias="authenticationManager">

@@ -27,6 +27,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.ldap.userdetails.LdapUserDetails;
 import org.springframework.util.StringUtils;
 
+// FIXME: remove extra tracing output before release
+
 public class LdapSpringContextPermissionService extends
 		SpringContextPermissionService {
 	protected String ldapEmailAttributes;
@@ -64,7 +66,9 @@ public class LdapSpringContextPermissionService extends
 		String email = getCurrentUsername() + "@"
 				+ emailDomain.substring(0, emailDomain.length() - 1);
 
-		LOGGER.trace("buildEmailAddressFromDc returning \"" + email + "\".");
+		if (LOGGER.isTraceEnabled()) {
+			LOGGER.trace("buildEmailAddressFromDc returning \"" + email + "\".");
+		}
 
 		return email;
 	}
