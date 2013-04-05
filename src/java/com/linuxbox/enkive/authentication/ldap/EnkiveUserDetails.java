@@ -9,10 +9,14 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 
-public class EnkiveUserDetails extends User {
+public class EnkiveUserDetails extends User implements UserDetails {
 	private static final long serialVersionUID = 3003366042873560086L;
 
-	Set<String> knownEmailAddresses;
+	/**
+	 * Normalized form of email addresses that this user is known by and
+	 * therefore has access to emails sent from or received by.
+	 */
+	protected Set<String> knownEmailAddresses;
 
 	public EnkiveUserDetails(String username, String password, boolean enabled,
 			boolean accountNonExpired, boolean credentialsNonExpired,
@@ -41,6 +45,10 @@ public class EnkiveUserDetails extends User {
 
 	public void addKnownEmailAddresses(Collection<String> addresses) {
 		knownEmailAddresses.addAll(addresses);
+	}
+
+	public void addKnownEmailAddresse(String address) {
+		knownEmailAddresses.add(address);
 	}
 
 	public Set<String> getKnownEmailAddresses() {

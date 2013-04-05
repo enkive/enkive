@@ -1,5 +1,5 @@
-<beans:beans xmlns="http://www.springframework.org/schema/security"
-	xmlns:beans="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<b:beans xmlns="http://www.springframework.org/schema/security"
+	xmlns:b="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans 
                     http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
                     http://www.springframework.org/schema/security 
@@ -12,10 +12,16 @@
 	
 	<!--
 
-	<bean id="LdapUserContextMapper"
-		class="com.linuxbox.enkive.authentication.ldap.EnkiveLdapUserDetailsMapper">
-		<property name="emailAddressAttributes" value="$enkive.permissions.ldap.email.attributes" />
-	</bean>
+	<b:bean id="LdapEmailAttributes" class="java.lang.String" scope="singleton">
+		<b:constructor-arg value="${enkive.permissions.ldap.email.attributes}" />
+	</b:bean>
+
+	<b:bean id="LdapUserContextMapper"
+		class="com.linuxbox.enkive.authentication.ldap.EnkiveLdapUserDetailsContextMapper"
+		scope="singleton">
+		<b:constructor-arg ref="LdapEmailAttributes" />
+		<b:property name="ldapEmailAddressAttributes" ref="LdapEmailAttributes" />
+	</b:bean>
 
 
 	<ldap-server url="ldap://10.1.1.55:389/dc=linuxbox,dc=com" />
@@ -34,4 +40,4 @@
 		</authentication-provider>
 	</authentication-manager>
 
-</beans:beans>
+</b:beans>

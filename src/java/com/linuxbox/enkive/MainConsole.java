@@ -75,7 +75,8 @@ public class MainConsole extends Main {
 
 	@Override
 	protected void shutdown() {
-		System.out.println("Enkive shutting down (" + shutdownReason + ")...");
+		System.out.println("Enkive shutting down (because " + shutdownReason
+				+ ")...");
 	}
 
 	@Override
