@@ -7,6 +7,7 @@ import java.util.Set;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 
 public class EnkiveUserDetails extends User {
 	private static final long serialVersionUID = 3003366042873560086L;
@@ -23,7 +24,7 @@ public class EnkiveUserDetails extends User {
 		knownEmailAddresses = new HashSet<String>();
 	}
 
-	public EnkiveUserDetails(User other) {
+	public EnkiveUserDetails(UserDetails other) {
 		this(other.getUsername(), other.getPassword(), other.isEnabled(), other
 				.isAccountNonExpired(), other.isCredentialsNonExpired(), other
 				.isAccountNonLocked(), other.getAuthorities());
@@ -45,5 +46,4 @@ public class EnkiveUserDetails extends User {
 	public Set<String> getKnownEmailAddresses() {
 		return Collections.unmodifiableSet(knownEmailAddresses);
 	}
-
 }
