@@ -4,6 +4,7 @@ import java.util.Collection;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Required;
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.security.core.GrantedAuthority;
@@ -16,12 +17,15 @@ public class EnkiveLdapUserDetailsContextMapper extends LdapUserDetailsMapper
 	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.authentication.ldap.EnkiveLdapUserDetailsContextMapper");
 
-	protected String[] ldapEmailAddressAttributes;
+	protected String[] ldapEmailAddressAttributeIds;
+
+	public EnkiveLdapUserDetailsContextMapper() {
+		super();
+	}
 
 	public EnkiveLdapUserDetailsContextMapper(String commaSeparatedList) {
 		super();
-		LOGGER.fatal("constructor got " + commaSeparatedList + " for " + this);
-		setLdapEmailAddressAttributes(commaSeparatedList);
+		setLdapEmailAddressAttributeIds(commaSeparatedList);
 	}
 
 	@Override
@@ -32,9 +36,7 @@ public class EnkiveLdapUserDetailsContextMapper extends LdapUserDetailsMapper
 		final EnkiveUserDetails enkiveDetails = new EnkiveUserDetails(
 				standardDetails);
 
-		// FIXME: this is only here due to an apparent Spring bug.
-		String[] attributeIds = { "mail" };
-		for (String attributeId : attributeIds) {
+		for (String attributeId : ldapEmailAddressAttributeIds) {
 			String[] emailAddresses = ctx.getStringAttributes(attributeId);
 			for (String address : emailAddresses) {
 				enkiveDetails.addKnownEmailAddress(address);
@@ -50,10 +52,9 @@ public class EnkiveLdapUserDetailsContextMapper extends LdapUserDetailsMapper
 				"tried to save user details to an LDAP directory context, which is not supported by Enkive");
 	}
 
-	public void setLdapEmailAddressAttributes(String commaSeparatedList) {
-		LOGGER.fatal("setLdapEmailAddressAttributes got " + commaSeparatedList
-				+ " for " + this);
-		ldapEmailAddressAttributes = commaSeparatedList.split(",");
+	@Required
+	public void setLdapEmailAddressAttributeIds(String commaSeparatedList) {
+		ldapEmailAddressAttributeIds = commaSeparatedList.split(",");
 	}
 
 	static class LdapUserDetailsException extends RuntimeException {
