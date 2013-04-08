@@ -26,7 +26,7 @@ public class EnkiveLdapUserDetailsContextMapper extends LdapUserDetailsMapper
 
 	@Override
 	public UserDetails mapUserFromContext(DirContextOperations ctx,
-			String userName, Collection<GrantedAuthority> authorities) {
+			String userName, Collection<? extends GrantedAuthority> authorities) {
 		final UserDetails standardDetails = super.mapUserFromContext(ctx,
 				userName, authorities);
 		final EnkiveUserDetails enkiveDetails = new EnkiveUserDetails(

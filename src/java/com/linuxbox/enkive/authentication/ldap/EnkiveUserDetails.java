@@ -52,7 +52,7 @@ public class EnkiveUserDetails implements UserDetails {
 	}
 
 	@Override
-	public Collection<GrantedAuthority> getAuthorities() {
+	public Collection<? extends GrantedAuthority> getAuthorities() {
 		return delegate.getAuthorities();
 	}
 
