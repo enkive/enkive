@@ -6,35 +6,31 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 
-public class EnkiveUserDetails extends User implements UserDetails {
+/**
+ * Puts an Enkive User Details facade over other User Details, to which most
+ * methods are delegated to. Enkive User Details adds a set of known email
+ * addresses and the methods to manage that set.
+ */
+public class EnkiveUserDetails implements UserDetails {
 	private static final long serialVersionUID = 3003366042873560086L;
 
+	protected UserDetails delegate;
+
 	/**
-	 * Normalized form of email addresses that this user is known by and
-	 * therefore has access to emails sent from or received by.
+	 * Email addresses that this user is known by and therefore has access to
+	 * emails sent from or received by.
 	 */
 	protected Set<String> knownEmailAddresses;
 
-	public EnkiveUserDetails(String username, String password, boolean enabled,
-			boolean accountNonExpired, boolean credentialsNonExpired,
-			boolean accountNonLocked,
-			Collection<? extends GrantedAuthority> authorities) {
-		super(username, password, enabled, accountNonExpired,
-				credentialsNonExpired, accountNonLocked, authorities);
-
-		knownEmailAddresses = new HashSet<String>();
-	}
-
 	public EnkiveUserDetails(UserDetails other) {
-		this(other.getUsername(), other.getPassword(), other.isEnabled(), other
-				.isAccountNonExpired(), other.isCredentialsNonExpired(), other
-				.isAccountNonLocked(), other.getAuthorities());
+		this.delegate = other;
+		knownEmailAddresses = new HashSet<String>();
+
 		if (other instanceof EnkiveUserDetails) {
-			setKnownEmailAddresses(((EnkiveUserDetails) other)
-					.getKnownEmailAddresses());
+			knownEmailAddresses
+					.addAll(((EnkiveUserDetails) other).knownEmailAddresses);
 		}
 	}
 
@@ -47,11 +43,46 @@ public class EnkiveUserDetails extends User implements UserDetails {
 		knownEmailAddresses.addAll(addresses);
 	}
 
-	public void addKnownEmailAddresse(String address) {
+	public void addKnownEmailAddress(String address) {
 		knownEmailAddresses.add(address);
 	}
 
 	public Set<String> getKnownEmailAddresses() {
 		return Collections.unmodifiableSet(knownEmailAddresses);
+	}
+
+	@Override
+	public Collection<GrantedAuthority> getAuthorities() {
+		return delegate.getAuthorities();
+	}
+
+	@Override
+	public String getPassword() {
+		return delegate.getPassword();
+	}
+
+	@Override
+	public String getUsername() {
+		return delegate.getUsername();
+	}
+
+	@Override
+	public boolean isAccountNonExpired() {
+		return delegate.isAccountNonExpired();
+	}
+
+	@Override
+	public boolean isAccountNonLocked() {
+		return delegate.isAccountNonLocked();
+	}
+
+	@Override
+	public boolean isCredentialsNonExpired() {
+		return delegate.isCredentialsNonExpired();
+	}
+
+	@Override
+	public boolean isEnabled() {
+		return delegate.isEnabled();
 	}
 }

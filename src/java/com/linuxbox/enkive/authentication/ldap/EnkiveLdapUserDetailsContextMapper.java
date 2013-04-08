@@ -1,13 +1,6 @@
 package com.linuxbox.enkive.authentication.ldap;
 
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
-
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -23,42 +16,32 @@ public class EnkiveLdapUserDetailsContextMapper extends LdapUserDetailsMapper
 	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.authentication.ldap.EnkiveLdapUserDetailsContextMapper");
 
-	protected Set<String> ldapEmailAddressAttributes;
+	protected String[] ldapEmailAddressAttributes;
 
 	public EnkiveLdapUserDetailsContextMapper(String commaSeparatedList) {
 		super();
-		ldapEmailAddressAttributes = new HashSet<String>();
 		LOGGER.fatal("constructor got " + commaSeparatedList + " for " + this);
+		setLdapEmailAddressAttributes(commaSeparatedList);
 	}
 
 	@Override
 	public UserDetails mapUserFromContext(DirContextOperations ctx,
-			String username, Collection<GrantedAuthority> authority) {
-		// FIXME :remove
-		LOGGER.fatal("in customized mapUserFromContext");
+			String userName, Collection<GrantedAuthority> authorities) {
 		final UserDetails standardDetails = super.mapUserFromContext(ctx,
-				username, authority);
-		String[] attributeIds = { "mail" };
-		try {
-			Attributes attribs = ctx.getAttributes(username, attributeIds);
-			NamingEnumeration<? extends Attribute> e = attribs.getAll();
-			try {
-				while (e.hasMore()) {
-					Attribute o = e.next();
-					LOGGER.fatal(o.getClass().getName() + " : " + o.toString());
-				}
-			} finally {
-				e.close();
-			}
+				userName, authorities);
+		final EnkiveUserDetails enkiveDetails = new EnkiveUserDetails(
+				standardDetails);
 
-			return standardDetails;
-		} catch (NamingException e) {
-			return null;
+		// FIXME: this is only here due to an apparent Spring bug.
+		String[] attributeIds = { "mail" };
+		for (String attributeId : attributeIds) {
+			String[] emailAddresses = ctx.getStringAttributes(attributeId);
+			for (String address : emailAddresses) {
+				enkiveDetails.addKnownEmailAddress(address);
+			}
 		}
-		/*
-		 * final EnkiveUserDetails enkiveDetails = new EnkiveUserDetails(
-		 * standardDetails); return enkiveDetails;
-		 */
+
+		return enkiveDetails;
 	}
 
 	@Override
@@ -70,6 +53,7 @@ public class EnkiveLdapUserDetailsContextMapper extends LdapUserDetailsMapper
 	public void setLdapEmailAddressAttributes(String commaSeparatedList) {
 		LOGGER.fatal("setLdapEmailAddressAttributes got " + commaSeparatedList
 				+ " for " + this);
+		ldapEmailAddressAttributes = commaSeparatedList.split(",");
 	}
 
 	static class LdapUserDetailsException extends RuntimeException {
