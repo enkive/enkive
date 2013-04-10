@@ -19,6 +19,8 @@
  *******************************************************************************/
 package com.linuxbox.enkive.permissions;
 
+import static com.linuxbox.enkive.authentication.EnkiveRoles.ROLE_ADMIN;
+
 import java.util.Collection;
 import java.util.HashSet;
 
@@ -39,7 +41,7 @@ import com.linuxbox.enkive.permissions.message.MessagePermissionsService;
 public class SpringContextPermissionService implements PermissionService {
 	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.permissions");
-	
+
 	protected MessagePermissionsService messagePermissionService;
 
 	@Override
@@ -49,14 +51,20 @@ public class SpringContextPermissionService implements PermissionService {
 
 	public boolean isAdmin() throws CannotGetPermissionsException {
 		Collection<String> authorityStrings = getCurrentUserAuthorities();
-		return authorityStrings.contains("ROLE_ENKIVE_ADMIN");
+		final boolean result = authorityStrings.contains(ROLE_ADMIN);
+		LOGGER.trace("user " + getCurrentUsername() + " determined to be "
+				+ (result ? "ADMIN" : "not admin"));
+		return result;
 	}
 
 	@Override
 	public boolean canReadMessage(String userId, Message message)
 			throws CannotGetPermissionsException {
-		if (isAdmin())
+		if (isAdmin()) {
+			LOGGER.trace(userId + " determined to be administrator");
 			return true;
+		}
+		LOGGER.trace(userId + " determined to not be administrator");
 
 		Collection<String> canReadAddresses = canReadAddresses(userId);
 		Collection<String> addressesInMessage = new HashSet<String>();
@@ -69,14 +77,14 @@ public class SpringContextPermissionService implements PermissionService {
 
 		return CollectionUtils
 				.containsAny(addressesInMessage, canReadAddresses);
-
 	}
 
 	@Override
 	public boolean canReadMessage(String userId, MessageSummary message)
 			throws CannotGetPermissionsException {
-		if (isAdmin())
+		if (isAdmin()) {
 			return true;
+		}
 
 		Collection<String> canReadAddresses = canReadAddresses(userId);
 		Collection<String> addressesInMessage = new HashSet<String>();
@@ -91,7 +99,7 @@ public class SpringContextPermissionService implements PermissionService {
 				.containsAny(addressesInMessage, canReadAddresses);
 
 	}
-	
+
 	@Override
 	public Collection<String> canReadAddresses(String userId) {
 		final UserDetails userDetails = (UserDetails) SecurityContextHolder
