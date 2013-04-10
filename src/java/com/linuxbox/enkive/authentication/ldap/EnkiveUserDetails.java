@@ -8,6 +8,8 @@ import java.util.Set;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import com.linuxbox.enkive.authentication.EnkiveRoles;
+
 /**
  * Puts an Enkive User Details facade over other User Details, to which most
  * methods are delegated to. Enkive User Details adds a set of known email
@@ -23,14 +25,30 @@ public class EnkiveUserDetails implements UserDetails {
 	 * emails sent from or received by.
 	 */
 	protected Set<String> knownEmailAddresses;
+	protected boolean isAdmin = false;
+	protected boolean isUser = false;
 
-	public EnkiveUserDetails(UserDetails other) {
-		this.delegate = other;
+	public EnkiveUserDetails(UserDetails plainUser) {
+		this.delegate = plainUser;
 		knownEmailAddresses = new HashSet<String>();
 
-		if (other instanceof EnkiveUserDetails) {
+		if (plainUser instanceof EnkiveUserDetails) {
 			knownEmailAddresses
-					.addAll(((EnkiveUserDetails) other).knownEmailAddresses);
+					.addAll(((EnkiveUserDetails) plainUser).knownEmailAddresses);
+		}
+
+		determineRoles(plainUser);
+	}
+
+	protected void determineRoles(UserDetails user) {
+		for (GrantedAuthority authority : user.getAuthorities()) {
+			final String authorityString = authority.getAuthority();
+
+			if (authorityString.equals(EnkiveRoles.ROLE_ADMIN)) {
+				isAdmin = true;
+			} else if (authorityString.equals(EnkiveRoles.ROLE_USER)) {
+				isUser = true;
+			}
 		}
 	}
 
