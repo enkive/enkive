@@ -24,10 +24,13 @@ import java.util.HashSet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Required;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.util.CollectionUtils;
 
+import com.linuxbox.enkive.authentication.ldap.EnkiveUserDetails;
 import com.linuxbox.enkive.exception.CannotGetPermissionsException;
 import com.linuxbox.enkive.message.Message;
 import com.linuxbox.enkive.message.MessageSummary;
@@ -37,7 +40,7 @@ public class SpringContextPermissionService implements PermissionService {
 	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.permissions");
 	
-	MessagePermissionsService messagePermissionService;
+	protected MessagePermissionsService messagePermissionService;
 
 	@Override
 	public String getCurrentUsername() {
@@ -88,12 +91,18 @@ public class SpringContextPermissionService implements PermissionService {
 				.containsAny(addressesInMessage, canReadAddresses);
 
 	}
-
+	
 	@Override
 	public Collection<String> canReadAddresses(String userId) {
-		Collection<String> addresses = new HashSet<String>();
-		addresses.add(userId);
-		return addresses;
+		final UserDetails userDetails = (UserDetails) SecurityContextHolder
+				.getContext().getAuthentication().getPrincipal();
+		if (userDetails instanceof EnkiveUserDetails) {
+			return ((EnkiveUserDetails) userDetails).getKnownEmailAddresses();
+		} else {
+			final Collection<String> addresses = new HashSet<String>();
+			addresses.add(userId);
+			return addresses;
+		}
 	}
 
 	@Override
@@ -111,6 +120,7 @@ public class SpringContextPermissionService implements PermissionService {
 		return messagePermissionService;
 	}
 
+	@Required
 	public void setMessagePermissionService(
 			MessagePermissionsService messagePermissionService) {
 		this.messagePermissionService = messagePermissionService;
@@ -125,5 +135,4 @@ public class SpringContextPermissionService implements PermissionService {
 			return messagePermissionService.canReadAttachment(
 					canReadAddresses(userId), attachmentId);
 	}
-
 }
