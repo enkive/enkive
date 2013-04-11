@@ -24,7 +24,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 public class SpringSecurityAuthenticationService implements
 		AuthenticationService {
-
 	@Override
 	public String getUserName() throws AuthenticationException {
 		return SecurityContextHolder.getContext().getAuthentication().getName();
@@ -44,34 +43,29 @@ public class SpringSecurityAuthenticationService implements
 
 	@Override
 	public void setUserParentGroup(String userId, String parentGroupId) {
-		// TODO Auto-generated method stub
-
+		throw new RuntimeException(
+				"com.linuxbox.enkive.authentication.SpringSecurityAuthenticationService.setUserParentGroup called; had auto-generated stub.");
 	}
 
 	@Override
 	public void setGroupParentGroup(String groupId, String parentGroupId) {
-		// TODO Auto-generated method stub
-
+		throw new RuntimeException(
+				"com.linuxbox.enkive.authentication.SpringSecurityAuthenticationService.setGroupParentGroup called; had auto-generated stub.");
 	}
 
 	@Override
 	public boolean isValid(Session session) {
-		if (session != null && !session.getId().isEmpty())
-			return true;
-		else
-			return false;
+		return session != null && !session.getId().isEmpty();
 	}
 
 	@Override
 	public void deathenticate(Session session) {
 		session.invalidate();
-
 	}
 
 	@Override
 	public void authenticate(String userID, String password) {
-		// TODO Auto-generated method stub
-
+		throw new RuntimeException(
+				"com.linuxbox.enkive.authentication.SpringSecurityAuthenticationService.authenticate called; had auto-generated stub.");
 	}
-
 }

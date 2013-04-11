@@ -42,32 +42,42 @@ public class PermissionsEnforcingAuditLoggingMessageSearchService extends
 	public SearchResult search(HashMap<String, String> fields)
 			throws MessageSearchException {
 		try {
-			if (!permService.isAdmin()) {
+			if (permService.isAdmin()) {
+				LOGGER.trace("message search performed by administrator");
+			} else {
+				LOGGER.trace("message search performed by non-admininstrator");
+
 				Collection<String> addresses = permService
 						.canReadAddresses(permService.getCurrentUsername());
 				if (addresses.isEmpty()) {
 					// If there are no permissions to read any addresses, void
 					// the query
+					LOGGER.warn("search performed by non-admin could not find any email addresses to limit search.");
+					/* TODO: Is this correct behavior -- clearing search fields? */
 					fields.clear();
 				} else {
-					StringBuilder addressesString = new StringBuilder();
+					StringBuilder addressesStringBuilder = new StringBuilder();
 					for (String address : addresses) {
-						addressesString.append(address);
-						addressesString.append("; ");
+						addressesStringBuilder.append(address);
+						addressesStringBuilder.append("; ");
 					}
 
-					fields.put(PERMISSIONS_SENDER_PARAMETER,
-							addressesString.toString());
-					fields.put(PERMISSIONS_RECIPIENT_PARAMETER,
-							addressesString.toString());
+					final String addressesString = addressesStringBuilder
+							.toString();
+
+					LOGGER.trace("search performed by non-admin using email addresses to limit search: "
+							+ addressesString);
+
+					fields.put(PERMISSIONS_SENDER_PARAMETER, addressesString);
+					fields.put(PERMISSIONS_RECIPIENT_PARAMETER, addressesString);
 				}
 			}
 		} catch (CannotGetPermissionsException e) {
 			throw new MessageSearchException(
 					"Could not get permissions for current user", e);
 		}
-		return super.search(fields);
 
+		return super.search(fields);
 	}
 
 	public PermissionService getPermService() {

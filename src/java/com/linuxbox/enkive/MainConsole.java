@@ -67,11 +67,16 @@ public class MainConsole extends Main {
 		out.println(PRODUCT + " v. " + VERSION);
 		out.println(COPYRIGHT);
 		out.println(LICENSE);
+
+		final String warningString = "This is a test version of Enkive to be used STRICTLY for LDAP debugging; do NOT use in production.";
+		out.println("WARNING: " + warningString);
+		LOGGER.warn(warningString);
 	}
 
 	@Override
 	protected void shutdown() {
-		System.out.println("Enkive shutting down (" + shutdownReason + ")...");
+		System.out.println("Enkive shutting down (because " + shutdownReason
+				+ ")...");
 	}
 
 	@Override

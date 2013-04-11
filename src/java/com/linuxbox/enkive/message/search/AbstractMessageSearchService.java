@@ -49,19 +49,26 @@ public abstract class AbstractMessageSearchService implements
 	@Override
 	public SearchResult search(HashMap<String, String> fields)
 			throws MessageSearchException {
-
-		SearchResult result;
 		try {
-			result = searchResultBuilder.getSearchResult();
+			// build an object to hold the search results; search is done
+			// further below
+			SearchResult result = searchResultBuilder.getSearchResult();
+			LOGGER.trace("AbstractMessageSearchService.search function looking for messages w/ following criteria: "
+					+ fields.toString());
+
+			// do the search
+			final Set<String> resultMessageIDs = searchImpl(fields);
+
+			// complete the search result data
+			result.setMessageIds(resultMessageIDs);
+			result.setTimestamp(new Date());
+			result.setStatus(Status.COMPLETE);
+
+			return result;
 		} catch (WorkspaceException e) {
 			throw new MessageSearchException(
 					"Could not create new search result", e);
 		}
-		result.setMessageIds(searchImpl(fields));
-		result.setTimestamp(new Date());
-		result.setStatus(Status.COMPLETE);
-
-		return result;
 	}
 
 	@Override
