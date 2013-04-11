@@ -1,4 +1,4 @@
-package com.linuxbox.enkive.authentication.ldap;
+package com.linuxbox.enkive.authentication;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -8,7 +8,6 @@ import java.util.Set;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import com.linuxbox.enkive.authentication.EnkiveRoles;
 
 /**
  * Puts an Enkive User Details facade over other User Details, to which most

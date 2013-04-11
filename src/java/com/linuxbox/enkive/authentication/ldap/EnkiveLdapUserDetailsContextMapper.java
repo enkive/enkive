@@ -12,6 +12,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.ldap.userdetails.LdapUserDetailsMapper;
 import org.springframework.security.ldap.userdetails.UserDetailsContextMapper;
 
+import com.linuxbox.enkive.authentication.EnkiveUserDetails;
+
 public class EnkiveLdapUserDetailsContextMapper extends LdapUserDetailsMapper
 		implements UserDetailsContextMapper {
 	protected final static Log LOGGER = LogFactory
