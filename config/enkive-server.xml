@@ -7,6 +7,16 @@
 	<import resource="enkive-properties.xml" />
 	<import resource="resources/*-service.xml" />
 
+
+	<!-- AUTHENTICATION SERVICE OPTIONS; CHOOSE ONE -->
+
+	<import resource="resources/authentication/authentication-service.xml" />
+
+	<!-- 	
+	<import resource="resources/authentication/file-authentication-service.xml" />
+	<import resource="resources/authentication/ldap-authentication-service.xml" />
+	-->
+
 	<bean id="EnkiveFilters" class="com.linuxbox.enkive.filter.EnkiveFiltersBean" />
 
 	<bean id="DocLockService" class="com.linuxbox.util.lockservice.mongodb.MongoLockService">
