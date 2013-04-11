@@ -13,10 +13,11 @@
 	<!-- TO USE LDAP CONFIGURATION, UNCOMMENT THE NEXT THREE XML BLOCKS AND 
 		ADD APPROPRIATE ALTER THE CONFIGURATION FOR YOUR SYSTEM. -->
 
-	<!-- 1. Modify the ldap-server block to an apppriate URL for your LDAP configuraiton. -->
+	<!-- 1. Modify the ldap-server block to an appropriate URL for your LDAP 
+		configuration. -->
 
 	<!-- 2. In the LdapUserContextMapper bean, set the LdapEmailAddressAttributeIds 
-		property to the (or a comma-separted list of) attributes that contain email 
+		property to the (or a comma-separated list of) attributes that contain email 
 		addresses (e.g., "mail,email"). -->
 
 	<!-- 3. Change the authentication-manager block to match your configuration 
