@@ -1,0 +1,42 @@
+<b:beans xmlns="http://www.springframework.org/schema/security"
+	xmlns:b="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+                    http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+                    http://www.springframework.org/schema/security 
+                    http://www.springframework.org/schema/security/spring-security-3.1.xsd">
+
+
+	<!-- This file uses Spring Security's LDAP authentication with slight customization 
+		for Enkive. Spring Security supports a large number of LDAP schema variations, 
+		the details of which are too extensive to include here. Please see the Spring 
+		Security documentation at: http://static.springsource.org/spring-security/site/docs/3.1.x/reference/springsecurity-single.html#ldap -->
+
+
+	<!-- 1. In the LdapUserContextMapper bean, set the LdapEmailAddressAttributeIds 
+		property to the (or a comma-separated list of) attribute IDs that contain 
+		email addresses (e.g., "mail", "mail,otherMailbox") that are contained in 
+		the user entry. -->
+
+	<b:bean id="LdapUserContextMapper"
+		class="com.linuxbox.enkive.authentication.ldap.EnkiveLdapUserDetailsContextMapper"
+		scope="singleton">
+		<b:property name="LdapEmailAddressAttributeIds" value="mail,otherMailbox" />
+	</b:bean>
+
+
+	<!-- 2. Change the 1st constructor-arg element to be the domain for your 
+		Active Directory instance. Change the 2nd constructor-arg element to be the 
+		URL for the Active Directory instance. -->
+
+	<b:bean id="AdAuthenticationProvider"
+		class="org.springframework.security.ldap.authentication.ad.ActiveDirectoryLdapAuthenticationProvider">
+		<b:constructor-arg value="linuxbox.com" />
+		<b:constructor-arg value="ldap://10.1.1.161" />
+		<b:property name="UserDetailsContextMapper" ref="LdapUserContextMapper" />
+	</b:bean>
+
+	<authentication-manager alias="authenticationManager">
+		<authentication-provider ref="AdAuthenticationProvider" />
+	</authentication-manager>
+
+</b:beans>
