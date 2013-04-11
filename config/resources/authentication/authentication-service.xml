@@ -13,6 +13,7 @@
 	<b:import resource="file-authentication.xml" />
 	<!-- 	
 	<b:import resource="ldap-authentication.xml" />
+	<b:import resource="ad-authentication.xml" />
 	-->
 
 </b:beans>
