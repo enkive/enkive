@@ -1,14 +1,14 @@
-package com.linuxbox.enkive.authentication.ldap;
+package com.linuxbox.enkive.authentication;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-
-import com.linuxbox.enkive.authentication.EnkiveRoles;
 
 /**
  * Puts an Enkive User Details facade over other User Details, to which most
@@ -17,6 +17,8 @@ import com.linuxbox.enkive.authentication.EnkiveRoles;
  */
 public class EnkiveUserDetails implements UserDetails {
 	private static final long serialVersionUID = 3003366042873560086L;
+	protected static final Log LOGGER = LogFactory
+			.getLog("com.linuxbox.enkive.authentication");
 
 	protected UserDetails delegate;
 
@@ -25,8 +27,8 @@ public class EnkiveUserDetails implements UserDetails {
 	 * emails sent from or received by.
 	 */
 	protected Set<String> knownEmailAddresses;
-	protected boolean isAdmin = false;
-	protected boolean isUser = false;
+	protected boolean isEnkiveAdmin = false;
+	protected boolean isEnkiveUser = false;
 
 	public EnkiveUserDetails(UserDetails plainUser) {
 		this.delegate = plainUser;
@@ -45,9 +47,9 @@ public class EnkiveUserDetails implements UserDetails {
 			final String authorityString = authority.getAuthority();
 
 			if (authorityString.equals(EnkiveRoles.ROLE_ADMIN)) {
-				isAdmin = true;
+				isEnkiveAdmin = true;
 			} else if (authorityString.equals(EnkiveRoles.ROLE_USER)) {
-				isUser = true;
+				isEnkiveUser = true;
 			}
 		}
 	}
@@ -102,5 +104,49 @@ public class EnkiveUserDetails implements UserDetails {
 	@Override
 	public boolean isEnabled() {
 		return delegate.isEnabled();
+	}
+
+	public void writeAuthenticationToLog() {
+		if (!LOGGER.isInfoEnabled()) {
+			return;
+		}
+
+		StringBuffer info = new StringBuffer();
+		info.append(getUsername()).append(
+				" authenticated via LDAP with role(s) {");
+
+		boolean first = true;
+		for (GrantedAuthority ga : getAuthorities()) {
+			if (first) {
+				first = false;
+			} else {
+				info.append(", ");
+			}
+			info.append(ga.getAuthority());
+		}
+
+		info.append("} and email address(es) {");
+
+		first = true;
+		for (String email : getKnownEmailAddresses()) {
+			if (first) {
+				first = false;
+			} else {
+				info.append(", ");
+			}
+			info.append(email);
+		}
+
+		info.append("}.");
+
+		LOGGER.info(info);
+	}
+	
+	public boolean isEnkiveAdmin() {
+		return isEnkiveAdmin;
+	}
+
+	public boolean isEnkiveUser() {
+		return isEnkiveUser;
 	}
 }
