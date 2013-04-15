@@ -27,6 +27,7 @@ import java.util.HashSet;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Required;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -49,12 +50,29 @@ public class SpringContextPermissionService implements PermissionService {
 		return SecurityContextHolder.getContext().getAuthentication().getName();
 	}
 
+	/**
+	 * If the security principal is an EnkiveUserDetails, can test directly if
+	 * user is an enkive admin. Otherwise we have to search through the granted
+	 * authorities one by one.
+	 */
 	public boolean isAdmin() throws CannotGetPermissionsException {
-		Collection<String> authorityStrings = getCurrentUserAuthorities();
-		final boolean result = authorityStrings.contains(ROLE_ADMIN);
-		LOGGER.trace("user " + getCurrentUsername() + " determined to be "
-				+ (result ? "ADMIN" : "not admin"));
-		return result;
+		final Authentication authentication = SecurityContextHolder
+				.getContext().getAuthentication();
+
+		final Object detailsObj = authentication.getPrincipal();
+		if (detailsObj instanceof EnkiveUserDetails) {
+			final boolean isAdmin = ((EnkiveUserDetails) detailsObj)
+					.isEnkiveAdmin();
+			return isAdmin;
+		}
+
+		for (GrantedAuthority a : authentication.getAuthorities()) {
+			if (a.getAuthority().equals(ROLE_ADMIN)) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	@Override

@@ -1,79 +1,88 @@
 package com.linuxbox.enkive.authentication;
 
-import java.util.Collection;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Required;
-import org.springframework.ldap.core.DirContextAdapter;
-import org.springframework.ldap.core.DirContextOperations;
-import org.springframework.security.core.GrantedAuthority;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.core.io.Resource;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.ldap.userdetails.LdapUserDetailsMapper;
-import org.springframework.security.ldap.userdetails.UserDetailsContextMapper;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 
-import com.linuxbox.enkive.authentication.EnkiveUserDetails;
-
-public class EnkivePropFileUserDetailsContextMapper
-		implements UserDetailsService {
+public class EnkivePropFileUserDetailsContextMapper implements
+		UserDetailsService, ApplicationContextAware, InitializingBean {
 	protected final static Log LOGGER = LogFactory
-			.getLog("com.linuxbox.enkive.authentication.ldap.EnkiveLdapUserDetailsContextMapper");
+			.getLog("com.linuxbox.enkive.authentication");
+
+	protected InMemoryUserDetailsManager delegateUserDetailsManager;
+	protected ApplicationContext applicationContext;
 
 	protected String defaultDomain;
-
-	public EnkivePropFileUserDetailsContextMapper() {
-		super();
-	}
-
-	/**
-	 * Write an entry to the text log indicating that a given user has logged in
-	 * via LDAP. This is broken out to a separate method given its length.
-	 * 
-	 * @param enkiveDetails
-	 */
-	protected void writeAuthenticationToLog(EnkiveUserDetails enkiveDetails) {
-		if (!LOGGER.isInfoEnabled()) {
-			return;
-		}
-
-		StringBuffer info = new StringBuffer();
-		info.append(enkiveDetails.getUsername()).append(
-				" authenticated via LDAP with role(s) {");
-
-		boolean first = true;
-		for (GrantedAuthority ga : enkiveDetails.getAuthorities()) {
-			if (first) {
-				first = false;
-			} else {
-				info.append(", ");
-			}
-			info.append(ga.getAuthority());
-		}
-
-		info.append("} and email address(es) {");
-
-		first = true;
-		for (String email : enkiveDetails.getKnownEmailAddresses()) {
-			if (first) {
-				first = false;
-			} else {
-				info.append(", ");
-			}
-			info.append(email);
-		}
-
-		info.append("}.");
-
-		LOGGER.info(info);
-	}
-
+	protected String properties;
 
 	@Override
 	public UserDetails loadUserByUsername(String username)
 			throws UsernameNotFoundException {
-		// TODO Auto-generated method stub
-		return null;
+		final UserDetails plainDetails = delegateUserDetailsManager
+				.loadUserByUsername(username);
+		final EnkiveUserDetails enkiveDetails = new EnkiveUserDetails(plainDetails);
+
+		String emailAddress;
+		if (username.contains("@")) {
+			emailAddress = username;
+		} else if (defaultDomain == null) {
+			LOGGER.warn("user id is not an email address and no default domain has been set");
+			emailAddress = username;
+		} else {
+			emailAddress = username + '@' + defaultDomain;
+		}
+		
+		enkiveDetails.addKnownEmailAddress(emailAddress);
+
+		return enkiveDetails;
+	}
+
+	@Override
+	public void afterPropertiesSet() throws IOException {
+		final Properties userProperties = new Properties();
+		final Resource propResource = applicationContext
+				.getResource(properties);
+		final InputStream propStream = propResource.getInputStream();
+		userProperties.load(propStream);
+		propStream.close();
+
+		delegateUserDetailsManager = new InMemoryUserDetailsManager(
+				userProperties);
+	}
+
+	@Override
+	public void setApplicationContext(ApplicationContext applicationContext)
+			throws BeansException {
+		this.applicationContext = applicationContext;
+	}
+
+	public String getDefaultDomain() {
+		return defaultDomain;
+	}
+
+	public void setDefaultDomain(String defaultDomain) {
+		this.defaultDomain = defaultDomain;
+	}
+
+	public String getProperties() {
+		return properties;
+	}
+
+	@Required
+	public void setProperties(String properties) {
+		this.properties = properties;
 	}
 }

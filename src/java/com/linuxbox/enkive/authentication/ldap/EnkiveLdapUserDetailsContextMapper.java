@@ -47,51 +47,9 @@ public class EnkiveLdapUserDetailsContextMapper extends LdapUserDetailsMapper
 			}
 		}
 
-		writeAuthenticationToLog(enkiveDetails);
+		enkiveDetails.writeAuthenticationToLog();
 
 		return enkiveDetails;
-	}
-
-	/**
-	 * Write an entry to the text log indicating that a given user has logged in
-	 * via LDAP. This is broken out to a separate method given its length.
-	 * 
-	 * @param enkiveDetails
-	 */
-	protected void writeAuthenticationToLog(EnkiveUserDetails enkiveDetails) {
-		if (!LOGGER.isInfoEnabled()) {
-			return;
-		}
-
-		StringBuffer info = new StringBuffer();
-		info.append(enkiveDetails.getUsername()).append(
-				" authenticated via LDAP with role(s) {");
-
-		boolean first = true;
-		for (GrantedAuthority ga : enkiveDetails.getAuthorities()) {
-			if (first) {
-				first = false;
-			} else {
-				info.append(", ");
-			}
-			info.append(ga.getAuthority());
-		}
-
-		info.append("} and email address(es) {");
-
-		first = true;
-		for (String email : enkiveDetails.getKnownEmailAddresses()) {
-			if (first) {
-				first = false;
-			} else {
-				info.append(", ");
-			}
-			info.append(email);
-		}
-
-		info.append("}.");
-
-		LOGGER.info(info);
 	}
 
 	@Override

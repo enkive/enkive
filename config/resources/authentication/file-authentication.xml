@@ -5,15 +5,16 @@
                     http://www.springframework.org/schema/security 
                     http://www.springframework.org/schema/security/spring-security-3.1.xsd">
 
-
-	<b:bean id="PropFileUserDetailsService" class="">
-		<b:property name="" value="" />
-		<fix-password-encoder hash="sha" />
-		<fix-user-service id="userDetailsService" properties="classpath:users.properties" />
+	<b:bean id="UserDetailsService"
+		class="com.linuxbox.enkive.authentication.EnkivePropFileUserDetailsContextMapper">
+		<b:property name="properties" value="classpath:users.properties" />
+		<b:property name="defaultDomain" value="linuxbox.com" />
 	</b:bean>
 
 	<authentication-manager alias="authenticationManager">
-		<authentication-provider user-service-ref="PropFileUserDetailsService" />
+		<authentication-provider user-service-ref="UserDetailsService">
+			<password-encoder hash="sha" />
+		</authentication-provider>
 	</authentication-manager>
 
 </b:beans>
