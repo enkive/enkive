@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="Enkive Email Archiver" default="package" basedir=".">
+	<property file="build.properties" />
 
-	<property name="enkive.version" value="1.2-CE" />
+	<property name="enkive.version" value="1.3a-CE" />
 	<property name="project.dir" value="." />
 	<property name="label" value="enkive-${enkive.version}" />
 	<property name="project.name" value="enkive" />
@@ -19,9 +20,6 @@
 	<property name="package.file.jar" value="${build.dir}/${project.name}.jar" />
 	<property name="package.file.zip" value="${build.dir}/${project.name}-${enkive.version}.zip" />
 	<property name="package.file.tar.gz" value="${build.dir}/${project.name}-${enkive.version}.tar.gz" />
-	
-	<property name="ediscovery.dir" value="../Ediscovery" />
-	<property name="enkive-socket-filter.dir" value="../Enkive-Socket-Filter" />
 
 	<path id="classpath.lib">
 		<fileset dir="${lib.dir}" includes="**/*.jar" />
@@ -89,7 +87,7 @@
 	<target name="build-ediscovery">
 		<delete file="${webapps.dir}/ediscovery.war" />
 		<subant target="deploy-war" buildpath="${ediscovery.dir}">
-			<property name="ediscovery.war" value="../Enkive/jetty/webapps/ediscovery.war" />
+			<property name="ediscovery.war" value="${webapps.dir}/ediscovery.war" />
 		</subant>
 	</target>
 
