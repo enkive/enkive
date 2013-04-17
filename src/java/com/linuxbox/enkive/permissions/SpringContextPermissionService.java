@@ -79,10 +79,8 @@ public class SpringContextPermissionService implements PermissionService {
 	public boolean canReadMessage(String userId, Message message)
 			throws CannotGetPermissionsException {
 		if (isAdmin()) {
-			LOGGER.trace(userId + " determined to be administrator");
 			return true;
 		}
-		LOGGER.trace(userId + " determined to not be administrator");
 
 		Collection<String> canReadAddresses = canReadAddresses(userId);
 		Collection<String> addressesInMessage = new HashSet<String>();
@@ -115,7 +113,6 @@ public class SpringContextPermissionService implements PermissionService {
 
 		return CollectionUtils
 				.containsAny(addressesInMessage, canReadAddresses);
-
 	}
 
 	@Override
