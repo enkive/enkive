@@ -32,18 +32,19 @@
 	<target name="clean" description="Removes all generated files">
 		<delete dir="${build.dir}" />
 		<delete dir="${bin.dir}" />
+		<delete dir="${scripts.dir}/data" />
 	</target>
 
 	<target name="setup" description="Creates the ${build.dir} and ${bin.dir} directories">
 		<mkdir dir="${build.dir}" />
 		<mkdir dir="${bin.dir}" />
-		<delete file="${build.dir}/data" />
+
+		<delete dir="${build.dir}/data" />
 		<mkdir dir="${build.dir}/data" />
-		<delete file="${build.dir}/data/logs" />
 		<mkdir dir="${build.dir}/data/logs" />
-		<delete file="${build.dir}/data/indri" />
 		<mkdir dir="${build.dir}/data/indri" />
-		<delete file="${build.dir}/data/emergencySaveMessages" />
+		<mkdir dir="${build.dir}/data/indri/index" />
+		<mkdir dir="${build.dir}/data/indri/tmp" />
 		<mkdir dir="${build.dir}/data/emergencySaveMessages" />
 	</target>
 
