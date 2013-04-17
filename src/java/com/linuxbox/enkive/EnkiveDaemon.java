@@ -19,6 +19,8 @@
  *******************************************************************************/
 package com.linuxbox.enkive;
 
+import java.io.IOException;
+
 import org.apache.commons.daemon.Daemon;
 import org.apache.commons.daemon.DaemonContext;
 import org.apache.commons.daemon.DaemonInitException;
@@ -28,35 +30,42 @@ import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.linuxbox.enkive.audit.AuditService;
+import com.linuxbox.util.DirectoryManagement;
 
 public class EnkiveDaemon implements Daemon {
-
-	protected static final Log LOGGER = LogFactory
-			.getLog("com.linuxbox.enkive");
+	protected static final Log LOGGER;
 
 	private static final String USER = AuditService.USER_SYSTEM;
 	private static final String DESCRIPTION = "com.linuxbox.enkive.daemon";
 
 	static final String[] CONFIG_FILES = { "jetty-server-webapps.xml" };
 
-	protected String[] configFiles;
 	protected AbstractApplicationContext appContext;
 	protected AuditService auditService;
+
+	static {
+		try {
+			DirectoryManagement.verifyDirectory(
+					GeneralConstants.DEFAULT_LOG_DIRECTORY,
+					"default logging directory");
+		} catch (IOException e) {
+			throw new Error(e);
+		}
+		LOGGER = LogFactory.getLog("com.linuxbox.enkive");
+	}
 
 	@Override
 	public void init(DaemonContext context) throws DaemonInitException,
 			Exception {
-
-		this.configFiles = CONFIG_FILES;
+		// empty
 	}
 
 	@Override
 	public void start() throws Exception {
-		appContext = new ClassPathXmlApplicationContext(configFiles);
+		appContext = new ClassPathXmlApplicationContext(CONFIG_FILES);
 		auditService = appContext
 				.getBean("AuditLogService", AuditService.class);
 		auditService.addEvent(AuditService.SYSTEM_STARTUP, USER, DESCRIPTION);
-
 	}
 
 	@Override
@@ -67,12 +76,6 @@ public class EnkiveDaemon implements Daemon {
 
 	@Override
 	public void destroy() {
-
+		// empty
 	}
-
-	public static void main(String[] args) {
-		System.out.println("Starting Enkive...");
-
-	}
-
 }

@@ -19,6 +19,8 @@
  *******************************************************************************/
 package com.linuxbox.enkive;
 
+import java.io.IOException;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.context.ApplicationContext;
@@ -28,10 +30,10 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import com.linuxbox.enkive.audit.AuditService;
 import com.linuxbox.enkive.audit.AuditServiceException;
 import com.linuxbox.enkive.tool.mongodb.MongoDBIndexManager;
+import com.linuxbox.util.DirectoryManagement;
 
 public abstract class Main {
-	protected static final Log LOGGER = LogFactory
-			.getLog("com.linuxbox.enkive");
+	protected static final Log LOGGER;
 	private static final String USER = AuditService.USER_SYSTEM;
 	private static final String DESCRIPTION = "com.linuxbox.enkive.Main.main";
 
@@ -45,11 +47,22 @@ public abstract class Main {
 
 	protected abstract void shutdown();
 
+	static {
+		try {
+			DirectoryManagement.verifyDirectory(
+					GeneralConstants.DEFAULT_LOG_DIRECTORY,
+					"default logging directory");
+		} catch (IOException e) {
+			throw new Error(e);
+		}
+		LOGGER = LogFactory.getLog("com.linuxbox.enkive");
+	}
+
 	public Main(String[] configFiles, String[] arguments) {
 		this.configFiles = configFiles;
 	}
 
-	public void run() {
+	public void run() throws IOException {
 		startup();
 
 		context = new ClassPathXmlApplicationContext(configFiles);

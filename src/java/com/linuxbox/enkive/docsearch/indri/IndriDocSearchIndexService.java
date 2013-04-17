@@ -47,6 +47,7 @@ import com.linuxbox.enkive.docstore.DocStoreConstants;
 import com.linuxbox.enkive.docstore.DocStoreService;
 import com.linuxbox.enkive.docstore.Document;
 import com.linuxbox.enkive.docstore.exception.DocStoreException;
+import com.linuxbox.util.DirectoryManagement;
 import com.linuxbox.util.lockservice.LockAcquisitionException;
 import com.linuxbox.util.lockservice.LockReleaseException;
 import com.linuxbox.util.lockservice.LockService;
@@ -198,7 +199,14 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 			throw new DocSearchException(
 					"no document locking service was set for the IndroDocSearchIndexService");
 		}
-		initializeTemporaryStorage(tempStoragePath);
+		try {
+			DirectoryManagement.verifyDirectory(tempStoragePath,
+					"INDRI indexing temporary storage directory");
+			DirectoryManagement.verifyDirectory(repositoryPath,
+					"INDRI index directory");
+		} catch (IOException e) {
+			throw new DocSearchException(e);
+		}
 	}
 
 	@Override
@@ -207,41 +215,6 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 			LOGGER.trace("in IndriDocSearchIndexService::subShutdown");
 		}
 		indexEnvironmentManager.shutdown();
-	}
-
-	private void initializeTemporaryStorage(String temporaryStoragePath)
-			throws DocSearchException {
-		tempStorageDir = new File(temporaryStoragePath);
-
-		if (!tempStorageDir.exists()) {
-			if (!tempStorageDir.mkdirs()) {
-				throw new DocSearchException(
-						"could not find or create temporary storage directory \""
-								+ temporaryStoragePath
-								+ "\" for INDRI search service");
-			}
-		} else if (!tempStorageDir.isDirectory()) {
-			throw new DocSearchException("temporary storage path \""
-					+ temporaryStoragePath + "\" is not a directory");
-		}
-
-		if (!tempStorageDir.canWrite()) {
-			throw new DocSearchException(
-					"cannot write to temporary storage directory \""
-							+ temporaryStoragePath + "\"");
-		}
-
-		if (!tempStorageDir.canExecute()) {
-			throw new DocSearchException(
-					"cannot access temporary storage directory \""
-							+ temporaryStoragePath + "\"");
-		}
-
-		if (!tempStorageDir.canRead()) {
-			throw new DocSearchException(
-					"cannot read from temporary storage directory \""
-							+ temporaryStoragePath + "\"");
-		}
 	}
 
 	private int indexDocumentAsString(Document doc, String identifier)

@@ -107,7 +107,7 @@ public class MainConsole extends Main {
 		}
 	}
 
-	public static void main(String[] arguments) {
+	public static void main(String[] arguments) throws IOException {
 		Main main = new MainConsole(arguments);
 		main.run();
 	}

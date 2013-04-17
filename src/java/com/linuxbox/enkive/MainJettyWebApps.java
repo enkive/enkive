@@ -19,12 +19,14 @@
  *******************************************************************************/
 package com.linuxbox.enkive;
 
+import java.io.IOException;
+
 import org.eclipse.jetty.server.Server;
 import org.springframework.context.ApplicationContext;
 
 public class MainJettyWebApps extends MainConsole {
 	static final String[] CONFIG_FILES = { "jetty-server-webapps.xml" };
-
+	
 	public MainJettyWebApps(String[] arguments) {
 		super(CONFIG_FILES, arguments);
 	}
@@ -45,7 +47,7 @@ public class MainJettyWebApps extends MainConsole {
 			server.stop();
 			System.exit(0);
 		} catch (Exception e) {
-			LOGGER.error("Error stopping Jetty server.", e);
+			LOGGER.error("Error force stopping Jetty server.", e);
 			System.exit(1);
 		}
 	}
@@ -53,9 +55,7 @@ public class MainJettyWebApps extends MainConsole {
 	/**
 	 * @param args
 	 */
-	public static void main(String[] args) {
-		// TODO attempt to change classpath
-		// System.setProperty("jetty.class.path", "./bin/java");
+	public static void main(String[] args) throws IOException {
 		Main main = new MainJettyWebApps(args);
 		main.run();
 	}

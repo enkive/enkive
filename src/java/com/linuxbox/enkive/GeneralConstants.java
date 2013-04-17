@@ -32,6 +32,8 @@ public class GeneralConstants {
 
 	public static final DateFormat NUMERIC_FORMAT_W_MILLIS;
 
+	public static final String DEFAULT_LOG_DIRECTORY = "data/logs";
+
 	static {
 		NUMERIC_FORMAT_W_MILLIS = new SimpleDateFormat(
 				"yyyy-MM-dd_HH-mm-ss-SSS");
