@@ -69,25 +69,23 @@ fi
 ENKIVE_LOG_PATH=${ENKIVE_HOME}/data/logs
 ENKIVE_PID_FILE=${ENKIVE_HOME}/data/enkive.pid
 ENKIVE_CLASSPATH=${ENKIVE_HOME}/enkive.jar:${ENKIVE_HOME}/lib/*:${ENKIVE_HOME}/lib/spring/*:${ENKIVE_HOME}/lib/james-imap/*:${ENKIVE_HOME}/config:${JAVA_HOME}/lib/tools.jar
-
+JSVC_ARGS="-cwd ${ENKIVE_HOME} -java-home ${JAVA_HOME} -pidfile ${ENKIVE_PID_FILE} -outfile ${ENKIVE_LOG_PATH}/enkive.log -errfile ${ENKIVE_LOG_PATH}/enkive.err -cp ${ENKIVE_CLASSPATH} -Dlog4j.configuration=file://${ENKIVE_HOME}/config/log4j.properties -Djava.library.path=${INDRI_SO_PATH} com.linuxbox.enkive.EnkiveDaemon"
 
 # the following should likely not be edited
 
 RETVAL=0
 
 start() {
-	    cd $ENKIVE_HOME
         echo -n "Starting Enkive:  "
-        su $ENKIVE_USER -c "$JSVC -java-home $JAVA_HOME -pidfile $ENKIVE_PID_FILE -outfile $ENKIVE_LOG_PATH/enkive.log -errfile $ENKIVE_LOG_PATH/enkive.err -cp $ENKIVE_CLASSPATH -Dlog4j.configuration=file://$ENKIVE_HOME/config/log4j.properties -Djava.library.path=$INDRI_SO_PATH com.linuxbox.enkive.EnkiveDaemon"
+        su $ENKIVE_USER -c "$JSVC $JSVC_ARGS"
         RETVAL=$?
         sleep 2
         echo
 }
 
 stop() {
-		cd $ENKIVE_HOME
         echo -n "Stopping Enkive: "
-        su $ENKIVE_USER -c "$JSVC -stop -java-home $JAVA_HOME -pidfile $ENKIVE_PID_FILE -outfile $ENKIVE_LOG_PATH/enkive.log -errfile $ENKIVE_LOG_PATH/enkive.err -cp $ENKIVE_CLASSPATH -Dlog4j.configuration=file://$ENKIVE_HOME/config/log4j.properties -Djava.library.path=$INDRI_SO_PATH com.linuxbox.enkive.EnkiveDaemon"
+        su $ENKIVE_USER -c "$JSVC -stop $JSVC_ARGS"
         RETVAL=$?
         echo
 }
