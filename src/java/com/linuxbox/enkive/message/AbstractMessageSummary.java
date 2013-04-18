@@ -35,7 +35,7 @@ import com.linuxbox.util.StringUtils;
 public abstract class AbstractMessageSummary implements MessageSummary {
 	private static final SimpleDateFormat dateFormatter = new SimpleDateFormat(
 			"EEE, dd MMM yyyy HH:mm:ss ZZZZ");
-	protected static final Pattern extractEmailAddressRE = Pattern
+	protected static final Pattern EXTRACT_EMAIL_ADDRESS_RE = Pattern
 			.compile("<(.*?)>");
 
 	protected String id;
@@ -237,7 +237,7 @@ public abstract class AbstractMessageSummary implements MessageSummary {
 
 	protected String extractEmailAddress(String addressHeader)
 			throws BadMessageException {
-		Matcher matcher = extractEmailAddressRE.matcher(addressHeader);
+		Matcher matcher = EXTRACT_EMAIL_ADDRESS_RE.matcher(addressHeader);
 		if (matcher.find()) {
 			return matcher.group(1);
 		} else {
