@@ -86,24 +86,17 @@ public class MessageAttachmentDetailServlet extends EnkiveServlet {
 				attachments.put(attachmentObject);
 			}
 
-			try {
-				JSONObject jObject = new JSONObject();
-				jObject.put(WebConstants.DATA_TAG, attachments);
-				String jsonString = jObject.toString();
-				resp.getWriter().write(jsonString);
-			} catch (JSONException e) {
-				respondError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
-						null, resp);
-				throw new CannotRetrieveException(
-						"could not create JSON for message attachment", e);
-			}
+			JSONObject jObject = new JSONObject();
+			jObject.put(WebConstants.DATA_TAG, attachments);
+			String jsonString = jObject.toString();
+			resp.getWriter().write(jsonString);
 		} catch (CannotRetrieveException e) {
 			respondError(HttpServletResponse.SC_UNAUTHORIZED, null, resp);
-			LOGGER.error("Could not retrieve attachment");
+			LOGGER.error("Could not retrieve attachment", e);
 		} catch (JSONException e) {
 			respondError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, null,
 					resp);
-			LOGGER.error("Could not retrieve attachment");
+			LOGGER.error("Could not retrieve attachment", e);
 		}
 	}
 }
