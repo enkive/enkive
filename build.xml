@@ -3,23 +3,22 @@
 	<property file="build.properties" />
 
 	<property name="enkive.version" value="1.3a-CE" />
-	<property name="project.dir" value="." />
 	<property name="label" value="enkive-${enkive.version}" />
 	<property name="project.name" value="enkive" />
-	<property name="build.dir" value="${project.dir}/build" />
-	<property name="bin.dir" value="${project.dir}/bin" />
-	<property name="contrib.bin.dir" value="${project.dir}/bin" />
-	<property name="source.dir" value="${project.dir}/src" />
-	<property name="config.dir" value="${project.dir}/config" />
-	<property name="licenses.dir" value="${project.dir}/licenses" />
-	<property name="scripts.dir" value="${project.dir}/scripts" />
-	<property name="lib.dir" value="${project.dir}/lib" />
-	<property name="contrib.dir" value="${project.dir}/contrib" />
-	<property name="jetty.dir" value="${project.dir}/jetty" />
+	<property name="build.dir" value="${basedir}/build" />
+	<property name="bin.dir" value="${basedir}/bin" />
+	<property name="contrib.bin.dir" value="${basedir}/bin" />
+	<property name="source.dir" value="${basedir}/src" />
+	<property name="config.dir" value="${basedir}/config" />
+	<property name="licenses.dir" value="${basedir}/licenses" />
+	<property name="scripts.dir" value="${basedir}/scripts" />
+	<property name="lib.dir" value="${basedir}/lib" />
+	<property name="contrib.dir" value="${basedir}/contrib" />
+	<property name="jetty.dir" value="${basedir}/jetty" />
 	<property name="webapps.dir" value="${jetty.dir}/webapps" />
 	<property name="package.file.jar" value="${build.dir}/${project.name}.jar" />
 	<property name="package.file.zip" value="${build.dir}/${project.name}-${enkive.version}.zip" />
-	<property name="package.file.tar.gz" value="${build.dir}/${project.name}-${enkive.version}.tar.gz" />
+	<property name="package.file.tgz" value="${build.dir}/${project.name}-${enkive.version}.tar.gz" />
 
 	<path id="classpath.lib">
 		<fileset dir="${lib.dir}" includes="**/*.jar" />
@@ -72,8 +71,8 @@
 	</target>
 
 	<target name="package" depends="package-jar, build-ediscovery" description="Creates a zip called ${package.file.tar.gz} ">
-		<delete file="${package.file.tar.gz}" />
-		<tar destfile="${package.file.tar.gz}" compression="gzip">
+		<delete file="${package.file.tgz}" />
+		<tar destfile="${package.file.tgz}" compression="gzip">
 			<tarfileset file="${package.file.jar}" prefix="${label}" />
 			<tarfileset dir="${scripts.dir}" prefix="${label}/scripts" />
 			<tarfileset dir="${config.dir}" prefix="${label}/config" />
@@ -89,6 +88,7 @@
 		<delete file="${webapps.dir}/ediscovery.war" />
 		<subant target="deploy-war" buildpath="${ediscovery.dir}">
 			<property name="ediscovery.war" value="${webapps.dir}/ediscovery.war" />
+			<property name="ediscovery.web.dir" value="${webapps.dir}/ediscovery" />
 		</subant>
 	</target>
 
