@@ -19,8 +19,16 @@
  *******************************************************************************/
 package com.linuxbox.enkive.exception;
 
+/**
+ * FIXME: This exception is awfully generic. It's used for cases where something
+ * is retrieved when there are insufficient permissions. It's also used for
+ * other cases of failed retrieval. And that means we cannot return appropriate
+ * error codes (e.g., HttpServletResponse.SC_UNAUTHORIZED or
+ * HttpServletResponse.SC_INTERNAL_SERVER_ERROR). So perhaps we need to have
+ * subclasses that address specific issues. And perhaps the error code should be
+ * embedded in the resulting exception classes?
+ */
 public class CannotRetrieveException extends EnkiveException {
-
 	private static final long serialVersionUID = 1L;
 
 	public CannotRetrieveException() {

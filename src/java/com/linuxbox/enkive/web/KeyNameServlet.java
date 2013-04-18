@@ -39,6 +39,9 @@ import com.linuxbox.enkive.statistics.ConsolidationKeyHandler;
 import com.linuxbox.enkive.statistics.gathering.GathererAttributes;
 import com.linuxbox.enkive.statistics.services.StatsClient;
 
+/**
+ * FIXME: This class is a mess full of NOAHCODE.
+ */
 public class KeyNameServlet extends EnkiveServlet {
 	protected static final Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.web.StatsServlet");
@@ -52,7 +55,10 @@ public class KeyNameServlet extends EnkiveServlet {
 	}
 
 	public void doGet(HttpServletRequest req, HttpServletResponse resp) {
-		LOGGER.info("KeyNameServlet doGet started");
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("KeyNameServlet doGet started");
+		}
+
 		try {
 			try {
 				Set<GathererAttributes> attributes = client.getAttributes();
@@ -91,11 +97,17 @@ public class KeyNameServlet extends EnkiveServlet {
 					statistics.put("results", result);
 					resp.getWriter().write(statistics.toString());
 				} catch (IOException e) {
+					// FIXME: NOAHCODE Why is this calling respondError and
+					// throwing an exception, the catch of which calls
+					// respondError again?
 					respondError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
 							null, resp);
 					throw new CannotRetrieveException(
 							"could not create JSON for message attachment", e);
 				} catch (JSONException e) {
+					// FIXME: NOAHCODE Why is this calling respondError and
+					// throwing an exception, the catch of which calls
+					// respondError again?
 					respondError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
 							null, resp);
 					throw new CannotRetrieveException(
@@ -103,7 +115,7 @@ public class KeyNameServlet extends EnkiveServlet {
 				}
 			} catch (CannotRetrieveException e) {
 				respondError(HttpServletResponse.SC_UNAUTHORIZED, null, resp);
-					LOGGER.error("CannotRetrieveException", e);
+				LOGGER.error("CannotRetrieveException", e);
 			} catch (NullPointerException e) {
 				respondError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
 						null, resp);
@@ -112,6 +124,9 @@ public class KeyNameServlet extends EnkiveServlet {
 		} catch (IOException e) {
 			LOGGER.error("IOException thrown", e);
 		}
-		LOGGER.info("StatsServlet doGet finished");
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("StatsServlet doGet finished");
+		}
 	}
 }

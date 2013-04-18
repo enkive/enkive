@@ -62,6 +62,9 @@ import com.linuxbox.enkive.statistics.services.retrieval.StatsQuery;
 import com.linuxbox.enkive.statistics.services.retrieval.mongodb.MongoStatsFilter;
 import com.linuxbox.enkive.statistics.services.retrieval.mongodb.MongoStatsQuery;
 
+/**
+ * FIXME: This class is a mess full of NOAHCODE.
+ */
 @SuppressWarnings("unchecked")
 public class StatsServlet extends EnkiveServlet {
 	protected static final Log LOGGER = LogFactory
@@ -70,8 +73,8 @@ public class StatsServlet extends EnkiveServlet {
 
 	private StatsClient client;
 
-	private final String tsMax = STAT_TIMESTAMP + "." + CONSOLIDATION_MAX;
-	private final String tsMin = STAT_TIMESTAMP + "." + CONSOLIDATION_MIN;
+	private final static String tsMax = STAT_TIMESTAMP + "." + CONSOLIDATION_MAX;
+	private final static String tsMin = STAT_TIMESTAMP + "." + CONSOLIDATION_MIN;
 
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
@@ -296,7 +299,10 @@ public class StatsServlet extends EnkiveServlet {
 
 	// Above is copied from abstract/embedded grainularity classes
 	public void doGet(HttpServletRequest req, HttpServletResponse resp) {
-		LOGGER.debug("StatsServlet doGet started");
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("StatsServlet doGet started");
+		}
+
 		try {
 			try {
 				Date endTimestamp = null;
@@ -428,11 +434,17 @@ public class StatsServlet extends EnkiveServlet {
 					LOGGER.debug("Statistical Data: " + statistics);
 					resp.getWriter().write(statistics.toString());
 				} catch (IOException e) {
+					// FIXME: NOAHCODE Why is this calling respondError and
+					// throwing an exception, the catch of which calls
+					// respondError again?
 					respondError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
 							null, resp);
 					throw new CannotRetrieveException(
 							"could not create JSON for message attachment", e);
 				} catch (JSONException e) {
+					// FIXME: NOAHCODE Why is this calling respondError and
+					// throwing an exception, the catch of which calls
+					// respondError again?
 					respondError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
 							null, resp);
 					throw new CannotRetrieveException(
@@ -449,6 +461,9 @@ public class StatsServlet extends EnkiveServlet {
 		} catch (IOException e) {
 			LOGGER.error("IOException thrown", e);
 		}
-		LOGGER.debug("StatsServlet doGet finished");
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("StatsServlet doGet finished");
+		}
 	}
 }
