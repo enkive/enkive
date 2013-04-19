@@ -13,12 +13,14 @@ import org.springframework.security.ldap.userdetails.LdapUserDetailsMapper;
 import org.springframework.security.ldap.userdetails.UserDetailsContextMapper;
 
 import com.linuxbox.enkive.authentication.EnkiveUserDetails;
+import com.linuxbox.enkive.normalization.EmailAddressNormalizer;
 
 public class EnkiveLdapUserDetailsContextMapper extends LdapUserDetailsMapper
 		implements UserDetailsContextMapper {
 	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.authentication.ldap.EnkiveLdapUserDetailsContextMapper");
 
+	protected EmailAddressNormalizer emailAddressNormalizer;
 	protected String[] ldapEmailAddressAttributeIds;
 
 	public EnkiveLdapUserDetailsContextMapper() {
@@ -36,7 +38,7 @@ public class EnkiveLdapUserDetailsContextMapper extends LdapUserDetailsMapper
 		final UserDetails standardDetails = super.mapUserFromContext(ctx,
 				userName, authorities);
 		final EnkiveUserDetails enkiveDetails = new EnkiveUserDetails(
-				standardDetails);
+				standardDetails, emailAddressNormalizer);
 
 		for (String attributeId : ldapEmailAddressAttributeIds) {
 			String[] emailAddresses = ctx.getStringAttributes(attributeId);
@@ -61,6 +63,12 @@ public class EnkiveLdapUserDetailsContextMapper extends LdapUserDetailsMapper
 	@Required
 	public void setLdapEmailAddressAttributeIds(String commaSeparatedList) {
 		ldapEmailAddressAttributeIds = commaSeparatedList.split(",");
+	}
+
+	@Required
+	public void setEmailAddressNormalizer(
+			EmailAddressNormalizer emailAddressNormalizer) {
+		this.emailAddressNormalizer = emailAddressNormalizer;
 	}
 
 	static class LdapUserDetailsException extends RuntimeException {

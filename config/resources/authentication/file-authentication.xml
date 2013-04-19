@@ -9,6 +9,7 @@
 		class="com.linuxbox.enkive.authentication.EnkivePropFileUserDetailsContextMapper">
 		<b:property name="properties" value="classpath:users.properties" />
 		<b:property name="defaultDomain" value="linuxbox.com" />
+		<b:property name="emailAddressNormalizer" ref="EmailAddressNormalizer" />
 	</b:bean>
 
 	<authentication-manager alias="authenticationManager">

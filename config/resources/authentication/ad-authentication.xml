@@ -21,6 +21,7 @@
 		class="com.linuxbox.enkive.authentication.ldap.EnkiveLdapUserDetailsContextMapper"
 		scope="singleton">
 		<b:property name="LdapEmailAddressAttributeIds" value="mail,otherMailbox" />
+		<b:property name="emailAddressNormalizer" ref="EmailAddressNormalizer" />
 	</b:bean>
 
 

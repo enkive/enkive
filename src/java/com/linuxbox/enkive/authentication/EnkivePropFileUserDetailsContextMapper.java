@@ -17,6 +17,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 
+import com.linuxbox.enkive.normalization.EmailAddressNormalizer;
+
 public class EnkivePropFileUserDetailsContextMapper implements
 		UserDetailsService, ApplicationContextAware, InitializingBean {
 	protected final static Log LOGGER = LogFactory
@@ -24,6 +26,7 @@ public class EnkivePropFileUserDetailsContextMapper implements
 
 	protected InMemoryUserDetailsManager delegateUserDetailsManager;
 	protected ApplicationContext applicationContext;
+	protected EmailAddressNormalizer emailAddressNormalizer;
 
 	protected String defaultDomain;
 	protected String properties;
@@ -33,7 +36,8 @@ public class EnkivePropFileUserDetailsContextMapper implements
 			throws UsernameNotFoundException {
 		final UserDetails plainDetails = delegateUserDetailsManager
 				.loadUserByUsername(username);
-		final EnkiveUserDetails enkiveDetails = new EnkiveUserDetails(plainDetails);
+		final EnkiveUserDetails enkiveDetails = new EnkiveUserDetails(
+				plainDetails, emailAddressNormalizer);
 
 		String emailAddress;
 		if (username.contains("@")) {
@@ -44,7 +48,7 @@ public class EnkivePropFileUserDetailsContextMapper implements
 		} else {
 			emailAddress = username + '@' + defaultDomain;
 		}
-		
+
 		enkiveDetails.addKnownEmailAddress(emailAddress);
 
 		return enkiveDetails;
@@ -84,5 +88,11 @@ public class EnkivePropFileUserDetailsContextMapper implements
 	@Required
 	public void setProperties(String properties) {
 		this.properties = properties;
+	}
+
+	@Required
+	public void setEmailAddressNormalizer(
+			EmailAddressNormalizer emailAddressNormalizer) {
+		this.emailAddressNormalizer = emailAddressNormalizer;
 	}
 }

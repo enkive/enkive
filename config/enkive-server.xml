@@ -12,10 +12,9 @@
 
 	<import resource="resources/authentication/authentication-service.xml" />
 
-	<!-- 	
-	<import resource="resources/authentication/file-authentication-service.xml" />
-	<import resource="resources/authentication/ldap-authentication-service.xml" />
-	-->
+	<!-- <import resource="resources/authentication/file-authentication-service.xml" 
+		/> <import resource="resources/authentication/ldap-authentication-service.xml" 
+		/> -->
 
 	<bean id="EnkiveFilters" class="com.linuxbox.enkive.filter.EnkiveFiltersBean" />
 
@@ -166,4 +165,8 @@
 		called appropriately -->
 	<bean id="CommonAnnotationBeanPostProcessor"
 		class="org.springframework.context.annotation.CommonAnnotationBeanPostProcessor" />
+
+	<!-- Makes sure all beans with Required annotations get set up appropriately -->
+	<bean id="RequiredAnnotationBeanPostProcessor"
+		class="org.springframework.beans.factory.annotation.RequiredAnnotationBeanPostProcessor" />
 </beans>

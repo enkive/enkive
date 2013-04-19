@@ -10,6 +10,10 @@
 		<form-login />
 	</http>
 
+	<b:bean id="EmailAddressNormalizer"
+		class="com.linuxbox.enkive.normalization.CaseEmailAddressNormalizer">
+	</b:bean>
+
 	<b:import resource="file-authentication.xml" />
 
 	<!-- <b:import resource="ldap-authentication.xml" /> -->
