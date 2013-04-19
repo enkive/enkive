@@ -2,6 +2,8 @@ package com.linuxbox.enkive.normalization;
 
 import static org.junit.Assert.*;
 
+import java.util.ArrayList;
+
 import org.junit.Test;
 
 public class EmailAddressNormalizationTest {
@@ -91,5 +93,24 @@ public class EmailAddressNormalizationTest {
 		assertEquals("tag delimiter in domain part but not local part",
 				"realaddress@example-foo.com",
 				n2.normalize("realaddress@example-foo.com"));
+	}
+
+	@Test
+	public void testSequenceEmailAddressNormalizer() {
+		SequenceEmailAddressNormalizer n = new SequenceEmailAddressNormalizer();
+
+		ArrayList<EmailAddressNormalizer> list = new ArrayList<EmailAddressNormalizer>();
+		list.add(new CaseEmailAddressNormalizer());
+		list.add(new LocalPartDotAddressNormalizer());
+		{
+			TaggedEmailAddressNormalizer tn = new TaggedEmailAddressNormalizer();
+			tn.setTagDelimiter('+');
+			list.add(tn);
+		}
+		n.setNormalizers(list);
+
+		assertEquals("test address w/ mixed case, dots, and a tag",
+				"elizabethzephyr@gmail.com",
+				n.normalize("Elizabeth.Zephyr+mytag@GMail.com"));
 	}
 }
