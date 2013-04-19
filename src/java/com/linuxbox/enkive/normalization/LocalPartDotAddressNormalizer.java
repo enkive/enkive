@@ -3,11 +3,19 @@ package com.linuxbox.enkive.normalization;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-
+/**
+ * Some emailers such as Gmail, ignore periods ("."s) in email addresses. Thus
+ * janedoe@gmail.com is considered the same as jane.doe@gmail.com. This
+ * normalizer removes all periods in the local part of an email address to
+ * normalize the address.
+ * 
+ * For more information, see:
+ * http://en.wikipedia.org/wiki/Email_address#Local-part_normalization
+ */
 public class LocalPartDotAddressNormalizer extends
 		AbstractChainedEmailAddressNormalizer {
-	final static Pattern DOT_RE =  Pattern.compile("\\."); 
-	
+	final static Pattern DOT_RE = Pattern.compile("\\.");
+
 	public LocalPartDotAddressNormalizer(EmailAddressNormalizer prior) {
 		super(prior);
 	}
@@ -23,22 +31,12 @@ public class LocalPartDotAddressNormalizer extends
 		final String domainPart = parts[1];
 
 		StringBuilder result = new StringBuilder();
-		
+
 		Matcher m = DOT_RE.matcher(localPart);
 		result.append(m.replaceAll(""));
 		result.append('@');
 		result.append(domainPart);
-		
+
 		return result.toString();
-	}
-	
-	/**
-	 * A little testing.
-	 */
-	public static void main(String[] args) {
-		EmailAddressNormalizer n = new LocalPartDotAddressNormalizer();
-		System.out.println(n.normalize("elizabeth.zephyr@gmail.com"));
-		System.out.println(n.normalize("dash.dash.dash.dash..dash@gmail.com"));
-		System.out.println(n.normalize("...surround...@gmail.com"));
 	}
 }
