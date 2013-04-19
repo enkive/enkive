@@ -17,7 +17,7 @@
 		email addresses (e.g., "mail", "mail,otherMailbox") that are contained in 
 		the user entry. -->
 
-	<b:bean id="LdapUserContextMapper"
+	<b:bean id="AdUserContextMapper"
 		class="com.linuxbox.enkive.authentication.ldap.EnkiveLdapUserDetailsContextMapper"
 		scope="singleton">
 		<b:property name="LdapEmailAddressAttributeIds" value="mail,otherMailbox" />
@@ -33,7 +33,7 @@
 		class="org.springframework.security.ldap.authentication.ad.ActiveDirectoryLdapAuthenticationProvider">
 		<b:constructor-arg value="linuxbox.com" />
 		<b:constructor-arg value="ldap://10.1.1.161" />
-		<b:property name="UserDetailsContextMapper" ref="LdapUserContextMapper" />
+		<b:property name="UserDetailsContextMapper" ref="AdUserContextMapper" />
 	</b:bean>
 
 	<authentication-manager alias="authenticationManager">
