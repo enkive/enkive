@@ -8,9 +8,9 @@ public class SequenceEmailAddressNormalizer implements EmailAddressNormalizer {
 	protected List<EmailAddressNormalizer> normalizers;
 
 	@Override
-	public String normalize(String emailAddress) {
+	public String map(String emailAddress) {
 		for (EmailAddressNormalizer normalizer : normalizers) {
-			emailAddress = normalizer.normalize(emailAddress);
+			emailAddress = normalizer.map(emailAddress);
 		}
 
 		return emailAddress;

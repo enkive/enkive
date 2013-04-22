@@ -22,19 +22,14 @@ package com.linuxbox.enkive.permissions;
 import java.util.Collection;
 
 import com.linuxbox.enkive.exception.CannotGetPermissionsException;
-import com.linuxbox.enkive.message.Message;
 import com.linuxbox.enkive.message.MessageSummary;
 
 public interface PermissionService {
-
 	public String getCurrentUsername();
 
 	public boolean isAdmin() throws CannotGetPermissionsException;
 
 	public Collection<String> getCurrentUserAuthorities()
-			throws CannotGetPermissionsException;
-
-	public boolean canReadMessage(String userId, Message message)
 			throws CannotGetPermissionsException;
 
 	public boolean canReadMessage(String userId, MessageSummary message)
@@ -44,5 +39,4 @@ public interface PermissionService {
 			throws CannotGetPermissionsException;
 
 	public Collection<String> canReadAddresses(String userId);
-
 }

@@ -20,7 +20,12 @@
 package com.linuxbox.util;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
+
+import com.linuxbox.enkive.exception.UnimplementedMethodException;
 
 public class CollectionUtils {
 	/**
@@ -89,4 +94,43 @@ public class CollectionUtils {
 		}
 		return result;
 	}
+	
+	public static <F,T> void addAllMapped(Collection<? super T> destination, Collection<? extends F> source, Mapper<? super F, ? extends T> mapper) {
+		for (T newItem : mapAndIterate(source, mapper)) {
+			destination.add(newItem);
+		}
+	}
+
+	public static <F, T> Iterable<T> mapAndIterate(Collection<? extends F> from, final Mapper<? super F,? extends T> mapper) {
+		final Collection<F> KeptCollection = Collections.unmodifiableCollection(from);
+		
+		return new Iterable<T>(){
+			@Override
+			public Iterator<T> iterator() {
+				final Iterator<F> keptIterator = KeptCollection.iterator();
+
+				return new Iterator<T>() {
+					@Override
+					public boolean hasNext() {
+						return keptIterator.hasNext();
+					}
+
+					@Override
+					public T next() {
+						return mapper.map(keptIterator.next());
+					}
+
+					@Override
+					public void remove() {
+						throw new UnimplementedMethodException();
+					}
+				};
+			}
+		};
+	}
+
+	public static interface Mapper<F, T> {
+		T map(F input);
+	}
+	
 }

@@ -87,7 +87,7 @@ public class EnkiveUserDetails implements UserDetails {
 			knownNormalizedEmailAddresses = new HashSet<String>();
 			for (String address : knownEmailAddresses) {
 				final String normalizedAddress = emailAddressNormalizer
-						.normalize(address);
+						.map(address);
 				knownNormalizedEmailAddresses.add(normalizedAddress);
 			}
 		}

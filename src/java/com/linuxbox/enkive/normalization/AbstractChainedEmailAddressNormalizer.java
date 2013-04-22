@@ -18,9 +18,9 @@ public abstract class AbstractChainedEmailAddressNormalizer extends
 	}
 
 	@Override
-	public String normalize(String emailAddress) {
+	public String map(String emailAddress) {
 		if (null != priorInChain) {
-			emailAddress = priorInChain.normalize(emailAddress);
+			emailAddress = priorInChain.map(emailAddress);
 		}
 		return myNormalize(emailAddress);
 	}

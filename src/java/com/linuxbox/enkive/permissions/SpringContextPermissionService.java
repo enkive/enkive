@@ -35,8 +35,8 @@ import org.springframework.util.CollectionUtils;
 
 import com.linuxbox.enkive.authentication.EnkiveUserDetails;
 import com.linuxbox.enkive.exception.CannotGetPermissionsException;
-import com.linuxbox.enkive.message.Message;
 import com.linuxbox.enkive.message.MessageSummary;
+import com.linuxbox.enkive.normalization.EmailAddressNormalizer;
 import com.linuxbox.enkive.permissions.message.MessagePermissionsService;
 
 public class SpringContextPermissionService implements PermissionService {
@@ -44,6 +44,7 @@ public class SpringContextPermissionService implements PermissionService {
 			.getLog("com.linuxbox.enkive.permissions");
 
 	protected MessagePermissionsService messagePermissionService;
+	protected EmailAddressNormalizer emailAddressNormalizer;
 
 	@Override
 	public String getCurrentUsername() {
@@ -76,26 +77,6 @@ public class SpringContextPermissionService implements PermissionService {
 	}
 
 	@Override
-	public boolean canReadMessage(String userId, Message message)
-			throws CannotGetPermissionsException {
-		if (isAdmin()) {
-			return true;
-		}
-
-		Collection<String> canReadAddresses = canReadAddresses(userId);
-		Collection<String> addressesInMessage = new HashSet<String>();
-		addressesInMessage.addAll(message.getTo());
-		addressesInMessage.addAll(message.getCc());
-		addressesInMessage.addAll(message.getBcc());
-		addressesInMessage.addAll(message.getFrom());
-		addressesInMessage.add(message.getMailFrom());
-		addressesInMessage.addAll(message.getRcptTo());
-
-		return CollectionUtils
-				.containsAny(addressesInMessage, canReadAddresses);
-	}
-
-	@Override
 	public boolean canReadMessage(String userId, MessageSummary message)
 			throws CannotGetPermissionsException {
 		if (isAdmin()) {
@@ -103,16 +84,23 @@ public class SpringContextPermissionService implements PermissionService {
 		}
 
 		Collection<String> canReadAddresses = canReadAddresses(userId);
-		Collection<String> addressesInMessage = new HashSet<String>();
-		addressesInMessage.addAll(message.getTo());
-		addressesInMessage.addAll(message.getCc());
-		addressesInMessage.addAll(message.getBcc());
-		addressesInMessage.addAll(message.getFrom());
-		addressesInMessage.add(message.getMailFrom());
-		addressesInMessage.addAll(message.getRcptTo());
 
-		return CollectionUtils
-				.containsAny(addressesInMessage, canReadAddresses);
+		HashSet<String> originalMessageAddresses = new HashSet<String>();
+		originalMessageAddresses.addAll(message.getTo());
+		originalMessageAddresses.addAll(message.getCc());
+		originalMessageAddresses.addAll(message.getBcc());
+		originalMessageAddresses.addAll(message.getFrom());
+		originalMessageAddresses.add(message.getMailFrom());
+		originalMessageAddresses.addAll(message.getRcptTo());
+
+		HashSet<String> normalizedMessageAddresses = new HashSet<String>(
+				originalMessageAddresses.size());
+		com.linuxbox.util.CollectionUtils.addAllMapped(
+				normalizedMessageAddresses, originalMessageAddresses,
+				emailAddressNormalizer);
+
+		return CollectionUtils.containsAny(normalizedMessageAddresses,
+				canReadAddresses);
 	}
 
 	@Override
@@ -120,10 +108,19 @@ public class SpringContextPermissionService implements PermissionService {
 		final UserDetails userDetails = (UserDetails) SecurityContextHolder
 				.getContext().getAuthentication().getPrincipal();
 		if (userDetails instanceof EnkiveUserDetails) {
-			return ((EnkiveUserDetails) userDetails).getKnownEmailAddresses();
+			return ((EnkiveUserDetails) userDetails)
+					.getKnownNormalizedEmailAddresses();
 		} else {
+			LOGGER.warn("user \""
+					+ userId
+					+ "\" did not seem to authenticate producing an instance of EnkiveUserDetails");
+
+			// this is assuming that the userId can be treated as an email
+			// address; ideally we'll never take this path; perhaps we should
+			// throw an exception
 			final Collection<String> addresses = new HashSet<String>();
-			addresses.add(userId);
+			addresses.add(emailAddressNormalizer.map(userId));
+
 			return addresses;
 		}
 	}
@@ -157,5 +154,12 @@ public class SpringContextPermissionService implements PermissionService {
 		else
 			return messagePermissionService.canReadAttachment(
 					canReadAddresses(userId), attachmentId);
+	}
+
+	// Should this be shifted up to the PermissionService interface?
+	@Required
+	public void setEmailAddressNormalizer(
+			EmailAddressNormalizer emailAddressNormalizer) {
+		this.emailAddressNormalizer = emailAddressNormalizer;
 	}
 }
