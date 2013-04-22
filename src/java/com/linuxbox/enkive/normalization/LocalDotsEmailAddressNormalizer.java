@@ -12,25 +12,21 @@ import java.util.regex.Pattern;
  * For more information, see:
  * http://en.wikipedia.org/wiki/Email_address#Local-part_normalization
  */
-public class LocalPartDotAddressNormalizer extends
+public class LocalDotsEmailAddressNormalizer extends
 		AbstractChainedEmailAddressNormalizer {
 	final static Pattern DOT_RE = Pattern.compile("\\.");
 
-	public LocalPartDotAddressNormalizer(EmailAddressNormalizer prior) {
+	public LocalDotsEmailAddressNormalizer(EmailAddressNormalizer prior) {
 		super(prior);
 	}
 
-	public LocalPartDotAddressNormalizer() {
+	public LocalDotsEmailAddressNormalizer() {
 		this(null);
 	}
 
 	@Override
 	protected String myNormalize(String emailAddress) {
 		final String[] parts = splitAddress(emailAddress);
-		if (parts.length != 2) {
-			return emailAddress;
-		}
-		
 		final String localPart = parts[0];
 		final String domainPart = parts[1];
 

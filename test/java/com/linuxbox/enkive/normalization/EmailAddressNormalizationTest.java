@@ -45,7 +45,7 @@ public class EmailAddressNormalizationTest {
 
 	@Test
 	public void testLocalPartDotAddressNormalizer() {
-		EmailAddressNormalizer n = new LocalPartDotAddressNormalizer();
+		EmailAddressNormalizer n = new LocalDotsEmailAddressNormalizer();
 
 		assertEquals("test single dot", "elizabethzephyr@gmail.com",
 				n.map("elizabeth.zephyr@gmail.com"));
@@ -101,13 +101,13 @@ public class EmailAddressNormalizationTest {
 
 		ArrayList<EmailAddressNormalizer> list = new ArrayList<EmailAddressNormalizer>();
 		list.add(new CaseEmailAddressNormalizer());
-		list.add(new LocalPartDotAddressNormalizer());
+		list.add(new LocalDotsEmailAddressNormalizer());
 		{
 			TaggedEmailAddressNormalizer tn = new TaggedEmailAddressNormalizer();
 			tn.setTagDelimiter('+');
 			list.add(tn);
 		}
-		n.setNormalizers(list);
+		n.setNormalizerList(list);
 
 		assertEquals("test address w/ mixed case, dots, and a tag",
 				"elizabethzephyr@gmail.com",
