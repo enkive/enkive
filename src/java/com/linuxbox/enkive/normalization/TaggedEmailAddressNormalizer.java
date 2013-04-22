@@ -40,6 +40,13 @@ public class TaggedEmailAddressNormalizer extends
 		return result.toString();
 	}
 
+	/**
+	 * The regular expression pattern generated starts at the first occurence of
+	 * the tag character and proceeds and includes the first "@". So when this
+	 * segment is replaced, it must be replaced with an "@".
+	 * 
+	 * @param tagDelimiter
+	 */
 	@Required
 	public void setTagDelimiter(char tagDelimiter) {
 		this.tagDelimiter = tagDelimiter;

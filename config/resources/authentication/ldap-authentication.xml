@@ -24,7 +24,7 @@
 	<b:bean id="LdapUserContextMapper"
 		class="com.linuxbox.enkive.authentication.ldap.EnkiveLdapUserDetailsContextMapper"
 		scope="singleton">
-		<b:property name="LdapEmailAddressAttributeIds" value="mail,zimbraMailDeliveryAddress" />
+		<b:property name="ldapEmailAddressAttributeIds" value="mail,zimbraMailDeliveryAddress" />
 		<b:property name="emailAddressNormalizer" ref="EmailAddressNormalizer" />
 	</b:bean>
 
