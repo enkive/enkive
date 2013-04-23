@@ -1,5 +1,8 @@
 package com.linuxbox.util;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class Version implements Comparable<Version> {
 	public static class VersionException extends RuntimeException {
 		private static final long serialVersionUID = -8848841261513645899L;
@@ -32,22 +35,25 @@ public class Version implements Comparable<Version> {
 
 	static int lastOrdinalSeen = Integer.MIN_VALUE;
 
+	static protected Map<Integer, String> ordinalToVersionStringMap = new HashMap<Integer, String>();
+
 	public Version(int major, int minor, Type type, int ordinal)
 			throws VersionException {
-		this.major = major;
-		this.minor = minor;
-		this.type = type;
-		this.versionString = major + "." + minor + type.abbreviation;
-		this.versionOrdinal = ordinal;
-		checkOrdinal();
+		this(major, minor, type, ordinal, major + "." + minor
+				+ type.abbreviation);
 	}
 
 	public Version(String versionString, int ordinal) throws VersionException {
-		this.major = -1;
-		this.minor = -1;
-		this.type = Type.UNUSED;
-		this.versionString = versionString;
+		this(-1, -1, Type.UNUSED, ordinal, versionString);
+	}
+
+	protected Version(int major, int minor, Type type, int ordinal,
+			String versionString) {
+		this.major = major;
+		this.minor = minor;
+		this.type = type;
 		this.versionOrdinal = ordinal;
+		this.versionString = versionString;
 		checkOrdinal();
 	}
 
@@ -55,9 +61,10 @@ public class Version implements Comparable<Version> {
 		if (versionOrdinal <= lastOrdinalSeen) {
 			throw new VersionException(
 					"version ordinals not monotonically increasing");
-		} else {
-			lastOrdinalSeen = versionOrdinal;
 		}
+
+		lastOrdinalSeen = versionOrdinal;
+		ordinalToVersionStringMap.put(versionOrdinal, versionString);
 	}
 
 	public String toString() {
@@ -67,5 +74,9 @@ public class Version implements Comparable<Version> {
 	@Override
 	public int compareTo(Version other) {
 		return versionOrdinal - other.versionOrdinal;
+	}
+	
+	public static String versionStringFromOrdinal(int ordinal) {
+		return ordinalToVersionStringMap.get(ordinal);
 	}
 }

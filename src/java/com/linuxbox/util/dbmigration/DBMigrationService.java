@@ -10,16 +10,23 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.context.SmartLifecycle;
+
+import com.linuxbox.enkive.ProductInfo;
+import com.linuxbox.util.Version;
+import com.linuxbox.util.dbmigration.DBStatusRecord.Status;
 
 /**
- * Due to the low phase, this service should start up first.
- * 
- * @author eric
  * 
  */
-public class DBMigrationService implements ApplicationContextAware,
-		SmartLifecycle {
+public abstract class DBMigrationService implements ApplicationContextAware {
+	public static class UpToDateException extends Exception {
+		private static final long serialVersionUID = 7934565156056935617L;
+
+		public UpToDateException(String message) {
+			super(message);
+		}
+	}
+
 	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.util.dbmigration.DBMigrationService");
 
@@ -38,7 +45,45 @@ public class DBMigrationService implements ApplicationContextAware,
 		runMigrators();
 	}
 
-	// FIXME was @PostConstruct
+	public void isUpToDate() throws UpToDateException {
+		final int currentVersion = ProductInfo.VERSION.versionOrdinal;
+
+		DBStatusRecord storedStatus = getLatestDbStatusRecord();
+		if (storedStatus.status != Status.STORED) {
+			throw new UpToDateException(
+					"the database never completed its most recent migration to version ordinal "
+							+ storedStatus.version + ", which began at "
+							+ storedStatus.timestamp);
+		}
+
+		String storedVersionString = Version
+				.versionStringFromOrdinal(storedStatus.version);
+
+		if (storedStatus.version < currentVersion) {
+			String message = "This version of Enkive ("
+					+ ProductInfo.VERSION.versionString
+					+ ") requires a migrated version of the Enkive database ";
+			if (storedVersionString != null) {
+				message += ", which appears to be for version "
+						+ storedVersionString;
+			}
+			message += ". Please run the DB Migration tool before starting Enkive.";
+
+			throw new UpToDateException(message);
+		} else if (storedStatus.version > currentVersion) {
+			final String message = "This version of Enkive ("
+					+ ProductInfo.VERSION.versionString
+					+ ") appears to be too low given the current state of the Enkive database (ordinal "
+					+ storedStatus.version
+					+ "). Please make sure you are running the latest version of Enkive.";
+			throw new UpToDateException(message);
+		}
+		
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("database passed version check");
+		}
+	}
+
 	public void runMigrators() {
 		Map<String, DBMigrator> migrators = applicationContext
 				.getBeansOfType(DBMigrator.class);
@@ -54,43 +99,5 @@ public class DBMigrationService implements ApplicationContextAware,
 		// }
 	}
 
-	/*
-	 * Methods needed to implement the SmartLifecycle interface.
-	 */
-
-	@Override
-	public int getPhase() {
-		LOGGER.fatal("getPhase called");
-		return -10;
-	}
-
-	@Override
-	public void start() {
-		LOGGER.info("DBMigration service is starting.");
-		isRunning = true;
-	}
-
-	@Override
-	public void stop() {
-		// do other stuff up here
-		
-		isRunning = false;
-		LOGGER.info("DBMigration service has stopped.");
-	}
-
-	@Override
-	public boolean isRunning() {
-		return isRunning;
-	}
-
-	@Override
-	public boolean isAutoStartup() {
-		return true;
-	}
-
-	@Override
-	public void stop(Runnable callback) {
-		stop();
-		callback.run();
-	}
+	abstract public DBStatusRecord getLatestDbStatusRecord();
 }

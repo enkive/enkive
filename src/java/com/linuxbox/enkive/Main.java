@@ -20,6 +20,8 @@
 package com.linuxbox.enkive;
 
 import java.io.IOException;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -31,11 +33,15 @@ import com.linuxbox.enkive.audit.AuditService;
 import com.linuxbox.enkive.audit.AuditServiceException;
 import com.linuxbox.enkive.tool.mongodb.MongoDBIndexManager;
 import com.linuxbox.util.DirectoryManagement;
+import com.linuxbox.util.dbmigration.DBMigrationService;
+import com.linuxbox.util.dbmigration.DBMigrationService.UpToDateException;
 
 public abstract class Main {
 	protected static final Log LOGGER;
 	private static final String USER = AuditService.USER_SYSTEM;
 	private static final String DESCRIPTION = "com.linuxbox.enkive.Main.main";
+
+	protected String[] versionCheckConfigFiles = { "enkive-version-check.xml" };
 
 	protected String[] configFiles;
 
@@ -63,32 +69,49 @@ public abstract class Main {
 	}
 
 	public void run() throws IOException {
-		startup();
-
-		context = new ClassPathXmlApplicationContext(configFiles);
-		context.registerShutdownHook();
-
 		try {
-			final AuditService auditService = context.getBean(
-					"AuditLogService", AuditService.class);
+			AbstractApplicationContext versionCheckingContext = new ClassPathXmlApplicationContext(
+					versionCheckConfigFiles);
+			Map<String, DBMigrationService> migrationServices = versionCheckingContext
+					.getBeansOfType(DBMigrationService.class);
+			for (Entry<String, DBMigrationService> service : migrationServices
+					.entrySet()) {
+				service.getValue().isUpToDate();
+			}
+			versionCheckingContext.close();
 
-			auditService.addEvent(AuditService.SYSTEM_STARTUP, USER,
-					DESCRIPTION);
+			/* IF WE GET HERE, THE DATABASE IS APPARENTLY UP TO DATE */
 
-			final MongoDBIndexManager mongoIndexManager = context
-					.getBean(MongoDBIndexManager.class);
-			mongoIndexManager.runCheckAndAutoEnsure();
+			startup();
 
-			doEventLoop(context);
+			context = new ClassPathXmlApplicationContext(configFiles);
+			context.registerShutdownHook();
 
-			auditService.addEvent(AuditService.SYSTEM_SHUTDOWN, USER,
-					DESCRIPTION);
-		} catch (AuditServiceException e) {
-			LOGGER.error("received AuditServiceException: " + e.getMessage(), e);
+			try {
+				final AuditService auditService = context.getBean(
+						"AuditLogService", AuditService.class);
+
+				auditService.addEvent(AuditService.SYSTEM_STARTUP, USER,
+						DESCRIPTION);
+
+				final MongoDBIndexManager mongoIndexManager = context
+						.getBean(MongoDBIndexManager.class);
+				mongoIndexManager.runCheckAndAutoEnsure();
+
+				doEventLoop(context);
+
+				auditService.addEvent(AuditService.SYSTEM_SHUTDOWN, USER,
+						DESCRIPTION);
+			} catch (AuditServiceException e) {
+				LOGGER.error(
+						"received AuditServiceException: " + e.getMessage(), e);
+			}
+
+			context.close();
+
+			shutdown();
+		} catch (UpToDateException e) {
+			LOGGER.fatal("database is apparently not up to date", e);
 		}
-
-		context.close();
-
-		shutdown();
 	}
 }
