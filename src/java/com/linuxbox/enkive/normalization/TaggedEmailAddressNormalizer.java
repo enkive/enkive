@@ -34,7 +34,7 @@ public class TaggedEmailAddressNormalizer extends
 	}
 
 	@Override
-	protected String myNormalize(String emailAddress) {
+	protected String myMap(String emailAddress) {
 		Matcher m = dotRegExp.matcher(emailAddress);
 		String result = m.replaceFirst("@");
 		return result.toString();

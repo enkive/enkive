@@ -35,7 +35,7 @@ public class CaseEmailAddressNormalizer extends
 	 * to separate the local part from the domain part.
 	 */
 	@Override
-	protected String myNormalize(String emailAddress) {
+	protected String myMap(String emailAddress) {
 		final String[] parts = splitAddress(emailAddress);
 		if (parts.length != 2) {
 			return emailAddress;

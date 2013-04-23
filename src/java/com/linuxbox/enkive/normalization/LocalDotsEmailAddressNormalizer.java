@@ -25,8 +25,12 @@ public class LocalDotsEmailAddressNormalizer extends
 	}
 
 	@Override
-	protected String myNormalize(String emailAddress) {
+	protected String myMap(String emailAddress) {
 		final String[] parts = splitAddress(emailAddress);
+		if (parts.length != 2) {
+			return emailAddress;
+		}
+		
 		final String localPart = parts[0];
 		final String domainPart = parts[1];
 

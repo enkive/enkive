@@ -2,18 +2,29 @@ package com.linuxbox.enkive.normalization;
 
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Required;
 
 public class SequenceEmailAddressNormalizer implements EmailAddressNormalizer {
+	private final static Log LOGGER = LogFactory
+			.getLog("com.linuxbox.enkive.normalization");
+
 	protected List<EmailAddressNormalizer> normalizerList;
 
 	@Override
-	public String map(String emailAddress) {
+	public String map(final String emailAddress) {
+		String normalizingEmailAddress = emailAddress;
 		for (EmailAddressNormalizer normalizer : normalizerList) {
-			emailAddress = normalizer.map(emailAddress);
+			normalizingEmailAddress = normalizer.map(normalizingEmailAddress);
 		}
 
-		return emailAddress;
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("\"" + emailAddress + "\" normalized to \""
+					+ normalizingEmailAddress + "\"");
+		}
+
+		return normalizingEmailAddress;
 	}
 
 	public List<EmailAddressNormalizer> getNormalizers() {

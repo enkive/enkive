@@ -1,11 +1,17 @@
 package com.linuxbox.enkive.normalization;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 /**
  * Provides the core functionality for a chain of email address normalizers.
  * Classes that subclass this simply have to implement the myNormalize method.
  */
 public abstract class AbstractChainedEmailAddressNormalizer extends
 		AbstractEmailAddressNormalizer {
+	private final static Log LOGGER = LogFactory
+			.getLog("com.linuxbox.enkive.normalization");
+
 	private final EmailAddressNormalizer priorInChain;
 
 	protected AbstractChainedEmailAddressNormalizer() {
@@ -17,13 +23,37 @@ public abstract class AbstractChainedEmailAddressNormalizer extends
 		this.priorInChain = priorInChain;
 	}
 
+	/**
+	 * Does two things:
+	 * 
+	 * 1. It handles the chaining of normalizers.
+	 * 
+	 * 2. If a normalizer throws an exception it returns the original email
+	 * address.
+	 */
 	@Override
-	public String map(String emailAddress) {
-		if (null != priorInChain) {
-			emailAddress = priorInChain.map(emailAddress);
+	public String map(final String emailAddress) {
+		try {
+			String partiallyNormalized = emailAddress;
+			if (null != priorInChain) {
+				partiallyNormalized = priorInChain.map(emailAddress);
+			}
+			final String fullyNormalized = myMap(partiallyNormalized);
+
+			if (LOGGER.isInfoEnabled()) {
+				LOGGER.info("\"" + emailAddress + "\" normalized to \""
+						+ fullyNormalized + "\"");
+			}
+			return fullyNormalized;
+		} catch (Throwable t) {
+			LOGGER.error("had problem normalizing email address \""
+					+ emailAddress + "\"; reverting to original form", t);
+			return emailAddress;
 		}
-		return myNormalize(emailAddress);
 	}
 
-	protected abstract String myNormalize(String emailAddress);
+	/**
+	 * Subclasses will do their normalization in this method.
+	 */
+	protected abstract String myMap(String emailAddress);
 }
