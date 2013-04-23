@@ -58,7 +58,7 @@ public class MongoAuditService implements AuditService, MongoIndexable {
 	 * entries are in storage or whether we can continue before so. If this is
 	 * set to true, the audit log will likely be slower but safer.
 	 */
-	private static final boolean CONFIRM_AUIDIT_LOG_WRITES = false;
+	private static final boolean CONFIRM_AUDIT_LOG_WRITES = false;
 
 	private static final String TIMESTAMP_FIELD = "tstamp";
 	private static final String CODE_FIELD = "code";
@@ -111,7 +111,7 @@ public class MongoAuditService implements AuditService, MongoIndexable {
 		// TODO: do we (will we) need a who, what, when index, so we can select
 		// by who/what and sort by when?
 
-		if (CONFIRM_AUIDIT_LOG_WRITES) {
+		if (CONFIRM_AUDIT_LOG_WRITES) {
 			auditCollection.setWriteConcern(WriteConcern.FSYNC_SAFE);
 		} else {
 			auditCollection.setWriteConcern(WriteConcern.NORMAL);
@@ -148,7 +148,7 @@ public class MongoAuditService implements AuditService, MongoIndexable {
 				.append(DESCRIPTION_FIELD, description);
 		final WriteResult result = auditCollection.insert(insert);
 
-		if (CONFIRM_AUIDIT_LOG_WRITES) {
+		if (CONFIRM_AUDIT_LOG_WRITES) {
 			if (!result.getLastError().ok()) {
 				throw new AuditServiceException(
 						"could not write entry to audit log", result
