@@ -14,17 +14,24 @@ public class SequenceEmailAddressNormalizer implements EmailAddressNormalizer {
 
 	@Override
 	public String map(final String emailAddress) {
-		String normalizingEmailAddress = emailAddress;
-		for (EmailAddressNormalizer normalizer : normalizerList) {
-			normalizingEmailAddress = normalizer.map(normalizingEmailAddress);
-		}
+		try {
+			String normalizingEmailAddress = emailAddress;
+			for (EmailAddressNormalizer normalizer : normalizerList) {
+				normalizingEmailAddress = normalizer
+						.map(normalizingEmailAddress);
+			}
 
-		if (LOGGER.isInfoEnabled()) {
-			LOGGER.info("\"" + emailAddress + "\" normalized to \""
-					+ normalizingEmailAddress + "\"");
-		}
+			if (LOGGER.isInfoEnabled()) {
+				LOGGER.info("\"" + emailAddress + "\" normalized to \""
+						+ normalizingEmailAddress + "\"");
+			}
 
-		return normalizingEmailAddress;
+			return normalizingEmailAddress;
+		} catch (Exception e) {
+			LOGGER.error("had problem normalizing email address \""
+					+ emailAddress + "\"; keeping unchanged", e);
+			return emailAddress;
+		}
 	}
 
 	public List<EmailAddressNormalizer> getNormalizers() {

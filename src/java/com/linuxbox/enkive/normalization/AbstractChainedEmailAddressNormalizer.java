@@ -45,9 +45,9 @@ public abstract class AbstractChainedEmailAddressNormalizer extends
 						+ fullyNormalized + "\"");
 			}
 			return fullyNormalized;
-		} catch (Throwable t) {
+		} catch (Exception e) {
 			LOGGER.error("had problem normalizing email address \""
-					+ emailAddress + "\"; reverting to original form", t);
+					+ emailAddress + "\"; keeping unchanged", e);
 			return emailAddress;
 		}
 	}
