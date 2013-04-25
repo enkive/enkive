@@ -36,6 +36,7 @@ import org.springframework.context.ApplicationContext;
 public class MainConsole extends Main {
 	static final String CONSOLE_PROMPT = "enkive> ";
 	static final String[] CONFIG_FILES = { "enkive-server.xml" };
+	static final String DESCRIPTION = "com.linuxbox.enkive.MainConsole";
 
 	protected BufferedReader in;
 	protected PrintStream out;
@@ -44,7 +45,7 @@ public class MainConsole extends Main {
 	private String shutdownReason;
 
 	public MainConsole(String[] arguments) {
-		this(arguments, CONFIG_FILES, "com.linuxbox.enkive.MainConsole");
+		this(arguments, CONFIG_FILES, DESCRIPTION);
 	}
 
 	public MainConsole(String[] arguments, String[] configFiles,

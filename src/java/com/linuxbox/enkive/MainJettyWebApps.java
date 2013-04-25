@@ -24,9 +24,10 @@ import org.springframework.context.ApplicationContext;
 
 public class MainJettyWebApps extends MainConsole {
 	static final String[] CONFIG_FILES = { "jetty-server-webapps.xml" };
+	static final String DESCRIPTION = "com.linuxbox.enkive.MainJettyWebApps";
 
 	public MainJettyWebApps(String[] arguments) {
-		super(CONFIG_FILES, arguments, "com.linuxbox.enkive.MainJettyWebApps");
+		super(arguments, CONFIG_FILES, DESCRIPTION);
 	}
 
 	@Override
@@ -41,13 +42,13 @@ public class MainJettyWebApps extends MainConsole {
 
 		super.doEventLoop(context);
 
-		try {
-			server.stop();
-			System.exit(0);
-		} catch (Exception e) {
-			LOGGER.error("Error force stopping Jetty server.", e);
-			System.exit(1);
-		}
+//		try {
+//			server.stop();
+//			System.exit(0);
+//		} catch (Exception e) {
+//			LOGGER.error("Error force stopping Jetty server.", e);
+//			System.exit(1);
+//		}
 	}
 
 	/**
