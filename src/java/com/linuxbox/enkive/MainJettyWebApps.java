@@ -19,14 +19,12 @@
  *******************************************************************************/
 package com.linuxbox.enkive;
 
-import java.io.IOException;
-
 import org.eclipse.jetty.server.Server;
 import org.springframework.context.ApplicationContext;
 
 public class MainJettyWebApps extends MainConsole {
 	static final String[] CONFIG_FILES = { "jetty-server-webapps.xml" };
-	
+
 	public MainJettyWebApps(String[] arguments) {
 		super(CONFIG_FILES, arguments);
 	}
@@ -42,7 +40,7 @@ public class MainJettyWebApps extends MainConsole {
 				org.eclipse.jetty.server.Server.class);
 
 		super.doEventLoop(context);
-		
+
 		try {
 			server.stop();
 			System.exit(0);
@@ -55,7 +53,7 @@ public class MainJettyWebApps extends MainConsole {
 	/**
 	 * @param args
 	 */
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws Exception {
 		Main main = new MainJettyWebApps(args);
 		main.run();
 	}

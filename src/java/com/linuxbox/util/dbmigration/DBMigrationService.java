@@ -62,7 +62,7 @@ public abstract class DBMigrationService implements ApplicationContextAware {
 		if (storedStatus.version < currentVersion) {
 			String message = "This version of Enkive ("
 					+ ProductInfo.VERSION.versionString
-					+ ") requires a migrated version of the Enkive database ";
+					+ ") requires a migrated version of the Enkive database";
 			if (storedVersionString != null) {
 				message += ", which appears to be for version "
 						+ storedVersionString;

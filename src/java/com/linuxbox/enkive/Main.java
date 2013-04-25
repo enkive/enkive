@@ -39,7 +39,7 @@ import com.linuxbox.util.dbmigration.DBMigrationService.UpToDateException;
 public abstract class Main {
 	protected static final Log LOGGER;
 	private static final String USER = AuditService.USER_SYSTEM;
-	private static final String DESCRIPTION = "com.linuxbox.enkive.Main.main";
+	private static final String DESCRIPTION = "com.linuxbox.enkive.Main";
 
 	protected String[] versionCheckConfigFiles = { "enkive-version-check.xml" };
 
@@ -68,12 +68,19 @@ public abstract class Main {
 		this.configFiles = configFiles;
 	}
 
-	public void run() throws IOException {
+	public void run() throws Exception {
 		try {
 			AbstractApplicationContext versionCheckingContext = new ClassPathXmlApplicationContext(
 					versionCheckConfigFiles);
+
 			Map<String, DBMigrationService> migrationServices = versionCheckingContext
 					.getBeansOfType(DBMigrationService.class);
+			if (migrationServices.isEmpty()) {
+				String message = "no version checking / migration services configured";
+				LOGGER.fatal(message);
+				throw new Exception(
+						"no version checking / migration services configured");
+			}
 			for (Entry<String, DBMigrationService> service : migrationServices
 					.entrySet()) {
 				service.getValue().isUpToDate();
@@ -111,7 +118,9 @@ public abstract class Main {
 
 			shutdown();
 		} catch (UpToDateException e) {
-			LOGGER.fatal("database is apparently not up to date", e);
+			LOGGER.fatal(
+					"The database is apparently not not in correct state for this version of Enkive; see details.",
+					e);
 		}
 	}
 }

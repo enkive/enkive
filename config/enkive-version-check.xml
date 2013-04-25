@@ -6,12 +6,13 @@
 
 	<import resource="enkive-properties.xml" />
 	<import resource="resources/mongo-set-service.xml" />
-	
-	<!-- REMOVE ME
-	<import resource="resources/*-service.xml" />
-	 -->
-	
-	<bean id="MigrationService" class="com.linuxbox.util.dbmigration.DBMigrationService" />
+
+	<bean id="MigrationService"
+		class="com.linuxbox.util.dbmigration.mongodb.MongoDBMigrationService">
+		<constructor-arg ref="Mongo" />
+		<constructor-arg value="${enkive.migrations.db.name}" />
+		<constructor-arg value="${enkive.migrations.collection.name}" />
+	</bean>
 
 	<!-- Create a Mongo shared by various services; that way if the MongoDB 
 		lives on another server or a unique port, that can be configured once. -->
@@ -30,5 +31,5 @@
 	<!-- Makes sure all beans with Required annotations get set up appropriately -->
 	<bean id="RequiredAnnotationBeanPostProcessor"
 		class="org.springframework.beans.factory.annotation.RequiredAnnotationBeanPostProcessor" />
-		
+
 </beans>
