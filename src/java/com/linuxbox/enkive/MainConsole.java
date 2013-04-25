@@ -44,11 +44,12 @@ public class MainConsole extends Main {
 	private String shutdownReason;
 
 	public MainConsole(String[] arguments) {
-		this(CONFIG_FILES, arguments);
+		this(arguments, CONFIG_FILES, "com.linuxbox.enkive.MainConsole");
 	}
 
-	public MainConsole(String[] configFiles, String[] arguments) {
-		super(configFiles, arguments);
+	public MainConsole(String[] arguments, String[] configFiles,
+			String description) {
+		super(arguments, configFiles, description);
 
 		out = System.out;
 		in = new BufferedReader(new InputStreamReader(System.in));
@@ -63,16 +64,26 @@ public class MainConsole extends Main {
 	}
 
 	@Override
-	protected void startup() {
+	protected void preStartup() {
 		out.println(PRODUCT + " v. " + VERSION);
 		out.println(COPYRIGHT);
 		out.println(LICENSE);
 	}
 
 	@Override
-	protected void shutdown() {
+	protected void postStartup() {
+		// empty
+	}
+
+	@Override
+	protected void preShutdown() {
 		System.out.println("Enkive shutting down (because " + shutdownReason
 				+ ")...");
+	}
+
+	@Override
+	protected void postShutdown() {
+		System.out.println("Enkive has shut down.");
 	}
 
 	@Override

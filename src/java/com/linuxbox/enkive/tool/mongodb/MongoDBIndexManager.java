@@ -37,8 +37,6 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.context.support.AbstractApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.linuxbox.util.mongodb.MongoIndexable;
 import com.linuxbox.util.mongodb.MongoIndexable.IndexDescription;
@@ -60,15 +58,10 @@ import com.mongodb.MongoException;
  * check for missing indexes and create those if there are sufficiently few
  * documents (so it won't take very long).
  */
-public class MongoDBIndexManager implements ApplicationContextAware {
+public class MongoDBIndexManager implements
+		ApplicationContextAware {
 	protected static final Log LOGGER = LogFactory
-			.getLog("com.linuxbox.enkive");
-
-	/**
-	 * The xml file to use if we need to build our own beans and context.
-	 */
-	static final String[] CONFIG_FILES = { "enkive-server.xml" };
-
+			.getLog("com.linuxbox.enkive.tool.mongodb");
 	/**
 	 * How many documents are allowed in a collection if we automatically ensure
 	 * that the index exists.
@@ -342,14 +335,6 @@ public class MongoDBIndexManager implements ApplicationContextAware {
 		doCheckService(actions, indexable, name);
 	}
 
-	public long getMaxDocumentsForAutoEnsure() {
-		return maxDocumentsForAutoEnsure;
-	}
-
-	public void setMaxDocumentsForAutoEnsure(long maxDocumentsForAutoEnsure) {
-		this.maxDocumentsForAutoEnsure = maxDocumentsForAutoEnsure;
-	}
-
 	@PostConstruct
 	public void loadServices() {
 		if (initialPotentialServices != null) {
@@ -371,12 +356,6 @@ public class MongoDBIndexManager implements ApplicationContextAware {
 				potentialServices.put(p.getKey(), p.getValue());
 			}
 		}
-	}
-
-	@Override
-	public void setApplicationContext(ApplicationContext context)
-			throws BeansException {
-		this.applicationContext = context;
 	}
 
 	public void runCheckAndAutoEnsure() {
@@ -414,7 +393,7 @@ public class MongoDBIndexManager implements ApplicationContextAware {
 		}
 	}
 
-	void runConsole() {
+	public void runConsole() {
 		try {
 			ConsoleIndexActions actions = new ConsoleIndexActions(System.in,
 					System.out, System.err);
@@ -429,15 +408,17 @@ public class MongoDBIndexManager implements ApplicationContextAware {
 		}
 	}
 
-	public static void main(String[] args) {
-		final AbstractApplicationContext context = new ClassPathXmlApplicationContext(
-				CONFIG_FILES);
-		context.registerShutdownHook();
+	public long getMaxDocumentsForAutoEnsure() {
+		return maxDocumentsForAutoEnsure;
+	}
 
-		final MongoDBIndexManager indexManager = context
-				.getBean(MongoDBIndexManager.class);
-		indexManager.runConsole();
+	public void setMaxDocumentsForAutoEnsure(long maxDocumentsForAutoEnsure) {
+		this.maxDocumentsForAutoEnsure = maxDocumentsForAutoEnsure;
+	}
 
-		context.close();
+	@Override
+	public void setApplicationContext(ApplicationContext applicationContext)
+			throws BeansException {
+		this.applicationContext = applicationContext;
 	}
 }

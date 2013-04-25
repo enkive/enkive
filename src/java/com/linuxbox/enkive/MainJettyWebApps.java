@@ -26,12 +26,12 @@ public class MainJettyWebApps extends MainConsole {
 	static final String[] CONFIG_FILES = { "jetty-server-webapps.xml" };
 
 	public MainJettyWebApps(String[] arguments) {
-		super(CONFIG_FILES, arguments);
+		super(CONFIG_FILES, arguments, "com.linuxbox.enkive.MainJettyWebApps");
 	}
 
 	@Override
-	protected void startup() {
-		super.startup();
+	protected void postStartup() {
+		super.postStartup();
 		out.println("Jetty will be starting...");
 	}
 

@@ -34,24 +34,31 @@ import com.linuxbox.enkive.audit.AuditServiceException;
 import com.linuxbox.enkive.tool.mongodb.MongoDBIndexManager;
 import com.linuxbox.util.DirectoryManagement;
 import com.linuxbox.util.dbmigration.DBMigrationService;
-import com.linuxbox.util.dbmigration.DBMigrationService.UpToDateException;
 
 public abstract class Main {
 	protected static final Log LOGGER;
 	private static final String USER = AuditService.USER_SYSTEM;
-	private static final String DESCRIPTION = "com.linuxbox.enkive.Main";
+	private static final String[] VERSION_CHECK_CONFIG_FILES = { "enkive-version-check.xml" };
+	protected static final String[] NO_ARGS = {};
 
-	protected String[] versionCheckConfigFiles = { "enkive-version-check.xml" };
+	protected AbstractApplicationContext context;
+	protected AuditService auditService = null;
 
-	protected String[] configFiles;
-
-	private AbstractApplicationContext context;
+	final protected String[] arguments;
+	final protected String[] configFiles;
+	final protected boolean runVersionCheck;
+	final protected boolean runIndexCheck;
+	final protected String description;
 
 	protected abstract void doEventLoop(ApplicationContext context);
 
-	protected abstract void startup();
+	protected abstract void preStartup();
 
-	protected abstract void shutdown();
+	protected abstract void postStartup();
+
+	protected abstract void preShutdown();
+
+	protected abstract void postShutdown();
 
 	static {
 		try {
@@ -64,14 +71,23 @@ public abstract class Main {
 		LOGGER = LogFactory.getLog("com.linuxbox.enkive");
 	}
 
-	public Main(String[] configFiles, String[] arguments) {
-		this.configFiles = configFiles;
+	public Main(String[] arguments, String[] configFiles, String description) {
+		this(arguments, configFiles, description, true, true);
 	}
 
-	public void run() throws Exception {
-		try {
+	public Main(String[] arguments, String[] configFiles, String description,
+			boolean runVersionCheck, boolean runIndexCheck) {
+		this.arguments = arguments;
+		this.configFiles = configFiles;
+		this.description = description;
+		this.runVersionCheck = runVersionCheck;
+		this.runIndexCheck = runIndexCheck;
+	}
+
+	public void start() throws Exception {
+		if (runVersionCheck) {
 			AbstractApplicationContext versionCheckingContext = new ClassPathXmlApplicationContext(
-					versionCheckConfigFiles);
+					VERSION_CHECK_CONFIG_FILES);
 
 			Map<String, DBMigrationService> migrationServices = versionCheckingContext
 					.getBeansOfType(DBMigrationService.class);
@@ -86,41 +102,49 @@ public abstract class Main {
 				service.getValue().isUpToDate();
 			}
 			versionCheckingContext.close();
-
-			/* IF WE GET HERE, THE DATABASE IS APPARENTLY UP TO DATE */
-
-			startup();
-
-			context = new ClassPathXmlApplicationContext(configFiles);
-			context.registerShutdownHook();
-
-			try {
-				final AuditService auditService = context.getBean(
-						"AuditLogService", AuditService.class);
-
-				auditService.addEvent(AuditService.SYSTEM_STARTUP, USER,
-						DESCRIPTION);
-
-				final MongoDBIndexManager mongoIndexManager = context
-						.getBean(MongoDBIndexManager.class);
-				mongoIndexManager.runCheckAndAutoEnsure();
-
-				doEventLoop(context);
-
-				auditService.addEvent(AuditService.SYSTEM_SHUTDOWN, USER,
-						DESCRIPTION);
-			} catch (AuditServiceException e) {
-				LOGGER.error(
-						"received AuditServiceException: " + e.getMessage(), e);
-			}
-
-			context.close();
-
-			shutdown();
-		} catch (UpToDateException e) {
-			LOGGER.fatal(
-					"The database is apparently not not in correct state for this version of Enkive; see details.",
-					e);
 		}
+
+		/*
+		 * IF WE GET HERE AND runVersionCheck IS TRUE, THE DATABASE IS
+		 * APPARENTLY UP TO DATE
+		 */
+
+		preStartup();
+
+		context = new ClassPathXmlApplicationContext(configFiles);
+		context.registerShutdownHook();
+
+		auditService = context.getBean("AuditLogService", AuditService.class);
+
+		auditService.addEvent(AuditService.SYSTEM_STARTUP, USER, description);
+
+		if (runIndexCheck) {
+			final MongoDBIndexManager mongoIndexManager = context
+					.getBean(MongoDBIndexManager.class);
+			mongoIndexManager.runCheckAndAutoEnsure();
+		}
+
+		postStartup();
+	}
+
+	public void stop() throws Exception {
+		try {
+			auditService.addEvent(AuditService.SYSTEM_SHUTDOWN, USER,
+					description);
+		} catch (AuditServiceException e) {
+			LOGGER.error("received AuditServiceException: " + e.getMessage(), e);
+		}
+
+		preShutdown();
+
+		context.close();
+
+		postShutdown();
+	}
+
+	public void run() throws Exception {
+		start();
+		doEventLoop(context);
+		stop();
 	}
 }

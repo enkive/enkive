@@ -19,39 +19,18 @@
  *******************************************************************************/
 package com.linuxbox.enkive;
 
-import java.io.IOException;
-
 import org.apache.commons.daemon.Daemon;
 import org.apache.commons.daemon.DaemonContext;
 import org.apache.commons.daemon.DaemonInitException;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.context.support.AbstractApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.context.ApplicationContext;
 
-import com.linuxbox.enkive.audit.AuditService;
-import com.linuxbox.util.DirectoryManagement;
-
-public class EnkiveDaemon implements Daemon {
-	protected static final Log LOGGER;
-
-	private static final String USER = AuditService.USER_SYSTEM;
-	private static final String DESCRIPTION = "com.linuxbox.enkive.daemon";
+public class EnkiveDaemon extends Main implements Daemon {
+	private static final String DESCRIPTION = "com.linuxbox.enkive.Daemon";
 
 	static final String[] CONFIG_FILES = { "jetty-server-webapps.xml" };
-
-	protected AbstractApplicationContext appContext;
-	protected AuditService auditService;
-
-	static {
-		try {
-			DirectoryManagement.verifyDirectory(
-					GeneralConstants.DEFAULT_LOG_DIRECTORY,
-					"default logging directory");
-		} catch (IOException e) {
-			throw new Error(e);
-		}
-		LOGGER = LogFactory.getLog("com.linuxbox.enkive");
+	
+	public EnkiveDaemon() {
+		super(NO_ARGS, CONFIG_FILES, DESCRIPTION);
 	}
 
 	@Override
@@ -61,21 +40,32 @@ public class EnkiveDaemon implements Daemon {
 	}
 
 	@Override
-	public void start() throws Exception {
-		appContext = new ClassPathXmlApplicationContext(CONFIG_FILES);
-		auditService = appContext
-				.getBean("AuditLogService", AuditService.class);
-		auditService.addEvent(AuditService.SYSTEM_STARTUP, USER, DESCRIPTION);
-	}
-
-	@Override
-	public void stop() throws Exception {
-		auditService.addEvent(AuditService.SYSTEM_SHUTDOWN, USER, DESCRIPTION);
-		appContext.close();
-	}
-
-	@Override
 	public void destroy() {
+		// empty
+	}
+
+	@Override
+	protected void doEventLoop(ApplicationContext context) {
+		// empty
+	}
+
+	@Override
+	protected void preStartup() {
+		// empty
+	}
+
+	@Override
+	protected void postStartup() {
+		// empty
+	}
+
+	@Override
+	protected void preShutdown() {
+		// empty
+	}
+
+	@Override
+	protected void postShutdown() {
 		// empty
 	}
 }
