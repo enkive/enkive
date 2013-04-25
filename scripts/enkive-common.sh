@@ -63,6 +63,8 @@ fi
 
 # LET'S DO IT!
 
+cd ${ENKIVE_HOME}
+
 java -cp ${ENKIVE_CLASSPATH} \
 	-Dlog4j.configuration=${LOG4J_CONFIG} \
 	-Djava.library.path=${INDRI_SO_PATH} \

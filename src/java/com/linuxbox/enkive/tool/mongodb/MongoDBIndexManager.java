@@ -35,15 +35,10 @@ import javax.annotation.PostConstruct;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.beans.factory.config.ConstructorArgumentValues;
-import org.springframework.beans.factory.config.ConstructorArgumentValues.ValueHolder;
-import org.springframework.beans.factory.xml.XmlBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.core.io.ClassPathResource;
 
 import com.linuxbox.util.mongodb.MongoIndexable;
 import com.linuxbox.util.mongodb.MongoIndexable.IndexDescription;
@@ -353,62 +348,6 @@ public class MongoDBIndexManager implements ApplicationContextAware {
 
 	public void setMaxDocumentsForAutoEnsure(long maxDocumentsForAutoEnsure) {
 		this.maxDocumentsForAutoEnsure = maxDocumentsForAutoEnsure;
-	}
-
-	/*
-	 * This function contains some experiments to determine whether it would be
-	 * able to get the key information about a service without actually
-	 * instantiating it. That way we could potentially look up the database and
-	 * collection that a given service used and talk to MongoDB directly without
-	 * every using the overhead to instantiate the actual service.
-	 */
-	@SuppressWarnings("unused")
-	private static void unusedExperiments() {
-		XmlBeanFactory beanFactory = new XmlBeanFactory(new ClassPathResource(
-				"enkive-server.xml"));
-		// XmlBeanDefinitionReader beanReader = new XmlBeanDefinitionReader(
-		// beanFactory);
-		// beanReader.loadBeanDefinitions("enkive-server.xml");
-		final int count = beanFactory.getBeanDefinitionCount();
-		System.out.println("Found " + count + " beans.");
-		final String[] beanNames = beanFactory.getBeanDefinitionNames();
-		for (String s : beanNames) {
-			System.out.println(s);
-		}
-
-		// beanFactory.preInstantiateSingletons();
-
-		BeanDefinition def = beanFactory.getBeanDefinition("DocLockService");
-
-		System.out.println(def.getAttribute("server"));
-		// System.out.println(def.getAttribute("port"));
-		// System.out.println(def.getAttribute("database"));
-		// System.out.println(def.getAttribute("collection"));
-
-		for (String an : def.attributeNames()) {
-			System.out.println("attribute name: " + an);
-		}
-
-		ConstructorArgumentValues cavs = def.getConstructorArgumentValues();
-		System.out.println("constructor has " + cavs.getArgumentCount()
-				+ " arguments");
-		Map<Integer, ValueHolder> m = cavs.getIndexedArgumentValues();
-		System.out.println("indexed arguments of length " + m.size());
-		List<ValueHolder> l = cavs.getGenericArgumentValues();
-		System.out.println("generic arguments of length " + l.size());
-
-		int count2 = 0;
-		for (ValueHolder vh : l) {
-			System.out.println(count2);
-			System.out.println("    " + vh.getName());
-			System.out.println("    " + vh.getType());
-			System.out.println("    " + vh.getSource());
-			System.out.println("    " + vh.getValue());
-			System.out.println("    " + vh.getConvertedValue());
-			++count2;
-		}
-
-		System.out.println("done");
 	}
 
 	@PostConstruct
