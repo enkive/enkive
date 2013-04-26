@@ -3,6 +3,8 @@ package com.linuxbox.util.dbmigration;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.linuxbox.util.dbinfo.DBInfo;
+
 public abstract class DBMigration {
 	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.util.dbmigration.DBMigration.<SUBCLASS>");

@@ -1,10 +1,10 @@
 package com.linuxbox.enkive.statistics.migration;
 
-import com.linuxbox.util.dbmigration.DBInfo;
+import com.linuxbox.util.dbinfo.DBInfo;
+import com.linuxbox.util.dbinfo.mongodb.MongoDBInfo;
 import com.linuxbox.util.dbmigration.DBMigration;
 import com.linuxbox.util.dbmigration.DBMigrationException;
 import com.linuxbox.util.dbmigration.DBMigrator;
-import com.linuxbox.util.dbmigration.mongodb.MongoDBInfo;
 
 /**
  * Migrates the stats data from 1.2 to 1.3 (deletes the bad statistics data)

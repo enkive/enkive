@@ -6,6 +6,8 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.linuxbox.util.dbinfo.DBInfo;
+
 public class DBMigrator {
 	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.util.dbmigration.DBMigrator");
