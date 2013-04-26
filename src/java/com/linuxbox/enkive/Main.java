@@ -50,7 +50,8 @@ public abstract class Main {
 	final protected boolean runIndexCheck;
 	final protected String description;
 
-	protected abstract void doEventLoop(ApplicationContext context);
+	protected abstract void runCoreFunctionality(ApplicationContext context)
+			throws Exception;
 
 	protected abstract void preStartup();
 
@@ -85,6 +86,8 @@ public abstract class Main {
 	}
 
 	public void start() throws Exception {
+		preStartup();
+
 		if (runVersionCheck) {
 			AbstractApplicationContext versionCheckingContext = new ClassPathXmlApplicationContext(
 					VERSION_CHECK_CONFIG_FILES);
@@ -108,8 +111,6 @@ public abstract class Main {
 		 * IF WE GET HERE AND runVersionCheck IS TRUE, THE DATABASE IS
 		 * APPARENTLY UP TO DATE
 		 */
-
-		preStartup();
 
 		context = new ClassPathXmlApplicationContext(configFiles);
 		context.registerShutdownHook();
@@ -144,7 +145,10 @@ public abstract class Main {
 
 	public void run() throws Exception {
 		start();
-		doEventLoop(context);
-		stop();
+		try {
+			runCoreFunctionality(context);
+		} finally {
+			stop();
+		}
 	}
 }

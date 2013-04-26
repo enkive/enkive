@@ -24,11 +24,13 @@ import org.apache.commons.daemon.DaemonContext;
 import org.apache.commons.daemon.DaemonInitException;
 import org.springframework.context.ApplicationContext;
 
+import com.linuxbox.enkive.exception.UnimplementedMethodException;
+
 public class EnkiveDaemon extends Main implements Daemon {
 	private static final String DESCRIPTION = "com.linuxbox.enkive.Daemon";
 
 	static final String[] CONFIG_FILES = { "jetty-server-webapps.xml" };
-	
+
 	public EnkiveDaemon() {
 		super(NO_ARGS, CONFIG_FILES, DESCRIPTION);
 	}
@@ -44,9 +46,13 @@ public class EnkiveDaemon extends Main implements Daemon {
 		// empty
 	}
 
+	/**
+	 * This should never be called as org.apache.commons.daemon.Daemon is
+	 * calling start() and stop() on its own.
+	 */
 	@Override
-	protected void doEventLoop(ApplicationContext context) {
-		// empty
+	protected void runCoreFunctionality(ApplicationContext context) {
+		throw new UnimplementedMethodException();
 	}
 
 	@Override

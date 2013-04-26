@@ -19,7 +19,6 @@
  *******************************************************************************/
 package com.linuxbox.enkive;
 
-import org.eclipse.jetty.server.Server;
 import org.springframework.context.ApplicationContext;
 
 public class MainJettyWebApps extends MainConsole {
@@ -36,11 +35,11 @@ public class MainJettyWebApps extends MainConsole {
 		out.println("Jetty will be starting...");
 	}
 
-	protected void doEventLoop(ApplicationContext context) {
-		Server server = context.getBean("Server",
-				org.eclipse.jetty.server.Server.class);
+	protected void runCoreFunctionality(ApplicationContext context) {
+//		Server server = context.getBean("Server",
+//				org.eclipse.jetty.server.Server.class);
 
-		super.doEventLoop(context);
+		super.runCoreFunctionality(context);
 
 //		try {
 //			server.stop();

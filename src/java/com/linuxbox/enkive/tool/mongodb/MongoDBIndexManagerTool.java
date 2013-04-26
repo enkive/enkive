@@ -30,7 +30,7 @@ public class MongoDBIndexManagerTool extends Main {
 	}
 
 	@Override
-	protected void doEventLoop(ApplicationContext context) {
+	protected void runCoreFunctionality(ApplicationContext context) {
 		Map<String, MongoDBIndexManager> map = context
 				.getBeansOfType(MongoDBIndexManager.class);
 		if (map.size() == 0) {
@@ -45,9 +45,7 @@ public class MongoDBIndexManagerTool extends Main {
 
 		// even though this is a loop, it should only run one time due to checks
 		// above
-		for (MongoDBIndexManager manager : map.values()) {
-			manager.runConsole();
-		}
+		map.values().iterator().next().runConsole();
 	}
 
 	@Override

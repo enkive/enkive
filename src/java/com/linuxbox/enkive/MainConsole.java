@@ -88,7 +88,7 @@ public class MainConsole extends Main {
 	}
 
 	@Override
-	protected void doEventLoop(ApplicationContext context) {
+	protected void runCoreFunctionality(ApplicationContext context) {
 		try {
 			String input;
 
