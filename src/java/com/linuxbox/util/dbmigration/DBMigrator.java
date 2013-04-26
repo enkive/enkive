@@ -1,32 +1,22 @@
 package com.linuxbox.util.dbmigration;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-
-import javax.annotation.PostConstruct;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.context.Lifecycle;
 
-public class DBMigrator implements Lifecycle {
+public class DBMigrator {
 	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.util.dbmigration.DBMigrator");
 
 	protected Map<Integer, DBMigration> migrations = new HashMap<Integer, DBMigration>();
 	protected String migratorName;
-	protected DBInfo db;
-	protected boolean isRunning;
+	protected DBInfo dbInfo;
 
-	protected DBMigrator(String migratorName, DBInfo db, String defaultPackage,
-			List<String> migrations) {
+	protected DBMigrator(String migratorName, DBInfo dbInfo) {
 		this.migratorName = migratorName;
-		this.db = db;
-
-		for (String s : migrations) {
-			LOGGER.info("migrator: " + s);
-		}
+		this.dbInfo = dbInfo;
 	}
 
 	public void registerMigration(DBMigration migration)
@@ -52,17 +42,6 @@ public class DBMigrator implements Lifecycle {
 		return toVersion;
 	}
 
-	// TODO this will be replaced by the DBMigrationService
-	@PostConstruct
-	public void init() {
-		LOGGER.info("Running " + migratorName);
-		try {
-			runAll(db.getCurrentVersion());
-		} catch (DBMigrationException e) {
-			e.printStackTrace();
-		}
-	}
-
 	public int runAll(int fromVersion) throws DBMigrationException {
 		Integer lastVersion = fromVersion;
 		Integer newVersion = runNext(lastVersion);
@@ -78,26 +57,42 @@ public class DBMigrator implements Lifecycle {
 		if (nextMigration == null) {
 			return null;
 		} else {
-			nextMigration.migrate(db);
+			nextMigration.migrate(dbInfo);
 			// TODO Update version here?
 			return nextMigration.toVersion;
 		}
 	}
 
-	@Override
-	public void start() {
-		isRunning = true;
-		LOGGER.info("DBMigrator " + migratorName + " started.");
+	boolean canReachVersion(int startingVersion, int goalVersion) {
+		if (startingVersion == goalVersion) {
+			return true;
+		}
+
+		DBMigration prevMigration = null;
+		DBMigration nextMigration = migrations.get(startingVersion);
+		while (nextMigration != null) {
+			if (nextMigration.toVersion == goalVersion) {
+				return true;
+			}
+			prevMigration = nextMigration;
+			nextMigration = migrations.get(prevMigration.toVersion);
+		}
+
+		return false;
 	}
 
-	@Override
-	public void stop() {
-		isRunning = false;
-		LOGGER.info("DBMigrator " + migratorName + " stopped.");
-	}
+	int lastReachableVersionFrom(int startingVersion) {
+		DBMigration prevMigration = null;
+		DBMigration nextMigration = migrations.get(startingVersion);
+		while (nextMigration != null) {
+			prevMigration = nextMigration;
+			nextMigration = migrations.get(prevMigration.toVersion);
+		}
 
-	@Override
-	public boolean isRunning() {
-		return isRunning;
+		if (prevMigration == null) {
+			return startingVersion;
+		} else {
+			return prevMigration.toVersion;
+		}
 	}
 }

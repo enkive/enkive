@@ -47,18 +47,9 @@ public class MongoDBMigrationService extends DBMigrationService implements
 		this.dbName = dbName;
 		this.collectionName = collectionName;
 
-		DB db = mongo.getDB(dbName);
+		final DB db = mongo.getDB(dbName);
 		this.dbCollection = db.getCollection(collectionName);
-
 		this.dbCollection.setWriteConcern(WriteConcern.FSYNC_SAFE);
-	}
-
-	protected static DBObject buildRecord(DBStatusRecord record) {
-		BasicDBObjectBuilder builder = BasicDBObjectBuilder.start();
-		builder.add(KEY_VERSION, record.version);
-		builder.add(KEY_STATUS, record.status.code);
-		builder.add(KEY_TIMESTAMP, record.timestamp);
-		return builder.get();
 	}
 
 	@Override
@@ -69,23 +60,41 @@ public class MongoDBMigrationService extends DBMigrationService implements
 		if (null == result) {
 			DBStatusRecord record = new DBStatusRecord(0,
 					DBStatusRecord.Status.STORED, new Date());
-			DBObject mongoObj = buildRecord(record);
+			DBObject mongoObj = dBStatusRecordToDbObject(record);
 			dbCollection.save(mongoObj);
 			return record;
 		} else {
-			Integer version = (Integer) result.get(KEY_VERSION);
-			Integer statusCode = (Integer) result.get(KEY_STATUS);
-			Date timestamp = (Date) result.get(KEY_TIMESTAMP);
-			Status status;
-			if (statusCode == Status.MIGRATING.code) {
-				status = Status.MIGRATING;
-			} else if (statusCode == Status.STORED.code) {
-				status = Status.STORED;
-			} else {
-				status = Status.ERROR;
-			}
-			return new DBStatusRecord(version, status, timestamp);
+			return DBObjectToDBStatusRecord(result);
 		}
+	}
+
+	/*
+	 * Conversion methods
+	 */
+
+	protected static DBObject dBStatusRecordToDbObject(DBStatusRecord record) {
+		BasicDBObjectBuilder builder = BasicDBObjectBuilder.start();
+		builder.add(KEY_VERSION, record.version);
+		builder.add(KEY_STATUS, record.status.code);
+		builder.add(KEY_TIMESTAMP, record.timestamp);
+		return builder.get();
+	}
+
+	public static DBStatusRecord DBObjectToDBStatusRecord(DBObject dbObject) {
+		final Integer version = (Integer) dbObject.get(KEY_VERSION);
+		final Date timestamp = (Date) dbObject.get(KEY_TIMESTAMP);
+
+		final Integer statusCode = (Integer) dbObject.get(KEY_STATUS);
+		Status status;
+		if (statusCode == Status.MIGRATING.code) {
+			status = Status.MIGRATING;
+		} else if (statusCode == Status.STORED.code) {
+			status = Status.STORED;
+		} else {
+			status = Status.ERROR;
+		}
+
+		return new DBStatusRecord(version, status, timestamp);
 	}
 
 	/*
