@@ -1,5 +1,7 @@
 #!/bin/sh
 
+. $(dirname $0)/enkive-common.sh
+
 # export ENKIVE_CONSOLE_LOGGING=full
 export ENKIVE_MAIN=com.linuxbox.enkive.tool.mongodb.MongoDbDocRetriever
 
@@ -9,7 +11,5 @@ if [ $# -ne 1 ] ;then
 fi
 
 docid=$1
-
-. $(dirname $0)/enkive-common.sh
 
 runIt $docid

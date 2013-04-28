@@ -1,5 +1,7 @@
 #!/bin/sh
 
+. $(dirname $0)/enkive-common.sh
+
 # export ENKIVE_CONSOLE_LOGGING=full
 export ENKIVE_MAIN=com.linuxbox.enkive.importer.FileDirReader
 
@@ -22,7 +24,5 @@ fi
 if [ $# -ge 3 ] ;then
     port="$3"
 fi
-
-. $(dirname $0)/enkive-common.sh
 
 runIt $directory $host $port
