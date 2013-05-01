@@ -26,7 +26,7 @@ import org.apache.james.mailbox.store.mail.MessageMapper;
 import com.linuxbox.enkive.imap.mailbox.EnkiveMailboxSessionMapperFactory;
 import com.linuxbox.enkive.imap.message.mongo.MongoEnkiveImapMessageMapper;
 import com.linuxbox.enkive.imap.mongo.MongoEnkiveImapStore;
-import com.linuxbox.util.dbinfo.mongodb.MongoDBInfo;
+import com.linuxbox.util.dbinfo.mongodb.MongoDbInfo;
 import com.mongodb.Mongo;
 
 public class MongoEnkiveMailboxSessionMapperFactory extends
@@ -43,7 +43,7 @@ public class MongoEnkiveMailboxSessionMapperFactory extends
 		this.imapCollectionName = imapCollectionName;
 	}
 
-	public MongoEnkiveMailboxSessionMapperFactory(MongoDBInfo dbInfo) {
+	public MongoEnkiveMailboxSessionMapperFactory(MongoDbInfo dbInfo) {
 		this(dbInfo.getMongo(), dbInfo.getDbName(), dbInfo.getCollectionName());
 	}
 

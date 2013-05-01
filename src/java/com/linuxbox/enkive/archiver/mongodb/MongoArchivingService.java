@@ -83,7 +83,7 @@ import com.linuxbox.enkive.message.MimeTransferEncoding;
 import com.linuxbox.enkive.message.MultiPartHeader;
 import com.linuxbox.enkive.message.SinglePartHeader;
 import com.linuxbox.enkive.message.docstore.ContentDataDocument;
-import com.linuxbox.util.dbinfo.mongodb.MongoDBInfo;
+import com.linuxbox.util.dbinfo.mongodb.MongoDbInfo;
 import com.linuxbox.util.mongodb.MongoIndexable;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
@@ -107,7 +107,7 @@ public class MongoArchivingService extends AbstractMessageArchivingService
 		this(m.getDB(dbName).getCollection(collName));
 	}
 
-	public MongoArchivingService(MongoDBInfo dbInfo) {
+	public MongoArchivingService(MongoDbInfo dbInfo) {
 		this(dbInfo.getCollection());
 	}
 

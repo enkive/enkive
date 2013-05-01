@@ -6,6 +6,6 @@ package com.linuxbox.util.dbinfo;
  * doing it twice it'd be better to do it once in a Spring configuration XML
  * file that gets loaded by the services and by the migrators.
  */
-public interface DBInfo {
+public interface DbInfo {
 	public String getServiceName();
 }

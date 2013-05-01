@@ -30,7 +30,7 @@ import java.util.HashMap;
 import com.linuxbox.enkive.message.search.exception.MessageSearchException;
 import com.linuxbox.enkive.message.search.mongodb.MongoMessageSearchService;
 import com.linuxbox.enkive.statistics.gathering.GathererMessageSearchService;
-import com.linuxbox.util.dbinfo.mongodb.MongoDBInfo;
+import com.linuxbox.util.dbinfo.mongodb.MongoDbInfo;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCursor;
 import com.mongodb.Mongo;
@@ -43,7 +43,7 @@ public class MongoGathererMessageSearchService extends
 		super(m, dbName, collName);
 	}
 	
-	public MongoGathererMessageSearchService(MongoDBInfo dbInfo) {
+	public MongoGathererMessageSearchService(MongoDbInfo dbInfo) {
 		super(dbInfo);
 	}
 

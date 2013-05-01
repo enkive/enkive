@@ -27,7 +27,7 @@ import org.apache.james.mailbox.exception.SubscriptionException;
 
 import com.linuxbox.enkive.imap.mailbox.EnkiveSubscriptionManager;
 import com.linuxbox.enkive.imap.mongo.MongoEnkiveImapConstants;
-import com.linuxbox.util.dbinfo.mongodb.MongoDBInfo;
+import com.linuxbox.util.dbinfo.mongodb.MongoDbInfo;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
@@ -42,7 +42,7 @@ public class MongoEnkiveSubscriptionManager extends EnkiveSubscriptionManager {
 		this(m.getDB(imapDBName).getCollection(imapCollname));
 	}
 	
-	public MongoEnkiveSubscriptionManager(MongoDBInfo dbInfo) {
+	public MongoEnkiveSubscriptionManager(MongoDbInfo dbInfo) {
 		this(dbInfo.getCollection());
 	}
 

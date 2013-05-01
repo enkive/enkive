@@ -69,7 +69,7 @@ import com.linuxbox.enkive.message.SinglePartHeader;
 import com.linuxbox.enkive.message.SinglePartHeaderImpl;
 import com.linuxbox.enkive.message.docstore.DocumentEncodedContentReadData;
 import com.linuxbox.enkive.retriever.AbstractRetrieverService;
-import com.linuxbox.util.dbinfo.mongodb.MongoDBInfo;
+import com.linuxbox.util.dbinfo.mongodb.MongoDbInfo;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
@@ -85,7 +85,7 @@ public class MongoRetrieverService extends AbstractRetrieverService {
 		this(m.getDB(dbName).getCollection(collName));
 	}
 	
-	public MongoRetrieverService(MongoDBInfo dbInfo) {
+	public MongoRetrieverService(MongoDbInfo dbInfo) {
 		this(dbInfo.getCollection());
 	}
 	

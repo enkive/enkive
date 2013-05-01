@@ -26,7 +26,7 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
-import com.linuxbox.util.dbinfo.mongodb.MongoDBInfo;
+import com.linuxbox.util.dbinfo.mongodb.MongoDbInfo;
 import com.linuxbox.util.lockservice.AbstractRetryingLockService;
 import com.linuxbox.util.lockservice.LockAcquisitionException;
 import com.linuxbox.util.lockservice.LockReleaseException;
@@ -91,7 +91,7 @@ public class MongoLockService extends AbstractRetryingLockService implements
 		this(mongo, mongo.getDB(database).getCollection(collection));
 	}
 	
-	public MongoLockService(MongoDBInfo dbInfo) {
+	public MongoLockService(MongoDbInfo dbInfo) {
 		this(dbInfo.getMongo(), dbInfo.getCollection());
 	}
 	

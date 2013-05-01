@@ -21,7 +21,7 @@ package com.linuxbox.enkive.imap.mongo;
 import java.util.Date;
 
 import com.linuxbox.enkive.message.search.mongodb.MongoMessageSearchService;
-import com.linuxbox.util.dbinfo.mongodb.MongoDBInfo;
+import com.linuxbox.util.dbinfo.mongodb.MongoDbInfo;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
@@ -35,7 +35,7 @@ public class MongoImapAccountCreationMessageSearchService extends
 		super(m, dbName, collName);
 	}
 	
-	public MongoImapAccountCreationMessageSearchService(MongoDBInfo dbInfo) {
+	public MongoImapAccountCreationMessageSearchService(MongoDbInfo dbInfo) {
 		super(dbInfo);
 	}
 

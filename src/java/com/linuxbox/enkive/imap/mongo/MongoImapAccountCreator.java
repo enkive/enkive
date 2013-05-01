@@ -37,7 +37,7 @@ import org.bson.types.ObjectId;
 import com.linuxbox.enkive.imap.EnkiveImapAccountCreator;
 import com.linuxbox.enkive.message.search.exception.MessageSearchException;
 import com.linuxbox.enkive.permissions.PermissionService;
-import com.linuxbox.util.dbinfo.mongodb.MongoDBInfo;
+import com.linuxbox.util.dbinfo.mongodb.MongoDbInfo;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
@@ -61,7 +61,7 @@ public class MongoImapAccountCreator implements EnkiveImapAccountCreator {
 		this(db.getCollection(imapCollname));
 	}
 	
-	public MongoImapAccountCreator(MongoDBInfo dbInfo) {
+	public MongoImapAccountCreator(MongoDbInfo dbInfo) {
 		this(dbInfo.getCollection());
 	}
 

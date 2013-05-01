@@ -32,7 +32,7 @@ import org.apache.commons.logging.LogFactory;
 import org.bson.types.BSONTimestamp;
 import org.bson.types.ObjectId;
 
-import com.linuxbox.util.dbinfo.mongodb.MongoDBInfo;
+import com.linuxbox.util.dbinfo.mongodb.MongoDbInfo;
 import com.linuxbox.util.mongodb.MongoIndexable;
 import com.linuxbox.util.mongodb.UpdateFieldBuilder;
 import com.linuxbox.util.queueservice.AbstractQueueEntry;
@@ -102,7 +102,7 @@ public class MongoQueueService implements QueueService, MongoIndexable {
 		this(mongo, mongo.getDB(database).getCollection(collection));
 	}
 
-	public MongoQueueService(MongoDBInfo dbInfo) {
+	public MongoQueueService(MongoDbInfo dbInfo) {
 		this(dbInfo.getMongo(), dbInfo.getCollection());
 	}
 

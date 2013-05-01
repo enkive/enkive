@@ -1,10 +1,10 @@
 package com.linuxbox.util.dbinfo;
 
 
-public abstract class AbstractDBInfo implements DBInfo {
+public abstract class AbstractDbInfo implements DbInfo {
 	final protected String serviceName;
 
-	public AbstractDBInfo(String serviceName) {
+	public AbstractDbInfo(String serviceName) {
 		this.serviceName = serviceName;
 	}
 

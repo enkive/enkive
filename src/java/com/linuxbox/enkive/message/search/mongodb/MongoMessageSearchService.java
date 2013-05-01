@@ -58,7 +58,7 @@ import org.apache.commons.logging.LogFactory;
 import com.linuxbox.enkive.docsearch.exception.DocSearchException;
 import com.linuxbox.enkive.message.search.AbstractMessageSearchService;
 import com.linuxbox.enkive.message.search.exception.MessageSearchException;
-import com.linuxbox.util.dbinfo.mongodb.MongoDBInfo;
+import com.linuxbox.util.dbinfo.mongodb.MongoDbInfo;
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
@@ -81,7 +81,7 @@ public class MongoMessageSearchService extends AbstractMessageSearchService {
 		this(db.getCollection(collName));
 	}
 
-	public MongoMessageSearchService(MongoDBInfo dbInfo) {
+	public MongoMessageSearchService(MongoDbInfo dbInfo) {
 		this(dbInfo.getCollection());
 	}
 

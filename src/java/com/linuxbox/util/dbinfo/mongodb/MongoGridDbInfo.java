@@ -4,7 +4,7 @@ import com.mongodb.DB;
 import com.mongodb.Mongo;
 import com.mongodb.gridfs.GridFS;
 
-public class MongoGridDbInfo extends MongoDBInfo {
+public class MongoGridDbInfo extends MongoDbInfo {
 	final protected GridFS gridFs;
 
 	public MongoGridDbInfo(String serviceName, Mongo mongo, String dbName,

@@ -3,7 +3,7 @@ package com.linuxbox.util.dbmigration;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.linuxbox.util.dbinfo.DBInfo;
+import com.linuxbox.util.dbinfo.DbInfo;
 
 public abstract class DBMigration {
 	protected final static Log LOGGER = LogFactory
@@ -21,5 +21,5 @@ public abstract class DBMigration {
 		migrator.registerMigration(this);
 	}
 
-	public abstract boolean migrate(DBInfo db) throws DBMigrationException;
+	public abstract boolean migrate(DbInfo db) throws DBMigrationException;
 }

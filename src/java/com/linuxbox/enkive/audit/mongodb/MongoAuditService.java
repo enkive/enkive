@@ -35,7 +35,7 @@ import org.bson.types.ObjectId;
 import com.linuxbox.enkive.audit.AuditEntry;
 import com.linuxbox.enkive.audit.AuditService;
 import com.linuxbox.enkive.audit.AuditServiceException;
-import com.linuxbox.util.dbinfo.mongodb.MongoDBInfo;
+import com.linuxbox.util.dbinfo.mongodb.MongoDbInfo;
 import com.linuxbox.util.mongodb.MongoDBConstants;
 import com.linuxbox.util.mongodb.MongoIndexable;
 import com.linuxbox.util.queueservice.QueueServiceException;
@@ -100,7 +100,7 @@ public class MongoAuditService implements AuditService, MongoIndexable {
 		this(mongo, mongo.getDB(database).getCollection(collection));
 	}
 
-	public MongoAuditService(MongoDBInfo dbInfo) {
+	public MongoAuditService(MongoDbInfo dbInfo) {
 		this(dbInfo.getMongo(), dbInfo.getCollection());
 	}
 

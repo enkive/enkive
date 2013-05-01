@@ -33,7 +33,7 @@ import com.linuxbox.enkive.statistics.RawStats;
 import com.linuxbox.enkive.statistics.VarsMaker;
 import com.linuxbox.enkive.statistics.services.StatsStorageService;
 import com.linuxbox.enkive.statistics.services.storage.StatsStorageException;
-import com.linuxbox.util.dbinfo.mongodb.MongoDBInfo;
+import com.linuxbox.util.dbinfo.mongodb.MongoDbInfo;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.Mongo;
@@ -61,7 +61,7 @@ public class MongoStatsStorageService extends VarsMaker implements
 		this(mongo.getDB(dbName).getCollection(collectionName));
 	}
 	
-	public MongoStatsStorageService(MongoDBInfo dbInfo) {
+	public MongoStatsStorageService(MongoDbInfo dbInfo) {
 		this(dbInfo.getCollection());
 	}
 

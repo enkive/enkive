@@ -31,7 +31,7 @@ import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.AT
 
 import java.util.Collection;
 
-import com.linuxbox.util.dbinfo.mongodb.MongoDBInfo;
+import com.linuxbox.util.dbinfo.mongodb.MongoDbInfo;
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
@@ -48,7 +48,7 @@ public class MongoMessagePermissionsService implements
 		this(mongo.getDB(dbName).getCollection(collName));
 	}
 	
-	public MongoMessagePermissionsService(MongoDBInfo dbInfo) {
+	public MongoMessagePermissionsService(MongoDbInfo dbInfo) {
 		this(dbInfo.getCollection());
 	}
 	

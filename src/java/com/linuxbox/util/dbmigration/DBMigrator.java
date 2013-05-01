@@ -6,7 +6,7 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.linuxbox.util.dbinfo.DBInfo;
+import com.linuxbox.util.dbinfo.DbInfo;
 
 public class DBMigrator {
 	protected final static Log LOGGER = LogFactory
@@ -14,9 +14,9 @@ public class DBMigrator {
 
 	protected Map<Integer, DBMigration> migrations = new HashMap<Integer, DBMigration>();
 	protected String migratorName;
-	protected DBInfo dbInfo;
+	protected DbInfo dbInfo;
 
-	protected DBMigrator(String migratorName, DBInfo dbInfo) {
+	protected DBMigrator(String migratorName, DbInfo dbInfo) {
 		this.migratorName = migratorName;
 		this.dbInfo = dbInfo;
 	}

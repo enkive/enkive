@@ -39,31 +39,35 @@ import com.linuxbox.enkive.statistics.services.StatsRetrievalService;
 import com.linuxbox.enkive.statistics.services.retrieval.StatsFilter;
 import com.linuxbox.enkive.statistics.services.retrieval.StatsQuery;
 import com.linuxbox.enkive.statistics.services.retrieval.StatsRetrievalException;
+import com.linuxbox.util.dbinfo.mongodb.MongoDbInfo;
 import com.mongodb.BasicDBObject;
-import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import com.mongodb.Mongo;
 
 public class MongoStatsRetrievalService extends VarsMaker implements
 		StatsRetrievalService {
-	private static DBCollection coll;
-
-	private static DB db;
 	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.statistics.services.retrieval.mongodb");
-	private static Mongo m;
+
+	private DBCollection coll;
 
 	public MongoStatsRetrievalService(Mongo mongo, String dbName,
 			String collectionName) {
-		m = mongo;
-		db = m.getDB(dbName);
-		coll = db.getCollection(collectionName);
+		this(mongo.getDB(dbName).getCollection(collectionName));
+	}
+
+	public MongoStatsRetrievalService(MongoDbInfo dbInfo) {
+		this(dbInfo.getCollection());
+	}
+
+	public MongoStatsRetrievalService(DBCollection collection) {
+		coll = collection;
 		LOGGER.info("RetrievalService(Mongo, String) successfully created");
 	}
 
 	/**
-	 * preforms a query on the database based on a query map
+	 * performs a query on the database based on a query map
 	 * 
 	 * @param hmap
 	 *            - the formatted query map

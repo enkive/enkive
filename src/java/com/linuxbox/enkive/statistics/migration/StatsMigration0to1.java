@@ -1,7 +1,7 @@
 package com.linuxbox.enkive.statistics.migration;
 
-import com.linuxbox.util.dbinfo.DBInfo;
-import com.linuxbox.util.dbinfo.mongodb.MongoDBInfo;
+import com.linuxbox.util.dbinfo.DbInfo;
+import com.linuxbox.util.dbinfo.mongodb.MongoDbInfo;
 import com.linuxbox.util.dbmigration.DBMigration;
 import com.linuxbox.util.dbmigration.DBMigrationException;
 import com.linuxbox.util.dbmigration.DBMigrator;
@@ -15,8 +15,8 @@ public class StatsMigration0to1 extends DBMigration {
 	}
 
 	@Override
-	public boolean migrate(DBInfo dbInfo) throws DBMigrationException {
-		MongoDBInfo mongoDbInfo = (MongoDBInfo) dbInfo;
+	public boolean migrate(DbInfo dbInfo) throws DBMigrationException {
+		MongoDbInfo mongoDbInfo = (MongoDbInfo) dbInfo;
 		LOGGER.info("Running statistics migration 0 to 1");
 		// we don't care about the data so we don't need to stash it while
 		// emptying the DB

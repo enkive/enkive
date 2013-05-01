@@ -8,8 +8,7 @@
 		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
 		<property name="locations">
 			<list>
-				<value>classpath:default/enkive.properties
-				</value>
+				<value>classpath:default/enkive.properties</value>
 				<value>classpath:enkive.properties</value>
 			</list>
 		</property>

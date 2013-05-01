@@ -5,7 +5,7 @@
                     http://www.springframework.org/schema/security 
                     http://www.springframework.org/schema/security/spring-security-3.1.xsd">
 
-	<beans:import resource="classpath:enkive-properties.xml" />
+	<beans:import resource="classpath:resources/enkive-properties.xml" />
 
 	<beans:import
 		resource="classpath:resources/authentication/authentication-service.xml" />
