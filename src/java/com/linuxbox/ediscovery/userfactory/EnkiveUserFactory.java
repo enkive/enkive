@@ -82,8 +82,9 @@ public class EnkiveUserFactory extends AbstractUserFactory {
 				authenticatingConnector = new AuthenticatingConnector(
 						connector, new EnkiveAuthenticator());
 			}
-			if (authenticatingConnector != null)
+			if (authenticatingConnector != null) {
 				authenticated = authenticatingConnector.handshake();
+			}
 
 		} catch (Exception ex) {
 			logger.warn("Exception in EnkiveUserFactory.authenticate()", ex);
@@ -112,10 +113,18 @@ public class EnkiveUserFactory extends AbstractUserFactory {
 			// invoke and check for OK response
 			Response response = connector.call(ENKIVE_USERDETAILS_URL);
 			if (Status.STATUS_OK != response.getStatus().getCode()) {
+				Exception cause;
+				if (response.getStatus().getException() instanceof Exception) {
+					cause = (Exception) response.getStatus().getException();
+				} else {
+					cause = new Exception("see cause", response.getStatus()
+							.getException());
+				}
+
 				throw new UserFactoryException(
-						"Unable to create user - failed to retrieve user metadata: "
-								+ response.getStatus().getMessage(),
-						(Exception) response.getStatus().getException());
+						"Unable to create user - failed to retrieve user metadata; code="
+								+ response.getStatus().getCode() + "; "
+								+ response.getStatus().getMessage(), cause);
 			}
 
 			// Load the user properties via the JSON parser
@@ -128,10 +137,11 @@ public class EnkiveUserFactory extends AbstractUserFactory {
 			capabilities.put("isAdmin", false);
 			for (int i = 0; i < authArray.length(); i++) {
 				String auth = authArray.getString(i);
-				if (auth.equals("ROLE_ENKIVE_ADMIN"))
+				if (auth.equals("ROLE_ENKIVE_ADMIN")) {
 					capabilities.put("isAdmin", true);
-				else
+				} else {
 					capabilities.put(auth, true);
+				}
 			}
 			User user = new User(userId, capabilities);
 			return user;

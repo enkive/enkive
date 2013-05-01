@@ -51,7 +51,7 @@ public class EnkiveAuthenticator extends AbstractAuthenticator {
 	public final static String HTTP_POST = "POST";
 
 	public EnkiveAuthenticator() {
-
+		// empty
 	}
 
 	@Override
