@@ -32,6 +32,7 @@ import org.apache.commons.logging.LogFactory;
 import org.bson.types.BSONTimestamp;
 import org.bson.types.ObjectId;
 
+import com.linuxbox.util.dbinfo.mongodb.MongoDBInfo;
 import com.linuxbox.util.mongodb.MongoIndexable;
 import com.linuxbox.util.mongodb.UpdateFieldBuilder;
 import com.linuxbox.util.queueservice.AbstractQueueEntry;
@@ -39,7 +40,6 @@ import com.linuxbox.util.queueservice.QueueEntry;
 import com.linuxbox.util.queueservice.QueueService;
 import com.linuxbox.util.queueservice.QueueServiceException;
 import com.mongodb.BasicDBObject;
-import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import com.mongodb.Mongo;
@@ -78,7 +78,6 @@ public class MongoQueueService implements QueueService, MongoIndexable {
 			CREATED_AT_FIELD, 1);
 
 	private Mongo mongo;
-	private DB mongoDB;
 	private DBCollection queueCollection;
 
 	/**
@@ -100,9 +99,16 @@ public class MongoQueueService implements QueueService, MongoIndexable {
 	}
 
 	public MongoQueueService(Mongo mongo, String database, String collection) {
+		this(mongo, mongo.getDB(database).getCollection(collection));
+	}
+
+	public MongoQueueService(MongoDBInfo dbInfo) {
+		this(dbInfo.getMongo(), dbInfo.getCollection());
+	}
+
+	public MongoQueueService(Mongo mongo, DBCollection collection) {
 		this.mongo = mongo;
-		this.mongoDB = mongo.getDB(database);
-		this.queueCollection = mongoDB.getCollection(collection);
+		this.queueCollection = collection;
 
 		// see comments on def'n of CALL_ENSURE_INDEX_ON_INIT to see why it's
 		// done conditionally

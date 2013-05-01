@@ -83,9 +83,9 @@ import com.linuxbox.enkive.message.MimeTransferEncoding;
 import com.linuxbox.enkive.message.MultiPartHeader;
 import com.linuxbox.enkive.message.SinglePartHeader;
 import com.linuxbox.enkive.message.docstore.ContentDataDocument;
+import com.linuxbox.util.dbinfo.mongodb.MongoDBInfo;
 import com.linuxbox.util.mongodb.MongoIndexable;
 import com.mongodb.BasicDBObject;
-import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
@@ -95,20 +95,24 @@ import com.mongodb.WriteResult;
 
 public class MongoArchivingService extends AbstractMessageArchivingService
 		implements MongoIndexable {
-
 	private final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.archiveService.mongodb");
 
-	protected Mongo m = null;
-	protected DB messageDb;
 	protected DBCollection messageColl;
+
 	protected List<String> attachment_ids;
 	protected List<String> nested_message_ids;
 
 	public MongoArchivingService(Mongo m, String dbName, String collName) {
-		this.m = m;
-		messageDb = m.getDB(dbName);
-		messageColl = messageDb.getCollection(collName);
+		this(m.getDB(dbName).getCollection(collName));
+	}
+
+	public MongoArchivingService(MongoDBInfo dbInfo) {
+		this(dbInfo.getCollection());
+	}
+
+	public MongoArchivingService(DBCollection collection) {
+		this.messageColl = collection;
 	}
 
 	@Override

@@ -26,13 +26,13 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.linuxbox.util.dbinfo.mongodb.MongoDBInfo;
 import com.linuxbox.util.lockservice.AbstractRetryingLockService;
 import com.linuxbox.util.lockservice.LockAcquisitionException;
 import com.linuxbox.util.lockservice.LockReleaseException;
 import com.linuxbox.util.mongodb.MongoIndexable;
 import com.mongodb.BasicDBObject;
 import com.mongodb.BasicDBObjectBuilder;
-import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import com.mongodb.Mongo;
@@ -70,9 +70,9 @@ public class MongoLockService extends AbstractRetryingLockService implements
 	private static String LOCK_NOTE_KEY = "note";
 	private static String LOCK_TIMESTAMP_KEY = "timestamp";
 
-	private Mongo mongo;
-	private DB mongoDB;
 	private DBCollection lockCollection;
+
+	private Mongo mongo;
 	private boolean mongoCreated;
 
 	public MongoLockService(String server, int port, String database,
@@ -86,11 +86,18 @@ public class MongoLockService extends AbstractRetryingLockService implements
 		this(new Mongo(), database, collection);
 		mongoCreated = true;
 	}
-
+	
 	public MongoLockService(Mongo mongo, String database, String collection) {
+		this(mongo, mongo.getDB(database).getCollection(collection));
+	}
+	
+	public MongoLockService(MongoDBInfo dbInfo) {
+		this(dbInfo.getMongo(), dbInfo.getCollection());
+	}
+	
+	public MongoLockService(Mongo mongo, DBCollection collection) {
 		this.mongo = mongo;
-		mongoDB = mongo.getDB(database);
-		lockCollection = mongoDB.getCollection(collection);
+		this.lockCollection = collection;
 
 		lockCollection.setWriteConcern(WriteConcern.FSYNC_SAFE);
 

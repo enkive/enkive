@@ -28,36 +28,48 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.linuxbox.enkive.exception.UnimplementedMethodException;
 import com.linuxbox.enkive.statistics.RawStats;
 import com.linuxbox.enkive.statistics.VarsMaker;
 import com.linuxbox.enkive.statistics.services.StatsStorageService;
 import com.linuxbox.enkive.statistics.services.storage.StatsStorageException;
+import com.linuxbox.util.dbinfo.mongodb.MongoDBInfo;
 import com.mongodb.BasicDBObject;
-import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.Mongo;
 
 public class MongoStatsStorageService extends VarsMaker implements
 		StatsStorageService {
-	private static Mongo m;
-	private static DB db;
-	private static DBCollection coll;
 	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.statistics.services.storage.mongodb");
 
+	private DBCollection coll;
+
+	/**
+	 * Since we like to configure everything from the outside, why is this
+	 * constructor even available?
+	 */
 	public MongoStatsStorageService(Mongo mongo) {
-		m = mongo;
-		db = m.getDB(STAT_STORAGE_DB);
-		coll = db.getCollection(STAT_STORAGE_COLLECTION);
-		LOGGER.info("StorageService successfully created");
+		this(mongo, STAT_STORAGE_DB, STAT_STORAGE_COLLECTION);
+
+		// *** let's figure out when/if this constructor is ever called
+		throw new UnimplementedMethodException();
 	}
 
 	public MongoStatsStorageService(Mongo mongo, String dbName,
 			String collectionName) {
-		m = mongo;
-		db = m.getDB(dbName);
-		coll = db.getCollection(collectionName);
-		LOGGER.info("StorageService successfully created");
+		this(mongo.getDB(dbName).getCollection(collectionName));
+	}
+	
+	public MongoStatsStorageService(MongoDBInfo dbInfo) {
+		this(dbInfo.getCollection());
+	}
+
+	public MongoStatsStorageService(DBCollection collection) {
+		this.coll = collection;
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("StorageService successfully created");
+		}
 	}
 
 	@Override

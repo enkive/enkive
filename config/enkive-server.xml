@@ -5,23 +5,19 @@
 	default-init-method="startup" default-destroy-method="shutdown">
 
 	<import resource="enkive-properties.xml" />
+	<import resource="resources/db-info.xml" />
 	<import resource="resources/*-service.xml" />
 	<import resource="resources/authentication/authentication-service.xml" />
-
 
 	<bean id="EnkiveFilters" class="com.linuxbox.enkive.filter.EnkiveFiltersBean" />
 
 	<bean id="DocLockService" class="com.linuxbox.util.lockservice.mongodb.MongoLockService">
-		<constructor-arg ref="Mongo" />
-		<constructor-arg value="${enkive.lockservice.db.name}" />
-		<constructor-arg value="lockService" />
+		<constructor-arg ref="DocLockDbInfo" />
 	</bean>
 
 	<bean id="IndexerQueueService"
 		class="com.linuxbox.util.queueservice.mongodb.MongoQueueService">
-		<constructor-arg ref="Mongo" />
-		<constructor-arg value="${enkive.queueservice.db.name}" />
-		<constructor-arg value="queueService" />
+		<constructor-arg ref="IndexerQueueDbInfo" />
 	</bean>
 
 	<bean id="ThreadPoolServerConfiguration"
@@ -70,9 +66,7 @@
 	<bean id="AuditLogService"
 		class="com.linuxbox.enkive.audit.mongodb.PermissionsEnforcingMongoAuditService">
 		<constructor-arg ref="PermissionService" />
-		<constructor-arg ref="Mongo" />
-		<constructor-arg value="${enkive.auditlogservice.db.name}" />
-		<constructor-arg value="auditLog" />
+		<constructor-arg ref="AuditLogDbInfo" />
 	</bean>
 
 	<bean id="AuthenticationService"
@@ -87,10 +81,7 @@
 
 	<bean id="MessagePermissionsService"
 		class="com.linuxbox.enkive.permissions.message.MongoMessagePermissionsService">
-		<constructor-arg ref="Mongo" />
-		<constructor-arg type="java.lang.String" value="${enkive.messagestore.db.name}" />
-		<constructor-arg type="java.lang.String"
-			value="${enkive.messagestore.collection.name}" />
+		<constructor-arg ref="MessageCollectionDbInfo" />
 	</bean>
 
 	<!-- Scheduled Actions -->
@@ -142,11 +133,6 @@
 
 	<!-- Create a Mongo shared by various services; that way if the MongoDB 
 		lives on another server or a unique port, that can be configured once. -->
-
-	<bean id="Mongo" class="com.mongodb.Mongo" destroy-method="close">
-		<constructor-arg type="java.lang.String" value="${enkive.mongodb.host}" />
-		<constructor-arg type="int" value="${enkive.mongodb.port}" />
-	</bean>
 
 	<bean id="IndexShardingHelper" class="com.linuxbox.enkive.docstore.AbstractDocStoreService"
 		factory-method="createShardingHelper">

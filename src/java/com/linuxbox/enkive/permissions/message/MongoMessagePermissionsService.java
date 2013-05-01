@@ -31,9 +31,9 @@ import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.AT
 
 import java.util.Collection;
 
+import com.linuxbox.util.dbinfo.mongodb.MongoDBInfo;
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
-import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.Mongo;
@@ -41,16 +41,19 @@ import com.mongodb.Mongo;
 public class MongoMessagePermissionsService implements
 		MessagePermissionsService {
 
-	protected Mongo m;
-	protected DB messageDb;
-	protected DBCollection messageColl;
+	protected DBCollection messageCollection;
 
-	public MongoMessagePermissionsService(Mongo m, String dbName,
+	public MongoMessagePermissionsService(Mongo mongo, String dbName,
 			String collName) {
-		this.m = m;
-		messageDb = m.getDB(dbName);
-		messageColl = messageDb.getCollection(collName);
-
+		this(mongo.getDB(dbName).getCollection(collName));
+	}
+	
+	public MongoMessagePermissionsService(MongoDBInfo dbInfo) {
+		this(dbInfo.getCollection());
+	}
+	
+	public MongoMessagePermissionsService(DBCollection collection) {
+		this.messageCollection = collection;
 	}
 
 	@Override
@@ -69,7 +72,7 @@ public class MongoMessagePermissionsService implements
 		}
 		query.put("$or", addressQuery);
 		query.put(ATTACHMENT_ID_LIST, attachmentId);
-		DBCursor results = messageColl.find(query);
+		DBCursor results = messageCollection.find(query);
 		if (results.size() > 0)
 			return true;
 		else

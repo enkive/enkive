@@ -44,11 +44,10 @@ public class MessageRetentionPolicyEnforcer {
 	protected MessageRetentionPolicy retentionPolicy;
 
 	public MessageRetentionPolicyEnforcer() {
-
+		// empty
 	}
 
 	public void enforceMessageRetentionPolicies() {
-
 		try {
 			SearchResult result;
 			if (Integer.parseInt(retentionPolicy.getRetentionPolicyCriteria()

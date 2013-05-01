@@ -12,10 +12,7 @@
 
 	<bean id="MongoMessageArchivingService"
 		class="com.linuxbox.enkive.archiver.mongodb.MongoArchivingService">
-		<constructor-arg ref="Mongo" />
-		<constructor-arg type="java.lang.String" value="${enkive.messagestore.db.name}" />
-		<constructor-arg type="java.lang.String"
-			value="${enkive.messagestore.collection.name}" />
+		<constructor-arg ref="MessageStoreDbInfo" />
 		<property name="auditService" ref="AuditLogService" />
 		<property name="docStoreService" ref="DocStoreService" />
 		<property name="emergencySaveRoot" value="${enkive.messagestore.emergencysave.root}" />
@@ -36,10 +33,7 @@
 
 	<bean id="MongoMessageRetrieverService"
 		class="com.linuxbox.enkive.retriever.mongodb.MongoRetrieverService">
-		<constructor-arg ref="Mongo" />
-		<constructor-arg type="java.lang.String" value="${enkive.messagestore.db.name}" />
-		<constructor-arg type="java.lang.String"
-			value="${enkive.messagestore.collection.name}" />
+		<constructor-arg ref="MessageStoreDbInfo" />
 		<property name="docStoreService" ref="DocStoreService" />
 		<property name="auditService" ref="AuditLogService" />
 	</bean>
@@ -78,10 +72,7 @@
 
 	<bean id="SystemMessageSearchService"
 		class="com.linuxbox.enkive.message.search.mongodb.MongoMessageSearchService">
-		<constructor-arg ref="Mongo" />
-		<constructor-arg type="java.lang.String" value="${enkive.messagestore.db.name}" />
-		<constructor-arg type="java.lang.String"
-			value="${enkive.messagestore.collection.name}" />
+		<constructor-arg ref="MessageStoreDbInfo" />
 		<property name="docSearchService" ref="DocSearchQueryService" />
 		<property name="searchResultBuilder" ref="SearchResultBuilder" />
 	</bean>

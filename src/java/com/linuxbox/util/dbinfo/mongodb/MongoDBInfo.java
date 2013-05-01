@@ -7,33 +7,36 @@ import com.mongodb.DBCollection;
 import com.mongodb.Mongo;
 
 public class MongoDBInfo extends AbstractDBInfo implements DBInfo {
+
+	/*
+	 * Perhaps we should just maintain the collection and only use that to
+	 * return the Mongo or the DB should they ever be queried?
+	 */
+
 	final Mongo mongo;
-	final String dbName;
-	final String collectionName;
 	final DB database;
 	final DBCollection collection;
 
-	public MongoDBInfo(Mongo mongo, String dbName, String collectionName,
-			String serviceName) {
+	public MongoDBInfo(String serviceName, Mongo mongo, String dbName,
+			String collectionName) {
+		this(serviceName, mongo, mongo.getDB(dbName), collectionName);
+	}
+	
+	public MongoDBInfo(String serviceName, Mongo mongo, DB db,
+			String collectionName) {
+		this(serviceName, mongo, db, db.getCollection(collectionName));
+	}
+	
+	public MongoDBInfo(String serviceName, Mongo mongo, DB db,
+			DBCollection collection) {
 		super(serviceName);
 		this.mongo = mongo;
-		this.dbName = dbName;
-		this.collectionName = collectionName;
-		
-		this.database = mongo.getDB(dbName);
-		this.collection = database.getCollection(collectionName);
+		this.database = db;
+		this.collection = collection;
 	}
 
 	public Mongo getMongo() {
 		return mongo;
-	}
-
-	public String getDbName() {
-		return dbName;
-	}
-
-	public String getCollectionName() {
-		return collectionName;
 	}
 
 	public DB getDatabase() {
@@ -42,5 +45,13 @@ public class MongoDBInfo extends AbstractDBInfo implements DBInfo {
 
 	public DBCollection getCollection() {
 		return collection;
+	}
+	
+	public String getDbName() {
+		return database.getName();
+	}
+
+	public String getCollectionName() {
+		return collection.getName();
 	}
 }

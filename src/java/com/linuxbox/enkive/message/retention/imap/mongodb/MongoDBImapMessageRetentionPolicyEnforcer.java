@@ -30,8 +30,8 @@ import org.bson.types.ObjectId;
 
 import com.linuxbox.enkive.imap.mongo.MongoEnkiveImapConstants;
 import com.linuxbox.enkive.message.retention.mongodb.MongodbMessageRetentionPolicyEnforcer;
+import com.linuxbox.util.dbinfo.mongodb.MongoDBInfo;
 import com.mongodb.BasicDBObject;
-import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
@@ -40,15 +40,19 @@ import com.mongodb.Mongo;
 public class MongoDBImapMessageRetentionPolicyEnforcer extends
 		MongodbMessageRetentionPolicyEnforcer {
 
-	Mongo m;
-	DB imapDB;
 	DBCollection imapColl;
 
 	public MongoDBImapMessageRetentionPolicyEnforcer(Mongo m,
-			String imapDBname, String imapCollectionName) {
-		this.m = m;
-		imapDB = m.getDB(imapDBname);
-		imapColl = imapDB.getCollection(imapCollectionName);
+			String imapDbName, String imapCollectionName) {
+		this(m.getDB(imapDbName).getCollection(imapCollectionName));
+	}
+	
+	public MongoDBImapMessageRetentionPolicyEnforcer(MongoDBInfo dbInfo) {
+		this(dbInfo.getCollection());
+	}
+
+	public MongoDBImapMessageRetentionPolicyEnforcer(DBCollection collection) {
+		this.imapColl = collection;
 	}
 
 	@Override

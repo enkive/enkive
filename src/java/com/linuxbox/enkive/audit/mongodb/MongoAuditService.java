@@ -35,11 +35,11 @@ import org.bson.types.ObjectId;
 import com.linuxbox.enkive.audit.AuditEntry;
 import com.linuxbox.enkive.audit.AuditService;
 import com.linuxbox.enkive.audit.AuditServiceException;
+import com.linuxbox.util.dbinfo.mongodb.MongoDBInfo;
 import com.linuxbox.util.mongodb.MongoDBConstants;
 import com.linuxbox.util.mongodb.MongoIndexable;
 import com.linuxbox.util.queueservice.QueueServiceException;
 import com.mongodb.BasicDBObject;
-import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
@@ -76,7 +76,6 @@ public class MongoAuditService implements AuditService, MongoIndexable {
 			TIMESTAMP_FIELD, -1);
 
 	private final Mongo mongo;
-	private final DB mongoDB;
 	private final DBCollection auditCollection;
 
 	/**
@@ -98,9 +97,16 @@ public class MongoAuditService implements AuditService, MongoIndexable {
 	}
 
 	public MongoAuditService(Mongo mongo, String database, String collection) {
+		this(mongo, mongo.getDB(database).getCollection(collection));
+	}
+
+	public MongoAuditService(MongoDBInfo dbInfo) {
+		this(dbInfo.getMongo(), dbInfo.getCollection());
+	}
+
+	public MongoAuditService(Mongo mongo, DBCollection collection) {
 		this.mongo = mongo;
-		this.mongoDB = mongo.getDB(database);
-		this.auditCollection = mongoDB.getCollection(collection);
+		this.auditCollection = collection;
 
 		// see comments on def'n of CALL_ENSURE_INDEX_ON_INIT to see why it's
 		// done conditionally

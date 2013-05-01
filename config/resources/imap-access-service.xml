@@ -55,17 +55,14 @@
 
 	<bean id="EnkiveImapSubscriptionManager"
 		class="com.linuxbox.enkive.imap.mailbox.mongo.MongoEnkiveSubscriptionManager">
-		<constructor-arg ref="Mongo" />
-		<constructor-arg type="java.lang.String" value="${enkive.imap.db.name}" />
-		<constructor-arg type="java.lang.String" value="${enkive.imap.collection.name}" />
+		<constructor-arg ref="ImapAccessDbInfo" />
 	</bean>
 
 	<bean id="MongoEnkiveMailboxSessionMapperFactory"
 		class="com.linuxbox.enkive.imap.mailbox.mongo.MongoEnkiveMailboxSessionMapperFactory">
-		<constructor-arg ref="Mongo" />
-		<constructor-arg type="java.lang.String" value="${enkive.imap.db.name}" />
-		<constructor-arg type="java.lang.String" value="${enkive.imap.collection.name}" />
-		<property name="retrieverService" ref="RetentionPolicyEnforcingMessageRetrieverService" />
+		<constructor-arg ref="ImapAccessDbInfo" />
+		<property name="retrieverService"
+			ref="RetentionPolicyEnforcingMessageRetrieverService" />
 	</bean>
 
 	<bean id="EnkiveImapAccountCreatingSpringContextAuthenticator"
@@ -88,29 +85,21 @@
 	</bean>
 
 	<bean id="MongoImapAccountCreator" class="com.linuxbox.enkive.imap.mongo.MongoImapAccountCreator">
-		<constructor-arg ref="Mongo" />
-		<constructor-arg type="java.lang.String" value="${enkive.imap.db.name}" />
-		<constructor-arg type="java.lang.String" value="${enkive.imap.collection.name}" />
+		<constructor-arg ref="ImapAccessDbInfo" />
 		<property name="searchService" ref="MongoImapAccountCreationMessageSearchService" />
 		<property name="permissionsService" ref="PermissionService" />
 	</bean>
 
 	<bean id="MongoImapAccountCreationMessageSearchService"
 		class="com.linuxbox.enkive.imap.mongo.MongoImapAccountCreationMessageSearchService">
-		<constructor-arg ref="Mongo" />
-		<constructor-arg type="java.lang.String" value="${enkive.messagestore.db.name}" />
-		<constructor-arg type="java.lang.String"
-			value="${enkive.messagestore.collection.name}" />
+		<constructor-arg ref="MessageStoreDbInfo" />
 		<property name="docSearchService" ref="DocSearchQueryService" />
 		<property name="searchResultBuilder" ref="SearchResultBuilder" />
 	</bean>
 
 	<bean name="ImapMessageRetentionPolicyEnforcer"
 		class="com.linuxbox.enkive.message.retention.imap.mongodb.MongoDBImapMessageRetentionPolicyEnforcer">
-		<constructor-arg ref="Mongo" />
-		<constructor-arg type="java.lang.String" value="${enkive.imap.db.name}" />
-		<constructor-arg type="java.lang.String"
-			value="${enkive.imap.collection.name}" />
+		<constructor-arg ref="ImapAccessDbInfo" />
 		<property name="searchService" ref="SystemMessageSearchService" />
 		<property name="retentionPolicy" ref="MessageRetentionPolicy" />
 		<property name="messageArchivingService" ref="MessageArchivingService" />
@@ -139,6 +128,7 @@
 		<property name="jobDetail" ref="ImapAccountUpdateJob" />
 		<property name="cronExpression" value="0 0 3 * * ?" />
 	</bean>
+	
 	<bean id="ImapScheduledJobsBean"
 		class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
 		<property name="triggers">
