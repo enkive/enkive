@@ -58,6 +58,7 @@ import org.apache.commons.logging.LogFactory;
 import com.linuxbox.enkive.docsearch.exception.DocSearchException;
 import com.linuxbox.enkive.message.search.AbstractMessageSearchService;
 import com.linuxbox.enkive.message.search.exception.MessageSearchException;
+import com.linuxbox.util.dbinfo.mongodb.MongoDBInfo;
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
@@ -67,18 +68,25 @@ import com.mongodb.DBObject;
 import com.mongodb.Mongo;
 
 public class MongoMessageSearchService extends AbstractMessageSearchService {
-
 	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.searchService.mongodb");
 
-	protected Mongo m = null;
-	protected DB messageDb;
 	protected DBCollection messageColl;
 
 	public MongoMessageSearchService(Mongo m, String dbName, String collName) {
-		this.m = m;
-		messageDb = m.getDB(dbName);
-		messageColl = messageDb.getCollection(collName);
+		this(m.getDB(dbName), collName);
+	}
+
+	public MongoMessageSearchService(DB db, String collName) {
+		this(db.getCollection(collName));
+	}
+
+	public MongoMessageSearchService(MongoDBInfo dbInfo) {
+		this(dbInfo.getCollection());
+	}
+
+	public MongoMessageSearchService(DBCollection collection) {
+		this.messageColl = collection;
 	}
 
 	public Set<String> searchImpl(HashMap<String, String> fields)

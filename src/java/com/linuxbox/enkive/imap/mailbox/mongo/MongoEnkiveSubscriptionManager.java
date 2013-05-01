@@ -27,23 +27,27 @@ import org.apache.james.mailbox.exception.SubscriptionException;
 
 import com.linuxbox.enkive.imap.mailbox.EnkiveSubscriptionManager;
 import com.linuxbox.enkive.imap.mongo.MongoEnkiveImapConstants;
+import com.linuxbox.util.dbinfo.mongodb.MongoDBInfo;
 import com.mongodb.BasicDBObject;
-import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import com.mongodb.Mongo;
 
 public class MongoEnkiveSubscriptionManager extends EnkiveSubscriptionManager {
 
-	Mongo m;
-	DB imapDB;
 	DBCollection imapCollection;
 
 	public MongoEnkiveSubscriptionManager(Mongo m, String imapDBName,
 			String imapCollname) {
-		this.m = m;
-		imapDB = m.getDB(imapDBName);
-		imapCollection = imapDB.getCollection(imapCollname);
+		this(m.getDB(imapDBName).getCollection(imapCollname));
+	}
+	
+	public MongoEnkiveSubscriptionManager(MongoDBInfo dbInfo) {
+		this(dbInfo.getCollection());
+	}
+
+	public MongoEnkiveSubscriptionManager(DBCollection imapCollection) {
+		this.imapCollection = imapCollection;
 	}
 
 	/**
@@ -57,11 +61,11 @@ public class MongoEnkiveSubscriptionManager extends EnkiveSubscriptionManager {
 		DBObject searchObject = new BasicDBObject(
 				MongoEnkiveImapConstants.USER, session.getUser().getUserName());
 		DBObject userMailboxObject = imapCollection.findOne(searchObject);
-		
+
 		@SuppressWarnings("unchecked")
 		Map<String, String> mailboxes = (Map<String, String>) userMailboxObject
 				.get(MongoEnkiveImapConstants.MAILBOXES);
-		
+
 		subscriptions.addAll(mailboxes.keySet());
 
 		return subscriptions;

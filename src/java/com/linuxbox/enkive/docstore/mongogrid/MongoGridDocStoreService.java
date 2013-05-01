@@ -51,6 +51,7 @@ import com.linuxbox.enkive.docstore.StoreRequestResultImpl;
 import com.linuxbox.enkive.docstore.exception.DocStoreException;
 import com.linuxbox.enkive.docstore.exception.DocumentNotFoundException;
 import com.linuxbox.util.HashingInputStream;
+import com.linuxbox.util.dbinfo.mongodb.MongoGridDbInfo;
 import com.linuxbox.util.lockservice.LockService;
 import com.linuxbox.util.lockservice.LockServiceException;
 import com.linuxbox.util.mongodb.MongoIndexable;
@@ -123,15 +124,23 @@ public class MongoGridDocStoreService extends AbstractDocStoreService implements
 
 	public MongoGridDocStoreService(Mongo mongo, String dbName,
 			String bucketName) {
+		this(mongo, mongo.getDB(dbName), bucketName);
+	}
+
+	public MongoGridDocStoreService(Mongo mongo, DB db, String bucketName) {
+		this(mongo, new GridFS(db, bucketName), db.getCollection(bucketName
+				+ GRID_FS_FILES_COLLECTION_SUFFIX));
+	}
+
+	public MongoGridDocStoreService(MongoGridDbInfo dbInfo) {
+		this(dbInfo.getMongo(), dbInfo.getGridFs(), dbInfo.getCollection());
+	}
+
+	public MongoGridDocStoreService(Mongo mongo, GridFS gridFS,
+			DBCollection collection) {
 		this.mongo = mongo;
-
-		DB db = mongo.getDB(dbName);
-		gridFS = new GridFS(db, bucketName);
-
-		// files collection
-
-		filesCollection = gridFS.getDB().getCollection(
-				bucketName + GRID_FS_FILES_COLLECTION_SUFFIX);
+		this.gridFS = gridFS;
+		this.filesCollection = collection;
 
 		// see comments on def'n of CALL_ENSURE_INDEX_ON_INIT to see why it's
 		// done conditionally
@@ -140,7 +149,7 @@ public class MongoGridDocStoreService extends AbstractDocStoreService implements
 		}
 
 		// insure data is written to disk
-		filesCollection.setWriteConcern(WriteConcern.FSYNC_SAFE);
+		this.filesCollection.setWriteConcern(WriteConcern.FSYNC_SAFE);
 	}
 
 	@Override
