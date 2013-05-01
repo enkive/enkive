@@ -2,7 +2,7 @@ package com.linuxbox.util.dbmigration;
 
 import java.util.Date;
 
-public class DBStatusRecord {
+public class DbStatusRecord {
 	public static enum Status {
 		STORED(0), MIGRATING(1), ERROR(-1);
 
@@ -17,7 +17,7 @@ public class DBStatusRecord {
 	public final Status status;
 	public final Date timestamp;
 
-	public DBStatusRecord(int version, Status status, Date timestamp) {
+	public DbStatusRecord(int version, Status status, Date timestamp) {
 		this.version = version;
 		this.status = status;
 		this.timestamp = timestamp;

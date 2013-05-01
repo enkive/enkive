@@ -4,7 +4,7 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd"
 	default-init-method="startup" default-destroy-method="shutdown">
 
-	<bean id="MongoDBIndexManager" class="com.linuxbox.enkive.tool.mongodb.MongoDBIndexManager">
+	<bean id="MongoDbIndexManager" class="com.linuxbox.enkive.tool.mongodb.MongoDbIndexManager">
 		<property name="maxDocumentsForAutoEnsure"
 			value="${enkive.mongodbindexmanager.maxDocumentsForAutoEnsure}" />
 	</bean>

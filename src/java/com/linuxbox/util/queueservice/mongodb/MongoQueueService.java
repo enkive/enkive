@@ -19,8 +19,8 @@
  *******************************************************************************/
 package com.linuxbox.util.queueservice.mongodb;
 
-import static com.linuxbox.util.mongodb.MongoDBConstants.CALL_ENSURE_INDEX_ON_INIT;
-import static com.linuxbox.util.mongodb.MongoDBConstants.OBJECT_ID_KEY;
+import static com.linuxbox.util.mongodb.MongoDbConstants.CALL_ENSURE_INDEX_ON_INIT;
+import static com.linuxbox.util.mongodb.MongoDbConstants.OBJECT_ID_KEY;
 
 import java.net.UnknownHostException;
 import java.util.Date;

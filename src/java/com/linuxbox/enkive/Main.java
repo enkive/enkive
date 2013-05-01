@@ -31,9 +31,9 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.linuxbox.enkive.audit.AuditService;
 import com.linuxbox.enkive.audit.AuditServiceException;
-import com.linuxbox.enkive.tool.mongodb.MongoDBIndexManager;
+import com.linuxbox.enkive.tool.mongodb.MongoDbIndexManager;
 import com.linuxbox.util.DirectoryManagement;
-import com.linuxbox.util.dbmigration.DBMigrationService;
+import com.linuxbox.util.dbmigration.DbMigrationService;
 
 public abstract class Main {
 	protected static final Log LOGGER;
@@ -92,15 +92,15 @@ public abstract class Main {
 			AbstractApplicationContext versionCheckingContext = new ClassPathXmlApplicationContext(
 					VERSION_CHECK_CONFIG_FILES);
 
-			Map<String, DBMigrationService> migrationServices = versionCheckingContext
-					.getBeansOfType(DBMigrationService.class);
+			Map<String, DbMigrationService> migrationServices = versionCheckingContext
+					.getBeansOfType(DbMigrationService.class);
 			if (migrationServices.isEmpty()) {
 				String message = "no version checking / migration services configured";
 				LOGGER.fatal(message);
 				throw new Exception(
 						"no version checking / migration services configured");
 			}
-			for (Entry<String, DBMigrationService> service : migrationServices
+			for (Entry<String, DbMigrationService> service : migrationServices
 					.entrySet()) {
 				service.getValue().isUpToDate();
 			}
@@ -120,8 +120,8 @@ public abstract class Main {
 		auditService.addEvent(AuditService.SYSTEM_STARTUP, USER, description);
 
 		if (runIndexCheck) {
-			final MongoDBIndexManager mongoIndexManager = context
-					.getBean(MongoDBIndexManager.class);
+			final MongoDbIndexManager mongoIndexManager = context
+					.getBean(MongoDbIndexManager.class);
 			mongoIndexManager.runCheckAndAutoEnsure();
 		}
 

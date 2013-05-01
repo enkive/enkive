@@ -27,10 +27,10 @@ import static com.linuxbox.enkive.docstore.mongogrid.Constants.INDEX_STATUS_KEY;
 import static com.linuxbox.enkive.docstore.mongogrid.Constants.INDEX_STATUS_QUERY;
 import static com.linuxbox.enkive.docstore.mongogrid.Constants.INDEX_TIMESTAMP_KEY;
 import static com.linuxbox.enkive.docstore.mongogrid.Constants.INDEX_TIMESTAMP_QUERY;
-import static com.linuxbox.util.mongodb.MongoDBConstants.CALL_ENSURE_INDEX_ON_INIT;
-import static com.linuxbox.util.mongodb.MongoDBConstants.FILENAME_KEY;
-import static com.linuxbox.util.mongodb.MongoDBConstants.GRID_FS_FILES_COLLECTION_SUFFIX;
-import static com.linuxbox.util.mongodb.MongoDBConstants.OBJECT_ID_KEY;
+import static com.linuxbox.util.mongodb.MongoDbConstants.CALL_ENSURE_INDEX_ON_INIT;
+import static com.linuxbox.util.mongodb.MongoDbConstants.FILENAME_KEY;
+import static com.linuxbox.util.mongodb.MongoDbConstants.GRID_FS_FILES_COLLECTION_SUFFIX;
+import static com.linuxbox.util.mongodb.MongoDbConstants.OBJECT_ID_KEY;
 
 import java.io.ByteArrayInputStream;
 import java.net.UnknownHostException;

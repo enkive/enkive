@@ -54,7 +54,7 @@ import com.linuxbox.enkive.statistics.RawStats;
 import com.linuxbox.enkive.statistics.gathering.mongodb.MongoStatsDatabaseGatherer;
 import com.mongodb.Mongo;
 
-public class StatsMongoDBTest {
+public class StatsMongoDbTest {
 	private static MongoStatsDatabaseGatherer dbStats;
 	private static Map<String, Object> stats;
 	private static Map<String, Object> intervalStats;
@@ -62,6 +62,7 @@ public class StatsMongoDBTest {
 	private static Mongo m;
 	private static String name = "DBGatherer";
 
+	@SuppressWarnings("unchecked")
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		m = new Mongo();
@@ -212,6 +213,7 @@ public class StatsMongoDBTest {
 
 	@Test
 	public void hasTimeStamp() {
+		@SuppressWarnings("unchecked")
 		Map<String, Object> time = (Map<String, Object>) stats
 				.get(STAT_TIMESTAMP);
 		assertTrue("runtime test exception in hasTimeStamp(): time = " + time,
@@ -220,6 +222,7 @@ public class StatsMongoDBTest {
 
 	@Test
 	public void upperTimeGTZero() {
+		@SuppressWarnings("unchecked")
 		Map<String, Object> time = (Map<String, Object>) stats
 				.get(STAT_TIMESTAMP);
 		Date date = ((Date) time.get(CONSOLIDATION_MAX));
@@ -229,6 +232,7 @@ public class StatsMongoDBTest {
 
 	@Test
 	public void lowerTimeGTZero() {
+		@SuppressWarnings("unchecked")
 		Map<String, Object> time = (Map<String, Object>) stats
 				.get(STAT_TIMESTAMP);
 		Date date = ((Date) time.get(CONSOLIDATION_MIN));

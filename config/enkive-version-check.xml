@@ -9,7 +9,7 @@
 	<import resource="resources/mongo-set-service.xml" />
 
 	<bean id="MigrationService"
-		class="com.linuxbox.util.dbmigration.mongodb.MongoDBMigrationService">
+		class="com.linuxbox.util.dbmigration.mongodb.MongoDbMigrationService">
 		<constructor-arg ref="MigrationStoreDbInfo" />
 	</bean>
 

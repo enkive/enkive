@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # export ENKIVE_CONSOLE_LOGGING=full
-export ENKIVE_MAIN=com.linuxbox.enkive.tool.mongodb.MongoDBDocRetriever
+export ENKIVE_MAIN=com.linuxbox.enkive.tool.mongodb.MongoDbDocRetriever
 
 if [ $# -ne 1 ] ;then
     echo "Usage: $0 document-id"

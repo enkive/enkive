@@ -21,9 +21,9 @@ package com.linuxbox.enkive.docstore.mongogrid;
 
 import java.nio.charset.Charset;
 
-import com.linuxbox.util.mongodb.MongoDBConstants;
+import com.linuxbox.util.mongodb.MongoDbConstants;
 
-public interface Constants extends MongoDBConstants {
+public interface Constants extends MongoDbConstants {
 	Charset PREFERRED_CHARSET = Charset.forName("UTF-8");
 
 	// file control

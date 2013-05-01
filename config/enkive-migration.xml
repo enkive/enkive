@@ -9,9 +9,9 @@
 
 	<!-- REMOVE ME <import resource="resources/*-service.xml" /> -->
 
-	<!-- <bean id="StatsMigrator" class="com.linuxbox.util.dbmigration.DBMigrator"> 
+	<!-- <bean id="StatsMigrator" class="com.linuxbox.util.dbmigration.DbMigrator"> 
 		<constructor-arg name="migratorName" value="StatsMigrator" /> <constructor-arg 
-		ref="StatsDBInfo" /> </bean> <bean id="StatsMigration1To2" class = "com.linuxbox.enkive.statistics.migration.StatsMigration1to2"> 
+		ref="StatsDbInfo" /> </bean> <bean id="StatsMigration1To2" class = "com.linuxbox.enkive.statistics.migration.StatsMigration1to2"> 
 		<constructor-arg ref="StatsMigrator" /> </bean> -->
 
 	<bean id="EnkiveFilters" class="com.linuxbox.enkive.filter.EnkiveFiltersBean" />
@@ -35,13 +35,13 @@
 		<constructor-arg value="auditLog" />
 	</bean>
 
-	<bean id="MigrationService" class="com.linuxbox.util.dbmigration.DBMigrationService" />
+	<bean id="MigrationService" class="com.linuxbox.util.dbmigration.DbMigrationService" />
 
 
 
-	<bean id="StatsMigrator" class="com.linuxbox.util.dbmigration.DBMigrator">
+	<bean id="StatsMigrator" class="com.linuxbox.util.dbmigration.DbMigrator">
 		<constructor-arg name="migratorName" value="StatsMigrator" />
-		<constructor-arg name="db" ref="StatsDBInfo" />
+		<constructor-arg name="db" ref="StatsDbInfo" />
 		<constructor-arg name="defaultPackage"
 			value="com.linuxbox.enkive.statistics.migration" />
 		<constructor-arg name="migrations">

@@ -19,7 +19,7 @@
  *******************************************************************************/
 package com.linuxbox.util.lockservice.mongodb;
 
-import static com.linuxbox.util.mongodb.MongoDBConstants.CALL_ENSURE_INDEX_ON_INIT;
+import static com.linuxbox.util.mongodb.MongoDbConstants.CALL_ENSURE_INDEX_ON_INIT;
 
 import java.net.UnknownHostException;
 import java.util.Date;

@@ -19,7 +19,7 @@
  *******************************************************************************/
 package com.linuxbox.enkive.audit.mongodb;
 
-import static com.linuxbox.util.mongodb.MongoDBConstants.CALL_ENSURE_INDEX_ON_INIT;
+import static com.linuxbox.util.mongodb.MongoDbConstants.CALL_ENSURE_INDEX_ON_INIT;
 
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -36,7 +36,7 @@ import com.linuxbox.enkive.audit.AuditEntry;
 import com.linuxbox.enkive.audit.AuditService;
 import com.linuxbox.enkive.audit.AuditServiceException;
 import com.linuxbox.util.dbinfo.mongodb.MongoDbInfo;
-import com.linuxbox.util.mongodb.MongoDBConstants;
+import com.linuxbox.util.mongodb.MongoDbConstants;
 import com.linuxbox.util.mongodb.MongoIndexable;
 import com.linuxbox.util.queueservice.QueueServiceException;
 import com.mongodb.BasicDBObject;
@@ -178,7 +178,7 @@ public class MongoAuditService implements AuditService, MongoIndexable {
 	public AuditEntry getEvent(String identifier) throws AuditServiceException {
 		final ObjectId idObject = ObjectId.massageToObjectId(identifier);
 		final QueryBuilder queryBuilder = QueryBuilder.start(
-				MongoDBConstants.OBJECT_ID_KEY).is(idObject);
+				MongoDbConstants.OBJECT_ID_KEY).is(idObject);
 		final DBObject resultObject = auditCollection.findOne(queryBuilder
 				.get());
 		return dbObjectToAuditEntry(resultObject);
@@ -264,7 +264,7 @@ public class MongoAuditService implements AuditService, MongoIndexable {
 	 * @return
 	 */
 	private AuditEntry dbObjectToAuditEntry(DBObject entry) {
-		final String objectId = entry.get(MongoDBConstants.OBJECT_ID_KEY)
+		final String objectId = entry.get(MongoDbConstants.OBJECT_ID_KEY)
 				.toString();
 		final BSONTimestamp entryTimestamp = (BSONTimestamp) entry
 				.get(TIMESTAMP_FIELD);
