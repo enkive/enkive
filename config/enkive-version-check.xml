@@ -5,13 +5,12 @@
 	default-init-method="startup" default-destroy-method="shutdown">
 
 	<import resource="resources/enkive-properties.xml" />
+	<import resource="resources/db-info.xml" />
 	<import resource="resources/mongo-set-service.xml" />
 
 	<bean id="MigrationService"
 		class="com.linuxbox.util.dbmigration.mongodb.MongoDBMigrationService">
-		<constructor-arg ref="Mongo" />
-		<constructor-arg value="${enkive.migrations.db.name}" />
-		<constructor-arg value="${enkive.migrations.collection.name}" />
+		<constructor-arg ref="MigrationStoreDbInfo" />
 	</bean>
 
 	<!-- Create a Mongo shared by various services; that way if the MongoDB 

@@ -39,7 +39,7 @@
 
 	<bean id="AuditLogDbInfo" class="com.linuxbox.util.dbinfo.mongodb.MongoDbInfo">
 		<constructor-arg name="serviceName" value="Audit Log Service" />
-				<constructor-arg ref="Mongo" />
+		<constructor-arg ref="Mongo" />
 		<constructor-arg value="${enkive.auditlogservice.db.name}" />
 		<constructor-arg value="auditLog" />
 	</bean>
@@ -65,6 +65,13 @@
 		<constructor-arg type="java.lang.String" value="${enkive.messagestore.db.name}" />
 		<constructor-arg type="java.lang.String"
 			value="${enkive.messagestore.collection.name}" />
+	</bean>
+
+	<bean id="MigrationStoreDbInfo" class="com.linuxbox.util.dbinfo.mongodb.MongoDbInfo">
+		<constructor-arg name="serviceName" value="Migration Service" />
+				<constructor-arg ref="Mongo" />
+		<constructor-arg value="${enkive.migrations.db.name}" />
+		<constructor-arg value="${enkive.migrations.collection.name}" />
 	</bean>
 
 </beans>
