@@ -122,6 +122,7 @@ public class StatsMongoAttachTest {
 		return false;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Test
 	public void testAttributes() {
 		for (ConsolidationKeyHandler key : attach.getAttributes().getKeys()) {
@@ -157,6 +158,7 @@ public class StatsMongoAttachTest {
 		}
 
 		if (stats.containsKey(STAT_POINT)) {
+			@SuppressWarnings("unchecked")
 			Map<String, Object> pointStats = (Map<String, Object>) stats
 					.get(STAT_POINT);
 			numKeys += pointStats.keySet().size();
@@ -177,6 +179,7 @@ public class StatsMongoAttachTest {
 		}
 
 		if (stats.containsKey(STAT_INTERVAL)) {
+			@SuppressWarnings("unchecked")
 			Map<String, Object> intervalStats = (Map<String, Object>) stats
 					.get(STAT_INTERVAL);
 			numKeys += intervalStats.keySet().size();
@@ -225,6 +228,7 @@ public class StatsMongoAttachTest {
 
 	@Test
 	public void testAttachSize() throws UnknownHostException, MongoException {
+		@SuppressWarnings("unchecked")
 		Map<String, Object> intervalStats = (Map<String, Object>) stats
 				.get(STAT_INTERVAL);
 		Object attachSz = intervalStats.get(STAT_ATTACH_SIZE);
@@ -234,6 +238,7 @@ public class StatsMongoAttachTest {
 
 	@Test
 	public void testAttNum() throws UnknownHostException, MongoException {
+		@SuppressWarnings("unchecked")
 		Map<String, Object> intervalStats = (Map<String, Object>) stats
 				.get(STAT_INTERVAL);
 		Object attachNum = intervalStats.get(STAT_ATTACH_NUM);

@@ -27,7 +27,7 @@ import org.junit.runners.Suite;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({ StatsMongoAttachTest.class, StatsClientTest.class,
-		StatsMongoCollTest.class, StatsMongoDBTest.class,
+		StatsMongoCollTest.class, StatsMongoDbTest.class,
 		StatsRemovalTest.class, StatsMsgTest.class, StatsRuntimeTest.class,
 		StatsMongoStorageAndRetrievalTest.class, StatsHourGrainTest.class,
 		StatsDayGrainTest.class, StatsWeekGrainTest.class,
