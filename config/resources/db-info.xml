@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd"
+	default-init-method="startup" default-destroy-method="shutdown">
+
+	<import resource="enkive-properties.xml" />
+
+	<!-- Create a Mongo shared by various services; that way if the MongoDB 
+		lives on another server or a unique port, that can be configured once. -->
+
+	<bean id="Mongo" class="com.mongodb.Mongo" destroy-method="close">
+		<constructor-arg type="java.lang.String" value="${enkive.mongodb.host}" />
+		<constructor-arg type="int" value="${enkive.mongodb.port}" />
+	</bean>
+
+	<bean id="StatsDbInfo" class="com.linuxbox.util.dbinfo.mongodb.MongoDBInfo">
+		<constructor-arg name="serviceName" value="Statistics Service" />
+		<constructor-arg ref="Mongo" />
+		<constructor-arg name="dbName" value="${enkive.statistics.db.name}" />
+		<constructor-arg name="collectionName"
+			value="${enkive.statistics.collection.name}" />
+	</bean>
+
+	<bean id="DocLockDbInfo" class="com.linuxbox.util.dbinfo.mongodb.MongoDBInfo">
+		<constructor-arg name="serviceName" value="Document Locking Service" />
+		<constructor-arg ref="Mongo" />
+		<constructor-arg value="${enkive.lockservice.db.name}" />
+		<constructor-arg value="lockService" />
+	</bean>
+
+	<bean id="IndexerQueueDbInfo" class="com.linuxbox.util.dbinfo.mongodb.MongoDBInfo">
+		<constructor-arg name="serviceName" value="Indexer Queue Service" />
+		<constructor-arg ref="Mongo" />
+		<constructor-arg value="${enkive.queueservice.db.name}" />
+		<constructor-arg value="queueService" />
+	</bean>
+
+
+	<bean id="AuditLogDbInfo" class="com.linuxbox.util.dbinfo.mongodb.MongoDBInfo">
+		<constructor-arg name="serviceName" value="Audit Log Service" />
+				<constructor-arg ref="Mongo" />
+		<constructor-arg value="${enkive.auditlogservice.db.name}" />
+		<constructor-arg value="auditLog" />
+	</bean>
+
+	<bean id="DocStoreDbInfo" class="com.linuxbox.util.dbinfo.mongodb.MongoGridDBInfo">
+		<constructor-arg name="serviceName" value="Document Storage Service" />
+		<constructor-arg ref="Mongo" />
+		<constructor-arg type="java.lang.String" value="${enkive.docstore.db.name}" />
+		<constructor-arg type="java.lang.String"
+			value="${enkive.docstore.fs.collection.name}" />
+	</bean>
+
+	<bean id="ImapAccessDbInfo" class="com.linuxbox.util.dbinfo.mongodb.MongoDBInfo">
+		<constructor-arg name="serviceName" value="IMAP Access Service" />
+		<constructor-arg ref="Mongo" />
+		<constructor-arg type="java.lang.String" value="${enkive.imap.db.name}" />
+		<constructor-arg type="java.lang.String" value="${enkive.imap.collection.name}" />
+	</bean>
+
+	<bean id="MessageStoreDbInfo" class="com.linuxbox.util.dbinfo.mongodb.MongoDBInfo">
+		<constructor-arg name="serviceName" value="Message Store Service" />
+		<constructor-arg ref="Mongo" />
+		<constructor-arg type="java.lang.String" value="${enkive.messagestore.db.name}" />
+		<constructor-arg type="java.lang.String"
+			value="${enkive.messagestore.collection.name}" />
+	</bean>
+
+
+	<bean id="DocLockDbInfo" class="com.linuxbox.util.dbinfo.mongodb.MongoDBInfo">
+		<constructor-arg name="serviceName" value="statistics" />
+		<constructor-arg ref="Mongo" />
+		<constructor-arg value="${enkive.lockservice.db.name}" />
+		<constructor-arg value="lockService" />
+	</bean>
+
+
+
+	<bean id="DocLockDbInfo" class="com.linuxbox.util.dbinfo.mongodb.MongoDBInfo">
+		<constructor-arg name="serviceName" value="statistics" />
+		<constructor-arg ref="Mongo" />
+		<constructor-arg value="${enkive.lockservice.db.name}" />
+		<constructor-arg value="lockService" />
+	</bean>
+
+
+
+	<bean id="DocLockDbInfo" class="com.linuxbox.util.dbinfo.mongodb.MongoDBInfo">
+		<constructor-arg name="serviceName" value="statistics" />
+		<constructor-arg ref="Mongo" />
+		<constructor-arg value="${enkive.lockservice.db.name}" />
+		<constructor-arg value="lockService" />
+	</bean>
+
+
+
+	<bean id="DocLockDbInfo" class="com.linuxbox.util.dbinfo.mongodb.MongoDBInfo">
+		<constructor-arg name="serviceName" value="statistics" />
+		<constructor-arg ref="Mongo" />
+		<constructor-arg value="${enkive.lockservice.db.name}" />
+		<constructor-arg value="lockService" />
+	</bean>
+
+
+
+	<bean id="DocLockDbInfo" class="com.linuxbox.util.dbinfo.mongodb.MongoDBInfo">
+		<constructor-arg name="serviceName" value="statistics" />
+		<constructor-arg ref="Mongo" />
+		<constructor-arg value="${enkive.lockservice.db.name}" />
+		<constructor-arg value="lockService" />
+	</bean>
+
+
+
+	<bean id="DocLockDbInfo" class="com.linuxbox.util.dbinfo.mongodb.MongoDBInfo">
+		<constructor-arg name="serviceName" value="statistics" />
+		<constructor-arg ref="Mongo" />
+		<constructor-arg value="${enkive.lockservice.db.name}" />
+		<constructor-arg value="lockService" />
+	</bean>
+
+</beans>
