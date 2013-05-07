@@ -5,59 +5,81 @@
 	default-init-method="startup" default-destroy-method="shutdown">
 
 	<import resource="resources/enkive-properties.xml" />
-	<import resource="resources/mongo-set-service.xml" />
-
-	<!-- REMOVE ME <import resource="resources/*-service.xml" /> -->
-
-	<!-- <bean id="StatsMigrator" class="com.linuxbox.util.dbmigration.DbMigrator"> 
-		<constructor-arg name="migratorName" value="StatsMigrator" /> <constructor-arg 
-		ref="StatsDbInfo" /> </bean> <bean id="StatsMigration1To2" class = "com.linuxbox.enkive.statistics.migration.StatsMigration1to2"> 
-		<constructor-arg ref="StatsMigrator" /> </bean> -->
-
-	<bean id="EnkiveFilters" class="com.linuxbox.enkive.filter.EnkiveFiltersBean" />
-
-	<bean id="DocLockService" class="com.linuxbox.util.lockservice.mongodb.MongoLockService">
-		<constructor-arg ref="DocLockDbInfo" />
-	</bean>
-
-	<bean id="IndexerQueueService"
-		class="com.linuxbox.util.queueservice.mongodb.MongoQueueService">
-		<constructor-arg ref="Mongo" />
-		<constructor-arg value="${enkive.queueservice.db.name}" />
-		<constructor-arg value="queueService" />
-	</bean>
-
-	<bean id="AuditLogService"
-		class="com.linuxbox.enkive.audit.mongodb.PermissionsEnforcingMongoAuditService">
-		<constructor-arg ref="PermissionService" />
-		<constructor-arg ref="Mongo" />
-		<constructor-arg value="${enkive.auditlogservice.db.name}" />
-		<constructor-arg value="auditLog" />
-	</bean>
 
 	<bean id="MigrationService" class="com.linuxbox.util.dbmigration.DbMigrationService" />
 
+	<!-- AUDIT LOG -->
 
+	<bean id="AuditLogMigrator" class="com.linuxbox.util.dbmigration.DbMigrator">
+		<constructor-arg name="migratorName" value="Audit Log Migrator" />
+		<constructor-arg ref="AuditLogDbInfo" />
+	</bean>
+
+
+	<!-- MESSAGE STORE -->
+
+	<bean id="MessageStoreMigrator" class="com.linuxbox.util.dbmigration.DbMigrator">
+		<constructor-arg name="migratorName" value="Message Store Migrator" />
+		<constructor-arg ref="MessageStoreDbInfo" />
+	</bean>
+
+
+	<!-- DOCUMENT/ATTACHMENT STORE -->
+
+	<bean id="DocStoreMigrator" class="com.linuxbox.util.dbmigration.DbMigrator">
+		<constructor-arg name="migratorName" value="Document Store Migrator" />
+		<constructor-arg ref="DocStoreDbInfo" />
+	</bean>
+
+
+	<!-- DOCUMENT LOCKING SERVICE -->
+
+	<bean id="DocLockMigrator" class="com.linuxbox.util.dbmigration.DbMigrator">
+		<constructor-arg name="migratorName"
+			value="Document Locking Serivce Migrator" />
+		<constructor-arg ref="DocLockDbInfo" />
+	</bean>
+
+
+	<!-- DOCUMENT/ATTACHMENT INDEXER QUEUE -->
+
+	<bean id="IndexerQueueMigrator" class="com.linuxbox.util.dbmigration.DbMigrator">
+		<constructor-arg name="migratorName" value="Indexer Queue Migrator" />
+		<constructor-arg ref="IndexerQueueDbInfo" />
+	</bean>
+
+
+	<!-- IMAP ACCESS -->
+
+	<bean id="ImapAccessMigrator" class="com.linuxbox.util.dbmigration.DbMigrator">
+		<constructor-arg name="migratorName" value="IMAP Access Migrator" />
+		<constructor-arg ref="ImapAccessDbInfo" />
+	</bean>
+
+
+	<!-- STATISTICS -->
 
 	<bean id="StatsMigrator" class="com.linuxbox.util.dbmigration.DbMigrator">
-		<constructor-arg name="migratorName" value="StatsMigrator" />
-		<constructor-arg name="db" ref="StatsDbInfo" />
-		<constructor-arg name="defaultPackage"
-			value="com.linuxbox.enkive.statistics.migration" />
-		<constructor-arg name="migrations">
-			<list>
-				<value>StatsMigration0To1</value>
-				<value>StatsMigration1To2</value>
-			</list>
-		</constructor-arg>
+		<constructor-arg name="migratorName" value="Statistics Migrator" />
+		<constructor-arg ref="StatsDbInfo" />
 	</bean>
 
-	<bean id="IndexShardingHelper" class="com.linuxbox.enkive.docstore.AbstractDocStoreService"
-		factory-method="createShardingHelper">
-		<constructor-arg value="${enkive.docsearch.index.shard.count}" />
+	<bean id="StatsMigration1To2"
+		class="com.linuxbox.enkive.statistics.migration.StatsMigration1to2">
+		<constructor-arg ref="StatsMigrator" />
 	</bean>
 
-	<bean id="ApplicationContextProvider" class="com.linuxbox.util.spring.ApplicationContextProvider" />
+
+	<!-- SUPPORT -->
+
+	<!-- <bean id="StatsMigrator" class="com.linuxbox.util.dbmigration.DbMigrator"> 
+		<constructor-arg name="migratorName" value="StatsMigrator" /> <constructor-arg 
+		name="db" ref="StatsDbInfo" /> <constructor-arg name="defaultPackage" value="com.linuxbox.enkive.statistics.migration" 
+		/> <constructor-arg name="migrations"> <list> <value>StatsMigration0To1</value> 
+		<value>StatsMigration1To2</value> </list> </constructor-arg> </bean> -->
+
+	<!-- <bean id="ApplicationContextProvider" class="com.linuxbox.util.spring.ApplicationContextProvider" 
+		/> -->
 
 	<!-- Makes sure all beans with PostConstruct or PreDestroy annotations get 
 		called appropriately -->

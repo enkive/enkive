@@ -36,7 +36,6 @@
 		<constructor-arg value="queueService" />
 	</bean>
 
-
 	<bean id="AuditLogDbInfo" class="com.linuxbox.util.dbinfo.mongodb.MongoDbInfo">
 		<constructor-arg name="serviceName" value="Audit Log Service" />
 		<constructor-arg ref="Mongo" />

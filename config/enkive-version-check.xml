@@ -13,13 +13,6 @@
 		<constructor-arg ref="MigrationStoreDbInfo" />
 	</bean>
 
-	<!-- Create a Mongo shared by various services; that way if the MongoDB 
-		lives on another server or a unique port, that can be configured once. -->
-	<bean id="Mongo" class="com.mongodb.Mongo" destroy-method="close">
-		<constructor-arg type="java.lang.String" value="${enkive.mongodb.host}" />
-		<constructor-arg type="int" value="${enkive.mongodb.port}" />
-	</bean>
-
 	<bean id="ApplicationContextProvider" class="com.linuxbox.util.spring.ApplicationContextProvider" />
 
 	<!-- Makes sure all beans with PostConstruct or PreDestroy annotations get 
