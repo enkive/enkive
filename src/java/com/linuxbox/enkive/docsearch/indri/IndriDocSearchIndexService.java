@@ -104,9 +104,8 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 	private static final long DOC_SIZE_IN_MEMORY_LIMIT = 8 * 1024; // 8 KB
 	private static final IndexStorage INDEX_STORAGE = FILE;
 
-	private String repositoryPath;
-	private String tempStoragePath;
-	private File tempStorageDir;
+	private final String repositoryPath;
+	private final File tempStorageDir;
 	private final IndexServiceIndexStatus indexStatus;
 	private final IndriIndexEnvironmentManager indexEnvironmentManager;
 
@@ -148,7 +147,7 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 	 * @param docStoreService
 	 * @param analyzer
 	 * @param repositoryPath
-	 * @param temporaryStoragePath
+	 * @param tempStoragePath
 	 *            the path to a directory that indri can use for temporary
 	 *            storage; the indexing service should clean up after itself
 	 *            unless it crashes
@@ -156,10 +155,12 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 	 */
 	public IndriDocSearchIndexService(DocStoreService docStoreService,
 			ContentAnalyzer analyzer, String repositoryPath,
-			String temporaryStoragePath) throws DocSearchException {
+			String tempStoragePath) throws DocSearchException {
 		super(docStoreService, analyzer);
+		verifyDirectories(repositoryPath, tempStoragePath);
+
 		this.repositoryPath = repositoryPath;
-		this.tempStoragePath = temporaryStoragePath;
+		this.tempStorageDir = new File(tempStoragePath);
 		this.indexStatus = new IndexServiceIndexStatus();
 		this.indexEnvironmentManager = new IndriIndexEnvironmentManager();
 	}
@@ -170,7 +171,7 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 	 * @param docStoreService
 	 * @param analyzer
 	 * @param repositoryPath
-	 * @param temporaryStoragePath
+	 * @param tempStoragePath
 	 *            the path to a directory that indri can use for temporary
 	 *            storage; the indexing service should clean up after itself
 	 *            unless it crashes
@@ -181,11 +182,13 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 	 */
 	public IndriDocSearchIndexService(DocStoreService docStoreService,
 			ContentAnalyzer analyzer, String repositoryPath,
-			String temporaryStoragePath, int unindexedDocSearchInterval)
+			String tempStoragePath, int unindexedDocSearchInterval)
 			throws DocSearchException {
 		super(docStoreService, analyzer, unindexedDocSearchInterval);
+		verifyDirectories(repositoryPath, tempStoragePath);
+
 		this.repositoryPath = repositoryPath;
-		this.tempStoragePath = temporaryStoragePath;
+		this.tempStorageDir = new File(tempStoragePath);
 		this.queryEnvironmentManager = new QueryEnvironmentManager(
 				DEFAULT_QUERY_ENV_REFRESH_INTERVAL);
 		this.queryEnvironmentManager.addIndexPath(repositoryPath);
@@ -193,12 +196,8 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 		this.indexEnvironmentManager = new IndriIndexEnvironmentManager();
 	}
 
-	@Override
-	public void subStartup() throws DocSearchException {
-		if (documentLockingService == null) {
-			throw new DocSearchException(
-					"no document locking service was set for the IndroDocSearchIndexService");
-		}
+	private void verifyDirectories(String repositoryPath, String tempStoragePath)
+			throws DocSearchException {
 		try {
 			DirectoryManagement.verifyDirectory(tempStoragePath,
 					"INDRI indexing temporary storage directory");
@@ -206,6 +205,14 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 					"INDRI index directory");
 		} catch (IOException e) {
 			throw new DocSearchException(e);
+		}
+	}
+
+	@Override
+	public void subStartup() throws DocSearchException {
+		if (documentLockingService == null) {
+			throw new DocSearchException(
+					"no document locking service was set for the IndroDocSearchIndexService");
 		}
 	}
 

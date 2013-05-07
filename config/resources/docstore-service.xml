@@ -36,7 +36,8 @@
 	</bean>
 
 	<bean id="DocSearchQueryService"
-		class="com.linuxbox.enkive.docsearch.indri.IndriDocSearchQueryService">
+		class="com.linuxbox.enkive.docsearch.indri.IndriDocSearchQueryService"
+		depends-on="DocSearchIndexService">
 		<property name="indexPathsString" value="${enkive.docsearch.query.indri.indexPaths}" />
 		<property name="indexServersString" value="${enkive.docsearch.query.indri.indexServers}" />
 		<property name="queryEnvironmentRefreshInterval"
