@@ -10,10 +10,14 @@ import com.linuxbox.util.dbmigration.DbMigrationService;
 
 public class DbMigrationTool extends Main {
 	protected final static String DESCRIPTION = "com.linuxbox.enkive.tool.DBMigrationTool";
-	protected final static String[] CONFIG_FILES = {};
+	protected final static String[] CONFIG_FILES = { "enkive-migration.xml" };
+	protected final static boolean RUN_VERSION_CHECK = false;
+	protected final static boolean RUN_INDEX_CHECK = false;
+	protected final static boolean RUN_AUDIT_SERVICE = false;
 
 	public DbMigrationTool(String[] arguments) {
-		super(arguments, CONFIG_FILES, DESCRIPTION, false, false);
+		super(arguments, CONFIG_FILES, DESCRIPTION, RUN_VERSION_CHECK,
+				RUN_INDEX_CHECK, RUN_AUDIT_SERVICE);
 	}
 
 	@Override

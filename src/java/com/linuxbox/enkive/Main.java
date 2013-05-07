@@ -31,6 +31,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.linuxbox.enkive.audit.AuditService;
 import com.linuxbox.enkive.audit.AuditServiceException;
+import com.linuxbox.enkive.audit.NullAuditService;
 import com.linuxbox.enkive.tool.mongodb.MongoDbIndexManager;
 import com.linuxbox.util.DirectoryManagement;
 import com.linuxbox.util.dbmigration.DbMigrationService;
@@ -48,6 +49,7 @@ public abstract class Main {
 	final protected String[] configFiles;
 	final protected boolean runVersionCheck;
 	final protected boolean runIndexCheck;
+	final protected boolean runAuditService;
 	final protected String description;
 
 	protected abstract void runCoreFunctionality(ApplicationContext context)
@@ -73,38 +75,43 @@ public abstract class Main {
 	}
 
 	public Main(String[] arguments, String[] configFiles, String description) {
-		this(arguments, configFiles, description, true, true);
+		this(arguments, configFiles, description, true, true, true);
 	}
 
 	public Main(String[] arguments, String[] configFiles, String description,
-			boolean runVersionCheck, boolean runIndexCheck) {
+			boolean runVersionCheck, boolean runIndexCheck, boolean runAuditService) {
 		this.arguments = arguments;
 		this.configFiles = configFiles;
 		this.description = description;
 		this.runVersionCheck = runVersionCheck;
 		this.runIndexCheck = runIndexCheck;
+		this.runAuditService = runAuditService;
+	}
+
+	protected void runVersionCheck() throws Exception {
+		AbstractApplicationContext versionCheckingContext = new ClassPathXmlApplicationContext(
+				VERSION_CHECK_CONFIG_FILES);
+
+		Map<String, DbMigrationService> migrationServices = versionCheckingContext
+				.getBeansOfType(DbMigrationService.class);
+		if (migrationServices.isEmpty()) {
+			String message = "no version checking / migration services configured";
+			LOGGER.fatal(message);
+			throw new Exception(
+					"no version checking / migration services configured");
+		}
+		for (Entry<String, DbMigrationService> service : migrationServices
+				.entrySet()) {
+			service.getValue().isUpToDate();
+		}
+		versionCheckingContext.close();
 	}
 
 	public void start() throws Exception {
 		preStartup();
 
 		if (runVersionCheck) {
-			AbstractApplicationContext versionCheckingContext = new ClassPathXmlApplicationContext(
-					VERSION_CHECK_CONFIG_FILES);
-
-			Map<String, DbMigrationService> migrationServices = versionCheckingContext
-					.getBeansOfType(DbMigrationService.class);
-			if (migrationServices.isEmpty()) {
-				String message = "no version checking / migration services configured";
-				LOGGER.fatal(message);
-				throw new Exception(
-						"no version checking / migration services configured");
-			}
-			for (Entry<String, DbMigrationService> service : migrationServices
-					.entrySet()) {
-				service.getValue().isUpToDate();
-			}
-			versionCheckingContext.close();
+			runVersionCheck();
 		}
 
 		/*
@@ -115,7 +122,14 @@ public abstract class Main {
 		context = new ClassPathXmlApplicationContext(configFiles);
 		context.registerShutdownHook();
 
-		auditService = context.getBean("AuditLogService", AuditService.class);
+		if (runAuditService) {
+			auditService = context.getBean("AuditLogService",
+					AuditService.class);
+		} else {
+			// since no audit service is wanted, simply instantiate the null
+			// version and let it throw away the log entries
+			auditService = new NullAuditService();
+		}
 
 		auditService.addEvent(AuditService.SYSTEM_STARTUP, USER, description);
 

@@ -5,8 +5,12 @@
 	default-init-method="startup" default-destroy-method="shutdown">
 
 	<import resource="resources/enkive-properties.xml" />
+	<import resource="resources/db-info.xml" />
 
-	<bean id="MigrationService" class="com.linuxbox.util.dbmigration.DbMigrationService" />
+	<bean id="MigrationService"
+		class="com.linuxbox.util.dbmigration.mongodb.MongoDbMigrationService">
+		<constructor-arg ref="MigrationStoreDbInfo" />
+	</bean>
 
 	<!-- AUDIT LOG -->
 

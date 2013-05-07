@@ -25,9 +25,6 @@ import java.util.List;
 /**
  * This audit service just outputs audit entries to the console. It's primary
  * purpose is in testing.
- * 
- * @author eric
- * 
  */
 public class ConsoleAuditService implements AuditService {
 	@Override
