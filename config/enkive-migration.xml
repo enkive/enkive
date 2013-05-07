@@ -68,8 +68,7 @@
 		<constructor-arg ref="StatsDbInfo" />
 	</bean>
 
-	<bean id="StatsMigration1To2"
-		class="com.linuxbox.enkive.statistics.migration.StatsMigration1to2">
+	<bean class="com.linuxbox.enkive.statistics.migration.StatsMigration0to1">
 		<constructor-arg ref="StatsMigrator" />
 	</bean>
 

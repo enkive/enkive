@@ -19,9 +19,8 @@ public class StatsMigration0to1 extends DbMigration {
 		MongoDbInfo mongoDbInfo = (MongoDbInfo) dbInfo;
 		LOGGER.info("Running statistics migration 0 to 1");
 		// we don't care about the data so we don't need to stash it while
-		// emptying the DB
-		// we also don't need to recreate the collection as the statistics
-		// service will do that automatically for us
+		// emptying the DB; we also don't need to recreate the collection as the
+		// statistics service will do that automatically for us
 		mongoDbInfo.getCollection().drop();
 		return true;
 	}

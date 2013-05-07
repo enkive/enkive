@@ -134,7 +134,7 @@ public abstract class DbMigrationService implements ApplicationContextAware,
 				throw new DbMigrationException(
 						"One or more of the migrators will not work; see log.");
 			}
-			
+
 			LOGGER.trace("would be running migrators here");
 
 			// for (DBMigrator migrator : migrators) {
@@ -190,7 +190,7 @@ public abstract class DbMigrationService implements ApplicationContextAware,
 
 	@Override
 	public boolean isAutoStartup() {
-		return false;
+		return true;
 	}
 
 	@Override
