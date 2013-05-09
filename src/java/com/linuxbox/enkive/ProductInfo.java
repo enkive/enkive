@@ -21,16 +21,22 @@ package com.linuxbox.enkive;
 
 import static com.linuxbox.util.Version.Type.ALPHA;
 import static com.linuxbox.util.Version.Type.PRODUCTION;
+import static com.linuxbox.util.Version.Type.RELEASE_CANDIDATE;
 
 import com.linuxbox.util.Version;
 
 public interface ProductInfo {
-	// history of released versions with monotonically increasing ordinals;
-	// maintaining this history allows for DB migrations
+	/*
+	 * History of released versions with monotonically increasing ordinals;
+	 * maintaining this history allows for DB migrations.
+	 */
 	final static Version V1_2P = new Version(1, 2, PRODUCTION, 0);
 	final static Version V1_3A = new Version(1, 3, ALPHA, 1);
-	// IMPORTANT: be certain to add software versions and associated db versions
-	// to EnkiveDbVersionManager as well.
+	final static Version V1_3RC = new Version(1, 3, RELEASE_CANDIDATE, 2);
+	/*
+	 * IMPORTANT: be certain to add software versions and associated database
+	 * versions to EnkiveDbVersionManager as well.
+	 */
 
 	final static String PRODUCT = "Enkive CE";
 	final static String COPYRIGHT = "Copyright 2013 The Linux Box Corporation; all rights "

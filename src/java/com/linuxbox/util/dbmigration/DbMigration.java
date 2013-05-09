@@ -21,5 +21,11 @@ public abstract class DbMigration {
 		migrator.registerMigration(this);
 	}
 
-	public abstract boolean migrate(DbInfo db) throws DbMigrationException;
+	/**
+	 * Does the migration on the provided database.
+	 * @param dbInfo
+	 * @return true if successful, false if not successful
+	 * @throws DbMigrationException
+	 */
+	public abstract boolean migrate(DbInfo dbInfo) throws DbMigrationException;
 }

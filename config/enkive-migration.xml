@@ -23,12 +23,23 @@
 		<constructor-arg ref="AuditLogDbInfo" />
 	</bean>
 
+	<bean class="com.linuxbox.util.dbmigration.NullDbMigration">
+		<constructor-arg ref="AuditLogMigrator" />
+		<constructor-arg value="0" />
+		<constructor-arg value="1" />
+	</bean>
 
 	<!-- MESSAGE STORE -->
 
 	<bean id="MessageStoreMigrator" class="com.linuxbox.util.dbmigration.DbMigrator">
 		<constructor-arg name="migratorName" value="Message Store Migrator" />
 		<constructor-arg ref="MessageStoreDbInfo" />
+	</bean>
+
+	<bean class="com.linuxbox.util.dbmigration.NullDbMigration">
+		<constructor-arg ref="MessageStoreMigrator" />
+		<constructor-arg value="0" />
+		<constructor-arg value="1" />
 	</bean>
 
 
@@ -39,6 +50,11 @@
 		<constructor-arg ref="DocStoreDbInfo" />
 	</bean>
 
+	<bean class="com.linuxbox.util.dbmigration.NullDbMigration">
+		<constructor-arg ref="DocStoreMigrator" />
+		<constructor-arg value="0" />
+		<constructor-arg value="1" />
+	</bean>
 
 	<!-- DOCUMENT LOCKING SERVICE -->
 
@@ -46,6 +62,12 @@
 		<constructor-arg name="migratorName"
 			value="Document Locking Serivce Migrator" />
 		<constructor-arg ref="DocLockDbInfo" />
+	</bean>
+
+	<bean class="com.linuxbox.util.dbmigration.NullDbMigration">
+		<constructor-arg ref="DocLockMigrator" />
+		<constructor-arg value="0" />
+		<constructor-arg value="1" />
 	</bean>
 
 
@@ -56,12 +78,24 @@
 		<constructor-arg ref="IndexerQueueDbInfo" />
 	</bean>
 
+	<bean class="com.linuxbox.util.dbmigration.NullDbMigration">
+		<constructor-arg ref="IndexerQueueMigrator" />
+		<constructor-arg value="0" />
+		<constructor-arg value="1" />
+	</bean>
+
 
 	<!-- IMAP ACCESS -->
 
 	<bean id="ImapAccessMigrator" class="com.linuxbox.util.dbmigration.DbMigrator">
 		<constructor-arg name="migratorName" value="IMAP Access Migrator" />
 		<constructor-arg ref="ImapAccessDbInfo" />
+	</bean>
+
+	<bean class="com.linuxbox.util.dbmigration.NullDbMigration">
+		<constructor-arg ref="ImapAccessMigrator" />
+		<constructor-arg value="0" />
+		<constructor-arg value="1" />
 	</bean>
 
 
