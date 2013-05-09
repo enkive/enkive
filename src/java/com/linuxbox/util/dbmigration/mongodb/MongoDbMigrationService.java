@@ -8,6 +8,7 @@ import com.linuxbox.util.dbinfo.mongodb.MongoDbInfo;
 import com.linuxbox.util.dbmigration.DbMigrationService;
 import com.linuxbox.util.dbmigration.DbStatusRecord;
 import com.linuxbox.util.dbmigration.DbStatusRecord.Status;
+import com.linuxbox.util.dbmigration.DbVersionManager.DbVersion;
 import com.linuxbox.util.mongodb.MongoIndexable;
 import com.mongodb.BasicDBObject;
 import com.mongodb.BasicDBObjectBuilder;
@@ -57,7 +58,8 @@ public class MongoDbMigrationService extends DbMigrationService implements
 				ALL_KEYS, ORDER_BY_VERSION_DESCENDING);
 
 		if (null == result) {
-			DbStatusRecord record = new DbStatusRecord(0,
+			// if there is no record, create one with ordinal db version 0
+			DbStatusRecord record = new DbStatusRecord(new DbVersion(0),
 					DbStatusRecord.Status.STORED, new Date());
 			DBObject mongoObj = dbStatusRecordToDbObject(record);
 			migrationsCollection.save(mongoObj);
@@ -73,7 +75,7 @@ public class MongoDbMigrationService extends DbMigrationService implements
 
 	protected static DBObject dbStatusRecordToDbObject(DbStatusRecord record) {
 		BasicDBObjectBuilder builder = BasicDBObjectBuilder.start();
-		builder.add(KEY_VERSION, record.version);
+		builder.add(KEY_VERSION, record.dbVersion);
 		builder.add(KEY_STATUS, record.status.code);
 		builder.add(KEY_TIMESTAMP, record.timestamp);
 		return builder.get();
@@ -93,7 +95,7 @@ public class MongoDbMigrationService extends DbMigrationService implements
 			status = Status.ERROR;
 		}
 
-		return new DbStatusRecord(version, status, timestamp);
+		return new DbStatusRecord(new DbVersion(version), status, timestamp);
 	}
 
 	/*

@@ -10,7 +10,11 @@
 	<bean id="MigrationService"
 		class="com.linuxbox.util.dbmigration.mongodb.MongoDbMigrationService">
 		<constructor-arg ref="MigrationStoreDbInfo" />
+		<property name="dbVersionManager">
+			<bean class="com.linuxbox.enkive.EnkiveDbVersionManager" />
+		</property>
 	</bean>
+
 
 	<!-- AUDIT LOG -->
 

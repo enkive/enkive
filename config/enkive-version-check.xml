@@ -11,6 +11,9 @@
 	<bean id="MigrationService"
 		class="com.linuxbox.util.dbmigration.mongodb.MongoDbMigrationService">
 		<constructor-arg ref="MigrationStoreDbInfo" />
+		<property name="dbVersionManager">
+			<bean class="com.linuxbox.enkive.EnkiveDbVersionManager" />
+		</property>
 	</bean>
 
 	<bean id="ApplicationContextProvider" class="com.linuxbox.util.spring.ApplicationContextProvider" />

@@ -79,7 +79,8 @@ public abstract class Main {
 	}
 
 	public Main(String[] arguments, String[] configFiles, String description,
-			boolean runVersionCheck, boolean runIndexCheck, boolean runAuditService) {
+			boolean runVersionCheck, boolean runIndexCheck,
+			boolean runAuditService) {
 		this.arguments = arguments;
 		this.configFiles = configFiles;
 		this.description = description;
@@ -95,10 +96,9 @@ public abstract class Main {
 		Map<String, DbMigrationService> migrationServices = versionCheckingContext
 				.getBeansOfType(DbMigrationService.class);
 		if (migrationServices.isEmpty()) {
-			String message = "no version checking / migration services configured";
+			final String message = "no version checking / migration services configured";
 			LOGGER.fatal(message);
-			throw new Exception(
-					"no version checking / migration services configured");
+			throw new Exception(message);
 		}
 		for (Entry<String, DbMigrationService> service : migrationServices
 				.entrySet()) {

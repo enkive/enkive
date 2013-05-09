@@ -8,6 +8,7 @@ import java.util.Map.Entry;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.SmartLifecycle;
@@ -16,6 +17,8 @@ import com.linuxbox.enkive.ProductInfo;
 import com.linuxbox.enkive.exception.UnimplementedMethodException;
 import com.linuxbox.util.Version;
 import com.linuxbox.util.dbmigration.DbStatusRecord.Status;
+import com.linuxbox.util.dbmigration.DbVersionManager.DbVersion;
+import com.linuxbox.util.dbmigration.DbVersionManager.DbVersionManagerException;
 
 /**
  * 
@@ -34,6 +37,7 @@ public abstract class DbMigrationService implements ApplicationContextAware,
 			.getLog("com.linuxbox.util.dbmigration.DBMigrationService");
 
 	private ApplicationContext applicationContext;
+	protected DbVersionManager dbVersionManager;
 	protected List<DbMigrator> migrators;
 	protected boolean isRunning = false;
 	protected boolean isMigrating = false;
@@ -43,36 +47,39 @@ public abstract class DbMigrationService implements ApplicationContextAware,
 		migrators = new ArrayList<DbMigrator>();
 	}
 
-	public void isUpToDate() throws UpToDateException {
-		final int currentVersion = ProductInfo.VERSION.versionOrdinal;
+	public void isUpToDate() throws UpToDateException,
+			DbVersionManagerException {
+		final Version softwareVersion = ProductInfo.VERSION;
+		final DbVersion requiredDbVersion = dbVersionManager
+				.appropriateDbVersionFor(softwareVersion);
 
 		DbStatusRecord storedStatus = getLatestDbStatusRecord();
 		if (storedStatus.status != Status.STORED) {
 			throw new UpToDateException(
 					"the database never completed its most recent migration to version ordinal "
-							+ storedStatus.version + ", which began at "
+							+ storedStatus.dbVersion + ", which began at "
 							+ storedStatus.timestamp);
 		}
 
-		String storedVersionString = Version
-				.versionStringFromOrdinal(storedStatus.version);
+		String storedVersionString = dbVersionManager
+				.softwareVersionsAppropriateToDbVersion(storedStatus.dbVersion);
 
-		if (storedStatus.version < currentVersion) {
+		if (storedStatus.dbVersion.precedes(requiredDbVersion)) {
 			String message = "This version of Enkive ("
 					+ ProductInfo.VERSION.versionString
 					+ ") requires a migrated version of the Enkive database";
 			if (storedVersionString != null) {
-				message += ", which appears to be for version "
+				message += ", which appears to be for version(s) "
 						+ storedVersionString;
 			}
 			message += ". Please run the DB Migration tool before starting Enkive.";
 
 			throw new UpToDateException(message);
-		} else if (storedStatus.version > currentVersion) {
+		} else if (requiredDbVersion.precedes(storedStatus.dbVersion)) {
 			final String message = "This version of Enkive ("
 					+ ProductInfo.VERSION.versionString
 					+ ") appears to be too low given the current state of the Enkive database (ordinal "
-					+ storedStatus.version
+					+ storedStatus.dbVersion
 					+ "). Please make sure you are running the latest version of Enkive.";
 			throw new UpToDateException(message);
 		}
@@ -83,16 +90,18 @@ public abstract class DbMigrationService implements ApplicationContextAware,
 	}
 
 	public boolean loadAndCheckMigrators() {
-		final int newVersion = ProductInfo.VERSION.versionOrdinal;
-		String newVersionString = Version.versionStringFromOrdinal(newVersion);
+		final int newVersionOrdinal = ProductInfo.VERSION.versionOrdinal;
+		String newVersionString = Version
+				.versionStringFromOrdinal(newVersionOrdinal);
 		if (null == newVersionString) {
-			newVersionString = "Ordinal(" + newVersion + ")";
+			newVersionString = "Ordinal(" + newVersionOrdinal + ")";
 		}
 
-		final int oldVersion = getLatestDbStatusRecord().version;
-		String oldVersionString = Version.versionStringFromOrdinal(oldVersion);
+		final DbStatusRecord dbStatus = getLatestDbStatusRecord();
+		String oldVersionString = dbVersionManager
+				.softwareVersionsAppropriateToDbVersion(dbStatus.dbVersion);
 		if (null == oldVersionString) {
-			oldVersionString = "Ordinal(" + oldVersion + ")";
+			oldVersionString = "Ordinal(" + dbStatus.dbVersion.ordinal + ")";
 		}
 
 		boolean problem = false;
@@ -101,7 +110,8 @@ public abstract class DbMigrationService implements ApplicationContextAware,
 				.getBeansOfType(DbMigrator.class);
 
 		for (Entry<String, DbMigrator> e : loadedMigrators.entrySet()) {
-			if (!e.getValue().canReachVersion(oldVersion, newVersion)) {
+			if (!e.getValue().canReachVersion(dbStatus.dbVersion.ordinal,
+					newVersionOrdinal)) {
 				LOGGER.error("Migrator \"" + e.getKey()
 						+ "\" cannot reach version " + newVersionString
 						+ " from version " + oldVersionString + ".");
@@ -150,6 +160,11 @@ public abstract class DbMigrationService implements ApplicationContextAware,
 				}
 			}
 		}
+	}
+
+	@Required
+	public void setDbVersionManager(DbVersionManager manager) {
+		this.dbVersionManager = manager;
 	}
 
 	abstract public DbStatusRecord getLatestDbStatusRecord();

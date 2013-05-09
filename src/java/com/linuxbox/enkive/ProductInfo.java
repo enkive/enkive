@@ -29,6 +29,8 @@ public interface ProductInfo {
 	// maintaining this history allows for DB migrations
 	final static Version V1_2P = new Version(1, 2, PRODUCTION, 0);
 	final static Version V1_3A = new Version(1, 3, ALPHA, 1);
+	// IMPORTANT: be certain to add software versions and associated db versions
+	// to EnkiveDbVersionManager as well.
 
 	final static String PRODUCT = "Enkive CE";
 	final static String COPYRIGHT = "Copyright 2013 The Linux Box Corporation; all rights "

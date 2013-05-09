@@ -72,10 +72,24 @@ public class Version implements Comparable<Version> {
 	}
 
 	@Override
-	public int compareTo(Version other) {
-		return versionOrdinal - other.versionOrdinal;
+	public int compareTo(Version that) {
+		return this.versionOrdinal - that.versionOrdinal;
 	}
-	
+
+	@Override
+	public boolean equals(Object other) {
+		if (other instanceof Version) {
+			return versionOrdinal == ((Version) other).versionOrdinal;
+		} else {
+			return false;
+		}
+	}
+
+	@Override
+	public int hashCode() {
+		return versionOrdinal;
+	}
+
 	public static String versionStringFromOrdinal(int ordinal) {
 		return ordinalToVersionStringMap.get(ordinal);
 	}
