@@ -35,6 +35,7 @@ import com.linuxbox.enkive.workspace.AbstractWorkspaceService;
 import com.linuxbox.enkive.workspace.Workspace;
 import com.linuxbox.enkive.workspace.WorkspaceException;
 import com.linuxbox.enkive.workspace.WorkspaceServiceMBean;
+import com.linuxbox.util.dbinfo.mongodb.MongoDbInfo;
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
@@ -45,21 +46,23 @@ import com.mongodb.Mongo;
 public class MongoWorkspaceService extends AbstractWorkspaceService implements
 		WorkspaceServiceMBean {
 
-	protected Mongo m = null;
-	protected DB workspaceDb;
 	protected DBCollection userWorkspacesColl;
 	protected AuditService auditService;
 
 	protected MongoSearchResultUtils searchResultUtils;
 
+	@SuppressWarnings("unused")
 	private final static Log LOGGER = LogFactory
-			.getLog("com.linuxbox.enkive.workspaces");
+			.getLog("com.linuxbox.enkive.workspaces.mongo");
 
 	public MongoWorkspaceService(Mongo m, String dbName,
 			String userWorkspacesCollName) {
-		this.m = m;
-		workspaceDb = m.getDB(dbName);
+		DB workspaceDb = m.getDB(dbName);
 		userWorkspacesColl = workspaceDb.getCollection(userWorkspacesCollName);
+	}
+	
+	public MongoWorkspaceService(MongoDbInfo info) {
+		userWorkspacesColl = info.getCollection();
 	}
 
 	@Override
@@ -119,5 +122,4 @@ public class MongoWorkspaceService extends AbstractWorkspaceService implements
 	public void setAuditService(AuditService auditService) {
 		this.auditService = auditService;
 	}
-
 }

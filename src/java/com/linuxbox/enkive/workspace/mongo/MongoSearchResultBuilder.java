@@ -40,18 +40,15 @@ import com.linuxbox.enkive.workspace.WorkspaceException;
 import com.linuxbox.enkive.workspace.searchQuery.SearchQueryBuilder;
 import com.linuxbox.enkive.workspace.searchResult.SearchResult;
 import com.linuxbox.enkive.workspace.searchResult.SearchResultBuilder;
+import com.linuxbox.util.dbinfo.mongodb.MongoDbInfo;
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
-import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.Mongo;
 
 public class MongoSearchResultBuilder implements SearchResultBuilder {
-
-	Mongo m;
-	DB searchResultsDB;
 	DBCollection searchResultsColl;
 	SearchQueryBuilder queryBuilder;
 	MongoSearchResultUtils searchResultUtils;
@@ -61,26 +58,32 @@ public class MongoSearchResultBuilder implements SearchResultBuilder {
 
 	public MongoSearchResultBuilder(Mongo m, String searchResultsDBName,
 			String searchResultsCollName, SearchQueryBuilder queryBuilder) {
-		this.m = m;
-		searchResultsDB = m.getDB(searchResultsDBName);
-		searchResultsColl = searchResultsDB
-				.getCollection(searchResultsCollName);
+		this(m.getDB(searchResultsDBName).getCollection(searchResultsCollName),
+				queryBuilder);
+	}
+
+	public MongoSearchResultBuilder(MongoDbInfo searchResultsInfo,
+			SearchQueryBuilder queryBuilder) {
+		this(searchResultsInfo.getCollection(), queryBuilder);
+	}
+
+	public MongoSearchResultBuilder(DBCollection searchResultsColl,
+			SearchQueryBuilder queryBuilder) {
+		this.searchResultsColl = searchResultsColl;
 		this.queryBuilder = queryBuilder;
 	}
 
 	@Override
 	public SearchResult getSearchResult() throws WorkspaceException {
-		MongoSearchResult searchResult = new MongoSearchResult(m,
-				searchResultsDB.getName(), searchResultsColl.getName(),
-				queryBuilder);
+		MongoSearchResult searchResult = new MongoSearchResult(
+				searchResultsColl, queryBuilder);
 		searchResult.setSearchResultUtils(searchResultUtils);
 		return searchResult;
 	}
 
 	public SearchResult getSearchResult(String searchResultId)
 			throws WorkspaceException {
-		MongoSearchResult result = new MongoSearchResult(m,
-				searchResultsDB.getName(), searchResultsColl.getName(),
+		MongoSearchResult result = new MongoSearchResult(searchResultsColl,
 				queryBuilder);
 		DBObject searchResultObject = searchResultsColl.findOne(ObjectId
 				.massageToObjectId(searchResultId));
@@ -129,8 +132,7 @@ public class MongoSearchResultBuilder implements SearchResultBuilder {
 		DBCursor searchResult = searchResultsColl.find(new BasicDBObject(UUID,
 				query));
 		while (searchResult.hasNext()) {
-			MongoSearchResult result = new MongoSearchResult(m,
-					searchResultsDB.getName(), searchResultsColl.getName(),
+			MongoSearchResult result = new MongoSearchResult(searchResultsColl,
 					queryBuilder);
 			DBObject searchResultObject = searchResult.next();
 			result.setId(((ObjectId) searchResultObject.get(UUID)).toString());

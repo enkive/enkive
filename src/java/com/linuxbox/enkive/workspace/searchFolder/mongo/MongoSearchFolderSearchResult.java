@@ -21,30 +21,26 @@ package com.linuxbox.enkive.workspace.searchFolder.mongo;
 import com.linuxbox.enkive.workspace.WorkspaceException;
 import com.linuxbox.enkive.workspace.mongo.MongoSearchResult;
 import com.linuxbox.enkive.workspace.searchFolder.SearchFolderSearchResult;
-import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.Mongo;
 
 public class MongoSearchFolderSearchResult extends SearchFolderSearchResult {
-
-	Mongo m;
-	DB searchFolderDB;
 	DBCollection searchFolderSearchResultsColl;
 
 	public MongoSearchFolderSearchResult(Mongo m,
 			String searchFolderSearchResultsDBName,
 			String searchFolderSearchResultsCollName) {
-		this.m = m;
-		this.searchFolderDB = m.getDB(searchFolderSearchResultsDBName);
-		this.searchFolderSearchResultsColl = searchFolderDB
-				.getCollection(searchFolderSearchResultsCollName);
+		this(m.getDB(searchFolderSearchResultsDBName).getCollection(searchFolderSearchResultsCollName));
+	}
+	
+	public MongoSearchFolderSearchResult(DBCollection searchFolderSearchResultsColl) {
+		this.searchFolderSearchResultsColl = searchFolderSearchResultsColl;
 	}
 
 	@Override
 	public void saveSearchResult() throws WorkspaceException {
-		MongoSearchResult mSearchResult = new MongoSearchResult(m,
-				searchFolderDB.getName(),
-				searchFolderSearchResultsColl.getName(), queryBuilder);
+		MongoSearchResult mSearchResult = new MongoSearchResult(
+				searchFolderSearchResultsColl, queryBuilder);
 
 		mSearchResult.setExecutedBy(getExecutedBy());
 		mSearchResult.setMessageIds(getMessageIds());
@@ -60,9 +56,8 @@ public class MongoSearchFolderSearchResult extends SearchFolderSearchResult {
 
 	@Override
 	public void deleteSearchResult() throws WorkspaceException {
-		MongoSearchResult mSearchResult = new MongoSearchResult(m,
-				searchFolderDB.getName(),
-				searchFolderSearchResultsColl.getName(), queryBuilder);
+		MongoSearchResult mSearchResult = new MongoSearchResult(
+				searchFolderSearchResultsColl, queryBuilder);
 
 		mSearchResult.setExecutedBy(getExecutedBy());
 		mSearchResult.setMessageIds(getMessageIds());
@@ -71,7 +66,5 @@ public class MongoSearchFolderSearchResult extends SearchFolderSearchResult {
 		mSearchResult.setTimestamp(getTimestamp());
 		mSearchResult.setId(getId());
 		mSearchResult.deleteSearchResult();
-
 	}
-
 }

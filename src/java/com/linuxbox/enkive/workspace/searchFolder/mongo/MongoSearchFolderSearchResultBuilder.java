@@ -23,15 +23,12 @@ import com.linuxbox.enkive.workspace.mongo.MongoSearchResultBuilder;
 import com.linuxbox.enkive.workspace.searchFolder.SearchFolderSearchResult;
 import com.linuxbox.enkive.workspace.searchFolder.SearchFolderSearchResultBuilder;
 import com.linuxbox.enkive.workspace.searchResult.SearchResult;
-import com.mongodb.DB;
+import com.linuxbox.util.dbinfo.mongodb.MongoDbInfo;
 import com.mongodb.DBCollection;
 import com.mongodb.Mongo;
 
 public class MongoSearchFolderSearchResultBuilder implements
 		SearchFolderSearchResultBuilder {
-
-	Mongo m;
-	DB searchFolderSearchResultDB;
 	DBCollection searchFolderSearchResultColl;
 	MongoSearchResultBuilder mSearchResultBuilder;
 
@@ -40,21 +37,24 @@ public class MongoSearchFolderSearchResultBuilder implements
 	MongoSearchFolderSearchResultBuilder(Mongo m,
 			String searchFolderSearchResultDBName,
 			String searchFolderSearchResultCollName) {
-		this.m = m;
-		searchFolderSearchResultDB = m.getDB(searchFolderSearchResultDBName);
-		searchFolderSearchResultColl = searchFolderSearchResultDB
-				.getCollection(searchFolderSearchResultCollName);
+		this(m.getDB(searchFolderSearchResultDBName).getCollection(
+				searchFolderSearchResultCollName));
+	}
 
-		mSearchResultBuilder = new MongoSearchResultBuilder(m,
-				searchFolderSearchResultDBName,
-				searchFolderSearchResultCollName, null);
+	MongoSearchFolderSearchResultBuilder(MongoDbInfo dbInfo) {
+		this(dbInfo.getCollection());
+	}
+
+	MongoSearchFolderSearchResultBuilder(
+			DBCollection searchFolderSearchResultColl) {
+		this.searchFolderSearchResultColl = searchFolderSearchResultColl;
+		mSearchResultBuilder = new MongoSearchResultBuilder(
+				searchFolderSearchResultColl, null);
 	}
 
 	@Override
 	public SearchFolderSearchResult getSearchResult() {
-		return new MongoSearchFolderSearchResult(m,
-				searchFolderSearchResultDB.getName(),
-				searchFolderSearchResultColl.getName());
+		return new MongoSearchFolderSearchResult(searchFolderSearchResultColl);
 	}
 
 	@Override
@@ -73,8 +73,7 @@ public class MongoSearchFolderSearchResultBuilder implements
 			throws WorkspaceException {
 
 		SearchFolderSearchResult mSearchResult = new MongoSearchFolderSearchResult(
-				m, searchFolderSearchResultDB.getName(),
-				searchFolderSearchResultColl.getName());
+				searchFolderSearchResultColl);
 		mSearchResult.setExecutedBy(searchResult.getExecutedBy());
 		mSearchResult.setMessageIds(searchResult.getMessageIds());
 		mSearchResult.setSearchQueryBuilder(searchResult

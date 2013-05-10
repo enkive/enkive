@@ -111,16 +111,21 @@
 	</bean>
 
 
+	<!-- WORKSPACES -->
+
+	<bean id="WorkspacesMigrator" class="com.linuxbox.util.dbmigration.DbMigrator">
+		<constructor-arg name="migratorName" value="Workspaces Migrator" />
+		<constructor-arg ref="CollectedWorkspaceDbInfo" />
+	</bean>
+
+	<bean class="com.linuxbox.util.dbmigration.NullDbMigration">
+		<constructor-arg ref="WorkspacesMigrator" />
+		<constructor-arg value="0" />
+		<constructor-arg value="1" />
+	</bean>
+
+
 	<!-- SUPPORT -->
-
-	<!-- <bean id="StatsMigrator" class="com.linuxbox.util.dbmigration.DbMigrator"> 
-		<constructor-arg name="migratorName" value="StatsMigrator" /> <constructor-arg 
-		name="db" ref="StatsDbInfo" /> <constructor-arg name="defaultPackage" value="com.linuxbox.enkive.statistics.migration" 
-		/> <constructor-arg name="migrations"> <list> <value>StatsMigration0To1</value> 
-		<value>StatsMigration1To2</value> </list> </constructor-arg> </bean> -->
-
-	<!-- <bean id="ApplicationContextProvider" class="com.linuxbox.util.spring.ApplicationContextProvider" 
-		/> -->
 
 	<!-- Makes sure all beans with PostConstruct or PreDestroy annotations get 
 		called appropriately -->

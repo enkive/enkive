@@ -28,34 +28,36 @@ import org.bson.types.ObjectId;
 import com.linuxbox.enkive.workspace.WorkspaceException;
 import com.linuxbox.enkive.workspace.searchQuery.SearchQuery;
 import com.linuxbox.enkive.workspace.searchQuery.SearchQueryBuilder;
+import com.linuxbox.util.dbinfo.mongodb.MongoDbInfo;
 import com.mongodb.BasicDBObject;
-import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import com.mongodb.Mongo;
 
 public class MongoSearchQueryBuilder implements SearchQueryBuilder {
-
-	protected Mongo m;
-	protected DB searchQueryDB;
-	protected DBCollection searchQueryColl;
-
 	private final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.workspaces");
 
+	protected DBCollection searchQueryColl;
+
 	public MongoSearchQueryBuilder(Mongo m, String searchQueryDBName,
 			String searchQueryCollName) {
-		this.m = m;
-		searchQueryDB = m.getDB(searchQueryDBName);
-		searchQueryColl = searchQueryDB.getCollection(searchQueryCollName);
+		this(m.getDB(searchQueryDBName).getCollection(searchQueryCollName));
+	}
+
+	public MongoSearchQueryBuilder(MongoDbInfo dbInfo) {
+		this(dbInfo.getCollection());
+	}
+
+	public MongoSearchQueryBuilder(DBCollection searchQueryColl) {
+		this.searchQueryColl = searchQueryColl;
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public SearchQuery getSearchQuery(String searchQueryId)
 			throws WorkspaceException {
-		SearchQuery query = new MongoSearchQuery(m, searchQueryDB.getName(),
-				searchQueryColl.getName());
+		SearchQuery query = new MongoSearchQuery(searchQueryColl);
 		DBObject queryObject = searchQueryColl.findOne(ObjectId
 				.massageToObjectId(searchQueryId));
 
@@ -72,8 +74,6 @@ public class MongoSearchQueryBuilder implements SearchQueryBuilder {
 
 	@Override
 	public SearchQuery getSearchQuery() throws WorkspaceException {
-		return new MongoSearchQuery(m, searchQueryDB.getName(),
-				searchQueryColl.getName());
+		return new MongoSearchQuery(searchQueryColl);
 	}
-
 }

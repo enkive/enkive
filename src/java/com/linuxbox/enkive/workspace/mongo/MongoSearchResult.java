@@ -36,27 +36,19 @@ import com.linuxbox.enkive.workspace.WorkspaceException;
 import com.linuxbox.enkive.workspace.searchQuery.SearchQueryBuilder;
 import com.linuxbox.enkive.workspace.searchResult.SearchResult;
 import com.mongodb.BasicDBObject;
-import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
-import com.mongodb.Mongo;
 
 public class MongoSearchResult extends SearchResult {
-
-	Mongo m;
-	DB searchResultsDB;
 	DBCollection searchResultsColl;
 	protected MongoSearchResultUtils searchResultUtils;
 
 	private final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.workspaces");
 
-	public MongoSearchResult(Mongo m, String searchResultsDBName,
-			String searchResultsCollName, SearchQueryBuilder queryBuilder) {
-		this.m = m;
-		searchResultsDB = m.getDB(searchResultsDBName);
-		searchResultsColl = searchResultsDB
-				.getCollection(searchResultsCollName);
+	public MongoSearchResult(DBCollection searchResultsColl,
+			SearchQueryBuilder queryBuilder) {
+		this.searchResultsColl = searchResultsColl;
 		setSearchQueryBuilder(queryBuilder);
 	}
 

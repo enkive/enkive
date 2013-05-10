@@ -27,6 +27,7 @@ import java.util.Set;
 import org.bson.types.ObjectId;
 
 import com.linuxbox.enkive.archiver.MesssageAttributeConstants;
+import com.linuxbox.util.dbinfo.mongodb.MongoDbInfo;
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
@@ -37,17 +38,20 @@ import com.mongodb.Mongo;
 
 public class MongoSearchResultUtils {
 
-	Mongo m;
-	DB messageDb;
 	DBCollection messageColl;
 	DBCollection searchResultColl;
 
 	public MongoSearchResultUtils(Mongo m, String messageDB,
-			String messageColl, String searchResultColl) {
-		this.m = m;
-		this.messageDb = m.getDB(messageDB);
-		this.messageColl = messageDb.getCollection(messageColl);
-		this.searchResultColl = messageDb.getCollection(searchResultColl);
+			String messageCollName, String searchResultCollName) {
+		DB messageDb = m.getDB(messageDB);
+		this.messageColl = messageDb.getCollection(messageCollName);
+		this.searchResultColl = messageDb.getCollection(searchResultCollName);
+	}
+
+	public MongoSearchResultUtils(MongoDbInfo messageInfo,
+			MongoDbInfo searchResultInfo) {
+		this.messageColl = messageInfo.getCollection();
+		this.searchResultColl = searchResultInfo.getCollection();
 	}
 
 	public LinkedHashSet<String> sortMessagesByDate(Set<String> messageIds,

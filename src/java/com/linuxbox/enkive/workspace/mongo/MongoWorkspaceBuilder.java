@@ -32,16 +32,14 @@ import com.linuxbox.enkive.workspace.WorkspaceBuilder;
 import com.linuxbox.enkive.workspace.WorkspaceException;
 import com.linuxbox.enkive.workspace.searchFolder.SearchFolderBuilder;
 import com.linuxbox.enkive.workspace.searchResult.SearchResultBuilder;
+import com.linuxbox.util.dbinfo.mongodb.MongoDbInfo;
 import com.mongodb.BasicDBList;
-import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import com.mongodb.Mongo;
 
 public class MongoWorkspaceBuilder implements WorkspaceBuilder {
 
-	protected Mongo m;
-	protected DB workspaceDb;
 	protected DBCollection workspaceColl;
 	protected SearchResultBuilder searchResultBuilder;
 	protected SearchFolderBuilder searchFolderBuilder;
@@ -52,9 +50,21 @@ public class MongoWorkspaceBuilder implements WorkspaceBuilder {
 	public MongoWorkspaceBuilder(Mongo m, String dbName,
 			String workspaceCollName, SearchResultBuilder searchResultBuilder,
 			SearchFolderBuilder searchFolderBuilder) {
-		this.m = m;
-		workspaceDb = m.getDB(dbName);
-		workspaceColl = workspaceDb.getCollection(workspaceCollName);
+		this(m.getDB(dbName).getCollection(workspaceCollName),
+				searchResultBuilder, searchFolderBuilder);
+	}
+
+	public MongoWorkspaceBuilder(MongoDbInfo workspaceInfo,
+			SearchResultBuilder searchResultBuilder,
+			SearchFolderBuilder searchFolderBuilder) {
+		this(workspaceInfo.getCollection(), searchResultBuilder,
+				searchFolderBuilder);
+	}
+
+	public MongoWorkspaceBuilder(DBCollection workspaceColl,
+			SearchResultBuilder searchResultBuilder,
+			SearchFolderBuilder searchFolderBuilder) {
+		this.workspaceColl = workspaceColl;
 		this.searchResultBuilder = searchResultBuilder;
 		this.searchFolderBuilder = searchFolderBuilder;
 	}
@@ -62,8 +72,8 @@ public class MongoWorkspaceBuilder implements WorkspaceBuilder {
 	@Override
 	public Workspace getWorkspace(String workspaceUUID)
 			throws WorkspaceException {
-		Workspace workspace = new MongoWorkspace(m, workspaceDb.getName(),
-				workspaceColl.getName(), searchResultBuilder);
+		Workspace workspace = new MongoWorkspace(workspaceColl,
+				searchResultBuilder);
 
 		DBObject workspaceObject = workspaceColl.findOne(ObjectId
 				.massageToObjectId(workspaceUUID));
@@ -97,10 +107,9 @@ public class MongoWorkspaceBuilder implements WorkspaceBuilder {
 
 	@Override
 	public Workspace getWorkspace() {
-		Workspace workspace = new MongoWorkspace(m, workspaceDb.getName(),
-				workspaceColl.getName(), searchResultBuilder);
+		Workspace workspace = new MongoWorkspace(workspaceColl,
+				searchResultBuilder);
 		workspace.setSearchFolderBuilder(searchFolderBuilder);
 		return workspace;
 	}
-
 }

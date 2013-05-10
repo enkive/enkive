@@ -68,9 +68,79 @@
 
 	<bean id="MigrationStoreDbInfo" class="com.linuxbox.util.dbinfo.mongodb.MongoDbInfo">
 		<constructor-arg name="serviceName" value="Migration Service" />
-				<constructor-arg ref="Mongo" />
+		<constructor-arg ref="Mongo" />
 		<constructor-arg value="${enkive.migrations.db.name}" />
 		<constructor-arg value="${enkive.migrations.collection.name}" />
+	</bean>
+
+
+	<!-- WORKSPACE DB -->
+
+	<bean id="CollectedWorkspaceDbInfo" class="com.linuxbox.util.dbinfo.MultiDbInfo">
+		<constructor-arg name="serviceName"
+			value="Collected Workspace Database Info" />
+		<constructor-arg>
+			<list>
+				<ref bean="WorkspacesDbInfo" />
+				<ref bean="UserWorkspacesDbInfo" />
+				<ref bean="WorkspaceResultsDbInfo" />
+				<ref bean="WorkspaceFoldersDbInfo" />
+				<ref bean="WorkspaceFoldersResultsDbInfo" />
+				<ref bean="WorkspaceQueriesDbInfo" />
+			</list>
+		</constructor-arg>
+	</bean>
+
+	<bean id="WorkspacesDbInfo" class="com.linuxbox.util.dbinfo.mongodb.MongoDbInfo">
+		<constructor-arg name="serviceName" value="Workspaces Collection" />
+		<constructor-arg ref="Mongo" />
+		<constructor-arg type="java.lang.String" value="${enkive.workspace.db.name}" />
+		<constructor-arg type="java.lang.String"
+			value="${enkive.workspaces.collection.name}" />
+	</bean>
+
+	<bean id="UserWorkspacesDbInfo" class="com.linuxbox.util.dbinfo.mongodb.MongoDbInfo">
+		<constructor-arg name="serviceName" value="User Workspaces Collection" />
+		<constructor-arg ref="Mongo" />
+		<constructor-arg type="java.lang.String" value="${enkive.workspace.db.name}" />
+		<constructor-arg type="java.lang.String"
+			value="${enkive.workspace.userWorkspaces.collection.name}" />
+	</bean>
+
+	<bean id="WorkspaceResultsDbInfo" class="com.linuxbox.util.dbinfo.mongodb.MongoDbInfo">
+		<constructor-arg name="serviceName"
+			value="Workspace Search Results Collection" />
+		<constructor-arg ref="Mongo" />
+		<constructor-arg type="java.lang.String" value="${enkive.workspace.db.name}" />
+		<constructor-arg type="java.lang.String"
+			value="${enkive.workspace.search.results.collection.name}" />
+	</bean>
+
+	<bean id="WorkspaceFoldersDbInfo" class="com.linuxbox.util.dbinfo.mongodb.MongoDbInfo">
+		<constructor-arg name="serviceName"
+			value="Workspace Search Folders Collection" />
+		<constructor-arg ref="Mongo" />
+		<constructor-arg type="java.lang.String" value="${enkive.workspace.db.name}" />
+		<constructor-arg type="java.lang.String"
+			value="${enkive.workspace.search.folders.collection.name}" />
+	</bean>
+
+	<bean id="WorkspaceFoldersResultsDbInfo" class="com.linuxbox.util.dbinfo.mongodb.MongoDbInfo">
+		<constructor-arg name="serviceName"
+			value="Workspace Search Folder Results Collection" />
+		<constructor-arg ref="Mongo" />
+		<constructor-arg type="java.lang.String" value="${enkive.workspace.db.name}" />
+		<constructor-arg type="java.lang.String"
+			value="${enkive.workspace.search.folders.results.collection.name}" />
+	</bean>
+
+	<bean id="WorkspaceQueriesDbInfo" class="com.linuxbox.util.dbinfo.mongodb.MongoDbInfo">
+		<constructor-arg name="serviceName"
+			value="Workspace Search Queries Collection" />
+		<constructor-arg ref="Mongo" />
+		<constructor-arg type="java.lang.String" value="${enkive.workspace.db.name}" />
+		<constructor-arg type="java.lang.String"
+			value="${enkive.workspace.search.queries.collection.name}" />
 	</bean>
 
 </beans>

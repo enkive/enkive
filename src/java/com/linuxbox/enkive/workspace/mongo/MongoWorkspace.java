@@ -28,27 +28,19 @@ import com.linuxbox.enkive.workspace.Workspace;
 import com.linuxbox.enkive.workspace.WorkspaceException;
 import com.linuxbox.enkive.workspace.searchResult.SearchResultBuilder;
 import com.mongodb.BasicDBObject;
-import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
-import com.mongodb.Mongo;
 
 public class MongoWorkspace extends Workspace {
-
-	protected Mongo m;
-	protected DB workspaceDb;
 	protected DBCollection workspaceColl;
 
 	private final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.workspace.mongo");
 
-	public MongoWorkspace(Mongo m, String dbName, String workspaceCollName,
+	public MongoWorkspace(DBCollection workspaceColl,
 			SearchResultBuilder searchResultBuilder) {
-		this.m = m;
-		workspaceDb = m.getDB(dbName);
-		workspaceColl = workspaceDb.getCollection(workspaceCollName);
+		this.workspaceColl = workspaceColl;
 		this.searchResultBuilder = searchResultBuilder;
-
 	}
 
 	@Override

@@ -28,16 +28,13 @@ import com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants;
 import com.linuxbox.enkive.workspace.searchFolder.SearchFolder;
 import com.linuxbox.enkive.workspace.searchFolder.SearchFolderBuilder;
 import com.linuxbox.enkive.workspace.searchFolder.SearchFolderSearchResultBuilder;
+import com.linuxbox.util.dbinfo.mongodb.MongoDbInfo;
 import com.mongodb.BasicDBList;
-import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import com.mongodb.Mongo;
 
 public class MongoSearchFolderBuilder implements SearchFolderBuilder {
-
-	protected Mongo m;
-	protected DB searchFolderDB;
 	protected DBCollection searchFolderColl;
 	protected SearchFolderSearchResultBuilder searchResultBuilder;
 	protected MessageRetrieverService retrieverService;
@@ -45,17 +42,24 @@ public class MongoSearchFolderBuilder implements SearchFolderBuilder {
 	public MongoSearchFolderBuilder(Mongo m, String searchFolderDBName,
 			String searchFolderCollName,
 			SearchFolderSearchResultBuilder searchResultBuilder) {
-		this.m = m;
-		this.searchFolderDB = m.getDB(searchFolderDBName);
-		this.searchFolderColl = searchFolderDB
-				.getCollection(searchFolderCollName);
+		this(m.getDB(searchFolderDBName).getCollection(searchFolderCollName),
+				searchResultBuilder);
+	}
+
+	public MongoSearchFolderBuilder(MongoDbInfo dbInfo,
+			SearchFolderSearchResultBuilder searchResultBuilder) {
+		this(dbInfo.getCollection(), searchResultBuilder);
+	}
+
+	public MongoSearchFolderBuilder(DBCollection searchFolderColl,
+			SearchFolderSearchResultBuilder searchResultBuilder) {
+		this.searchFolderColl = searchFolderColl;
 		this.searchResultBuilder = searchResultBuilder;
 	}
 
 	@Override
 	public SearchFolder getSearchFolder() {
-		SearchFolder searchFolder = new MongoSearchFolder(m,
-				searchFolderDB.getName(), searchFolderColl.getName(),
+		SearchFolder searchFolder = new MongoSearchFolder(searchFolderColl,
 				searchResultBuilder);
 		searchFolder.setRetrieverService(retrieverService);
 		searchFolder.saveSearchFolder();
@@ -65,8 +69,7 @@ public class MongoSearchFolderBuilder implements SearchFolderBuilder {
 	@Override
 	public SearchFolder getSearchFolder(String searchFolderId)
 			throws WorkspaceException {
-		SearchFolder searchFolder = new MongoSearchFolder(m,
-				searchFolderDB.getName(), searchFolderColl.getName(),
+		SearchFolder searchFolder = new MongoSearchFolder(searchFolderColl,
 				searchResultBuilder);
 		searchFolder.setRetrieverService(retrieverService);
 		searchFolder.setID(searchFolderId);
@@ -92,5 +95,4 @@ public class MongoSearchFolderBuilder implements SearchFolderBuilder {
 	public void setRetrieverService(MessageRetrieverService retrieverService) {
 		this.retrieverService = retrieverService;
 	}
-
 }

@@ -29,25 +29,17 @@ import org.bson.types.ObjectId;
 import com.linuxbox.enkive.workspace.WorkspaceException;
 import com.linuxbox.enkive.workspace.searchQuery.SearchQuery;
 import com.mongodb.BasicDBObject;
-import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
-import com.mongodb.Mongo;
 
 public class MongoSearchQuery extends SearchQuery {
-
-	protected Mongo m;
-	protected DB searchQueryDB;
-	protected DBCollection searchQueryColl;
-
 	private final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.workspaces");
 
-	public MongoSearchQuery(Mongo m, String searchQueryDBName,
-			String searchQueryCollName) {
-		this.m = m;
-		searchQueryDB = m.getDB(searchQueryDBName);
-		searchQueryColl = searchQueryDB.getCollection(searchQueryCollName);
+	protected DBCollection searchQueryColl;
+
+	public MongoSearchQuery(DBCollection searchQueryColl) {
+		this.searchQueryColl = searchQueryColl;
 	}
 
 	@Override
@@ -81,5 +73,4 @@ public class MongoSearchQuery extends SearchQuery {
 				.massageToObjectId(getId()));
 		searchQueryColl.remove(searchQueryObject);
 	}
-
 }

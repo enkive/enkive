@@ -24,7 +24,7 @@ import com.linuxbox.enkive.workspace.searchResult.SearchResult;
 public abstract class SearchFolderSearchResult extends SearchResult {
 
 	public SearchFolderSearchResult() {
-
+		super();
 	}
 
 	public SearchFolderSearchResult(SearchResult searchResult) {
