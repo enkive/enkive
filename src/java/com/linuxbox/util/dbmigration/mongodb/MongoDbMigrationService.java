@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import com.linuxbox.enkive.tool.mongodb.MongoDbIndexManager;
 import com.linuxbox.util.dbinfo.mongodb.MongoDbInfo;
 import com.linuxbox.util.dbmigration.DbMigrationService;
 import com.linuxbox.util.dbmigration.DbStatusRecord;
@@ -27,6 +28,7 @@ public class MongoDbMigrationService extends DbMigrationService implements
 	protected final static DBObject QUERY_ALL_RECORDS;
 	protected final static DBObject ALL_KEYS;
 	protected final static DBObject ORDER_BY_VERSION_DESCENDING;
+	protected final static DBObject ORDER_BY_TIMESTAMP_VERSION_STATUS_DESCENDING;
 
 	protected DBCollection migrationsCollection;
 
@@ -36,6 +38,10 @@ public class MongoDbMigrationService extends DbMigrationService implements
 				.add(KEY_STATUS, 1).add(KEY_TIMESTAMP, 1).get();
 		ORDER_BY_VERSION_DESCENDING = BasicDBObjectBuilder.start()
 				.add(KEY_VERSION, -1).get();
+		ORDER_BY_TIMESTAMP_VERSION_STATUS_DESCENDING = BasicDBObjectBuilder
+				.start().add(KEY_TIMESTAMP, -1).add(KEY_VERSION, -1)
+				.add(KEY_STATUS, -1).get();
+
 	}
 
 	public MongoDbMigrationService(Mongo mongo, String dbName,
@@ -50,12 +56,15 @@ public class MongoDbMigrationService extends DbMigrationService implements
 	public MongoDbMigrationService(DBCollection migrationsCollection) {
 		this.migrationsCollection = migrationsCollection;
 		this.migrationsCollection.setWriteConcern(WriteConcern.FSYNC_SAFE);
+		
+		MongoDbIndexManager m = new MongoDbIndexManager();
+		m.forceRequestedIndexes("MongoDbMigrationService", this);
 	}
 
 	@Override
 	public DbStatusRecord getLatestDbStatusRecord() {
 		DBObject result = migrationsCollection.findOne(QUERY_ALL_RECORDS,
-				ALL_KEYS, ORDER_BY_VERSION_DESCENDING);
+				ALL_KEYS, ORDER_BY_TIMESTAMP_VERSION_STATUS_DESCENDING);
 
 		if (null == result) {
 			// if there is no record, create one with ordinal db version 0
@@ -69,13 +78,19 @@ public class MongoDbMigrationService extends DbMigrationService implements
 		}
 	}
 
+	@Override
+	public void addDbStatusRecord(DbStatusRecord record) {
+		DBObject statusObject = dbStatusRecordToDbObject(record);
+		migrationsCollection.save(statusObject);
+	}
+
 	/*
 	 * Conversion methods
 	 */
 
 	protected static DBObject dbStatusRecordToDbObject(DbStatusRecord record) {
 		BasicDBObjectBuilder builder = BasicDBObjectBuilder.start();
-		builder.add(KEY_VERSION, record.dbVersion);
+		builder.add(KEY_VERSION, record.dbVersion.ordinal);
 		builder.add(KEY_STATUS, record.status.code);
 		builder.add(KEY_TIMESTAMP, record.timestamp);
 		return builder.get();
@@ -109,13 +124,12 @@ public class MongoDbMigrationService extends DbMigrationService implements
 
 	@Override
 	public List<IndexDescription> getPreferredIndexes() {
-		BasicDBObjectBuilder builder = BasicDBObjectBuilder.start().add(
-				KEY_VERSION, -1);
-		IndexDescription byVersionDescending = new IndexDescription(
-				"by version descending", builder.get(), true);
+		IndexDescription byTimestampVersionStatusDescending = new IndexDescription(
+				"by timestamp, version, status descending",
+				ORDER_BY_TIMESTAMP_VERSION_STATUS_DESCENDING, true);
 		List<IndexDescription> descriptionList = new ArrayList<IndexDescription>(
 				1);
-		descriptionList.add(byVersionDescending);
+		descriptionList.add(byTimestampVersionStatusDescending);
 		return descriptionList;
 	}
 

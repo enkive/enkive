@@ -1,6 +1,7 @@
 package com.linuxbox.util.dbmigration;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -47,6 +48,15 @@ public abstract class DbMigrationService implements ApplicationContextAware,
 		migrators = new ArrayList<DbMigrator>();
 	}
 
+	public boolean isUpToDateTest() {
+		try {
+			isUpToDate();
+			return true;
+		} catch (Exception e) {
+			return false;
+		}
+	}
+
 	public void isUpToDate() throws UpToDateException,
 			DbVersionManagerException {
 		final Version softwareVersion = ProductInfo.VERSION;
@@ -56,9 +66,11 @@ public abstract class DbMigrationService implements ApplicationContextAware,
 		DbStatusRecord storedStatus = getLatestDbStatusRecord();
 		if (storedStatus.status != Status.STORED) {
 			throw new UpToDateException(
-					"the database never completed its most recent migration to version ordinal "
-							+ storedStatus.dbVersion + ", which began at "
-							+ storedStatus.timestamp);
+					"The database never completed its most recent migration to version ordinal "
+							+ storedStatus.dbVersion
+							+ ", which began at "
+							+ storedStatus.timestamp
+							+ ". It is recommended that you restore your database from backup and then rerun the migration.");
 		}
 
 		String storedVersionString = dbVersionManager
@@ -89,39 +101,53 @@ public abstract class DbMigrationService implements ApplicationContextAware,
 		}
 	}
 
+	/**
+	 * Load all the migrators and verify that we can go from the current state
+	 * to the desired state.
+	 * 
+	 * @return true if no problems, false if there is a problem
+	 */
 	public boolean loadAndCheckMigrators() {
-		final int newVersionOrdinal = ProductInfo.VERSION.versionOrdinal;
-		String newVersionString = Version
-				.versionStringFromOrdinal(newVersionOrdinal);
-		if (null == newVersionString) {
-			newVersionString = "Ordinal(" + newVersionOrdinal + ")";
-		}
+		try {
+			final Version thisSoftwareVersion = ProductInfo.VERSION;
+			final DbVersion thisDbVersion = dbVersionManager
+					.appropriateDbVersionFor(thisSoftwareVersion);
+			final String thisDbVersionString = dbVersionManager
+					.softwareVersionsAppropriateToDbVersion(thisDbVersion,
+							"UNKNOWN");
 
-		final DbStatusRecord dbStatus = getLatestDbStatusRecord();
-		String oldVersionString = dbVersionManager
-				.softwareVersionsAppropriateToDbVersion(dbStatus.dbVersion);
-		if (null == oldVersionString) {
-			oldVersionString = "Ordinal(" + dbStatus.dbVersion.ordinal + ")";
-		}
+			final DbStatusRecord dbStatus = getLatestDbStatusRecord();
+			final String dbStatusVersionString = dbVersionManager
+					.softwareVersionsAppropriateToDbVersion(dbStatus.dbVersion,
+							"UNKNOWN");
 
-		boolean problem = false;
+			boolean problem = false;
 
-		Map<String, DbMigrator> loadedMigrators = applicationContext
-				.getBeansOfType(DbMigrator.class);
+			Map<String, DbMigrator> loadedMigrators = applicationContext
+					.getBeansOfType(DbMigrator.class);
 
-		for (Entry<String, DbMigrator> e : loadedMigrators.entrySet()) {
-			if (!e.getValue().canReachVersion(dbStatus.dbVersion.ordinal,
-					newVersionOrdinal)) {
-				LOGGER.error("Migrator \"" + e.getKey()
-						+ "\" cannot reach version " + newVersionString
-						+ " from version " + oldVersionString + ".");
-				problem = true;
+			for (Entry<String, DbMigrator> e : loadedMigrators.entrySet()) {
+				final DbMigrator migrator = e.getValue();
+				if (!migrator.canReachVersion(dbStatus.dbVersion.ordinal,
+						thisDbVersion.ordinal)) {
+					LOGGER.error("Migrator \"" + e.getKey()
+							+ "\" cannot reach version "
+							+ thisDbVersion.ordinal + " (software version: "
+							+ thisDbVersionString + ") from version "
+							+ dbStatus.dbVersion.ordinal
+							+ " (software version: " + dbStatusVersionString
+							+ ").");
+					problem = true;
+				}
 			}
+
+			migrators.addAll(loadedMigrators.values());
+
+			return !problem;
+		} catch (DbVersionManagerException e) {
+			LOGGER.error(e);
+			return false;
 		}
-
-		migrators.addAll(loadedMigrators.values());
-
-		return !problem;
 	}
 
 	public void migrate() throws DbMigrationException {
@@ -145,12 +171,62 @@ public abstract class DbMigrationService implements ApplicationContextAware,
 						"One or more of the migrators will not work; see log.");
 			}
 
-			LOGGER.trace("would be running migrators here");
+			final Version thisSoftwareVersion = ProductInfo.VERSION;
+			final DbVersion neededDbVersion = dbVersionManager
+					.appropriateDbVersionFor(thisSoftwareVersion);
 
-			// for (DBMigrator migrator : migrators) {
-			// TODO run all the migrations
-			// }'
+			final DbStatusRecord dbStatus = getLatestDbStatusRecord();
 
+			try {
+				// record that we're starting migration
+				addDbStatusRecord(new DbStatusRecord(neededDbVersion,
+						Status.MIGRATING, new Date()));
+
+				for (DbMigrator migrator : migrators) {
+					if (LOGGER.isInfoEnabled()) {
+						LOGGER.info("Starting migrations for "
+								+ migrator.migratorName + "...");
+					}
+
+					final int resultingVersion = migrator
+							.runThrough(dbStatus.dbVersion.ordinal,
+									neededDbVersion.ordinal);
+					if (resultingVersion != neededDbVersion.ordinal) {
+						final String errorMessage = "For migrator "
+								+ migrator.migratorName
+								+ " could only migrate from version "
+								+ dbStatus.dbVersion.ordinal
+								+ " to version "
+								+ resultingVersion
+								+ ", which did not achieve the desired version of "
+								+ neededDbVersion.ordinal + ".";
+
+						LOGGER.fatal(errorMessage);
+						throw new DbMigrationException(errorMessage);
+					}
+
+					if (LOGGER.isInfoEnabled()) {
+						LOGGER.info("Finished migrations for "
+								+ migrator.migratorName + ".");
+					}
+				}
+
+				// record that we finished migration successfully
+				addDbStatusRecord(new DbStatusRecord(neededDbVersion,
+						Status.STORED, new Date()));
+
+				if (LOGGER.isInfoEnabled()) {
+					LOGGER.info("Finished all migrations to bring database to version "
+							+ neededDbVersion.ordinal);
+				}
+			} catch (DbMigrationException e) {
+				// record that we got an error in completing migration
+				addDbStatusRecord(new DbStatusRecord(neededDbVersion,
+						Status.ERROR, new Date()));
+				throw e;
+			}
+		} catch (DbVersionManagerException e) {
+			throw new DbMigrationException("Error with DbVersionManager", e);
 		} finally {
 			synchronized (this) {
 				isMigrating = false;
@@ -168,6 +244,8 @@ public abstract class DbMigrationService implements ApplicationContextAware,
 	}
 
 	abstract public DbStatusRecord getLatestDbStatusRecord();
+
+	abstract public void addDbStatusRecord(DbStatusRecord record);
 
 	/*
 	 * Methods for ApplicationContextAware

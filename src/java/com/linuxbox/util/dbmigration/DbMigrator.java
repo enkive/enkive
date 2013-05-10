@@ -30,18 +30,19 @@ public class DbMigrator {
 		migrations.put(migration.fromVersion, migration);
 	}
 
-	public int runThrough(int fromVersion, int toVersion)
+	public int runThrough(final int fromVersion, final int toVersion)
 			throws DbMigrationException {
-		while (fromVersion < toVersion) {
-			Integer newVersion = runNext(fromVersion);
+		int currentVersion = fromVersion;
+		while (currentVersion < toVersion) {
+			Integer newVersion = runNext(currentVersion);
 			if (newVersion == null) {
 				throw new DbMigrationException(migratorName
 						+ " could not find the migration for version "
-						+ fromVersion);
+						+ currentVersion);
 			}
-			fromVersion = newVersion;
+			currentVersion = newVersion;
 		}
-		return toVersion;
+		return currentVersion;
 	}
 
 	public int runAll(int fromVersion) throws DbMigrationException {
@@ -60,7 +61,6 @@ public class DbMigrator {
 			return null;
 		} else {
 			nextMigration.migrate(dbInfo);
-			// TODO Update version here?
 			return nextMigration.toVersion;
 		}
 	}

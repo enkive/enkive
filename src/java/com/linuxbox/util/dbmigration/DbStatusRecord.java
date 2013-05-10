@@ -6,7 +6,11 @@ import com.linuxbox.util.dbmigration.DbVersionManager.DbVersion;
 
 public class DbStatusRecord {
 	public static enum Status {
-		STORED(0), MIGRATING(1), ERROR(-1);
+		/**
+		 * we want the codes to be in chronological sequence, esp. when trying
+		 * to retrieve the latest version
+		 */
+		MIGRATING(0), STORED(1), ERROR(2);
 
 		public final int code;
 

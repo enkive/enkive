@@ -58,8 +58,7 @@ import com.mongodb.MongoException;
  * check for missing indexes and create those if there are sufficiently few
  * documents (so it won't take very long).
  */
-public class MongoDbIndexManager implements
-		ApplicationContextAware {
+public class MongoDbIndexManager implements ApplicationContextAware {
 	protected static final Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.tool.mongodb");
 	/**
@@ -420,5 +419,14 @@ public class MongoDbIndexManager implements
 	public void setApplicationContext(ApplicationContext applicationContext)
 			throws BeansException {
 		this.applicationContext = applicationContext;
+	}
+
+	public void forceRequestedIndexes(String serviceName, MongoIndexable service) {
+		try {
+			AutoIndexActions actions = new AutoIndexActions(Long.MAX_VALUE);
+			doCheckService(actions, service, serviceName);
+		} catch (QuitException e) {
+			// empty
+		}
 	}
 }

@@ -1,5 +1,8 @@
 package com.linuxbox.enkive.tool;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Map;
 
 import org.springframework.context.ApplicationContext;
@@ -35,7 +38,44 @@ public class DbMigrationTool extends Main {
 		final DbMigrationService migrationService = migrationServices.values()
 				.iterator().next();
 
-		migrationService.migrate();
+		if (migrationService.isUpToDateTest()) {
+			System.out
+					.println("The database appears to be up to date. No migrations run.");
+		} else {
+			System.out
+					.println("The database appears to need migrations. It is important to create a backup of the database before running migrations.");
+
+			System.out
+					.print("Do you confirm that you have created a full backup of the database (YES/no)? ");
+
+			try {
+				BufferedReader in = new BufferedReader(new InputStreamReader(
+						System.in));
+				String response = in.readLine().trim();
+				if (!"YES".equals(response)) {
+					throw new DbMigrationException(
+							"User did not confirm that a backup of the database has been made prior to running migrations. S/he entered \""
+									+ response + "\" rather than \"YES\".");
+				}
+			} catch (IOException e) {
+				throw new DbMigrationException(
+						"Was unable to read a confirmation from the user.", e);
+			}
+
+			// We should only be able to get here if the user responded "YES".
+
+			migrationService.migrate();
+
+			System.out
+					.println("The migrations have now completed. Checking database status again....");
+			if (!migrationService.isUpToDateTest()) {
+				throw new DbMigrationException(
+						"Database is not up to date after migrations run sucessfully.");
+			} else {
+				System.out
+						.println("The database now appears to be up to date.");
+			}
+		}
 	}
 
 	@Override
@@ -62,9 +102,11 @@ public class DbMigrationTool extends Main {
 		try {
 			final DbMigrationTool tool = new DbMigrationTool(arguments);
 			tool.run();
-		} catch (Exception e) {
-			LOGGER.error("Error running " + DESCRIPTION, e);
+		} catch (DbMigrationException e) {
 			System.err.println("Error: " + e.getMessage());
+		} catch (Exception e) {
+			System.err.println("Error: " + e.getMessage());
+			LOGGER.fatal("Error running " + DESCRIPTION, e);
 		}
 	}
 }
