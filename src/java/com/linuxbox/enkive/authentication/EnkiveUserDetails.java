@@ -4,6 +4,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Properties;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -14,7 +17,7 @@ import com.linuxbox.enkive.normalization.EmailAddressNormalizer;
 
 /**
  * Puts an Enkive User Details facade over other User Details, to which most
- * methods are delegated to. Enkive User Details adds a set of known email
+ * methods are delegated.  Enkive User Details adds a set of known email
  * addresses and the methods to manage that set.
  */
 public class EnkiveUserDetails implements UserDetails {
@@ -76,6 +79,15 @@ public class EnkiveUserDetails implements UserDetails {
 	public void addKnownEmailAddress(String address) {
 		knownEmailAddresses.add(address);
 		knownNormalizedEmailAddresses = null; // nullify so will be regenerated
+	}
+	
+	public void addFromProperties(String key, Properties props) {
+		final String addressList = props.getProperty(key);
+		if (addressList != null) {
+			for(String address : addressList.split(",")) {
+				addKnownEmailAddress(address);
+			}	
+		}
 	}
 
 	public Set<String> getKnownEmailAddresses() {

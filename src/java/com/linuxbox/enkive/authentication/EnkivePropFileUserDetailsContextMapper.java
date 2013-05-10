@@ -3,6 +3,12 @@ package com.linuxbox.enkive.authentication;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Set;
+import java.util.HashSet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -30,6 +36,9 @@ public class EnkivePropFileUserDetailsContextMapper implements
 
 	protected String defaultDomain;
 	protected String properties;
+	protected String userAddresses;
+	
+	private static Properties userAddressesProps;
 
 	@Override
 	public UserDetails loadUserByUsername(String username)
@@ -38,6 +47,9 @@ public class EnkivePropFileUserDetailsContextMapper implements
 				.loadUserByUsername(username);
 		final EnkiveUserDetails enkiveDetails = new EnkiveUserDetails(
 				plainDetails, emailAddressNormalizer);
+		
+		// add any addresses listed explicitly in addresses.properties
+		enkiveDetails.addFromProperties(username, userAddressesProps);
 
 		String emailAddress;
 		if (username.contains("@")) {
@@ -49,6 +61,7 @@ public class EnkivePropFileUserDetailsContextMapper implements
 			emailAddress = username + '@' + defaultDomain;
 		}
 
+		// add default address (if not already in the set)
 		enkiveDetails.addKnownEmailAddress(emailAddress);
 
 		return enkiveDetails;
@@ -65,6 +78,13 @@ public class EnkivePropFileUserDetailsContextMapper implements
 
 		delegateUserDetailsManager = new InMemoryUserDetailsManager(
 				userProperties);
+		
+		// now get userAddresses
+		final Resource uaResource = applicationContext.getResource(userAddresses);
+		userAddressesProps = new Properties();
+		final InputStream uaStream = uaResource.getInputStream();
+		userAddressesProps.load(uaStream);
+		uaStream.close();
 	}
 
 	@Override
@@ -80,6 +100,14 @@ public class EnkivePropFileUserDetailsContextMapper implements
 	public void setDefaultDomain(String defaultDomain) {
 		this.defaultDomain = defaultDomain;
 	}
+	
+	public String getUserAddresses() {
+		return userAddresses;
+	}
+
+	public void setUserAddresses(String userAddresses) {
+		this.userAddresses = userAddresses;
+	}	
 
 	public String getProperties() {
 		return properties;
