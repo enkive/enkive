@@ -26,6 +26,8 @@ import java.io.InputStream;
 import java.io.Reader;
 
 import com.linuxbox.enkive.TestingConstants;
+import com.linuxbox.enkive.docstore.mongogrid.ConvenienceMongoGridDocStoreService;
+import com.linuxbox.enkive.docstore.mongogrid.MongoGridDocStoreService;
 import com.linuxbox.enkive.message.Message;
 import com.linuxbox.enkive.retriever.mongodb.MongoRetrieverService;
 import com.mongodb.Mongo;
@@ -49,6 +51,10 @@ public class MongoDBMsgRetriever {
 	// FIXME: Since this is defined in the spring configuration, it should be
 	// retrieved from there rather than hard-coded
 	private final static String EMAIL_COLLECTION_NAME = "emailMessages";
+	
+	// FIXME: Since this is defined in the spring configuration, it should be
+	// retrieved from there rather than hard-coded
+	private final static String GRIDFS_COLLECTION_NAME = "fs";
 
 	// private final static String OUTPUT_DIR = "/tmp"; // command line?
 	private final static String OUTPUT_DIR = ".";
@@ -100,10 +106,17 @@ public class MongoDBMsgRetriever {
 		System.out.println("Starting");
 		
 		MongoRetrieverService retriever = null;
+		MongoGridDocStoreService docStoreService = null;
 
 		try {
 			Mongo m = new Mongo();
 			retriever = new MongoRetrieverService(m, DATABASE_NAME, EMAIL_COLLECTION_NAME);
+			
+			docStoreService = new ConvenienceMongoGridDocStoreService(
+					DATABASE_NAME, GRIDFS_COLLECTION_NAME);
+			docStoreService.startup();
+			
+			retriever.setDocStoreService(docStoreService);
 
 			String identifier = getIdentifierOpt(args);
 			if (identifier == null) {
