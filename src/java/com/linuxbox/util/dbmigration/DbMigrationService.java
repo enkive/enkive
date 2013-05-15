@@ -243,7 +243,8 @@ public abstract class DbMigrationService implements ApplicationContextAware,
 		this.dbVersionManager = manager;
 	}
 
-	abstract public DbStatusRecord getLatestDbStatusRecord();
+	abstract public DbStatusRecord getLatestDbStatusRecord()
+			throws DbVersionManagerException;
 
 	abstract public void addDbStatusRecord(DbStatusRecord record);
 

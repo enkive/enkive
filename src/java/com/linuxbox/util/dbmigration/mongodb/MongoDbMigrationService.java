@@ -3,16 +3,21 @@ package com.linuxbox.util.dbmigration.mongodb;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
+import com.linuxbox.enkive.ProductInfo;
 import com.linuxbox.enkive.tool.mongodb.MongoDbIndexManager;
+import com.linuxbox.util.Version;
 import com.linuxbox.util.dbinfo.mongodb.MongoDbInfo;
 import com.linuxbox.util.dbmigration.DbMigrationService;
 import com.linuxbox.util.dbmigration.DbStatusRecord;
 import com.linuxbox.util.dbmigration.DbStatusRecord.Status;
 import com.linuxbox.util.dbmigration.DbVersionManager.DbVersion;
+import com.linuxbox.util.dbmigration.DbVersionManager.DbVersionManagerException;
 import com.linuxbox.util.mongodb.MongoIndexable;
 import com.mongodb.BasicDBObject;
 import com.mongodb.BasicDBObjectBuilder;
+import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import com.mongodb.Mongo;
@@ -56,13 +61,28 @@ public class MongoDbMigrationService extends DbMigrationService implements
 	public MongoDbMigrationService(DBCollection migrationsCollection) {
 		this.migrationsCollection = migrationsCollection;
 		this.migrationsCollection.setWriteConcern(WriteConcern.FSYNC_SAFE);
-		
+
 		MongoDbIndexManager m = new MongoDbIndexManager();
 		m.forceRequestedIndexes("MongoDbMigrationService", this);
 	}
 
 	@Override
-	public DbStatusRecord getLatestDbStatusRecord() {
+	public DbStatusRecord getLatestDbStatusRecord()
+			throws DbVersionManagerException {
+		if (isDbNew()) {
+			// if the db is new, we can assume it will be created according
+			// to current version, so store current version
+			Version softwareVersion = ProductInfo.VERSION;
+			DbVersion databaseVersion = dbVersionManager
+					.appropriateDbVersionFor(softwareVersion);
+			DbStatusRecord record = new DbStatusRecord(new DbVersion(
+					databaseVersion.ordinal), DbStatusRecord.Status.STORED,
+					new Date());
+			DBObject mongoObj = dbStatusRecordToDbObject(record);
+			migrationsCollection.save(mongoObj);
+			return record;
+		}
+
 		DBObject result = migrationsCollection.findOne(QUERY_ALL_RECORDS,
 				ALL_KEYS, ORDER_BY_TIMESTAMP_VERSION_STATUS_DESCENDING);
 
@@ -142,5 +162,13 @@ public class MongoDbMigrationService extends DbMigrationService implements
 	@Override
 	public long getDocumentCount() throws MongoException {
 		return migrationsCollection.find().count();
+	}
+
+	public boolean isDbNew() {
+		final DB database = migrationsCollection.getDB();
+		final Set<String> collectionNames = database.getCollectionNames();
+		// expect a collection for system.indexes, fs.files, fs.chunks, and
+		// migrations because the GridFS is created early
+		return collectionNames.size() <= 4;
 	}
 }
