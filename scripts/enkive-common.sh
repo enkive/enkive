@@ -43,6 +43,19 @@ if [ ! -f ${INDRI_SO_PATH}/libindri_jni.so ] ;then
 	errors=1
 fi
 
+ENKIVE_JAR="${ENKIVE_HOME}/build/enkive.jar"
+if [ ! -e ${ENKIVE_JAR} ] ;then
+	# check to see if it's under build since that's where it's placed during
+	# developmental builds
+    ENKIVE_JAR="${ENKIVE_HOME}/enkive.jar"
+    if [ ! -e ${ENKIVE_JAR} ] ;then
+        echo "Could not find \"enkive.jar\" in ${ENKIVE_HOME} or ${ENKIVE_HOME}/build ."
+        errors=1
+    fi
+else
+	echo "NOTE: Using developmental build in ${ENKIVE_JAR}."
+fi
+
 if [ ${errors} -eq 1 ] ;then
 	echo "Exiting due to error(s)."
 	exit 1
@@ -52,7 +65,7 @@ fi
 # VARIABLES BUILT FROM THE ABOVE; likely no need to alter
 
 ENKIVE_LOG_PATH=${ENKIVE_HOME}/data/logs
-ENKIVE_CLASSPATH=${JAVA_HOME}/lib/tools.jar:${ENKIVE_HOME}/build/enkive.jar:${ENKIVE_HOME}/lib/*:${ENKIVE_HOME}/lib/spring/*:${ENKIVE_HOME}/lib/james-imap/*:${ENKIVE_HOME}/config
+ENKIVE_CLASSPATH=${JAVA_HOME}/lib/tools.jar:${ENKIVE_JAR}:${ENKIVE_HOME}/lib/*:${ENKIVE_HOME}/lib/spring/*:${ENKIVE_HOME}/lib/james-imap/*:${ENKIVE_HOME}/config
 
 if [ "${ENKIVE_CONSOLE_LOGGING}" = "full" ] ;then
 	LOG4J_CONFIG=file://${ENKIVE_HOME}/config/log4j.properties
