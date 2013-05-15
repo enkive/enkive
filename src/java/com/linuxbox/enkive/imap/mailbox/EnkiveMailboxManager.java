@@ -18,14 +18,22 @@
  ******************************************************************************/
 package com.linuxbox.enkive.imap.mailbox;
 
+import java.util.ArrayList;
+import java.util.Locale;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.james.mailbox.MailboxSession;
+import org.apache.james.mailbox.MailboxSession.SessionType;
 import org.apache.james.mailbox.acl.GroupMembershipResolver;
 import org.apache.james.mailbox.acl.MailboxACLResolver;
 import org.apache.james.mailbox.exception.MailboxException;
 import org.apache.james.mailbox.store.Authenticator;
 import org.apache.james.mailbox.store.MailboxSessionMapperFactory;
+import org.apache.james.mailbox.store.SimpleMailboxSession;
 import org.apache.james.mailbox.store.StoreMailboxManager;
+import org.slf4j.Logger;
+import org.springframework.security.core.context.SecurityContext;
 
 public class EnkiveMailboxManager extends StoreMailboxManager<String> {
 
@@ -39,6 +47,17 @@ public class EnkiveMailboxManager extends StoreMailboxManager<String> {
 		super(mailboxSessionMapperFactory, authenticator, aclResolver,
 				groupMembershipResolver);
 	}
+
+    /**
+     * Create Session (overrides SimpleMailboxSession)
+     * 
+     * @param userName
+     * @param log
+     * @return session
+     */
+    protected MailboxSession createSession(String userName, String password, Logger log, SessionType type) {
+        return new EnkiveMailboxSession(randomId(), userName, password, log, new ArrayList<Locale>(), getDelimiter(), type);
+    }
 
 	// Convenience method for use with spring
 	public void startup() {

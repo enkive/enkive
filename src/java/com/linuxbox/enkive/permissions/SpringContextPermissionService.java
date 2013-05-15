@@ -29,7 +29,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.*;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.util.CollectionUtils;
 
@@ -105,8 +105,12 @@ public class SpringContextPermissionService implements PermissionService {
 
 	@Override
 	public Collection<String> canReadAddresses(String userId) {
-		final UserDetails userDetails = (UserDetails) SecurityContextHolder
-				.getContext().getAuthentication().getPrincipal();
+		
+		SecurityContext ctx = SecurityContextHolder.getContext();
+		Authentication auth = ctx.getAuthentication();
+		
+		final UserDetails userDetails = (UserDetails) auth.getPrincipal();
+		
 		if (userDetails instanceof EnkiveUserDetails) {
 			return ((EnkiveUserDetails) userDetails)
 					.getKnownNormalizedEmailAddresses();

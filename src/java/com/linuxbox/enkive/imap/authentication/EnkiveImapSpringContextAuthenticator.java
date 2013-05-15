@@ -18,6 +18,9 @@
  ******************************************************************************/
 package com.linuxbox.enkive.imap.authentication;
 
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+
 import org.apache.james.mailbox.store.Authenticator;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -35,6 +38,7 @@ public class EnkiveImapSpringContextAuthenticator implements Authenticator {
 
 	public EnkiveImapSpringContextAuthenticator(
 			AuthenticationManager authenticationManager) {
+		
 		this.authenticationManager = authenticationManager;
 	}
 
@@ -44,6 +48,8 @@ public class EnkiveImapSpringContextAuthenticator implements Authenticator {
 				userid, passwd);
 		Authentication authentication = authenticationManager
 				.authenticate(token);
+		// put authenticator in thread-local storage (so it can be stashed in the user's MailboxSession (and cleared)
+		SecurityContextHolder.getContext().setAuthentication(authentication);
 		return authentication.isAuthenticated();
 	}
 

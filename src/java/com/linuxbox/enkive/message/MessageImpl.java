@@ -72,6 +72,19 @@ public class MessageImpl extends AbstractMessage implements Message {
 		ConstructMessage(dataStream);
 		calculateMessageDiff(in);
 	}
+	
+	public String getRawEmail() {
+		String s = "";
+		try {
+			s = getUnpatchedEmail();
+		}  catch (Exception e) {
+			System.err.println(e);
+			e.printStackTrace(System.err);
+		} finally {
+			// nothing
+		}
+		return s;
+	}
 
 	/**
 	 * @throws IOException

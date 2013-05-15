@@ -106,6 +106,11 @@ public interface Message extends MessageSummary {
 	 * Returns the reconstituted email message as a String.
 	 */
 	public String getReconstitutedEmail() throws IOException;
+	
+	/**
+	 * Returns the stored ("unreconstituted") email message as a String.
+	 */
+	public String getRawEmail() throws IOException;
 
 	/**
 	 * Given a Writer, will push the entire re-constituted email to the stream.
