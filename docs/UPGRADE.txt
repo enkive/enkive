@@ -1,0 +1,4 @@
+Before attempting an upgrade of an existing installation of Enkive you must:
+
+    1. Shut down Enkive
+    2. Back up Enkive's data

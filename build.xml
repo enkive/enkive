@@ -11,6 +11,7 @@
 	<property name="source.dir" value="${basedir}/src" />
 	<property name="config.dir" value="${basedir}/config" />
 	<property name="licenses.dir" value="${basedir}/licenses" />
+	<property name="docs.dir" value="${basedir}/docs" />
 	<property name="scripts.dir" value="${basedir}/scripts" />
 	<property name="lib.dir" value="${basedir}/lib" />
 	<property name="contrib.dir" value="${basedir}/contrib" />
@@ -77,6 +78,7 @@
 			<tarfileset dir="${scripts.dir}" prefix="${label}/scripts" />
 			<tarfileset dir="${config.dir}" prefix="${label}/config" />
 			<tarfileset dir="${licenses.dir}" prefix="${label}/licenses" />
+			<tarfileset dir="${docs.dir}" prefix="${label}/docs" />
 			<tarfileset dir="${jetty.dir}" prefix="${label}/jetty" />
 			<tarfileset dir="${lib.dir}" prefix="${label}/lib" excludes="src/**, javadoc/**" />
 			<tarfileset dir="${build.dir}/data" prefix="${label}/data" />
