@@ -20,6 +20,9 @@ JAVA_HOME=${JAVA_HOME:-"/opt/java"}
 # path to the top level of enkive
 ENKIVE_HOME=${ENKIVE_HOME:-"/opt/enkive"}
 
+# user id under which Enkive is run; a good practice is to create a user specifically to run Enkive (e.g., "enkive")
+ENKIVE_USER=${ENKIVE_USER:-"enkive"}
+
 # path to directory that contains file "libindri_jni.so"
 INDRI_SO_PATH=${INDRI_SO_PATH:-"/usr/local/lib"}
 
@@ -78,7 +81,9 @@ fi
 
 cd ${ENKIVE_HOME}
 
-java -cp ${ENKIVE_CLASSPATH} \
-	-Dlog4j.configuration=${LOG4J_CONFIG} \
-	-Djava.library.path=${INDRI_SO_PATH} \
-	${ENKIVE_MAIN} $*
+echo "Note: you may need to authenticate as user \"${ENKIVE_USER}\"...."
+
+su ${ENKIVE_USER} -c "java -cp ${ENKIVE_CLASSPATH} \
+    -Dlog4j.configuration=${LOG4J_CONFIG} \
+    -Djava.library.path=${INDRI_SO_PATH} \
+    ${ENKIVE_MAIN} $*"
