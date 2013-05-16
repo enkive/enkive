@@ -14,6 +14,11 @@
 		class="com.linuxbox.enkive.normalization.CaseEmailAddressNormalizer">
 	</b:bean>
 
+	<!-- Only one of the following three imports should be UNCOMMENTED (the 
+		other two COMMENTED) depending on the authentication mechanism you choose 
+		to use. You should then do further configuration in the file defined as the 
+		'resource' in the import you leave UNCOMMENTED. -->
+
 	<b:import resource="file-authentication.xml" />
 
 	<!-- <b:import resource="ldap-authentication.xml" /> -->
