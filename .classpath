@@ -5,11 +5,6 @@
 	<classpathentry kind="src" path="contrib/java"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/commons-codec-1.4.jar"/>
-	<classpathentry kind="lib" path="lib/indri.jar">
-		<attributes>
-			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="/opt/indri/lib"/>
-		</attributes>
-	</classpathentry>
 	<classpathentry kind="lib" path="lib/cglib-2.2.2.jar"/>
 	<classpathentry kind="lib" path="lib/commons-math3-3.0.jar"/>
 	<classpathentry kind="lib" path="lib/james-imap/james-server-container-spring-3.0-beta4.jar" sourcepath="/home/lee/.m2/repository/org/apache/james/james-server-container-spring/3.0-beta4/james-server-container-spring-3.0-beta4-sources.jar"/>
@@ -158,5 +153,7 @@
 			<attribute name="javadoc_location" value="jar:platform:/resource/enkive2/lib/javadoc/spring/spring-tx-3.2.2.RELEASE-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="var" path="INDRI_INSTALL"/>
+	<classpathentry kind="var" path="INDRI_INSTALL/share/indri/indri.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
