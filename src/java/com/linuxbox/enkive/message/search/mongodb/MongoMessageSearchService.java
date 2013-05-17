@@ -304,6 +304,11 @@ public class MongoMessageSearchService extends AbstractMessageSearchService {
 				}
 			}
 		}
+
+		if (LOGGER.isTraceEnabled()) {
+			LOGGER.trace("MongoDB message search query is: " + query);
+		}
+		
 		return query;
 	}
 

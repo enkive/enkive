@@ -158,6 +158,34 @@ public class IndriDocSearchQueryService extends AbstractDocSearchQueryService {
 
 			results = queryEnv.runQuery(query, maxResults);
 			resultDocNumbers = queryEnv.documentMetadata(results, NAME_FIELD);
+
+			if (LOGGER.isTraceEnabled()) {
+				int limit = 100;
+				boolean first = true;
+				StringBuilder builder = new StringBuilder(
+						"Indri documents found: ");
+
+				if (resultDocNumbers.length == 0) {
+					builder.append("none");
+				} else {
+					for (String docNumber : resultDocNumbers) {
+						if (--limit <= 0) {
+							builder.append(", ... (list elided)");
+							break;
+						}
+
+						if (first) {
+							first = false;
+						} else {
+							builder.append(", ");
+						}
+						builder.append(docNumber);
+					}
+				}
+				
+				LOGGER.trace(builder.toString());
+			}
+
 			return CollectionUtils.listFromArray(resultDocNumbers);
 		} catch (Exception e) {
 			throw new DocSearchException("could not perform INDRI query", e);
