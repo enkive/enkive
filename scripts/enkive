@@ -11,20 +11,25 @@
 
 # SYSTEM ADMINISTRATOR LIKELY WANTS TO MODIFY THE FOLLOWING VARIABLES
 
-# user id under which Enkive is run; a good practice is to create a user specifically to run Enkive (e.g., "enkive")
+# user id under which Enkive is run; a good practice is to create a
+# user specifically to run Enkive (e.g., "enkive")
 ENKIVE_USER=enkive
 
-# path to top-level Enkive directory; this directory would contain "lib" and "config"
+# path to top-level Enkive directory; this directory would contain
+# "lib" and "config"
 ENKIVE_HOME=$(pwd)
 
 # path to the jsvc executable file
 JSVC=/usr/local/bin/jsvc
 
-# path to top level of the Java JDK (must be a JDK and not a JRE); should contain "bin", "lib", and "lib/tools.jar"
+# path to top level of the Java JDK (must be a JDK and not a JRE);
+# should contain "bin", "lib", and "lib/tools.jar"
 JAVA_HOME=/usr/lib/jvm/java-openjdk
 
-# path to directory that contains file "libindri_jni.so"
-INDRI_SO_PATH=/usr/local/lib
+# path to directory that Indri was installed in -- typically /usr/local
+# or /opt/indri. Expect to find underneath this directory both
+# lib/libindri_jni.so and share/indri/indri.jar . 
+INDRI_INSTALL_PATH=/usr/local
 
 
 # TESTING OF THE ABOVE
@@ -32,29 +37,36 @@ INDRI_SO_PATH=/usr/local/lib
 errors=0
 
 if [ ! -f ${JAVA_HOME}/bin/javac -o ! -f ${JAVA_HOME}/lib/tools.jar ] ;then
-	echo JAVA_HOME is likely set incorrectly.
+	echo JAVA_HOME (${JAVA_HOME}) is likely set incorrectly.
 	errors=1
 fi
 
 if [ ! -d ${ENKIVE_HOME}/config -o ! -d ${ENKIVE_HOME}/lib ] ;then
-	echo ENKIVE_HOME is likely set incorrectly.
+	echo ENKIVE_HOME (${ENKIVE_HOME}) is likely set incorrectly.
 	errors=1
 fi
 
-if [ ! -f ${INDRI_SO_PATH}/libindri_jni.so ] ;then
-	echo INDRI_SO_PATH is likely set incorrectly.
+INDRI_LIB_PATH=${INDRI_INSTALL_PATH}/libindri_jni.so
+if [ ! -f ${INDRI_LIB_PATH} ] ;then
+	echo "INDRI_INSTALL_PATH (${INDRI_INSTALL_PATH}) is likely set incorrectly; could not find ${INDRI_LIB_PATH} . "
+	errors=1
+fi
+
+INDRI_JAR_PATH=${INDRI_INSTALL_PATH}/share/indri/indri.jar
+if [ ! -f ${INDRI_JAR_PATH} ] ;then
+	echo "INDRI_INSTALL_PATH (${INDRI_INSTALL_PATH}) is likely set incorrectly; could not find ${INDRI_JAR_PATH} . "
 	errors=1
 fi
 
 if [ ! -f ${JSVC} ] ;then
-	echo JSVC is likely set incorrectly.
+	echo JSVC (${JSVC}) is likely set incorrectly.
 	errors=1
 fi
 
 if grep --silent "^${ENKIVE_USER}:" /etc/passwd ;then
 	:
 else
-	echo ENKIVE_USER is likely set incorrectly.
+	echo ENKIVE_USER (${ENKIVE_USER}) is likely set incorrectly.
 	errors=1
 fi
 
@@ -68,8 +80,8 @@ fi
 
 ENKIVE_LOG_PATH=${ENKIVE_HOME}/data/logs
 ENKIVE_PID_FILE=${ENKIVE_HOME}/data/enkive.pid
-ENKIVE_CLASSPATH=${ENKIVE_HOME}/enkive.jar:${ENKIVE_HOME}/lib/*:${ENKIVE_HOME}/lib/spring/*:${ENKIVE_HOME}/lib/james-imap/*:${ENKIVE_HOME}/config:${JAVA_HOME}/lib/tools.jar
-JSVC_ARGS="-cwd ${ENKIVE_HOME} -java-home ${JAVA_HOME} -pidfile ${ENKIVE_PID_FILE} -outfile ${ENKIVE_LOG_PATH}/enkive.log -errfile ${ENKIVE_LOG_PATH}/enkive.err -cp ${ENKIVE_CLASSPATH} -Dlog4j.configuration=file://${ENKIVE_HOME}/config/log4j.properties -Djava.library.path=${INDRI_SO_PATH} com.linuxbox.enkive.EnkiveDaemon"
+ENKIVE_CLASSPATH=${ENKIVE_HOME}/enkive.jar:${INDRI_JAR_PATH}:${ENKIVE_HOME}/lib/*:${ENKIVE_HOME}/lib/spring/*:${ENKIVE_HOME}/lib/james-imap/*:${ENKIVE_HOME}/config:${JAVA_HOME}/lib/tools.jar
+JSVC_ARGS="-cwd ${ENKIVE_HOME} -java-home ${JAVA_HOME} -pidfile ${ENKIVE_PID_FILE} -outfile ${ENKIVE_LOG_PATH}/enkive.log -errfile ${ENKIVE_LOG_PATH}/enkive.err -cp ${ENKIVE_CLASSPATH} -Dlog4j.configuration=file://${ENKIVE_HOME}/config/log4j.properties -Djava.library.path=${INDRI_LIB_PATH} com.linuxbox.enkive.EnkiveDaemon"
 
 # the following should likely not be edited
 

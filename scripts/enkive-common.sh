@@ -23,8 +23,9 @@ ENKIVE_HOME=${ENKIVE_HOME:-"/opt/enkive"}
 # user id under which Enkive is run; a good practice is to create a user specifically to run Enkive (e.g., "enkive")
 ENKIVE_USER=${ENKIVE_USER:-"enkive"}
 
-# path to directory that contains file "libindri_jni.so"
-INDRI_SO_PATH=${INDRI_SO_PATH:-"/usr/local/lib"}
+# path to directory that Indri was installed in -- typically /usr/local or /opt/indri. Expect to find underneath this directory
+# lib/libindri_jni.so and share/indri/indri.jar 
+INDRI_INSTALL_PATH=${INDRI_INSTALL_PATH:-"/usr/local"}
 
 
 # TESTING OF THE ABOVE
@@ -41,8 +42,15 @@ if [ ! -d ${ENKIVE_HOME}/config -o ! -d ${ENKIVE_HOME}/lib ] ;then
 	errors=1
 fi
 
-if [ ! -f ${INDRI_SO_PATH}/libindri_jni.so ] ;then
-	echo "INDRI_SO_PATH (${INDRI_SO_PATH}) is likely set incorrectly."
+INDRI_LIB_PATH=${INDRI_INSTALL_PATH}/libindri_jni.so
+if [ ! -f ${INDRI_LIB_PATH} ] ;then
+	echo "INDRI_INSTALL_PATH (${INDRI_INSTALL_PATH}) is likely set incorrectly; could not find ${INDRI_LIB_PATH} . "
+	errors=1
+fi
+
+INDRI_JAR_PATH=${INDRI_INSTALL_PATH}/share/indri/indri.jar
+if [ ! -f ${INDRI_JAR_PATH} ] ;then
+	echo "INDRI_INSTALL_PATH (${INDRI_INSTALL_PATH}) is likely set incorrectly; could not find ${INDRI_JAR_PATH} . "
 	errors=1
 fi
 
@@ -68,7 +76,7 @@ fi
 # VARIABLES BUILT FROM THE ABOVE; likely no need to alter
 
 ENKIVE_LOG_PATH=${ENKIVE_HOME}/data/logs
-ENKIVE_CLASSPATH=${JAVA_HOME}/lib/tools.jar:${ENKIVE_JAR}:${ENKIVE_HOME}/lib/*:${ENKIVE_HOME}/lib/spring/*:${ENKIVE_HOME}/lib/james-imap/*:${ENKIVE_HOME}/config
+ENKIVE_CLASSPATH=${JAVA_HOME}/lib/tools.jar:${ENKIVE_JAR}:${INDRI_JAR_PATH}:${ENKIVE_HOME}/lib/*:${ENKIVE_HOME}/lib/spring/*:${ENKIVE_HOME}/lib/james-imap/*:${ENKIVE_HOME}/config
 
 if [ "${ENKIVE_CONSOLE_LOGGING}" = "full" ] ;then
 	LOG4J_CONFIG=file://${ENKIVE_HOME}/config/log4j.properties
@@ -85,5 +93,5 @@ echo "Note: you may need to authenticate as user \"${ENKIVE_USER}\"...."
 
 su ${ENKIVE_USER} -c "java -cp ${ENKIVE_CLASSPATH} \
     -Dlog4j.configuration=${LOG4J_CONFIG} \
-    -Djava.library.path=${INDRI_SO_PATH} \
+    -Djava.library.path=${INDRI_LIB_PATH} \
     ${ENKIVE_MAIN} $*"
