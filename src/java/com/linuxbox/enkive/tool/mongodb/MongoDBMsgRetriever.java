@@ -20,12 +20,8 @@
 package com.linuxbox.enkive.tool.mongodb;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
-import java.io.InputStream;
-import java.io.Reader;
 
-import com.linuxbox.enkive.TestingConstants;
 import com.linuxbox.enkive.docstore.mongogrid.ConvenienceMongoGridDocStoreService;
 import com.linuxbox.enkive.docstore.mongogrid.MongoGridDocStoreService;
 import com.linuxbox.enkive.message.Message;
