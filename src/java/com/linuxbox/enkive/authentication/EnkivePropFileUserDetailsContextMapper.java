@@ -3,16 +3,11 @@ package com.linuxbox.enkive.authentication;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Set;
-import java.util.HashSet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.ApplicationContext;
@@ -26,19 +21,21 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import com.linuxbox.enkive.normalization.EmailAddressNormalizer;
 
 public class EnkivePropFileUserDetailsContextMapper implements
-		UserDetailsService, ApplicationContextAware, InitializingBean {
+		UserDetailsService, ApplicationContextAware, InitializingBean,
+		BeanNameAware {
 	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.authentication");
 
 	protected InMemoryUserDetailsManager delegateUserDetailsManager;
 	protected ApplicationContext applicationContext;
 	protected EmailAddressNormalizer emailAddressNormalizer;
+	protected String beanName;
 
 	protected String defaultDomain;
 	protected String properties;
 	protected String userAddresses;
-	
-	private static Properties userAddressesProps;
+
+	private Properties userAddressesProps;
 
 	@Override
 	public UserDetails loadUserByUsername(String username)
@@ -47,9 +44,10 @@ public class EnkivePropFileUserDetailsContextMapper implements
 				.loadUserByUsername(username);
 		final EnkiveUserDetails enkiveDetails = new EnkiveUserDetails(
 				plainDetails, emailAddressNormalizer);
-		
+
 		// add any addresses listed explicitly in addresses.properties
-		enkiveDetails.addFromProperties(username, userAddressesProps);
+		enkiveDetails.addAddressesFromCommaSeparatedList(userAddressesProps
+				.getProperty(username));
 
 		String emailAddress;
 		if (username.contains("@")) {
@@ -78,13 +76,21 @@ public class EnkivePropFileUserDetailsContextMapper implements
 
 		delegateUserDetailsManager = new InMemoryUserDetailsManager(
 				userProperties);
-		
+
 		// now get userAddresses
-		final Resource uaResource = applicationContext.getResource(userAddresses);
 		userAddressesProps = new Properties();
-		final InputStream uaStream = uaResource.getInputStream();
-		userAddressesProps.load(uaStream);
-		uaStream.close();
+		if (null != userAddresses) {
+			final Resource uaResource = applicationContext
+					.getResource(userAddresses);
+			final InputStream uaStream = uaResource.getInputStream();
+			userAddressesProps.load(uaStream);
+			uaStream.close();
+		} else {
+			if (LOGGER.isWarnEnabled()) {
+				LOGGER.warn("userAddresses property of " + beanName
+						+ " bean was not set");
+			}
+		}
 	}
 
 	@Override
@@ -100,14 +106,14 @@ public class EnkivePropFileUserDetailsContextMapper implements
 	public void setDefaultDomain(String defaultDomain) {
 		this.defaultDomain = defaultDomain;
 	}
-	
+
 	public String getUserAddresses() {
 		return userAddresses;
 	}
 
 	public void setUserAddresses(String userAddresses) {
 		this.userAddresses = userAddresses;
-	}	
+	}
 
 	public String getProperties() {
 		return properties;
@@ -122,5 +128,10 @@ public class EnkivePropFileUserDetailsContextMapper implements
 	public void setEmailAddressNormalizer(
 			EmailAddressNormalizer emailAddressNormalizer) {
 		this.emailAddressNormalizer = emailAddressNormalizer;
+	}
+
+	@Override
+	public void setBeanName(String name) {
+		this.beanName = name;
 	}
 }
