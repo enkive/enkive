@@ -240,7 +240,7 @@ public class MessageImpl extends AbstractMessage implements Message {
 			throw new BadMessageException(e);
 		}
 		if (LOGGER.isTraceEnabled())
-			LOGGER.trace("Message " + this.messageId + "Successfully Parsed");
+			LOGGER.trace("Message " + this.messageId + " successfully parsed.");
 	}
 
 	@Override
