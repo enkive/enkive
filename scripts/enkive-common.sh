@@ -42,7 +42,7 @@ if [ ! -d ${ENKIVE_HOME}/config -o ! -d ${ENKIVE_HOME}/lib ] ;then
 	errors=1
 fi
 
-INDRI_LIB_PATH=${INDRI_INSTALL_PATH}/libindri_jni.so
+INDRI_LIB_PATH=${INDRI_INSTALL_PATH}/lib/libindri_jni.so
 if [ ! -f ${INDRI_LIB_PATH} ] ;then
 	echo "INDRI_INSTALL_PATH (${INDRI_INSTALL_PATH}) is likely set incorrectly; could not find ${INDRI_LIB_PATH} . "
 	errors=1
