@@ -6,15 +6,15 @@
                     http://www.springframework.org/schema/security/spring-security-3.1.xsd">
 
 
-	<!-- This file uses Spring Security's LDAP authentication with slight customization 
-		for Enkive. Spring Security supports a large number of LDAP schema variations, 
+	<!-- This file uses Spring Security's Active Directory authentication with slight customization 
+		for Enkive. Spring Security supports a basic set of Active Directory configurations, 
 		the details of which are too extensive to include here. Please see the Spring 
-		Security documentation at: http://static.springsource.org/spring-security/site/docs/3.1.x/reference/springsecurity-single.html#ldap -->
+		Security documentation at: http://static.springsource.org/spring-security/site/docs/3.1.x/reference/springsecurity-single.html#ldap-active-directory -->
 
 
-	<!-- 1. In the LdapUserContextMapper bean, set the LdapEmailAddressAttributeIds 
+	<!-- 1. In the AdUserContextMapper bean, set the ldapEmailAddressAttributeIds 
 		property to the (or a comma-separated list of) attribute IDs that contain 
-		email addresses (e.g., "mail", "mail,otherMailbox") that are contained in 
+		email addresses (e.g., "mail" or "mail,otherMailbox") that are contained in 
 		the user entry. -->
 
 	<b:bean id="AdUserContextMapper"
