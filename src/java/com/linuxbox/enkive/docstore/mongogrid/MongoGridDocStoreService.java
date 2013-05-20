@@ -440,10 +440,6 @@ public class MongoGridDocStoreService extends AbstractDocStoreService implements
 		DBObject result = filesCollection.findAndModify(identifierQuery,
 				RETRIEVE_OBJECT_ID, doNotSort, doNotRemove, update,
 				returnNewVersion, doNotUpsert);
-
-		System.err.println("query: " + identifierQuery);
-		System.err.println("update: " + update);
-
 		if (result == null) {
 			throw new DocStoreException("could not mark document '"
 					+ identifier + "' with indexing status of " + status + ".");
