@@ -57,6 +57,7 @@ import com.linuxbox.util.lockservice.LockServiceException;
 import com.linuxbox.util.mongodb.MongoIndexable;
 import com.mongodb.BasicDBObject;
 import com.mongodb.BasicDBObjectBuilder;
+import com.mongodb.CommandResult;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
@@ -105,7 +106,6 @@ public class MongoGridDocStoreService extends AbstractDocStoreService implements
 			.start().add(OBJECT_ID_KEY, 1).add(FILENAME_KEY, 1).get();
 
 	GridFS gridFS; // keep visible to tests
-	private Mongo mongo;
 	private DBCollection filesCollection;
 	private LockService documentLockingService;
 	private boolean createdMongo;
@@ -124,21 +124,19 @@ public class MongoGridDocStoreService extends AbstractDocStoreService implements
 
 	public MongoGridDocStoreService(Mongo mongo, String dbName,
 			String bucketName) {
-		this(mongo, mongo.getDB(dbName), bucketName);
+		this(mongo.getDB(dbName), bucketName);
 	}
 
-	public MongoGridDocStoreService(Mongo mongo, DB db, String bucketName) {
-		this(mongo, new GridFS(db, bucketName), db.getCollection(bucketName
+	public MongoGridDocStoreService(DB db, String bucketName) {
+		this(new GridFS(db, bucketName), db.getCollection(bucketName
 				+ GRID_FS_FILES_COLLECTION_SUFFIX));
 	}
 
 	public MongoGridDocStoreService(MongoGridDbInfo dbInfo) {
-		this(dbInfo.getMongo(), dbInfo.getGridFs(), dbInfo.getCollection());
+		this(dbInfo.getGridFs(), dbInfo.getCollection());
 	}
 
-	public MongoGridDocStoreService(Mongo mongo, GridFS gridFS,
-			DBCollection collection) {
-		this.mongo = mongo;
+	public MongoGridDocStoreService(GridFS gridFS, DBCollection collection) {
 		this.gridFS = gridFS;
 		this.filesCollection = collection;
 
@@ -162,7 +160,7 @@ public class MongoGridDocStoreService extends AbstractDocStoreService implements
 	@Override
 	public void subShutdown() {
 		if (createdMongo) {
-			mongo.close();
+			filesCollection.getDB().getMongo().close();
 		}
 	}
 
@@ -171,11 +169,15 @@ public class MongoGridDocStoreService extends AbstractDocStoreService implements
 	 */
 	@Override
 	public Document retrieve(String identifier) throws DocStoreException {
-		GridFSDBFile file = gridFS.findOne(identifier);
-		if (file == null) {
+		List<GridFSDBFile> files = gridFS.find(identifier);
+		if (files.size() > 1) {
+			throw new DocStoreException("Multiple copies of file " + identifier
+					+ " in MongoDB GridFS store.");
+		} else if (files.isEmpty()) {
 			throw new DocumentNotFoundException(identifier);
+		} else {
+			return new MongoGridDocument(files.get(0));
 		}
-		return new MongoGridDocument(file);
 	}
 
 	@Override
@@ -301,7 +303,7 @@ public class MongoGridDocStoreService extends AbstractDocStoreService implements
 		final BasicDBObject update = new BasicDBObject("$set", updateSet);
 
 		// some constants to make the call to findAndModify more readable;
-		// please Ms. Compiler, optimize them away!
+		// compiler please optimize them away!
 		final boolean doNotRemove = false;
 		final boolean returnNewVersion = true;
 		final boolean doNotUpsert = false;
@@ -365,16 +367,18 @@ public class MongoGridDocStoreService extends AbstractDocStoreService implements
 	}
 
 	/**
-	 * Simple test as to whether a file exists. There better bean index on the
+	 * Simple test as to whether a file exists. There better be an index on the
 	 * filename!
 	 * 
 	 * @param identifier
 	 * @return
 	 */
 	boolean fileExists(String identifier) {
-		DBObject query = new BasicDBObject(Constants.FILENAME_KEY, identifier);
-		DBObject result = filesCollection.findOne(query);
-		return result != null;
+		final DBObject query = new BasicDBObject(Constants.FILENAME_KEY,
+				identifier);
+		final DBObject foundFile = filesCollection.findOne(query);
+		final boolean result = foundFile != null;
+		return result;
 	}
 
 	void setFileMetaData(GridFSInputFile newFile, Document document,
@@ -409,9 +413,12 @@ public class MongoGridDocStoreService extends AbstractDocStoreService implements
 				.add(Constants.INDEX_SHARD_QUERY, shardKey).get();
 		DBObject update = new BasicDBObject("$set", updateItems);
 		DBObject fields = new BasicDBObject(Constants.FILENAME_KEY, 1);
-		final boolean returnOld = false;
-		DBObject result = filesCollection.findAndModify(query, fields, null,
-				false, update, returnOld, false);
+		final boolean returnOldVersion = false;
+		final DBObject doNotSort = null;
+		final boolean doNotRemove = false;
+		final boolean doNotUpsert = false;
+		DBObject result = filesCollection.findAndModify(query, fields,
+				doNotSort, doNotRemove, update, returnOldVersion, doNotUpsert);
 		return result != null;
 	}
 
@@ -434,9 +441,17 @@ public class MongoGridDocStoreService extends AbstractDocStoreService implements
 				RETRIEVE_OBJECT_ID, doNotSort, doNotRemove, update,
 				returnNewVersion, doNotUpsert);
 
+		System.err.println("query: " + identifierQuery);
+		System.err.println("update: " + update);
+
 		if (result == null) {
 			throw new DocStoreException("could not mark document '"
-					+ identifier + "' with indexing status of " + status);
+					+ identifier + "' with indexing status of " + status + ".");
+		} else {
+			if (LOGGER.isTraceEnabled()) {
+				LOGGER.trace("Marked document " + result.get(OBJECT_ID_KEY)
+						+ " with index status of " + status + ".");
+			}
 		}
 	}
 
