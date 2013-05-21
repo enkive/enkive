@@ -42,9 +42,10 @@ if [ ! -d ${ENKIVE_HOME}/config -o ! -d ${ENKIVE_HOME}/lib ] ;then
 	errors=1
 fi
 
-INDRI_LIB_PATH=${INDRI_INSTALL_PATH}/lib/libindri_jni.so
-if [ ! -f ${INDRI_LIB_PATH} ] ;then
-	echo "INDRI_INSTALL_PATH (${INDRI_INSTALL_PATH}) is likely set incorrectly; could not find ${INDRI_LIB_PATH} . "
+INDRI_LIB_PATH=${INDRI_INSTALL_PATH}/lib
+INDRI_SO_PATH=${INDRI_LIB_PATH}/libindri_jni.so
+if [ ! -f ${INDRI_SO_PATH} ] ;then
+	echo "INDRI_INSTALL_PATH (${INDRI_INSTALL_PATH}) is likely set incorrectly; could not find ${INDRI_SO_PATH} . "
 	errors=1
 fi
 
@@ -65,6 +66,14 @@ if [ ! -e ${ENKIVE_JAR} ] ;then
     fi
 else
 	echo "NOTE: Using developmental build in ${ENKIVE_JAR}."
+fi
+
+
+if grep --silent "^${ENKIVE_USER}:" /etc/passwd ;then
+	:
+else
+	echo "ENKIVE_USER (${ENKIVE_USER}) is likely set incorrectly."
+	errors=1
 fi
 
 if [ ${errors} -eq 1 ] ;then
@@ -91,7 +100,7 @@ cd ${ENKIVE_HOME}
 
 echo "Note: you may need to authenticate as user \"${ENKIVE_USER}\"...."
 
-su ${ENKIVE_USER} -c "java -cp ${ENKIVE_CLASSPATH} \
+su ${ENKIVE_USER} -c "${JAVA_HOME}/bin/java -cp ${ENKIVE_CLASSPATH} \
     -Dlog4j.configuration=${LOG4J_CONFIG} \
     -Djava.library.path=${INDRI_LIB_PATH} \
     ${ENKIVE_MAIN} $*"

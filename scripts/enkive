@@ -37,18 +37,19 @@ INDRI_INSTALL_PATH=/usr/local
 errors=0
 
 if [ ! -f ${JAVA_HOME}/bin/javac -o ! -f ${JAVA_HOME}/lib/tools.jar ] ;then
-	echo JAVA_HOME (${JAVA_HOME}) is likely set incorrectly.
+	echo "JAVA_HOME (${JAVA_HOME}) is likely set incorrectly."
 	errors=1
 fi
 
 if [ ! -d ${ENKIVE_HOME}/config -o ! -d ${ENKIVE_HOME}/lib ] ;then
-	echo ENKIVE_HOME (${ENKIVE_HOME}) is likely set incorrectly.
+	echo "ENKIVE_HOME (${ENKIVE_HOME}) is likely set incorrectly."
 	errors=1
 fi
 
-INDRI_LIB_PATH=${INDRI_INSTALL_PATH}/lib/libindri_jni.so
+INDRI_LIB_PATH=${INDRI_INSTALL_PATH}/lib
+INDRI_SO_PATH=${INDRI_LIB_PATH}/libindri_jni.so
 if [ ! -f ${INDRI_LIB_PATH} ] ;then
-	echo "INDRI_INSTALL_PATH (${INDRI_INSTALL_PATH}) is likely set incorrectly; could not find ${INDRI_LIB_PATH} . "
+	echo "INDRI_INSTALL_PATH (${INDRI_INSTALL_PATH}) is likely set incorrectly; could not find ${INDRI_SO_PATH} . "
 	errors=1
 fi
 
@@ -59,14 +60,14 @@ if [ ! -f ${INDRI_JAR_PATH} ] ;then
 fi
 
 if [ ! -f ${JSVC} ] ;then
-	echo JSVC (${JSVC}) is likely set incorrectly.
+	echo "JSVC (${JSVC}) is likely set incorrectly."
 	errors=1
 fi
 
 if grep --silent "^${ENKIVE_USER}:" /etc/passwd ;then
 	:
 else
-	echo ENKIVE_USER (${ENKIVE_USER}) is likely set incorrectly.
+	echo "ENKIVE_USER (${ENKIVE_USER}) is likely set incorrectly."
 	errors=1
 fi
 
