@@ -1,2 +1,4 @@
 ediscovery.dir=../Ediscovery
 enkive-socket-filter.dir=../Enkive-Socket-Filter
+jdk1.6.dir=/opt/java/jdk1.6.0_45
+indri.dir=/home/eric/enkive/indri

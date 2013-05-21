@@ -2,6 +2,11 @@
 <project name="Enkive Email Archiver" default="package" basedir=".">
 	<property file="build.properties" />
 
+	<fail unless="ediscovery.dir">Please set ediscovery.dir property.</fail>
+	<fail unless="enkive-socket-filter.dir">Please set enkive-socket-filter.dir property.</fail>
+	<fail unless="jdk1.6.dir">Please set jdk1.6.dir property.</fail>
+	<fail unless="indri.dir">Please set indri.dir property.</fail>
+
 	<property name="enkive.version" value="1.3a-CE" />
 	<property name="label" value="enkive-${enkive.version}" />
 	<property name="project.name" value="enkive" />
@@ -23,19 +28,24 @@
 
 	<path id="classpath.lib">
 		<fileset dir="${lib.dir}" includes="**/*.jar" />
+		<pathelement path="${indri.dir}/share/indri/indri.jar" />
 	</path>
 
 	<path id="contribpath.lib">
 		<fileset dir="${contrib.dir}/java" />
 	</path>
 
+	<path id="jdk1.6">
+		<fileset dir="${jdk1.6.dir}/jre/lib" includes="*.jar" />
+		<fileset dir="${jdk1.6.dir}/lib" includes="*.jar" />
+	</path>
+
 	<target name="clean" description="Removes all generated files">
 		<delete dir="${build.dir}" />
 		<delete dir="${bin.dir}" />
-		<delete dir="${scripts.dir}/data" />
 	</target>
 
-	<target name="setup" description="Creates the ${build.dir} and ${bin.dir} directories">
+	<target name="setup" depends="clean" description="Creates the ${build.dir} and ${bin.dir} directories">
 		<mkdir dir="${build.dir}" />
 		<mkdir dir="${bin.dir}" />
 
@@ -50,11 +60,11 @@
 
 	<target name="compile" depends="setup" description="Compiles src to ${bin.dir}">
 		<mkdir dir="${bin.dir}" />
-		<javac srcdir="${source.dir}/java; ${contrib.dir}/java" destdir="${bin.dir}" source="1.5" target="1.5" debug="on" fork="yes" deprecation="on" includeantruntime="false">
+		<javac srcdir="${source.dir}/java; ${contrib.dir}/java" destdir="${bin.dir}" source="1.6" target="1.6" debug="on" fork="yes" deprecation="on" includeantruntime="false" bootclasspathref="jdk1.6">
 			<classpath refid="classpath.lib" />
 			<exclude name="${contrib.dir}/java" />
 		</javac>
-		<javac srcdir="${contrib.dir}/java" destdir="${contrib.bin.dir}" source="1.5" target="1.5" debug="on" fork="yes" deprecation="on" includeantruntime="false">
+		<javac srcdir="${contrib.dir}/java" destdir="${contrib.bin.dir}" source="1.6" target="1.6" debug="on" fork="yes" deprecation="on" includeantruntime="false" bootclasspathref="jdk1.6">
 		</javac>
 		<!-- copy in non-compiled files like props if needed -->
 		<copy todir="${bin.dir}">
