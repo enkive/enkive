@@ -48,7 +48,7 @@ fi
 
 INDRI_LIB_PATH=${INDRI_INSTALL_PATH}/lib
 INDRI_SO_PATH=${INDRI_LIB_PATH}/libindri_jni.so
-if [ ! -f ${INDRI_LIB_PATH} ] ;then
+if [ ! -f ${INDRI_SO_PATH} ] ;then
 	echo "INDRI_INSTALL_PATH (${INDRI_INSTALL_PATH}) is likely set incorrectly; could not find ${INDRI_SO_PATH} . "
 	errors=1
 fi
