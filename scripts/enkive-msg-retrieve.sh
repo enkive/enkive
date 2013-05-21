@@ -4,10 +4,12 @@
 export ENKIVE_MAIN=com.linuxbox.enkive.tool.mongodb.MongoDBMsgRetriever
 
 if [ $# -ne 1 ] ;then
-    echo "Usage: $0 document-id"
+    echo "Usage: $0 message-id"
     exit 1
 fi
 
-docid=$1
+messageid=$1
 
-sh $(dirname $0)/enkive-common.sh $docid
+. $(dirname $0)/enkive-common.sh
+
+runIt $messageid

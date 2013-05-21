@@ -94,13 +94,27 @@ else
 fi
 
 
+makeAbsolute() {
+	if which readlink >/dev/null ;then
+		readlink -f $1
+	elif which realpath >/dev/null ;then
+		realpath $1
+	else
+		echo "Need access to either 'readlink' command or 'realpath' command. Neither found."
+		exit 2
+	fi
+}
+
+
 # LET'S DO IT!
 
-cd ${ENKIVE_HOME}
+runIt() {
+	cd ${ENKIVE_HOME}
 
-echo "Note: you may need to authenticate as user \"${ENKIVE_USER}\"...."
+	echo "Note: you may need to authenticate as user \"${ENKIVE_USER}\"...."
 
-su ${ENKIVE_USER} -c "${JAVA_HOME}/bin/java -cp ${ENKIVE_CLASSPATH} \
-    -Dlog4j.configuration=${LOG4J_CONFIG} \
-    -Djava.library.path=${INDRI_LIB_PATH} \
-    ${ENKIVE_MAIN} $*"
+	su ${ENKIVE_USER} -c "${JAVA_HOME}/bin/java -cp ${ENKIVE_CLASSPATH} \
+		-Dlog4j.configuration=${LOG4J_CONFIG} \
+		-Djava.library.path=${INDRI_LIB_PATH} \
+		${ENKIVE_MAIN} $*"
+}

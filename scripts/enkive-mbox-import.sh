@@ -13,7 +13,7 @@ fi
 host=localhost
 port=2526
 
-directory=$1
+directory=`makeAbsolute $1`
 
 if [ $# -ge 2 ] ;then
     host="$2"
@@ -23,4 +23,6 @@ if [ $# -ge 3 ] ;then
     port="$3"
 fi
 
-sh $(dirname $0)/enkive-common.sh $directory $host $port
+. $(dirname $0)/enkive-common.sh
+
+runIt $directory $host $port

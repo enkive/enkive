@@ -10,4 +10,6 @@ fi
 
 docid=$1
 
-sh $(dirname $0)/enkive-common.sh $docid
+. $(dirname $0)/enkive-common.sh
+
+runIt $docid
