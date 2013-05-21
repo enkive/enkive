@@ -3,6 +3,10 @@
 <project name="Enkive EDiscovery" default="package" basedir=".">
 	<property file="build.properties" />
 
+	<fail unless="ediscovery.web.dir">Please set ediscovery.web.dir property.</fail>
+	<fail unless="ediscovery.war">Please set ediscovery.war property.</fail>
+	<fail unless="jdk1.6.dir">Please set jdk1.6.dir property.</fail>
+
 	<property name="label" value="Enkive EDiscovery" />
 	<property name="project.dir" value="." />
 	<property name="build.dir" value="${project.dir}/build" />
@@ -13,7 +17,7 @@
 	<property name="package.file.zip" value="${build.dir}/${project.name}.zip" />
 	<property name="package.file.jar" value="${build.dir}/${project.name}.jar" />
 	<property name="package.file.war" value="${build.dir}/${project.name}.war" />
-
+	
 	<path id="classpath.libs">
 		<fileset dir="${lib.dir}" includes="*.jar" />
 	</path>
@@ -28,10 +32,12 @@
 	</path>
 
 	<target name="clean" description="Removes all generated files">
+		<delete dir="${bin.dir}" />
 		<delete dir="${build.dir}" />
 	</target>
 
 	<target name="setup" depends="clean" description="Creates the ${build.dir} and ${bin.dir} directories">
+		<mkdir dir="${bin.dir}" />
 		<mkdir dir="${build.dir}" />
 	</target>
 
