@@ -12,7 +12,6 @@
 	<property name="project.name" value="enkive" />
 	<property name="build.dir" value="${basedir}/build" />
 	<property name="bin.dir" value="${basedir}/bin" />
-	<property name="contrib.bin.dir" value="${basedir}/bin" />
 	<property name="source.dir" value="${basedir}/src" />
 	<property name="config.dir" value="${basedir}/config" />
 	<property name="licenses.dir" value="${basedir}/licenses" />
@@ -64,7 +63,7 @@
 			<classpath refid="classpath.lib" />
 			<exclude name="${contrib.dir}/java" />
 		</javac>
-		<javac srcdir="${contrib.dir}/java" destdir="${contrib.bin.dir}" source="1.6" target="1.6" debug="on" fork="yes" deprecation="on" includeantruntime="false" bootclasspathref="jdk1.6">
+		<javac srcdir="${contrib.dir}/java" destdir="${bin.dir}" source="1.6" target="1.6" debug="on" fork="yes" deprecation="on" includeantruntime="false" bootclasspathref="jdk1.6">
 		</javac>
 		<!-- copy in non-compiled files like props if needed -->
 		<copy todir="${bin.dir}">
