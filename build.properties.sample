@@ -1,2 +1,3 @@
 ediscovery.web.dir=/home/enkive/apache-tomcat/webapps/ediscovery
 ediscovery.war=/home/enkive/apache-tomcat/webapps/ediscovery.war
+jdk1.6.dir=/opt/java/jdk1.6.0_45
