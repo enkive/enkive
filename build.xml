@@ -11,7 +11,7 @@
 	<property name="label" value="enkive-${enkive.version}" />
 	<property name="project.name" value="enkive" />
 	<property name="build.dir" value="${basedir}/build" />
-	<property name="bin.dir" value="${basedir}/bin" />
+	<property name="bin.dir" value="${basedir}/build/bin" />
 	<property name="source.dir" value="${basedir}/src" />
 	<property name="config.dir" value="${basedir}/config" />
 	<property name="licenses.dir" value="${basedir}/licenses" />
@@ -40,8 +40,9 @@
 	</path>
 
 	<target name="clean" description="Removes all generated files">
-		<delete dir="${build.dir}" />
-		<delete dir="${bin.dir}" />
+		<delete includeEmptyDirs="true">
+			<fileset dir="${build.dir}" includes="**/*" defaultexcludes="no" />
+		</delete>
 	</target>
 
 	<target name="setup" depends="clean" description="Creates the ${build.dir} and ${bin.dir} directories">
