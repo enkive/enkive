@@ -28,11 +28,12 @@ import java.util.Date;
 import java.util.HashMap;
 
 import com.linuxbox.enkive.message.search.exception.MessageSearchException;
+import com.linuxbox.enkive.message.search.mongodb.EmptySearchResultsException;
 import com.linuxbox.enkive.message.search.mongodb.MongoMessageSearchService;
 import com.linuxbox.enkive.statistics.gathering.GathererMessageSearchService;
 import com.linuxbox.util.dbinfo.mongodb.MongoDbInfo;
-import com.mongodb.BasicDBObject;
 import com.mongodb.DBCursor;
+import com.mongodb.DBObject;
 import com.mongodb.Mongo;
 
 public class MongoGathererMessageSearchService extends
@@ -42,7 +43,7 @@ public class MongoGathererMessageSearchService extends
 			String collName) {
 		super(m, dbName, collName);
 	}
-	
+
 	public MongoGathererMessageSearchService(MongoDbInfo dbInfo) {
 		super(dbInfo);
 	}
@@ -60,12 +61,17 @@ public class MongoGathererMessageSearchService extends
 		fields.put(DATE_LATEST_PARAMETER, dateLatest);
 		fields.put(DATE_TYPE, ARCHIVE_TIME);
 
-		BasicDBObject query = buildQueryObject(fields);
-		DBCursor results = messageColl.find(query);
+		try {
+			DBObject query = buildQueryObject(fields);
+			// TODO minimize projection of result
+			DBCursor results = messageColl.find(query);
 
-		int numOfMessages = results.count();
-		results.close();
-		return numOfMessages;
+			int numOfMessages = results.count();
+			results.close();
+			return numOfMessages;
+		} catch (EmptySearchResultsException e) {
+			return 0;
+		}
 	}
 
 }
