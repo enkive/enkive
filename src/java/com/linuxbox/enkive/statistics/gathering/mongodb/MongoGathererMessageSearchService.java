@@ -32,12 +32,15 @@ import com.linuxbox.enkive.message.search.exception.MessageSearchException;
 import com.linuxbox.enkive.message.search.mongodb.MongoMessageSearchService;
 import com.linuxbox.enkive.statistics.gathering.GathererMessageSearchService;
 import com.linuxbox.util.dbinfo.mongodb.MongoDbInfo;
+import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.Mongo;
 
 public class MongoGathererMessageSearchService extends
 		MongoMessageSearchService implements GathererMessageSearchService {
+	protected final static DBObject ID_ONLY_QUERY = BasicDBObjectBuilder
+			.start().add("_id", 1).get();
 
 	public MongoGathererMessageSearchService(Mongo m, String dbName,
 			String collName) {
@@ -62,11 +65,9 @@ public class MongoGathererMessageSearchService extends
 		fields.put(DATE_TYPE, ARCHIVE_TIME);
 
 		try {
-			DBObject query = buildQueryObject(fields);
-			// TODO minimize projection of result
-			DBCursor results = messageColl.find(query);
-
-			int numOfMessages = results.count();
+			final DBObject query = buildQueryObject(fields);
+			final DBCursor results = messageColl.find(query, ID_ONLY_QUERY);
+			final int numOfMessages = results.count();
 			results.close();
 			return numOfMessages;
 		} catch (EmptySearchResultsException e) {
