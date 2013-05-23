@@ -28,8 +28,8 @@ import static com.linuxbox.enkive.search.Constants.LIMIT_PARAMETER;
 import static com.linuxbox.enkive.search.Constants.RECIPIENT_PARAMETER;
 import static com.linuxbox.enkive.search.Constants.SENDER_PARAMETER;
 
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.PostConstruct;
@@ -67,7 +67,7 @@ public class MongoMessageSearchService extends AbstractMessageSearchService {
 
 	protected final static DBObject ID_ONLY_QUERY = BasicDBObjectBuilder
 			.start().add("_id", 1).get();
-	
+
 	protected DBCollection messageColl;
 
 	public MongoMessageSearchService(Mongo m, String dbName, String collName) {
@@ -105,7 +105,7 @@ public class MongoMessageSearchService extends AbstractMessageSearchService {
 		this.queryBuilders = queryBuilders;
 	}
 
-	public Set<String> searchImpl(HashMap<String, String> fields)
+	public Set<String> searchImpl(Map<String, String> fields)
 			throws MessageSearchException {
 		Set<String> messageIds = new HashSet<String>();
 		try {
@@ -141,7 +141,13 @@ public class MongoMessageSearchService extends AbstractMessageSearchService {
 		return messageIds;
 	}
 
-	protected DBObject buildQueryObject(HashMap<String, String> fields)
+	/*
+	 * TODO: It's sad that some of the of the callers (indirect) to this method
+	 * already have parsed data; yet they convert the data to strings, push them
+	 * into a map, and then we re-parse the data!? Some day I hope we can fix
+	 * this.
+	 */
+	protected DBObject buildQueryObject(Map<String, String> fields)
 			throws MessageSearchException, EmptySearchResultsException {
 		BasicDBList conjunctionList = new BasicDBList();
 

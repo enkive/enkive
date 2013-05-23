@@ -20,7 +20,7 @@
 package com.linuxbox.enkive.message.search;
 
 import java.util.Date;
-import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
@@ -48,7 +48,7 @@ public abstract class AbstractMessageSearchService implements
 	protected SearchResultBuilder searchResultBuilder;
 
 	@Override
-	public SearchResult search(HashMap<String, String> fields)
+	public SearchResult search(Map<String, String> fields)
 			throws MessageSearchException {
 		try {
 			// build an object to hold the search results; search is done
@@ -74,7 +74,7 @@ public abstract class AbstractMessageSearchService implements
 
 	@Override
 	@Async
-	public Future<SearchResult> searchAsync(final HashMap<String, String> fields)
+	public Future<SearchResult> searchAsync(final Map<String, String> fields)
 			throws MessageSearchException {
 		FutureTask<SearchResult> searchFuture = new FutureTask<SearchResult>(
 				new Callable<SearchResult>() {
@@ -93,7 +93,7 @@ public abstract class AbstractMessageSearchService implements
 		return searchFuture;
 	}
 
-	protected abstract Set<String> searchImpl(HashMap<String, String> fields)
+	protected abstract Set<String> searchImpl(Map<String, String> fields)
 			throws MessageSearchException;
 
 	public DocSearchQueryService getDocSearchService() {
@@ -113,5 +113,4 @@ public abstract class AbstractMessageSearchService implements
 	public void setSearchResultBuilder(SearchResultBuilder searchResultBuilder) {
 		this.searchResultBuilder = searchResultBuilder;
 	}
-
 }

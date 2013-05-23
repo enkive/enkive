@@ -19,7 +19,7 @@
  *******************************************************************************/
 package com.linuxbox.enkive.message.search;
 
-import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
@@ -62,7 +62,7 @@ public class TaskPoolAsyncMessageSearchService implements MessageSearchService {
 	}
 
 	@Override
-	public Future<SearchResult> searchAsync(HashMap<String, String> fields)
+	public Future<SearchResult> searchAsync(Map<String, String> fields)
 			throws MessageSearchException {
 		String searchResultId = createSearchResult(fields);
 
@@ -108,7 +108,7 @@ public class TaskPoolAsyncMessageSearchService implements MessageSearchService {
 
 	}
 
-	private String createSearchResult(HashMap<String, String> fields)
+	private String createSearchResult(Map<String, String> fields)
 			throws MessageSearchException {
 		try {
 			Workspace workspace = workspaceService
@@ -135,7 +135,7 @@ public class TaskPoolAsyncMessageSearchService implements MessageSearchService {
 	}
 
 	@Override
-	public SearchResult search(HashMap<String, String> fields)
+	public SearchResult search(Map<String, String> fields)
 			throws MessageSearchException {
 		return messageSearchService.search(fields);
 	}

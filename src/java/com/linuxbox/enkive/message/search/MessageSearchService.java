@@ -19,7 +19,7 @@
  *******************************************************************************/
 package com.linuxbox.enkive.message.search;
 
-import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.Future;
 
 import com.linuxbox.enkive.docsearch.exception.DocSearchException;
@@ -38,7 +38,7 @@ public interface MessageSearchService {
 	 * @return
 	 * @throws DocSearchException
 	 */
-	SearchResult search(HashMap<String, String> fields)
+	SearchResult search(Map<String, String> fields)
 			throws MessageSearchException;
 
 	/**
@@ -49,7 +49,7 @@ public interface MessageSearchService {
 	 * 
 	 * @throws DocSearchException
 	 */
-	Future<SearchResult> searchAsync(HashMap<String, String> fields)
+	Future<SearchResult> searchAsync(Map<String, String> fields)
 			throws MessageSearchException;
 
 	/**

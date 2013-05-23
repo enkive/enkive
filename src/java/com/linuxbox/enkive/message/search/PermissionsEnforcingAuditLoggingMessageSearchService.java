@@ -26,7 +26,7 @@ import static com.linuxbox.enkive.search.Constants.PERMISSIONS_RECIPIENT_PARAMET
 import static com.linuxbox.enkive.search.Constants.PERMISSIONS_SENDER_PARAMETER;
 
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.Map;
 
 import com.linuxbox.enkive.exception.CannotGetPermissionsException;
 import com.linuxbox.enkive.message.search.exception.MessageSearchException;
@@ -39,7 +39,7 @@ public class PermissionsEnforcingAuditLoggingMessageSearchService extends
 	PermissionService permService;
 
 	@Override
-	public SearchResult search(HashMap<String, String> fields)
+	public SearchResult search(Map<String, String> fields)
 			throws MessageSearchException {
 		try {
 			if (permService.isAdmin()) {

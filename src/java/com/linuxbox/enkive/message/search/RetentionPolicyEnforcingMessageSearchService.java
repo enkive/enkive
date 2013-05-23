@@ -30,6 +30,7 @@ import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.Future;
 
 import org.apache.commons.logging.Log;
@@ -49,15 +50,14 @@ public class RetentionPolicyEnforcingMessageSearchService implements
 	protected MessageRetentionPolicy messageRetentionPolicy;
 
 	@Override
-	public SearchResult search(HashMap<String, String> fields)
+	public SearchResult search(Map<String, String> fields)
 			throws MessageSearchException {
-
-		HashMap<String, String> searchFields = addRetentionPolicyToFields(fields);
+		Map<String, String> searchFields = addRetentionPolicyToFields(fields);
 		return messageSearchService.search(searchFields);
 	}
 
 	@Override
-	public Future<SearchResult> searchAsync(HashMap<String, String> fields)
+	public Future<SearchResult> searchAsync(Map<String, String> fields)
 			throws MessageSearchException {
 		throw new MessageSearchException("Unimplemented");
 	}
@@ -86,8 +86,8 @@ public class RetentionPolicyEnforcingMessageSearchService implements
 		this.messageRetentionPolicy = messageRetentionPolicy;
 	}
 
-	private HashMap<String, String> addRetentionPolicyToFields(
-			HashMap<String, String> searchFields) {
+	private Map<String, String> addRetentionPolicyToFields(
+			Map<String, String> searchFields) {
 		HashMap<String, String> retentionFields = messageRetentionPolicy
 				.getRetentionPolicyCriteria();
 
@@ -123,8 +123,7 @@ public class RetentionPolicyEnforcingMessageSearchService implements
 						NUMERIC_SEARCH_FORMAT.format(retentionDate));
 			}
 		}
+
 		return searchFields;
-
 	}
-
 }

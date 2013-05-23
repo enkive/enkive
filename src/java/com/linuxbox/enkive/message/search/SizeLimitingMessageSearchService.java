@@ -20,7 +20,7 @@ package com.linuxbox.enkive.message.search;
 
 import static com.linuxbox.enkive.search.Constants.LIMIT_PARAMETER;
 
-import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.Future;
 
 import com.linuxbox.enkive.message.search.exception.MessageSearchException;
@@ -37,7 +37,7 @@ public class SizeLimitingMessageSearchService implements MessageSearchService {
 	}
 
 	@Override
-	public SearchResult search(HashMap<String, String> fields)
+	public SearchResult search(Map<String, String> fields)
 			throws MessageSearchException {
 		if (sizeLimit > 0)
 			fields.put(LIMIT_PARAMETER, String.valueOf(sizeLimit));
@@ -45,7 +45,7 @@ public class SizeLimitingMessageSearchService implements MessageSearchService {
 	}
 
 	@Override
-	public Future<SearchResult> searchAsync(HashMap<String, String> fields)
+	public Future<SearchResult> searchAsync(Map<String, String> fields)
 			throws MessageSearchException {
 		return messageSearchService.searchAsync(fields);
 	}

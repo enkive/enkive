@@ -22,7 +22,7 @@
  */
 package com.linuxbox.enkive.message.search;
 
-import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.Future;
 
 import org.apache.commons.logging.Log;
@@ -45,7 +45,7 @@ public class AuditLoggingMessageSearchService implements MessageSearchService {
 	protected MessageSearchService messageSearchService;
 
 	@Override
-	public SearchResult search(HashMap<String, String> fields)
+	public SearchResult search(Map<String, String> fields)
 			throws MessageSearchException {
 
 		try {
@@ -94,7 +94,7 @@ public class AuditLoggingMessageSearchService implements MessageSearchService {
 	}
 
 	@Override
-	public Future<SearchResult> searchAsync(HashMap<String, String> fields)
+	public Future<SearchResult> searchAsync(Map<String, String> fields)
 			throws MessageSearchException {
 		throw new MessageSearchException("Unimplemented");
 	}

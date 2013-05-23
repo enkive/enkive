@@ -20,7 +20,7 @@
 package com.linuxbox.enkive.message.search;
 
 import java.util.Date;
-import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.Callable;
 
 import org.apache.commons.logging.Log;
@@ -43,11 +43,11 @@ public class AsynchronousSearchThread implements Callable<SearchResult> {
 
 	private final Authentication searchingUserAuth;
 	private final String searchResultId;
-	private final HashMap<String, String> fields;
+	private final Map<String, String> fields;
 	private final MessageSearchService messageSearchService;
 	private final SearchResultBuilder searchResultBuilder;
 
-	public AsynchronousSearchThread(HashMap<String, String> fields,
+	public AsynchronousSearchThread(Map<String, String> fields,
 			String searchResultId, MessageSearchService messageSearchService,
 			SearchResultBuilder searchResultBuilder) {
 		SecurityContext ctx = SecurityContextHolder.getContext();
