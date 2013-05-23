@@ -96,7 +96,6 @@
 	<classpathentry kind="lib" path="lib/james-imap/james-server-lifecycle-api-3.0-beta4.jar"/>
 	<classpathentry kind="lib" path="lib/james-imap/james-server-util-3.0-beta4.jar"/>
 	<classpathentry kind="lib" path="lib/james-imap/commons-collections-3.2.1.jar"/>
-	<classpathentry kind="lib" path="lib/mongo-2.9.1.jar"/>
 	<classpathentry kind="lib" path="lib/apache-mime4j-core-0.7.2.jar" sourcepath="lib/src/apache-mime4j-core-0.7.2-sources.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="jar:platform:/resource/enkive2/lib/javadoc/apache-mime4j-core-0.7.2-javadoc.jar!/"/>
@@ -155,5 +154,10 @@
 	</classpathentry>
 	<classpathentry kind="var" path="INDRI_INSTALL"/>
 	<classpathentry kind="var" path="INDRI_INSTALL/share/indri/indri.jar"/>
+	<classpathentry kind="lib" path="lib/mongo-java-driver-2.11.1.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/enkive2/lib/javadoc/mongo-java-driver-2.11.1-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
