@@ -137,9 +137,10 @@ public class IndriDocSearchQueryService extends AbstractDocSearchQueryService {
 
 			if (!rawSearch) {
 				query = composeQuery(rawQuery).toString();
-				if (LOGGER.isTraceEnabled())
+				if (LOGGER.isTraceEnabled()) {
 					LOGGER.trace("query \"" + rawQuery
 							+ "\" became Indri query \"" + query + "\"");
+				}
 			} else {
 				if (LOGGER.isTraceEnabled())
 					LOGGER.trace("using raw query \"" + query + "\"");

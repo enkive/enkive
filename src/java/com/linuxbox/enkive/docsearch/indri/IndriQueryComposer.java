@@ -70,6 +70,10 @@ public class IndriQueryComposer {
 			result.append(phrase.getTermsAsCharSeq());
 		}
 
+		if (LOGGER.isTraceEnabled()) {
+			LOGGER.trace("composePhrase returns: " + result);
+		}
+
 		return result;
 	}
 
