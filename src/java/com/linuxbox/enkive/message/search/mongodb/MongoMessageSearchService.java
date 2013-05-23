@@ -32,10 +32,13 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.annotation.PostConstruct;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.linuxbox.enkive.message.search.AbstractMessageSearchService;
+import com.linuxbox.enkive.message.search.exception.EmptySearchResultsException;
 import com.linuxbox.enkive.message.search.exception.MessageSearchException;
 import com.linuxbox.util.dbinfo.mongodb.MongoDbInfo;
 import com.mongodb.BasicDBList;
@@ -50,16 +53,14 @@ public class MongoMessageSearchService extends AbstractMessageSearchService {
 	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.searchService.mongodb");
 
-	protected final static String[] recipientQueries = { RCPT_TO, TO, CC };
-	protected final static String[] senderQueries = { MAIL_FROM, FROM };
-	protected final static RecipientQueryBuilder recipientQueryBuilder = new RecipientQueryBuilder(
-			RECIPIENT_PARAMETER, recipientQueries);
-	protected final static RecipientQueryBuilder senderQueryBuilder = new RecipientQueryBuilder(
-			SENDER_PARAMETER, senderQueries);
-	protected final static MongoMessageQueryBuilder[] queryBuilders = {
-			new DateQueryBuilder(), new SubjectQueryBuilder(),
-			new MessageIdQueryBuilder(), recipientQueryBuilder,
-			senderQueryBuilder, new PermissionsQueryBuilder() };
+	// variables for query builders
+
+	protected final static String[] RECIPIENT_QUERIES = { RCPT_TO, TO, CC };
+	protected final static String[] SENDER_QUERIES = { MAIL_FROM, FROM };
+
+	protected RecipientQueryBuilder recipientQueryBuilder;
+	protected RecipientQueryBuilder senderQueryBuilder;
+	protected MongoMessageQueryBuilder[] queryBuilders;
 
 	protected DBCollection messageColl;
 
@@ -76,7 +77,26 @@ public class MongoMessageSearchService extends AbstractMessageSearchService {
 	}
 
 	public MongoMessageSearchService(DBCollection collection) {
+		super();
 		this.messageColl = collection;
+	}
+
+	/**
+	 * Finish initialization once service has been set up, specifically once we
+	 * know that docSearchService has been set.
+	 */
+	@PostConstruct
+	public void finishSetup() {
+		recipientQueryBuilder = new RecipientQueryBuilder(RECIPIENT_PARAMETER,
+				RECIPIENT_QUERIES);
+		senderQueryBuilder = new RecipientQueryBuilder(SENDER_PARAMETER,
+				SENDER_QUERIES);
+		MongoMessageQueryBuilder[] queryBuilders = { new DateQueryBuilder(),
+				new SubjectQueryBuilder(), new MessageIdQueryBuilder(),
+				new ContentQueryBuilder(docSearchService),
+				recipientQueryBuilder, senderQueryBuilder,
+				new PermissionsQueryBuilder() };
+		this.queryBuilders = queryBuilders;
 	}
 
 	public Set<String> searchImpl(HashMap<String, String> fields)
@@ -152,5 +172,4 @@ public class MongoMessageSearchService extends AbstractMessageSearchService {
 			throws MessageSearchException {
 		throw new MessageSearchException("Unimplemented");
 	}
-
 }

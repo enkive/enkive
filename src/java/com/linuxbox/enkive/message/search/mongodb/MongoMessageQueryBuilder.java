@@ -2,6 +2,7 @@ package com.linuxbox.enkive.message.search.mongodb;
 
 import java.util.Map;
 
+import com.linuxbox.enkive.message.search.exception.EmptySearchResultsException;
 import com.linuxbox.enkive.message.search.exception.MessageSearchException;
 import com.mongodb.DBObject;
 

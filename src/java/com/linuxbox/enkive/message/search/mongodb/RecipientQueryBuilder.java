@@ -3,6 +3,7 @@ package com.linuxbox.enkive.message.search.mongodb;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import com.linuxbox.enkive.message.search.exception.EmptySearchResultsException;
 import com.linuxbox.enkive.message.search.exception.MessageSearchException;
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;

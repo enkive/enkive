@@ -1,4 +1,4 @@
-package com.linuxbox.enkive.message.search.mongodb;
+package com.linuxbox.enkive.message.search.exception;
 
 
 public class EmptySearchResultsException extends Exception {

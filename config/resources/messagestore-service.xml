@@ -24,7 +24,7 @@
 		<property name="retrieverService" ref="MongoMessageRetrieverService" />
 		<property name="auditService" ref="AuditLogService" />
 	</bean>
-	
+
 	<bean id="RetentionPolicyEnforcingMessageRetrieverService"
 		class="com.linuxbox.enkive.retriever.RetentionPolicyEnforcingMessageRetrieverService">
 		<property name="retentionPolicy" ref="MessageRetentionPolicy" />

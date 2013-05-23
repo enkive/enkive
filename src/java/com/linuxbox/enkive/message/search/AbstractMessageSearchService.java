@@ -28,6 +28,7 @@ import java.util.concurrent.FutureTask;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Required;
 import org.springframework.scheduling.annotation.Async;
 
 import com.linuxbox.enkive.docsearch.DocSearchQueryService;
@@ -99,6 +100,7 @@ public abstract class AbstractMessageSearchService implements
 		return docSearchService;
 	}
 
+	@Required
 	public void setDocSearchService(DocSearchQueryService docSearchService) {
 		this.docSearchService = docSearchService;
 	}
@@ -107,6 +109,7 @@ public abstract class AbstractMessageSearchService implements
 		return searchResultBuilder;
 	}
 
+	@Required
 	public void setSearchResultBuilder(SearchResultBuilder searchResultBuilder) {
 		this.searchResultBuilder = searchResultBuilder;
 	}

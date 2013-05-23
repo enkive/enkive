@@ -27,8 +27,8 @@ import static com.linuxbox.enkive.statistics.StatsConstants.SIMPLE_DATE;
 import java.util.Date;
 import java.util.HashMap;
 
+import com.linuxbox.enkive.message.search.exception.EmptySearchResultsException;
 import com.linuxbox.enkive.message.search.exception.MessageSearchException;
-import com.linuxbox.enkive.message.search.mongodb.EmptySearchResultsException;
 import com.linuxbox.enkive.message.search.mongodb.MongoMessageSearchService;
 import com.linuxbox.enkive.statistics.gathering.GathererMessageSearchService;
 import com.linuxbox.util.dbinfo.mongodb.MongoDbInfo;

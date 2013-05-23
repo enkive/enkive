@@ -8,6 +8,7 @@ import java.util.Map;
 
 import com.linuxbox.enkive.docsearch.DocSearchQueryService;
 import com.linuxbox.enkive.docsearch.exception.DocSearchException;
+import com.linuxbox.enkive.message.search.exception.EmptySearchResultsException;
 import com.linuxbox.enkive.message.search.exception.MessageSearchException;
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
@@ -32,7 +33,7 @@ public class ContentQueryBuilder extends AbstractMongoMessageQueryBuilder {
 		if (contentStr.isEmpty()) {
 			return null;
 		}
-
+		
 		try {
 			List<String> attachmentIds = docSearchService.search(contentStr);
 			if (attachmentIds.isEmpty()) {
