@@ -27,9 +27,15 @@ import java.text.SimpleDateFormat;
 public class Constants {
 	public static final String SENDER_PARAMETER = "sender";
 	public static final String RECIPIENT_PARAMETER = "recipient";
+
+	// TODO: Remove DATE_TYPE, which is a flag to designate whether the date
+	// search is by message date or archive date (so impossible to have both)
+	// and instead allow specific searches by archive timestamp independent of
+	// message timestamp
 	public static final String DATE_TYPE = "dateType";
 	public static final String DATE_EARLIEST_PARAMETER = "dateEarliest";
 	public static final String DATE_LATEST_PARAMETER = "dateLatest";
+	
 	public static final String SUBJECT_PARAMETER = "subject";
 	public static final String MESSAGE_ID_PARAMETER = "messageId";
 	public static final String CONTENT_PARAMETER = "content";
@@ -47,5 +53,4 @@ public class Constants {
 		SPECIFIC_SEARCH_FORMAT = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
 		SPECIFIC_SEARCH_FORMAT.setTimeZone(STANDARD_TIME_ZONE);
 	}
-
 }
