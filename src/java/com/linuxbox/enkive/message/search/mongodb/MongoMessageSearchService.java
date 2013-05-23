@@ -43,6 +43,7 @@ import com.linuxbox.enkive.message.search.exception.MessageSearchException;
 import com.linuxbox.util.dbinfo.mongodb.MongoDbInfo;
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
+import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
@@ -62,6 +63,11 @@ public class MongoMessageSearchService extends AbstractMessageSearchService {
 	protected RecipientQueryBuilder senderQueryBuilder;
 	protected MongoMessageQueryBuilder[] queryBuilders;
 
+	// MongoDB variables
+
+	protected final static DBObject ID_ONLY_QUERY = BasicDBObjectBuilder
+			.start().add("_id", 1).get();
+	
 	protected DBCollection messageColl;
 
 	public MongoMessageSearchService(Mongo m, String dbName, String collName) {
@@ -105,9 +111,7 @@ public class MongoMessageSearchService extends AbstractMessageSearchService {
 		try {
 			DBObject query = buildQueryObject(fields);
 
-			// TODO: Make sure query ONLY returns message Ids rather than the
-			// whole kit and kaboodle
-			DBCursor results = messageColl.find(query);
+			DBCursor results = messageColl.find(query, ID_ONLY_QUERY);
 			String limitStr = fields.get(LIMIT_PARAMETER);
 			if (limitStr != null) {
 				limitStr = limitStr.trim();
