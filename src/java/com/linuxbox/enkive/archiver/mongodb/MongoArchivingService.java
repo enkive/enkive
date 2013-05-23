@@ -96,7 +96,7 @@ import com.mongodb.WriteResult;
 public class MongoArchivingService extends AbstractMessageArchivingService
 		implements MongoIndexable {
 	private final static Log LOGGER = LogFactory
-			.getLog("com.linuxbox.enkive.archiveService.mongodb");
+			.getLog("com.linuxbox.enkive.archiver.mongodb");
 
 	protected DBCollection messageColl;
 

@@ -42,7 +42,7 @@ public class ThreadSafeMessageArchivingService implements
 		MessageArchivingService {
 
 	protected final static Log LOGGER = LogFactory
-			.getLog("com.linuxbox.enkive.messageArchvingService");
+			.getLog("com.linuxbox.enkive.archiver");
 	protected MessageArchivingService messageArchivingService;
 	/*
 	 * These are used to retry archiving.

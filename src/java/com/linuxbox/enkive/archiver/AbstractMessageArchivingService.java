@@ -48,7 +48,7 @@ public abstract class AbstractMessageArchivingService implements
 		MessageArchivingService {
 
 	protected final static Log LOGGER = LogFactory
-			.getLog("com.linuxbox.enkive.messageArchvingService");
+			.getLog("com.linuxbox.enkive.archiver");
 	private final static int EMERGENCY_SAVE_ATTEMPTS = 4;
 
 	/**
