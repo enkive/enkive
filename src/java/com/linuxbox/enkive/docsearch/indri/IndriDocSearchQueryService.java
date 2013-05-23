@@ -41,9 +41,6 @@ import com.linuxbox.util.TypeConverter;
 public class IndriDocSearchQueryService extends AbstractDocSearchQueryService {
 	/**
 	 * Converts a QueryResult into the docno.
-	 * 
-	 * @author ivancich
-	 * 
 	 */
 	static class QueryResultToDocNameConverter implements
 			TypeConverter<QueryResult, String> {
@@ -57,9 +54,6 @@ public class IndriDocSearchQueryService extends AbstractDocSearchQueryService {
 	 * A filter that removes empty strings (or strings of only whitespace) by
 	 * returning null for them. An instance of this class is used in conjunction
 	 * w/ CollectionUtils.listFromArray.
-	 * 
-	 * @author ivancich
-	 * 
 	 */
 	private class RemoveEmptyStringsFilter implements
 			CollectionUtils.ItemFilter<String> {

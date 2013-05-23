@@ -25,11 +25,17 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Set;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import com.linuxbox.enkive.docsearch.TextQueryParser;
 import com.linuxbox.enkive.docsearch.TextQueryParser.Phrase;
 import com.linuxbox.enkive.docsearch.exception.DocSearchException;
 
 public class IndriQueryComposer {
+	private final static Log LOGGER = LogFactory
+			.getLog("com.linuxbox.enkive.docsearch.indri");
+
 	protected static Set<Character> allowableSymbols = new HashSet<Character>();
 
 	static {
@@ -112,7 +118,7 @@ public class IndriQueryComposer {
 	 * Creates an Indri query by using the filter-require (#filreq) and
 	 * filter-reject (#filrej) operators to filter the results. Then it uses the
 	 * #compose operator to rank/weight the result of the the required elements.
-	 * If there are no reuired elements, it uses a simple #not to complete the
+	 * If there are no required elements, it uses a simple #not to complete the
 	 * query.
 	 * 
 	 * @param query
@@ -121,6 +127,20 @@ public class IndriQueryComposer {
 	 */
 	public static CharSequence composeQuery(TextQueryParser.Query query)
 			throws DocSearchException {
+		if (LOGGER.isTraceEnabled()) {
+			StringBuilder output = new StringBuilder();
+			boolean first = true;
+			for (Phrase p : query) {
+				if (first) {
+					first = false;
+				} else {
+					output.append(", ");
+				}
+				output.append(p.getTermsAsCharSeq());
+			}
+			LOGGER.trace("composeQuery receives phrases: " + output.toString());
+		}
+
 		StringBuffer result = new StringBuffer();
 
 		/*
@@ -222,6 +242,9 @@ public class IndriQueryComposer {
 			result.append(")");
 		}
 
+		if (LOGGER.isTraceEnabled()) {
+			LOGGER.trace("composeQuery produces: " + result);
+		}
 		return result;
 	}
 }
