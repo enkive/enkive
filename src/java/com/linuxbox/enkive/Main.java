@@ -90,21 +90,23 @@ public abstract class Main {
 	}
 
 	protected void runVersionCheck() throws Exception {
-		AbstractApplicationContext versionCheckingContext = new ClassPathXmlApplicationContext(
+		final AbstractApplicationContext versionCheckingContext = new ClassPathXmlApplicationContext(
 				VERSION_CHECK_CONFIG_FILES);
-
-		Map<String, DbMigrationService> migrationServices = versionCheckingContext
-				.getBeansOfType(DbMigrationService.class);
-		if (migrationServices.isEmpty()) {
-			final String message = "no version checking / migration services configured";
-			LOGGER.fatal(message);
-			throw new Exception(message);
+		try {
+			Map<String, DbMigrationService> migrationServices = versionCheckingContext
+					.getBeansOfType(DbMigrationService.class);
+			if (migrationServices.isEmpty()) {
+				final String message = "no version checking / migration services configured";
+				LOGGER.fatal(message);
+				throw new Exception(message);
+			}
+			for (Entry<String, DbMigrationService> service : migrationServices
+					.entrySet()) {
+				service.getValue().isUpToDate();
+			}
+		} finally {
+			versionCheckingContext.close();
 		}
-		for (Entry<String, DbMigrationService> service : migrationServices
-				.entrySet()) {
-			service.getValue().isUpToDate();
-		}
-		versionCheckingContext.close();
 	}
 
 	public void start() throws Exception {
