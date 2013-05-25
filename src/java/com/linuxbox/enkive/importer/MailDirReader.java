@@ -85,6 +85,19 @@ public class MailDirReader extends AbstractMailboxImporter {
 		return ignoreDirectories.toArray(new String[0]);
 	}
 
+	// TODO: this should be elevated up to the superclass, so its core can be
+	// shared with siblings
+	protected static String normalizeRootPath(String rootPath)
+			throws IOException {
+		File rootDir = new File(rootPath);
+		if (!rootDir.isDirectory()) {
+			throw new IOException("Expected " + rootPath
+					+ " to be a directory, but it is not.");
+		}
+
+		return rootDir.getCanonicalPath();
+	}
+
 	// Had to include gnumail, gnumailproviders, and inetlib in classpath
 	public static void main(String args[]) {
 		if (args.length != 3) {
@@ -94,12 +107,13 @@ public class MailDirReader extends AbstractMailboxImporter {
 		}
 		MailDirReader reader = null;
 
-		final String path = args[0]; // path to home folder to Archive
+		String path = args[0]; // path to home folder to Archive
 		final String host = args[1];
 		final String portString = args[2];
 
 		long startTime = System.currentTimeMillis();
 		try {
+			path = normalizeRootPath(path);
 			reader = new MailDirReader(path, host, portString);
 			reader.setWriter();
 

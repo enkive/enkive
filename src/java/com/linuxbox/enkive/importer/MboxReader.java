@@ -64,6 +64,8 @@ public class MboxReader extends AbstractMailboxImporter {
 		}
 	}
 
+	// TODO: this should be elevated up to the superclass, so its core can be
+	// shared with siblings
 	protected static String normalizeRootPath(String rootPath)
 			throws IOException {
 		File rootDir = new File(rootPath);
