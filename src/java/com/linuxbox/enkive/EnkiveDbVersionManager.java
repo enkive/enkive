@@ -8,8 +8,8 @@ public class EnkiveDbVersionManager extends DbVersionManager {
 		super();
 		associateHelp(ProductInfo.V1_2P, 0);
 		associateHelp(ProductInfo.V1_3A, 1);
-		// version 1.3RC uses same database version as 1.3A
-		associateHelp(ProductInfo.V1_3RC, 1);
+		// version 1.3RC1 uses same database version as 1.3A
+		associateHelp(ProductInfo.V1_3RC1, 1);
 	}
 
 	protected void associateHelp(Version swVersion, int dbVersion)
