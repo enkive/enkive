@@ -1,6 +1,7 @@
-This is Enkive version 1.2 <br />
 <br />
-For help please consult<br />
+This is Enkive CE version 1.3 RC 1.<br />
+<br />
+For help please consult:<br />
 <ul>
 <li><a href="http://wiki.enkive.org" target="_blank">The Enkive Wiki</a></li>
 <li><a href="http://bugs.enkive.org" target="_blank">The Enkive Bugzilla</a></li>
