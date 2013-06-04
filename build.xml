@@ -32,9 +32,7 @@
 	</path>
 
 	<target name="clean" description="Removes all generated files">
-		<delete includeEmptyDirs="true">
-			<fileset dir="${build.dir}" includes="**/*" defaultexcludes="no" />
-		</delete>
+		<delete dir="${build.dir}" />
 	</target>
 
 	<target name="setup" depends="clean" description="Creates the ${build.dir} and ${bin.dir} directories">
