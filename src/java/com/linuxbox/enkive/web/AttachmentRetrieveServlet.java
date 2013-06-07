@@ -23,6 +23,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import javax.mail.internet.HeaderTokenizer;
+import javax.mail.internet.MimeUtility;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -76,7 +78,7 @@ public class AttachmentRetrieveServlet extends EnkiveServlet {
 				}
 				resp.setCharacterEncoding("utf-8");
 				resp.setHeader("Content-disposition", "attachment;  filename="
-						+ filename);
+						+ MimeUtility.quote(filename, HeaderTokenizer.MIME));
 
 				final InputStream in = attachment.getBinaryContent();
 				final OutputStream out = resp.getOutputStream();
