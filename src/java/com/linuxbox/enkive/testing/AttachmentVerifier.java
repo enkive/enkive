@@ -10,7 +10,7 @@ import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
-import com.mongodb.Mongo;
+import com.mongodb.MongoClient;
 import com.mongodb.QueryBuilder;
 
 public class AttachmentVerifier {
@@ -173,7 +173,7 @@ public class AttachmentVerifier {
 				System.exit(1);
 			}
 
-			Mongo mongo = new Mongo(mongoDbHost, mongoDbPort);
+			MongoClient mongo = new MongoClient(mongoDbHost, mongoDbPort);
 			DB enkiveDb = mongo.getDB(dbName);
 			enkiveDb.setReadOnly(true);
 			DBCollection fsCollection = enkiveDb.getCollection(fsCollectionName

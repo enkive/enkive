@@ -36,7 +36,7 @@ import com.linuxbox.enkive.statistics.services.storage.StatsStorageException;
 import com.linuxbox.util.dbinfo.mongodb.MongoDbInfo;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
-import com.mongodb.Mongo;
+import com.mongodb.MongoClient;
 
 public class MongoStatsStorageService extends VarsMaker implements
 		StatsStorageService {
@@ -49,14 +49,14 @@ public class MongoStatsStorageService extends VarsMaker implements
 	 * Since we like to configure everything from the outside, why is this
 	 * constructor even available?
 	 */
-	public MongoStatsStorageService(Mongo mongo) {
+	public MongoStatsStorageService(MongoClient mongo) {
 		this(mongo, STAT_STORAGE_DB, STAT_STORAGE_COLLECTION);
 
 		// *** let's figure out when/if this constructor is ever called
 		throw new UnimplementedMethodException();
 	}
 
-	public MongoStatsStorageService(Mongo mongo, String dbName,
+	public MongoStatsStorageService(MongoClient mongo, String dbName,
 			String collectionName) {
 		this(mongo.getDB(dbName).getCollection(collectionName));
 	}

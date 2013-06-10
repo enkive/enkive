@@ -32,12 +32,12 @@ import org.apache.commons.logging.LogFactory;
 import com.linuxbox.enkive.message.search.exception.MessageSearchException;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
-import com.mongodb.Mongo;
+import com.mongodb.MongoClient;
 
 public class StatsMessageGatherer extends AbstractGatherer {
 	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.statistics.gathering.StatsMsgGatherer");
-	protected Mongo m;
+	protected MongoClient m;
 	protected DB db;
 	protected DBCollection attachmentsColl;
 	GathererMessageSearchService searchService;

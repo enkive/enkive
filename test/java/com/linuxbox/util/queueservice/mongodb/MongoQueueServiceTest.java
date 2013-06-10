@@ -35,16 +35,16 @@ import org.junit.Test;
 import com.linuxbox.enkive.TestingConstants;
 import com.linuxbox.util.queueservice.QueueEntry;
 import com.linuxbox.util.queueservice.QueueServiceException;
-import com.mongodb.Mongo;
+import com.mongodb.MongoClient;
 
 public class MongoQueueServiceTest {
 
-	private static Mongo mongo;
+	private static MongoClient mongo;
 	private static MongoQueueService service;
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		mongo = new Mongo();
+		mongo = new MongoClient();
 		service = new MongoQueueService(mongo,
 				TestingConstants.MONGODB_TEST_DATABASE,
 				TestingConstants.MONGODB_TEST_QUEUE_COLLECTION);

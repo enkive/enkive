@@ -46,7 +46,7 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
-import com.mongodb.Mongo;
+import com.mongodb.MongoClient;
 
 public class MongoSearchResultBuilder implements SearchResultBuilder {
 	DBCollection searchResultsColl;
@@ -56,7 +56,7 @@ public class MongoSearchResultBuilder implements SearchResultBuilder {
 	private final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.workspaces");
 
-	public MongoSearchResultBuilder(Mongo m, String searchResultsDBName,
+	public MongoSearchResultBuilder(MongoClient m, String searchResultsDBName,
 			String searchResultsCollName, SearchQueryBuilder queryBuilder) {
 		this(m.getDB(searchResultsDBName).getCollection(searchResultsCollName),
 				queryBuilder);

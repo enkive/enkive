@@ -45,12 +45,12 @@ import com.linuxbox.enkive.docstore.DocStoreService;
 import com.linuxbox.enkive.docstore.mongogrid.ConvenienceMongoGridDocStoreService;
 import com.linuxbox.enkive.message.Message;
 import com.linuxbox.enkive.message.MessageImpl;
-import com.mongodb.Mongo;
+import com.mongodb.MongoClient;
 
 @RunWith(Parameterized.class)
 public class MongoArchivingServiceFailureTest {
 
-	static Mongo m;
+	static MongoClient m;
 	static MongoArchivingService archiver;
 	static DocStoreService docStoreService;
 
@@ -69,7 +69,7 @@ public class MongoArchivingServiceFailureTest {
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		m = new Mongo();
+		m = new MongoClient();
 		docStoreService = new ConvenienceMongoGridDocStoreService(m,
 				TestingConstants.MONGODB_TEST_DATABASE,
 				TestingConstants.MONGODB_TEST_DOCUMENTS_COLLECTION);

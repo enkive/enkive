@@ -41,7 +41,7 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
-import com.mongodb.Mongo;
+import com.mongodb.MongoClient;
 
 public class MongoWorkspaceService extends AbstractWorkspaceService implements
 		WorkspaceServiceMBean {
@@ -55,7 +55,7 @@ public class MongoWorkspaceService extends AbstractWorkspaceService implements
 	private final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.workspaces.mongo");
 
-	public MongoWorkspaceService(Mongo m, String dbName,
+	public MongoWorkspaceService(MongoClient m, String dbName,
 			String userWorkspacesCollName) {
 		DB workspaceDb = m.getDB(dbName);
 		userWorkspacesColl = workspaceDb.getCollection(userWorkspacesCollName);

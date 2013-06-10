@@ -39,13 +39,13 @@ import com.linuxbox.enkive.audit.AuditService;
 import com.linuxbox.util.mongodb.MongoIndexable.IndexDescription;
 import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DBObject;
-import com.mongodb.Mongo;
+import com.mongodb.MongoClient;
 
 public class MongoAuditServiceTest {
 
 	private static int counter = 0;
 
-	private Mongo mongo;
+	private MongoClient mongo;
 	private MongoAuditService service;
 
 	@BeforeClass
@@ -60,7 +60,7 @@ public class MongoAuditServiceTest {
 
 	@Before
 	public void setUp() throws Exception {
-		mongo = new Mongo();
+		mongo = new MongoClient();
 
 		service = new MongoAuditService(mongo,
 				TestingConstants.MONGODB_TEST_DATABASE,

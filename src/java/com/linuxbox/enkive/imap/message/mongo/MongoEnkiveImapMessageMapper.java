@@ -39,16 +39,16 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
-import com.mongodb.Mongo;
+import com.mongodb.MongoClient;
 
 public class MongoEnkiveImapMessageMapper extends EnkiveImapMessageMapper {
-	Mongo m;
+	MongoClient m;
 	DB imapDB;
 	DBCollection imapCollection;
 
 	public MongoEnkiveImapMessageMapper(MailboxSession mailboxSession,
 			EnkiveImapStore store, MessageRetrieverService retrieverService,
-			Mongo m, String enkiveDbName, String imapCollectionName) {
+			MongoClient m, String enkiveDbName, String imapCollectionName) {
 		super(mailboxSession, store, retrieverService);
 		imapDB = m.getDB(enkiveDbName);
 		imapCollection = imapDB.getCollection(imapCollectionName);

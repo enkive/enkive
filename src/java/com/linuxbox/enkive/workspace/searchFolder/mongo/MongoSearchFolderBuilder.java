@@ -32,14 +32,14 @@ import com.linuxbox.util.dbinfo.mongodb.MongoDbInfo;
 import com.mongodb.BasicDBList;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
-import com.mongodb.Mongo;
+import com.mongodb.MongoClient;
 
 public class MongoSearchFolderBuilder implements SearchFolderBuilder {
 	protected DBCollection searchFolderColl;
 	protected SearchFolderSearchResultBuilder searchResultBuilder;
 	protected MessageRetrieverService retrieverService;
 
-	public MongoSearchFolderBuilder(Mongo m, String searchFolderDBName,
+	public MongoSearchFolderBuilder(MongoClient m, String searchFolderDBName,
 			String searchFolderCollName,
 			SearchFolderSearchResultBuilder searchResultBuilder) {
 		this(m.getDB(searchFolderDBName).getCollection(searchFolderCollName),

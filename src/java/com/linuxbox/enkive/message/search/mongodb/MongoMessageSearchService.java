@@ -48,7 +48,7 @@ import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
-import com.mongodb.Mongo;
+import com.mongodb.MongoClient;
 
 public class MongoMessageSearchService extends AbstractMessageSearchService {
 	protected final static Log LOGGER = LogFactory
@@ -70,7 +70,7 @@ public class MongoMessageSearchService extends AbstractMessageSearchService {
 
 	protected DBCollection messageColl;
 
-	public MongoMessageSearchService(Mongo m, String dbName, String collName) {
+	public MongoMessageSearchService(MongoClient m, String dbName, String collName) {
 		this(m.getDB(dbName), collName);
 	}
 

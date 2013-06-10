@@ -25,7 +25,7 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
-import com.mongodb.Mongo;
+import com.mongodb.MongoClient;
 import com.mongodb.MongoException;
 
 public class RemoveDuplicates {
@@ -35,7 +35,7 @@ public class RemoveDuplicates {
 	private Calendar startTimestamp = Calendar.getInstance();
 	private Calendar endTimestamp = Calendar.getInstance();
 
-	public RemoveDuplicates(Mongo mongo) {
+	public RemoveDuplicates(MongoClient mongo) {
 		this.statistics = mongo.getDB(STAT_STORAGE_DB).getCollection(
 				STAT_STORAGE_COLLECTION);
 		setStartTimestamp();
@@ -124,9 +124,9 @@ public class RemoveDuplicates {
 	}
 
 	public static void main(String args[]) {
-		Mongo mongo = null;
+		MongoClient mongo = null;
 		try {
-			mongo = new Mongo();
+			mongo = new MongoClient();
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		} catch (MongoException e) {

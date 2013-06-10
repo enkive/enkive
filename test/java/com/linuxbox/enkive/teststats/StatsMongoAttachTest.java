@@ -46,7 +46,7 @@ import org.junit.Test;
 import com.linuxbox.enkive.statistics.ConsolidationKeyHandler;
 import com.linuxbox.enkive.statistics.RawStats;
 import com.linuxbox.enkive.statistics.gathering.mongodb.MongoStatsAttachmentsGatherer;
-import com.mongodb.Mongo;
+import com.mongodb.MongoClient;
 import com.mongodb.MongoException;
 
 public class StatsMongoAttachTest {
@@ -59,7 +59,7 @@ public class StatsMongoAttachTest {
 		List<String> keys = new LinkedList<String>();
 		keys.add("attNum:avg:Number of Attachments::interval");
 		keys.add("attSz:avg:Attachment Size:bytes:interval");
-		attach = new MongoStatsAttachmentsGatherer(new Mongo(),
+		attach = new MongoStatsAttachmentsGatherer(new MongoClient(),
 				MONGODB_TEST_DATABASE, MONGODB_TEST_FSFILES_COLLECTION, name,
 				"Attachment Statistics", keys);
 		RawStats rawData = attach.getStatistics();

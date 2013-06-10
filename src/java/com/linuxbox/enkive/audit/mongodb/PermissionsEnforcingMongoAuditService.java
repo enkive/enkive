@@ -27,14 +27,14 @@ import com.linuxbox.enkive.audit.AuditServiceException;
 import com.linuxbox.enkive.exception.CannotGetPermissionsException;
 import com.linuxbox.enkive.permissions.PermissionService;
 import com.linuxbox.util.dbinfo.mongodb.MongoDbInfo;
-import com.mongodb.Mongo;
+import com.mongodb.MongoClient;
 
 public class PermissionsEnforcingMongoAuditService extends MongoAuditService {
 
 	PermissionService permService;
 
 	public PermissionsEnforcingMongoAuditService(PermissionService permService,
-			Mongo mongo, String database, String collection) {
+			MongoClient mongo, String database, String collection) {
 		super(mongo, database, collection);
 		this.permService = permService;
 	}

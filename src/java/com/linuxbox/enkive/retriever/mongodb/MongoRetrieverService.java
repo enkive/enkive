@@ -73,7 +73,7 @@ import com.linuxbox.util.dbinfo.mongodb.MongoDbInfo;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
-import com.mongodb.Mongo;
+import com.mongodb.MongoClient;
 
 public class MongoRetrieverService extends AbstractRetrieverService {
 	private final static Log LOGGER = LogFactory
@@ -81,7 +81,7 @@ public class MongoRetrieverService extends AbstractRetrieverService {
 
 	protected DBCollection messageColl;
 
-	public MongoRetrieverService(Mongo m, String dbName, String collName) {
+	public MongoRetrieverService(MongoClient m, String dbName, String collName) {
 		this(m.getDB(dbName).getCollection(collName));
 	}
 	

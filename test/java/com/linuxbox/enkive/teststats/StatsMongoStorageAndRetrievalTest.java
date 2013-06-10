@@ -59,7 +59,7 @@ import com.linuxbox.enkive.statistics.services.retrieval.mongodb.MongoStatsRetri
 import com.linuxbox.enkive.statistics.services.storage.mongodb.MongoStatsStorageService;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
-import com.mongodb.Mongo;
+import com.mongodb.MongoClient;
 import com.mongodb.MongoException;
 
 @RunWith(value = Parameterized.class)
@@ -69,7 +69,7 @@ public class StatsMongoStorageAndRetrievalTest {
 	private static MongoStatsStorageService storageTester;
 	private static StatsGathererService gatherTester;
 	private static StatsClient client;
-	private static Mongo m;
+	private static MongoClient m;
 	private static Map<String, Object> stats;
 	private static DB db;
 	private static DBCollection coll;
@@ -91,7 +91,7 @@ public class StatsMongoStorageAndRetrievalTest {
 	@Parameters
 	public static Collection<Object[]> data() throws GathererException {
 		try {
-			m = new Mongo();
+			m = new MongoClient();
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 			System.exit(0);
@@ -149,7 +149,7 @@ public class StatsMongoStorageAndRetrievalTest {
 		MongoGathererMessageSearchService searchService = null;
 
 		try {
-			searchService = new MongoGathererMessageSearchService(new Mongo(),
+			searchService = new MongoGathererMessageSearchService(new MongoClient(),
 					TestingConstants.MONGODB_TEST_DATABASE,
 					TestingConstants.MONGODB_TEST_MESSAGES_COLLECTION);
 		} catch (UnknownHostException e) {

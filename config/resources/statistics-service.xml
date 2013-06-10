@@ -11,7 +11,7 @@
 
 	<bean id="CollectionStatsGathererBean"
 		class="com.linuxbox.enkive.statistics.gathering.mongodb.MongoStatsCollectionGatherer">
-		<constructor-arg ref="Mongo" />
+		<constructor-arg ref="MongoClient" />
 		<constructor-arg name="dbName" value="${enkive.statistics.db.name}" />
 		<constructor-arg name="gathererName" value="CollectionStatsGatherer" />
 		<constructor-arg name="humanName" value="Collection Statistics" />
@@ -71,7 +71,7 @@
 
 	<bean id="DatabaseStatsGathererBean"
 		class="com.linuxbox.enkive.statistics.gathering.mongodb.MongoStatsDatabaseGatherer">
-		<constructor-arg ref="Mongo" />
+		<constructor-arg ref="MongoClient" />
 		<constructor-arg name="dbName" value="${enkive.statistics.db.name}" />
 		<constructor-arg name="gathererName" value="DatabaseStatsGatherer" />
 		<constructor-arg name="humanName" value="Database Statistics" />

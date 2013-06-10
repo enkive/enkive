@@ -45,7 +45,7 @@ import com.linuxbox.enkive.statistics.ConsolidationKeyHandler;
 import com.linuxbox.enkive.statistics.RawStats;
 import com.linuxbox.enkive.statistics.gathering.StatsMessageGatherer;
 import com.linuxbox.enkive.statistics.gathering.mongodb.MongoGathererMessageSearchService;
-import com.mongodb.Mongo;
+import com.mongodb.MongoClient;
 
 @SuppressWarnings("unchecked")
 public class StatsMsgTest {
@@ -61,7 +61,7 @@ public class StatsMsgTest {
 		keys.add("totMsg:avg:Total Number of Messages::point");
 		msgEntries = new StatsMessageGatherer(name, "Message Statistics", keys);
 		MongoGathererMessageSearchService searchService;
-		searchService = new MongoGathererMessageSearchService(new Mongo(),
+		searchService = new MongoGathererMessageSearchService(new MongoClient(),
 				TestingConstants.MONGODB_TEST_DATABASE,
 				TestingConstants.MONGODB_TEST_MESSAGES_COLLECTION);
 		searchService.setDocSearchService(new IndriDocSearchQueryService());

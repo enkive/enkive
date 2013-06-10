@@ -22,12 +22,12 @@ import com.linuxbox.enkive.workspace.WorkspaceException;
 import com.linuxbox.enkive.workspace.mongo.MongoSearchResult;
 import com.linuxbox.enkive.workspace.searchFolder.SearchFolderSearchResult;
 import com.mongodb.DBCollection;
-import com.mongodb.Mongo;
+import com.mongodb.MongoClient;
 
 public class MongoSearchFolderSearchResult extends SearchFolderSearchResult {
 	DBCollection searchFolderSearchResultsColl;
 
-	public MongoSearchFolderSearchResult(Mongo m,
+	public MongoSearchFolderSearchResult(MongoClient m,
 			String searchFolderSearchResultsDBName,
 			String searchFolderSearchResultsCollName) {
 		this(m.getDB(searchFolderSearchResultsDBName).getCollection(searchFolderSearchResultsCollName));

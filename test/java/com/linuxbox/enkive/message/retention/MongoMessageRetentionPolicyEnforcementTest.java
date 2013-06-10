@@ -60,11 +60,11 @@ import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
-import com.mongodb.Mongo;
+import com.mongodb.MongoClient;
 
 public class MongoMessageRetentionPolicyEnforcementTest {
 
-	static Mongo m;
+	static MongoClient m;
 	static MongoRetrieverService retriever;
 	static DocStoreService docStoreService;
 	static MessageRetentionPolicyEnforcer policyEnforcer;
@@ -76,7 +76,7 @@ public class MongoMessageRetentionPolicyEnforcementTest {
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 
-		m = new Mongo();
+		m = new MongoClient();
 		docStoreService = new ConvenienceMongoGridDocStoreService(m,
 				TestingConstants.MONGODB_TEST_DATABASE,
 				TestingConstants.MONGODB_TEST_DOCUMENTS_COLLECTION);

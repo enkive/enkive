@@ -38,18 +38,18 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
-import com.mongodb.Mongo;
+import com.mongodb.MongoClient;
 
 public class MongoEnkiveImapMailboxMapper extends EnkiveImapMailboxMapper {
 
-	Mongo m;
+	MongoClient m;
 	DB enkiveDB;
 	DBCollection imapCollection;
 
 	protected static final Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.imap");
 
-	public MongoEnkiveImapMailboxMapper(MailboxSession session, Mongo m,
+	public MongoEnkiveImapMailboxMapper(MailboxSession session, MongoClient m,
 			String enkiveDbName, String imapCollectionName) {
 		super(session);
 		this.m = m;

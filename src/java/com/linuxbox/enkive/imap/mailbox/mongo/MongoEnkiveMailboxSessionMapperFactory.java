@@ -27,16 +27,16 @@ import com.linuxbox.enkive.imap.mailbox.EnkiveMailboxSessionMapperFactory;
 import com.linuxbox.enkive.imap.message.mongo.MongoEnkiveImapMessageMapper;
 import com.linuxbox.enkive.imap.mongo.MongoEnkiveImapStore;
 import com.linuxbox.util.dbinfo.mongodb.MongoDbInfo;
-import com.mongodb.Mongo;
+import com.mongodb.MongoClient;
 
 public class MongoEnkiveMailboxSessionMapperFactory extends
 		EnkiveMailboxSessionMapperFactory {
 
-	Mongo m;
+	MongoClient m;
 	String enkiveDBName;
 	String imapCollectionName;
 
-	public MongoEnkiveMailboxSessionMapperFactory(Mongo m, String enkiveDBName,
+	public MongoEnkiveMailboxSessionMapperFactory(MongoClient m, String enkiveDBName,
 			String imapCollectionName) {
 		this.m = m;
 		this.enkiveDBName = enkiveDBName;

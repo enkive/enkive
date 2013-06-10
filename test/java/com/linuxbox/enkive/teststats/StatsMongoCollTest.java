@@ -55,7 +55,7 @@ import com.linuxbox.enkive.statistics.RawStats;
 import com.linuxbox.enkive.statistics.gathering.GathererException;
 import com.linuxbox.enkive.statistics.gathering.mongodb.MongoStatsCollectionGatherer;
 import com.mongodb.DB;
-import com.mongodb.Mongo;
+import com.mongodb.MongoClient;
 import com.mongodb.MongoException;
 
 @SuppressWarnings("unchecked")
@@ -74,9 +74,9 @@ public class StatsMongoCollTest {
 
 	@Parameters
 	public static Collection<Object[]> data() throws GathererException {
-		Mongo m = null;
+		MongoClient m = null;
 		try {
-			m = new Mongo();
+			m = new MongoClient();
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 			System.exit(0);

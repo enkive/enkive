@@ -44,12 +44,12 @@ import com.linuxbox.enkive.docstore.mongogrid.ConvenienceMongoGridDocStoreServic
 import com.linuxbox.enkive.exception.CannotRetrieveException;
 import com.linuxbox.enkive.message.Message;
 import com.linuxbox.enkive.message.MessageImpl;
-import com.mongodb.Mongo;
+import com.mongodb.MongoClient;
 
 @RunWith(Parameterized.class)
 public class MongoRetrieverServiceTest {
 
-	static Mongo m;
+	static MongoClient m;
 	static MongoRetrieverService retriever;
 	static DocStoreService docStoreService;
 
@@ -68,7 +68,7 @@ public class MongoRetrieverServiceTest {
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		m = new Mongo();
+		m = new MongoClient();
 		docStoreService = new ConvenienceMongoGridDocStoreService(m,
 				TestingConstants.MONGODB_TEST_DATABASE,
 				TestingConstants.MONGODB_TEST_DOCUMENTS_COLLECTION);

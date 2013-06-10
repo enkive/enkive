@@ -42,7 +42,7 @@ import com.linuxbox.util.queueservice.QueueServiceException;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
-import com.mongodb.Mongo;
+import com.mongodb.MongoClient;
 import com.mongodb.MongoException;
 import com.mongodb.QueryBuilder;
 import com.mongodb.WriteConcern;
@@ -77,28 +77,28 @@ public class MongoQueueService implements QueueService, MongoIndexable {
 	private static final DBObject SORT_BY_CREATED_AT = new BasicDBObject(
 			CREATED_AT_FIELD, 1);
 
-	private Mongo mongo;
+	private MongoClient mongo;
 	private DBCollection queueCollection;
 
 	/**
-	 * Keep track of whether we created the instance of Mongo, as if so, we'll
+	 * Keep track of whether we created the instance of MongoClient, as if so, we'll
 	 * have to close it.
 	 */
 	private boolean createdMongo;
 
 	public MongoQueueService(String server, int port, String database,
 			String collection) throws UnknownHostException, MongoException {
-		this(new Mongo(server, port), database, collection);
+		this(new MongoClient(server, port), database, collection);
 		createdMongo = true;
 	}
 
 	public MongoQueueService(String database, String collection)
 			throws UnknownHostException, MongoException {
-		this(new Mongo(), database, collection);
+		this(new MongoClient(), database, collection);
 		createdMongo = true;
 	}
 
-	public MongoQueueService(Mongo mongo, String database, String collection) {
+	public MongoQueueService(MongoClient mongo, String database, String collection) {
 		this(mongo, mongo.getDB(database).getCollection(collection));
 	}
 
@@ -106,7 +106,7 @@ public class MongoQueueService implements QueueService, MongoIndexable {
 		this(dbInfo.getMongo(), dbInfo.getCollection());
 	}
 
-	public MongoQueueService(Mongo mongo, DBCollection collection) {
+	public MongoQueueService(MongoClient mongo, DBCollection collection) {
 		this.mongo = mongo;
 		this.queueCollection = collection;
 

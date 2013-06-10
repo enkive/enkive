@@ -36,14 +36,14 @@ import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
-import com.mongodb.Mongo;
+import com.mongodb.MongoClient;
 
 public class MongoMessagePermissionsService implements
 		MessagePermissionsService {
 
 	protected DBCollection messageCollection;
 
-	public MongoMessagePermissionsService(Mongo mongo, String dbName,
+	public MongoMessagePermissionsService(MongoClient mongo, String dbName,
 			String collName) {
 		this(mongo.getDB(dbName).getCollection(collName));
 	}

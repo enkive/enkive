@@ -25,7 +25,7 @@ import com.linuxbox.enkive.workspace.searchFolder.SearchFolderSearchResultBuilde
 import com.linuxbox.enkive.workspace.searchResult.SearchResult;
 import com.linuxbox.util.dbinfo.mongodb.MongoDbInfo;
 import com.mongodb.DBCollection;
-import com.mongodb.Mongo;
+import com.mongodb.MongoClient;
 
 public class MongoSearchFolderSearchResultBuilder implements
 		SearchFolderSearchResultBuilder {
@@ -34,7 +34,7 @@ public class MongoSearchFolderSearchResultBuilder implements
 
 	// XXX Need to set mongosearchutils
 
-	MongoSearchFolderSearchResultBuilder(Mongo m,
+	MongoSearchFolderSearchResultBuilder(MongoClient m,
 			String searchFolderSearchResultDBName,
 			String searchFolderSearchResultCollName) {
 		this(m.getDB(searchFolderSearchResultDBName).getCollection(

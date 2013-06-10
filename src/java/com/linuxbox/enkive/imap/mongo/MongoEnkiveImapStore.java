@@ -31,14 +31,14 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
-import com.mongodb.Mongo;
+import com.mongodb.MongoClient;
 
 public class MongoEnkiveImapStore extends EnkiveImapStore {
-	Mongo m;
+	MongoClient m;
 	DB imapDB;
 	DBCollection imapCollection;
 
-	public MongoEnkiveImapStore(Mongo m, String imapDBName, String imapCollName) {
+	public MongoEnkiveImapStore(MongoClient m, String imapDBName, String imapCollName) {
 		this.m = m;
 		imapDB = m.getDB(imapDBName);
 		imapCollection = imapDB.getCollection(imapCollName);

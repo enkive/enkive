@@ -36,7 +36,7 @@ import com.linuxbox.util.dbinfo.mongodb.MongoDbInfo;
 import com.mongodb.BasicDBList;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
-import com.mongodb.Mongo;
+import com.mongodb.MongoClient;
 
 public class MongoWorkspaceBuilder implements WorkspaceBuilder {
 
@@ -47,7 +47,7 @@ public class MongoWorkspaceBuilder implements WorkspaceBuilder {
 	private final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.workspaces");
 
-	public MongoWorkspaceBuilder(Mongo m, String dbName,
+	public MongoWorkspaceBuilder(MongoClient m, String dbName,
 			String workspaceCollName, SearchResultBuilder searchResultBuilder,
 			SearchFolderBuilder searchFolderBuilder) {
 		this(m.getDB(dbName).getCollection(workspaceCollName),

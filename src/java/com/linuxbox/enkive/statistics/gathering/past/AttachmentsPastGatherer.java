@@ -41,12 +41,12 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
-import com.mongodb.Mongo;
+import com.mongodb.MongoClient;
 
 public class AttachmentsPastGatherer extends PastGatherer {
 	DBCollection attachmentsColl;
 
-	public AttachmentsPastGatherer(Mongo m, String dbName,
+	public AttachmentsPastGatherer(MongoClient m, String dbName,
 			String attachmentsColl, String statisticsColl, String name,
 			StatsClient client, int hrKeepTime, int dayKeepTime,
 			int weekKeepTime, int monthKeepTime) {

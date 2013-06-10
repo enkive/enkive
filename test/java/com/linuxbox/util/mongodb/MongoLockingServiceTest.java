@@ -40,11 +40,11 @@ import com.linuxbox.util.lockservice.mongodb.MongoLockService.LockRequestFailure
 import com.linuxbox.util.mongodb.MongoIndexable.IndexDescription;
 import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DBObject;
-import com.mongodb.Mongo;
+import com.mongodb.MongoClient;
 
 public class MongoLockingServiceTest {
 
-	private static Mongo mongo;
+	private static MongoClient mongo;
 	private static MongoLockService service;
 
 	@Rule
@@ -52,7 +52,7 @@ public class MongoLockingServiceTest {
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		mongo = new Mongo();
+		mongo = new MongoClient();
 
 		service = new MongoLockService(mongo,
 				TestingConstants.MONGODB_TEST_DATABASE,

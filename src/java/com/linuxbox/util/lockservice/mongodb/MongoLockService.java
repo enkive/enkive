@@ -35,7 +35,7 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
-import com.mongodb.Mongo;
+import com.mongodb.MongoClient;
 import com.mongodb.MongoException;
 import com.mongodb.QueryBuilder;
 import com.mongodb.WriteConcern;
@@ -72,22 +72,22 @@ public class MongoLockService extends AbstractRetryingLockService implements
 
 	private DBCollection lockCollection;
 
-	private Mongo mongo;
+	private MongoClient mongo;
 	private boolean mongoCreated;
 
 	public MongoLockService(String server, int port, String database,
 			String collection) throws UnknownHostException, MongoException {
-		this(new Mongo(server, port), database, collection);
+		this(new MongoClient(server, port), database, collection);
 		mongoCreated = true;
 	}
 
 	public MongoLockService(String database, String collection)
 			throws UnknownHostException, MongoException {
-		this(new Mongo(), database, collection);
+		this(new MongoClient(), database, collection);
 		mongoCreated = true;
 	}
 	
-	public MongoLockService(Mongo mongo, String database, String collection) {
+	public MongoLockService(MongoClient mongo, String database, String collection) {
 		this(mongo, mongo.getDB(database).getCollection(collection));
 	}
 	
@@ -95,7 +95,7 @@ public class MongoLockService extends AbstractRetryingLockService implements
 		this(dbInfo.getMongo(), dbInfo.getCollection());
 	}
 	
-	public MongoLockService(Mongo mongo, DBCollection collection) {
+	public MongoLockService(MongoClient mongo, DBCollection collection) {
 		this.mongo = mongo;
 		this.lockCollection = collection;
 

@@ -90,7 +90,7 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
-import com.mongodb.Mongo;
+import com.mongodb.MongoClient;
 import com.mongodb.MongoException;
 import com.mongodb.WriteResult;
 
@@ -104,7 +104,7 @@ public class MongoArchivingService extends AbstractMessageArchivingService
 	protected List<String> attachment_ids;
 	protected List<String> nested_message_ids;
 
-	public MongoArchivingService(Mongo m, String dbName, String collName) {
+	public MongoArchivingService(MongoClient m, String dbName, String collName) {
 		this(m.getDB(dbName).getCollection(collName));
 	}
 
@@ -198,7 +198,7 @@ public class MongoArchivingService extends AbstractMessageArchivingService
 		return messageUUID;
 	}
 
-	// FIXME: this seems like it's not Mongo dependent (well, except that it's
+	// FIXME: this seems like it's not MongoClient dependent (well, except that it's
 	// returning a MongoDBObject), but instead dependent on
 	// the doc store service, so couldn't this be moved up to the
 	// AbstractMessageArchivingService class?

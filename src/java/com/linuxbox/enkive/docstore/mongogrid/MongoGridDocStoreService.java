@@ -61,7 +61,7 @@ import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
-import com.mongodb.Mongo;
+import com.mongodb.MongoClient;
 import com.mongodb.MongoException;
 import com.mongodb.QueryBuilder;
 import com.mongodb.WriteConcern;
@@ -112,17 +112,17 @@ public class MongoGridDocStoreService extends AbstractDocStoreService implements
 
 	public MongoGridDocStoreService(String host, int port, String dbName,
 			String bucketName) throws UnknownHostException {
-		this(new Mongo(host, port), dbName, bucketName);
+		this(new MongoClient(host, port), dbName, bucketName);
 		createdMongo = true;
 	}
 
 	public MongoGridDocStoreService(String dbName, String bucketName)
 			throws UnknownHostException {
-		this(new Mongo(), dbName, bucketName);
+		this(new MongoClient(), dbName, bucketName);
 		createdMongo = true;
 	}
 
-	public MongoGridDocStoreService(Mongo mongo, String dbName,
+	public MongoGridDocStoreService(MongoClient mongo, String dbName,
 			String bucketName) {
 		this(mongo.getDB(dbName), bucketName);
 	}

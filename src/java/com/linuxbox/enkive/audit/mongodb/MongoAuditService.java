@@ -43,7 +43,7 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
-import com.mongodb.Mongo;
+import com.mongodb.MongoClient;
 import com.mongodb.MongoException;
 import com.mongodb.QueryBuilder;
 import com.mongodb.WriteConcern;
@@ -75,28 +75,28 @@ public class MongoAuditService implements AuditService, MongoIndexable {
 	private static DBObject DATE_BACKWARD_SORT = new BasicDBObject(
 			TIMESTAMP_FIELD, -1);
 
-	private final Mongo mongo;
+	private final MongoClient mongo;
 	private final DBCollection auditCollection;
 
 	/**
-	 * Keep track of whether we created the instance of Mongo, as if so, we'll
+	 * Keep track of whether we created the instance of MongoClient, as if so, we'll
 	 * have to close it.
 	 */
 	private boolean createdMongo;
 
 	public MongoAuditService(String server, int port, String database,
 			String collection) throws UnknownHostException, MongoException {
-		this(new Mongo(server, port), database, collection);
+		this(new MongoClient(server, port), database, collection);
 		createdMongo = true;
 	}
 
 	public MongoAuditService(String database, String collection)
 			throws UnknownHostException, MongoException {
-		this(new Mongo(), database, collection);
+		this(new MongoClient(), database, collection);
 		createdMongo = true;
 	}
 
-	public MongoAuditService(Mongo mongo, String database, String collection) {
+	public MongoAuditService(MongoClient mongo, String database, String collection) {
 		this(mongo, mongo.getDB(database).getCollection(collection));
 	}
 
@@ -104,7 +104,7 @@ public class MongoAuditService implements AuditService, MongoIndexable {
 		this(dbInfo.getMongo(), dbInfo.getCollection());
 	}
 
-	public MongoAuditService(Mongo mongo, DBCollection collection) {
+	public MongoAuditService(MongoClient mongo, DBCollection collection) {
 		this.mongo = mongo;
 		this.auditCollection = collection;
 

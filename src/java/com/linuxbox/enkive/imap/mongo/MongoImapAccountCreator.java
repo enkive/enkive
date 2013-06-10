@@ -43,7 +43,7 @@ import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
-import com.mongodb.Mongo;
+import com.mongodb.MongoClient;
 
 public class MongoImapAccountCreator implements EnkiveImapAccountCreator {
 
@@ -52,7 +52,7 @@ public class MongoImapAccountCreator implements EnkiveImapAccountCreator {
 	MongoImapAccountCreationMessageSearchService searchService;
 	PermissionService permissionsService;
 
-	public MongoImapAccountCreator(Mongo m, String imapDBName,
+	public MongoImapAccountCreator(MongoClient m, String imapDBName,
 			String imapCollName) {
 		this(m.getDB(imapDBName), imapCollName);
 	}

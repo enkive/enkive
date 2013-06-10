@@ -25,12 +25,12 @@ import com.linuxbox.util.dbinfo.mongodb.MongoDbInfo;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
-import com.mongodb.Mongo;
+import com.mongodb.MongoClient;
 
 public class MongoImapAccountCreationMessageSearchService extends
 		MongoMessageSearchService {
 
-	public MongoImapAccountCreationMessageSearchService(Mongo m, String dbName,
+	public MongoImapAccountCreationMessageSearchService(MongoClient m, String dbName,
 			String collName) {
 		super(m, dbName, collName);
 	}

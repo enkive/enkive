@@ -52,20 +52,20 @@ import org.junit.Test;
 import com.linuxbox.enkive.statistics.ConsolidationKeyHandler;
 import com.linuxbox.enkive.statistics.RawStats;
 import com.linuxbox.enkive.statistics.gathering.mongodb.MongoStatsDatabaseGatherer;
-import com.mongodb.Mongo;
+import com.mongodb.MongoClient;
 
 public class StatsMongoDbTest {
 	private static MongoStatsDatabaseGatherer dbStats;
 	private static Map<String, Object> stats;
 	private static Map<String, Object> intervalStats;
 	private static Map<String, Object> pointStats;
-	private static Mongo m;
+	private static MongoClient m;
 	private static String name = "DBGatherer";
 
 	@SuppressWarnings("unchecked")
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		m = new Mongo();
+		m = new MongoClient();
 		List<String> keys = new LinkedList<String>();
 		keys.add("numObj:avg,max,min:Number of Objects::point");
 		keys.add("nColls:avg,max,min:Number of Collections::point");

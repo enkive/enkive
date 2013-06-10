@@ -34,14 +34,14 @@ import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
-import com.mongodb.Mongo;
+import com.mongodb.MongoClient;
 
 public class MongoSearchResultUtils {
 
 	DBCollection messageColl;
 	DBCollection searchResultColl;
 
-	public MongoSearchResultUtils(Mongo m, String messageDB,
+	public MongoSearchResultUtils(MongoClient m, String messageDB,
 			String messageCollName, String searchResultCollName) {
 		DB messageDb = m.getDB(messageDB);
 		this.messageColl = messageDb.getCollection(messageCollName);

@@ -35,14 +35,14 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
-import com.mongodb.Mongo;
+import com.mongodb.MongoClient;
 
 public class MongoDbImapMessageRetentionPolicyEnforcer extends
 		MongodbMessageRetentionPolicyEnforcer {
 
 	DBCollection imapColl;
 
-	public MongoDbImapMessageRetentionPolicyEnforcer(Mongo m,
+	public MongoDbImapMessageRetentionPolicyEnforcer(MongoClient m,
 			String imapDbName, String imapCollectionName) {
 		this(m.getDB(imapDbName).getCollection(imapCollectionName));
 	}

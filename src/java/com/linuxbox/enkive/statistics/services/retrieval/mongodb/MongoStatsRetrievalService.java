@@ -43,7 +43,7 @@ import com.linuxbox.util.dbinfo.mongodb.MongoDbInfo;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
-import com.mongodb.Mongo;
+import com.mongodb.MongoClient;
 
 public class MongoStatsRetrievalService extends VarsMaker implements
 		StatsRetrievalService {
@@ -52,7 +52,7 @@ public class MongoStatsRetrievalService extends VarsMaker implements
 
 	private DBCollection coll;
 
-	public MongoStatsRetrievalService(Mongo mongo, String dbName,
+	public MongoStatsRetrievalService(MongoClient mongo, String dbName,
 			String collectionName) {
 		this(mongo.getDB(dbName).getCollection(collectionName));
 	}
@@ -63,7 +63,7 @@ public class MongoStatsRetrievalService extends VarsMaker implements
 
 	public MongoStatsRetrievalService(DBCollection collection) {
 		coll = collection;
-		LOGGER.info("RetrievalService(Mongo, String) successfully created");
+		LOGGER.info("RetrievalService(MongoClient, String) successfully created");
 	}
 
 	/**
@@ -83,7 +83,7 @@ public class MongoStatsRetrievalService extends VarsMaker implements
 	 * Takes a DBObject, extracts the map from it, and inserts that map into the
 	 * given set. NOTE: warnings are suppressed because they are being activated
 	 * because the actual type of the map is not specified in the dbObject but
-	 * it should not matter so long as it conforms to Mongo's key:value format
+	 * it should not matter so long as it conforms to MongoClient's key:value format
 	 * 
 	 * @param entry
 	 *            -dbObject to extract map from

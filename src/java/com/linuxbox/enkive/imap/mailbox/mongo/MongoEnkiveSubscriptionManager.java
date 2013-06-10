@@ -31,13 +31,13 @@ import com.linuxbox.util.dbinfo.mongodb.MongoDbInfo;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
-import com.mongodb.Mongo;
+import com.mongodb.MongoClient;
 
 public class MongoEnkiveSubscriptionManager extends EnkiveSubscriptionManager {
 
 	DBCollection imapCollection;
 
-	public MongoEnkiveSubscriptionManager(Mongo m, String imapDBName,
+	public MongoEnkiveSubscriptionManager(MongoClient m, String imapDBName,
 			String imapCollname) {
 		this(m.getDB(imapDBName).getCollection(imapCollname));
 	}

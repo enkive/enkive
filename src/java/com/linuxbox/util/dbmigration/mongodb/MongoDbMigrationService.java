@@ -20,7 +20,7 @@ import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
-import com.mongodb.Mongo;
+import com.mongodb.MongoClient;
 import com.mongodb.MongoException;
 import com.mongodb.WriteConcern;
 
@@ -49,7 +49,7 @@ public class MongoDbMigrationService extends DbMigrationService implements
 
 	}
 
-	public MongoDbMigrationService(Mongo mongo, String dbName,
+	public MongoDbMigrationService(MongoClient mongo, String dbName,
 			String collectionName) {
 		this(mongo.getDB(dbName).getCollection(collectionName));
 	}

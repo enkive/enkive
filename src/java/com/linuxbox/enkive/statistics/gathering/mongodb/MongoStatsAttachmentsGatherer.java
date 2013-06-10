@@ -40,7 +40,7 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
-import com.mongodb.Mongo;
+import com.mongodb.MongoClient;
 
 public class MongoStatsAttachmentsGatherer extends AbstractGatherer {
 	protected final static Log LOGGER = LogFactory
@@ -48,7 +48,7 @@ public class MongoStatsAttachmentsGatherer extends AbstractGatherer {
 
 	protected DBCollection attachmentsColl;
 
-	public MongoStatsAttachmentsGatherer(Mongo m, String dbName,
+	public MongoStatsAttachmentsGatherer(MongoClient m, String dbName,
 			String attachmentsColl, String gathererName, String humanName,
 			List<String> keys) throws GathererException {
 		this(gathererName, humanName, keys, m.getDB(dbName).getCollection(

@@ -28,7 +28,7 @@ import com.linuxbox.util.lockservice.mongodb.MongoLockService;
 import com.linuxbox.util.queueservice.QueueService;
 import com.linuxbox.util.queueservice.QueueServiceException;
 import com.linuxbox.util.queueservice.mongodb.MongoQueueService;
-import com.mongodb.Mongo;
+import com.mongodb.MongoClient;
 import com.mongodb.MongoException;
 
 /**
@@ -44,7 +44,7 @@ public class ConvenienceMongoGridDocStoreService extends
 	private final static String DEFAULT_DOC_LOCK_NAME = "documentLockService";
 	private final static String DEFAULT_INDEXER_QUEUE_NAME = "indexerQueueService";
 
-	private Mongo mongo;
+	private MongoClient mongo;
 	private LockService myDocLockService;
 	private QueueService myIndexerQueueService;
 	private boolean createdMongo;
@@ -57,11 +57,11 @@ public class ConvenienceMongoGridDocStoreService extends
 
 	public ConvenienceMongoGridDocStoreService(String dbName, String bucketName)
 			throws UnknownHostException, MongoException {
-		this(new Mongo(), dbName, bucketName);
+		this(new MongoClient(), dbName, bucketName);
 		createdMongo = true;
 	}
 
-	public ConvenienceMongoGridDocStoreService(Mongo mongo, String dbName,
+	public ConvenienceMongoGridDocStoreService(MongoClient mongo, String dbName,
 			String bucketName) {
 		super(mongo, dbName, bucketName);
 		this.mongo = mongo;

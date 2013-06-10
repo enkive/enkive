@@ -35,14 +35,14 @@ import com.linuxbox.util.dbinfo.mongodb.MongoDbInfo;
 import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
-import com.mongodb.Mongo;
+import com.mongodb.MongoClient;
 
 public class MongoGathererMessageSearchService extends
 		MongoMessageSearchService implements GathererMessageSearchService {
 	protected final static DBObject ID_ONLY_QUERY = BasicDBObjectBuilder
 			.start().add("_id", 1).get();
 
-	public MongoGathererMessageSearchService(Mongo m, String dbName,
+	public MongoGathererMessageSearchService(MongoClient m, String dbName,
 			String collName) {
 		super(m, dbName, collName);
 	}

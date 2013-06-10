@@ -26,7 +26,7 @@ import com.linuxbox.enkive.docstore.mongogrid.ConvenienceMongoGridDocStoreServic
 import com.linuxbox.enkive.docstore.mongogrid.MongoGridDocStoreService;
 import com.linuxbox.enkive.message.Message;
 import com.linuxbox.enkive.retriever.mongodb.MongoRetrieverService;
-import com.mongodb.Mongo;
+import com.mongodb.MongoClient;
 
 /*
  * Program to retrieve (reconstitute) full messages from the data store, keyed by
@@ -105,7 +105,7 @@ public class MongoDBMsgRetriever {
 		MongoGridDocStoreService docStoreService = null;
 
 		try {
-			Mongo m = new Mongo();
+			MongoClient m = new MongoClient();
 			retriever = new MongoRetrieverService(m, DATABASE_NAME, EMAIL_COLLECTION_NAME);
 			
 			docStoreService = new ConvenienceMongoGridDocStoreService(

@@ -52,7 +52,7 @@ import com.linuxbox.enkive.statistics.RawStats;
 import com.linuxbox.enkive.statistics.gathering.AbstractGatherer;
 import com.linuxbox.enkive.statistics.gathering.GathererException;
 import com.mongodb.DB;
-import com.mongodb.Mongo;
+import com.mongodb.MongoClient;
 
 public class MongoStatsCollectionGatherer extends AbstractGatherer {
 	protected final static Log LOGGER = LogFactory
@@ -60,9 +60,9 @@ public class MongoStatsCollectionGatherer extends AbstractGatherer {
 
 	protected DB db;
 
-	protected Mongo m;
+	protected MongoClient m;
 
-	public MongoStatsCollectionGatherer(Mongo m, String dbName,
+	public MongoStatsCollectionGatherer(MongoClient m, String dbName,
 			String gathererName, String humanName, List<String> keys)
 			throws GathererException {
 		super(gathererName, humanName, keys);

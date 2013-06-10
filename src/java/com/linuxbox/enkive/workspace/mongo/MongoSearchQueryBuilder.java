@@ -32,7 +32,7 @@ import com.linuxbox.util.dbinfo.mongodb.MongoDbInfo;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
-import com.mongodb.Mongo;
+import com.mongodb.MongoClient;
 
 public class MongoSearchQueryBuilder implements SearchQueryBuilder {
 	private final static Log LOGGER = LogFactory
@@ -40,7 +40,7 @@ public class MongoSearchQueryBuilder implements SearchQueryBuilder {
 
 	protected DBCollection searchQueryColl;
 
-	public MongoSearchQueryBuilder(Mongo m, String searchQueryDBName,
+	public MongoSearchQueryBuilder(MongoClient m, String searchQueryDBName,
 			String searchQueryCollName) {
 		this(m.getDB(searchQueryDBName).getCollection(searchQueryCollName));
 	}

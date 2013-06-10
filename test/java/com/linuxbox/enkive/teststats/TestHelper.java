@@ -42,11 +42,11 @@ import com.linuxbox.enkive.statistics.services.retrieval.mongodb.MongoStatsRetri
 import com.linuxbox.enkive.statistics.services.storage.mongodb.MongoStatsStorageService;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
-import com.mongodb.Mongo;
+import com.mongodb.MongoClient;
 import com.mongodb.MongoException;
 
 public class TestHelper {
-	private static Mongo m;
+	private static MongoClient m;
 	private static DB db;
 	private static DBCollection coll;
 	private static final String dbPropName = "dbGatherer";
@@ -58,7 +58,7 @@ public class TestHelper {
 	public static DBCollection GetTestCollection() {
 		if (m == null) {
 			try {
-				m = new Mongo();
+				m = new MongoClient();
 			} catch (UnknownHostException e) {
 				e.printStackTrace();
 			} catch (MongoException e) {
@@ -72,7 +72,7 @@ public class TestHelper {
 	public static MongoStatsRetrievalService BuildRetrievalService() {
 		if (m == null) {
 			try {
-				m = new Mongo();
+				m = new MongoClient();
 			} catch (UnknownHostException e) {
 				e.printStackTrace();
 			} catch (MongoException e) {
@@ -90,7 +90,7 @@ public class TestHelper {
 	public static MongoStatsStorageService BuildStorageService() {
 		if (m == null) {
 			try {
-				m = new Mongo();
+				m = new MongoClient();
 			} catch (UnknownHostException e) {
 				e.printStackTrace();
 			} catch (MongoException e) {
@@ -109,7 +109,7 @@ public class TestHelper {
 			throws ParseException, GathererException {
 		if (m == null) {
 			try {
-				m = new Mongo();
+				m = new MongoClient();
 			} catch (UnknownHostException e) {
 				e.printStackTrace();
 			} catch (MongoException e) {

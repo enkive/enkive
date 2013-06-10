@@ -49,12 +49,12 @@ import com.linuxbox.enkive.message.Message;
 import com.linuxbox.enkive.message.MessageImpl;
 import com.linuxbox.util.lockservice.LockService;
 import com.linuxbox.util.lockservice.mongodb.MongoLockService;
-import com.mongodb.Mongo;
+import com.mongodb.MongoClient;
 
 @RunWith(Parameterized.class)
 public class MongoArchivingServiceTest {
 
-	static Mongo m;
+	static MongoClient m;
 	static MongoArchivingService archiver;
 	static DocStoreService docStoreService;
 	static AuditService auditService;
@@ -75,7 +75,7 @@ public class MongoArchivingServiceTest {
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		m = new Mongo();
+		m = new MongoClient();
 		docStoreService = new ConvenienceMongoGridDocStoreService(m,
 				TestingConstants.MONGODB_TEST_DATABASE,
 				TestingConstants.MONGODB_TEST_DOCUMENTS_COLLECTION);
