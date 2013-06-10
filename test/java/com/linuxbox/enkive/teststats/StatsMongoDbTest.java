@@ -67,7 +67,6 @@ public class StatsMongoDbTest {
 	public static void setUpBeforeClass() throws Exception {
 		m = new Mongo();
 		List<String> keys = new LinkedList<String>();
-		keys.add("db::Database Name::");
 		keys.add("numObj:avg,max,min:Number of Objects::point");
 		keys.add("nColls:avg,max,min:Number of Collections::point");
 		keys.add("avgOSz:avg,max,min:Average Object Size:bytes:point");
@@ -238,15 +237,6 @@ public class StatsMongoDbTest {
 		Date date = ((Date) time.get(CONSOLIDATION_MIN));
 		assertTrue("runtime test exception in timeGTZero(): date = " + date,
 				date.getTime() > 0);
-	}
-
-	@Test
-	public void nameTest() {
-		String name = (String) pointStats.get(STAT_NAME);
-		System.out.println(stats);
-		assertNotNull("in " + MONGODB_TEST_DATABASE + " (type = null)", name);
-		assertTrue("in " + MONGODB_TEST_DATABASE + " (type = " + name + ")",
-				name.compareTo(MONGODB_TEST_DATABASE) == 0);
 	}
 
 	// GT means 'greater than'
