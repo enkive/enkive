@@ -30,10 +30,8 @@ import org.apache.james.mailbox.acl.MailboxACLResolver;
 import org.apache.james.mailbox.exception.MailboxException;
 import org.apache.james.mailbox.store.Authenticator;
 import org.apache.james.mailbox.store.MailboxSessionMapperFactory;
-import org.apache.james.mailbox.store.SimpleMailboxSession;
 import org.apache.james.mailbox.store.StoreMailboxManager;
 import org.slf4j.Logger;
-import org.springframework.security.core.context.SecurityContext;
 
 public class EnkiveMailboxManager extends StoreMailboxManager<String> {
 

@@ -18,7 +18,6 @@
  ******************************************************************************/
 package com.linuxbox.enkive.imap.authentication;
 
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import org.apache.james.mailbox.store.Authenticator;

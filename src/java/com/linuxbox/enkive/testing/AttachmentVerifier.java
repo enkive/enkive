@@ -99,7 +99,7 @@ public class AttachmentVerifier {
 			for (DBObject o : cursor) {
 				++counter;
 				id = (String) o.get(FIELD_KEY);
-				// System.out.println("-- " + counter + " : " + id + " --");
+				System.out.println("-- " + counter + " : " + id + " --");
 				DBObject header = (DBObject) o.get(FIELD_CONTENT_HEADERS);
 				processHeader(header);
 			}
@@ -181,7 +181,7 @@ public class AttachmentVerifier {
 			DBCollection messageCollection = enkiveDb
 					.getCollection(emailCollectionName);
 
-			// processFsCollection(fsCollection);
+			processFsCollection(fsCollection);
 			processMessages(messageCollection);
 
 			mongo.close();

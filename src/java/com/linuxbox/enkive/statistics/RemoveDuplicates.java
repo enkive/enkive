@@ -21,8 +21,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.bson.types.ObjectId;
 
-import com.linuxbox.enkive.statistics.services.StatsStorageService;
-import com.linuxbox.enkive.statistics.services.storage.mongodb.MongoStatsStorageService;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
@@ -34,14 +32,12 @@ public class RemoveDuplicates {
 	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.statistics.RemoveDuplicates");
 	private DBCollection statistics;
-	private StatsStorageService storageService;
 	private Calendar startTimestamp = Calendar.getInstance();
 	private Calendar endTimestamp = Calendar.getInstance();
 
-	public RemoveDuplicates(Mongo mongo, StatsStorageService storageService) {
+	public RemoveDuplicates(Mongo mongo) {
 		this.statistics = mongo.getDB(STAT_STORAGE_DB).getCollection(
 				STAT_STORAGE_COLLECTION);
-		this.storageService = storageService;
 		setStartTimestamp();
 	}
 
@@ -136,8 +132,7 @@ public class RemoveDuplicates {
 		} catch (MongoException e) {
 			e.printStackTrace();
 		}
-		StatsStorageService storageService = new MongoStatsStorageService(mongo);
-		RemoveDuplicates foo = new RemoveDuplicates(mongo, storageService);
+		RemoveDuplicates foo = new RemoveDuplicates(mongo);
 		foo.removeDuplicateData();
 
 	}

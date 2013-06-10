@@ -56,7 +56,6 @@ import com.linuxbox.enkive.message.search.mongodb.MongoMessageSearchService;
 import com.linuxbox.enkive.retriever.mongodb.MongoRetrieverService;
 import com.linuxbox.enkive.workspace.mongo.MongoSearchQueryBuilder;
 import com.linuxbox.enkive.workspace.mongo.MongoSearchResultBuilder;
-import com.linuxbox.enkive.workspace.searchResult.SearchResultBuilder;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
