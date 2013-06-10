@@ -65,6 +65,7 @@ public class StatsMsgTest {
 				TestingConstants.MONGODB_TEST_DATABASE,
 				TestingConstants.MONGODB_TEST_MESSAGES_COLLECTION);
 		searchService.setDocSearchService(new IndriDocSearchQueryService());
+		searchService.finishSetup();
 
 		msgEntries.setSearchService(searchService);
 		RawStats rawStats = msgEntries.getStatistics();
