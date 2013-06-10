@@ -133,9 +133,10 @@ public class MongoLockService extends AbstractRetryingLockService implements
 				.is(identifier).get();
 
 		for (int i = 0; i < LOCK_RETRY_ATTEMPTS; i++) {
-			if (lock(identifier, notation)) {
+			try {
+				lock(identifier, notation);
 				return null;
-			} else {
+			} catch (LockAcquisitionException e) {
 				final DBObject existingLockRecord = lockCollection
 						.findOne(query);
 				if (existingLockRecord != null) {
@@ -161,7 +162,7 @@ public class MongoLockService extends AbstractRetryingLockService implements
 	 * @return
 	 */
 	@Override
-	public boolean lock(String identifier, Object notation)
+	public void lock(String identifier, Object notation)
 			throws LockAcquisitionException {
 		try {
 			final DBObject controlRecord = BasicDBObjectBuilder
@@ -169,16 +170,12 @@ public class MongoLockService extends AbstractRetryingLockService implements
 					.add(LOCK_TIMESTAMP_KEY, new Date())
 					.add(LOCK_NOTE_KEY, notation).get();
 			lockCollection.insert(controlRecord);
-			return true;
+			return;
 		} catch (MongoException e) {
-			if (e.getCode() == MONGO_DUPLICATE_KEY_ERROR_CODE) {
-				// because the index for identifier is unique, trying to create
-				// another record for the same file will generate an exception
-				// that we catch here
-				return false;
-			} else {
-				throw new LockAcquisitionException(identifier, e);
-			}
+			// because the index for identifier is unique, trying to create
+			// another record for the same file will generate an exception
+			// that we catch here
+			throw new LockAcquisitionException(identifier, e);
 		}
 	}
 

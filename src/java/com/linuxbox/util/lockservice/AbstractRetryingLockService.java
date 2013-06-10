@@ -21,17 +21,15 @@ package com.linuxbox.util.lockservice;
 
 public abstract class AbstractRetryingLockService implements LockService {
 	@Override
-	public boolean lockWithRetries(String identifier, Object notation,
+	public void lockWithRetries(String identifier, Object notation,
 			int retries, long delayInMilliseconds)
 			throws LockAcquisitionException {
 		LockAcquisitionException lastException = null;
 		for (int i = 0; i < retries; i++) {
 			lastException = null;
 			try {
-				boolean result = lock(identifier, notation);
-				if (result) {
-					return true;
-				}
+				lock(identifier, notation);
+				return;
 			} catch (LockAcquisitionException e) {
 				lastException = e;
 			}
@@ -47,7 +45,8 @@ public abstract class AbstractRetryingLockService implements LockService {
 		if (lastException != null) {
 			throw lastException;
 		} else {
-			return false;
+			throw new LockAcquisitionException(identifier, "Failet do get lock after "
+					+ retries + " attempts.");
 		}
 	}
 }

@@ -105,6 +105,53 @@ makeAbsolute() {
 	fi
 }
 
+# if is_interactive; then echo "interactive" fi
+#
+# Check for an interactive shell
+is_interactive() {
+	case $- in
+		*i*)
+			# Don't die in interactive shells
+			return 0
+			;;
+		*)
+			return 1
+			;;
+	esac
+}
+
+# command | die "message"
+#
+# Print a message and exit with failure
+die() {
+	echo "Failed: $@"
+	if ! is_interactive; then
+		exit 1
+	fi
+}
+
+# usage "You need to provide a frobnicator"
+#
+# Print a message and the usage for the current script and exit with failure.
+usage() {
+	local myusage;
+	if [ -n "${USAGE}" ]; then
+		myusage=${USAGE}
+	else
+		myusage="No usage given"
+	fi
+	if [ -n "$1" ]; then
+		echo "$@"
+	fi
+	echo ""
+	echo "Usage:"
+	echo "`basename $0` ${myusage}"
+	if [ -n "${LONGUSAGE}" ]; then
+		echo -e "${LONGUSAGE}"
+	fi
+	exit 1
+}
+
 
 # LET'S DO IT!
 
@@ -113,8 +160,8 @@ runIt() {
 
 	echo "Note: you may need to authenticate as user \"${ENKIVE_USER}\"...."
 
-	su ${ENKIVE_USER} -c "${JAVA_HOME}/bin/java -cp ${ENKIVE_CLASSPATH} \
+	sudo -u ${ENKIVE_USER} ${JAVA_HOME}/bin/java -cp ${ENKIVE_CLASSPATH} \
 		-Dlog4j.configuration=${LOG4J_CONFIG} \
 		-Djava.library.path=${INDRI_LIB_PATH} \
-		${ENKIVE_MAIN} $*"
+		${ENKIVE_MAIN} $*
 }

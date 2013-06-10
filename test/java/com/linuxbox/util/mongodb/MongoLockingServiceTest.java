@@ -19,9 +19,6 @@
  ******************************************************************************/
 package com.linuxbox.util.mongodb;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -31,9 +28,12 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import com.linuxbox.enkive.TestingConstants;
+import com.linuxbox.util.lockservice.LockAcquisitionException;
 import com.linuxbox.util.lockservice.LockReleaseException;
 import com.linuxbox.util.lockservice.mongodb.MongoLockService;
 import com.linuxbox.util.lockservice.mongodb.MongoLockService.LockRequestFailure;
@@ -46,6 +46,9 @@ public class MongoLockingServiceTest {
 
 	private static Mongo mongo;
 	private static MongoLockService service;
+
+	@Rule
+	public ExpectedException exception = ExpectedException.none();
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
@@ -84,15 +87,16 @@ public class MongoLockingServiceTest {
 	@Test
 	public void testFileControlBasic() throws Exception {
 		String id = UUID.randomUUID().toString();
-		assertTrue(service.lock(id, "one"));
+		service.lock(id, "one");
 		service.releaseLock(id);
 	}
 
 	@Test
 	public void testFileControlDoubleControl() throws Exception {
 		String id = UUID.randomUUID().toString();
-		assertTrue(service.lock(id, "one"));
-		assertFalse(service.lock(id, "two"));
+		service.lock(id, "one");
+		exception.expect(LockAcquisitionException.class);
+		service.lock(id, "two");
 		service.releaseLock(id);
 	}
 

@@ -52,6 +52,7 @@ import com.linuxbox.enkive.docstore.exception.DocStoreException;
 import com.linuxbox.enkive.docstore.exception.DocumentNotFoundException;
 import com.linuxbox.util.HashingInputStream;
 import com.linuxbox.util.dbinfo.mongodb.MongoGridDbInfo;
+import com.linuxbox.util.lockservice.LockAcquisitionException;
 import com.linuxbox.util.lockservice.LockService;
 import com.linuxbox.util.lockservice.LockServiceException;
 import com.linuxbox.util.mongodb.MongoIndexable;
@@ -186,9 +187,11 @@ public class MongoGridDocStoreService extends AbstractDocStoreService implements
 			final String identifier = getIdentifierFromHash(hash);
 			final int shardKey = getShardIndexFromHash(hash);
 
-			if (!documentLockingService.lockWithRetries(identifier,
-					DocStoreConstants.LOCK_TO_STORE, LOCK_RETRIES,
-					LOCK_RETRY_DELAY_MILLISECONDS)) {
+			try {
+				documentLockingService.lockWithRetries(identifier,
+						DocStoreConstants.LOCK_TO_STORE, LOCK_RETRIES,
+						LOCK_RETRY_DELAY_MILLISECONDS);
+			} catch (LockAcquisitionException e) {
 				throw new DocStoreException(
 						"could not acquire lock to store document \""
 								+ identifier + "\"");
@@ -247,9 +250,11 @@ public class MongoGridDocStoreService extends AbstractDocStoreService implements
 		final int shardKey = getShardIndexFromHash(actualHash);
 
 		try {
-			if (!documentLockingService.lockWithRetries(actualName,
-					DocStoreConstants.LOCK_TO_STORE, LOCK_RETRIES,
-					LOCK_RETRY_DELAY_MILLISECONDS)) {
+			try {
+				documentLockingService.lockWithRetries(actualName,
+						DocStoreConstants.LOCK_TO_STORE, LOCK_RETRIES,
+						LOCK_RETRY_DELAY_MILLISECONDS);
+			} catch (LockAcquisitionException e) {
 				gridFS.remove((ObjectId) newFile.getId());
 				throw new DocStoreException(
 						"could not acquire lock to store document \""
@@ -321,8 +326,10 @@ public class MongoGridDocStoreService extends AbstractDocStoreService implements
 	@Override
 	public boolean remove(String identifier) throws DocStoreException {
 		try {
-			if (!documentLockingService.lock(identifier,
-					DocStoreConstants.LOCK_TO_REMOVE)) {
+			try {
+				documentLockingService.lock(identifier,
+						DocStoreConstants.LOCK_TO_REMOVE);
+			} catch (LockAcquisitionException e) {
 				// TODO VERIFY: if we're here and someone else was trying to
 				// delete or create this, then we should do nothing; the file
 				// either needed to be recreated, or it was already removed;

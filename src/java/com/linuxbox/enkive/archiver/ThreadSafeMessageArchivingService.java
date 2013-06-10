@@ -23,7 +23,6 @@
 package com.linuxbox.enkive.archiver;
 
 import java.io.IOException;
-import java.util.ConcurrentModificationException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -34,6 +33,8 @@ import com.linuxbox.enkive.archiver.exceptions.MessageArchivingServiceException;
 import com.linuxbox.enkive.audit.AuditServiceException;
 import com.linuxbox.enkive.docstore.DocStoreConstants;
 import com.linuxbox.enkive.message.Message;
+import com.linuxbox.util.lockservice.LockAcquisitionException;
+import com.linuxbox.util.lockservice.LockReleaseException;
 import com.linuxbox.util.lockservice.LockService;
 import com.linuxbox.util.lockservice.LockServiceException;
 import com.mongodb.MongoException;
@@ -58,42 +59,29 @@ public class ThreadSafeMessageArchivingService implements
 		String uuid = null;
 		String calculatedMessageId = AbstractMessageArchivingService
 				.calculateMessageId(message);
-		try {
-			uuid = findMessage(message);
-			if (uuid == null) {
-				ConcurrentModificationException lastException = null;
-				for (int i = 0; i < RETRIES; i++) {
-					lastException = null;
-					try {
-						lockService.lockWithRetries(calculatedMessageId,
-								DocStoreConstants.LOCK_TO_STORE, RETRIES,
-								RETRY_DELAY_MILLISECONDS);
+		uuid = findMessage(message);
+		if (uuid == null) {
+			try {
+				lockService.lockWithRetries(calculatedMessageId,
+						DocStoreConstants.LOCK_TO_STORE, RETRIES,
+						RETRY_DELAY_MILLISECONDS);
 
-						uuid = storeMessage(message);
-						if (uuid != null)
-							return uuid;
-					} catch (ConcurrentModificationException e) {
-						lastException = e;
-					} finally {
-						lockService.releaseLock(calculatedMessageId);
-					}
-					try {
-						Thread.sleep(RETRY_DELAY_MILLISECONDS);
-					} catch (InterruptedException e) {
-						throw new CannotArchiveException(
-								"thread interrupted while trying to archive message",
-								e);
-					}
-				}
-				if (lastException != null) {
-					throw lastException;
+				uuid = storeMessage(message);
+				if (uuid != null)
+					return uuid;
+			} catch (LockAcquisitionException e) {
+				LOGGER.error("Could get lock to archive Message " +
+						message.getCleanMessageId(), e);
+				emergencySave(message.getReconstitutedEmail());
+				uuid = null;
+			} finally {
+				try {
+					lockService.releaseLock(calculatedMessageId);
+				} catch (LockReleaseException e) {
+					LOGGER.error("Could release lock when archiving Message " +
+							message.getCleanMessageId(), e);
 				}
 			}
-		} catch (Exception e) {
-			LOGGER.error(
-					"Could not archive Message " + message.getCleanMessageId(),
-					e);
-			emergencySave(message.getReconstitutedEmail());
 		}
 		return uuid;
 	}

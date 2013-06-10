@@ -29,10 +29,10 @@ public interface LockService {
 	LockRequestFailure lockWithFailureData(String identifier, String notation)
 			throws LockAcquisitionException;
 
-	boolean lock(String identifier, Object notation)
+	void lock(String identifier, Object notation)
 			throws LockAcquisitionException;
 
-	boolean lockWithRetries(String identifier, Object notation, int retries,
+	void lockWithRetries(String identifier, Object notation, int retries,
 			long delayInMilliseconds) throws LockAcquisitionException;
 
 	void releaseLock(String identifier) throws LockReleaseException;
