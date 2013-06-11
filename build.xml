@@ -7,7 +7,7 @@
 	<fail unless="jdk1.6.dir">Please set jdk1.6.dir property.</fail>
 	<fail unless="indri.dir">Please set indri.dir property.</fail>
 
-	<property name="enkive.version" value="1.3rc2test-CE" />
+	<property name="enkive.version" value="1.3rc2-CE" />
 	<property name="label" value="enkive-${enkive.version}" />
 	<property name="project.name" value="enkive" />
 	<property name="build.dir" value="${basedir}/build" />
