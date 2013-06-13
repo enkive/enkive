@@ -150,4 +150,25 @@
 	<!-- Makes sure all beans with Required annotations get set up appropriately -->
 	<bean id="RequiredAnnotationBeanPostProcessor"
 		class="org.springframework.beans.factory.annotation.RequiredAnnotationBeanPostProcessor" />
+
+	<!-- Mail poller client -->
+	<bean id="MailClientConfiguration"
+		class="com.linuxbox.enkive.client.config.MailPollClientConfiguration">
+		<property name="protocol" value="${enkive.mailclient.protocol}" />
+		<property name="host" value="${enkive.mailclient.host}" />
+		<property name="port" value="${enkive.mailclient.port}" />
+		<property name="user" value="${enkive.mailclient.user}" />
+		<property name="password" value="${enkive.mailclient.password}" />
+		<property name="folder" value="${enkive.mailclient.folder}" />
+		<property name="timeout" value="${enkive.mailclient.timeout}" />
+		<property name="enabled" value="${enkive.mailclient.enabled}" />
+	</bean>
+
+	<bean id="MailClient" class="com.linuxbox.enkive.client.MailPollClient"
+		init-method="startClient" destroy-method="shutdownClient">
+		<property name="configuration" ref="MailClientConfiguration" />
+		<property name="archiver" ref="MessageArchivingService" />
+		<property name="enkiveFilters" ref="EnkiveFilters" />
+	</bean>
+
 </beans>
