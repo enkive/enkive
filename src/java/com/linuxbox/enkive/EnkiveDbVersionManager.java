@@ -11,6 +11,7 @@ public class EnkiveDbVersionManager extends DbVersionManager {
 		// version 1.3RC1 uses same database version as 1.3A
 		associateHelp(ProductInfo.V1_3RC1, 1);
 		associateHelp(ProductInfo.V1_3RC2, 1);
+		associateHelp(ProductInfo.V1_3RC3, 1);
 	}
 
 	protected void associateHelp(Version swVersion, int dbVersion)
