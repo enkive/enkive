@@ -39,7 +39,8 @@
 	</bean>
 
 	<bean id="MessageSearchService"
-		class="com.linuxbox.enkive.message.search.TaskPoolAsyncMessageSearchService">
+		class="com.linuxbox.enkive.message.search.TaskPoolAsyncMessageSearchService"
+		destroy-method="shutdown">
 		<constructor-arg value="${enkive.messageSearch.corePoolSize}" />
 		<constructor-arg value="${enkive.messageSearch.maxPoolSize}" />
 		<constructor-arg value="${enkive.messageSearch.keepAliveTime}" />

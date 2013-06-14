@@ -182,4 +182,7 @@ public class TaskPoolAsyncMessageSearchService implements MessageSearchService {
 		this.searchQueryBuilder = searchQueryBuilder;
 	}
 
+	public void shutdown() {
+		this.searchExecutor.shutdown();
+	}
 }
