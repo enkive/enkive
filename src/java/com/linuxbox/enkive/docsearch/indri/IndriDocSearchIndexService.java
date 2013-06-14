@@ -689,6 +689,7 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 		public void shutdown() throws DocSearchException {
 			shutdown = true;
 			closeIndexEnvironment();
+			timer.cancel();
 		}
 
 		public synchronized <ReturnType, ExceptionType extends Throwable> ReturnType doAction(
