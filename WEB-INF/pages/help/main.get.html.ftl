@@ -1,5 +1,5 @@
 <br />
-This is Enkive CE version 1.3 RC 2.<br />
+This is Enkive CE version 1.3 RC 3.<br />
 <br />
 For help please consult:<br />
 <ul>
