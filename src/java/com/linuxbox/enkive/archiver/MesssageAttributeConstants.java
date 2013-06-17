@@ -47,5 +47,5 @@ public interface MesssageAttributeConstants {
 	String CONTENT_DISPOSITION = "content_disposition";
 	String FILENAME = "filename";
 	String CONTENT_TRANSFER_ENCODING = "content_transfer_encoding";
-
+	String X_MS_JOURNAL_REPORT = "X-MS-Journal-Report";
 }

@@ -38,6 +38,7 @@ import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.PREAMBLE;
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.RCPT_TO;
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.SUBJECT;
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.TO;
+import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.X_MS_JOURNAL_REPORT;
 import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.ARCHIVE_TIME;
 import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.ATTACHMENT_ID;
 import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.ATTACHMENT_ID_INDEX;
@@ -125,6 +126,21 @@ public class MongoArchivingService extends AbstractMessageArchivingService
 		String messageId = calculateMessageId(message);
 
 		try {
+			ContentHeader contentHeader = message.getContentHeader();
+			if (contentHeader.isMultipart() &&
+					message.getParsedHeader().getField(X_MS_JOURNAL_REPORT) != null) {
+				// Exchange journals messages by wrapping them
+				// in an envelope.  We don't want to archive
+				// the envelope, just the message itself.
+				List<ContentHeader> partHeaders = ((MultiPartHeader) contentHeader).getPartHeaders();
+				for (ContentHeader partHeader : partHeaders) {
+					if (partHeader.getContentType().trim().toLowerCase().equals(
+							ContentTypeField.TYPE_MESSAGE_RFC822.toLowerCase())) {
+						return(storeNestedMessage(partHeader.getEncodedContentData().getEncodedContent(),
+								partHeader.getContentTransferEncoding().toString()));
+					}
+				}
+			}
 			BasicDBObject messageObject = new BasicDBObject();
 			messageObject.put(MESSAGE_UUID, messageId);
 			messageObject.put(ARCHIVE_TIME, new Date());
@@ -140,7 +156,6 @@ public class MongoArchivingService extends AbstractMessageArchivingService
 			messageObject.put(MIME_VERSION, message.getMimeVersion());
 			messageObject.put(CONTENT_TYPE, message.getContentType());
 			messageObject.put(MESSAGE_DIFF, message.getMessageDiff());
-			ContentHeader contentHeader = message.getContentHeader();
 			if (message.getContentType().trim().toLowerCase()
 					.equals(ContentTypeField.TYPE_MESSAGE_RFC822.toLowerCase())) {
 				String subMessageUUID = storeNestedMessage(message
