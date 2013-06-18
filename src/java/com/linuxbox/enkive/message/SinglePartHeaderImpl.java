@@ -22,7 +22,9 @@ package com.linuxbox.enkive.message;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
 import java.io.Writer;
+import java.net.URLDecoder;
 import java.util.Deque;
 import java.util.List;
 import java.util.Set;
@@ -31,6 +33,8 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.james.mime4j.dom.Message;
+import org.apache.james.mime4j.dom.field.ContentDispositionField;
+import org.apache.james.mime4j.dom.field.FieldName;
 import org.apache.james.mime4j.message.DefaultMessageBuilder;
 import org.apache.james.mime4j.message.MessageImpl;
 import org.apache.james.mime4j.stream.MimeConfig;
@@ -54,19 +58,41 @@ public class SinglePartHeaderImpl extends AbstractSinglePartHeader implements
 		ByteArrayInputStream dataStream = new ByteArrayInputStream(
 				partHeaders.getBytes());
 
-		Message headers = new MessageImpl();
+		Message headers = null;
 		try {
 			DefaultMessageBuilder builder = new org.apache.james.mime4j.message.DefaultMessageBuilder();
 			builder.setMimeEntityConfig(config);
 			headers = builder.parseMessage(dataStream);
 		} catch (Exception e) {
 			LOGGER.error("Could not parse headers for message", e);
+			// Need headers anyway
+			headers = new MessageImpl();
 		}
 
 		setContentDisposition(headers.getDispositionType());
 
 		setContentType(headers.getMimeType());
-		setFileName(headers.getFilename());
+		String fname = headers.getFilename();
+		if (fname == null) {
+			// dang: mime4j doesn't handle RFC 5978 encoded filenames; it merely stores
+			// it as a parameter named "filename*".  As a workaround until a proper fix
+			// can be implemented, try and get the contents of the "filename*" parameter
+			// if the filename is n't set.
+			try {
+				ContentDispositionField field = (ContentDispositionField)
+						headers.getHeader().getField(FieldName.CONTENT_DISPOSITION);
+				fname = field.getParameter("filename*");
+				// Try to decode a RFC 5987 encoded filename
+				String[] parts = fname.split("'",3);
+				if (parts.length != 3) {
+					throw new UnsupportedEncodingException("Bad filename encoding");
+				}
+				fname =  URLDecoder.decode(parts[2], parts[0]);
+			} catch (Exception e) {
+				fname = null;
+			}
+		}
+		setFileName(fname);
 	}
 
 	@Override
