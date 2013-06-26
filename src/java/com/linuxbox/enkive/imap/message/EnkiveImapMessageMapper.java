@@ -170,6 +170,14 @@ public abstract class EnkiveImapMessageMapper extends
 	}
 
 	@Override
+	public MessageMetaData move(Mailbox<String> mailbox, Message<String> message)
+			throws MailboxException {
+		// Unsupported method
+		return null;
+
+	}
+
+	@Override
 	protected void begin() throws MailboxException {
 
 	}
