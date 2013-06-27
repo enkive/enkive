@@ -34,6 +34,7 @@ public interface ProductInfo {
 	final static Version V1_3RC1 = new Version("1.3 RC 1", 2);
 	final static Version V1_3RC2 = new Version( "1.3 RC 2", 3);
 	final static Version V1_3RC3 = new Version( "1.3 RC 3", 4);
+	final static Version V1_3P = new Version(1, 3, PRODUCTION, 5);
 	/*
 	 * IMPORTANT: be certain to add software versions and associated database
 	 * versions to EnkiveDbVersionManager as well.
