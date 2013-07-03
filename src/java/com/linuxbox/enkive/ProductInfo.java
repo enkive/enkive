@@ -19,7 +19,6 @@
  *******************************************************************************/
 package com.linuxbox.enkive;
 
-import static com.linuxbox.util.Version.Type.ALPHA;
 import static com.linuxbox.util.Version.Type.PRODUCTION;
 
 import com.linuxbox.util.Version;
@@ -30,11 +29,8 @@ public interface ProductInfo {
 	 * maintaining this history allows for DB migrations.
 	 */
 	final static Version V1_2P = new Version(1, 2, PRODUCTION, 0);
-	final static Version V1_3A = new Version(1, 3, ALPHA, 1);
-	final static Version V1_3RC1 = new Version("1.3 RC 1", 2);
-	final static Version V1_3RC2 = new Version( "1.3 RC 2", 3);
-	final static Version V1_3RC3 = new Version( "1.3 RC 3", 4);
 	final static Version V1_3P = new Version(1, 3, PRODUCTION, 5);
+	final static Version V1_3_1RC1 = new Version("1.3.1 RC 1", 6);
 	/*
 	 * IMPORTANT: be certain to add software versions and associated database
 	 * versions to EnkiveDbVersionManager as well.
@@ -45,5 +41,5 @@ public interface ProductInfo {
 			+ "reserved except those granted under license.";
 	final static String LICENSE = "Licensed under the GNU Affero General Public License "
 			+ "version 3 or later.";
-	final static Version VERSION = V1_3RC3;
+	final static Version VERSION = V1_3_1RC1;
 }
