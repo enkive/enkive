@@ -30,7 +30,6 @@ import org.bson.types.ObjectId;
 import com.linuxbox.enkive.workspace.Workspace;
 import com.linuxbox.enkive.workspace.WorkspaceBuilder;
 import com.linuxbox.enkive.workspace.WorkspaceException;
-import com.linuxbox.enkive.workspace.searchFolder.SearchFolderBuilder;
 import com.linuxbox.enkive.workspace.searchResult.SearchResultBuilder;
 import com.linuxbox.util.dbinfo.mongodb.MongoDbInfo;
 import com.mongodb.BasicDBList;
@@ -50,31 +49,24 @@ public class MongoWorkspaceBuilder implements WorkspaceBuilder {
 
 	protected DBCollection workspaceColl;
 	protected SearchResultBuilder searchResultBuilder;
-	protected SearchFolderBuilder searchFolderBuilder;
 
 	private final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.workspaces");
 
 	public MongoWorkspaceBuilder(MongoClient m, String dbName,
-			String workspaceCollName, SearchResultBuilder searchResultBuilder,
-			SearchFolderBuilder searchFolderBuilder) {
-		this(m.getDB(dbName).getCollection(workspaceCollName),
-				searchResultBuilder, searchFolderBuilder);
+			String workspaceCollName, SearchResultBuilder searchResultBuilder) {
+		this(m.getDB(dbName).getCollection(workspaceCollName), searchResultBuilder);
 	}
 
 	public MongoWorkspaceBuilder(MongoDbInfo workspaceInfo,
-			SearchResultBuilder searchResultBuilder,
-			SearchFolderBuilder searchFolderBuilder) {
-		this(workspaceInfo.getCollection(), searchResultBuilder,
-				searchFolderBuilder);
+			SearchResultBuilder searchResultBuilder) {
+		this(workspaceInfo.getCollection(), searchResultBuilder);
 	}
 
 	public MongoWorkspaceBuilder(DBCollection workspaceColl,
-			SearchResultBuilder searchResultBuilder,
-			SearchFolderBuilder searchFolderBuilder) {
+			SearchResultBuilder searchResultBuilder) {
 		this.workspaceColl = workspaceColl;
 		this.searchResultBuilder = searchResultBuilder;
-		this.searchFolderBuilder = searchFolderBuilder;
 	}
 
 	@Override
@@ -95,8 +87,8 @@ public class MongoWorkspaceBuilder implements WorkspaceBuilder {
 				.get(MongoWorkspaceConstants.CREATOR));
 		workspace.setWorkspaceName((String) workspaceObject
 				.get(MongoWorkspaceConstants.WORKSPACENAME));
-		workspace.setSearchFolderID((String) workspaceObject
-				.get(MongoWorkspaceConstants.SEARCHFOLDERID));
+//		workspace.setSearchFolderID((String) workspaceObject
+//				.get(MongoWorkspaceConstants.SEARCHFOLDERID));
 		BasicDBList searchResults = (BasicDBList) workspaceObject
 				.get(MongoWorkspaceConstants.SEARCHRESULTS);
 
@@ -109,7 +101,6 @@ public class MongoWorkspaceBuilder implements WorkspaceBuilder {
 		if (LOGGER.isInfoEnabled())
 			LOGGER.info("Retrieved Workspace " + workspace.getWorkspaceName()
 					+ " - " + workspace.getWorkspaceUUID());
-		workspace.setSearchFolderBuilder(searchFolderBuilder);
 		return workspace;
 	}
 
@@ -117,7 +108,6 @@ public class MongoWorkspaceBuilder implements WorkspaceBuilder {
 	public Workspace getWorkspace() {
 		Workspace workspace = new MongoWorkspace(workspaceColl,
 				searchResultBuilder);
-		workspace.setSearchFolderBuilder(searchFolderBuilder);
 		return workspace;
 	}
 }

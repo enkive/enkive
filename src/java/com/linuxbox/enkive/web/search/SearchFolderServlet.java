@@ -86,6 +86,7 @@ public class SearchFolderServlet extends EnkiveServlet {
 		this.archiveService = getMessageRetrieverService();
 	}
 
+	@SuppressWarnings("unused")
 	public void doGet(HttpServletRequest req, HttpServletResponse res)
 			throws IOException {
 		try {
@@ -94,9 +95,10 @@ public class SearchFolderServlet extends EnkiveServlet {
 			String action = WebScriptUtils.cleanGetParameter(req, "action");
 
 			if (searchFolderId == null || searchFolderId.isEmpty())
-				searchFolderId = workspaceService.getActiveWorkspace(
+				searchFolderId = "unimplemented";
+/*				searchFolderId = workspaceService.getActiveWorkspace(
 						getPermissionService().getCurrentUsername())
-						.getSearchFolderID();
+						.getSearchFolderID();*/
 			if (action == null || action.isEmpty())
 				action = VIEW_SEARCH_FOLDER;
 
@@ -112,12 +114,15 @@ public class SearchFolderServlet extends EnkiveServlet {
 			if (LOGGER.isInfoEnabled())
 				LOGGER.info("Loading " + searchFolderId);
 
-			SearchFolder searchFolder = workspaceService
-					.getSearchFolder(searchFolderId);
+/*			SearchFolder searchFolder = workspaceService
+					.getSearchFolder(searchFolderId);*/
+			SearchFolder searchFolder = null;
 
 			JSONArray resultsJson = new JSONArray();
 
-			if (action.equalsIgnoreCase(ADD_SEARCH_FOLDER_MESSAGE)) {
+			if (searchFolder == null) {
+				// No search folder
+			} else if (action.equalsIgnoreCase(ADD_SEARCH_FOLDER_MESSAGE)) {
 				String searchResultId = WebScriptUtils.cleanGetParameter(req,
 						"searchResultId");
 				String messageidlist = WebScriptUtils.cleanGetParameter(req,

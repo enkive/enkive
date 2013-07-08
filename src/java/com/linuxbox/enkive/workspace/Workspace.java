@@ -27,8 +27,6 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 
-import com.linuxbox.enkive.workspace.searchFolder.SearchFolder;
-import com.linuxbox.enkive.workspace.searchFolder.SearchFolderBuilder;
 import com.linuxbox.enkive.workspace.searchResult.SearchResult;
 import com.linuxbox.enkive.workspace.searchResult.SearchResultBuilder;
 import com.linuxbox.enkive.workspace.searchResult.SearchResultComparator;
@@ -64,9 +62,9 @@ public abstract class Workspace {
 	protected Date creationDate;
 	protected Date lastUpdate;
 	protected Collection<String> searchResultUUIDs;
-	protected String searchFolderID;
+//	protected String searchFolderID;
 	protected SearchResultBuilder searchResultBuilder;
-	protected SearchFolderBuilder searchFolderBuilder;
+//	protected SearchFolderBuilder searchFolderBuilder;
 
 	public Workspace() {
 		creationDate = new Date(System.currentTimeMillis());
@@ -111,17 +109,17 @@ public abstract class Workspace {
 		this.lastUpdate = lastUpdate;
 	}
 
-	public String getSearchFolderID() throws WorkspaceException {
+/*	public String getSearchFolderID() throws WorkspaceException {
 		// If we don't have a search folder id, assume we don't have a search
 		// folder, and create one
 		if (searchFolderID == null || searchFolderID.isEmpty())
 			getSearchFolder();
 		return searchFolderID;
-	}
+	}*/
 
-	public void setSearchFolderID(String searchFolderID) {
+/*	public void setSearchFolderID(String searchFolderID) {
 		this.searchFolderID = searchFolderID;
-	}
+	}*/
 
 	public Collection<String> getSearchResultUUIDs() {
 		return searchResultUUIDs;
@@ -187,13 +185,13 @@ public abstract class Workspace {
 		this.searchResultBuilder = searchResultBuilder;
 	}
 
-	public SearchFolderBuilder getSearchFolderBuilder() {
+/*	public SearchFolderBuilder getSearchFolderBuilder() {
 		return searchFolderBuilder;
 	}
 
 	public void setSearchFolderBuilder(SearchFolderBuilder searchFolderBuilder) {
 		this.searchFolderBuilder = searchFolderBuilder;
-	}
+	}*/
 
 	protected List<SearchResult> getSearchResults(String sortField, int sortDir) {
 		List<SearchResult> searchResults;
@@ -221,7 +219,7 @@ public abstract class Workspace {
 		return sortedSearchResults;
 	}
 
-	public SearchFolder getSearchFolder() throws WorkspaceException {
+/*	public SearchFolder getSearchFolder() throws WorkspaceException {
 		SearchFolder searchFolder;
 		// Check to make sure we have a folder id, if not, assume we don't have
 		// a folder and create one
@@ -233,7 +231,7 @@ public abstract class Workspace {
 			saveWorkspace();
 		}
 		return searchFolder;
-	}
+	}*/
 
 	public abstract void saveWorkspace() throws WorkspaceException;
 

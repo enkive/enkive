@@ -62,8 +62,8 @@ public class MongoWorkspace extends Workspace {
 				getWorkspaceName());
 		workspaceObject.put(MongoWorkspaceConstants.SEARCHRESULTS,
 				getSearchResultUUIDs());
-		workspaceObject.put(MongoWorkspaceConstants.SEARCHFOLDERID,
-				getSearchFolderID());
+//		workspaceObject.put(MongoWorkspaceConstants.SEARCHFOLDERID,
+//				getSearchFolderID());
 
 		if (getWorkspaceUUID() != null && !getWorkspaceUUID().isEmpty()) {
 			DBObject toUpdate = workspaceColl.findOne(ObjectId
