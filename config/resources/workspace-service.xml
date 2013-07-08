@@ -20,7 +20,7 @@
 	</bean>
 
 	<bean id="MongoSearchResultUtils"
-		class="com.linuxbox.enkive.workspace.mongo.MongoSearchResultUtils">
+		class="com.linuxbox.enkive.workspace.searchResult.mongo.MongoSearchResultUtils">
 		<constructor-arg ref="MessageStoreDbInfo" />
 		<constructor-arg ref="WorkspaceResultsDbInfo" />
 	</bean>
@@ -33,7 +33,7 @@
 	</bean>
 
 	<bean id="SearchResultBuilder" name="MongoSearchResultBuilder"
-		class="com.linuxbox.enkive.workspace.mongo.MongoSearchResultBuilder">
+		class="com.linuxbox.enkive.workspace.searchResult.mongo.MongoSearchResultBuilder">
 		<constructor-arg ref="WorkspaceResultsDbInfo" />
 		<constructor-arg ref="MongoSearchQueryBuilder" />
 		<property name="searchResultUtils" ref="MongoSearchResultUtils" />
@@ -54,7 +54,7 @@
 	</bean>
 
 	<bean id="SearchQueryBuilder" name="MongoSearchQueryBuilder"
-		class="com.linuxbox.enkive.workspace.mongo.MongoSearchQueryBuilder">
+		class="com.linuxbox.enkive.workspace.searchQuery.mongo.MongoSearchQueryBuilder">
 		<constructor-arg ref="WorkspaceQueriesDbInfo" />
 	</bean>
 

@@ -35,6 +35,7 @@ import com.linuxbox.enkive.workspace.AbstractWorkspaceService;
 import com.linuxbox.enkive.workspace.Workspace;
 import com.linuxbox.enkive.workspace.WorkspaceException;
 import com.linuxbox.enkive.workspace.WorkspaceServiceMBean;
+import com.linuxbox.enkive.workspace.searchResult.mongo.MongoSearchResultUtils;
 import com.linuxbox.util.dbinfo.mongodb.MongoDbInfo;
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;

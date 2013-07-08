@@ -19,8 +19,8 @@
 package com.linuxbox.enkive.workspace.searchFolder.mongo;
 
 import com.linuxbox.enkive.workspace.WorkspaceException;
-import com.linuxbox.enkive.workspace.mongo.MongoSearchResult;
 import com.linuxbox.enkive.workspace.searchFolder.SearchFolderSearchResult;
+import com.linuxbox.enkive.workspace.searchResult.mongo.MongoSearchResult;
 import com.mongodb.DBCollection;
 import com.mongodb.MongoClient;
 
