@@ -19,6 +19,7 @@
 package com.linuxbox.enkive.workspace.searchQuery.mongo;
 
 import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.SEARCHCRITERIA;
+import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.SEARCHRESULTID;
 import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.SEARCHNAME;
 
 import org.apache.commons.logging.Log;
@@ -63,6 +64,7 @@ public class MongoSearchQueryBuilder implements SearchQueryBuilder {
 
 		query.setId(searchQueryId);
 		query.setName((String) queryObject.get(SEARCHNAME));
+		query.setResultId((String) queryObject.get(SEARCHRESULTID));
 		query.setCriteria(((BasicDBObject) queryObject.get(SEARCHCRITERIA))
 				.toMap());
 

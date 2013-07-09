@@ -123,6 +123,11 @@ public class TaskPoolAsyncMessageSearchService implements MessageSearchService {
 			result.setExecutedBy(authenticationService.getUserName());
 			result.setStatus(Status.QUEUED);
 			result.saveSearchResult();
+
+			query.setResultId(result.getId());
+			query.saveSearchQuery();
+
+			workspace.setLastQueryUUID(query.getId());
 			workspace.addSearchResult(result.getId());
 			workspace.saveWorkspace();
 			return result.getId();

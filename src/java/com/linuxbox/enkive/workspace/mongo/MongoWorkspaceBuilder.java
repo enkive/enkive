@@ -87,6 +87,8 @@ public class MongoWorkspaceBuilder implements WorkspaceBuilder {
 				.get(MongoWorkspaceConstants.CREATOR));
 		workspace.setWorkspaceName((String) workspaceObject
 				.get(MongoWorkspaceConstants.WORKSPACENAME));
+		workspace.setLastQueryUUID((String) workspaceObject
+				.get(MongoWorkspaceConstants.LASTQUERY));
 //		workspace.setSearchFolderID((String) workspaceObject
 //				.get(MongoWorkspaceConstants.SEARCHFOLDERID));
 		BasicDBList searchResults = (BasicDBList) workspaceObject

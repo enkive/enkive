@@ -19,6 +19,7 @@
 package com.linuxbox.enkive.workspace.searchQuery.mongo;
 
 import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.SEARCHCRITERIA;
+import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.SEARCHRESULTID;
 import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.SEARCHNAME;
 import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.UUID;
 
@@ -46,6 +47,7 @@ public class MongoSearchQuery extends SearchQuery {
 	public void saveSearchQuery() throws WorkspaceException {
 		BasicDBObject searchQueryObject = new BasicDBObject();
 		searchQueryObject.put(SEARCHNAME, getName());
+		searchQueryObject.put(SEARCHRESULTID, getResultId());
 		searchQueryObject.put(SEARCHCRITERIA, getCriteria());
 
 		if (getId() != null && !getId().isEmpty()) {

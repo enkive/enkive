@@ -45,6 +45,7 @@ public abstract class SearchQuery {
 	protected String id;
 	protected String name;
 	protected Map<String, String> criteria;
+	protected String resultId;
 
 	public SearchQuery() {
 		criteria = new HashMap<String, String>();
@@ -65,6 +66,14 @@ public abstract class SearchQuery {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public String getResultId() {
+		return resultId;
+	}
+
+	public void setResultId(String resultId) {
+		this.resultId = resultId;
 	}
 
 	public void addAllSearchCriteria(MessageSearchSummary searchSummary) {
@@ -111,6 +120,10 @@ public abstract class SearchQuery {
 
 	public Collection<String> getCriteriaParameters() {
 		return criteria.keySet();
+	}
+
+	public boolean matches(Map<String, String> criteria) {
+		return this.criteria.equals(criteria);
 	}
 
 	public abstract void saveSearchQuery() throws WorkspaceException;

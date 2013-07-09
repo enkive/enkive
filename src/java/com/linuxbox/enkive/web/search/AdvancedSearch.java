@@ -51,6 +51,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.linuxbox.enkive.audit.AuditService;
+import com.linuxbox.enkive.authentication.AuthenticationException;
 import com.linuxbox.enkive.authentication.AuthenticationService;
 import com.linuxbox.enkive.exception.CannotRetrieveException;
 import com.linuxbox.enkive.exception.EnkiveServletException;
@@ -60,6 +61,11 @@ import com.linuxbox.enkive.retriever.MessageRetrieverService;
 import com.linuxbox.enkive.web.WebConstants;
 import com.linuxbox.enkive.web.WebPageInfo;
 import com.linuxbox.enkive.web.WebScriptUtils;
+import com.linuxbox.enkive.workspace.Workspace;
+import com.linuxbox.enkive.workspace.WorkspaceException;
+import com.linuxbox.enkive.workspace.WorkspaceService;
+import com.linuxbox.enkive.workspace.searchQuery.SearchQuery;
+import com.linuxbox.enkive.workspace.searchQuery.SearchQueryBuilder;
 import com.linuxbox.enkive.workspace.searchResult.SearchResult;
 
 public class AdvancedSearch extends AbstractSearchWebScript {
@@ -72,6 +78,8 @@ public class AdvancedSearch extends AbstractSearchWebScript {
 	protected MessageSearchService searchService;
 	protected AuditService auditService;
 	protected AuthenticationService authenticationService;
+	protected WorkspaceService workspaceService;
+	protected SearchQueryBuilder searchQueryBuilder;
 
 	protected int searchTimeoutSeconds = 15;
 
@@ -82,6 +90,8 @@ public class AdvancedSearch extends AbstractSearchWebScript {
 		this.auditService = getAuditService();
 		this.authenticationService = getAuthenticationService();
 		this.archiveService = getMessageRetrieverService();
+		this.workspaceService = getWorkspaceService();
+		this.searchQueryBuilder = getSearchQueryBuilder();
 	}
 
 	public void doGet(HttpServletRequest req, HttpServletResponse res)
@@ -128,14 +138,30 @@ public class AdvancedSearch extends AbstractSearchWebScript {
 			SearchResult result = null;
 
 			try {
-				Future<SearchResult> resultFuture = searchService
-						.searchAsync(searchFields);
-				result = resultFuture.get(searchTimeoutSeconds,
-						TimeUnit.SECONDS);
-
+				SearchQuery query = null;
+				Workspace workspace = workspaceService.getActiveWorkspace(
+						authenticationService.getUserName());
+				String queryUUID = workspace.getLastQueryUUID();
+				if (queryUUID != null) {
+					query = searchQueryBuilder.getSearchQuery(queryUUID);
+				}
+				if (query != null && query.matches(searchFields)) {
+					result = workspaceService.getSearchResult(query.getResultId());
+				}
 			} catch (Exception e) {
-				// catch various kinds of exceptions, including cancellations
-				result = null;
+				// Fall through and make a new result
+			}
+
+			if (result == null) {
+				try {
+					Future<SearchResult> resultFuture = searchService
+							.searchAsync(searchFields);
+					result = resultFuture.get(searchTimeoutSeconds,
+							TimeUnit.SECONDS);
+				} catch (Exception e) {
+					// catch various kinds of exceptions, including cancellations
+					result = null;
+				}
 			}
 
 			if (result != null) {

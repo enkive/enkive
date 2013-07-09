@@ -62,6 +62,7 @@ public abstract class Workspace {
 	protected Date creationDate;
 	protected Date lastUpdate;
 	protected Collection<String> searchResultUUIDs;
+	protected String lastQueryUUID;
 //	protected String searchFolderID;
 	protected SearchResultBuilder searchResultBuilder;
 //	protected SearchFolderBuilder searchFolderBuilder;
@@ -147,6 +148,14 @@ public abstract class Workspace {
 
 	public void setWorkspaceUUID(String workspaceUUID) {
 		this.workspaceUUID = workspaceUUID;
+	}
+
+	public String getLastQueryUUID() {
+		return this.lastQueryUUID;
+	}
+
+	public void setLastQueryUUID(String lastQueryUUID) {
+		this.lastQueryUUID = lastQueryUUID;
 	}
 
 	public List<SearchResult> getSearchResults() {

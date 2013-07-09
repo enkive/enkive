@@ -42,6 +42,7 @@ import com.linuxbox.enkive.permissions.PermissionService;
 import com.linuxbox.enkive.retriever.MessageRetrieverService;
 import com.linuxbox.enkive.statistics.services.StatsClient;
 import com.linuxbox.enkive.workspace.WorkspaceService;
+import com.linuxbox.enkive.workspace.searchQuery.SearchQueryBuilder;
 import com.linuxbox.util.spring.ApplicationContextProvider;
 
 public class EnkiveServlet extends HttpServlet {
@@ -97,6 +98,11 @@ public class EnkiveServlet extends HttpServlet {
 		LOGGER.trace("getStatsClient -- enkiveServlet:" + this
 				+ "; appContext:" + appContext);
 		return appContext.getBean("StatsClientBean", StatsClient.class);
+	}
+
+	public SearchQueryBuilder getSearchQueryBuilder() {
+		return appContext.getBean("SearchQueryBuilder",
+				SearchQueryBuilder.class);
 	}
 
 	/**
