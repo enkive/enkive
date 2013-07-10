@@ -33,6 +33,7 @@ import com.linuxbox.enkive.audit.AuditServiceException;
 import com.linuxbox.enkive.authentication.AuthenticationException;
 import com.linuxbox.enkive.authentication.AuthenticationService;
 import com.linuxbox.enkive.message.search.exception.MessageSearchException;
+import com.linuxbox.enkive.workspace.searchQuery.SearchQuery;
 import com.linuxbox.enkive.workspace.searchResult.SearchResult;
 
 public class AuditLoggingMessageSearchService implements MessageSearchService {
@@ -59,6 +60,28 @@ public class AuditLoggingMessageSearchService implements MessageSearchService {
 			try {
 				auditService.addEvent(AuditService.SEARCH_PERFORMED,
 						authenticationService.getUserName(), fields.toString());
+			} catch (AuditServiceException e) {
+				LOGGER.error("could not audit user search request", e);
+			} catch (AuthenticationException e) {
+				LOGGER.error("could not get user for audit log", e);
+			}
+		}
+	}
+
+	@Override
+	public SearchResult updateSearch(SearchQuery query)
+			throws MessageSearchException {
+		try {
+			SearchResult result = messageSearchService.updateSearch(query);
+			result.setExecutedBy(authenticationService.getUserName());
+			return result;
+		} catch (AuthenticationException e) {
+			throw new MessageSearchException(
+					"Could not get authenticated user for search", e);
+		} finally {
+			try {
+				auditService.addEvent(AuditService.SEARCH_PERFORMED,
+						authenticationService.getUserName(), query.getCriteria().toString());
 			} catch (AuditServiceException e) {
 				LOGGER.error("could not audit user search request", e);
 			} catch (AuthenticationException e) {

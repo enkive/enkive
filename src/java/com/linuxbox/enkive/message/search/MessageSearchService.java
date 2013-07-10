@@ -22,8 +22,8 @@ package com.linuxbox.enkive.message.search;
 import java.util.Map;
 import java.util.concurrent.Future;
 
-import com.linuxbox.enkive.docsearch.exception.DocSearchException;
 import com.linuxbox.enkive.message.search.exception.MessageSearchException;
+import com.linuxbox.enkive.workspace.searchQuery.SearchQuery;
 import com.linuxbox.enkive.workspace.searchResult.SearchResult;
 
 public interface MessageSearchService {
@@ -36,7 +36,7 @@ public interface MessageSearchService {
 	 * @param fields
 	 * 
 	 * @return
-	 * @throws DocSearchException
+	 * @throws MessageSearchErception
 	 */
 	SearchResult search(Map<String, String> fields)
 			throws MessageSearchException;
@@ -47,7 +47,7 @@ public interface MessageSearchService {
 	 * @param fields
 	 * @return
 	 * 
-	 * @throws DocSearchException
+	 * @throws MessageSearchErception
 	 */
 	Future<SearchResult> searchAsync(Map<String, String> fields)
 			throws MessageSearchException;
@@ -60,5 +60,16 @@ public interface MessageSearchService {
 	 * @throws MessageSearchException
 	 */
 	boolean cancelAsyncSearch(String searchId) throws MessageSearchException;
+
+	/**
+	 * Update the existing results of a previous query for any changes in the database.
+	 *
+	 * @param query	Previous query to update
+	 *
+	 * @return
+	 * @throws MessageSearchErception
+	 */
+	SearchResult updateSearch(SearchQuery query)
+			throws MessageSearchException;
 
 }

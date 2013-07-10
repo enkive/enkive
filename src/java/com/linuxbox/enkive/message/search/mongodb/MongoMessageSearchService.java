@@ -101,7 +101,7 @@ public class MongoMessageSearchService extends AbstractMessageSearchService {
 				new SubjectQueryBuilder(), new MessageIdQueryBuilder(),
 				new ContentQueryBuilder(docSearchService),
 				recipientQueryBuilder, senderQueryBuilder,
-				new PermissionsQueryBuilder() };
+				new PermissionsQueryBuilder(), new  InitialMessageUUIDQueryBuilder()};
 		this.queryBuilders = queryBuilders;
 	}
 

@@ -51,7 +51,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.linuxbox.enkive.audit.AuditService;
-import com.linuxbox.enkive.authentication.AuthenticationException;
 import com.linuxbox.enkive.authentication.AuthenticationService;
 import com.linuxbox.enkive.exception.CannotRetrieveException;
 import com.linuxbox.enkive.exception.EnkiveServletException;
@@ -62,7 +61,6 @@ import com.linuxbox.enkive.web.WebConstants;
 import com.linuxbox.enkive.web.WebPageInfo;
 import com.linuxbox.enkive.web.WebScriptUtils;
 import com.linuxbox.enkive.workspace.Workspace;
-import com.linuxbox.enkive.workspace.WorkspaceException;
 import com.linuxbox.enkive.workspace.WorkspaceService;
 import com.linuxbox.enkive.workspace.searchQuery.SearchQuery;
 import com.linuxbox.enkive.workspace.searchQuery.SearchQueryBuilder;
@@ -146,7 +144,7 @@ public class AdvancedSearch extends AbstractSearchWebScript {
 					query = searchQueryBuilder.getSearchQuery(queryUUID);
 				}
 				if (query != null && query.matches(searchFields)) {
-					result = workspaceService.getSearchResult(query.getResultId());
+					result = searchService.updateSearch(query);
 				}
 			} catch (Exception e) {
 				// Fall through and make a new result

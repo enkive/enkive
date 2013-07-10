@@ -19,9 +19,12 @@
  *******************************************************************************/
 package com.linuxbox.enkive.message.search;
 
+import static com.linuxbox.enkive.search.Constants.INITIAL_MESSAGE_UUID_PARAMETER;
+
 import java.util.Date;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
@@ -34,6 +37,7 @@ import org.springframework.scheduling.annotation.Async;
 import com.linuxbox.enkive.docsearch.DocSearchQueryService;
 import com.linuxbox.enkive.message.search.exception.MessageSearchException;
 import com.linuxbox.enkive.workspace.WorkspaceException;
+import com.linuxbox.enkive.workspace.searchQuery.SearchQuery;
 import com.linuxbox.enkive.workspace.searchResult.SearchResult;
 import com.linuxbox.enkive.workspace.searchResult.SearchResult.Status;
 import com.linuxbox.enkive.workspace.searchResult.SearchResultBuilder;
@@ -59,6 +63,37 @@ public abstract class AbstractMessageSearchService implements
 
 			// do the search
 			final Set<String> resultMessageIDs = searchImpl(fields);
+
+			// complete the search result data
+			result.setMessageIds(resultMessageIDs);
+			result.setTimestamp(new Date());
+			result.setStatus(Status.COMPLETE);
+
+			return result;
+		} catch (WorkspaceException e) {
+			throw new MessageSearchException(
+					"Could not create new search result", e);
+		}
+	}
+
+	@Override
+	public SearchResult updateSearch(SearchQuery query)
+			throws MessageSearchException {
+		try {
+			SearchResult result = searchResultBuilder.getSearchResult(query.getResultId());
+			Map<String, String> fields = query.getCriteria();
+
+			TreeSet<String> sortedUUIDs = new TreeSet<String>(result.getMessageIds());
+
+			fields.put(INITIAL_MESSAGE_UUID_PARAMETER, sortedUUIDs.last());
+			LOGGER.trace("AbstractMessageSearchService.updateSearch function looking for messages w/ following criteria: "
+					+ fields.toString());
+
+			// do the search
+			final Set<String> resultMessageIDs = searchImpl(fields);
+
+			// Add into the previous results
+			resultMessageIDs.addAll(sortedUUIDs);
 
 			// complete the search result data
 			result.setMessageIds(resultMessageIDs);

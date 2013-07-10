@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.concurrent.Future;
 
 import com.linuxbox.enkive.message.search.exception.MessageSearchException;
+import com.linuxbox.enkive.workspace.searchQuery.SearchQuery;
 import com.linuxbox.enkive.workspace.searchResult.SearchResult;
 
 public class SizeLimitingMessageSearchService implements MessageSearchService {
@@ -42,6 +43,12 @@ public class SizeLimitingMessageSearchService implements MessageSearchService {
 		if (sizeLimit > 0)
 			fields.put(LIMIT_PARAMETER, String.valueOf(sizeLimit));
 		return messageSearchService.search(fields);
+	}
+
+	@Override
+	public SearchResult updateSearch(SearchQuery query)
+			throws MessageSearchException {
+		return messageSearchService.updateSearch(query);
 	}
 
 	@Override

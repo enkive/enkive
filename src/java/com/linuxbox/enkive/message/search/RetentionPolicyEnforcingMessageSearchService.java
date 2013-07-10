@@ -38,6 +38,7 @@ import org.apache.commons.logging.LogFactory;
 
 import com.linuxbox.enkive.message.retention.MessageRetentionPolicy;
 import com.linuxbox.enkive.message.search.exception.MessageSearchException;
+import com.linuxbox.enkive.workspace.searchQuery.SearchQuery;
 import com.linuxbox.enkive.workspace.searchResult.SearchResult;
 
 public class RetentionPolicyEnforcingMessageSearchService implements
@@ -54,6 +55,12 @@ public class RetentionPolicyEnforcingMessageSearchService implements
 			throws MessageSearchException {
 		Map<String, String> searchFields = addRetentionPolicyToFields(fields);
 		return messageSearchService.search(searchFields);
+	}
+
+	@Override
+	public SearchResult updateSearch(SearchQuery query)
+			throws MessageSearchException {
+		return messageSearchService.updateSearch(query);
 	}
 
 	@Override

@@ -145,6 +145,12 @@ public class TaskPoolAsyncMessageSearchService implements MessageSearchService {
 		return messageSearchService.search(fields);
 	}
 
+	@Override
+	public SearchResult updateSearch(SearchQuery query)
+			throws MessageSearchException {
+		return messageSearchService.updateSearch(query);
+	}
+
 	public MessageSearchService getMessageSearchService() {
 		return messageSearchService;
 	}
