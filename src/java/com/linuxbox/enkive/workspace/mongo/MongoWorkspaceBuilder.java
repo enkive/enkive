@@ -38,6 +38,14 @@ import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
 
+/**
+ * Implementation of @ref WorkspaceBuilder based on MongoDB.  @ref
+ * MongoWorkspace objects are stored in a single collection in a
+ * document-per-workspace.  The "_id" field is used as the internal workspace
+ * ID.
+ * @author dang
+ *
+ */
 public class MongoWorkspaceBuilder implements WorkspaceBuilder {
 
 	protected DBCollection workspaceColl;

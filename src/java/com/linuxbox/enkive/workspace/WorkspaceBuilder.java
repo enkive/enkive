@@ -19,18 +19,25 @@
 package com.linuxbox.enkive.workspace;
 
 /**
+ * A factory interface for creating and finding @ref Workspace objects.
  * @author lee
  * 
  */
 public interface WorkspaceBuilder {
 
 	/**
-	 * Get a new workspace
+	 * Create a new workspace
 	 * 
-	 * @return
+	 * @return new workspace object not yet committed backing store
 	 */
 	public Workspace getWorkspace();
 
+	/**
+	 * Find an existing workspace
+	 * @param workspaceUUID		ID of workspace to find
+	 * @return workspace object on success
+	 * @throws WorkspaceException
+	 */
 	public Workspace getWorkspace(String workspaceUUID)
 			throws WorkspaceException;
 

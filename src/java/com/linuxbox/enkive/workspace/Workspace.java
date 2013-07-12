@@ -34,10 +34,15 @@ import com.linuxbox.enkive.workspace.searchResult.SearchResultBuilder;
 import com.linuxbox.enkive.workspace.searchResult.SearchResultComparator;
 
 /**
+ * An abstract base class implementing Workspace objects.
+ *
  * A Workspace represents a place where the search history is kept. It's kind of
  * like a shopping cart of searches. New searches are added to a workspace. Old
  * searches can be removed from workspaces, perhaps they're removed
- * automatically.
+ * automatically.  A workspace is owned by a single user, and each user has a
+ * default workspace that is used if they have not explicitly selected one.
+ *
+ * This implements all workspace operations other than saving and deleting.
  * 
  * @author eric
  * 

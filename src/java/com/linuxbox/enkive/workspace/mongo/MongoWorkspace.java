@@ -31,6 +31,13 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 
+/**
+ * Implementation of @ref Workspace stored in MongoDB.  Workspaces are stored in a
+ * collection named "workspaces" and are referenced elsewhere by UUID.
+
+ * @author dang
+ *
+ */
 public class MongoWorkspace extends Workspace {
 	protected DBCollection workspaceColl;
 
