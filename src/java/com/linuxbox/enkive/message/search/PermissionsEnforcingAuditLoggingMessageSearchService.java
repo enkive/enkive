@@ -31,15 +31,21 @@ import java.util.Map;
 import com.linuxbox.enkive.exception.CannotGetPermissionsException;
 import com.linuxbox.enkive.message.search.exception.MessageSearchException;
 import com.linuxbox.enkive.permissions.PermissionService;
-import com.linuxbox.enkive.workspace.searchResult.SearchResult;
+import com.linuxbox.enkive.workspace.searchQuery.SearchQuery;
 
+/**
+ * Extension of @ref AuditLoggingMessageSearchService that adds permission
+ * checks to the search before passing it on.
+ * @author dang
+ *
+ */
 public class PermissionsEnforcingAuditLoggingMessageSearchService extends
 		AuditLoggingMessageSearchService {
 
 	PermissionService permService;
 
 	@Override
-	public SearchResult search(Map<String, String> fields)
+	public SearchQuery search(Map<String, String> fields)
 			throws MessageSearchException {
 		try {
 			if (permService.isAdmin()) {

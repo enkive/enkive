@@ -24,8 +24,7 @@ public abstract class DbMigration {
 	/**
 	 * Does the migration on the provided database.
 	 * @param dbInfo
-	 * @return true if successful, false if not successful
 	 * @throws DbMigrationException
 	 */
-	public abstract boolean migrate(DbInfo dbInfo) throws DbMigrationException;
+	public abstract void migrate(DbInfo dbInfo) throws DbMigrationException;
 }

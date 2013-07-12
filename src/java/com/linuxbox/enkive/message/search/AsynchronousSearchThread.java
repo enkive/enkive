@@ -20,7 +20,6 @@
 package com.linuxbox.enkive.message.search;
 
 import java.util.Date;
-import java.util.Map;
 import java.util.concurrent.Callable;
 
 import org.apache.commons.logging.Log;
@@ -32,54 +31,56 @@ import org.springframework.security.core.context.SecurityContextImpl;
 
 import com.linuxbox.enkive.message.search.exception.MessageSearchException;
 import com.linuxbox.enkive.workspace.WorkspaceException;
+import com.linuxbox.enkive.workspace.searchQuery.SearchQuery;
+import com.linuxbox.enkive.workspace.searchQuery.SearchQuery.Status;
 import com.linuxbox.enkive.workspace.searchResult.SearchResult;
-import com.linuxbox.enkive.workspace.searchResult.SearchResult.Status;
-import com.linuxbox.enkive.workspace.searchResult.SearchResultBuilder;
 
-public class AsynchronousSearchThread implements Callable<SearchResult> {
+/**
+ * Callable to run a given search and create the results.  This is to allow
+ * asynchronous searching, and is designed to be run from a TaskPool.
+ * @author dang
+ *
+ */
+public class AsynchronousSearchThread implements Callable<SearchQuery> {
 
 	protected static final Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.message.search");
 
 	private final Authentication searchingUserAuth;
-	private final String searchResultId;
-	private final Map<String, String> fields;
+	private final SearchQuery query;
 	private final MessageSearchService messageSearchService;
-	private final SearchResultBuilder searchResultBuilder;
 
-	public AsynchronousSearchThread(Map<String, String> fields,
-			String searchResultId, MessageSearchService messageSearchService,
-			SearchResultBuilder searchResultBuilder) {
+	public AsynchronousSearchThread(SearchQuery query, MessageSearchService
+			messageSearchService) {
 		SecurityContext ctx = SecurityContextHolder.getContext();
 		searchingUserAuth = ctx.getAuthentication();
-		this.searchResultId = searchResultId;
-		this.fields = fields;
+		this.query = query;
 		this.messageSearchService = messageSearchService;
-		this.searchResultBuilder = searchResultBuilder;
 	}
 
 	@Override
-	public SearchResult call() {
+	public SearchQuery call() {
 
-		SearchResult searchResult = null;
+		SearchResult result = null;
 		try {
 			SecurityContext ctx = new SecurityContextImpl();
 			ctx.setAuthentication(searchingUserAuth);
 			SecurityContextHolder.setContext(ctx);
-			searchResult = searchResultBuilder.getSearchResult(searchResultId);
+			result = query.getResult();
 			try {
-				markSearchResultRunning(searchResult);
-				SearchResult tmpSearchResult = messageSearchService
-						.search(fields);
-				searchResult.setMessageIds(tmpSearchResult.getMessageIds());
-				searchResult.setTimestamp(tmpSearchResult.getTimestamp());
-				searchResult.setExecutedBy(tmpSearchResult.getExecutedBy());
-				searchResult.setStatus(Status.COMPLETE);
-				searchResult.saveSearchResult();
+				markSearchRunning(query);
+				SearchQuery tmpSearchQuery = messageSearchService
+						.search(query.getCriteria());
+				result.setMessageIds(tmpSearchQuery.getResult().getMessageIds());
+				result.saveSearchResult();
+				query.setTimestamp(tmpSearchQuery.getTimestamp());
+				query.setExecutedBy(tmpSearchQuery.getExecutedBy());
+				query.setStatus(Status.COMPLETE);
+				query.saveSearchQuery();
 
 			} catch (MessageSearchException e) {
-				searchResult.setStatus(Status.UNKNOWN);
-				searchResult.saveSearchResult();
+				query.setStatus(Status.UNKNOWN);
+				query.saveSearchQuery();
 				LOGGER.error("Could not complete message search", e);
 			}
 		} catch (WorkspaceException e) {
@@ -88,18 +89,18 @@ public class AsynchronousSearchThread implements Callable<SearchResult> {
 			SecurityContextHolder.clearContext();
 		}
 
-		return searchResult;
+		return query;
 	}
 
-	private void markSearchResultRunning(SearchResult searchResult)
+	private void markSearchRunning(SearchQuery search)
 			throws MessageSearchException {
 		try {
-			searchResult.setStatus(Status.RUNNING);
-			searchResult.setTimestamp(new Date());
-			searchResult.saveSearchResult();
+			search.setStatus(Status.RUNNING);
+			search.setTimestamp(new Date());
+			search.saveSearchQuery();
 		} catch (WorkspaceException e) {
 			throw new MessageSearchException("Could not mark search "
-					+ searchResult.getId() + " as running", e);
+					+ search.getId() + " as running", e);
 		}
 	}
 

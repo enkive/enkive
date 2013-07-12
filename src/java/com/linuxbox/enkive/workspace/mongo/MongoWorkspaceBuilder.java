@@ -30,12 +30,11 @@ import org.bson.types.ObjectId;
 import com.linuxbox.enkive.workspace.Workspace;
 import com.linuxbox.enkive.workspace.WorkspaceBuilder;
 import com.linuxbox.enkive.workspace.WorkspaceException;
-import com.linuxbox.enkive.workspace.searchResult.SearchResultBuilder;
+import com.linuxbox.enkive.workspace.searchQuery.SearchQueryBuilder;
 import com.linuxbox.util.dbinfo.mongodb.MongoDbInfo;
 import com.mongodb.BasicDBList;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
-import com.mongodb.MongoClient;
 
 /**
  * Implementation of @ref WorkspaceBuilder based on MongoDB.  @ref
@@ -48,36 +47,47 @@ import com.mongodb.MongoClient;
 public class MongoWorkspaceBuilder implements WorkspaceBuilder {
 
 	protected DBCollection workspaceColl;
-	protected SearchResultBuilder searchResultBuilder;
+	protected SearchQueryBuilder searchQueryBuilder;
 
 	private final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.workspaces");
 
-	public MongoWorkspaceBuilder(MongoClient m, String dbName,
-			String workspaceCollName, SearchResultBuilder searchResultBuilder) {
-		this(m.getDB(dbName).getCollection(workspaceCollName), searchResultBuilder);
-	}
-
-	public MongoWorkspaceBuilder(MongoDbInfo workspaceInfo,
-			SearchResultBuilder searchResultBuilder) {
-		this(workspaceInfo.getCollection(), searchResultBuilder);
+	public MongoWorkspaceBuilder(MongoDbInfo workspaceInfo) {
+		this.setWorkspaceCollection(workspaceInfo.getCollection());
 	}
 
 	public MongoWorkspaceBuilder(DBCollection workspaceColl,
-			SearchResultBuilder searchResultBuilder) {
+			SearchQueryBuilder searchQueryBuilder) {
 		this.workspaceColl = workspaceColl;
-		this.searchResultBuilder = searchResultBuilder;
+		this.searchQueryBuilder = searchQueryBuilder;
+	}
+
+	public void setWorkspaceCollection(DBCollection workspaceColl) {
+		this.workspaceColl = workspaceColl;
+	}
+
+	public DBCollection getWorkspaceCollection() {
+		return workspaceColl;
+	}
+
+	public SearchQueryBuilder getSearchQueryBuilder() {
+		return searchQueryBuilder;
+	}
+
+	public void setSearchQueryBuilder(SearchQueryBuilder searchQueryBuilder) {
+		this.searchQueryBuilder = searchQueryBuilder;
 	}
 
 	@Override
 	public Workspace getWorkspace(String workspaceUUID)
 			throws WorkspaceException {
-		Workspace workspace = new MongoWorkspace(workspaceColl,
-				searchResultBuilder);
+		MongoWorkspace workspace = new MongoWorkspace();
 
 		DBObject workspaceObject = workspaceColl.findOne(ObjectId
 				.massageToObjectId(workspaceUUID));
 
+		workspace.setWorkspaceCollection(workspaceColl);
+		workspace.setSearchQueryBuilder(searchQueryBuilder);
 		workspace.setWorkspaceUUID(workspaceUUID);
 		workspace.setCreationDate((Date) workspaceObject
 				.get(MongoWorkspaceConstants.CREATIONDATE));
@@ -91,15 +101,15 @@ public class MongoWorkspaceBuilder implements WorkspaceBuilder {
 				.get(MongoWorkspaceConstants.LASTQUERY));
 //		workspace.setSearchFolderID((String) workspaceObject
 //				.get(MongoWorkspaceConstants.SEARCHFOLDERID));
-		BasicDBList searchResults = (BasicDBList) workspaceObject
-				.get(MongoWorkspaceConstants.SEARCHRESULTS);
+		BasicDBList searches = (BasicDBList) workspaceObject
+				.get(MongoWorkspaceConstants.SEARCHES);
 
-		Collection<String> searchResultUUIDs = new HashSet<String>();
-		Iterator<Object> searchResultsIterator = searchResults.iterator();
-		while (searchResultsIterator.hasNext())
-			searchResultUUIDs.add((String) searchResultsIterator.next());
+		Collection<String> searchUUIDs = new HashSet<String>();
+		Iterator<Object> searchesIterator = searches.iterator();
+		while (searchesIterator.hasNext())
+			searchUUIDs.add((String) searchesIterator.next());
 
-		workspace.setSearchResultUUIDs(searchResultUUIDs);
+		workspace.setSearchUUIDs(searchUUIDs);
 		if (LOGGER.isInfoEnabled())
 			LOGGER.info("Retrieved Workspace " + workspace.getWorkspaceName()
 					+ " - " + workspace.getWorkspaceUUID());
@@ -108,8 +118,9 @@ public class MongoWorkspaceBuilder implements WorkspaceBuilder {
 
 	@Override
 	public Workspace getWorkspace() {
-		Workspace workspace = new MongoWorkspace(workspaceColl,
-				searchResultBuilder);
+		MongoWorkspace workspace = new MongoWorkspace();
+		workspace.setWorkspaceCollection(workspaceColl);
+		workspace.setSearchQueryBuilder(searchQueryBuilder);
 		return workspace;
 	}
 }

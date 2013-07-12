@@ -93,11 +93,13 @@ public class MongoMessageRetentionPolicyEnforcementTest {
 				TestingConstants.MONGODB_TEST_MESSAGES_COLLECTION);
 		searchService.setDocSearchService(docSearchService);
 		searchService.finishSetup();
-		searchService.setSearchResultBuilder(new MongoSearchResultBuilder(m,
+		MongoSearchQueryBuilder queryBuilder = new MongoSearchQueryBuilder(m,
 				TestingConstants.MONGODB_TEST_DATABASE,
-				TestingConstants.MONGODB_TEST_WORKSPACE_COLLECTION, new MongoSearchQueryBuilder(m,
-						TestingConstants.MONGODB_TEST_DATABASE,
-						TestingConstants.MONGODB_TEST_QUERY_COLLECTION)));
+				TestingConstants.MONGODB_TEST_QUERY_COLLECTION);
+		queryBuilder.setSearchResultBuilder(new MongoSearchResultBuilder(m,
+				TestingConstants.MONGODB_TEST_DATABASE,
+				TestingConstants.MONGODB_TEST_WORKSPACE_COLLECTION));
+		searchService.setSearchQueryBuilder(queryBuilder);
 
 		archiver = new MongoArchivingService(m,
 				TestingConstants.MONGODB_TEST_DATABASE,

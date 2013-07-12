@@ -10,6 +10,7 @@ public class EnkiveDbVersionManager extends DbVersionManager {
 		associateHelp(ProductInfo.V1_3P, 1);
 		associateHelp(ProductInfo.V1_3_1RC1, 1);
 		associateHelp(ProductInfo.V1_3_1P, 1);
+		associateHelp(ProductInfo.V1_4A, 2);
 	}
 
 	protected void associateHelp(Version swVersion, int dbVersion)

@@ -75,7 +75,7 @@
 		class="com.linuxbox.enkive.message.search.mongodb.MongoMessageSearchService">
 		<constructor-arg ref="MessageStoreDbInfo" />
 		<property name="docSearchService" ref="DocSearchQueryService" />
-		<property name="searchResultBuilder" ref="SearchResultBuilder" />
+		<property name="searchQueryBuilder" ref="SearchQueryBuilder" />
 	</bean>
 </beans>
 	

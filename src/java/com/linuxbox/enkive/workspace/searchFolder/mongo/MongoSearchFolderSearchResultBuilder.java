@@ -49,7 +49,7 @@ public class MongoSearchFolderSearchResultBuilder implements
 			DBCollection searchFolderSearchResultColl) {
 		this.searchFolderSearchResultColl = searchFolderSearchResultColl;
 		mSearchResultBuilder = new MongoSearchResultBuilder(
-				searchFolderSearchResultColl, null);
+				searchFolderSearchResultColl);
 	}
 
 	@Override
@@ -74,12 +74,8 @@ public class MongoSearchFolderSearchResultBuilder implements
 
 		SearchFolderSearchResult mSearchResult = new MongoSearchFolderSearchResult(
 				searchFolderSearchResultColl);
-		mSearchResult.setExecutedBy(searchResult.getExecutedBy());
 		mSearchResult.setMessageIds(searchResult.getMessageIds());
-		mSearchResult.setSearchQueryBuilder(searchResult
-				.getSearchQueryBuilder());
 		mSearchResult.setSearchQueryId(searchResult.getSearchQueryId());
-		mSearchResult.setTimestamp(searchResult.getTimestamp());
 		// TODO Can we have a check to see if this is actually a searchfolder
 		// result?
 		mSearchResult.saveSearchResult();

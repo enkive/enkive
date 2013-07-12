@@ -64,7 +64,6 @@ import com.linuxbox.enkive.workspace.Workspace;
 import com.linuxbox.enkive.workspace.WorkspaceService;
 import com.linuxbox.enkive.workspace.searchQuery.SearchQuery;
 import com.linuxbox.enkive.workspace.searchQuery.SearchQueryBuilder;
-import com.linuxbox.enkive.workspace.searchResult.SearchResult;
 
 public class AdvancedSearch extends AbstractSearchWebScript {
 
@@ -133,10 +132,9 @@ public class AdvancedSearch extends AbstractSearchWebScript {
 			searchFields.put(MESSAGE_ID_PARAMETER, messageId);
 			searchFields.put(CONTENT_PARAMETER, contentCriteriaString);
 
-			SearchResult result = null;
+			SearchQuery query = null;
 
 			try {
-				SearchQuery query = null;
 				Workspace workspace = workspaceService.getActiveWorkspace(
 						authenticationService.getUserName());
 				String queryUUID = workspace.getLastQueryUUID();
@@ -144,32 +142,35 @@ public class AdvancedSearch extends AbstractSearchWebScript {
 					query = searchQueryBuilder.getSearchQuery(queryUUID);
 				}
 				if (query != null && query.matches(searchFields)) {
-					result = searchService.updateSearch(query);
+					searchService.updateSearch(query);
+				} else {
+					// Didn't match; make sure we run query below
+					query = null;
 				}
 			} catch (Exception e) {
 				// Fall through and make a new result
 			}
 
-			if (result == null) {
+			if (query == null) {
 				try {
-					Future<SearchResult> resultFuture = searchService
+					Future<SearchQuery> resultFuture = searchService
 							.searchAsync(searchFields);
-					result = resultFuture.get(searchTimeoutSeconds,
+					query = resultFuture.get(searchTimeoutSeconds,
 							TimeUnit.SECONDS);
 				} catch (Exception e) {
 					// catch various kinds of exceptions, including cancellations
-					result = null;
+					query = null;
 				}
 			}
 
-			if (result != null) {
-				jsonData.put(SEARCH_ID_TAG, result.getId());
+			if (query != null) {
+				jsonData.put(SEARCH_ID_TAG, query.getId());
 				WebPageInfo pageInfo = new WebPageInfo();
 				if (LOGGER.isInfoEnabled())
 					LOGGER.info("search results are complete");
 
 				final List<MessageSummary> messageSummaries = archiveService
-						.retrieveSummary(result.getMessageIds());
+						.retrieveSummary(query.getResult().getMessageIds());
 
 				pageInfo.setItemTotal(messageSummaries.size());
 				@SuppressWarnings("unchecked")

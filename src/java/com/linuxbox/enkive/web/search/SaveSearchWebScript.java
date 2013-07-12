@@ -31,7 +31,7 @@ import com.linuxbox.enkive.web.EnkiveServlet;
 import com.linuxbox.enkive.web.WebScriptUtils;
 import com.linuxbox.enkive.workspace.WorkspaceException;
 import com.linuxbox.enkive.workspace.WorkspaceService;
-import com.linuxbox.enkive.workspace.searchResult.SearchResult;
+import com.linuxbox.enkive.workspace.searchQuery.SearchQuery;
 
 public class SaveSearchWebScript extends EnkiveServlet {
 	/**
@@ -58,10 +58,9 @@ public class SaveSearchWebScript extends EnkiveServlet {
 		for (String searchId : searchIds.split(",")) {
 			if (!searchId.isEmpty()) {
 				try {
-					SearchResult result = workspaceService
-							.getSearchResult(searchId);
-					result.setSaved(true);
-					result.saveSearchResult();
+					SearchQuery query = workspaceService.getSearch(searchId);
+					query.setSaved(true);
+					query.saveSearchQuery();
 
 /*					Workspace workspace = workspaceService
 							.getActiveWorkspace(this.getPermissionService()

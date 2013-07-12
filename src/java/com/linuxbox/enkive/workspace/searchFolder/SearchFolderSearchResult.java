@@ -28,11 +28,8 @@ public abstract class SearchFolderSearchResult extends SearchResult {
 	}
 
 	public SearchFolderSearchResult(SearchResult searchResult) {
-		setExecutedBy(searchResult.getExecutedBy());
 		setMessageIds(searchResult.getMessageIds());
-		setSearchQueryBuilder(searchResult.getSearchQueryBuilder());
 		setSearchQueryId(searchResult.getSearchQueryId());
-		setTimestamp(searchResult.getTimestamp());
 	}
 
 	@Override

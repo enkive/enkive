@@ -18,9 +18,13 @@
  ******************************************************************************/
 package com.linuxbox.enkive.workspace.searchQuery.mongo;
 
+import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.EXECUTEDBY;
+import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.EXECUTIONTIMESTAMP;
 import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.SEARCHCRITERIA;
-import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.SEARCHRESULTID;
+import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.SEARCHISSAVED;
 import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.SEARCHNAME;
+import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.SEARCHRESULTID;
+import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.SEARCHSTATUS;
 import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.UUID;
 
 import org.apache.commons.logging.Log;
@@ -33,6 +37,13 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 
+/**
+ * Implementation of @ref SearchQuery in MongoDB.  Queries are stored in a
+ * collection named "searchQueries", in a document each containing all the data
+ * from the query.
+ * @author dang
+ *
+ */
 public class MongoSearchQuery extends SearchQuery {
 	private final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.workspaces");
@@ -47,8 +58,12 @@ public class MongoSearchQuery extends SearchQuery {
 	public void saveSearchQuery() throws WorkspaceException {
 		BasicDBObject searchQueryObject = new BasicDBObject();
 		searchQueryObject.put(SEARCHNAME, getName());
-		searchQueryObject.put(SEARCHRESULTID, getResultId());
+		searchQueryObject.put(SEARCHRESULTID, result.getId());
 		searchQueryObject.put(SEARCHCRITERIA, getCriteria());
+		searchQueryObject.put(EXECUTIONTIMESTAMP, getTimestamp());
+		searchQueryObject.put(EXECUTEDBY, getExecutedBy());
+		searchQueryObject.put(SEARCHSTATUS, getStatus().toString());
+		searchQueryObject.put(SEARCHISSAVED, isSaved());
 
 		if (getId() != null && !getId().isEmpty()) {
 			DBObject toUpdate = searchQueryColl.findOne(ObjectId
@@ -63,6 +78,8 @@ public class MongoSearchQuery extends SearchQuery {
 			setId(searchQueryObject.getString(UUID));
 		}
 
+		result.saveSearchResult();
+
 		if (LOGGER.isInfoEnabled())
 			LOGGER.info("Saved Search Query - "
 					+ searchQueryObject.getString(UUID));
@@ -74,5 +91,7 @@ public class MongoSearchQuery extends SearchQuery {
 		DBObject searchQueryObject = searchQueryColl.findOne(ObjectId
 				.massageToObjectId(getId()));
 		searchQueryColl.remove(searchQueryObject);
+
+		result.deleteSearchResult();
 	}
 }

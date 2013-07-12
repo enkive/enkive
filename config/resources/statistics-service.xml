@@ -52,7 +52,7 @@
 		class="com.linuxbox.enkive.statistics.gathering.mongodb.MongoGathererMessageSearchService">
 		<constructor-arg ref="MessageStoreDbInfo" />
 		<property name="docSearchService" ref="DocSearchQueryService" />
-		<property name="searchResultBuilder" ref="SearchResultBuilder" />
+		<property name="searchQueryBuilder" ref="SearchQueryBuilder" />
 	</bean>
 
 	<bean id="AttachmentStatsGathererBean"

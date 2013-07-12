@@ -78,7 +78,7 @@ public class MongoSearchFolderBuilder implements SearchFolderBuilder {
 				.massageToObjectId(searchFolderId));
 
 		BasicDBList searchResults = (BasicDBList) folderObject
-				.get(MongoWorkspaceConstants.SEARCHRESULTSLIST);
+				.get(MongoWorkspaceConstants.SEARCHLIST);
 
 		Iterator<Object> searchResultsIterator = searchResults.iterator();
 		while (searchResultsIterator.hasNext())

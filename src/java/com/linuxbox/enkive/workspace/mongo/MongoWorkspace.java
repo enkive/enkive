@@ -26,7 +26,6 @@ import org.bson.types.ObjectId;
 
 import com.linuxbox.enkive.workspace.Workspace;
 import com.linuxbox.enkive.workspace.WorkspaceException;
-import com.linuxbox.enkive.workspace.searchResult.SearchResultBuilder;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
@@ -44,10 +43,12 @@ public class MongoWorkspace extends Workspace {
 	private final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.workspace.mongo");
 
-	public MongoWorkspace(DBCollection workspaceColl,
-			SearchResultBuilder searchResultBuilder) {
+	public void setWorkspaceCollection(DBCollection workspaceColl) {
 		this.workspaceColl = workspaceColl;
-		this.searchResultBuilder = searchResultBuilder;
+	}
+
+	public DBCollection getWorkspaceCollection() {
+		return workspaceColl;
 	}
 
 	@Override
@@ -60,8 +61,8 @@ public class MongoWorkspace extends Workspace {
 		workspaceObject.put(MongoWorkspaceConstants.CREATOR, getCreator());
 		workspaceObject.put(MongoWorkspaceConstants.WORKSPACENAME,
 				getWorkspaceName());
-		workspaceObject.put(MongoWorkspaceConstants.SEARCHRESULTS,
-				getSearchResultUUIDs());
+		workspaceObject.put(MongoWorkspaceConstants.SEARCHES,
+				getSearchUUIDs());
 		workspaceObject.put(MongoWorkspaceConstants.LASTQUERY,
 				getLastQueryUUID());
 //		workspaceObject.put(MongoWorkspaceConstants.SEARCHFOLDERID,

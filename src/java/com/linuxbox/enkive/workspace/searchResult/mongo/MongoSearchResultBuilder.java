@@ -18,16 +18,11 @@
  ******************************************************************************/
 package com.linuxbox.enkive.workspace.searchResult.mongo;
 
-import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.EXECUTEDBY;
-import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.EXECUTIONTIMESTAMP;
-import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.SEARCHISSAVED;
 import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.SEARCHQUERYID;
 import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.SEARCHRESULTS;
-import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.SEARCHSTATUS;
 import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.UUID;
 
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -37,7 +32,6 @@ import org.apache.commons.logging.LogFactory;
 import org.bson.types.ObjectId;
 
 import com.linuxbox.enkive.workspace.WorkspaceException;
-import com.linuxbox.enkive.workspace.searchQuery.SearchQueryBuilder;
 import com.linuxbox.enkive.workspace.searchResult.SearchResult;
 import com.linuxbox.enkive.workspace.searchResult.SearchResultBuilder;
 import com.linuxbox.util.dbinfo.mongodb.MongoDbInfo;
@@ -48,43 +42,42 @@ import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
 
+/**
+ * Implementation of @ref SearchResultBuilder in MongoDB.  Creates or finds @ref
+ * MongoSearchResult objects
+ * @author dang
+ *
+ */
 public class MongoSearchResultBuilder implements SearchResultBuilder {
 	DBCollection searchResultsColl;
-	SearchQueryBuilder queryBuilder;
 	MongoSearchResultUtils searchResultUtils;
 
 	private final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.workspaces");
 
 	public MongoSearchResultBuilder(MongoClient m, String searchResultsDBName,
-			String searchResultsCollName, SearchQueryBuilder queryBuilder) {
-		this(m.getDB(searchResultsDBName).getCollection(searchResultsCollName),
-				queryBuilder);
+			String searchResultsCollName) {
+		this(m.getDB(searchResultsDBName).getCollection(searchResultsCollName));
 	}
 
-	public MongoSearchResultBuilder(MongoDbInfo searchResultsInfo,
-			SearchQueryBuilder queryBuilder) {
-		this(searchResultsInfo.getCollection(), queryBuilder);
+	public MongoSearchResultBuilder(MongoDbInfo searchResultsInfo) {
+		this(searchResultsInfo.getCollection());
 	}
 
-	public MongoSearchResultBuilder(DBCollection searchResultsColl,
-			SearchQueryBuilder queryBuilder) {
+	public MongoSearchResultBuilder(DBCollection searchResultsColl) {
 		this.searchResultsColl = searchResultsColl;
-		this.queryBuilder = queryBuilder;
 	}
 
 	@Override
 	public SearchResult getSearchResult() throws WorkspaceException {
-		MongoSearchResult searchResult = new MongoSearchResult(
-				searchResultsColl, queryBuilder);
+		MongoSearchResult searchResult = new MongoSearchResult(searchResultsColl);
 		searchResult.setSearchResultUtils(searchResultUtils);
 		return searchResult;
 	}
 
 	public SearchResult getSearchResult(String searchResultId)
 			throws WorkspaceException {
-		MongoSearchResult result = new MongoSearchResult(searchResultsColl,
-				queryBuilder);
+		MongoSearchResult result = new MongoSearchResult(searchResultsColl);
 		DBObject searchResultObject = searchResultsColl.findOne(ObjectId
 				.massageToObjectId(searchResultId));
 		if (searchResultObject == null) {
@@ -92,8 +85,6 @@ public class MongoSearchResultBuilder implements SearchResultBuilder {
 					+ searchResultId);
 		}
 		result.setId(searchResultId);
-		result.setTimestamp((Date) searchResultObject.get(EXECUTIONTIMESTAMP));
-		result.setExecutedBy((String) searchResultObject.get(EXECUTEDBY));
 
 		BasicDBList searchResults = (BasicDBList) searchResultObject
 				.get(SEARCHRESULTS);
@@ -105,11 +96,7 @@ public class MongoSearchResultBuilder implements SearchResultBuilder {
 
 		result.setMessageIds(searchResultUUIDs);
 
-		result.setStatus(SearchResult.Status
-				.valueOf((String) searchResultObject.get(SEARCHSTATUS)));
 		result.setSearchQueryId((String) searchResultObject.get(SEARCHQUERYID));
-		if (searchResultObject.get(SEARCHISSAVED) != null)
-			result.setSaved((Boolean) searchResultObject.get(SEARCHISSAVED));
 
 		if (LOGGER.isInfoEnabled())
 			LOGGER.info("Retrieved Search Results - " + result.getId());
@@ -132,13 +119,9 @@ public class MongoSearchResultBuilder implements SearchResultBuilder {
 		DBCursor searchResult = searchResultsColl.find(new BasicDBObject(UUID,
 				query));
 		while (searchResult.hasNext()) {
-			MongoSearchResult result = new MongoSearchResult(searchResultsColl,
-					queryBuilder);
+			MongoSearchResult result = new MongoSearchResult(searchResultsColl);
 			DBObject searchResultObject = searchResult.next();
 			result.setId(((ObjectId) searchResultObject.get(UUID)).toString());
-			result.setTimestamp((Date) searchResultObject
-					.get(EXECUTIONTIMESTAMP));
-			result.setExecutedBy((String) searchResultObject.get(EXECUTEDBY));
 
 			BasicDBList searchResults = (BasicDBList) searchResultObject
 					.get(SEARCHRESULTS);
@@ -151,12 +134,8 @@ public class MongoSearchResultBuilder implements SearchResultBuilder {
 
 			result.setMessageIds(searchResultMessageUUIDs);
 
-			result.setStatus(SearchResult.Status
-					.valueOf((String) searchResultObject.get(SEARCHSTATUS)));
 			result.setSearchQueryId((String) searchResultObject
 					.get(SEARCHQUERYID));
-			if (searchResultObject.get(SEARCHISSAVED) != null)
-				result.setSaved((Boolean) searchResultObject.get(SEARCHISSAVED));
 			result.setSearchResultUtils(searchResultUtils);
 			results.add(result);
 

@@ -34,22 +34,50 @@ import java.util.Map;
 
 import com.linuxbox.enkive.message.search.MessageSearchSummary;
 import com.linuxbox.enkive.workspace.WorkspaceException;
+import com.linuxbox.enkive.workspace.searchResult.SearchResult;
 
 /**
- * Represents a query consisting of a set of search criteria.
+ * Represents a query consisting of a set of search criteria, and metadata for
+ * the query.  This is the primary interface to search results.  It maintains a
+ * link to the actual SearchResult objects that contain the snapshot of results
+ * for the query, as well as the metadata about who search, when it happened,
+ * and the state of the search.
  * 
  * @author eric
  * 
  */
 public abstract class SearchQuery {
-	protected String id;
-	protected String name;
-	protected Map<String, String> criteria;
-	protected String resultId;
+	public enum Status {
+		QUEUED,
+
+		RUNNING,
+
+		COMPLETE,
+
+		CANCEL_REQUESTED,
+
+		CANCELED,
+
+		ERROR,
+
+		UNKNOWN; // when the status was read from DB, did not understand
+	}
+
+	private String id;
+	private String name;
+	private Map<String, String> criteria;
+	private String executedBy;
+	private Boolean isSaved = false;
+	private Date timestamp;
+	private Status status;
+
+	protected SearchResult result;
 
 	public SearchQuery() {
 		criteria = new HashMap<String, String>();
-		name = new Date().toString();
+		this.timestamp = new Date();
+		name = this.timestamp.toString();
+		this.status = Status.RUNNING;
 	}
 
 	public String getId() {
@@ -68,12 +96,44 @@ public abstract class SearchQuery {
 		this.name = name;
 	}
 
-	public String getResultId() {
-		return resultId;
+	public SearchResult getResult() {
+		return result;
 	}
 
-	public void setResultId(String resultId) {
-		this.resultId = resultId;
+	public void setResult(SearchResult result) {
+		this.result = result;
+	}
+
+	public Date getTimestamp() {
+		return timestamp;
+	}
+
+	public void setTimestamp(Date timestamp) {
+		this.timestamp = timestamp;
+	}
+
+	public Status getStatus() {
+		return status;
+	}
+
+	public void setStatus(Status status) {
+		this.status = status;
+	}
+
+	public String getExecutedBy() {
+		return executedBy;
+	}
+
+	public void setExecutedBy(String executedBy) {
+		this.executedBy = executedBy;
+	}
+
+	public Boolean isSaved() {
+		return isSaved;
+	}
+
+	public void setSaved(Boolean isSaved) {
+		this.isSaved = isSaved;
 	}
 
 	public void addAllSearchCriteria(MessageSearchSummary searchSummary) {

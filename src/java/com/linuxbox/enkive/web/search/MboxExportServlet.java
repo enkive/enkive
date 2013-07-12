@@ -47,7 +47,7 @@ import com.linuxbox.enkive.web.EnkiveServlet;
 import com.linuxbox.enkive.web.WebScriptUtils;
 import com.linuxbox.enkive.workspace.WorkspaceException;
 import com.linuxbox.enkive.workspace.WorkspaceService;
-import com.linuxbox.enkive.workspace.searchResult.SearchResult;
+import com.linuxbox.enkive.workspace.searchQuery.SearchQuery;
 
 public class MboxExportServlet extends EnkiveServlet {
 	/**
@@ -77,15 +77,15 @@ public class MboxExportServlet extends EnkiveServlet {
 		res.setContentType("text/plain");
 
 		try {
-			SearchResult theResult = workspaceService.getSearchResult(searchId);
-			if (theResult == null) {
+			SearchQuery search = workspaceService.getSearch(searchId);
+			if (search == null) {
 				// null if searchId refers to a search query and it had no
 				// search results
 				throw new EnkiveServletException("search query " + searchId
 						+ " had no results");
 			}
 
-			Collection<String> messageIds = theResult.getMessageIds();
+			Collection<String> messageIds = search.getResult().getMessageIds();
 
 			Writer writer = res.getWriter();
 			File tempFile = File.createTempFile("enkive-export-", ".mbox");

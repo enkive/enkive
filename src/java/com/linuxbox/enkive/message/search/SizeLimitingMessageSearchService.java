@@ -25,8 +25,14 @@ import java.util.concurrent.Future;
 
 import com.linuxbox.enkive.message.search.exception.MessageSearchException;
 import com.linuxbox.enkive.workspace.searchQuery.SearchQuery;
-import com.linuxbox.enkive.workspace.searchResult.SearchResult;
 
+/**
+ * Implementation of @ref MessageSearchService that wraps another one (currently
+ * @ref MongoMessageSearchService) optionally setting limits on the size of the
+ * results before passing the search on.
+ * @author dang
+ *
+ */
 public class SizeLimitingMessageSearchService implements MessageSearchService {
 
 	protected MessageSearchService messageSearchService;
@@ -38,7 +44,7 @@ public class SizeLimitingMessageSearchService implements MessageSearchService {
 	}
 
 	@Override
-	public SearchResult search(Map<String, String> fields)
+	public SearchQuery search(Map<String, String> fields)
 			throws MessageSearchException {
 		if (sizeLimit > 0)
 			fields.put(LIMIT_PARAMETER, String.valueOf(sizeLimit));
@@ -46,13 +52,13 @@ public class SizeLimitingMessageSearchService implements MessageSearchService {
 	}
 
 	@Override
-	public SearchResult updateSearch(SearchQuery query)
+	public void updateSearch(SearchQuery query)
 			throws MessageSearchException {
-		return messageSearchService.updateSearch(query);
+		messageSearchService.updateSearch(query);
 	}
 
 	@Override
-	public Future<SearchResult> searchAsync(Map<String, String> fields)
+	public Future<SearchQuery> searchAsync(Map<String, String> fields)
 			throws MessageSearchException {
 		return messageSearchService.searchAsync(fields);
 	}

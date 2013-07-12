@@ -57,7 +57,7 @@ import com.linuxbox.enkive.web.WebScriptUtils;
 import com.linuxbox.enkive.workspace.WorkspaceException;
 import com.linuxbox.enkive.workspace.WorkspaceService;
 import com.linuxbox.enkive.workspace.searchFolder.SearchFolder;
-import com.linuxbox.enkive.workspace.searchResult.SearchResult;
+import com.linuxbox.enkive.workspace.searchQuery.SearchQuery;
 
 /**
  * This webscript is run when a user wants to see the results of a prior search,
@@ -179,13 +179,12 @@ public class SearchFolderServlet extends EnkiveServlet {
 	}
 
 	protected void addSearchFolderMessages(SearchFolder searchFolder,
-			String searchResultId, Collection<String> messageIds)
+			String searchId, Collection<String> messageIds)
 			throws WorkspaceException {
-		SearchResult searchResult = workspaceService
-				.getSearchResult(searchResultId);
+		SearchQuery query = workspaceService.getSearch(searchId);
 		Set<String> messageIdSet = new HashSet<String>(messageIds);
-		searchResult.setMessageIds(messageIdSet);
-		searchFolder.addSearchResult(searchResult);
+		query.getResult().setMessageIds(messageIdSet);
+		searchFolder.addSearchResult(query.getResult());
 	}
 
 	protected JSONArray viewSearchFolder(SearchFolder searchFolder,

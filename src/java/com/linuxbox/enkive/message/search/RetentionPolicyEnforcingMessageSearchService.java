@@ -39,8 +39,14 @@ import org.apache.commons.logging.LogFactory;
 import com.linuxbox.enkive.message.retention.MessageRetentionPolicy;
 import com.linuxbox.enkive.message.search.exception.MessageSearchException;
 import com.linuxbox.enkive.workspace.searchQuery.SearchQuery;
-import com.linuxbox.enkive.workspace.searchResult.SearchResult;
 
+/**
+ * Implementation of @ref MessageSearchService that wraps another one (currently
+ * @ref PermissionsEnforcingAuditLoggingMessageSearchService ) that limits the
+ * earliest date of the search to the retention period
+ * @author dang
+ *
+ */
 public class RetentionPolicyEnforcingMessageSearchService implements
 		MessageSearchService {
 
@@ -51,20 +57,20 @@ public class RetentionPolicyEnforcingMessageSearchService implements
 	protected MessageRetentionPolicy messageRetentionPolicy;
 
 	@Override
-	public SearchResult search(Map<String, String> fields)
+	public SearchQuery search(Map<String, String> fields)
 			throws MessageSearchException {
 		Map<String, String> searchFields = addRetentionPolicyToFields(fields);
 		return messageSearchService.search(searchFields);
 	}
 
 	@Override
-	public SearchResult updateSearch(SearchQuery query)
+	public void updateSearch(SearchQuery query)
 			throws MessageSearchException {
-		return messageSearchService.updateSearch(query);
+		messageSearchService.updateSearch(query);
 	}
 
 	@Override
-	public Future<SearchResult> searchAsync(Map<String, String> fields)
+	public Future<SearchQuery> searchAsync(Map<String, String> fields)
 			throws MessageSearchException {
 		throw new MessageSearchException("Unimplemented");
 	}

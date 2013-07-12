@@ -36,12 +36,18 @@ import com.linuxbox.enkive.workspace.Workspace;
 import com.linuxbox.enkive.workspace.WorkspaceException;
 import com.linuxbox.enkive.workspace.WorkspaceService;
 import com.linuxbox.enkive.workspace.searchQuery.SearchQuery;
+import com.linuxbox.enkive.workspace.searchQuery.SearchQuery.Status;
 import com.linuxbox.enkive.workspace.searchQuery.SearchQueryBuilder;
-import com.linuxbox.enkive.workspace.searchResult.SearchResult;
-import com.linuxbox.enkive.workspace.searchResult.SearchResult.Status;
 import com.linuxbox.enkive.workspace.searchResult.SearchResultBuilder;
 import com.linuxbox.util.threadpool.CancellableProcessExecutor;
 
+/**
+ * Implementation of @ref MessageSearchService that wraps another one (currently
+ * @ref RetentionPolicyEnforcingMessageSearchService) that runs asynchronous
+ * searches in a TaskPool.
+ * @author dang
+ *
+ */
 public class TaskPoolAsyncMessageSearchService implements MessageSearchService {
 
 	protected static final Log LOGGER = LogFactory
@@ -62,18 +68,17 @@ public class TaskPoolAsyncMessageSearchService implements MessageSearchService {
 	}
 
 	@Override
-	public Future<SearchResult> searchAsync(Map<String, String> fields)
+	public Future<SearchQuery> searchAsync(Map<String, String> fields)
 			throws MessageSearchException {
-		String searchResultId = createSearchResult(fields);
+		SearchQuery query = createSearch(fields);
 
-		Callable<SearchResult> searchCall = new AsynchronousSearchThread(
-				fields, searchResultId, messageSearchService,
-				searchResultBuilder);
+		Callable<SearchQuery> searchCall = new AsynchronousSearchThread(
+				query, messageSearchService);
 
 		try {
 			@SuppressWarnings("unchecked")
-			Future<SearchResult> searchFuture = (Future<SearchResult>) searchExecutor
-					.submit(searchResultId, searchCall);
+			Future<SearchQuery> searchFuture = (Future<SearchQuery>) searchExecutor
+					.submit(query.getId(), searchCall);
 			return searchFuture;
 		} catch (Exception e) {
 			LOGGER.error("Error with asynchronous search", e);
@@ -81,34 +86,33 @@ public class TaskPoolAsyncMessageSearchService implements MessageSearchService {
 		return null;
 	}
 
-	public boolean cancelAsyncSearch(String searchResultId)
+	public boolean cancelAsyncSearch(String searchId)
 			throws MessageSearchException {
 
 		boolean searchCancelled = false;
 
 		try {
-			SearchResult searchResult = searchResultBuilder
-					.getSearchResult(searchResultId);
+			SearchQuery query = searchQueryBuilder.getSearchQuery(searchId);
 
-			searchResult.setStatus(Status.CANCEL_REQUESTED);
-			searchResult.saveSearchResult();
+			query.setStatus(Status.CANCEL_REQUESTED);
+			query.saveSearchQuery();
 
-			searchCancelled = searchExecutor.cancelSearch(searchResultId);
+			searchCancelled = searchExecutor.cancelSearch(searchId);
 
 			if (searchCancelled)
-				searchResult.setStatus(Status.CANCELED);
+				query.setStatus(Status.CANCELED);
 			else
-				searchResult.setStatus(Status.ERROR);
-			searchResult.saveSearchResult();
+				query.setStatus(Status.ERROR);
+			query.saveSearchQuery();
 		} catch (WorkspaceException e) {
 			throw new MessageSearchException("Could not mark search "
-					+ searchResultId + " as canceled", e);
+					+ searchId + " as canceled", e);
 		}
 		return searchCancelled;
 
 	}
 
-	private String createSearchResult(Map<String, String> fields)
+	private SearchQuery createSearch(Map<String, String> fields)
 			throws MessageSearchException {
 		try {
 			Workspace workspace = workspaceService
@@ -116,21 +120,14 @@ public class TaskPoolAsyncMessageSearchService implements MessageSearchService {
 
 			SearchQuery query = searchQueryBuilder.getSearchQuery();
 			query.setCriteria(fields);
-			query.saveSearchQuery();
-
-			SearchResult result = searchResultBuilder.getSearchResult();
-			result.setSearchQueryId(query.getId());
-			result.setExecutedBy(authenticationService.getUserName());
-			result.setStatus(Status.QUEUED);
-			result.saveSearchResult();
-
-			query.setResultId(result.getId());
+			query.setStatus(Status.QUEUED);
+			query.setExecutedBy(authenticationService.getUserName());
 			query.saveSearchQuery();
 
 			workspace.setLastQueryUUID(query.getId());
-			workspace.addSearchResult(result.getId());
+			workspace.addSearch(query.getId());
 			workspace.saveWorkspace();
-			return result.getId();
+			return query;
 		} catch (WorkspaceException e) {
 			throw new MessageSearchException("Could not save search query", e);
 		} catch (AuthenticationException e) {
@@ -140,15 +137,15 @@ public class TaskPoolAsyncMessageSearchService implements MessageSearchService {
 	}
 
 	@Override
-	public SearchResult search(Map<String, String> fields)
+	public SearchQuery search(Map<String, String> fields)
 			throws MessageSearchException {
 		return messageSearchService.search(fields);
 	}
 
 	@Override
-	public SearchResult updateSearch(SearchQuery query)
+	public void updateSearch(SearchQuery query)
 			throws MessageSearchException {
-		return messageSearchService.updateSearch(query);
+		messageSearchService.updateSearch(query);
 	}
 
 	public MessageSearchService getMessageSearchService() {

@@ -45,7 +45,7 @@ public class MongoSearchFolder extends SearchFolder {
 		for (SearchFolderSearchResult result : results) {
 			searchResultIds.add(result.getId());
 		}
-		searchFolderObject.put(MongoWorkspaceConstants.SEARCHRESULTSLIST,
+		searchFolderObject.put(MongoWorkspaceConstants.SEARCHLIST,
 				searchResultIds);
 		if (getID() != null && !getID().isEmpty()) {
 			searchFolderObject.put("_id", ObjectId.massageToObjectId(getID()));

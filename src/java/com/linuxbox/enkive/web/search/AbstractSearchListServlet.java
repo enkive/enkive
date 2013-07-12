@@ -45,7 +45,6 @@ import com.linuxbox.enkive.workspace.Workspace;
 import com.linuxbox.enkive.workspace.WorkspaceException;
 import com.linuxbox.enkive.workspace.WorkspaceService;
 import com.linuxbox.enkive.workspace.searchQuery.SearchQuery;
-import com.linuxbox.enkive.workspace.searchResult.SearchResult;
 
 public abstract class AbstractSearchListServlet extends EnkiveServlet {
 	/**
@@ -110,32 +109,31 @@ public abstract class AbstractSearchListServlet extends EnkiveServlet {
 					.getActiveWorkspace(getAuthenticationService()
 							.getUserName());
 
-			List<SearchResult> searchResults = getSearches(workspace);
+			List<SearchQuery> searchQueries = getSearches(workspace);
 
-			pageInfo.setItemTotal(searchResults.size());
+			pageInfo.setItemTotal(searchQueries.size());
 			@SuppressWarnings("unchecked")
-			List<SearchResult> searchesSublist = (List<SearchResult>) pageInfo
-					.getSubList(searchResults);
+			List<SearchQuery> searchesSublist = (List<SearchQuery>) pageInfo
+					.getSubList(searchQueries);
 
-			searchesSublist = Workspace.sortSearchResults(searchesSublist,
+			searchesSublist = Workspace.sortSearches(searchesSublist,
 					sortBy, sortDir);
 
-			for (SearchResult searchResult : searchesSublist) {
+			for (SearchQuery searchQuery : searchesSublist) {
 				try {
 
-					SearchQuery searchQuery = searchResult.getSearchQuery();
 					JSONObject search = new JSONObject();
-					search.put(WebConstants.SEARCH_ID_TAG, searchResult.getId());
+					search.put(WebConstants.SEARCH_ID_TAG, searchQuery.getId());
 
 					search.put(WebConstants.SEARCH_NAME_TAG,
 							searchQuery.getName());
 					search.put(WebConstants.STATUS_ID_TAG,
-							searchResult.getStatus());
+							searchQuery.getStatus());
 					search.put(WebConstants.SEARCH_IS_SAVED,
-							searchResult.isSaved());
+							searchQuery.isSaved());
 					search.put(WebConstants.SEARCH_DATE_TAG,
 							GeneralConstants.NUMERIC_FORMAT_W_MILLIS
-									.format(searchResult.getTimestamp()));
+									.format(searchQuery.getTimestamp()));
 
 					JSONArray criteriaArray = new JSONArray();
 					for (Entry<String, String> criterion : searchQuery
@@ -155,7 +153,7 @@ public abstract class AbstractSearchListServlet extends EnkiveServlet {
 				} catch (JSONException e) {
 					if (LOGGER.isWarnEnabled())
 						LOGGER.warn("error creating JSON object for search "
-								+ searchResult.getId());
+								+ searchQuery.getId());
 				}
 			}
 		} catch (WorkspaceException e) {
@@ -177,7 +175,7 @@ public abstract class AbstractSearchListServlet extends EnkiveServlet {
 		return searches;
 	}
 
-	abstract List<SearchResult> getSearches(Workspace workspace)
+	abstract List<SearchQuery> getSearches(Workspace workspace)
 			throws WorkspaceException;
 
 }

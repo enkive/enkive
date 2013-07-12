@@ -21,7 +21,7 @@ package com.linuxbox.enkive.workspace;
 
 import java.util.Collection;
 
-import com.linuxbox.enkive.workspace.searchResult.SearchResult;
+import com.linuxbox.enkive.workspace.searchQuery.SearchQuery;
 
 /**
  * Interface for the creation of and access to @ref Workspace objects.
@@ -40,7 +40,7 @@ public interface WorkspaceService extends WorkspaceServiceMBean {
 	Collection<Workspace> getUserWorkspaces(String userId)
 			throws WorkspaceException;
 
-	SearchResult getSearchResult(String searchResultId)
+	SearchQuery getSearch(String searchId)
 			throws WorkspaceException;
 
 /*	SearchFolder getSearchFolder(String searchFolderId)

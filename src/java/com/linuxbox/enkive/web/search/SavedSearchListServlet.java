@@ -23,7 +23,7 @@ import java.util.List;
 
 import com.linuxbox.enkive.workspace.Workspace;
 import com.linuxbox.enkive.workspace.WorkspaceException;
-import com.linuxbox.enkive.workspace.searchResult.SearchResult;
+import com.linuxbox.enkive.workspace.searchQuery.SearchQuery;
 
 public class SavedSearchListServlet extends AbstractSearchListServlet {
 
@@ -33,9 +33,9 @@ public class SavedSearchListServlet extends AbstractSearchListServlet {
 	private static final long serialVersionUID = 6786720212005301805L;
 
 	@Override
-	List<SearchResult> getSearches(Workspace workspace)
+	List<SearchQuery> getSearches(Workspace workspace)
 			throws WorkspaceException {
-		return workspace.getSavedSearchResults();
+		return workspace.getSavedSearches();
 	}
 
 }

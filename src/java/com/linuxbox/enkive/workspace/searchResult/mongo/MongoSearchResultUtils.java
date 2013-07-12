@@ -36,6 +36,12 @@ import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
 
+/**
+ * Utility class to sort SearchResults by characteristics of the messages in the
+ * results.
+ * @author dang
+ *
+ */
 public class MongoSearchResultUtils {
 
 	DBCollection messageColl;

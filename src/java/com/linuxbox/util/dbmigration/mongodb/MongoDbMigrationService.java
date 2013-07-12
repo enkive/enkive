@@ -78,8 +78,7 @@ public class MongoDbMigrationService extends DbMigrationService implements
 			DbStatusRecord record = new DbStatusRecord(new DbVersion(
 					databaseVersion.ordinal), DbStatusRecord.Status.STORED,
 					new Date());
-			DBObject mongoObj = dbStatusRecordToDbObject(record);
-			migrationsCollection.save(mongoObj);
+			addDbStatusRecord(record);
 			return record;
 		}
 
@@ -90,8 +89,7 @@ public class MongoDbMigrationService extends DbMigrationService implements
 			// if there is no record, create one with ordinal db version 0
 			DbStatusRecord record = new DbStatusRecord(new DbVersion(0),
 					DbStatusRecord.Status.STORED, new Date());
-			DBObject mongoObj = dbStatusRecordToDbObject(record);
-			migrationsCollection.save(mongoObj);
+			addDbStatusRecord(record);
 			return record;
 		} else {
 			return dbObjectToDBStatusRecord(result);

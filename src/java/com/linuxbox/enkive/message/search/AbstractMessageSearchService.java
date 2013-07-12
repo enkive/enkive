@@ -38,10 +38,17 @@ import com.linuxbox.enkive.docsearch.DocSearchQueryService;
 import com.linuxbox.enkive.message.search.exception.MessageSearchException;
 import com.linuxbox.enkive.workspace.WorkspaceException;
 import com.linuxbox.enkive.workspace.searchQuery.SearchQuery;
+import com.linuxbox.enkive.workspace.searchQuery.SearchQuery.Status;
+import com.linuxbox.enkive.workspace.searchQuery.SearchQueryBuilder;
 import com.linuxbox.enkive.workspace.searchResult.SearchResult;
-import com.linuxbox.enkive.workspace.searchResult.SearchResult.Status;
-import com.linuxbox.enkive.workspace.searchResult.SearchResultBuilder;
 
+/**
+ * Common code for implementations of @ref MessageSearchService.  Creates a @ref
+ * SearchQuery to represent the search, then calls into the implementation to
+ * get the list of messages that match.  These are stored in the results of the query.
+ * @author dang
+ *
+ */
 public abstract class AbstractMessageSearchService implements
 		MessageSearchService {
 
@@ -49,15 +56,16 @@ public abstract class AbstractMessageSearchService implements
 			.getLog("com.linuxbox.enkive.message.search");
 
 	protected DocSearchQueryService docSearchService;
-	protected SearchResultBuilder searchResultBuilder;
+	protected SearchQueryBuilder searchQueryBuilder;
 
 	@Override
-	public SearchResult search(Map<String, String> fields)
+	public SearchQuery search(Map<String, String> fields)
 			throws MessageSearchException {
 		try {
-			// build an object to hold the search results; search is done
-			// further below
-			SearchResult result = searchResultBuilder.getSearchResult();
+			SearchQuery query = searchQueryBuilder.getSearchQuery();
+			query.setCriteria(fields);
+			SearchResult result = query.getResult();
+
 			LOGGER.trace("AbstractMessageSearchService.search function looking for messages w/ following criteria: "
 					+ fields.toString());
 
@@ -66,10 +74,10 @@ public abstract class AbstractMessageSearchService implements
 
 			// complete the search result data
 			result.setMessageIds(resultMessageIDs);
-			result.setTimestamp(new Date());
-			result.setStatus(Status.COMPLETE);
+			query.setTimestamp(new Date());
+			query.setStatus(Status.COMPLETE);
 
-			return result;
+			return query;
 		} catch (WorkspaceException e) {
 			throw new MessageSearchException(
 					"Could not create new search result", e);
@@ -77,51 +85,44 @@ public abstract class AbstractMessageSearchService implements
 	}
 
 	@Override
-	public SearchResult updateSearch(SearchQuery query)
-			throws MessageSearchException {
-		try {
-			SearchResult result = searchResultBuilder.getSearchResult(query.getResultId());
-			Map<String, String> fields = query.getCriteria();
+	public void updateSearch(SearchQuery query) throws MessageSearchException {
+		SearchResult result = query.getResult();
+		Map<String, String> fields = query.getCriteria();
 
-			TreeSet<String> sortedUUIDs = new TreeSet<String>(result.getMessageIds());
+		TreeSet<String> sortedUUIDs = new TreeSet<String>(
+				result.getMessageIds());
+		fields.put(INITIAL_MESSAGE_UUID_PARAMETER, sortedUUIDs.last());
 
-			fields.put(INITIAL_MESSAGE_UUID_PARAMETER, sortedUUIDs.last());
-			LOGGER.trace("AbstractMessageSearchService.updateSearch function looking for messages w/ following criteria: "
-					+ fields.toString());
+		LOGGER.trace("AbstractMessageSearchService.updateSearch function looking for messages w/ following criteria: "
+				+ fields.toString());
 
-			// do the search
-			final Set<String> resultMessageIDs = searchImpl(fields);
+		// do the search
+		final Set<String> resultMessageIDs = searchImpl(fields);
 
-			// Add into the previous results
-			resultMessageIDs.addAll(sortedUUIDs);
+		// Add into the previous results
+		resultMessageIDs.addAll(sortedUUIDs);
 
-			// complete the search result data
-			result.setMessageIds(resultMessageIDs);
-			result.setTimestamp(new Date());
-			result.setStatus(Status.COMPLETE);
-
-			return result;
-		} catch (WorkspaceException e) {
-			throw new MessageSearchException(
-					"Could not create new search result", e);
-		}
+		// complete the search result data
+		result.setMessageIds(resultMessageIDs);
+		query.setTimestamp(new Date());
+		query.setStatus(Status.COMPLETE);
 	}
 
 	@Override
 	@Async
-	public Future<SearchResult> searchAsync(final Map<String, String> fields)
+	public Future<SearchQuery> searchAsync(final Map<String, String> fields)
 			throws MessageSearchException {
-		FutureTask<SearchResult> searchFuture = new FutureTask<SearchResult>(
-				new Callable<SearchResult>() {
-					public SearchResult call() {
-						SearchResult result = null;
+		FutureTask<SearchQuery> searchFuture = new FutureTask<SearchQuery>(
+				new Callable<SearchQuery>() {
+					public SearchQuery call() {
+						SearchQuery query = null;
 						try {
-							result = search(fields);
+							query = search(fields);
 						} catch (MessageSearchException e) {
 							if (LOGGER.isWarnEnabled())
 								LOGGER.warn("Error Searching for message", e);
 						}
-						return result;
+						return query;
 					}
 				});
 		searchFuture.run();
@@ -140,12 +141,12 @@ public abstract class AbstractMessageSearchService implements
 		this.docSearchService = docSearchService;
 	}
 
-	public SearchResultBuilder getSearchResultBuilder() {
-		return searchResultBuilder;
+	public SearchQueryBuilder getSearchQueryBuilder() {
+		return searchQueryBuilder;
 	}
 
 	@Required
-	public void setSearchResultBuilder(SearchResultBuilder searchResultBuilder) {
-		this.searchResultBuilder = searchResultBuilder;
+	public void setSearchQueryBuilder(SearchQueryBuilder searchQueryBuilder) {
+		this.searchQueryBuilder = searchQueryBuilder;
 	}
 }

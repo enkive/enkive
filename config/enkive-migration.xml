@@ -28,6 +28,11 @@
 		<constructor-arg value="0" />
 		<constructor-arg value="1" />
 	</bean>
+	<bean class="com.linuxbox.util.dbmigration.NullDbMigration">
+		<constructor-arg ref="AuditLogMigrator" />
+		<constructor-arg value="1" />
+		<constructor-arg value="2" />
+	</bean>
 
 	<!-- MESSAGE STORE -->
 
@@ -40,6 +45,11 @@
 		<constructor-arg ref="MessageStoreMigrator" />
 		<constructor-arg value="0" />
 		<constructor-arg value="1" />
+	</bean>
+	<bean class="com.linuxbox.util.dbmigration.NullDbMigration">
+		<constructor-arg ref="MessageStoreMigrator" />
+		<constructor-arg value="1" />
+		<constructor-arg value="2" />
 	</bean>
 
 
@@ -55,6 +65,11 @@
 		<constructor-arg value="0" />
 		<constructor-arg value="1" />
 	</bean>
+	<bean class="com.linuxbox.util.dbmigration.NullDbMigration">
+		<constructor-arg ref="DocStoreMigrator" />
+		<constructor-arg value="1" />
+		<constructor-arg value="2" />
+	</bean>
 
 	<!-- DOCUMENT LOCKING SERVICE -->
 
@@ -68,6 +83,11 @@
 		<constructor-arg ref="DocLockMigrator" />
 		<constructor-arg value="0" />
 		<constructor-arg value="1" />
+	</bean>
+	<bean class="com.linuxbox.util.dbmigration.NullDbMigration">
+		<constructor-arg ref="DocLockMigrator" />
+		<constructor-arg value="1" />
+		<constructor-arg value="2" />
 	</bean>
 
 
@@ -83,6 +103,11 @@
 		<constructor-arg value="0" />
 		<constructor-arg value="1" />
 	</bean>
+	<bean class="com.linuxbox.util.dbmigration.NullDbMigration">
+		<constructor-arg ref="IndexerQueueMigrator" />
+		<constructor-arg value="1" />
+		<constructor-arg value="2" />
+	</bean>
 
 
 	<!-- IMAP ACCESS -->
@@ -97,6 +122,11 @@
 		<constructor-arg value="0" />
 		<constructor-arg value="1" />
 	</bean>
+	<bean class="com.linuxbox.util.dbmigration.NullDbMigration">
+		<constructor-arg ref="ImapAccessMigrator" />
+		<constructor-arg value="1" />
+		<constructor-arg value="2" />
+	</bean>
 
 
 	<!-- STATISTICS -->
@@ -108,6 +138,11 @@
 
 	<bean class="com.linuxbox.enkive.statistics.migration.StatsMigration0to1">
 		<constructor-arg ref="StatsMigrator" />
+	</bean>
+	<bean class="com.linuxbox.util.dbmigration.NullDbMigration">
+		<constructor-arg ref="StatsMigrator" />
+		<constructor-arg value="1" />
+		<constructor-arg value="2" />
 	</bean>
 
 
@@ -122,6 +157,9 @@
 		<constructor-arg ref="WorkspacesMigrator" />
 		<constructor-arg value="0" />
 		<constructor-arg value="1" />
+	</bean>
+	<bean class="com.linuxbox.enkive.workspace.migration.WorkspaceMigration1to2">
+		<constructor-arg ref="WorkspacesMigrator" />
 	</bean>
 
 

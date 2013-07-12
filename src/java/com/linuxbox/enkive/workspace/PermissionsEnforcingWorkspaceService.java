@@ -29,7 +29,7 @@ import com.linuxbox.enkive.authentication.AuthenticationException;
 import com.linuxbox.enkive.authentication.AuthenticationService;
 import com.linuxbox.enkive.exception.CannotGetPermissionsException;
 import com.linuxbox.enkive.permissions.PermissionService;
-import com.linuxbox.enkive.workspace.searchResult.SearchResult;
+import com.linuxbox.enkive.workspace.searchQuery.SearchQuery;
 
 /**
  * Wrapper for another @ref WorkspaceService that enforces permissions by checking an
@@ -146,9 +146,9 @@ public class PermissionsEnforcingWorkspaceService implements WorkspaceService {
 	}
 
 	@Override
-	public SearchResult getSearchResult(String searchResultId)
+	public SearchQuery getSearch(String searchId)
 			throws WorkspaceException {
-		return workspaceService.getSearchResult(searchResultId);
+		return workspaceService.getSearch(searchId);
 	}
 
 /*	@Override

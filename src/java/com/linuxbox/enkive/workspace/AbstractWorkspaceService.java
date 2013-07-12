@@ -19,8 +19,8 @@
  *******************************************************************************/
 package com.linuxbox.enkive.workspace;
 
-import com.linuxbox.enkive.workspace.searchResult.SearchResult;
-import com.linuxbox.enkive.workspace.searchResult.SearchResultBuilder;
+import com.linuxbox.enkive.workspace.searchQuery.SearchQuery;
+import com.linuxbox.enkive.workspace.searchQuery.SearchQueryBuilder;
 import com.linuxbox.util.MBeanUtils;
 
 /**
@@ -33,7 +33,7 @@ import com.linuxbox.util.MBeanUtils;
 public abstract class AbstractWorkspaceService implements WorkspaceService {
 
 	protected WorkspaceBuilder workspaceBuilder;
-	protected SearchResultBuilder searchResultBuilder;
+	protected SearchQueryBuilder searchQueryBuilder;
 //	protected SearchFolderBuilder searchFolderBuilder;
 
 	public AbstractWorkspaceService() {
@@ -54,12 +54,12 @@ public abstract class AbstractWorkspaceService implements WorkspaceService {
 		this.workspaceBuilder = workspaceBuilder;
 	}
 
-	public SearchResultBuilder getSearchResultBuilder() {
-		return searchResultBuilder;
+	public SearchQueryBuilder getSearchQueryBuilder() {
+		return searchQueryBuilder;
 	}
 
-	public void setSearchResultBuilder(SearchResultBuilder searchResultBuilder) {
-		this.searchResultBuilder = searchResultBuilder;
+	public void setSearchQueryBuilder(SearchQueryBuilder searchQueryBuilder) {
+		this.searchQueryBuilder = searchQueryBuilder;
 	}
 
 /*	public SearchFolderBuilder getSearchFolderBuilder() {
@@ -77,9 +77,9 @@ public abstract class AbstractWorkspaceService implements WorkspaceService {
 	}
 
 	@Override
-	public SearchResult getSearchResult(String searchResultID)
+	public SearchQuery getSearch(String searchID)
 			throws WorkspaceException {
-		return searchResultBuilder.getSearchResult(searchResultID);
+		return searchQueryBuilder.getSearchQuery(searchID);
 	}
 
 /*	@Override

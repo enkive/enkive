@@ -94,7 +94,7 @@
 		class="com.linuxbox.enkive.imap.mongo.MongoImapAccountCreationMessageSearchService">
 		<constructor-arg ref="MessageStoreDbInfo" />
 		<property name="docSearchService" ref="DocSearchQueryService" />
-		<property name="searchResultBuilder" ref="SearchResultBuilder" />
+		<property name="searchQueryBuilder" ref="SearchQueryBuilder" />
 	</bean>
 
 	<bean name="ImapMessageRetentionPolicyEnforcer"

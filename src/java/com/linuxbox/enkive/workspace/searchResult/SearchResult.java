@@ -19,56 +19,25 @@
  *******************************************************************************/
 package com.linuxbox.enkive.workspace.searchResult;
 
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
 import com.linuxbox.enkive.workspace.WorkspaceException;
-import com.linuxbox.enkive.workspace.searchQuery.SearchQuery;
-import com.linuxbox.enkive.workspace.searchQuery.SearchQueryBuilder;
 
+/**
+ * Abstract representation of a search result.  A result consists of the set of
+ * message IDs that match the search, and a link to the @ref SearchQuery that
+ * generated the results.
+ * @author dang
+ *
+ */
 public abstract class SearchResult {
 
-	public enum Status {
-		QUEUED,
-
-		RUNNING,
-
-		COMPLETE,
-
-		CANCEL_REQUESTED,
-
-		CANCELED,
-
-		ERROR,
-
-		UNKNOWN; // when the status was read from DB, did not understand
-	}
-
-	protected SearchQueryBuilder searchQueryBuilder;
-
 	private String id;
-	private Date timestamp;
-	protected String executedBy;
 	private Set<String> messageIds;
-	private Status status;
 	protected String searchQueryId;
-	protected Boolean isSaved = false;
-	protected SearchQueryBuilder queryBuilder;
-
-	public static String SORTBYDATE = "sortByDate";
-	public static String SORTBYNAME = "sortByName";
-	public static String SORTBYSUBJECT = "sortBySubject";
-	public static String SORTBYSENDER = "sortBySender";
-	public static String SORTBYRECEIVER = "sortByReceiver";
-	public static String SORTBYSTATUS = "sortByStatus";
-
-	public static int SORT_ASC = 1;
-	public static int SORT_DESC = -1;
 
 	public SearchResult() {
-		this.timestamp = new Date();
-		this.status = Status.RUNNING;
 		messageIds = new HashSet<String>();
 	}
 
@@ -78,22 +47,6 @@ public abstract class SearchResult {
 
 	public void setId(String id) {
 		this.id = id;
-	}
-
-	public Date getTimestamp() {
-		return timestamp;
-	}
-
-	public void setTimestamp(Date timestamp) {
-		this.timestamp = timestamp;
-	}
-
-	public Status getStatus() {
-		return status;
-	}
-
-	public void setStatus(Status status) {
-		this.status = status;
 	}
 
 	public Set<String> getMessageIds() {
@@ -112,37 +65,9 @@ public abstract class SearchResult {
 		this.searchQueryId = searchQueryId;
 	}
 
-	public String getExecutedBy() {
-		return executedBy;
-	}
-
-	public void setExecutedBy(String executedBy) {
-		this.executedBy = executedBy;
-	}
-
-	public Boolean isSaved() {
-		return isSaved;
-	}
-
-	public void setSaved(Boolean isSaved) {
-		this.isSaved = isSaved;
-	}
-
-	public SearchQuery getSearchQuery() throws WorkspaceException {
-		return searchQueryBuilder.getSearchQuery(getSearchQueryId());
-	}
-
 	public abstract void saveSearchResult() throws WorkspaceException;
 
 	public abstract void deleteSearchResult() throws WorkspaceException;
-
-	public SearchQueryBuilder getSearchQueryBuilder() {
-		return searchQueryBuilder;
-	}
-
-	public void setSearchQueryBuilder(SearchQueryBuilder searchQueryBuilder) {
-		this.searchQueryBuilder = searchQueryBuilder;
-	}
 
 	public abstract void sortSearchResultMessages(String sortBy, int sortDir)
 			throws WorkspaceException;

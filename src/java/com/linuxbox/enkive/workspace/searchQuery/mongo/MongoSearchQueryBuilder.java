@@ -18,9 +18,18 @@
  ******************************************************************************/
 package com.linuxbox.enkive.workspace.searchQuery.mongo;
 
+import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.EXECUTEDBY;
+import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.EXECUTIONTIMESTAMP;
 import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.SEARCHCRITERIA;
-import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.SEARCHRESULTID;
+import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.SEARCHISSAVED;
 import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.SEARCHNAME;
+import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.SEARCHRESULTID;
+import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.SEARCHSTATUS;
+import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.UUID;
+
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashSet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -29,17 +38,28 @@ import org.bson.types.ObjectId;
 import com.linuxbox.enkive.workspace.WorkspaceException;
 import com.linuxbox.enkive.workspace.searchQuery.SearchQuery;
 import com.linuxbox.enkive.workspace.searchQuery.SearchQueryBuilder;
+import com.linuxbox.enkive.workspace.searchResult.SearchResult;
+import com.linuxbox.enkive.workspace.searchResult.SearchResultBuilder;
 import com.linuxbox.util.dbinfo.mongodb.MongoDbInfo;
+import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
+import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
 
+/**
+ * An implementation of the @ref SearchQueryBuilder factory for MongoDB.
+ * Creates or finds MongoSearchQuery objects.
+ * @author dang
+ *
+ */
 public class MongoSearchQueryBuilder implements SearchQueryBuilder {
 	private final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.workspaces");
 
-	protected DBCollection searchQueryColl;
+	private DBCollection searchQueryColl;
+	private SearchResultBuilder searchResultBuilder;
 
 	public MongoSearchQueryBuilder(MongoClient m, String searchQueryDBName,
 			String searchQueryCollName) {
@@ -54,6 +74,28 @@ public class MongoSearchQueryBuilder implements SearchQueryBuilder {
 		this.searchQueryColl = searchQueryColl;
 	}
 
+	public SearchResultBuilder getSearchResultBuilder() {
+		return searchResultBuilder;
+	}
+
+	public void setSearchResultBuilder(SearchResultBuilder searchResultBuilder) {
+		this.searchResultBuilder = searchResultBuilder;
+	}
+
+	@Override
+	public SearchQuery getSearchQuery() throws WorkspaceException {
+		SearchQuery query = new MongoSearchQuery(searchQueryColl);
+		SearchResult result = searchResultBuilder.getSearchResult();
+
+		query.setId(new ObjectId().toString());
+		result.setId(new ObjectId().toString());
+
+		result.setSearchQueryId(query.getId());
+		query.setResult(result);
+
+		return query;
+	}
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public SearchQuery getSearchQuery(String searchQueryId)
@@ -64,18 +106,55 @@ public class MongoSearchQueryBuilder implements SearchQueryBuilder {
 
 		query.setId(searchQueryId);
 		query.setName((String) queryObject.get(SEARCHNAME));
-		query.setResultId((String) queryObject.get(SEARCHRESULTID));
+		query.setResult(searchResultBuilder
+				.getSearchResult((String) queryObject.get(SEARCHRESULTID)));
 		query.setCriteria(((BasicDBObject) queryObject.get(SEARCHCRITERIA))
 				.toMap());
-
+		query.setTimestamp((Date) queryObject.get(EXECUTIONTIMESTAMP));
+		query.setExecutedBy((String) queryObject.get(EXECUTEDBY));
+		query.setStatus(SearchQuery.Status.valueOf((String) queryObject
+				.get(SEARCHSTATUS)));
+		if (queryObject.get(SEARCHISSAVED) != null)
+			query.setSaved((Boolean) queryObject.get(SEARCHISSAVED));
 		if (LOGGER.isInfoEnabled())
 			LOGGER.info("Retrieved Search Query " + query.getName() + " - "
 					+ query.getId());
 		return query;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	public SearchQuery getSearchQuery() throws WorkspaceException {
-		return new MongoSearchQuery(searchQueryColl);
+	public Collection<SearchQuery> getSearchQueries(
+			Collection<String> searchQueryUUIDs) throws WorkspaceException {
+
+		Collection<SearchQuery> queries = new HashSet<SearchQuery>();
+
+		BasicDBObject dbQuery = new BasicDBObject();
+		BasicDBList idList = new BasicDBList();
+		for (String searchQueryUUID : searchQueryUUIDs)
+			idList.add(ObjectId.massageToObjectId(searchQueryUUID));
+		dbQuery.put("$in", idList);
+		DBCursor searchQuery = searchQueryColl.find(new BasicDBObject(UUID,
+				dbQuery));
+		while (searchQuery.hasNext()) {
+			MongoSearchQuery query = new MongoSearchQuery(searchQueryColl);
+			DBObject queryObject = searchQuery.next();
+
+			query.setId(((ObjectId) queryObject.get(UUID)).toString());
+			query.setName((String) queryObject.get(SEARCHNAME));
+			query.setResult(searchResultBuilder
+					.getSearchResult((String) queryObject.get(SEARCHRESULTID)));
+			query.setCriteria(((BasicDBObject) queryObject.get(SEARCHCRITERIA))
+					.toMap());
+			query.setTimestamp((Date) queryObject.get(EXECUTIONTIMESTAMP));
+			query.setExecutedBy((String) queryObject.get(EXECUTEDBY));
+			query.setStatus(SearchQuery.Status.valueOf((String) queryObject
+					.get(SEARCHSTATUS)));
+			if (queryObject.get(SEARCHISSAVED) != null)
+				query.setSaved((Boolean) queryObject.get(SEARCHISSAVED));
+			queries.add(query);
+
+		}
+		return queries;
 	}
 }

@@ -76,5 +76,12 @@ public interface WebConstants {
 
 	public static final String SORTBYDATE = "sortByDate";
 	public static final String SORTBYSTATUS = "sortByStatus";
+	public static final String SORTBYNAME = "sortByName";
+	public static final String SORTBYSUBJECT = "sortBySubject";
+	public static final String SORTBYSENDER = "sortBySender";
+	public static final String SORTBYRECEIVER = "sortByReceiver";
+
+	public static final int SORT_ASC = 1;
+	public static final int SORT_DESC = -1;
 
 }

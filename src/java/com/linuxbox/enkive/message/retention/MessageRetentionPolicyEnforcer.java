@@ -71,7 +71,7 @@ public class MessageRetentionPolicyEnforcer {
 	protected SearchResult getMessagesForDeletion()
 			throws MessageSearchException {
 		return searchService.search(retentionPolicy
-				.retentionPolicyCriteriaToSearchFields());
+				.retentionPolicyCriteriaToSearchFields()).getResult();
 	}
 
 	public MessageSearchService getSearchService() {

@@ -34,8 +34,13 @@ import com.linuxbox.enkive.authentication.AuthenticationException;
 import com.linuxbox.enkive.authentication.AuthenticationService;
 import com.linuxbox.enkive.message.search.exception.MessageSearchException;
 import com.linuxbox.enkive.workspace.searchQuery.SearchQuery;
-import com.linuxbox.enkive.workspace.searchResult.SearchResult;
 
+/**
+ * Implementation of @ref MessageSearchService that wraps another one (currently
+ * @ref SizeLimitingMessageSearchService) that adds all searches to an audit log.
+ * @author dang
+ *
+ */
 public class AuditLoggingMessageSearchService implements MessageSearchService {
 
 	protected final static Log LOGGER = LogFactory
@@ -46,13 +51,13 @@ public class AuditLoggingMessageSearchService implements MessageSearchService {
 	protected MessageSearchService messageSearchService;
 
 	@Override
-	public SearchResult search(Map<String, String> fields)
+	public SearchQuery search(Map<String, String> fields)
 			throws MessageSearchException {
 
 		try {
-			SearchResult result = messageSearchService.search(fields);
-			result.setExecutedBy(authenticationService.getUserName());
-			return result;
+			SearchQuery query = messageSearchService.search(fields);
+			query.setExecutedBy(authenticationService.getUserName());
+			return query;
 		} catch (AuthenticationException e) {
 			throw new MessageSearchException(
 					"Could not get authenticated user for search", e);
@@ -69,12 +74,11 @@ public class AuditLoggingMessageSearchService implements MessageSearchService {
 	}
 
 	@Override
-	public SearchResult updateSearch(SearchQuery query)
+	public void updateSearch(SearchQuery query)
 			throws MessageSearchException {
 		try {
-			SearchResult result = messageSearchService.updateSearch(query);
-			result.setExecutedBy(authenticationService.getUserName());
-			return result;
+			messageSearchService.updateSearch(query);
+			query.setExecutedBy(authenticationService.getUserName());
 		} catch (AuthenticationException e) {
 			throw new MessageSearchException(
 					"Could not get authenticated user for search", e);
@@ -117,7 +121,7 @@ public class AuditLoggingMessageSearchService implements MessageSearchService {
 	}
 
 	@Override
-	public Future<SearchResult> searchAsync(Map<String, String> fields)
+	public Future<SearchQuery> searchAsync(Map<String, String> fields)
 			throws MessageSearchException {
 		throw new MessageSearchException("Unimplemented");
 	}

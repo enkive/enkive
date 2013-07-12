@@ -40,13 +40,10 @@ public class MongoSearchFolderSearchResult extends SearchFolderSearchResult {
 	@Override
 	public void saveSearchResult() throws WorkspaceException {
 		MongoSearchResult mSearchResult = new MongoSearchResult(
-				searchFolderSearchResultsColl, queryBuilder);
+				searchFolderSearchResultsColl);
 
-		mSearchResult.setExecutedBy(getExecutedBy());
 		mSearchResult.setMessageIds(getMessageIds());
-		mSearchResult.setSearchQueryBuilder(getSearchQueryBuilder());
 		mSearchResult.setSearchQueryId(getSearchQueryId());
-		mSearchResult.setTimestamp(getTimestamp());
 		mSearchResult.setId(getId());
 		mSearchResult.saveSearchResult();
 		// Set the ID in case the ID was not set previously
@@ -57,13 +54,10 @@ public class MongoSearchFolderSearchResult extends SearchFolderSearchResult {
 	@Override
 	public void deleteSearchResult() throws WorkspaceException {
 		MongoSearchResult mSearchResult = new MongoSearchResult(
-				searchFolderSearchResultsColl, queryBuilder);
+				searchFolderSearchResultsColl);
 
-		mSearchResult.setExecutedBy(getExecutedBy());
 		mSearchResult.setMessageIds(getMessageIds());
-		mSearchResult.setSearchQueryBuilder(getSearchQueryBuilder());
 		mSearchResult.setSearchQueryId(getSearchQueryId());
-		mSearchResult.setTimestamp(getTimestamp());
 		mSearchResult.setId(getId());
 		mSearchResult.deleteSearchResult();
 	}

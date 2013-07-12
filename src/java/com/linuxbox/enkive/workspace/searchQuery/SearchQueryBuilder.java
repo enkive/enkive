@@ -18,8 +18,15 @@
  ******************************************************************************/
 package com.linuxbox.enkive.workspace.searchQuery;
 
+import java.util.Collection;
+
 import com.linuxbox.enkive.workspace.WorkspaceException;
 
+/**
+ * A factory interface for creating and finding @ref SeachQuery objects.
+ * @author dang
+ *
+ */
 public interface SearchQueryBuilder {
 
 	public SearchQuery getSearchQuery() throws WorkspaceException;
@@ -27,4 +34,7 @@ public interface SearchQueryBuilder {
 	public SearchQuery getSearchQuery(String searchQueryId)
 			throws WorkspaceException;
 
+	public Collection<SearchQuery> getSearchQueries(
+			Collection<String> searchQueryUUIDs)
+			throws WorkspaceException;
 }

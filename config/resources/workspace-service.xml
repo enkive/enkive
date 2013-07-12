@@ -15,7 +15,7 @@
 		class="com.linuxbox.enkive.workspace.mongo.MongoWorkspaceService">
 		<constructor-arg ref="UserWorkspacesDbInfo" />
 		<property name="workspaceBuilder" ref="WorkspaceBuilder" />
-		<property name="searchResultBuilder" ref="SearchResultBuilder" />
+		<property name="searchQueryBuilder" ref="SearchQueryBuilder" />
 		<!--<property name="searchFolderBuilder" ref="SearchFolderBuilder" />-->
 	</bean>
 
@@ -28,14 +28,7 @@
 	<bean id="WorkspaceBuilder" name="MongoWorkspaceBuilder"
 		class="com.linuxbox.enkive.workspace.mongo.MongoWorkspaceBuilder">
 		<constructor-arg ref="WorkspacesDbInfo" />
-		<constructor-arg ref="MongoSearchResultBuilder" />
-	</bean>
-
-	<bean id="SearchResultBuilder" name="MongoSearchResultBuilder"
-		class="com.linuxbox.enkive.workspace.searchResult.mongo.MongoSearchResultBuilder">
-		<constructor-arg ref="WorkspaceResultsDbInfo" />
-		<constructor-arg ref="MongoSearchQueryBuilder" />
-		<property name="searchResultUtils" ref="MongoSearchResultUtils" />
+		<property name="searchQueryBuilder" ref="SearchQueryBuilder" />
 	</bean>
 
 	<!--<bean id="SearchFolderBuilder" name="MongoSearchFolderBuilder"-->
@@ -47,14 +40,21 @@
 		<!--<property name="retrieverService" ref="MessageRetrieverService" />-->
 	<!--</bean>-->
 
-	<bean id="SearchFolderSearchResultBuilder" name="MongoSearchFolderSearchResultBuilder"
-		class="com.linuxbox.enkive.workspace.searchFolder.mongo.MongoSearchFolderSearchResultBuilder">
-		<constructor-arg ref="WorkspaceFoldersResultsDbInfo" />
-	</bean>
+	<!--<bean id="SearchFolderSearchResultBuilder" name="MongoSearchFolderSearchResultBuilder"-->
+		<!--class="com.linuxbox.enkive.workspace.searchFolder.mongo.MongoSearchFolderSearchResultBuilder">-->
+		<!--<constructor-arg ref="WorkspaceFoldersResultsDbInfo" />-->
+	<!--</bean>-->
 
 	<bean id="SearchQueryBuilder" name="MongoSearchQueryBuilder"
 		class="com.linuxbox.enkive.workspace.searchQuery.mongo.MongoSearchQueryBuilder">
 		<constructor-arg ref="WorkspaceQueriesDbInfo" />
+		<property name="searchResultBuilder" ref="SearchResultBuilder" />
+	</bean>
+
+	<bean id="SearchResultBuilder" name="MongoSearchResultBuilder"
+		class="com.linuxbox.enkive.workspace.searchResult.mongo.MongoSearchResultBuilder">
+		<constructor-arg ref="WorkspaceResultsDbInfo" />
+		<property name="searchResultUtils" ref="MongoSearchResultUtils" />
 	</bean>
 
 </beans>

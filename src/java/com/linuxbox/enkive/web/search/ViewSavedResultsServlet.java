@@ -57,7 +57,6 @@ import com.linuxbox.enkive.web.WebScriptUtils;
 import com.linuxbox.enkive.workspace.WorkspaceException;
 import com.linuxbox.enkive.workspace.WorkspaceService;
 import com.linuxbox.enkive.workspace.searchQuery.SearchQuery;
-import com.linuxbox.enkive.workspace.searchResult.SearchResult;
 
 /**
  * This webscript is run when a user wants to see the results of a prior search,
@@ -105,19 +104,16 @@ public class ViewSavedResultsServlet extends EnkiveServlet {
 			if (LOGGER.isInfoEnabled())
 				LOGGER.info("Loading " + searchId);
 
-			SearchResult searchResult = workspaceService
-					.getSearchResult(searchId);
+			SearchQuery query = workspaceService.getSearch(searchId);
 
 			if (sortBy != null && !sortBy.equals(""))
-				searchResult.sortSearchResultMessages(sortBy, sortDir);
-
-			SearchQuery searchQuery = searchResult.getSearchQuery();
+				query.getResult().sortSearchResultMessages(sortBy, sortDir);
 
 			JSONObject jsonCriteria = new JSONObject();
 			/* Query */
 			try {
-				for (String parameter : searchQuery.getCriteriaParameters()) {
-					String value = searchQuery.getCriteriumValue(parameter);
+				for (String parameter : query.getCriteriaParameters()) {
+					String value = query.getCriteriumValue(parameter);
 					jsonCriteria.put(parameter, value);
 				}
 			} catch (JSONException e) {
@@ -131,14 +127,13 @@ public class ViewSavedResultsServlet extends EnkiveServlet {
 			try {
 
 				List<String> messageIds = new ArrayList<String>(
-						searchResult.getMessageIds());
+						query.getResult().getMessageIds());
 				@SuppressWarnings("unchecked")
 				List<MessageSummary> messageSummaries = archiveService
 						.retrieveSummary((List<String>) pageInfo
 								.getSubList(messageIds));
 				pageInfo.setItemTotal(messageIds.size());
-				dataJSON.put(WebConstants.STATUS_ID_TAG,
-						searchResult.getStatus());
+				dataJSON.put(WebConstants.STATUS_ID_TAG, query.getStatus());
 
 				JSONArray jsonMessageSummaryList = SearchResultsBuilder
 						.getMessageListJSON((Collection<MessageSummary>) messageSummaries);

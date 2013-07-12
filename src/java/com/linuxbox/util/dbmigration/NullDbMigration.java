@@ -9,8 +9,8 @@ public class NullDbMigration extends DbMigration {
 	}
 	
 	@Override
-	public boolean migrate(DbInfo dbInfo)  {
+	public void migrate(DbInfo dbInfo)  {
 		// since this is the null db migration, does nothing
-		return true;
+		return;
 	}
 }

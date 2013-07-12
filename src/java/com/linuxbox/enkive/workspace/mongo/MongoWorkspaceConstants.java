@@ -32,21 +32,22 @@ public class MongoWorkspaceConstants {
 	public static String MODIFIEDDATE = "ModifiedUpdate";
 	public static String CREATOR = "Creator";
 	public static String WORKSPACENAME = "WorkspaceName";
-	public static String SEARCHRESULTSLIST = "SearchResultsList";
+	public static String SEARCHLIST = "SearchList";
 	public static String LASTQUERY = "LastQuery";
 //	public static String SEARCHFOLDERID = "SearchFolderId";
 
 	// Search Result Constants
-	public static String EXECUTIONTIMESTAMP = "ExecutionTimestamp";
-	public static String EXECUTEDBY = "ExecutedBy";
-	public static String SEARCHRESULTS = "SearchResults";
-	public static String SEARCHSTATUS = "Status";
 	public static String SEARCHQUERYID = "SearchQueryId";
-	public static String SEARCHISSAVED = "IsSaved";
+	public static String SEARCHRESULTS = "SearchResults";
 
 	// Search Query Constants
+	public static String SEARCHES = "SearchQueries";
 	public static String SEARCHNAME = "SearchName";
 	public static String SEARCHCRITERIA = "SearchCriteria";
 	public static String SEARCHRESULTID = "SearchResultId";
+	public static String SEARCHSTATUS = "Status";
+	public static String SEARCHISSAVED = "IsSaved";
+	public static String EXECUTIONTIMESTAMP = "ExecutionTimestamp";
+	public static String EXECUTEDBY = "ExecutedBy";
 
 }

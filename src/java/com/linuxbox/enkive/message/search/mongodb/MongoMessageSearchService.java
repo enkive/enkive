@@ -50,6 +50,14 @@ import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
 
+/**
+ * Implementation of @ref AbstractMessageSearchService for MongoDB.  Searches
+ * are constructed using a set of query builders that operate on the text
+ * criteria passed into the search.  The resulting DBObjects are used to search
+ * the "emailMessages" collection in MongoDB.
+ * @author dang
+ *
+ */
 public class MongoMessageSearchService extends AbstractMessageSearchService {
 	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.searchService.mongodb");

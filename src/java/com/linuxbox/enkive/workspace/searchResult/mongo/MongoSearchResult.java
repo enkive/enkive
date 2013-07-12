@@ -18,12 +18,12 @@
  ******************************************************************************/
 package com.linuxbox.enkive.workspace.searchResult.mongo;
 
-import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.EXECUTEDBY;
-import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.EXECUTIONTIMESTAMP;
-import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.SEARCHISSAVED;
+import static com.linuxbox.enkive.web.WebConstants.SORTBYDATE;
+import static com.linuxbox.enkive.web.WebConstants.SORTBYRECEIVER;
+import static com.linuxbox.enkive.web.WebConstants.SORTBYSENDER;
+import static com.linuxbox.enkive.web.WebConstants.SORTBYSUBJECT;
 import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.SEARCHQUERYID;
 import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.SEARCHRESULTS;
-import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.SEARCHSTATUS;
 import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.UUID;
 
 import java.util.Set;
@@ -33,12 +33,19 @@ import org.apache.commons.logging.LogFactory;
 import org.bson.types.ObjectId;
 
 import com.linuxbox.enkive.workspace.WorkspaceException;
-import com.linuxbox.enkive.workspace.searchQuery.SearchQueryBuilder;
 import com.linuxbox.enkive.workspace.searchResult.SearchResult;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 
+/**
+ * Implementation of @ref SearchResult stored in MongoDB.  Results are stored in
+ * a collection named "searchResults", and consist of a document per query
+ * containing the list of message IDs matching that query at the time the query
+ * was run, and the ID of the query in question.
+ * @author dang
+ *
+ */
 public class MongoSearchResult extends SearchResult {
 	DBCollection searchResultsColl;
 	protected MongoSearchResultUtils searchResultUtils;
@@ -46,22 +53,16 @@ public class MongoSearchResult extends SearchResult {
 	private final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.workspaces");
 
-	public MongoSearchResult(DBCollection searchResultsColl,
-			SearchQueryBuilder queryBuilder) {
+	public MongoSearchResult(DBCollection searchResultsColl) {
 		this.searchResultsColl = searchResultsColl;
-		setSearchQueryBuilder(queryBuilder);
 	}
 
 	@Override
 	public void saveSearchResult() throws WorkspaceException {
 
 		BasicDBObject searchResultObject = new BasicDBObject();
-		searchResultObject.put(EXECUTIONTIMESTAMP, getTimestamp());
-		searchResultObject.put(EXECUTEDBY, getExecutedBy());
 		searchResultObject.put(SEARCHRESULTS, getMessageIds());
-		searchResultObject.put(SEARCHSTATUS, getStatus().toString());
 		searchResultObject.put(SEARCHQUERYID, getSearchQueryId());
-		searchResultObject.put(SEARCHISSAVED, isSaved());
 
 		if (getId() != null && !getId().isEmpty()) {
 			DBObject toUpdate = searchResultsColl.findOne(ObjectId

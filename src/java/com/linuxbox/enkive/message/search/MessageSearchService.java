@@ -24,39 +24,43 @@ import java.util.concurrent.Future;
 
 import com.linuxbox.enkive.message.search.exception.MessageSearchException;
 import com.linuxbox.enkive.workspace.searchQuery.SearchQuery;
-import com.linuxbox.enkive.workspace.searchResult.SearchResult;
 
+/**
+ * Interface for a service to perform searches for messages.  Provides for
+ * Synchronous and Asynchronous searches, as well as for updating an existing
+ * search.
+ * @author dang
+ *
+ */
 public interface MessageSearchService {
 
 	/**
-	 * Perform a search for a user and return a populated SearchResult object.
+	 * Perform a search for a user and return a populated SearchQuery object.
 	 * This search function stores results in a workspace and stores audit log
 	 * events.
 	 * 
 	 * @param fields
-	 * 
-	 * @return
+	 * @return query
 	 * @throws MessageSearchErception
 	 */
-	SearchResult search(Map<String, String> fields)
+	SearchQuery search(Map<String, String> fields)
 			throws MessageSearchException;
 
 	/**
 	 * Perform an asynchronous search and return a Future<SearchResult> object.
 	 * 
 	 * @param fields
-	 * @return
-	 * 
+	 * @return Future that will get query when done
 	 * @throws MessageSearchErception
 	 */
-	Future<SearchResult> searchAsync(Map<String, String> fields)
+	Future<SearchQuery> searchAsync(Map<String, String> fields)
 			throws MessageSearchException;
 
 	/**
 	 * Cancel an asynchronous search based on the search identifier
 	 * 
 	 * @param searchId
-	 * @return
+	 * @return true if cancelled, false otherwise
 	 * @throws MessageSearchException
 	 */
 	boolean cancelAsyncSearch(String searchId) throws MessageSearchException;
@@ -65,11 +69,9 @@ public interface MessageSearchService {
 	 * Update the existing results of a previous query for any changes in the database.
 	 *
 	 * @param query	Previous query to update
-	 *
-	 * @return
 	 * @throws MessageSearchErception
 	 */
-	SearchResult updateSearch(SearchQuery query)
+	void updateSearch(SearchQuery query)
 			throws MessageSearchException;
 
 }
