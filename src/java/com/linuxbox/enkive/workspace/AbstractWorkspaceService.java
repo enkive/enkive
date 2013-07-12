@@ -25,6 +25,13 @@ import com.linuxbox.enkive.workspace.searchResult.SearchResult;
 import com.linuxbox.enkive.workspace.searchResult.SearchResultBuilder;
 import com.linuxbox.util.MBeanUtils;
 
+/**
+ * Abstract base class for @ref WorkspaceService implementations.  This contains
+ * some Builders, and implements the portions of the service that can be
+ * delegated to such Builders.
+ * @author dang
+ *
+ */
 public abstract class AbstractWorkspaceService implements WorkspaceService {
 
 	protected WorkspaceBuilder workspaceBuilder;

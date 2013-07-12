@@ -44,6 +44,15 @@ import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
 
+/**
+ * A @ref WorkspaceService implementation based on MongoDB.  Workspace UUIDs are
+ * stored in a Collection on a per-user basis, where each user has a Document
+ * consisting of a list of workspaces and the current active workspace.
+ * @ref Workspace objects themselves are handled by the @ref WorkspaceBuilder
+ *
+ * @author dang
+ *
+ */
 public class MongoWorkspaceService extends AbstractWorkspaceService implements
 		WorkspaceServiceMBean {
 

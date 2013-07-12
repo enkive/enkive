@@ -32,6 +32,14 @@ import com.linuxbox.enkive.permissions.PermissionService;
 import com.linuxbox.enkive.workspace.searchFolder.SearchFolder;
 import com.linuxbox.enkive.workspace.searchResult.SearchResult;
 
+/**
+ * Wrapper for another @ref WorkspaceService that enforces permissions by checking an
+ * @ref AuthenticationService before returning anything.  Currently, this wraps
+ * @ref MongoWorkspaceService
+ *
+ * @author dang
+ *
+ */
 public class PermissionsEnforcingWorkspaceService implements WorkspaceService {
 
 	protected WorkspaceService workspaceService;

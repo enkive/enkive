@@ -24,6 +24,11 @@ import java.util.Collection;
 import com.linuxbox.enkive.workspace.searchFolder.SearchFolder;
 import com.linuxbox.enkive.workspace.searchResult.SearchResult;
 
+/**
+ * Interface for the creation of and access to @ref Workspace objects.
+ * @author dang
+ *
+ */
 public interface WorkspaceService extends WorkspaceServiceMBean {
 
 	// NOTE: inherits getInteractiveSearchWaitSeconds() and
