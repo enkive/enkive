@@ -56,10 +56,15 @@ public class FileDirReader extends AbstractMessageImporter implements Runnable {
 	// Process only files in dir
 	public void sendAllFiles(File dir) throws IOException, MessagingException {
 		if (dir.isDirectory()) {
+			int count = 0;
 			System.out.println(dir.getAbsolutePath() + " - Started");
 			for (File file : dir.listFiles()) {
 				if (file.isFile()) {
 					sendMessage(file);
+					count++;
+					if (count % 100 == 0) {
+						System.out.println("..." + count);
+					}
 				} else {
 					sendAllFiles(file);
 				}
