@@ -31,6 +31,7 @@ import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstant
 import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_RAW;
 import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_SUM;
 import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_TYPE;
+import static com.linuxbox.enkive.statistics.gathering.mongodb.MongoConstants.MONGO_ID;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -65,7 +66,7 @@ public class HourConsolidator extends AbstractConsolidator {
 		Set<Map<String, Object>> queryData = client.queryStatistics(query,
 				filter);
 		for (Map<String, Object> statsMap : queryData) {
-			statsMap.remove("_id");// WARNING mongo specific pollution
+			statsMap.remove(MONGO_ID);// WARNING mongo specific pollution
 
 			if (statsMap != null && !statsMap.isEmpty()) {
 				result.add(new HashMap<String, Object>(

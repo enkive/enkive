@@ -26,6 +26,7 @@ import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstant
 import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_MIN;
 import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_SUM;
 import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_TYPE;
+import static com.linuxbox.enkive.statistics.gathering.mongodb.MongoConstants.MONGO_ID;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -54,7 +55,7 @@ public abstract class EmbeddedConsolidator extends AbstractConsolidator {
 		List<Map<String, Object>> result = createListOfMaps();
 		Set<Map<String, Object>> stats = client.queryStatistics(query);
 		for (Map<String, Object> statsMap : stats) {
-			statsMap.remove("_id");// WARNING mongo specific pollution
+			statsMap.remove(MONGO_ID);// WARNING mongo specific pollution
 			statsMap.remove(STAT_TIMESTAMP);
 			statsMap.remove(STAT_GATHERER_NAME);
 			statsMap.remove(CONSOLIDATION_TYPE);

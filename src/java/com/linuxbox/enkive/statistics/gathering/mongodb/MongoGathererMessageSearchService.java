@@ -23,6 +23,7 @@ import static com.linuxbox.enkive.search.Constants.DATE_EARLIEST_PARAMETER;
 import static com.linuxbox.enkive.search.Constants.DATE_LATEST_PARAMETER;
 import static com.linuxbox.enkive.search.Constants.DATE_TYPE;
 import static com.linuxbox.enkive.statistics.StatsConstants.SIMPLE_DATE;
+import static com.linuxbox.enkive.statistics.gathering.mongodb.MongoConstants.MONGO_ID;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -40,7 +41,7 @@ import com.mongodb.MongoClient;
 public class MongoGathererMessageSearchService extends
 		MongoMessageSearchService implements GathererMessageSearchService {
 	protected final static DBObject ID_ONLY_QUERY = BasicDBObjectBuilder
-			.start().add("_id", 1).get();
+			.start().add(MONGO_ID, 1).get();
 
 	public MongoGathererMessageSearchService(MongoClient m, String dbName,
 			String collName) {

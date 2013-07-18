@@ -35,6 +35,7 @@ import com.linuxbox.enkive.imap.EnkiveImapStore;
 import com.linuxbox.enkive.imap.message.EnkiveImapMessageMapper;
 import com.linuxbox.enkive.imap.mongo.MongoEnkiveImapConstants;
 import com.linuxbox.enkive.retriever.MessageRetrieverService;
+import com.linuxbox.util.mongodb.MongoDbConstants;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
@@ -63,7 +64,7 @@ public class MongoEnkiveImapMessageMapper extends EnkiveImapMessageMapper {
 			messageCount = 1;
 		else if (mailbox.getMailboxId() != null) {
 			BasicDBObject mailboxQueryObject = new BasicDBObject();
-			mailboxQueryObject.put("_id",
+			mailboxQueryObject.put(MongoDbConstants.OBJECT_ID_KEY,
 					ObjectId.massageToObjectId(mailbox.getMailboxId()));
 			DBObject mailboxObject = imapCollection.findOne(mailboxQueryObject);
 
@@ -88,7 +89,7 @@ public class MongoEnkiveImapMessageMapper extends EnkiveImapMessageMapper {
 
 		if (mailbox.getMailboxId() != null) {
 			BasicDBObject mailboxQueryObject = new BasicDBObject();
-			mailboxQueryObject.put("_id",
+			mailboxQueryObject.put(MongoDbConstants.OBJECT_ID_KEY,
 					ObjectId.massageToObjectId(mailbox.getMailboxId()));
 			DBObject mailboxObject = imapCollection.findOne(mailboxQueryObject);
 			Object messageIdsMap = mailboxObject

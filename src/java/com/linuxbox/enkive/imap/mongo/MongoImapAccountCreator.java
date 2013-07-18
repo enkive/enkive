@@ -37,6 +37,7 @@ import org.bson.types.ObjectId;
 import com.linuxbox.enkive.imap.EnkiveImapAccountCreator;
 import com.linuxbox.enkive.message.search.exception.MessageSearchException;
 import com.linuxbox.enkive.permissions.PermissionService;
+import com.linuxbox.util.mongodb.MongoDbConstants;
 import com.linuxbox.util.dbinfo.mongodb.MongoDbInfo;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
@@ -93,7 +94,7 @@ public class MongoImapAccountCreator implements EnkiveImapAccountCreator {
 		inboxObject.put(MongoEnkiveImapConstants.MESSAGEIDS,
 				new HashMap<String, String>());
 		imapCollection.insert(inboxObject);
-		ObjectId inboxId = (ObjectId) inboxObject.get("_id");
+		ObjectId inboxId = (ObjectId) inboxObject.get(MongoDbConstants.OBJECT_ID_KEY);
 		mailboxTable.put(inboxPath, inboxId.toString());
 
 		BasicDBObject trashObject = new BasicDBObject();
@@ -101,12 +102,12 @@ public class MongoImapAccountCreator implements EnkiveImapAccountCreator {
 		trashObject.put(MongoEnkiveImapConstants.MESSAGEIDS,
 				new HashMap<String, String>());
 		imapCollection.insert(trashObject);
-		ObjectId trashId = (ObjectId) inboxObject.get("_id");
+		ObjectId trashId = (ObjectId) inboxObject.get(MongoDbConstants.OBJECT_ID_KEY);
 		mailboxTable.put(trashPath, trashId.toString());
 
 		BasicDBObject rootMailboxObject = new BasicDBObject();
 		imapCollection.insert(rootMailboxObject);
-		ObjectId id = (ObjectId) rootMailboxObject.get("_id");
+		ObjectId id = (ObjectId) rootMailboxObject.get(MongoDbConstants.OBJECT_ID_KEY);
 		BasicDBObject userMailboxesObject = new BasicDBObject();
 		userMailboxesObject.put(MongoEnkiveImapConstants.USER, username);
 		mailboxTable.put(MongoEnkiveImapConstants.ARCHIVEDMESSAGESFOLDERNAME,
@@ -204,8 +205,8 @@ public class MongoImapAccountCreator implements EnkiveImapAccountCreator {
 				mailboxObject.put(MongoEnkiveImapConstants.MESSAGEIDS,
 						mailboxMsgIds);
 
-				imapCollection.findAndModify(new BasicDBObject("_id",
-						mailboxObject.get("_id")), mailboxObject);
+				imapCollection.findAndModify(new BasicDBObject(MongoDbConstants.OBJECT_ID_KEY,
+						mailboxObject.get(MongoDbConstants.OBJECT_ID_KEY)), mailboxObject);
 			}
 			startTime.set(Calendar.DAY_OF_MONTH, 1);
 			startTime.add(Calendar.MONTH, 1);
@@ -235,7 +236,7 @@ public class MongoImapAccountCreator implements EnkiveImapAccountCreator {
 		// If it doesn't exist, create it, and any necessary upper level folders
 		if (mailboxTable.containsKey(mailboxPath)) {
 			DBObject mailboxSearchObject = new BasicDBObject();
-			mailboxSearchObject.put("_id",
+			mailboxSearchObject.put(MongoDbConstants.OBJECT_ID_KEY,
 					ObjectId.massageToObjectId(mailboxTable.get(mailboxPath)));
 			mailboxObject = imapCollection.findOne(mailboxSearchObject);
 			return mailboxObject;
@@ -243,7 +244,7 @@ public class MongoImapAccountCreator implements EnkiveImapAccountCreator {
 			mailboxObject.put(MongoEnkiveImapConstants.MESSAGEIDS,
 					new HashMap<String, String>());
 			imapCollection.insert(mailboxObject);
-			ObjectId id = (ObjectId) mailboxObject.get("_id");
+			ObjectId id = (ObjectId) mailboxObject.get(MongoDbConstants.OBJECT_ID_KEY);
 			mailboxTable.put(mailboxPath, id.toString());
 		}
 
@@ -254,7 +255,7 @@ public class MongoImapAccountCreator implements EnkiveImapAccountCreator {
 			yearMailboxObject.put(MongoEnkiveImapConstants.MESSAGEIDS,
 					new HashMap<String, String>());
 			imapCollection.insert(yearMailboxObject);
-			ObjectId id = (ObjectId) yearMailboxObject.get("_id");
+			ObjectId id = (ObjectId) yearMailboxObject.get(MongoDbConstants.OBJECT_ID_KEY);
 			mailboxTable.put(
 					MongoEnkiveImapConstants.ARCHIVEDMESSAGESFOLDERNAME + "/"
 							+ mailboxTime.get(Calendar.YEAR), id.toString());

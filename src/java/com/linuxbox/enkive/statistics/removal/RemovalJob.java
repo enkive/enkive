@@ -25,6 +25,7 @@ import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstant
 import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_RAW;
 import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_TYPE;
 import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_WEEK;
+import static com.linuxbox.enkive.statistics.gathering.mongodb.MongoConstants.MONGO_ID;
 import static com.linuxbox.enkive.statistics.removal.RemovalConstants.REMOVAL_DAY_ID;
 import static com.linuxbox.enkive.statistics.removal.RemovalConstants.REMOVAL_HOUR_ID;
 import static com.linuxbox.enkive.statistics.removal.RemovalConstants.REMOVAL_MONTH_ID;
@@ -101,10 +102,10 @@ public class RemovalJob {
 			Integer gType = (Integer) map.get(CONSOLIDATION_TYPE);
 			if (gType != null) {
 				if (gType.equals(grainType)) {
-					deletionSet.add(map.get("_id"));
+					deletionSet.add(map.get(MONGO_ID));
 				}
 			} else if (grainType == 0) {
-				deletionSet.add(map.get("_id"));
+				deletionSet.add(map.get(MONGO_ID));
 			}
 		}
 		client.remove(deletionSet);

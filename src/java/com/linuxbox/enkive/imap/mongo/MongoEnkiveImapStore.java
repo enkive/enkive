@@ -27,6 +27,7 @@ import org.apache.james.mailbox.store.mail.model.Mailbox;
 import org.bson.types.ObjectId;
 
 import com.linuxbox.enkive.imap.EnkiveImapStore;
+import com.linuxbox.util.mongodb.MongoDbConstants;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
@@ -59,7 +60,8 @@ public class MongoEnkiveImapStore extends EnkiveImapStore {
 		
 		String mailboxKey = userMailboxes.get(mailbox.getName());
 		DBObject mailboxObject = imapCollection.findOne(new BasicDBObject(
-				"_id", ObjectId.massageToObjectId(mailboxKey)));
+					MongoDbConstants.OBJECT_ID_KEY,
+					ObjectId.massageToObjectId(mailboxKey)));
 		
 		@SuppressWarnings("unchecked")
 		HashMap<String, String> msgIds = (HashMap<String, String>) mailboxObject

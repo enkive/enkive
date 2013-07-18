@@ -29,6 +29,7 @@ import static com.linuxbox.enkive.statistics.VarsMaker.createMap;
 import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_MAX;
 import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_MIN;
 import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_TYPE;
+import static com.linuxbox.enkive.statistics.gathering.mongodb.MongoConstants.MONGO_ID;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -92,7 +93,7 @@ public class StatsServlet extends EnkiveServlet {
 			consolidateMapsHelper(template, result, path, statKeys, serviceData);
 			result.remove(STAT_GATHERER_NAME);
 			result.remove(STAT_TIMESTAMP);
-			result.remove("_id");
+			result.remove(MONGO_ID);
 			return result;
 		}
 		return null;
