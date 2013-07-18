@@ -49,5 +49,6 @@ public class MongoWorkspaceConstants {
 	public static String SEARCHISSAVED = "IsSaved";
 	public static String EXECUTIONTIMESTAMP = "ExecutionTimestamp";
 	public static String EXECUTEDBY = "ExecutedBy";
+	public static String LASTMONOTONICID = "LastMonotonicID";
 
 }

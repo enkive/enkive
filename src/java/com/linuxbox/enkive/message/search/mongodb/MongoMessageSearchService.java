@@ -24,13 +24,14 @@ import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.FROM;
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.MAIL_FROM;
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.RCPT_TO;
 import static com.linuxbox.enkive.archiver.MesssageAttributeConstants.TO;
+import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.MESSAGE_UUID;
+import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.MONOTONIC_ID;
 import static com.linuxbox.enkive.search.Constants.LIMIT_PARAMETER;
 import static com.linuxbox.enkive.search.Constants.RECIPIENT_PARAMETER;
 import static com.linuxbox.enkive.search.Constants.SENDER_PARAMETER;
 
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
+import java.util.TreeMap;
 
 import javax.annotation.PostConstruct;
 
@@ -74,7 +75,7 @@ public class MongoMessageSearchService extends AbstractMessageSearchService {
 	// MongoDB variables
 
 	protected final static DBObject ID_ONLY_QUERY = BasicDBObjectBuilder
-			.start().add("_id", 1).get();
+			.start().add(MONOTONIC_ID, 1).add(MESSAGE_UUID, 1).get();
 
 	protected DBCollection messageColl;
 
@@ -113,9 +114,9 @@ public class MongoMessageSearchService extends AbstractMessageSearchService {
 		this.queryBuilders = queryBuilders;
 	}
 
-	public Set<String> searchImpl(Map<String, String> fields)
+	public TreeMap<String, String> searchImpl(Map<String, String> fields)
 			throws MessageSearchException {
-		Set<String> messageIds = new HashSet<String>();
+		TreeMap<String, String> messageIds = new TreeMap<String, String>();
 		try {
 			DBObject query = buildQueryObject(fields);
 
@@ -137,13 +138,16 @@ public class MongoMessageSearchService extends AbstractMessageSearchService {
 
 			while (results.hasNext()) {
 				DBObject message = results.next();
-				messageIds.add((String) message.get("_id"));
+				messageIds.put(message.get(MONOTONIC_ID).toString(),
+						message.get(MESSAGE_UUID).toString());
 			}
 		} catch (EmptySearchResultsException e) {
 			if (LOGGER.isInfoEnabled()) {
 				LOGGER.info("A query that produced know results was executed.",
 						e);
 			}
+		} catch (Exception e) {
+			LOGGER.error("Exception in search query" + e);
 		}
 
 		return messageIds;

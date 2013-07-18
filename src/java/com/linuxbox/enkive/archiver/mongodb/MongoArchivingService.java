@@ -46,6 +46,7 @@ import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.AT
 import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.CONTENT_HEADER;
 import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.CONTENT_HEADER_TYPE;
 import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.MESSAGE_UUID;
+import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.MONOTONIC_ID;
 import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.MULTIPART_HEADER_TYPE;
 import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.NESTED_MESSAGE_ID_INDEX;
 import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.NESTED_MESSAGE_ID_LIST;
@@ -66,6 +67,7 @@ import org.apache.james.mime4j.codec.Base64InputStream;
 import org.apache.james.mime4j.codec.QuotedPrintableInputStream;
 import org.apache.james.mime4j.dom.field.ContentTypeField;
 import org.apache.james.mime4j.util.MimeUtil;
+import org.bson.types.ObjectId;
 
 import com.linuxbox.enkive.archiver.AbstractMessageArchivingService;
 import com.linuxbox.enkive.archiver.MessageLoggingText;
@@ -87,6 +89,7 @@ import com.linuxbox.enkive.message.docstore.ContentDataDocument;
 import com.linuxbox.util.dbinfo.mongodb.MongoDbInfo;
 import com.linuxbox.util.mongodb.MongoIndexable;
 import com.mongodb.BasicDBObject;
+import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
@@ -146,6 +149,7 @@ public class MongoArchivingService extends AbstractMessageArchivingService
 			}
 			BasicDBObject messageObject = new BasicDBObject();
 			messageObject.put(MESSAGE_UUID, messageId);
+			messageObject.put(MONOTONIC_ID, ObjectId.get());
 			messageObject.put(ARCHIVE_TIME, new Date());
 			messageObject.put(ORIGINAL_HEADERS, message.getOriginalHeaders());
 			messageObject.put(MAIL_FROM, message.getMailFrom());
@@ -373,17 +377,26 @@ public class MongoArchivingService extends AbstractMessageArchivingService
 	@Override
 	public List<IndexDescription> getPreferredIndexes() {
 		List<IndexDescription> result = new LinkedList<IndexDescription>();
+		// We don't need an index for MESSAGE_UUID, since that is stored in _id which
+		// is always indexed
+
+		// Be sure to put monotonic ID before ID, since ID has it's own index
+		DBObject monotonicIndex = BasicDBObjectBuilder.start()
+				.add(MONOTONIC_ID, 1).add(MESSAGE_UUID, 1).get();
+		IndexDescription id = new IndexDescription(MONOTONIC_ID,
+				monotonicIndex, false);
+		result.add(id);
 
 		final DBObject whenIndex = new BasicDBObject(ATTACHMENT_ID_LIST, 1);
-		IndexDescription id1 = new IndexDescription(ATTACHMENT_ID_INDEX,
+		id = new IndexDescription(ATTACHMENT_ID_INDEX,
 				whenIndex, false);
-		result.add(id1);
+		result.add(id);
 
 		final DBObject whatWhenIndex = new BasicDBObject(
 				NESTED_MESSAGE_ID_LIST, 1);
-		IndexDescription id2 = new IndexDescription(NESTED_MESSAGE_ID_INDEX,
+		id = new IndexDescription(NESTED_MESSAGE_ID_INDEX,
 				whatWhenIndex, false);
-		result.add(id2);
+		result.add(id);
 
 		return result;
 	}

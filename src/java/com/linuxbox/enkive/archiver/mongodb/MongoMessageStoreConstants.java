@@ -32,4 +32,5 @@ public interface MongoMessageStoreConstants {
 	String PART_HEADERS = "partHeaders";
 	String ATTACHMENT_ID_INDEX = "attachment_id_index";
 	String NESTED_MESSAGE_ID_INDEX = "nested_msg_id_index";
+	String MONOTONIC_ID = "monotonic_id";
 }

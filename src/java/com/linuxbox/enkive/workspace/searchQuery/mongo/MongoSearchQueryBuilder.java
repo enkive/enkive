@@ -20,6 +20,7 @@ package com.linuxbox.enkive.workspace.searchQuery.mongo;
 
 import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.EXECUTEDBY;
 import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.EXECUTIONTIMESTAMP;
+import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.LASTMONOTONICID;
 import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.SEARCHCRITERIA;
 import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.SEARCHISSAVED;
 import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.SEARCHNAME;
@@ -114,6 +115,7 @@ public class MongoSearchQueryBuilder implements SearchQueryBuilder {
 		query.setExecutedBy((String) queryObject.get(EXECUTEDBY));
 		query.setStatus(SearchQuery.Status.valueOf((String) queryObject
 				.get(SEARCHSTATUS)));
+		query.setLastMonotonic((String) queryObject.get(LASTMONOTONICID));
 		if (queryObject.get(SEARCHISSAVED) != null)
 			query.setSaved((Boolean) queryObject.get(SEARCHISSAVED));
 		if (LOGGER.isInfoEnabled())
@@ -148,6 +150,7 @@ public class MongoSearchQueryBuilder implements SearchQueryBuilder {
 					.toMap());
 			query.setTimestamp((Date) queryObject.get(EXECUTIONTIMESTAMP));
 			query.setExecutedBy((String) queryObject.get(EXECUTEDBY));
+			query.setLastMonotonic((String) queryObject.get(LASTMONOTONICID));
 			query.setStatus(SearchQuery.Status.valueOf((String) queryObject
 					.get(SEARCHSTATUS)));
 			if (queryObject.get(SEARCHISSAVED) != null)

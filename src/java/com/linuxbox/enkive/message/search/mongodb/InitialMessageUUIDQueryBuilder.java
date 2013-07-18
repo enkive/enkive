@@ -1,8 +1,11 @@
 package com.linuxbox.enkive.message.search.mongodb;
 
+import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.MONOTONIC_ID;
 import static com.linuxbox.enkive.search.Constants.INITIAL_MESSAGE_UUID_PARAMETER;
 
 import java.util.Map;
+
+import org.bson.types.ObjectId;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
@@ -18,7 +21,8 @@ public class InitialMessageUUIDQueryBuilder extends AbstractMongoMessageQueryBui
 
 		messageIdStr = messageIdStr.trim();
 
-		BasicDBObject result = new BasicDBObject("_id", new BasicDBObject("$gt", messageIdStr));
+		BasicDBObject result = new BasicDBObject(MONOTONIC_ID, new
+				BasicDBObject("$gt", ObjectId.massageToObjectId(messageIdStr)));
 		return result;
 	}
 }

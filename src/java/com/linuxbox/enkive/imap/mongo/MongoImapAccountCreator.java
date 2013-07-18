@@ -28,7 +28,6 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Set;
 import java.util.TreeMap;
 
 import org.apache.commons.lang.time.DateUtils;
@@ -37,8 +36,8 @@ import org.bson.types.ObjectId;
 import com.linuxbox.enkive.imap.EnkiveImapAccountCreator;
 import com.linuxbox.enkive.message.search.exception.MessageSearchException;
 import com.linuxbox.enkive.permissions.PermissionService;
-import com.linuxbox.util.mongodb.MongoDbConstants;
 import com.linuxbox.util.dbinfo.mongodb.MongoDbInfo;
+import com.linuxbox.util.mongodb.MongoDbConstants;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
@@ -120,7 +119,7 @@ public class MongoImapAccountCreator implements EnkiveImapAccountCreator {
 		addImapMessages(username, earliestMessageDate, latestMessageDate);
 	}
 
-	private Set<String> getMailboxMessageIds(String username, Date fromDate,
+	private Collection<String> getMailboxMessageIds(String username, Date fromDate,
 			Date toDate) throws MessageSearchException {
 		HashMap<String, String> fields = new HashMap<String, String>();
 
@@ -138,7 +137,7 @@ public class MongoImapAccountCreator implements EnkiveImapAccountCreator {
 		fields.put(DATE_EARLIEST_PARAMETER,
 				NUMERIC_SEARCH_FORMAT.format(fromDate));
 		fields.put(DATE_LATEST_PARAMETER, NUMERIC_SEARCH_FORMAT.format(toDate));
-		return searchService.searchImpl(fields);
+		return searchService.searchImpl(fields).values();
 	}
 
 	public MongoImapAccountCreationMessageSearchService getSearchService() {
@@ -177,7 +176,7 @@ public class MongoImapAccountCreator implements EnkiveImapAccountCreator {
 				endOfMonth = (Calendar) endTime.clone();
 
 			// Need to get all messages to add
-			Set<String> messageIdsToAdd = getMailboxMessageIds(username,
+			Collection<String> messageIdsToAdd = getMailboxMessageIds(username,
 					startTime.getTime(), endOfMonth.getTime());
 			// Need to add messages
 			// Get top UID, add from there

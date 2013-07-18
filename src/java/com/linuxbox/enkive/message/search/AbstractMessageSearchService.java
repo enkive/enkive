@@ -22,9 +22,10 @@ package com.linuxbox.enkive.message.search;
 import static com.linuxbox.enkive.search.Constants.INITIAL_MESSAGE_UUID_PARAMETER;
 
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.NoSuchElementException;
+import java.util.TreeMap;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
@@ -70,11 +71,17 @@ public abstract class AbstractMessageSearchService implements
 					+ fields.toString());
 
 			// do the search
-			final Set<String> resultMessageIDs = searchImpl(fields);
+			final TreeMap<String, String> resultMessageIDs = searchImpl(fields);
 
 			// complete the search result data
-			result.setMessageIds(resultMessageIDs);
+			result.setMessageIds(new HashSet<String>(resultMessageIDs.values()));
 			query.setTimestamp(new Date());
+			try {
+				query.setLastMonotonic(resultMessageIDs.lastKey());
+			} catch (NoSuchElementException e) {
+				// Docs say it returns null if empty, but actually throws exception
+				query.setLastMonotonic(null);
+			}
 			query.setStatus(Status.COMPLETE);
 
 			return query;
@@ -89,23 +96,29 @@ public abstract class AbstractMessageSearchService implements
 		SearchResult result = query.getResult();
 		Map<String, String> fields = query.getCriteria();
 
-		TreeSet<String> sortedUUIDs = new TreeSet<String>(
-				result.getMessageIds());
-		fields.put(INITIAL_MESSAGE_UUID_PARAMETER, sortedUUIDs.last());
+		fields.put(INITIAL_MESSAGE_UUID_PARAMETER, query.getLastMonotonic());
 
 		LOGGER.trace("AbstractMessageSearchService.updateSearch function looking for messages w/ following criteria: "
 				+ fields.toString());
 
 		// do the search
-		final Set<String> resultMessageIDs = searchImpl(fields);
+		final TreeMap<String, String> resultMessageIDs = searchImpl(fields);
 
-		// Add into the previous results
-		resultMessageIDs.addAll(sortedUUIDs);
+		// Remove the initial message so as not to change the parameter
+		fields.remove(INITIAL_MESSAGE_UUID_PARAMETER);
 
 		// complete the search result data
-		result.setMessageIds(resultMessageIDs);
-		query.setTimestamp(new Date());
-		query.setStatus(Status.COMPLETE);
+		if (!resultMessageIDs.isEmpty()) {
+			result.addMessageIds(resultMessageIDs.values());
+			query.setLastMonotonic(resultMessageIDs.lastKey());
+			query.setTimestamp(new Date());
+			query.setStatus(Status.COMPLETE);
+			try {
+				query.saveSearchQuery();
+			} catch (WorkspaceException e) {
+				LOGGER.error("Could not complete message search", e);
+			}
+		}
 	}
 
 	@Override
@@ -129,7 +142,7 @@ public abstract class AbstractMessageSearchService implements
 		return searchFuture;
 	}
 
-	protected abstract Set<String> searchImpl(Map<String, String> fields)
+	protected abstract TreeMap<String, String> searchImpl(Map<String, String> fields)
 			throws MessageSearchException;
 
 	public DocSearchQueryService getDocSearchService() {

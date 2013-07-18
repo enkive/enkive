@@ -46,10 +46,8 @@
 		<constructor-arg value="0" />
 		<constructor-arg value="1" />
 	</bean>
-	<bean class="com.linuxbox.util.dbmigration.NullDbMigration">
+	<bean class="com.linuxbox.enkive.archiver.migration.MessageStoreMigration1to2">
 		<constructor-arg ref="MessageStoreMigrator" />
-		<constructor-arg value="1" />
-		<constructor-arg value="2" />
 	</bean>
 
 

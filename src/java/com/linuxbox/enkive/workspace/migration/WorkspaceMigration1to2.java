@@ -70,6 +70,7 @@ public class WorkspaceMigration1to2 extends DbMigration {
 		public static String EXECUTIONTIMESTAMP = "ExecutionTimestamp";
 		public static String EXECUTEDBY = "ExecutedBy";
 		public static String SEARCHFOLDERID = "SearchFolderId";
+		public static String LASTMONOTONICID = "LastMonotonicID";
 	}
 
 	public class MongoResultDoc1to2 extends AbstractDocumentMigrator {
@@ -179,6 +180,7 @@ public class WorkspaceMigration1to2 extends DbMigration {
 			queryObject.put(Workspace1to2Constants.EXECUTEDBY, executedBy);
 			queryObject.put(Workspace1to2Constants.SEARCHSTATUS, status);
 			queryObject.put(Workspace1to2Constants.SEARCHISSAVED, isSaved);
+			queryObject.put(Workspace1to2Constants.LASTMONOTONICID, null);
 
 			DBObject toUpdate = collection.findOne(ObjectId.massageToObjectId(id));
 			collection.update(toUpdate, queryObject);

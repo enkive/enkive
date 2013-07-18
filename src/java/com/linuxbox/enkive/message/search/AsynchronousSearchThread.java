@@ -33,7 +33,6 @@ import com.linuxbox.enkive.message.search.exception.MessageSearchException;
 import com.linuxbox.enkive.workspace.WorkspaceException;
 import com.linuxbox.enkive.workspace.searchQuery.SearchQuery;
 import com.linuxbox.enkive.workspace.searchQuery.SearchQuery.Status;
-import com.linuxbox.enkive.workspace.searchResult.SearchResult;
 
 /**
  * Callable to run a given search and create the results.  This is to allow
@@ -61,20 +60,15 @@ public class AsynchronousSearchThread implements Callable<SearchQuery> {
 	@Override
 	public SearchQuery call() {
 
-		SearchResult result = null;
 		try {
 			SecurityContext ctx = new SecurityContextImpl();
 			ctx.setAuthentication(searchingUserAuth);
 			SecurityContextHolder.setContext(ctx);
-			result = query.getResult();
 			try {
 				markSearchRunning(query);
 				SearchQuery tmpSearchQuery = messageSearchService
 						.search(query.getCriteria());
-				result.setMessageIds(tmpSearchQuery.getResult().getMessageIds());
-				result.saveSearchResult();
-				query.setTimestamp(tmpSearchQuery.getTimestamp());
-				query.setExecutedBy(tmpSearchQuery.getExecutedBy());
+				query.copy(tmpSearchQuery);
 				query.setStatus(Status.COMPLETE);
 				query.saveSearchQuery();
 

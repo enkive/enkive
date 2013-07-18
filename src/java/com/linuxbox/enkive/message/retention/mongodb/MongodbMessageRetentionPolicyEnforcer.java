@@ -41,7 +41,7 @@ public class MongodbMessageRetentionPolicyEnforcer extends
 			retentionPolicy.setRetentionPolicyCriteria(retentionPolicyCriteria);
 			for (String messageId : mongoSearchService
 					.searchImpl(retentionPolicy
-							.retentionPolicyCriteriaToSearchFields())) {
+							.retentionPolicyCriteriaToSearchFields()).values()) {
 				if (messageArchivingService.removeMessage(messageId))
 					LOGGER.info("Message Removed by retention policy: "
 							+ messageId);

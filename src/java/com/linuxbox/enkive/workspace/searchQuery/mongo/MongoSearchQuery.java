@@ -20,6 +20,7 @@ package com.linuxbox.enkive.workspace.searchQuery.mongo;
 
 import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.EXECUTEDBY;
 import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.EXECUTIONTIMESTAMP;
+import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.LASTMONOTONICID;
 import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.SEARCHCRITERIA;
 import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.SEARCHISSAVED;
 import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.SEARCHNAME;
@@ -64,6 +65,7 @@ public class MongoSearchQuery extends SearchQuery {
 		searchQueryObject.put(EXECUTEDBY, getExecutedBy());
 		searchQueryObject.put(SEARCHSTATUS, getStatus().toString());
 		searchQueryObject.put(SEARCHISSAVED, isSaved());
+		searchQueryObject.put(LASTMONOTONICID, getLastMonotonic());
 
 		if (getId() != null && !getId().isEmpty()) {
 			DBObject toUpdate = searchQueryColl.findOne(ObjectId
