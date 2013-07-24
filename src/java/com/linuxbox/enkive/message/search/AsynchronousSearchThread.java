@@ -48,12 +48,14 @@ public class AsynchronousSearchThread implements Callable<SearchQuery> {
 	private final Authentication searchingUserAuth;
 	private final SearchQuery query;
 	private final MessageSearchService messageSearchService;
+	private final Boolean update;
 
-	public AsynchronousSearchThread(SearchQuery query, MessageSearchService
-			messageSearchService) {
+	public AsynchronousSearchThread(SearchQuery query, Boolean update,
+			MessageSearchService messageSearchService) {
 		SecurityContext ctx = SecurityContextHolder.getContext();
 		searchingUserAuth = ctx.getAuthentication();
 		this.query = query;
+		this.update = update;
 		this.messageSearchService = messageSearchService;
 	}
 
@@ -66,9 +68,13 @@ public class AsynchronousSearchThread implements Callable<SearchQuery> {
 			SecurityContextHolder.setContext(ctx);
 			try {
 				markSearchRunning(query);
-				SearchQuery tmpSearchQuery = messageSearchService
-						.search(query.getCriteria());
-				query.copy(tmpSearchQuery);
+				if (update) {
+					messageSearchService.updateSearch(query);
+				} else {
+					SearchQuery tmpSearchQuery = messageSearchService
+							.search(query.getCriteria());
+					query.copy(tmpSearchQuery);
+				}
 				query.setStatus(Status.COMPLETE);
 				query.saveSearchQuery();
 

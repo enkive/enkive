@@ -64,6 +64,10 @@
 		<servlet-class>com.linuxbox.enkive.web.search.SaveSearchWebScript</servlet-class>
 	</servlet>
 	<servlet>
+		<servlet-name>UpdateSearchServlet</servlet-name>
+		<servlet-class>com.linuxbox.enkive.web.search.UpdateSearchWebScript</servlet-class>
+	</servlet>
+	<servlet>
 		<servlet-name>StatsServlet</servlet-name>
 		<servlet-class>com.linuxbox.enkive.web.StatsServlet</servlet-class>
 	</servlet>
@@ -123,6 +127,10 @@
 	<servlet-mapping>
 		<servlet-name>SaveSearchServlet</servlet-name>
 		<url-pattern>/search/save</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>UpdateSearchServlet</servlet-name>
+		<url-pattern>/search/update</url-pattern>
 	</servlet-mapping>
 	<servlet-mapping>
 		<servlet-name>DeleteSearchServlet</servlet-name>

@@ -76,6 +76,12 @@ public class RetentionPolicyEnforcingMessageSearchService implements
 	}
 
 	@Override
+	public Future<SearchQuery> updateSearchAsync(SearchQuery query)
+			throws MessageSearchException {
+		throw new MessageSearchException("Unimplemented");
+	}
+
+	@Override
 	public boolean cancelAsyncSearch(String searchId)
 			throws MessageSearchException {
 		throw new MessageSearchException("Unimplemented");

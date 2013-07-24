@@ -20,20 +20,18 @@ function get_results() {
 	'<p><b>Search is in progress...</b></p><br />' +
 	'<img src=/ediscovery/resource/images/spinner.gif alt="Waiting for results" />' +
 	'</center>');
-	$('#main')
-			.load(
-					'/ediscovery/search/results' + queryString,
-					function(response, status, xhr) {
-						if (xhr.status == 403) {
-							$("#main")
-							.html("You are not authorized to search, your session has likely expired. Redirecting to login...");
-							location.reload();
-						} else if (status != "success") {
-							$("#main")
-									.html(
-											"There was an error retrieving search results.  Please contact your administrator.");
-						}
-					});
+	$('#main').load(
+			'/ediscovery/search/results' + queryString,
+			function(response, status, xhr) {
+				if (xhr.status == 403) {
+					$("#main").html(
+						"You are not authorized to search, your session has likely expired. Redirecting to login...");
+					location.reload();
+				} else if (status != "success") {
+					$("#main").html(
+						"There was an error retrieving search results.  Please contact your administrator.");
+				}
+			});
 	return false;
 }
 

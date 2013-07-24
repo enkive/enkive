@@ -1,0 +1,7 @@
+<webscript>
+  <shortname>Update Search</shortname>
+  <description>Update the results of a search with new messages</description>
+  <url>/search/update</url>
+  <format default="text">any</format>
+  <authentication>user</authentication>
+</webscript>

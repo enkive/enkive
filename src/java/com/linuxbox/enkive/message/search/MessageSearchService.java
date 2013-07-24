@@ -47,6 +47,15 @@ public interface MessageSearchService {
 			throws MessageSearchException;
 
 	/**
+	 * Update the existing results of a previous query for any changes in the database.
+	 *
+	 * @param query	Previous query to update
+	 * @throws MessageSearchErception
+	 */
+	void updateSearch(SearchQuery query)
+			throws MessageSearchException;
+
+	/**
 	 * Perform an asynchronous search and return a Future<SearchResult> object.
 	 * 
 	 * @param fields
@@ -57,21 +66,22 @@ public interface MessageSearchService {
 			throws MessageSearchException;
 
 	/**
-	 * Cancel an asynchronous search based on the search identifier
+	 * Perform an asynchronous searchUpdate and return a Future<SearchResult> object.
+	 *
+	 * @param query
+	 * @return Future that will get query when done
+	 * @throws MessageSearchErception
+	 */
+	Future<SearchQuery> updateSearchAsync(SearchQuery query)
+			throws MessageSearchException;
+
+	/**
+	 * Cancel an asynchronous search or updateSearch based on the search identifier
 	 * 
 	 * @param searchId
 	 * @return true if cancelled, false otherwise
 	 * @throws MessageSearchException
 	 */
 	boolean cancelAsyncSearch(String searchId) throws MessageSearchException;
-
-	/**
-	 * Update the existing results of a previous query for any changes in the database.
-	 *
-	 * @param query	Previous query to update
-	 * @throws MessageSearchErception
-	 */
-	void updateSearch(SearchQuery query)
-			throws MessageSearchException;
 
 }

@@ -58,6 +58,12 @@ public class SizeLimitingMessageSearchService implements MessageSearchService {
 	}
 
 	@Override
+	public Future<SearchQuery> updateSearchAsync(SearchQuery query)
+			throws MessageSearchException {
+		throw new MessageSearchException("Unimplemented");
+	}
+
+	@Override
 	public Future<SearchQuery> searchAsync(Map<String, String> fields)
 			throws MessageSearchException {
 		return messageSearchService.searchAsync(fields);

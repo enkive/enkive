@@ -188,10 +188,4 @@ public class MongoMessageSearchService extends AbstractMessageSearchService {
 
 		return result;
 	}
-
-	@Override
-	public boolean cancelAsyncSearch(String searchId)
-			throws MessageSearchException {
-		throw new MessageSearchException("Unimplemented");
-	}
 }

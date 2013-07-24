@@ -38,8 +38,10 @@ import static com.linuxbox.enkive.web.WebPageInfo.PAGING_LABEL;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -56,6 +58,7 @@ import com.linuxbox.enkive.exception.CannotRetrieveException;
 import com.linuxbox.enkive.exception.EnkiveServletException;
 import com.linuxbox.enkive.message.MessageSummary;
 import com.linuxbox.enkive.message.search.MessageSearchService;
+import com.linuxbox.enkive.message.search.exception.MessageSearchException;
 import com.linuxbox.enkive.retriever.MessageRetrieverService;
 import com.linuxbox.enkive.web.WebConstants;
 import com.linuxbox.enkive.web.WebPageInfo;
@@ -142,7 +145,8 @@ public class AdvancedSearch extends AbstractSearchWebScript {
 					query = searchQueryBuilder.getSearchQuery(queryUUID);
 				}
 				if (query != null && query.matches(searchFields)) {
-					searchService.updateSearch(query);
+					Future<SearchQuery> resultFuture = searchService.updateSearchAsync(query);
+					query = resultFuture.get(searchTimeoutSeconds, TimeUnit.SECONDS);
 				} else {
 					// Didn't match; make sure we run query below
 					query = null;
@@ -153,12 +157,16 @@ public class AdvancedSearch extends AbstractSearchWebScript {
 
 			if (query == null) {
 				try {
-					Future<SearchQuery> resultFuture = searchService
-							.searchAsync(searchFields);
-					query = resultFuture.get(searchTimeoutSeconds,
-							TimeUnit.SECONDS);
-				} catch (Exception e) {
+					Future<SearchQuery> resultFuture = searchService.searchAsync(searchFields);
+					query = resultFuture.get(searchTimeoutSeconds, TimeUnit.SECONDS);
 					// catch various kinds of exceptions, including cancellations
+				} catch (MessageSearchException e) {
+					query = null;
+				} catch (InterruptedException e) {
+					query = null;
+				} catch (ExecutionException e) {
+					query = null;
+				} catch (TimeoutException e) {
 					query = null;
 				}
 			}

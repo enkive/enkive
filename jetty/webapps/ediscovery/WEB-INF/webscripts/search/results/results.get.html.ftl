@@ -125,6 +125,7 @@
 		<#include "*/templates/paging.ftl"> 
 		<div class="search-actions">
 			<input type="button" onClick='save_recent_search("${result.data.searchId}")' value="Save Search">
+			<input type="button" onClick='update_search("${result.data.searchId}")' value="Update Search">
 			<form action="${url.context}/search/export/mbox" method="get">
 				<input type="hidden" name="searchid" value="${result.data.searchId}" />
 				<input type="submit" value="Export Search" />

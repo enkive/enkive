@@ -19,6 +19,23 @@ function save_recent_search(id) {
 	});
 }
 
+function update_search(id) {
+	$.get("/ediscovery/search/update?searchids=" + id, function(data) {
+		if (window.location.pathname.indexOf('saved') != -1 ||
+			window.location.pathname.indexOf('recent') != -1) {
+			window.location.reload();
+		} else {
+			var uri = "/ediscovery/search/recent/view?searchid=" + id + " #main";
+			$('#main').load(uri,
+				function(response, status, xhr) {
+					if (xhr.status == 403) {
+						location.reload();
+					}
+				});
+		}
+	});
+}
+
 function save_recent_searches() {
 	var ids = "";
 	$(".idcheckbox:checkbox:checked").each(function() {
@@ -28,6 +45,7 @@ function save_recent_searches() {
 		window.location.replace("/ediscovery/search/saved");
 	});
 }
+
 
 function delete_saved_searches() {
 	var ids = "";

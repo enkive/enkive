@@ -73,7 +73,7 @@ public class TaskPoolAsyncMessageSearchService implements MessageSearchService {
 		SearchQuery query = createSearch(fields);
 
 		Callable<SearchQuery> searchCall = new AsynchronousSearchThread(
-				query, messageSearchService);
+				query, false, messageSearchService);
 
 		try {
 			@SuppressWarnings("unchecked")
@@ -86,6 +86,24 @@ public class TaskPoolAsyncMessageSearchService implements MessageSearchService {
 		return null;
 	}
 
+	@Override
+	public Future<SearchQuery> updateSearchAsync(SearchQuery query)
+			throws MessageSearchException {
+		Callable<SearchQuery> searchCall = new AsynchronousSearchThread(
+				query, true, messageSearchService);
+
+		try {
+			@SuppressWarnings("unchecked")
+			Future<SearchQuery> searchFuture = (Future<SearchQuery>) searchExecutor
+					.submit(query.getId(), searchCall);
+			return searchFuture;
+		} catch (Exception e) {
+			LOGGER.error("Error with asynchronous search", e);
+		}
+		return null;
+	}
+
+	@Override
 	public boolean cancelAsyncSearch(String searchId)
 			throws MessageSearchException {
 

@@ -26,14 +26,11 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.TreeMap;
-import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
-import java.util.concurrent.FutureTask;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Required;
-import org.springframework.scheduling.annotation.Async;
 
 import com.linuxbox.enkive.docsearch.DocSearchQueryService;
 import com.linuxbox.enkive.message.search.exception.MessageSearchException;
@@ -122,24 +119,21 @@ public abstract class AbstractMessageSearchService implements
 	}
 
 	@Override
-	@Async
+	public Future<SearchQuery> updateSearchAsync(SearchQuery query)
+			throws MessageSearchException {
+		throw new MessageSearchException("Unimplemented");
+	}
+
+	@Override
 	public Future<SearchQuery> searchAsync(final Map<String, String> fields)
 			throws MessageSearchException {
-		FutureTask<SearchQuery> searchFuture = new FutureTask<SearchQuery>(
-				new Callable<SearchQuery>() {
-					public SearchQuery call() {
-						SearchQuery query = null;
-						try {
-							query = search(fields);
-						} catch (MessageSearchException e) {
-							if (LOGGER.isWarnEnabled())
-								LOGGER.warn("Error Searching for message", e);
-						}
-						return query;
-					}
-				});
-		searchFuture.run();
-		return searchFuture;
+		throw new MessageSearchException("Unimplemented");
+	}
+
+	@Override
+	public boolean cancelAsyncSearch(String searchId)
+			throws MessageSearchException {
+		throw new MessageSearchException("Unimplemented");
 	}
 
 	protected abstract TreeMap<String, String> searchImpl(Map<String, String> fields)
