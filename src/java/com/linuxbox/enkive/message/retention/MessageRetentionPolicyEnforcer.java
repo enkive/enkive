@@ -54,7 +54,7 @@ public class MessageRetentionPolicyEnforcer {
 					.get(RETENTION_PERIOD)) > 0)
 				do {
 					result = getMessagesForDeletion();
-					for (String messageId : result.getMessageIds()) {
+					for (String messageId : result.getMessageIds().values()) {
 						if (messageArchivingService.removeMessage(messageId))
 							LOGGER.info("Message Removed by retention policy: "
 									+ messageId);

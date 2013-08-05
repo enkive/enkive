@@ -40,6 +40,7 @@ import com.linuxbox.util.dbmigration.DbMigrationException;
 import com.linuxbox.util.dbmigration.DbMigrator;
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
+import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
@@ -71,6 +72,7 @@ public class WorkspaceMigration1to2 extends DbMigration {
 		public static String EXECUTEDBY = "ExecutedBy";
 		public static String SEARCHFOLDERID = "SearchFolderId";
 		public static String LASTMONOTONICID = "LastMonotonicID";
+		public static String IMAPUIDVALIDITY = "IMAPUIDValidity";
 	}
 
 	public class MongoResultDoc1to2 extends AbstractDocumentMigrator {
@@ -78,7 +80,8 @@ public class WorkspaceMigration1to2 extends DbMigration {
 		public String id;
 		public Date timestamp;
 		public String executedBy;
-		public Set<String> messageIds;
+		public Set<String> messageIDSet;
+		public Map<Integer, String> messageIDMap;
 		public String status;
 		public String queryId;
 		public Boolean isSaved = false;
@@ -97,10 +100,10 @@ public class WorkspaceMigration1to2 extends DbMigration {
 			BasicDBList searchResults = (BasicDBList) resultObject
 					.get(Workspace1to2Constants.SEARCHRESULTS);
 
-			messageIds = new HashSet<String>();
+			messageIDSet = new HashSet<String>();
 			Iterator<Object> searchResultsIterator = searchResults.iterator();
 			while (searchResultsIterator.hasNext())
-				messageIds.add((String) searchResultsIterator.next());
+				messageIDSet.add((String) searchResultsIterator.next());
 
 			status = (String) resultObject.get(Workspace1to2Constants.SEARCHSTATUS);
 			queryId = (String) resultObject.get(Workspace1to2Constants.SEARCHQUERYID);
@@ -108,8 +111,27 @@ public class WorkspaceMigration1to2 extends DbMigration {
 				isSaved = (Boolean) resultObject.get(Workspace1to2Constants.SEARCHISSAVED);
 		}
 
+		/**
+		 * Migrate a SearchResult document.  Convert the set of message UUIDs to a map
+		 * of <UID, UUID> pairs, and save the result.
+		 */
 		public void migrateDocumentImpl() throws DbMigrationException {
-			// Nothing to do; Fields are only deleted, and that's done in MongoResultColl1to2
+			messageIDMap = new HashMap<Integer, String>();
+			Integer nextUID = 0;
+			for (String UUID : messageIDSet) {
+				messageIDMap.put(nextUID++, UUID);
+			}
+			save();
+		}
+
+		private void save() {
+			BasicDBObject resultObject = new BasicDBObject();
+			resultObject.put(Workspace1to2Constants.SEARCHRESULTS,
+					BasicDBObjectBuilder.start(messageIDMap).get());
+			resultObject.put(Workspace1to2Constants.SEARCHQUERYID, queryId);
+
+			DBObject toUpdate = collection.findOne(ObjectId.massageToObjectId(id));
+			collection.update(toUpdate, resultObject);
 		}
 	}
 
@@ -159,7 +181,7 @@ public class WorkspaceMigration1to2 extends DbMigration {
 
 		/**
 		 * Migrate a SearchQuery document.  Copy all the metadata from the associated
-		 * SearchResult, and save the query.
+		 * SearchResult, and save the query.  Finally, migrate associated result.
 		 */
 		public void migrateDocumentImpl() throws DbMigrationException {
 			// Load values that are being moved
@@ -169,6 +191,9 @@ public class WorkspaceMigration1to2 extends DbMigration {
 			status = result.status;
 			isSaved = result.isSaved;
 			save();
+
+			// Now migrate result
+			result.migrateDocument();
 		}
 
 		private void save() {
@@ -181,6 +206,7 @@ public class WorkspaceMigration1to2 extends DbMigration {
 			queryObject.put(Workspace1to2Constants.SEARCHSTATUS, status);
 			queryObject.put(Workspace1to2Constants.SEARCHISSAVED, isSaved);
 			queryObject.put(Workspace1to2Constants.LASTMONOTONICID, null);
+			queryObject.put(Workspace1to2Constants.IMAPUIDVALIDITY, 0);
 
 			DBObject toUpdate = collection.findOne(ObjectId.massageToObjectId(id));
 			collection.update(toUpdate, queryObject);

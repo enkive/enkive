@@ -20,26 +20,32 @@
 package com.linuxbox.enkive.workspace.searchResult;
 
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.linuxbox.enkive.workspace.WorkspaceException;
 
 /**
- * Abstract representation of a search result.  A result consists of the set of
- * message IDs that match the search, and a link to the @ref SearchQuery that
+ * Abstract representation of a search result.  A result consists of the map of
+ * UID to message IDs that match the search, and a link to the @ref SearchQuery that
  * generated the results.
+ *
+ * The UID is just a sequential integer that is unique in this query.  However,
+ * for IMAP, it must remain stable across connections, and so must be stored in
+ * the DB.
  * @author dang
  *
  */
 public abstract class SearchResult {
 
 	private String id;
-	private Set<String> messageIds;
+	private Map<Integer, String> messageIds;
 	protected String searchQueryId;
+	protected Integer nextUID;
 
 	public SearchResult() {
-		messageIds = new HashSet<String>();
+		messageIds = new HashMap<Integer, String>();
+		nextUID = 0;
 	}
 
 	/**
@@ -58,16 +64,26 @@ public abstract class SearchResult {
 		this.id = id;
 	}
 
-	public Set<String> getMessageIds() {
+	public Integer getNextUID() {
+		return nextUID;
+	}
+
+	public void setNextUID(Integer nextUID) {
+		this.nextUID = nextUID;
+	}
+
+	public Map<Integer, String> getMessageIds() {
 		return messageIds;
 	}
 
-	public void setMessageIds(Set<String> messageIds) {
+	public void setMessageIds(Map<Integer, String> messageIds) {
 		this.messageIds = messageIds;
 	}
 
 	public void addMessageIds(Collection<String> newIds) {
-		this.messageIds.addAll(newIds);
+		for (String id: newIds) {
+			this.messageIds.put(nextUID++, id);
+		}
 	}
 
 	public String getSearchQueryId() {

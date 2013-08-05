@@ -28,8 +28,9 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.StringReader;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Set;
+import java.util.Map;
 
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
@@ -71,49 +72,27 @@ public abstract class SearchFolder {
 
 	}
 
-	public Collection<String> getMessageIds() {
-		Collection<String> messageIds = new HashSet<String>();
+	public Map<Integer, String> getMessageIds() {
+		Map<Integer, String> messageIds = new HashMap<Integer, String>();
 		for (SearchFolderSearchResult result : results)
-			messageIds.addAll(result.getMessageIds());
+			messageIds.putAll(result.getMessageIds());
 		return messageIds;
 	}
 
-	public Collection<String> getMessageIds(String sortField, int sortDir) {
-		Collection<String> messageIds = new HashSet<String>();
+	public Map<Integer, String> getMessageIds(String sortField, int sortDir) {
+		Map<Integer, String> messageIds = new HashMap<Integer, String>();
 		for (SearchFolderSearchResult result : results)
-			messageIds.addAll(result.getMessageIds());
+			messageIds.putAll(result.getMessageIds());
 		return messageIds;
 	}
 
 	public void removeMessageId(String messageId) throws WorkspaceException {
-		for (SearchFolderSearchResult result : results) {
-			Set<String> folderMessageIds = result.getMessageIds();
-			if (folderMessageIds.remove(messageId)) {
-				if (folderMessageIds.isEmpty()) {
-					result.deleteSearchResult();
-					results.remove(result);
-				} else {
-					result.setMessageIds(folderMessageIds);
-					result.saveSearchResult();
-				}
-			}
-		}
+		throw new WorkspaceException("Unimplemented");
 	}
 
 	public void removeMessageIds(Collection<String> messageIds)
 			throws WorkspaceException {
-		for (SearchFolderSearchResult result : results) {
-			Set<String> folderMessageIds = result.getMessageIds();
-			if (folderMessageIds.removeAll(messageIds)) {
-				if (folderMessageIds.isEmpty()) {
-					result.deleteSearchResult();
-					results.remove(result);
-				} else {
-					result.setMessageIds(folderMessageIds);
-					result.saveSearchResult();
-				}
-			}
-		}
+		throw new WorkspaceException("Unimplemented");
 	}
 
 	/**
@@ -131,7 +110,7 @@ public abstract class SearchFolder {
 		File mboxFile = File.createTempFile("mbox-export", ".mbox");
 		BufferedWriter mboxWriter = new BufferedWriter(new FileWriter(mboxFile));
 		// Write mbox to tempfile?
-		for (String messageId : getMessageIds()) {
+		for (String messageId : getMessageIds().values()) {
 			try {
 				Message message = retrieverService.retrieve(messageId);
 

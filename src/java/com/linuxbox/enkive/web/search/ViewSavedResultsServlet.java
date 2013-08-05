@@ -127,7 +127,7 @@ public class ViewSavedResultsServlet extends EnkiveServlet {
 			try {
 
 				List<String> messageIds = new ArrayList<String>(
-						query.getResult().getMessageIds());
+						query.getResult().getMessageIds().values());
 				@SuppressWarnings("unchecked")
 				List<MessageSummary> messageSummaries = archiveService
 						.retrieveSummary((List<String>) pageInfo

@@ -71,6 +71,7 @@ public abstract class SearchQuery {
 	private Date timestamp;
 	private Status status;
 	private String lastMonotonic;
+	private Integer UIDValidity;
 
 	protected SearchResult result;
 
@@ -79,6 +80,7 @@ public abstract class SearchQuery {
 		this.timestamp = new Date();
 		name = this.timestamp.toString();
 		this.status = Status.RUNNING;
+		this.UIDValidity = 0;
 	}
 
 	/**
@@ -156,6 +158,18 @@ public abstract class SearchQuery {
 
 	public void setLastMonotonic(String lastMonotonic) {
 		this.lastMonotonic = lastMonotonic;
+	}
+
+	public Integer getUIDValidity() {
+		return UIDValidity;
+	}
+
+	public void setUIDValidity(Integer UIDValidity) {
+		this.UIDValidity = UIDValidity;
+	}
+
+	public void invalidateUID() {
+		this.UIDValidity++;
 	}
 
 	public void addAllSearchCriteria(MessageSearchSummary searchSummary) {

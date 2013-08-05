@@ -26,7 +26,7 @@ import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.SEARCH
 import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.SEARCHRESULTS;
 import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.UUID;
 
-import java.util.Set;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -35,6 +35,7 @@ import org.bson.types.ObjectId;
 import com.linuxbox.enkive.workspace.WorkspaceException;
 import com.linuxbox.enkive.workspace.searchResult.SearchResult;
 import com.mongodb.BasicDBObject;
+import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 
@@ -61,7 +62,7 @@ public class MongoSearchResult extends SearchResult {
 	public void saveSearchResult() throws WorkspaceException {
 
 		BasicDBObject searchResultObject = new BasicDBObject();
-		searchResultObject.put(SEARCHRESULTS, getMessageIds());
+		searchResultObject.put(SEARCHRESULTS, BasicDBObjectBuilder.start(getMessageIds()).get());
 		searchResultObject.put(SEARCHQUERYID, getSearchQueryId());
 
 		if (getId() != null && !getId().isEmpty()) {
@@ -91,7 +92,7 @@ public class MongoSearchResult extends SearchResult {
 
 	public void sortSearchResultMessages(String sortBy, int sortDir)
 			throws WorkspaceException {
-		Set<String> messageIds = getMessageIds();
+		Map<Integer, String> messageIds = getMessageIds();
 		if (sortBy.equals(SORTBYDATE))
 			setMessageIds(searchResultUtils.sortMessagesByDate(messageIds,
 					sortDir));

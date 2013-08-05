@@ -183,14 +183,14 @@ public class SearchFolderServlet extends EnkiveServlet {
 			throws WorkspaceException {
 		SearchQuery query = workspaceService.getSearch(searchId);
 		Set<String> messageIdSet = new HashSet<String>(messageIds);
-		query.getResult().setMessageIds(messageIdSet);
+		query.getResult().addMessageIds(messageIdSet);
 		searchFolder.addSearchResult(query.getResult());
 	}
 
 	protected JSONArray viewSearchFolder(SearchFolder searchFolder,
 			WebPageInfo pageInfo) throws CannotRetrieveException, JSONException {
 		List<String> messageIds = new ArrayList<String>(
-				searchFolder.getMessageIds());
+				searchFolder.getMessageIds().values());
 		@SuppressWarnings("unchecked")
 		List<MessageSummary> messageSummaries = archiveService
 				.retrieveSummary((List<String>) pageInfo.getSubList(messageIds));

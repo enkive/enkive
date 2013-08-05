@@ -22,7 +22,7 @@ package com.linuxbox.enkive.message.search;
 import static com.linuxbox.enkive.search.Constants.INITIAL_MESSAGE_UUID_PARAMETER;
 
 import java.util.Date;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.TreeMap;
@@ -71,7 +71,8 @@ public abstract class AbstractMessageSearchService implements
 			final TreeMap<String, String> resultMessageIDs = searchImpl(fields);
 
 			// complete the search result data
-			result.setMessageIds(new HashSet<String>(resultMessageIDs.values()));
+			// TreeMap returns map.values() in key order, so monotonic order should be preseverd
+			result.addMessageIds(resultMessageIDs.values());
 			query.setTimestamp(new Date());
 			try {
 				query.setLastMonotonic(resultMessageIDs.lastKey());
@@ -92,8 +93,9 @@ public abstract class AbstractMessageSearchService implements
 	public void updateSearch(SearchQuery query) throws MessageSearchException {
 		SearchResult result = query.getResult();
 		Map<String, String> fields = query.getCriteria();
+		String lastMonotonic = query.getLastMonotonic();
 
-		fields.put(INITIAL_MESSAGE_UUID_PARAMETER, query.getLastMonotonic());
+		fields.put(INITIAL_MESSAGE_UUID_PARAMETER, lastMonotonic);
 
 		LOGGER.trace("AbstractMessageSearchService.updateSearch function looking for messages w/ following criteria: "
 				+ fields.toString());
@@ -106,6 +108,13 @@ public abstract class AbstractMessageSearchService implements
 
 		// complete the search result data
 		if (!resultMessageIDs.isEmpty()) {
+			if (lastMonotonic == null) {
+				// This re-ran the entire search, as it was a migrated search.  We need to
+				// wipe out all previous results or we'll get duplicates
+				query.invalidateUID();
+				result.setNextUID(0);
+				result.setMessageIds(new HashMap<Integer, String>());
+			}
 			result.addMessageIds(resultMessageIDs.values());
 			query.setLastMonotonic(resultMessageIDs.lastKey());
 			query.setTimestamp(new Date());

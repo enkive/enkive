@@ -20,6 +20,7 @@ package com.linuxbox.enkive.workspace.searchQuery.mongo;
 
 import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.EXECUTEDBY;
 import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.EXECUTIONTIMESTAMP;
+import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.IMAPUIDVALIDITY;
 import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.LASTMONOTONICID;
 import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.SEARCHCRITERIA;
 import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.SEARCHISSAVED;
@@ -97,34 +98,20 @@ public class MongoSearchQueryBuilder implements SearchQueryBuilder {
 		return query;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public SearchQuery getSearchQuery(String searchQueryId)
 			throws WorkspaceException {
-		SearchQuery query = new MongoSearchQuery(searchQueryColl);
 		DBObject queryObject = searchQueryColl.findOne(ObjectId
 				.massageToObjectId(searchQueryId));
 
-		query.setId(searchQueryId);
-		query.setName((String) queryObject.get(SEARCHNAME));
-		query.setResult(searchResultBuilder
-				.getSearchResult((String) queryObject.get(SEARCHRESULTID)));
-		query.setCriteria(((BasicDBObject) queryObject.get(SEARCHCRITERIA))
-				.toMap());
-		query.setTimestamp((Date) queryObject.get(EXECUTIONTIMESTAMP));
-		query.setExecutedBy((String) queryObject.get(EXECUTEDBY));
-		query.setStatus(SearchQuery.Status.valueOf((String) queryObject
-				.get(SEARCHSTATUS)));
-		query.setLastMonotonic((String) queryObject.get(LASTMONOTONICID));
-		if (queryObject.get(SEARCHISSAVED) != null)
-			query.setSaved((Boolean) queryObject.get(SEARCHISSAVED));
+		SearchQuery query = extractQuery(queryObject);
+
 		if (LOGGER.isInfoEnabled())
 			LOGGER.info("Retrieved Search Query " + query.getName() + " - "
 					+ query.getId());
 		return query;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public Collection<SearchQuery> getSearchQueries(
 			Collection<String> searchQueryUUIDs) throws WorkspaceException {
@@ -139,25 +126,38 @@ public class MongoSearchQueryBuilder implements SearchQueryBuilder {
 		DBCursor searchQuery = searchQueryColl.find(new BasicDBObject(UUID,
 				dbQuery));
 		while (searchQuery.hasNext()) {
-			MongoSearchQuery query = new MongoSearchQuery(searchQueryColl);
-			DBObject queryObject = searchQuery.next();
-
-			query.setId(((ObjectId) queryObject.get(UUID)).toString());
-			query.setName((String) queryObject.get(SEARCHNAME));
-			query.setResult(searchResultBuilder
-					.getSearchResult((String) queryObject.get(SEARCHRESULTID)));
-			query.setCriteria(((BasicDBObject) queryObject.get(SEARCHCRITERIA))
-					.toMap());
-			query.setTimestamp((Date) queryObject.get(EXECUTIONTIMESTAMP));
-			query.setExecutedBy((String) queryObject.get(EXECUTEDBY));
-			query.setLastMonotonic((String) queryObject.get(LASTMONOTONICID));
-			query.setStatus(SearchQuery.Status.valueOf((String) queryObject
-					.get(SEARCHSTATUS)));
-			if (queryObject.get(SEARCHISSAVED) != null)
-				query.setSaved((Boolean) queryObject.get(SEARCHISSAVED));
-			queries.add(query);
+			queries.add(extractQuery(searchQuery.next()));
 
 		}
 		return queries;
+	}
+
+	/**
+	 * Helper method to get a search query from the DB and convert it into a
+	 * MongoSearchQuery object
+	 * @param queryObject	DB object to extract from
+	 * @return new MongoSearchQuery with info from DB
+	 * @throws WorkspaceException
+	 */
+	@SuppressWarnings("unchecked")
+	private MongoSearchQuery extractQuery(DBObject queryObject)
+			throws WorkspaceException {
+		MongoSearchQuery query = new MongoSearchQuery(searchQueryColl);
+
+		query.setId(((ObjectId) queryObject.get(UUID)).toString());
+		query.setName((String) queryObject.get(SEARCHNAME));
+		query.setResult(searchResultBuilder.getSearchResult((String) queryObject.get(SEARCHRESULTID)));
+		query.setCriteria(((BasicDBObject) queryObject.get(SEARCHCRITERIA))
+				.toMap());
+		query.setTimestamp((Date) queryObject.get(EXECUTIONTIMESTAMP));
+		query.setExecutedBy((String) queryObject.get(EXECUTEDBY));
+		query.setStatus(SearchQuery.Status.valueOf((String) queryObject
+				.get(SEARCHSTATUS)));
+		query.setLastMonotonic((String) queryObject.get(LASTMONOTONICID));
+		query.setUIDValidity((Integer)queryObject.get(IMAPUIDVALIDITY));
+		if (queryObject.get(SEARCHISSAVED) != null)
+			query.setSaved((Boolean) queryObject.get(SEARCHISSAVED));
+
+		return query;
 	}
 }

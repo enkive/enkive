@@ -20,9 +20,9 @@ package com.linuxbox.enkive.workspace.searchResult.mongo;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedHashSet;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
 import org.bson.types.ObjectId;
 
@@ -60,32 +60,32 @@ public class MongoSearchResultUtils {
 		this.searchResultColl = searchResultInfo.getCollection();
 	}
 
-	public LinkedHashSet<String> sortMessagesByDate(Set<String> messageIds,
+	public HashMap<Integer, String> sortMessagesByDate(Map<Integer, String> messageIds,
 			int sortDir) {
 		return sortMessages(messageIds, MesssageAttributeConstants.DATE,
 				sortDir);
 	}
 
-	public LinkedHashSet<String> sortMessagesBySender(Set<String> messageIds,
+	public HashMap<Integer, String> sortMessagesBySender(Map<Integer, String> messageIds,
 			int sortDir) {
 		return sortMessages(messageIds, MesssageAttributeConstants.FROM,
 				sortDir);
 	}
 
-	public LinkedHashSet<String> sortMessagesByReceiver(Set<String> messageIds,
+	public HashMap<Integer, String> sortMessagesByReceiver(Map<Integer, String> messageIds,
 			int sortDir) {
 		return sortMessages(messageIds, MesssageAttributeConstants.TO, sortDir);
 	}
 
-	public LinkedHashSet<String> sortMessagesBySubject(Set<String> messageIds,
+	public HashMap<Integer, String> sortMessagesBySubject(Map<Integer, String> messageIds,
 			int sortDir) {
 		return sortMessages(messageIds, MesssageAttributeConstants.SUBJECT,
 				sortDir);
 	}
 
-	protected LinkedHashSet<String> sortMessages(Set<String> messageIds,
+	protected HashMap<Integer, String> sortMessages(Map<Integer, String> messageIds,
 			String sortField, int sortDirection) {
-		LinkedHashSet<String> sortedIds = new LinkedHashSet<String>();
+		HashMap<Integer, String> sortedIds = new HashMap<Integer, String>();
 		// Only want to return the ids
 		BasicDBObject keys = new BasicDBObject();
 		keys.put("_id", 1);
@@ -94,7 +94,7 @@ public class MongoSearchResultUtils {
 		BasicDBObject query = new BasicDBObject();
 		// Build object with IDs
 		BasicDBList idList = new BasicDBList();
-		idList.addAll(messageIds);
+		idList.addAll(messageIds.values());
 		BasicDBObject idQuery = new BasicDBObject();
 		idQuery.put("$in", idList);
 		query.put("_id", idQuery);
@@ -104,8 +104,9 @@ public class MongoSearchResultUtils {
 		BasicDBObject orderBy = new BasicDBObject();
 		orderBy.put(sortField, sortDirection);
 		results = results.sort(orderBy);
+		Integer UID = 0;
 		for (DBObject result : results.toArray())
-			sortedIds.add((String) result.get("_id"));
+			sortedIds.put(UID++, (String) result.get("_id"));
 		return sortedIds;
 	}
 

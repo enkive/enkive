@@ -178,7 +178,7 @@ public class AdvancedSearch extends AbstractSearchWebScript {
 					LOGGER.info("search results are complete");
 
 				final List<MessageSummary> messageSummaries = archiveService
-						.retrieveSummary(query.getResult().getMessageIds());
+						.retrieveSummary(query.getResult().getMessageIds().values());
 
 				pageInfo.setItemTotal(messageSummaries.size());
 				@SuppressWarnings("unchecked")

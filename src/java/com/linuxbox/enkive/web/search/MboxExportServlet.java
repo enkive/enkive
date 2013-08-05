@@ -85,7 +85,7 @@ public class MboxExportServlet extends EnkiveServlet {
 						+ " had no results");
 			}
 
-			Collection<String> messageIds = search.getResult().getMessageIds();
+			Collection<String> messageIds = search.getResult().getMessageIds().values();
 
 			Writer writer = res.getWriter();
 			File tempFile = File.createTempFile("enkive-export-", ".mbox");

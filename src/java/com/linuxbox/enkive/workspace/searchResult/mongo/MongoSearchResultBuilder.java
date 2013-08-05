@@ -23,9 +23,9 @@ import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.SEARCH
 import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.UUID;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -77,30 +77,17 @@ public class MongoSearchResultBuilder implements SearchResultBuilder {
 
 	public SearchResult getSearchResult(String searchResultId)
 			throws WorkspaceException {
-		MongoSearchResult result = new MongoSearchResult(searchResultsColl);
 		DBObject searchResultObject = searchResultsColl.findOne(ObjectId
 				.massageToObjectId(searchResultId));
 		if (searchResultObject == null) {
 			LOGGER.error("SearchResultObject is null for searchResultId: "
 					+ searchResultId);
+			return null;
 		}
-		result.setId(searchResultId);
-
-		BasicDBList searchResults = (BasicDBList) searchResultObject
-				.get(SEARCHRESULTS);
-
-		Set<String> searchResultUUIDs = new HashSet<String>();
-		Iterator<Object> searchResultsIterator = searchResults.iterator();
-		while (searchResultsIterator.hasNext())
-			searchResultUUIDs.add((String) searchResultsIterator.next());
-
-		result.setMessageIds(searchResultUUIDs);
-
-		result.setSearchQueryId((String) searchResultObject.get(SEARCHQUERYID));
+		MongoSearchResult result = extractResult(searchResultObject);
 
 		if (LOGGER.isInfoEnabled())
 			LOGGER.info("Retrieved Search Results - " + result.getId());
-		result.setSearchResultUtils(searchResultUtils);
 
 		return result;
 	}
@@ -119,28 +106,44 @@ public class MongoSearchResultBuilder implements SearchResultBuilder {
 		DBCursor searchResult = searchResultsColl.find(new BasicDBObject(UUID,
 				query));
 		while (searchResult.hasNext()) {
-			MongoSearchResult result = new MongoSearchResult(searchResultsColl);
-			DBObject searchResultObject = searchResult.next();
-			result.setId(((ObjectId) searchResultObject.get(UUID)).toString());
-
-			BasicDBList searchResults = (BasicDBList) searchResultObject
-					.get(SEARCHRESULTS);
-
-			Set<String> searchResultMessageUUIDs = new HashSet<String>();
-			Iterator<Object> searchResultsIterator = searchResults.iterator();
-			while (searchResultsIterator.hasNext())
-				searchResultMessageUUIDs.add((String) searchResultsIterator
-						.next());
-
-			result.setMessageIds(searchResultMessageUUIDs);
-
-			result.setSearchQueryId((String) searchResultObject
-					.get(SEARCHQUERYID));
-			result.setSearchResultUtils(searchResultUtils);
+			MongoSearchResult result = extractResult(searchResult.next());
 			results.add(result);
 
 		}
 		return results;
+	}
+
+	/**
+	 * Helper method to get a search result from the DB and convert it into a
+	 * MongoSearchResult object.
+	 * @param searchResultObject	DB Object to extract from
+	 * @return new MongoSearchResult containing data from DB
+	 */
+	private MongoSearchResult extractResult(DBObject searchResultObject) {
+		MongoSearchResult result = new MongoSearchResult(searchResultsColl);
+		result.setId(((ObjectId) searchResultObject.get(UUID)).toString());
+
+		BasicDBObject searchResults = (BasicDBObject) searchResultObject.get(SEARCHRESULTS);
+		@SuppressWarnings("unchecked")
+		// Map comes back as <String, String>, even though we put it in as <Integer, String>
+		Map<String, String> dbUUIDs = searchResults.toMap();
+		HashMap<Integer, String> searchResultUUIDs = new HashMap<Integer, String>();
+		Integer maxUID = 0;
+		for (Map.Entry<String, String> entry : dbUUIDs.entrySet()) {
+			Integer UID = Integer.parseInt(entry.getKey());
+			if (UID > maxUID) {
+				maxUID = UID;
+			}
+			searchResultUUIDs.put(UID, entry.getValue());
+		}
+		result.setMessageIds(searchResultUUIDs);
+		result.setNextUID(maxUID + 1);
+
+		result.setSearchQueryId((String) searchResultObject.get(SEARCHQUERYID));
+		result.setSearchResultUtils(searchResultUtils);
+
+		return result;
+
 	}
 
 	public MongoSearchResultUtils getSearchResultUtils() {
