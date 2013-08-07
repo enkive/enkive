@@ -14,7 +14,7 @@ function delete_recent_searches() {
 }
 
 function save_recent_search(id) {
-	$.get("/ediscovery/search/save?searchids=" + id, function(data) {
+	$.get("/ediscovery/search/save?searchids=" + id + "&enable=true", function(data) {
 		window.location.replace("/ediscovery/search/saved");
 	});
 }
@@ -41,7 +41,7 @@ function save_recent_searches() {
 	$(".idcheckbox:checkbox:checked").each(function() {
 		ids = ids + "," + $(this).val();
 	});
-	$.get("/ediscovery/search/save?searchids=" + ids, function(data) {
+	$.get("/ediscovery/search/save?searchids=" + ids + "&enable=true", function(data) {
 		window.location.replace("/ediscovery/search/saved");
 	});
 }
@@ -63,30 +63,62 @@ function delete_saved_searches() {
 }
 
 function stop_search(id) {
-	$
-			.get(
-					"/ediscovery/search/cancel?searchid=" + id,
-					function(data) {
-						$('#main')
-								.load(
-										'/ediscovery/search/recent/main',
-										function(response, status, xhr) {
-											if (xhr.status == 403) {
-												location.reload();
-											} else {
-												$('.search_result')
-														.click(
-																function() {
-																	var id = $(
-																			this)
-																			.attr(
-																					"id");
-																	if (id) {
-																		window.location = "/ediscovery/search/recent/view?searchid="
-																				+ id;
-																	}
-																});
-											}
-										});
-					});
+	$.get("/ediscovery/search/cancel?searchid=" + id, function(data) {
+		$('#main').load('/ediscovery/search/recent/main', function(response, status, xhr) {
+			if (xhr.status == 403) {
+				location.reload();
+			} else {
+				$('.search_result').click(function() {
+					var id = $(this).attr("id");
+					if (id) {
+						window.location = "/ediscovery/search/recent/view?searchid=" + id;
+					}
+				});
+			}
+		});
+	});
+}
+
+function imap_search(id) {
+	$.get("/ediscovery/search/imap?searchids=" + id + "&enable=true", function(data) {
+		window.location.replace("/ediscovery/search/recent");
+	});
+}
+
+function imap_searches(recent) {
+	var ids = "";
+	var target = "";
+	if (recent == true) {
+		target = "/ediscovery/search/recent";
+	} else {
+		target = "/ediscovery/search/saved";
+	}
+	$(".idcheckbox:checkbox:checked").each(function() {
+		ids = ids + "," + $(this).val();
+	});
+	$.get("/ediscovery/search/imap?searchids=" + ids + "&enable=true", function(data) {
+		window.location.replace(target);
+	});
+}
+
+function unimap_search(id) {
+	$.get("/ediscovery/search/imap?searchids=" + id + "&enable=false", function(data) {
+		window.location.replace("/ediscovery/search/recent");
+	});
+}
+
+function unimap_searches(recent) {
+	var ids = "";
+	var target = "";
+	if (recent == true) {
+		target = "/ediscovery/search/recent";
+	} else {
+		target = "/ediscovery/search/saved";
+	}
+	$(".idcheckbox:checkbox:checked").each(function() {
+		ids = ids + "," + $(this).val();
+	});
+	$.get("/ediscovery/search/imap?searchids=" + ids + "&enable=false", function(data) {
+		window.location.replace(target);
+	});
 }

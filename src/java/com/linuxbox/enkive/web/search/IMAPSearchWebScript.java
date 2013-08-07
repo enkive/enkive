@@ -37,9 +37,9 @@ import com.linuxbox.enkive.workspace.WorkspaceException;
 import com.linuxbox.enkive.workspace.WorkspaceService;
 import com.linuxbox.enkive.workspace.searchQuery.SearchQuery;
 
-public class SaveSearchWebScript extends EnkiveServlet {
+public class IMAPSearchWebScript extends EnkiveServlet {
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 8342072157628116473L;
 
@@ -64,9 +64,9 @@ public class SaveSearchWebScript extends EnkiveServlet {
 				try {
 					SearchQuery query = workspaceService.getSearch(searchId);
 					if (enable.toLowerCase().equals("true")) {
-						query.setSaved(true);
+						query.setIMAP(true);
 					} else {
-						query.setSaved(false);
+						query.setIMAP(false);
 					}
 					query.saveSearchQuery();
 

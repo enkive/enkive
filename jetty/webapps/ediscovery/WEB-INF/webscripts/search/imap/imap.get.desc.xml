@@ -1,0 +1,7 @@
+<webscript>
+  <shortname>IMAP Search</shortname>
+  <description>Mark a search as an IMAP folder</description>
+  <url>/search/imap</url>
+  <format default="text">any</format>
+  <authentication>user</authentication>
+</webscript>

@@ -51,5 +51,6 @@ public class MongoWorkspaceConstants {
 	public static String EXECUTEDBY = "ExecutedBy";
 	public static String LASTMONOTONICID = "LastMonotonicID";
 	public static String IMAPUIDVALIDITY = "IMAPUIDValidity";
+	public static String SEARCHISIMAP = "IsIMAP";
 
 }

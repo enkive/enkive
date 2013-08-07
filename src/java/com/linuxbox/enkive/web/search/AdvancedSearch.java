@@ -118,14 +118,6 @@ public class AdvancedSearch extends AbstractSearchWebScript {
 			String contentCriteriaString = WebScriptUtils.cleanGetParameter(
 					req, CONTENT_PARAMETER);
 
-			// note that the content portion of the query will have been cleaned
-			// up by the parsing of the contentCriteriaString
-			jsonData.put(
-					QUERY_TAG,
-					searchQueryToJson(sender, recipient, dateEarliestString,
-							dateLatestString, subject, messageId,
-							contentCriteriaString));
-
 			HashMap<String, String> searchFields = new HashMap<String, String>();
 			searchFields.put(SENDER_PARAMETER, sender);
 			searchFields.put(RECIPIENT_PARAMETER, recipient);
@@ -172,6 +164,7 @@ public class AdvancedSearch extends AbstractSearchWebScript {
 			}
 
 			if (query != null) {
+				jsonData.put( QUERY_TAG, query.toJson());
 				jsonData.put(SEARCH_ID_TAG, query.getId());
 				WebPageInfo pageInfo = new WebPageInfo();
 				if (LOGGER.isInfoEnabled())
@@ -195,6 +188,13 @@ public class AdvancedSearch extends AbstractSearchWebScript {
 			} else {
 				if (LOGGER.isInfoEnabled())
 					LOGGER.info("search results are not ready yet");
+				// note that the content portion of the query will have been cleaned
+				// up by the parsing of the contentCriteriaString
+				jsonData.put(
+						QUERY_TAG,
+						searchQueryToJson(sender, recipient, dateEarliestString,
+								dateLatestString, subject, messageId,
+								contentCriteriaString, false, false));
 				jsonData.put(STATUS_ID_TAG, RUNNING_STATUS_VALUE);
 			}
 			jsonResult.put(DATA_TAG, jsonData);

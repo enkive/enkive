@@ -67,6 +67,7 @@ public class WorkspaceMigration1to2 extends DbMigration {
 		public static String SEARCHCRITERIA = "SearchCriteria";
 		public static String SEARCHRESULTID = "SearchResultId";
 		public static String SEARCHSTATUS = "Status";
+		public static String SEARCHISIMAP = "IsIMAP";
 		public static String SEARCHISSAVED = "IsSaved";
 		public static String EXECUTIONTIMESTAMP = "ExecutionTimestamp";
 		public static String EXECUTEDBY = "ExecutedBy";
@@ -205,6 +206,7 @@ public class WorkspaceMigration1to2 extends DbMigration {
 			queryObject.put(Workspace1to2Constants.EXECUTEDBY, executedBy);
 			queryObject.put(Workspace1to2Constants.SEARCHSTATUS, status);
 			queryObject.put(Workspace1to2Constants.SEARCHISSAVED, isSaved);
+			queryObject.put(Workspace1to2Constants.SEARCHISIMAP, false);
 			queryObject.put(Workspace1to2Constants.LASTMONOTONICID, null);
 			queryObject.put(Workspace1to2Constants.IMAPUIDVALIDITY, 0);
 

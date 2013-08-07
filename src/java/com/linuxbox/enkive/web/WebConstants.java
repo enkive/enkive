@@ -51,6 +51,7 @@ public interface WebConstants {
 	public static final String SEARCH_PARAMETER_TAG = "parameter";
 	public static final String SEARCH_VALUE_TAG = "value";
 	public static final String SEARCH_IS_SAVED = "searchIsSaved";
+	public static final String SEARCH_IS_IMAP = "searchIsIMAP";
 	public static final String ITEM_TOTAL_TAG = "itemTotal";
 
 	public static final String MESSAGE_ID_TAG = "messageId";

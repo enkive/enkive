@@ -23,6 +23,7 @@ import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.EXECUT
 import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.IMAPUIDVALIDITY;
 import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.LASTMONOTONICID;
 import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.SEARCHCRITERIA;
+import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.SEARCHISIMAP;
 import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.SEARCHISSAVED;
 import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.SEARCHNAME;
 import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.SEARCHRESULTID;
@@ -157,6 +158,8 @@ public class MongoSearchQueryBuilder implements SearchQueryBuilder {
 		query.setUIDValidity((Integer)queryObject.get(IMAPUIDVALIDITY));
 		if (queryObject.get(SEARCHISSAVED) != null)
 			query.setSaved((Boolean) queryObject.get(SEARCHISSAVED));
+		if (queryObject.get(SEARCHISIMAP) != null)
+			query.setIMAP((Boolean) queryObject.get(SEARCHISIMAP));
 
 		return query;
 	}

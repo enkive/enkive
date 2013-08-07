@@ -64,6 +64,10 @@
 		<servlet-class>com.linuxbox.enkive.web.search.SaveSearchWebScript</servlet-class>
 	</servlet>
 	<servlet>
+		<servlet-name>IMAPSearchServlet</servlet-name>
+		<servlet-class>com.linuxbox.enkive.web.search.IMAPSearchWebScript</servlet-class>
+	</servlet>
+	<servlet>
 		<servlet-name>UpdateSearchServlet</servlet-name>
 		<servlet-class>com.linuxbox.enkive.web.search.UpdateSearchWebScript</servlet-class>
 	</servlet>
@@ -127,6 +131,10 @@
 	<servlet-mapping>
 		<servlet-name>SaveSearchServlet</servlet-name>
 		<url-pattern>/search/save</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>IMAPSearchServlet</servlet-name>
+		<url-pattern>/search/imap</url-pattern>
 	</servlet-mapping>
 	<servlet-mapping>
 		<servlet-name>UpdateSearchServlet</servlet-name>

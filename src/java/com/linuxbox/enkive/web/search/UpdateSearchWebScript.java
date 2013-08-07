@@ -19,6 +19,9 @@
  *******************************************************************************/
 package com.linuxbox.enkive.web.search;
 
+import static com.linuxbox.enkive.search.Constants.SEARCH_IDS_PARAMETER;
+import static com.linuxbox.enkive.search.Constants.SEARCH_NAME_PARAMETER;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
@@ -60,9 +63,8 @@ public class UpdateSearchWebScript extends EnkiveServlet {
 			throws IOException {
 
 		ArrayList<String> failedUpdates = new ArrayList<String>();
-		String searchIds = WebScriptUtils.cleanGetParameter(req, "searchids");
-		String nameOfSavedSearch = WebScriptUtils
-				.cleanGetParameter(req, "name");
+		String searchIds = WebScriptUtils.cleanGetParameter(req, SEARCH_IDS_PARAMETER);
+		String nameOfSavedSearch = WebScriptUtils.cleanGetParameter(req, SEARCH_NAME_PARAMETER);
 
 		for (String searchId : searchIds.split(",")) {
 			if (!searchId.isEmpty()) {

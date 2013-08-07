@@ -24,6 +24,8 @@ import static com.linuxbox.enkive.search.Constants.DATE_EARLIEST_PARAMETER;
 import static com.linuxbox.enkive.search.Constants.DATE_LATEST_PARAMETER;
 import static com.linuxbox.enkive.search.Constants.MESSAGE_ID_PARAMETER;
 import static com.linuxbox.enkive.search.Constants.RECIPIENT_PARAMETER;
+import static com.linuxbox.enkive.search.Constants.SEARCH_IS_IMAP;
+import static com.linuxbox.enkive.search.Constants.SEARCH_IS_SAVED;
 import static com.linuxbox.enkive.search.Constants.SENDER_PARAMETER;
 import static com.linuxbox.enkive.search.Constants.SUBJECT_PARAMETER;
 import static com.linuxbox.util.StringUtils.isEmpty;
@@ -84,7 +86,8 @@ public abstract class AbstractSearchWebScript extends AbstractJsonServlet {
 
 	protected JSONObject searchQueryToJson(String sender, String recipient,
 			String dateEarliest, String dateLatest, String subject,
-			String messageId, String content) throws JSONException {
+			String messageId, String content, boolean isSaved, boolean isIMAP)
+					throws JSONException {
 		JSONObject result = new JSONObject();
 
 		if (StringUtils.hasData(sender)) {
@@ -107,6 +110,16 @@ public abstract class AbstractSearchWebScript extends AbstractJsonServlet {
 		}
 		if (StringUtils.hasData(content)) {
 			result.put(CONTENT_PARAMETER, content);
+		}
+		if (isSaved) {
+			result.put(SEARCH_IS_SAVED, "true");
+		} else {
+			result.put(SEARCH_IS_SAVED, "false");
+		}
+		if (isIMAP) {
+			result.put(SEARCH_IS_IMAP, "true");
+		} else {
+			result.put(SEARCH_IS_IMAP, "false");
 		}
 
 		return result;

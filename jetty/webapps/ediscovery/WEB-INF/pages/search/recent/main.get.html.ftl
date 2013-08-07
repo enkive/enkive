@@ -3,6 +3,8 @@
 		<table id="saved_searches">
 			<tr>
 				<th><input type="checkbox" onclick="toggleChecked(this.checked)" /></th>
+				<th>Saved</th>
+				<th>IMAP</th>
 				<th>
 					<a class="sortable" href="${baseuri}&sortBy=sortByDate&sortDir=-1">
 						<img src="${url.context}/resource/images/sort_arrow_desc.png" alt="Sort DESC" />
@@ -35,6 +37,16 @@
 				" id="${search.searchId}">
 					<#assign searchDate = search.searchDate?datetime("yyyy-MM-dd_HH-mm-ss-SSS")>
 					<td class="search_action"><input type="checkbox" class="idcheckbox"  value="${search.searchId}"/></td>
+					<#if search.searchIsSaved>
+						<td align="center"><img src="${url.context}/resource/images/checkmark-16px.png" alt="IsSaved" />
+					<#else>
+						<td> &nbsp; </td>
+					</#if>
+					<#if search.searchIsIMAP>
+						<td align="center"><img src="${url.context}/resource/images/checkmark-16px.png" alt="IsIMAP" />
+					<#else>
+						<td> &nbsp; </td>
+					</#if>
 				  	<td>${searchDate}</td>
 				  	<td>
 					    <#list search.criteria as criteria>
@@ -63,6 +75,8 @@
 		<tr>
 			<td><input type="button" onClick='save_recent_searches()' value="Save Selected Searches" /></td>
 			<td><input type="button" onClick='delete_recent_searches()' value="Delete Selected Searches" /></td>
+			<td><input type="button" onClick='unimap_searches(true)' value="Remove Selected IMAP Folders" /></td>
+			<td><input type="button" onClick='imap_searches(true)' value="Make Selected Searches IMAP Folders" /></td>
 		</tr>
 	</table>
 </#if>

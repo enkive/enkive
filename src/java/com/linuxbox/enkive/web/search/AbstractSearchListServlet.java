@@ -131,6 +131,8 @@ public abstract class AbstractSearchListServlet extends EnkiveServlet {
 							searchQuery.getStatus());
 					search.put(WebConstants.SEARCH_IS_SAVED,
 							searchQuery.isSaved());
+					search.put(WebConstants.SEARCH_IS_IMAP,
+							searchQuery.isIMAP());
 					search.put(WebConstants.SEARCH_DATE_TAG,
 							GeneralConstants.NUMERIC_FORMAT_W_MILLIS
 									.format(searchQuery.getTimestamp()));

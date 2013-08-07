@@ -24,6 +24,8 @@ import static com.linuxbox.enkive.search.Constants.DATE_EARLIEST_PARAMETER;
 import static com.linuxbox.enkive.search.Constants.DATE_LATEST_PARAMETER;
 import static com.linuxbox.enkive.search.Constants.MESSAGE_ID_PARAMETER;
 import static com.linuxbox.enkive.search.Constants.RECIPIENT_PARAMETER;
+import static com.linuxbox.enkive.search.Constants.SEARCH_IS_IMAP;
+import static com.linuxbox.enkive.search.Constants.SEARCH_IS_SAVED;
 import static com.linuxbox.enkive.search.Constants.SENDER_PARAMETER;
 import static com.linuxbox.enkive.search.Constants.SUBJECT_PARAMETER;
 
@@ -31,6 +33,9 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import com.linuxbox.enkive.message.search.MessageSearchSummary;
 import com.linuxbox.enkive.workspace.WorkspaceException;
@@ -68,6 +73,7 @@ public abstract class SearchQuery {
 	private Map<String, String> criteria;
 	private String executedBy;
 	private Boolean isSaved = false;
+	private Boolean isIMAP = false;
 	private Date timestamp;
 	private Status status;
 	private String lastMonotonic;
@@ -152,6 +158,14 @@ public abstract class SearchQuery {
 		this.isSaved = isSaved;
 	}
 
+	public Boolean isIMAP() {
+		return isIMAP;
+	}
+
+	public void setIMAP(Boolean isIMAP) {
+		this.isIMAP = isIMAP;
+	}
+
 	public String getLastMonotonic() {
 		return lastMonotonic;
 	}
@@ -220,6 +234,27 @@ public abstract class SearchQuery {
 
 	public boolean matches(Map<String, String> criteria) {
 		return this.criteria.equals(criteria);
+	}
+
+	public JSONObject toJson() throws JSONException {
+		JSONObject result = new JSONObject();
+
+		for (String parameter : this.getCriteriaParameters()) {
+			String value = this.getCriteriumValue(parameter);
+			result.put(parameter, value);
+		}
+		if (this.isSaved()) {
+			result.put(SEARCH_IS_SAVED, "true");
+		} else {
+			result.put(SEARCH_IS_SAVED, "false");
+		}
+		if (this.isIMAP()) {
+			result.put(SEARCH_IS_IMAP, "true");
+		} else {
+			result.put(SEARCH_IS_IMAP, "false");
+		}
+
+		return result;
 	}
 
 	public abstract void saveSearchQuery() throws WorkspaceException;

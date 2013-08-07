@@ -19,6 +19,8 @@
  *******************************************************************************/
 package com.linuxbox.enkive.web.search;
 
+import static com.linuxbox.enkive.search.Constants.SEARCH_IDS_PARAMETER;
+
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -46,9 +48,8 @@ public class DeleteSearchWebScript extends EnkiveServlet {
 	public void doGet(HttpServletRequest req, HttpServletResponse res)
 			throws IOException {
 
-		String searchIds = "";
 		ArrayList<String> failedDeletedSearches = new ArrayList<String>();
-		searchIds = WebScriptUtils.cleanGetParameter(req, "searchids");
+		String searchIds = WebScriptUtils.cleanGetParameter(req, SEARCH_IDS_PARAMETER);
 		WorkspaceService workspaceService = getWorkspaceService();
 		Workspace workspace;
 

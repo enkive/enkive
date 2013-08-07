@@ -109,18 +109,13 @@ public class ViewSavedResultsServlet extends EnkiveServlet {
 			if (sortBy != null && !sortBy.equals(""))
 				query.getResult().sortSearchResultMessages(sortBy, sortDir);
 
-			JSONObject jsonCriteria = new JSONObject();
 			/* Query */
 			try {
-				for (String parameter : query.getCriteriaParameters()) {
-					String value = query.getCriteriumValue(parameter);
-					jsonCriteria.put(parameter, value);
-				}
+				dataJSON.put(QUERY_TAG, query.toJson());
 			} catch (JSONException e) {
 				LOGGER.error("could not return search criteria for search "
 						+ searchId, e);
 			}
-			dataJSON.put(QUERY_TAG, jsonCriteria);
 
 			/* Message Result List */
 
