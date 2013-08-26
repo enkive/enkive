@@ -19,9 +19,22 @@
  *******************************************************************************/
 package com.linuxbox.util.lockservice;
 
-import com.linuxbox.util.lockservice.mongodb.MongoLockService.LockRequestFailure;
+import java.util.Date;
 
 public interface LockService {
+	public static class LockRequestFailure {
+		public String identifier;
+		public Date holderTimestamp;
+		public Object holderNote;
+
+		public LockRequestFailure(String identifier, Date holderTimestamp,
+				Object holderNote) {
+			this.identifier = identifier;
+			this.holderTimestamp = holderTimestamp;
+			this.holderNote = holderNote;
+		}
+	}
+
 	void startup() throws LockServiceException;
 
 	void shutdown() throws LockServiceException;

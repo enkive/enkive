@@ -42,25 +42,13 @@ import com.mongodb.WriteConcern;
 
 public class MongoLockService extends AbstractRetryingLockService implements
 		MongoIndexable {
-	public static class LockRequestFailure {
-		public String identifier;
-		public Date holderTimestamp;
-		public String holderNote;
-
-		public LockRequestFailure(String identifier, Date holderTimestamp,
-				String holderNote) {
-			this.identifier = identifier;
-			this.holderTimestamp = holderTimestamp;
-			this.holderNote = holderNote;
-		}
-	}
 
 	/**
 	 * If we try to acquire the lock and fail, we'll return information about
 	 * the existing lock. But that requires a separate query. What if that query
 	 * says there is no existing lock? The implication is that the lock was
 	 * released right after our attempt to create it. So try again to acquire
-	 * that lock. If we fail after this number of times, assume it's hopless and
+	 * that lock. If we fail after this number of times, assume it's hopeless and
 	 * throw an exception.
 	 */
 	private static int LOCK_RETRY_ATTEMPTS = 4;

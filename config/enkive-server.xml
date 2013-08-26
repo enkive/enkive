@@ -11,9 +11,10 @@
 
 	<bean id="EnkiveFilters" class="com.linuxbox.enkive.filter.EnkiveFiltersBean" />
 
-	<bean id="DocLockService" class="com.linuxbox.util.lockservice.mongodb.MongoLockService">
-		<constructor-arg ref="DocLockDbInfo" />
-	</bean>
+	<!--<bean id="DocLockService" class="com.linuxbox.util.lockservice.mongodb.MongoLockService">-->
+		<!--<constructor-arg ref="DocLockDbInfo" />-->
+	<!--</bean>-->
+	<bean id="DocLockService" class="com.linuxbox.util.lockservice.mongodb.JavaLockService"/>
 
 	<bean id="IndexerQueueService"
 		class="com.linuxbox.util.queueservice.mongodb.MongoQueueService">
