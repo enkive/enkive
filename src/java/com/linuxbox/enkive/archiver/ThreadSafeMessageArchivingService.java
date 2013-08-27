@@ -57,12 +57,10 @@ public class ThreadSafeMessageArchivingService implements
 			throws CannotArchiveException, FailedToEmergencySaveException,
 			AuditServiceException, IOException, FailedToEmergencySaveException {
 		String uuid = null;
-		String calculatedMessageId = AbstractMessageArchivingService
-				.calculateMessageId(message);
 		uuid = findMessage(message);
 		if (uuid == null) {
 			try {
-				lockService.lockWithRetries(calculatedMessageId,
+				lockService.lockWithRetries(message.getUUID(),
 						DocStoreConstants.LOCK_TO_STORE, RETRIES,
 						RETRY_DELAY_MILLISECONDS);
 
@@ -76,7 +74,7 @@ public class ThreadSafeMessageArchivingService implements
 				uuid = null;
 			} finally {
 				try {
-					lockService.releaseLock(calculatedMessageId);
+					lockService.releaseLock(message.getUUID());
 				} catch (LockReleaseException e) {
 					LOGGER.error("Could release lock when archiving Message " +
 							message.getCleanMessageId(), e);

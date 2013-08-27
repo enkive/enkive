@@ -123,7 +123,10 @@ public class MongoArchivingService extends AbstractMessageArchivingService
 		attachment_ids = new ArrayList<String>();
 		nested_message_ids = new ArrayList<String>();
 
-		String messageId = calculateMessageId(message);
+		String messageId = message.getUUID();
+		if (messageId == null) {
+			messageId = calculateMessageId(message);
+		}
 
 		try {
 			ContentHeader contentHeader = message.getContentHeader();
@@ -187,8 +190,10 @@ public class MongoArchivingService extends AbstractMessageArchivingService
 	public String findMessage(Message message) throws MongoException,
 			CannotArchiveException {
 		String messageUUID = null;
-		DBObject messageObject = messageColl
-				.findOne(calculateMessageId(message));
+		if (message.getUUID() == null) {
+			message.setUUID(calculateMessageId(message));
+		}
+		DBObject messageObject = messageColl.findOne(message.getUUID());
 		if (messageObject != null) {
 			messageUUID = (String) messageObject.get(MESSAGE_UUID);
 			if (LOGGER.isInfoEnabled())

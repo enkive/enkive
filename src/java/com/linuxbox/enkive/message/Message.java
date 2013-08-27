@@ -127,4 +127,15 @@ public interface Message extends MessageSummary {
 	 */
 	public void pushReconstitutedEmail(Writer output) throws IOException;
 
+	/**
+	 * Get the stored UUID of the message.
+	 * @return UUID of message
+	 */
+	public String getUUID();
+
+	/**
+	 * Store the computed UUID of the message, so it only has to be computed once
+	 * @param messageUUID	Computed UUID of message
+	 */
+	public void setUUID(String messageUUID);
 }

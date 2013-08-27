@@ -50,6 +50,7 @@ public abstract class AbstractMessage extends AbstractMessageSummary implements
 	protected Header parsedHeader;
 	protected String messageDiff;
 	protected diff_match_patch differ;
+	protected String messageUUID;
 
 	public AbstractMessage() {
 		super();
@@ -106,6 +107,16 @@ public abstract class AbstractMessage extends AbstractMessageSummary implements
 
 	public void setContentTransferEncoding(String contentTransferEncoding) {
 		this.contentTransferEncoding = contentTransferEncoding;
+	}
+
+	@Override
+	public String getUUID() {
+		return messageUUID;
+	}
+
+	@Override
+	public void setUUID(String messageUUID) {
+		this.messageUUID = messageUUID;
 	}
 
 	@Override
