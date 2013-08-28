@@ -17,9 +17,13 @@
 	<bean id="DocLockService" class="com.linuxbox.util.lockservice.mongodb.JavaLockService"/>
 
 	<bean id="IndexerQueueService"
-		class="com.linuxbox.util.queueservice.mongodb.MongoQueueService">
-		<constructor-arg ref="IndexerQueueDbInfo" />
+		class="com.linuxbox.util.queueservice.mongodb.JavaQueueService">
+		<property name="docStoreService" ref="DocStoreService" />
 	</bean>
+	<!--<bean id="IndexerQueueService"-->
+		<!--class="com.linuxbox.util.queueservice.mongodb.MongoQueueService">-->
+		<!--<constructor-arg ref="IndexerQueueDbInfo" />-->
+	<!--</bean>-->
 
 	<bean id="ThreadPoolServerConfiguration"
 		class="com.linuxbox.enkive.server.config.ThreadPoolServerConfiguration">

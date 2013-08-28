@@ -55,7 +55,7 @@ public interface DocStoreService {
 	 * @throws DocumentNotFoundException
 	 * @throws DocStoreException
 	 */
-	Document retrieve(String identifier) throws DocStoreException;
+	Document retrieve(String identifier) throws DocStoreException, DocumentNotFoundException;
 
 	/**
 	 * Removes the specified document.

@@ -47,6 +47,7 @@ import com.linuxbox.enkive.docstore.DocStoreConstants;
 import com.linuxbox.enkive.docstore.DocStoreService;
 import com.linuxbox.enkive.docstore.Document;
 import com.linuxbox.enkive.docstore.exception.DocStoreException;
+import com.linuxbox.enkive.docstore.exception.DocumentNotFoundException;
 import com.linuxbox.util.DirectoryManagement;
 import com.linuxbox.util.lockservice.LockAcquisitionException;
 import com.linuxbox.util.lockservice.LockReleaseException;
@@ -474,6 +475,9 @@ public class IndriDocSearchIndexService extends AbstractDocSearchIndexService {
 			if (LOGGER.isInfoEnabled()) {
 				LOGGER.info("indexed " + identifier);
 			}
+		} catch (DocumentNotFoundException e) {
+			if (LOGGER.isWarnEnabled())
+				LOGGER.warn("Document " + identifier + " not found: " + e);
 		} catch (DocStoreException e) {
 			throw e;
 		} catch (DocSearchException e) {

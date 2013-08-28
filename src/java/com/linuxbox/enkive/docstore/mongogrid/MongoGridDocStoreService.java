@@ -168,7 +168,8 @@ public class MongoGridDocStoreService extends AbstractDocStoreService implements
 	 * Retrieves a document from the document store.
 	 */
 	@Override
-	public Document retrieve(String identifier) throws DocStoreException {
+	public Document retrieve(String identifier) throws DocStoreException,
+			DocumentNotFoundException {
 		List<GridFSDBFile> files = gridFS.find(identifier);
 		if (files.size() > 1) {
 			throw new DocStoreException("Multiple copies of file " + identifier
