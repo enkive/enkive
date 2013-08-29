@@ -38,7 +38,9 @@ import com.linuxbox.enkive.teststats.StatsMongoDbTest;
 import com.linuxbox.enkive.teststats.StatsMsgTest;
 import com.linuxbox.enkive.teststats.StatsRuntimeTest;
 import com.linuxbox.util.HashingInputStreamTest;
+import com.linuxbox.util.mongodb.JavaLockingServiceTest;
 import com.linuxbox.util.mongodb.MongoLockingServiceTest;
+import com.linuxbox.util.queueservice.mongodb.JavaQueueServiceTest;
 import com.linuxbox.util.queueservice.mongodb.MongoQueueServiceTest;
 
 @RunWith(Suite.class)
@@ -53,7 +55,8 @@ import com.linuxbox.util.queueservice.mongodb.MongoQueueServiceTest;
 															// (infinite loop
 															// problems)
 		// Unimplemented - IndriQueryComposerTest.class,
-		EnkiveFilterTest.class })
+		EnkiveFilterTest.class, JavaLockingServiceTest.class,
+		JavaQueueServiceTest.class })
 public class AllTests {
 	public static Test suite() {
 		TestSuite suite = new TestSuite(AllTests.class.getName());
