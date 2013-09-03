@@ -47,7 +47,7 @@ public class Version implements Comparable<Version> {
 		this(-1, -1, Type.UNUSED, ordinal, versionString);
 	}
 
-	protected Version(int major, int minor, Type type, int ordinal,
+	public Version(int major, int minor, Type type, int ordinal,
 			String versionString) {
 		this.major = major;
 		this.minor = minor;
