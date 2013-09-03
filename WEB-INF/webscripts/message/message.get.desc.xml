@@ -1,0 +1,5 @@
+<webscript>
+  <shortname>Message View</shortname>
+  <description>View a rebuilt message from the archive by id number</description>
+  <url>/message</url>
+</webscript>

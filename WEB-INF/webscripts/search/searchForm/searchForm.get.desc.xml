@@ -1,0 +1,7 @@
+<webscript>
+  <shortname>Search Form</shortname>
+  <description>Search Input Form</description>
+  <url>/search/input</url>
+  <authentication>user</authentication>
+  <format default="html">any</format>
+</webscript>

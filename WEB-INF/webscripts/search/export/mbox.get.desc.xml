@@ -1,0 +1,7 @@
+<webscript>
+  <shortname>Mbox Export</shortname>
+  <description>Mbox Export</description>
+  <url>/search/export/mbox</url>
+  <format default="text">any</format>
+  <authentication>user</authentication>
+</webscript>

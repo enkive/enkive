@@ -1,0 +1,7 @@
+<webscript>
+  <shortname>Search Results</shortname>
+  <description>Search Results</description>
+  <url>/search/results</url>
+  <authentication>user</authentication>
+  <format default="html">any</format>
+</webscript>

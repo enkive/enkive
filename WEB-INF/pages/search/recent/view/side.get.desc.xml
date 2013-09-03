@@ -1,0 +1,6 @@
+<webscript>
+  <shortname>Recent Search Results View Page - Side Section</shortname>
+  <description>Recent Search Results View Page - Side Section</description>
+  <url>/search/recent/view/side</url>
+  <format default="html">any</format>
+</webscript>

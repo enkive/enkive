@@ -1,0 +1,2 @@
+<title>Stats Graph</title>
+

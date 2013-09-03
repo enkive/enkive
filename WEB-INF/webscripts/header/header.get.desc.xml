@@ -1,0 +1,5 @@
+<webscript>
+  <shortname>Header</shortname>
+  <description>Global Header</description>
+  <url>/header</url>
+</webscript>

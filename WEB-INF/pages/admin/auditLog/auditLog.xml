@@ -1,0 +1,18 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<page>
+   <id>admin/auditLog</id>
+   <title>System Audit Log</title>
+   <template-instance>basicTemplate</template-instance>
+   <authentication>admin</authentication>
+   <order-id>10</order-id>
+   <components>
+      <component>
+         <region-id>subnav</region-id>
+         <url>/navigation/subnav</url>
+      </component>
+      <component>
+         <region-id>main</region-id>
+         <url>/admin/auditLog/main</url>
+      </component>   
+   </components>
+</page>

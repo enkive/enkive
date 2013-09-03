@@ -1,0 +1,6 @@
+<webscript>
+  <shortname>Folder Search Results View Page - Side Section</shortname>
+  <description>Folder Search Results View Page - Side Section</description>
+  <url>/search/folder/view/side</url>
+  <format default="html">any</format>
+</webscript>

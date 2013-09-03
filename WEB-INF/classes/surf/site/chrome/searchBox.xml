@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chrome>
+	<title>Search Box Component Chrome</title>
+	
+	<processor mode="view">
+		<id>jsp</id>
+		<jsp-path>/WEB-INF/chrome/searchBox.jsp</jsp-path>
+	</processor>
+	
+</chrome>

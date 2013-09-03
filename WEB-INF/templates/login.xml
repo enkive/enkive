@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<template-instance>
+   <template-type>login</template-type>
+   <components>
+      <component>
+         <region-id>header</region-id>
+         <url>/header</url>
+      </component>    
+      <component>
+         <region-id>footer</region-id>
+         <url>/footer</url>
+      </component>      
+   </components>
+</template-instance>

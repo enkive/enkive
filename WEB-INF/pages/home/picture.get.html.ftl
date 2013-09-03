@@ -1,0 +1,1 @@
+<img src="${url.context}/resource/images/home_image.jpg" />

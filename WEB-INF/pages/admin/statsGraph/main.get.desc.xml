@@ -1,0 +1,5 @@
+<webscript>
+  <shortname>Statistics Page - Graph</shortname>
+  <description>Statistics Page - Graph</description>
+  <url>/admin/stats/graph</url>
+</webscript>

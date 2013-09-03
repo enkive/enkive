@@ -1,0 +1,5 @@
+<webscript>
+  <shortname>Audit Log Page - Main Section</shortname>
+  <description>Audit Log Page - Main Section</description>
+  <url>/admin/auditLog/main</url>
+</webscript>

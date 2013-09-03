@@ -1,0 +1,6 @@
+<webscript>
+  <shortname>Saved Search Results View Page - Side Section</shortname>
+  <description>Saved Search Results View Page - Side Section</description>
+  <url>/search/saved/view/side</url>
+  <format default="html">any</format>
+</webscript>

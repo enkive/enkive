@@ -1,0 +1,27 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE beans PUBLIC '-//SPRING//DTD BEAN 2.0//EN' 'http://www.springframework.org/dtd/spring-beans-2.0.dtd'>
+<beans>
+
+	<bean id="webframework.factory.user.ediscovery" class="com.linuxbox.ediscovery.userfactory.EnkiveUserFactory"
+		parent="webframework.factory.base">
+		<constructor-arg type="java.lang.String" value="enkive" />
+	</bean>
+
+	<!-- EXPORT -->
+	<bean id="webscript.webscripts.search.export.mbox.get" class="com.linuxbox.ediscovery.webscripts.ExportMbox"
+		parent="webscript">
+	</bean>
+
+	<!-- <bean id="webscriptdesc.com.linuxbox.enkive.contentStream" class="com.linuxbox.ediscovery.webscripts.EnkiveContentStream" 
+		/> -->
+
+	<bean id="webscript.com.linuxbox.enkive.contentStream" class="com.linuxbox.ediscovery.webscripts.ExportSearchFolder"
+		parent="webscript" scope="prototype">
+		<property name="scriptRemote" ref="webframework.webscripts.scriptremote" />
+	</bean>
+
+	<bean id="webscript.webscripts.attachment.attachment.get" class="com.linuxbox.ediscovery.webscripts.GetAttachment"
+		parent="webscript">
+	</bean>
+
+</beans>

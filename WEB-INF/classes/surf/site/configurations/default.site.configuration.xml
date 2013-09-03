@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<configuration>
+  <source-id>site</source-id>
+  <properties>
+    <root-page>home</root-page>
+  </properties>
+  <title>Enkive</title>
+  <description>Enkive E-discovery interface</description>
+</configuration>

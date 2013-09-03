@@ -1,0 +1,36 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<page>
+   <id>search/saved/view</id>
+   <title>Saved Search Results View</title>
+   <template-instance>basicTemplate</template-instance>
+   <authentication>user</authentication>
+   <order-id>1</order-id>
+   <components>
+      <component>
+         <region-id>subnav</region-id>
+         <url>/navigation/subnav</url>
+      </component>
+      <component>
+         <region-id>main</region-id>
+         <url>/search/results</url>
+      </component>
+   </components>
+   <associations>
+      <page-association>
+         <dest-id>search</dest-id>
+         <assoc-type>child</assoc-type>
+      </page-association>
+      <page-association>
+         <dest-id>search/advanced</dest-id>
+         <assoc-type>child</assoc-type>
+      </page-association>
+      <page-association>
+         <dest-id>search/recent</dest-id>
+         <assoc-type>child</assoc-type>
+      </page-association>
+            <page-association>
+      <dest-id>search/saved</dest-id>
+         <assoc-type>child</assoc-type>
+      </page-association>
+   </associations>
+</page>

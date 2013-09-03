@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<page>
+   <id>help</id>
+   <title>Help</title>
+   <template-instance>basicTemplate</template-instance>
+   <authentication>user</authentication>
+   <order-id>30</order-id>
+   <components>
+      <component>
+         <region-id>main</region-id>
+         <url>/help/main</url>
+      </component>   
+   </components>
+</page>
