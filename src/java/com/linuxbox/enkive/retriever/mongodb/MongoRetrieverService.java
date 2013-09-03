@@ -237,6 +237,11 @@ public class MongoRetrieverService extends AbstractRetrieverService {
 		if (messageObject.get(MESSAGE_DIFF) != null) {
 			message.setMessageDiff((String) messageObject.get(MESSAGE_DIFF));
 		}
+
+		// MailFrom is not in the original headers
+		if (messageObject.get(MAIL_FROM) != null) {
+			message.setMailFrom((String) messageObject.get(MAIL_FROM));
+		}
 	}
 
 	private void setSinglePartHeaderProperties(SinglePartHeader header,
