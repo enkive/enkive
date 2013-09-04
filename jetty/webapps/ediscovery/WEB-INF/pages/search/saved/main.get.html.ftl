@@ -4,20 +4,20 @@
 			<tr>
 				<th><input type="checkbox" onclick="toggleChecked(this.checked)" /></th>
 				<th>
-					<a class="sortable" href="${uri}&sortBy=sortByName&sortDir=-1">
+					<a class="sortable" href="${baseuri}&sortBy=sortByName&sortDir=-1">
 						<img src="${url.context}/resource/images/sort_arrow_desc.png" alt="Sort DESC" />
 					</a>
 					<b>Name</b>
-					<a class="sortable" href="${uri}&sortBy=sortByName&sortDir=1">
+					<a class="sortable" href="${baseuri}&sortBy=sortByName&sortDir=1">
 						<img src="${url.context}/resource/images/sort_arrow_asc.png" alt="Sort ASC" />
 					</a>
 				</th>
 				<th>
-					<a class="sortable" href="${uri}&sortBy=sortByDate&sortDir=-1">
+					<a class="sortable" href="${baseuri}&sortBy=sortByDate&sortDir=-1">
 						<img src="${url.context}/resource/images/sort_arrow_desc.png" alt="Sort DESC" />
 					</a>
 					<b>Search Date</b>
-					<a class="sortable" href="${uri}&sortBy=sortByDate&sortDir=1">
+					<a class="sortable" href="${baseuri}&sortBy=sortByDate&sortDir=1">
 						<img src="${url.context}/resource/images/sort_arrow_asc.png" alt="Sort ASC" />
 					</a>
 				</th>
@@ -51,7 +51,8 @@
 			</#list>
 		</table>
 	</div>
-	<#assign uri = uri>
+	<#assign baseuri = baseuri>
+	<#assign sorturi = sorturi>
 	<#assign paging = paging>
 	<#include "*/templates/paging.ftl">
 	<table>

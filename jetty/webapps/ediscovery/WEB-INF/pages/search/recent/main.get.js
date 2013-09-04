@@ -12,7 +12,18 @@ var searchlist = connector.get("/search/recentList" + "?pos=" + pos + "&size="
 if (searchlist.status == 200) {
 	var resultJSON = eval("(" + searchlist + ")");
 	model.searchList = resultJSON.data;
-	model.uri = "/ediscovery/search/recent" + "?";
+	model.baseuri = "/ediscovery/search/recent" + "?";
+
+	// Set up uri for paging
+	uri = model.baseuri;
+	if (sortBy != null) {
+		uri = uri + "&sortBy=" + sortBy;
+	}
+	if (sortDir != null) {
+		uri = uri + "&sortDir=" + sortDir;
+	}
+	model.sorturi = uri;
+
 	model.paging = resultJSON.paging;
 }
 status.code = searchlist.status;

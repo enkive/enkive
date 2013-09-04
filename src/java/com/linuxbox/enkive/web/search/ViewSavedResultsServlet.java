@@ -26,6 +26,8 @@ import static com.linuxbox.enkive.web.WebConstants.RESULTS_TAG;
 import static com.linuxbox.enkive.web.WebConstants.SEARCH_ID_TAG;
 import static com.linuxbox.enkive.web.WebPageInfo.PAGE_POSITION_PARAMETER;
 import static com.linuxbox.enkive.web.WebPageInfo.PAGE_SIZE_PARAMETER;
+import static com.linuxbox.enkive.web.WebPageInfo.PAGE_SORT_BY_PARAMETER;
+import static com.linuxbox.enkive.web.WebPageInfo.PAGE_SORT_DIR_PARAMETER;
 import static com.linuxbox.enkive.web.WebPageInfo.PAGING_LABEL;
 
 import java.io.IOException;
@@ -86,9 +88,9 @@ public class ViewSavedResultsServlet extends EnkiveServlet {
 		int sortDir = 1;
 		try {
 			String searchId = WebScriptUtils.cleanGetParameter(req, "id");
-			sortBy = WebScriptUtils.cleanGetParameter(req, "sortBy");
+			sortBy = WebScriptUtils.cleanGetParameter(req, PAGE_SORT_BY_PARAMETER);
 			String sortDirString = WebScriptUtils.cleanGetParameter(req,
-					"sortDir");
+					PAGE_SORT_DIR_PARAMETER);
 			if (sortDirString != null)
 				sortDir = Integer.parseInt(sortDirString);
 

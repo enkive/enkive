@@ -12,4 +12,5 @@ var auditEntryList = eval("(" + auditEntryListJSON + ")");
 model.result = auditEntryList;
 
 model.paging = auditEntryList.paging;
-model.uri = url.uri + "?";
+model.baseuri = url.uri + "?";
+model.sorturi = model.baseuri;

@@ -70,6 +70,17 @@ if (!model.firstRun && !model.emptySearch && messagelist.status == 403) {
 		searchid = messageJSON.data.searchId;
 	}
 
-	model.uri = uri + "?searchid=" + searchid;
+	model.baseuri = uri + "?searchid=" + searchid;
+
+	// Set up uri for paging
+	uri = model.baseuri;
+	if (sortBy != null) {
+		uri = uri + "&sortBy=" + sortBy;
+	}
+	if (sortDir != null) {
+		uri = uri + "&sortDir=" + sortDir;
+	}
+	model.sorturi = uri;
+
 	model.result = messageJSON
 }

@@ -39,38 +39,38 @@
 				<table id="search_results">
 				  <thead>
 				    <th>
-				    	<a class="sortable" href="${uri}&sortBy=sortByDate&sortDir=-1">
+					<a class="sortable" href="${baseuri}&sortBy=sortByDate&sortDir=-1">
 				    		<img src="${url.context}/resource/images/sort_arrow_desc.png" alt="Sort DESC" />
 				    	</a>
 				    	<b>Date</b>
-				    	<a class="sortable" href="${uri}&sortBy=sortByDate&sortDir=1">
+					<a class="sortable" href="${baseuri}&sortBy=sortByDate&sortDir=1">
 				    		<img src="${url.context}/resource/images/sort_arrow_asc.png" alt="Sort ASC" />
 				    	</a>
 				    </th>
 				    <th>
-				    	<a class="sortable" href="${uri}&sortBy=sortBySender&sortDir=-1">
+					<a class="sortable" href="${baseuri}&sortBy=sortBySender&sortDir=-1">
 				    		<img src="${url.context}/resource/images/sort_arrow_desc.png" alt="Sort DESC" />
 				    	</a>
 				    	<b>Sender</b>
-				    	<a class="sortable" href="${uri}&sortBy=sortBySender&sortDir=1">
+					<a class="sortable" href="${baseuri}&sortBy=sortBySender&sortDir=1">
 				    		<img src="${url.context}/resource/images/sort_arrow_asc.png" alt="Sort ASC" />
 				    	</a>
 				    </th>
 				    <th>
-				    	<a class="sortable" href="${uri}&sortBy=sortByReceiver&sortDir=-1">
+					<a class="sortable" href="${baseuri}&sortBy=sortByReceiver&sortDir=-1">
 				    		<img src="${url.context}/resource/images/sort_arrow_desc.png" alt="Sort DESC" />
 				    	</a>
 				    	<b>Receiver</b>
-				    	<a class="sortable" href="${uri}&sortBy=sortByReceiver&sortDir=1">
+					<a class="sortable" href="${baseuri}&sortBy=sortByReceiver&sortDir=1">
 				    		<img src="${url.context}/resource/images/sort_arrow_asc.png" alt="Sort ASC" />
 				    	</a>
 				    </th>
 				    <th>
-				    	<a class="sortable" href="${uri}&sortBy=sortBySubject&sortDir=-1">
+					<a class="sortable" href="${baseuri}&sortBy=sortBySubject&sortDir=-1">
 				    		<img src="${url.context}/resource/images/sort_arrow_desc.png" alt="Sort DESC" />
 				    	</a>
 				    	<b>Subject</b>
-				    	<a class="sortable" href="${uri}&sortBy=sortBySubject&sortDir=1">
+					<a class="sortable" href="${baseuri}&sortBy=sortBySubject&sortDir=1">
 				    		<img src="${url.context}/resource/images/sort_arrow_asc.png" alt="Sort ASC" />
 				    	</a>
 				    </th>
@@ -119,7 +119,8 @@
 				</table>
 			</#if>
 		</div>
-		<#assign uri = uri>
+		<#assign baseuri = baseuri>
+		<#assign sorturi = sorturi>
 		<#assign paging = result.paging>
 		<#include "*/templates/paging.ftl"> 
 		<div class="search-actions">

@@ -28,6 +28,8 @@ public class WebPageInfo {
 
 	final static public String PAGE_POSITION_PARAMETER = "pos";
 	final static public String PAGE_SIZE_PARAMETER = "size";
+	final static public String PAGE_SORT_BY_PARAMETER = "sortBy";
+	final static public String PAGE_SORT_DIR_PARAMETER = "sortDir";
 
 	final static public String FIRST_PAGE = "firstPage";
 	final static public String PREVIOUS_PAGE = "previousPage";

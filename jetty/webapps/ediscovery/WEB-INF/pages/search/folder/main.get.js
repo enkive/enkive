@@ -14,7 +14,18 @@ if (searchlist.status == 200) {
 	var resultJSON = eval("(" + searchlist + ")");
 	model.result = resultJSON;
 	model.searchList = resultJSON.data;
-	model.uri = "/ediscovery/search/folder" + "?id=" + id + "&action=view";
+	model.baseuri = "/ediscovery/search/folder" + "?id=" + id + "&action=view";
+
+	// Set up uri for paging
+	uri = model.baseuri;
+	if (sortBy != null) {
+		uri = uri + "&sortBy=" + sortBy;
+	}
+	if (sortDir != null) {
+		uri = uri + "&sortDir=" + sortDir;
+	}
+	model.sorturi = uri;
+
 	model.paging = resultJSON.paging;
 }
 status.code = searchlist.status;

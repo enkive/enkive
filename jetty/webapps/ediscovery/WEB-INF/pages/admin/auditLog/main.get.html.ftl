@@ -51,7 +51,8 @@
 					</tbody>
 				</table>
 			</div>
-			<#assign uri = uri>
+			<#assign baseuri = baseuri>
+			<#assign sorturi = sorturi>
 			<#assign paging = paging>
 			<#include "*/templates/paging.ftl">
 		<#else>
