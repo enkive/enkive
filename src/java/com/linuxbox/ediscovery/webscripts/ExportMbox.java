@@ -19,8 +19,9 @@
  ******************************************************************************/
 package com.linuxbox.ediscovery.webscripts;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.Writer;
 import java.util.HashMap;
 import java.util.Map;
@@ -77,19 +78,25 @@ public class ExportMbox extends AbstractWebScript {
 			// resWriter.flush();
 			// resWriter.close();
 		} else {
-			res.setContentType("text/plain");
-			res.setHeader("Content-disposition", "attachment; filename="
-					+ EXPORT_FILENAME);
+			String filename = resp.getResponse();
 			res.setStatus(resp.getStatus().getCode());
 			for (String key : resp.getStatus().getHeaders().keySet()) {
 				res.setHeader(key, resp.getStatus().getHeaders().get(key));
 			}
 
-			InputStream in = resp.getResponseStream();
+			res.setContentType("text/plain");
+			res.setHeader("Content-disposition", "attachment; filename=" + EXPORT_FILENAME);
+
+			File tmpfile = new File(filename);
+
+			res.setHeader("Content-length", Long.toString(tmpfile.length()));
+
+			FileInputStream in = new FileInputStream(tmpfile);
 			Writer out = res.getWriter();
 
 			IOUtils.copy(in, out);
 			IOUtils.closeQuietly(in);
+			tmpfile.delete();
 			IOUtils.closeQuietly(out);
 		}
 	}

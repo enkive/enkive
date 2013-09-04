@@ -20,6 +20,9 @@
 package com.linuxbox.enkive.web.search;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.Writer;
@@ -85,20 +88,24 @@ public class MboxExportServlet extends EnkiveServlet {
 			Collection<String> messageIds = theResult.getMessageIds();
 
 			Writer writer = res.getWriter();
+			File tempFile = File.createTempFile("enkive-export-", ".mbox");
+			String tempName = tempFile.getAbsolutePath();
+
+			BufferedWriter output = new BufferedWriter(new FileWriter(tempFile));
 			String tmpLine;
 			for (String messageId : messageIds) {
 				try {
 					Message message = archiveService.retrieve(messageId);
 
-					writer.write("From " + message.getDateStr() + "\r\n");
+					output.write("From " + message.getMailFrom() + " " + message.getDateStr() + "\r\n");
 					BufferedReader reader = new BufferedReader(
 							new StringReader(message.getReconstitutedEmail()));
 					while ((tmpLine = reader.readLine()) != null) {
 						if (tmpLine.startsWith("From "))
-							writer.write(">" + tmpLine);
+							output.write(">" + tmpLine);
 						else
-							writer.write(tmpLine);
-						writer.write("\r\n");
+							output.write(tmpLine);
+						output.write("\r\n");
 					}
 				} catch (CannotRetrieveException e) {
 					respondError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
@@ -106,11 +113,13 @@ public class MboxExportServlet extends EnkiveServlet {
 					LOGGER.error("Could not retrieve message with id"
 							+ messageId);
 				}
-				writer.write("\r\n");
+				output.write("\r\n");
 				auditService.addEvent(AuditService.SEARCH_EXPORTED,
 						permService.getCurrentUsername(),
 						"Search Exported to mbox - ID:" + searchId);
 			}
+			output.close();
+			writer.write(tempName);
 		} catch (WorkspaceException e) {
 			respondError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, null,
 					res);

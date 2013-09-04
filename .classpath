@@ -171,7 +171,7 @@
 			<attribute name="javadoc_location" value="jar:platform:/resource/enkive2/lib/javadoc/spring/spring-tx-3.2.2.RELEASE-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="lib/spring/spring-surf-1.0.0.jar"/>
+	<classpathentry kind="lib" path="lib/spring/spring-surf-1.0.0.jar" sourcepath="/home/dang/src/spring/surf-1.0.0/spring-surf/spring-surf/src"/>
 	<classpathentry kind="lib" path="lib/spring/spring-surf-api-1.0.0.jar"/>
 	<classpathentry kind="lib" path="lib/spring/spring-surf-core-configservice-1.0.0.jar"/>
 	<classpathentry kind="lib" path="lib/spring/spring-surf-core-1.0.0.jar"/>
