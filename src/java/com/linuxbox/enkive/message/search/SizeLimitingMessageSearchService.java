@@ -38,9 +38,12 @@ public class SizeLimitingMessageSearchService implements MessageSearchService {
 	protected MessageSearchService messageSearchService;
 	protected int sizeLimit = 0;
 
-	public SizeLimitingMessageSearchService(
-			MessageSearchService messageSearchService) {
-		this.messageSearchService = messageSearchService;
+	public void setMessageSearchService(MessageSearchService service) {
+		this.messageSearchService = service;
+	}
+	
+	public MessageSearchService getMessageSearchService() {
+		return messageSearchService;
 	}
 
 	@Override

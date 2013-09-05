@@ -67,8 +67,8 @@
 
 	<bean id="SizeLimitingMessageSearchService"
 		class="com.linuxbox.enkive.message.search.SizeLimitingMessageSearchService">
-		<constructor-arg ref="SystemMessageSearchService" />
 		<property name="sizeLimit" value="${enkive.messageSearch.resultSizeLimit}" />
+		<property name="messageSearchService" ref="SystemMessageSearchService" />
 	</bean>
 
 	<bean id="SystemMessageSearchService"
