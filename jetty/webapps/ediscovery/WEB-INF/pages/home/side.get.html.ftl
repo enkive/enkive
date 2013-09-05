@@ -15,4 +15,3 @@
 <ul>
    <li><a href="http://bugs.enkive.org">Report a Bug</a></li>
 </ul>
-

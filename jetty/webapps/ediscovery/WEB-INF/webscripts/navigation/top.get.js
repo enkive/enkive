@@ -13,4 +13,3 @@ pages.unshift(sitedata.rootPage);
 
 // assign to model
 model.pages = pages;
-

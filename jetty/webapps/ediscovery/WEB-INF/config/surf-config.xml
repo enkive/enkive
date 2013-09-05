@@ -10,11 +10,11 @@
 
 	<!-- Import Web Scripts Framework -->
 	<import resource="classpath*:org/springframework/extensions/webscripts/*-context.xml" />
-	
+
 	<!-- Import Surf Framework -->
 	<import resource="classpath*:org/springframework/extensions/surf/*-context.xml" />
-	
-   	<!-- Set up to auto-resolve to url based views -->   	
+
+	<!-- Set up to auto-resolve to url based views -->
     <bean id="handlerMappings" parent="webframeworkHandlerMappings">
         <property name="order" value="0" />
 

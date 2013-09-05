@@ -9,7 +9,7 @@
       <component>
          <region-id>side</region-id>
          <url>/home/side</url>
-      </component>   
+      </component>
       <component>
          <region-id>picture</region-id>
          <url>/home/picture</url>

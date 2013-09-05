@@ -5,14 +5,14 @@
       <component>
          <region-id>header</region-id>
          <url>/header</url>
-      </component>      
+      </component>
       <component>
          <region-id>topnav</region-id>
          <url>/navigation/topnav</url>
-      </component>      
+      </component>
       <component>
          <region-id>footer</region-id>
          <url>/footer</url>
-      </component>      
+      </component>
    </components>
 </template-instance>

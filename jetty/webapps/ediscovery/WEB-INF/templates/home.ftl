@@ -11,12 +11,12 @@
 	<div id="page">
 		<div id="header">
 			<@region id="header" scope="template" />
-		</div>	
-		
+		</div>
+
 		<div id="topnav">
 			<@region id="topnav" scope="template" />
 		</div>
-		
+
 		<div id="content">
 			<div id="center">
 				<div id="picture" class="column">

@@ -6,15 +6,15 @@
 <%@ taglib prefix="surf" uri="http://www.springframework.org/tags/surf" %>
 <%
 	RequestContext context = (RequestContext) request.getAttribute("requestContext");
-	
-	// get the component	
+
+	// get the component
 	String componentId = (String) context.getValue(WebFrameworkConstants.RENDER_DATA_COMPONENT_ID);
 	Component component = context.getObjectService().getComponent(componentId);
-	
+
 	String servletPath = request.getContextPath();
 
 	String htmlBindingId = (String) context.getValue(WebFrameworkConstants.RENDER_DATA_HTMLID);
-	
+
 %>
 <style type="text/css">
 
@@ -26,12 +26,12 @@
 }
 </style>
 
-<table width="100%" cellpadding="0" cellspacing="0"> 
+<table width="100%" cellpadding="0" cellspacing="0">
 	<tr>
 		<td id="chrome-content-<%=htmlBindingId%>" style="padding: 5px;" align="left" valign="top">
-			
+
 			<surf:componentInclude/>
-			
+
 		</td>
 	</tr>
 </table>

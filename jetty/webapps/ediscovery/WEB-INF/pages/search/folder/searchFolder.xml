@@ -13,7 +13,7 @@
       <component>
          <region-id>main</region-id>
          <url>/search/folder/main</url>
-      </component>   
+      </component>
    </components>
    <associations>
       <page-association>

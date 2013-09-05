@@ -1,8 +1,8 @@
-<link rel="icon" href="${url.context}/resource/images/favicon.ico" type="image/x-icon" />  
-<link rel="shortcut icon" href="${url.context}/resource/images/favicon.ico" type="image/x-icon" />  
+<link rel="icon" href="${url.context}/resource/images/favicon.ico" type="image/x-icon" />
+<link rel="shortcut icon" href="${url.context}/resource/images/favicon.ico" type="image/x-icon" />
 <style>
 #header
-{ 
+{
 	height:85px;
 	background-image: url('${url.context}/resource/images/header.jpg');
 }

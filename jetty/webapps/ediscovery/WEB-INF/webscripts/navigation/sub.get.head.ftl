@@ -17,7 +17,7 @@
 	list-style-type:none;
 }
 
-#subnav li 
+#subnav li
 {
 	display:inline;
 }

@@ -12,7 +12,7 @@
 	height: 40px;
 	background-image: url('/ediscovery/resource/images/footer.jpg');
 	background-repeat: repeat-x;
-	
+
 }
 
 #footer_content

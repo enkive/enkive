@@ -13,7 +13,7 @@
       <component>
          <region-id>main</region-id>
          <url>/admin/main</url>
-      </component>   
+      </component>
    </components>
    <associations>
       <page-association>

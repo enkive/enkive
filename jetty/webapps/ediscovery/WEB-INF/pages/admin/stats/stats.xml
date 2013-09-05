@@ -13,7 +13,7 @@
       <component>
          <region-id>main</region-id>
          <url>/admin/stats/main</url>
-      </component>   
+      </component>
       <component>
 	      <region-id>searchForm</region-id>
 	      <url>/admin/stats/search/input</url>

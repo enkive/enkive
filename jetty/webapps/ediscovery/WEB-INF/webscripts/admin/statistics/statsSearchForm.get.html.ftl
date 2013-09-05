@@ -32,22 +32,22 @@
 		<tr>
 			<td>Granularity:</td>
 	        <td>
-	        	<select name="grain" id="grainField" class="searchField">
-	            	<option value="1">Hourly</option>
-                	<option value="24">Daily</option>
-                	<option value="168">Weekly</option>
-                	<option value="720">Monthly</option>
+			<select name="grain" id="grainField" class="searchField">
+			<option value="1">Hourly</option>
+			<option value="24">Daily</option>
+			<option value="168">Weekly</option>
+			<option value="720">Monthly</option>
                 </ select>
 	        </td>
 		</tr>
 		<tr>
 			<td>Graph Type:</td>
 	        <td>
-	        	<select name="graphType" id="graphTypeField" class="searchField">
-	            	<option value="step-before">Step</option>
-                	<option value="basis">Basis</option>
-                	<option value="monotone">Monotone</option>
-                	<option value="linear">Linear</option>
+			<select name="graphType" id="graphTypeField" class="searchField">
+			<option value="step-before">Step</option>
+			<option value="basis">Basis</option>
+			<option value="monotone">Monotone</option>
+			<option value="linear">Linear</option>
                 </ select>
 	        </td>
 		</tr>
@@ -82,7 +82,7 @@ var jsonMethodData = JSON.parse(jsonStr);
 function populateAll(){
     var master = document.statInput.gn;
     for(var index in jsonMethodData.results){
-        for(var humanGN in jsonMethodData.results[index]){   
+        for(var humanGN in jsonMethodData.results[index]){
             for(var gn in jsonMethodData.results[index][humanGN]){
 	            var option=document.createElement("option");
 	            option.text=humanGN;
@@ -118,9 +118,9 @@ function populateStats(vars) {
      var index = 0;
      for(var i in vars){
          for(var humanKey in vars[i]){
-         	if(humanKey != "Time Stamp"){
+		if(humanKey != "Time Stamp"){
 	             for(var statKey in vars[i][humanKey]){
-             		var option=document.createElement("option");
+			var option=document.createElement("option");
                     option.text=humanKey;
                     option.value=statKey;
                     try {//Standards compliant

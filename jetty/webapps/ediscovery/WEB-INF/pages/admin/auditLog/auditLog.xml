@@ -13,6 +13,6 @@
       <component>
          <region-id>main</region-id>
          <url>/admin/auditLog/main</url>
-      </component>   
+      </component>
    </components>
 </page>

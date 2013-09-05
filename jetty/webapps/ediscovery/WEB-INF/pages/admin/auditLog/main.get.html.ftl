@@ -9,9 +9,9 @@
 	</ul>
 	</p>
 	</#if>
-	
+
 	<#-- if there is a search on the audit log, include query info here? -->
-	
+
 	<#if result.results??>
 		<#if (result.results.audit_entries?size > 0) >
 			<div class="scrollable">
@@ -26,10 +26,10 @@
 				  <tbody>
 					<#-- <#list result.results.audit_entries?sort_by("datenumber") as message> -->
 					<#list result.results.audit_entries as entry>
-					  	<#if (entry_index % 2) == 0>
-					    	<tr class="result_even">
+						<#if (entry_index % 2) == 0>
+						<tr class="result_even">
 					    <#else>
-					    	<tr class="result_odd">
+						<tr class="result_odd">
 					    </#if>
 					    <td style="text-align: right;">
 					        ${entry.id}
