@@ -197,19 +197,19 @@ public abstract class SearchQuery {
 			Date dateEarliest, Date dateLatest, String subject,
 			String messageId, String content) {
 		if (sender != null && !sender.isEmpty())
-			addCriteria(SENDER_PARAMETER, sender);
+			addCriterium(SENDER_PARAMETER, sender);
 		if (recipient != null && !recipient.isEmpty())
-			addCriteria(RECIPIENT_PARAMETER, recipient);
+			addCriterium(RECIPIENT_PARAMETER, recipient);
 		if (dateEarliest != null)
-			addCriteria(DATE_EARLIEST_PARAMETER, dateEarliest.toString());
+			addCriterium(DATE_EARLIEST_PARAMETER, dateEarliest.toString());
 		if (dateLatest != null)
-			addCriteria(DATE_LATEST_PARAMETER, dateLatest.toString());
+			addCriterium(DATE_LATEST_PARAMETER, dateLatest.toString());
 		if (subject != null && !subject.isEmpty())
-			addCriteria(SUBJECT_PARAMETER, subject);
+			addCriterium(SUBJECT_PARAMETER, subject);
 		if (messageId != null && !messageId.isEmpty())
-			addCriteria(MESSAGE_ID_PARAMETER, messageId);
+			addCriterium(MESSAGE_ID_PARAMETER, messageId);
 		if (content != null && !content.isEmpty())
-			addCriteria(CONTENT_PARAMETER, content);
+			addCriterium(CONTENT_PARAMETER, content);
 	}
 
 	public Map<String, String> getCriteria() {
@@ -220,11 +220,11 @@ public abstract class SearchQuery {
 		this.criteria = criteria;
 	}
 
-	public void addCriteria(String parameter, String value) {
+	public void addCriterium(String parameter, String value) {
 		criteria.put(parameter, value);
 	}
 
-	public String getCriteriumValue(String parameter) {
+	public String getCriterium(String parameter) {
 		return criteria.get(parameter);
 	}
 
@@ -240,7 +240,7 @@ public abstract class SearchQuery {
 		JSONObject result = new JSONObject();
 
 		for (String parameter : this.getCriteriaParameters()) {
-			String value = this.getCriteriumValue(parameter);
+			String value = this.getCriterium(parameter);
 			result.put(parameter, value);
 		}
 		if (this.isSaved()) {
