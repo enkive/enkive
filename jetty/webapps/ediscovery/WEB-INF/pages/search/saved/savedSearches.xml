@@ -21,7 +21,7 @@
          <assoc-type>child</assoc-type>
       </page-association>
       <page-association>
-         <dest-id>search/advanced</dest-id>
+         <dest-id>search/saved</dest-id>
          <assoc-type>child</assoc-type>
       </page-association>
       <page-association>
