@@ -54,15 +54,20 @@
 	<bean id="RetentionPolicyEnforcingMessageSearchService"
 		class="com.linuxbox.enkive.message.search.RetentionPolicyEnforcingMessageSearchService">
 		<property name="messageRetentionPolicy" ref="MessageRetentionPolicy" />
+		<property name="messageSearchService" ref="AuditLoggingMessageSearchService" />
+	</bean>
+
+	<bean id="AuditLoggingMessageSearchService"
+		class="com.linuxbox.enkive.message.search.AuditLoggingMessageSearchService">
+		<property name="authenticationService" ref="AuthenticationService" />
 		<property name="messageSearchService" ref="PermissionsEnforcingMessageSearchService" />
+		<property name="auditService" ref="AuditLogService" />
 	</bean>
 
 	<bean id="PermissionsEnforcingMessageSearchService"
-		class="com.linuxbox.enkive.message.search.PermissionsEnforcingAuditLoggingMessageSearchService">
+		class="com.linuxbox.enkive.message.search.PermissionsEnforcingMessageSearchService">
 		<property name="permService" ref="PermissionService" />
-		<property name="authenticationService" ref="AuthenticationService" />
 		<property name="messageSearchService" ref="SizeLimitingMessageSearchService" />
-		<property name="auditService" ref="AuditLogService" />
 	</bean>
 
 	<bean id="SizeLimitingMessageSearchService"

@@ -27,6 +27,10 @@ import static com.linuxbox.enkive.search.Constants.PERMISSIONS_SENDER_PARAMETER;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.concurrent.Future;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import com.linuxbox.enkive.exception.CannotGetPermissionsException;
 import com.linuxbox.enkive.message.search.exception.MessageSearchException;
@@ -34,15 +38,18 @@ import com.linuxbox.enkive.permissions.PermissionService;
 import com.linuxbox.enkive.workspace.searchQuery.SearchQuery;
 
 /**
- * Extension of @ref AuditLoggingMessageSearchService that adds permission
- * checks to the search before passing it on.
+ * A @ref MessageSearchService that adds permission checks to the search before
+ * passing it on.
  * @author dang
  *
  */
-public class PermissionsEnforcingAuditLoggingMessageSearchService extends
-		AuditLoggingMessageSearchService {
+public class PermissionsEnforcingMessageSearchService implements MessageSearchService {
 
-	PermissionService permService;
+	private final static Log LOGGER = LogFactory
+			.getLog("com.linuxbox.enkive.searchService.mongodb");
+
+	private PermissionService permService;
+	private MessageSearchService messageSearchService;
 
 	@Override
 	public SearchQuery search(Map<String, String> fields)
@@ -83,7 +90,31 @@ public class PermissionsEnforcingAuditLoggingMessageSearchService extends
 					"Could not get permissions for current user", e);
 		}
 
-		return super.search(fields);
+		return messageSearchService.search(fields);
+	}
+
+	@Override
+	public void updateSearch(SearchQuery query)
+			throws MessageSearchException {
+		messageSearchService.updateSearch(query);
+	}
+
+	@Override
+	public Future<SearchQuery> updateSearchAsync(SearchQuery query)
+			throws MessageSearchException {
+		throw new MessageSearchException("Unimplemented");
+	}
+
+	@Override
+	public Future<SearchQuery> searchAsync(Map<String, String> fields)
+			throws MessageSearchException {
+		return messageSearchService.searchAsync(fields);
+	}
+
+	@Override
+	public boolean cancelAsyncSearch(String searchId)
+			throws MessageSearchException {
+		return messageSearchService.cancelAsyncSearch(searchId);
 	}
 
 	public PermissionService getPermService() {
@@ -92,6 +123,14 @@ public class PermissionsEnforcingAuditLoggingMessageSearchService extends
 
 	public void setPermService(PermissionService permService) {
 		this.permService = permService;
+	}
+
+	public void setMessageSearchService(MessageSearchService service) {
+		this.messageSearchService = service;
+	}
+	
+	public MessageSearchService getMessageSearchService() {
+		return messageSearchService;
 	}
 
 }
