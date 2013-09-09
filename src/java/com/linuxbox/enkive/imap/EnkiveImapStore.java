@@ -18,6 +18,8 @@
  ******************************************************************************/
 package com.linuxbox.enkive.imap;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.james.mailbox.MailboxSession;
 import org.apache.james.mailbox.exception.MailboxException;
 import org.apache.james.mailbox.store.mail.ModSeqProvider;
@@ -26,6 +28,9 @@ import org.apache.james.mailbox.store.mail.model.Mailbox;
 
 public abstract class EnkiveImapStore implements UidProvider<String>,
 		ModSeqProvider<String> {
+
+	protected final static Log LOGGER = LogFactory
+			.getLog("com.linuxbox.enkive.imap");
 
 	@Override
 	public long nextModSeq(MailboxSession session, Mailbox<String> mailbox)
@@ -42,6 +47,8 @@ public abstract class EnkiveImapStore implements UidProvider<String>,
 	@Override
 	public long nextUid(MailboxSession session, Mailbox<String> mailbox)
 			throws MailboxException {
+		if (LOGGER.isInfoEnabled())
+			LOGGER.info("nextUid");
 		return lastUid(session, mailbox) + 1;
 	}
 

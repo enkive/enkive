@@ -35,9 +35,11 @@ public class EnkiveImapSpringContextAuthenticator implements Authenticator {
 
 	protected AuthenticationManager authenticationManager;
 
-	public EnkiveImapSpringContextAuthenticator(
-			AuthenticationManager authenticationManager) {
-		
+	public AuthenticationManager getAuthenticationManager() {
+		return authenticationManager;
+	}
+
+	public void setAuthenticationManager(AuthenticationManager authenticationManager) {
 		this.authenticationManager = authenticationManager;
 	}
 

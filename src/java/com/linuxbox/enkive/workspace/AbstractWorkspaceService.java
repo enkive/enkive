@@ -54,10 +54,12 @@ public abstract class AbstractWorkspaceService implements WorkspaceService {
 		this.workspaceBuilder = workspaceBuilder;
 	}
 
+	@Override
 	public SearchQueryBuilder getSearchQueryBuilder() {
 		return searchQueryBuilder;
 	}
 
+	@Override
 	public void setSearchQueryBuilder(SearchQueryBuilder searchQueryBuilder) {
 		this.searchQueryBuilder = searchQueryBuilder;
 	}

@@ -18,64 +18,41 @@
  ******************************************************************************/
 package com.linuxbox.enkive.imap.mongo;
 
-import java.util.HashMap;
-import java.util.TreeSet;
-
 import org.apache.james.mailbox.MailboxSession;
 import org.apache.james.mailbox.exception.MailboxException;
 import org.apache.james.mailbox.store.mail.model.Mailbox;
-import org.bson.types.ObjectId;
 
 import com.linuxbox.enkive.imap.EnkiveImapStore;
-import com.linuxbox.util.mongodb.MongoDbConstants;
-import com.mongodb.BasicDBObject;
-import com.mongodb.DB;
-import com.mongodb.DBCollection;
-import com.mongodb.DBObject;
-import com.mongodb.MongoClient;
+import com.linuxbox.enkive.workspace.WorkspaceException;
+import com.linuxbox.enkive.workspace.searchQuery.SearchQuery;
+import com.linuxbox.enkive.workspace.searchQuery.SearchQueryBuilder;
 
 public class MongoEnkiveImapStore extends EnkiveImapStore {
-	MongoClient m;
-	DB imapDB;
-	DBCollection imapCollection;
 
-	public MongoEnkiveImapStore(MongoClient m, String imapDBName, String imapCollName) {
-		this.m = m;
-		imapDB = m.getDB(imapDBName);
-		imapCollection = imapDB.getCollection(imapCollName);
+	SearchQueryBuilder searchQueryBuilder;
+
+	public MongoEnkiveImapStore(SearchQueryBuilder searchQueryBuilder) {
+		this.searchQueryBuilder = searchQueryBuilder;
 	}
 
 	@Override
 	public long lastUid(MailboxSession session, Mailbox<String> mailbox)
 			throws MailboxException {
-		// Get user, get mailboxid from path, get number of messages
-		BasicDBObject userMailboxesSearchObject = new BasicDBObject(
-				MongoEnkiveImapConstants.USER, session.getUser().getUserName());
-		DBObject userMailboxesObject = imapCollection
-				.findOne(userMailboxesSearchObject);
-		
-		@SuppressWarnings("unchecked")
-		HashMap<String, String> userMailboxes = (HashMap<String, String>) userMailboxesObject
-				.get(MongoEnkiveImapConstants.MAILBOXES);
-		
-		String mailboxKey = userMailboxes.get(mailbox.getName());
-		DBObject mailboxObject = imapCollection.findOne(new BasicDBObject(
-					MongoDbConstants.OBJECT_ID_KEY,
-					ObjectId.massageToObjectId(mailboxKey)));
-		
-		@SuppressWarnings("unchecked")
-		HashMap<String, String> msgIds = (HashMap<String, String>) mailboxObject
-				.get(MongoEnkiveImapConstants.MESSAGEIDS);
-		
-		if (msgIds == null || msgIds.keySet() == null
-				|| msgIds.keySet().isEmpty()) {
-			return 1;
+		SearchQuery query = null;
+		try {
+			query = searchQueryBuilder.getSearchQueryByName(mailbox.getName());
+		} catch (WorkspaceException e) {
+			throw new MailboxException("Could not find query for mailbox " + mailbox.getName(), e);
 		}
-		TreeSet<Long> sortedUids = new TreeSet<Long>();
-		for (String key : msgIds.keySet())
-			sortedUids.add(Long.parseLong(key));
-		
-		return sortedUids.last();
+
+		long uid = 1;
+		if (query != null) {
+			uid = query.getResult().getNextUID() - 1;
+		}
+
+		if (LOGGER.isInfoEnabled())
+			LOGGER.info("lastUid " + uid);
+		return uid;
 	}
 
 }

@@ -34,6 +34,9 @@ public interface SearchQueryBuilder {
 	public SearchQuery getSearchQuery(String searchQueryId)
 			throws WorkspaceException;
 
+	public SearchQuery getSearchQueryByName(String name)
+			throws WorkspaceException;
+
 	public Collection<SearchQuery> getSearchQueries(
 			Collection<String> searchQueryUUIDs)
 			throws WorkspaceException;

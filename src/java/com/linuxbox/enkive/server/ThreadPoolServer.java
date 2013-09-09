@@ -54,7 +54,7 @@ public abstract class ThreadPoolServer extends AbstractSocketServer implements
 		threadPool = new ThreadPoolExecutorWithAspects(
 				poolConfig.getCorePoolSize(), poolConfig.getMaximumPoolSize(),
 				poolConfig.getKeepAliveTime(), poolConfig.getTimeUnit(), queue,
-				threadAspects);
+				threadAspects, serverName);
 	}
 
 	@Override

@@ -124,12 +124,8 @@
 		class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
 		<property name="triggers">
 			<list>
-				<!-- Uncomment the next line to enable message retention policy and have 
-					not enabled IMAP access -->
+				<!-- Uncomment the next line to enable message retention policy -->
 				<!-- <ref bean="MessageRetentionTrigger" /> -->
-				<!-- Uncomment the next line to enable message retention policy and have 
-					enabled IMAP Access -->
-				<!-- <ref bean="ImapMessageRetentionTrigger" /> -->
 				<!-- Uncomment the next line to enable the nightly statistics report -->
 				<!-- <ref bean="StatisticsEmailerTrigger" /> -->
 			</list>

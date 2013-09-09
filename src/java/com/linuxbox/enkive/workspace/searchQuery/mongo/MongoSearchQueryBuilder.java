@@ -114,6 +114,23 @@ public class MongoSearchQueryBuilder implements SearchQueryBuilder {
 	}
 
 	@Override
+	public SearchQuery getSearchQueryByName(String name)
+			throws WorkspaceException {
+		BasicDBObject nameSearchObject = new BasicDBObject(SEARCHNAME, name);
+		DBObject queryObject = searchQueryColl.findOne(nameSearchObject);
+		if (queryObject == null) {
+			return null;
+		}
+
+		SearchQuery query = extractQuery(queryObject);
+
+		if (LOGGER.isInfoEnabled())
+			LOGGER.info("Retrieved Search Query " + query.getName() + " - "
+					+ query.getId());
+		return query;
+	}
+
+	@Override
 	public Collection<SearchQuery> getSearchQueries(
 			Collection<String> searchQueryUUIDs) throws WorkspaceException {
 

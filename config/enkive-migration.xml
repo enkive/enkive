@@ -120,10 +120,8 @@
 		<constructor-arg value="0" />
 		<constructor-arg value="1" />
 	</bean>
-	<bean class="com.linuxbox.util.dbmigration.NullDbMigration">
+	<bean class="com.linuxbox.enkive.imap.migration.ImapMigration1to2">
 		<constructor-arg ref="ImapAccessMigrator" />
-		<constructor-arg value="1" />
-		<constructor-arg value="2" />
 	</bean>
 
 

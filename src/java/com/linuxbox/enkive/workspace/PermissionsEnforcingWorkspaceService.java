@@ -30,6 +30,7 @@ import com.linuxbox.enkive.authentication.AuthenticationService;
 import com.linuxbox.enkive.exception.CannotGetPermissionsException;
 import com.linuxbox.enkive.permissions.PermissionService;
 import com.linuxbox.enkive.workspace.searchQuery.SearchQuery;
+import com.linuxbox.enkive.workspace.searchQuery.SearchQueryBuilder;
 
 /**
  * Wrapper for another @ref WorkspaceService that enforces permissions by checking an
@@ -49,20 +50,12 @@ public class PermissionsEnforcingWorkspaceService implements WorkspaceService {
 	public Workspace getActiveWorkspace(String userId)
 			throws WorkspaceException {
 		Workspace workspace = workspaceService.getActiveWorkspace(userId);
-		try {
-			if (canReadWorkspace(authenticationService.getUserName(),
-					workspace.getWorkspaceUUID()))
-				return workspace;
-			else
-				throw new WorkspaceException(
-						"Could not get permissions to access workspace. User: "
-								+ authenticationService.getUserName()
-								+ " Workspace: " + workspace.getWorkspaceUUID());
-		} catch (AuthenticationException e) {
+		if (canReadWorkspace(userId, workspace.getWorkspaceUUID()))
+			return workspace;
+		else
 			throw new WorkspaceException(
-					"Could not determine user attempting to access workspace "
-							+ workspace.getWorkspaceUUID());
-		}
+					"Could not get permissions to access workspace. User: "
+							+ userId + " Workspace: " + workspace.getWorkspaceUUID());
 	}
 
 	@Override
@@ -149,6 +142,16 @@ public class PermissionsEnforcingWorkspaceService implements WorkspaceService {
 	public SearchQuery getSearch(String searchId)
 			throws WorkspaceException {
 		return workspaceService.getSearch(searchId);
+	}
+
+	@Override
+	public SearchQueryBuilder getSearchQueryBuilder() {
+		return workspaceService.getSearchQueryBuilder();
+	}
+
+	@Override
+	public void setSearchQueryBuilder(SearchQueryBuilder searchQueryBuilder) {
+		workspaceService.setSearchQueryBuilder(searchQueryBuilder);
 	}
 
 /*	@Override

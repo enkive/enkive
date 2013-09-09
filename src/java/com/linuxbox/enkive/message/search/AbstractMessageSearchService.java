@@ -112,8 +112,8 @@ public abstract class AbstractMessageSearchService implements
 				// This re-ran the entire search, as it was a migrated search.  We need to
 				// wipe out all previous results or we'll get duplicates
 				query.invalidateUID();
-				result.setNextUID(0);
-				result.setMessageIds(new HashMap<Integer, String>());
+				result.setNextUID((long)0);
+				result.setMessageIds(new HashMap<Long, String>());
 			}
 			result.addMessageIds(resultMessageIDs.values());
 			query.setLastMonotonic(resultMessageIDs.lastKey());

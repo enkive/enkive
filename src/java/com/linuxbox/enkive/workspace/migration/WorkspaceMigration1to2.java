@@ -118,7 +118,7 @@ public class WorkspaceMigration1to2 extends DbMigration {
 		 */
 		public void migrateDocumentImpl() throws DbMigrationException {
 			messageIDMap = new HashMap<Integer, String>();
-			Integer nextUID = 0;
+			Integer nextUID = 1;
 			for (String UUID : messageIDSet) {
 				messageIDMap.put(nextUID++, UUID);
 			}

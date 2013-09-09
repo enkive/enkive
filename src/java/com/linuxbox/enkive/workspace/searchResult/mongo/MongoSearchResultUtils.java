@@ -60,32 +60,32 @@ public class MongoSearchResultUtils {
 		this.searchResultColl = searchResultInfo.getCollection();
 	}
 
-	public HashMap<Integer, String> sortMessagesByDate(Map<Integer, String> messageIds,
+	public HashMap<Long, String> sortMessagesByDate(Map<Long, String> messageIds,
 			int sortDir) {
 		return sortMessages(messageIds, MesssageAttributeConstants.DATE,
 				sortDir);
 	}
 
-	public HashMap<Integer, String> sortMessagesBySender(Map<Integer, String> messageIds,
+	public HashMap<Long, String> sortMessagesBySender(Map<Long, String> messageIds,
 			int sortDir) {
 		return sortMessages(messageIds, MesssageAttributeConstants.FROM,
 				sortDir);
 	}
 
-	public HashMap<Integer, String> sortMessagesByReceiver(Map<Integer, String> messageIds,
+	public HashMap<Long, String> sortMessagesByReceiver(Map<Long, String> messageIds,
 			int sortDir) {
 		return sortMessages(messageIds, MesssageAttributeConstants.TO, sortDir);
 	}
 
-	public HashMap<Integer, String> sortMessagesBySubject(Map<Integer, String> messageIds,
+	public HashMap<Long, String> sortMessagesBySubject(Map<Long, String> messageIds,
 			int sortDir) {
 		return sortMessages(messageIds, MesssageAttributeConstants.SUBJECT,
 				sortDir);
 	}
 
-	protected HashMap<Integer, String> sortMessages(Map<Integer, String> messageIds,
+	protected HashMap<Long, String> sortMessages(Map<Long, String> messageIds,
 			String sortField, int sortDirection) {
-		HashMap<Integer, String> sortedIds = new HashMap<Integer, String>();
+		HashMap<Long, String> sortedIds = new HashMap<Long, String>();
 		// Only want to return the ids
 		BasicDBObject keys = new BasicDBObject();
 		keys.put("_id", 1);
@@ -104,7 +104,7 @@ public class MongoSearchResultUtils {
 		BasicDBObject orderBy = new BasicDBObject();
 		orderBy.put(sortField, sortDirection);
 		results = results.sort(orderBy);
-		Integer UID = 0;
+		Long UID = (long) 0;
 		for (DBObject result : results.toArray())
 			sortedIds.put(UID++, (String) result.get("_id"));
 		return sortedIds;

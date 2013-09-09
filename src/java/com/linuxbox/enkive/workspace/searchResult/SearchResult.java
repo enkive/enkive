@@ -39,13 +39,13 @@ import com.linuxbox.enkive.workspace.WorkspaceException;
 public abstract class SearchResult {
 
 	private String id;
-	private Map<Integer, String> messageIds;
+	private Map<Long, String> messageIds;
 	protected String searchQueryId;
-	protected Integer nextUID;
+	protected Long nextUID;
 
 	public SearchResult() {
-		messageIds = new HashMap<Integer, String>();
-		nextUID = 0;
+		messageIds = new HashMap<Long, String>();
+		nextUID = (long) 1;
 	}
 
 	/**
@@ -64,19 +64,19 @@ public abstract class SearchResult {
 		this.id = id;
 	}
 
-	public Integer getNextUID() {
+	public Long getNextUID() {
 		return nextUID;
 	}
 
-	public void setNextUID(Integer nextUID) {
+	public void setNextUID(Long nextUID) {
 		this.nextUID = nextUID;
 	}
 
-	public Map<Integer, String> getMessageIds() {
+	public Map<Long, String> getMessageIds() {
 		return messageIds;
 	}
 
-	public void setMessageIds(Map<Integer, String> messageIds) {
+	public void setMessageIds(Map<Long, String> messageIds) {
 		this.messageIds = messageIds;
 	}
 

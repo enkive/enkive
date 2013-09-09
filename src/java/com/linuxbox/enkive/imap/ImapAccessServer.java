@@ -28,7 +28,11 @@ public class ImapAccessServer {
 	protected static final Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.imap");
 
-	public ImapAccessServer(IMAPServer imapServer) {
+	public IMAPServer getImapServer() {
+		return imapServer;
+	}
+
+	public void setImapServer(IMAPServer imapServer) {
 		this.imapServer = imapServer;
 	}
 

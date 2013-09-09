@@ -92,7 +92,7 @@ public class MongoSearchResult extends SearchResult {
 
 	public void sortSearchResultMessages(String sortBy, int sortDir)
 			throws WorkspaceException {
-		Map<Integer, String> messageIds = getMessageIds();
+		Map<Long, String> messageIds = getMessageIds();
 		if (sortBy.equals(SORTBYDATE))
 			setMessageIds(searchResultUtils.sortMessagesByDate(messageIds,
 					sortDir));

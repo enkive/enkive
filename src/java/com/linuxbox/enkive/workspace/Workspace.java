@@ -186,6 +186,20 @@ public abstract class Workspace {
 		return searches;
 	}
 
+	public List<SearchQuery> getImapSearches() throws WorkspaceException {
+		return getImapSearches(SORTBYDATE, SORT_DESC);
+	}
+
+	public List<SearchQuery> getImapSearches(String sortField,
+			int sortDir) throws WorkspaceException {
+		List<SearchQuery> searches = new ArrayList<SearchQuery>();
+		for (SearchQuery search : getSearches(sortField, sortDir)) {
+			if (search.isIMAP())
+				searches.add(search);
+		}
+		return searches;
+	}
+
 	public SearchQueryBuilder getSearchQueryBuilder() {
 		return searchQueryBuilder;
 	}

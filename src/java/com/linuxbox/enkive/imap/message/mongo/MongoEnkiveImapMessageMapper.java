@@ -18,7 +18,6 @@
  ******************************************************************************/
 package com.linuxbox.enkive.imap.message.mongo;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.SortedSet;
@@ -29,103 +28,92 @@ import org.apache.james.mailbox.MailboxSession;
 import org.apache.james.mailbox.exception.MailboxException;
 import org.apache.james.mailbox.model.MailboxConstants;
 import org.apache.james.mailbox.store.mail.model.Mailbox;
-import org.bson.types.ObjectId;
 
 import com.linuxbox.enkive.imap.EnkiveImapStore;
+import com.linuxbox.enkive.imap.mailbox.EnkiveImapMailbox;
 import com.linuxbox.enkive.imap.message.EnkiveImapMessageMapper;
-import com.linuxbox.enkive.imap.mongo.MongoEnkiveImapConstants;
 import com.linuxbox.enkive.retriever.MessageRetrieverService;
-import com.linuxbox.util.mongodb.MongoDbConstants;
-import com.mongodb.BasicDBObject;
-import com.mongodb.DB;
-import com.mongodb.DBCollection;
-import com.mongodb.DBObject;
-import com.mongodb.MongoClient;
+import com.linuxbox.enkive.workspace.searchResult.SearchResult;
 
 public class MongoEnkiveImapMessageMapper extends EnkiveImapMessageMapper {
-	MongoClient m;
-	DB imapDB;
-	DBCollection imapCollection;
 
 	public MongoEnkiveImapMessageMapper(MailboxSession mailboxSession,
-			EnkiveImapStore store, MessageRetrieverService retrieverService,
-			MongoClient m, String enkiveDbName, String imapCollectionName) {
+			EnkiveImapStore store, MessageRetrieverService retrieverService) {
 		super(mailboxSession, store, retrieverService);
-		imapDB = m.getDB(enkiveDbName);
-		imapCollection = imapDB.getCollection(imapCollectionName);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public long countMessagesInMailbox(Mailbox<String> mailbox)
 			throws MailboxException {
 		long messageCount = 0;
 		if (mailbox.getName().equals(MailboxConstants.INBOX))
 			messageCount = 1;
-		else if (mailbox.getMailboxId() != null) {
-			BasicDBObject mailboxQueryObject = new BasicDBObject();
-			mailboxQueryObject.put(MongoDbConstants.OBJECT_ID_KEY,
-					ObjectId.massageToObjectId(mailbox.getMailboxId()));
-			DBObject mailboxObject = imapCollection.findOne(mailboxQueryObject);
-
-			Map<String, String> messageIds = null;
-			Object messageIdsMap = mailboxObject
-					.get(MongoEnkiveImapConstants.MESSAGEIDS);
-			if (messageIdsMap instanceof Map) {
-				messageIds = (Map<String, String>) messageIdsMap;
+		else if (mailbox.getName().equals("Trash"))
+			messageCount = 0;
+		else if (mailbox.getName() != null) {
+			EnkiveImapMailbox ebox = (EnkiveImapMailbox)mailbox;
+			SearchResult result = ebox.getResult();
+			if (result != null) {
+				messageCount = result.getMessageIds().size();
 			}
-
-			if (messageIds != null)
-				messageCount = messageIds.size();
 		}
+		if (LOGGER.isInfoEnabled())
+			LOGGER.info("countMessagesInMailbox " + messageCount);
+
 		return messageCount;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public SortedMap<Long, String> getMailboxMessageIds(
 			Mailbox<String> mailbox, long fromUid, long toUid) {
 		SortedMap<Long, String> messageIds = new TreeMap<Long, String>();
 
-		if (mailbox.getMailboxId() != null) {
-			BasicDBObject mailboxQueryObject = new BasicDBObject();
-			mailboxQueryObject.put(MongoDbConstants.OBJECT_ID_KEY,
-					ObjectId.massageToObjectId(mailbox.getMailboxId()));
-			DBObject mailboxObject = imapCollection.findOne(mailboxQueryObject);
-			Object messageIdsMap = mailboxObject
-					.get(MongoEnkiveImapConstants.MESSAGEIDS);
+		if (LOGGER.isInfoEnabled())
+			LOGGER.info("getMailboxMessageIds begin " + fromUid + " " + toUid);
 
-			Map<String, String> tmpMsgIds = null;
-			if (messageIdsMap instanceof HashMap) {
-				tmpMsgIds = (HashMap<String, String>) messageIdsMap;
-			}
+		if (mailbox.getName() == null) {
+			return messageIds;
+		}
 
-			if (tmpMsgIds == null || tmpMsgIds.isEmpty())
-				return messageIds;
+		if (!(mailbox instanceof EnkiveImapMailbox)) {
+			return messageIds;
+		}
 
-			if (fromUid > tmpMsgIds.size()) {
-				// Do Nothing
-			} else if (toUid < 0) {
-				TreeSet<Long> sortedUids = new TreeSet<Long>();
-				for (String key : tmpMsgIds.keySet())
-					sortedUids.add(Long.parseLong(key));
-				SortedSet<Long> sortedSubSet = sortedUids
-						.tailSet(fromUid, true);
-				for (Long key : sortedSubSet)
-					messageIds.put(key, tmpMsgIds.get(key.toString()));
-			} else if (fromUid == toUid) {
-				messageIds.put(fromUid, tmpMsgIds.get(String.valueOf(fromUid)));
-			} else {
-				TreeSet<Long> sortedUids = new TreeSet<Long>();
-				for (String key : tmpMsgIds.keySet())
-					sortedUids.add(Long.parseLong(key));
-				SortedSet<Long> sortedSubSet = sortedUids
-						.subSet(fromUid, toUid);
-				for (Long key : sortedSubSet)
-					messageIds.put(key, tmpMsgIds.get(key.toString()));
-			}
+		SearchResult result = ((EnkiveImapMailbox)mailbox).getResult();
+		if (result == null) {
+			return messageIds;
+		}
+
+		Map<Long, String> msgIds = result.getMessageIds();
+		LOGGER.trace("   msgIds " + msgIds.size());
+		if (fromUid >= msgIds.size()) {
+			// Requested start is beyond the end
+			return messageIds;
+		}
+
+		if (fromUid == toUid && toUid != -1) {
+			// Only one requested
+			messageIds.put(fromUid, msgIds.get(fromUid));
+			return messageIds;
+		}
+
+		TreeSet<Long> sortedUids = new TreeSet<Long>(msgIds.keySet());
+
+		SortedSet<Long> sortedSubSet;
+		if (toUid == -1) {
+			sortedSubSet = sortedUids.tailSet(fromUid, true);
+		} else {
+			// Given range is inclusive, subSet is exclusive w.r.t. end
+			sortedSubSet = sortedUids.subSet(fromUid, toUid + 1);
+		}
+
+		for (Long key : sortedSubSet) {
+			messageIds.put(key, msgIds.get(key));
 		}
 		
+		if (LOGGER.isInfoEnabled())
+			LOGGER.info("getMailboxMessageIds end " + messageIds.size());
+
 		return messageIds;
 	}
 }

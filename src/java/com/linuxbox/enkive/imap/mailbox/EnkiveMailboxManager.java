@@ -19,7 +19,9 @@
 package com.linuxbox.enkive.imap.mailbox;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.Locale;
+import java.util.NoSuchElementException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -33,10 +35,15 @@ import org.apache.james.mailbox.store.MailboxSessionMapperFactory;
 import org.apache.james.mailbox.store.StoreMailboxManager;
 import org.slf4j.Logger;
 
+import com.linuxbox.enkive.imap.mailbox.mongo.MongoEnkiveMailboxSessionMapperFactory;
+import com.linuxbox.enkive.workspace.Workspace;
+import com.linuxbox.enkive.workspace.WorkspaceException;
+
 public class EnkiveMailboxManager extends StoreMailboxManager<String> {
 
 	protected static final Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.imap");
+	private LinkedList<EnkiveMailboxSession> sessions;
 
 	public EnkiveMailboxManager(
 			MailboxSessionMapperFactory<String> mailboxSessionMapperFactory,
@@ -44,6 +51,8 @@ public class EnkiveMailboxManager extends StoreMailboxManager<String> {
 			GroupMembershipResolver groupMembershipResolver) {
 		super(mailboxSessionMapperFactory, authenticator, aclResolver,
 				groupMembershipResolver);
+
+		sessions = new LinkedList<EnkiveMailboxSession>();
 	}
 
     /**
@@ -53,8 +62,34 @@ public class EnkiveMailboxManager extends StoreMailboxManager<String> {
      * @param log
      * @return session
      */
-    protected MailboxSession createSession(String userName, String password, Logger log, SessionType type) {
-        return new EnkiveMailboxSession(randomId(), userName, password, log, new ArrayList<Locale>(), getDelimiter(), type);
+    protected MailboxSession createSession(String userName, String password,
+		Logger log, SessionType type) {
+	MongoEnkiveMailboxSessionMapperFactory factory =
+			(MongoEnkiveMailboxSessionMapperFactory)getMapperFactory();
+	Workspace workspace;
+	try {
+			workspace = factory.getWorkspaceService().getActiveWorkspace(userName);
+		} catch (WorkspaceException e) {
+			return null;
+		}
+
+	EnkiveMailboxSession session = new EnkiveMailboxSession(randomId(), userName,
+			password, log, new ArrayList<Locale>(), getDelimiter(), type, workspace,
+			getEventDispatcher());
+	sessions.add(session);
+
+	return session;
+    }
+
+    /**
+     * Override logout to remove session from list
+     */
+    @Override
+    public void logout(MailboxSession session, boolean force) throws MailboxException {
+        if (session != null) {
+		sessions.remove(session);
+            super.logout(session, force);
+        }
     }
 
 	// Convenience method for use with spring
@@ -66,4 +101,14 @@ public class EnkiveMailboxManager extends StoreMailboxManager<String> {
 		}
 	}
 
+	public void shutdown() {
+		EnkiveMailboxSession session;
+		try {
+			while ((session = sessions.pop()) != null) {
+				session.close();
+			}
+		} catch (NoSuchElementException e) {
+			// Nothing to do; list was empty
+		}
+	}
 }

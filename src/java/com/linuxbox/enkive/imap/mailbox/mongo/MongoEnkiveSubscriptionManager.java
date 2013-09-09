@@ -20,35 +20,17 @@ package com.linuxbox.enkive.imap.mailbox.mongo;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Map;
 
 import org.apache.james.mailbox.MailboxSession;
 import org.apache.james.mailbox.exception.SubscriptionException;
 
+import com.linuxbox.enkive.imap.mailbox.EnkiveMailboxSession;
 import com.linuxbox.enkive.imap.mailbox.EnkiveSubscriptionManager;
-import com.linuxbox.enkive.imap.mongo.MongoEnkiveImapConstants;
-import com.linuxbox.util.dbinfo.mongodb.MongoDbInfo;
-import com.mongodb.BasicDBObject;
-import com.mongodb.DBCollection;
-import com.mongodb.DBObject;
-import com.mongodb.MongoClient;
+import com.linuxbox.enkive.workspace.Workspace;
+import com.linuxbox.enkive.workspace.WorkspaceException;
+import com.linuxbox.enkive.workspace.searchQuery.SearchQuery;
 
 public class MongoEnkiveSubscriptionManager extends EnkiveSubscriptionManager {
-
-	DBCollection imapCollection;
-
-	public MongoEnkiveSubscriptionManager(MongoClient m, String imapDBName,
-			String imapCollname) {
-		this(m.getDB(imapDBName).getCollection(imapCollname));
-	}
-	
-	public MongoEnkiveSubscriptionManager(MongoDbInfo dbInfo) {
-		this(dbInfo.getCollection());
-	}
-
-	public MongoEnkiveSubscriptionManager(DBCollection imapCollection) {
-		this.imapCollection = imapCollection;
-	}
 
 	/**
 	 * Overridden method that returns all the mailboxes for a user.
@@ -58,15 +40,16 @@ public class MongoEnkiveSubscriptionManager extends EnkiveSubscriptionManager {
 			throws SubscriptionException {
 		Collection<String> subscriptions = new HashSet<String>();
 
-		DBObject searchObject = new BasicDBObject(
-				MongoEnkiveImapConstants.USER, session.getUser().getUserName());
-		DBObject userMailboxObject = imapCollection.findOne(searchObject);
-
-		@SuppressWarnings("unchecked")
-		Map<String, String> mailboxes = (Map<String, String>) userMailboxObject
-				.get(MongoEnkiveImapConstants.MAILBOXES);
-
-		subscriptions.addAll(mailboxes.keySet());
+		Workspace workspace = ((EnkiveMailboxSession)session).getWorkspace();
+		try {
+			for (SearchQuery search : workspace.getSearches()) {
+				if (search.isIMAP()) {
+					subscriptions.add(search.getName());
+				}
+			}
+		} catch (WorkspaceException e) {
+			return new HashSet<String>();
+		}
 
 		return subscriptions;
 	}

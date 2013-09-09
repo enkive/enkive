@@ -23,35 +23,48 @@ import org.apache.james.mailbox.exception.MailboxException;
 import org.apache.james.mailbox.store.mail.MailboxMapper;
 import org.apache.james.mailbox.store.mail.MessageMapper;
 
+import com.linuxbox.enkive.authentication.AuthenticationService;
 import com.linuxbox.enkive.imap.mailbox.EnkiveMailboxSessionMapperFactory;
 import com.linuxbox.enkive.imap.message.mongo.MongoEnkiveImapMessageMapper;
 import com.linuxbox.enkive.imap.mongo.MongoEnkiveImapStore;
-import com.linuxbox.util.dbinfo.mongodb.MongoDbInfo;
-import com.mongodb.MongoClient;
+import com.linuxbox.enkive.workspace.WorkspaceService;
 
 public class MongoEnkiveMailboxSessionMapperFactory extends
 		EnkiveMailboxSessionMapperFactory {
 
-	MongoClient m;
-	String enkiveDBName;
-	String imapCollectionName;
+	private WorkspaceService workspaceService;
+	private AuthenticationService authenticationService;
+	private long searchUpdateInterval;
 
-	public MongoEnkiveMailboxSessionMapperFactory(MongoClient m, String enkiveDBName,
-			String imapCollectionName) {
-		this.m = m;
-		this.enkiveDBName = enkiveDBName;
-		this.imapCollectionName = imapCollectionName;
+	public WorkspaceService getWorkspaceService() {
+		return workspaceService;
 	}
 
-	public MongoEnkiveMailboxSessionMapperFactory(MongoDbInfo dbInfo) {
-		this(dbInfo.getMongo(), dbInfo.getDbName(), dbInfo.getCollectionName());
+	public void setWorkspaceService(WorkspaceService workspaceService) {
+		this.workspaceService = workspaceService;
+	}
+
+	public AuthenticationService getAuthenticationService() {
+		return authenticationService;
+	}
+
+	public void setAuthenticationService(
+			AuthenticationService authenticationService) {
+		this.authenticationService = authenticationService;
+	}
+
+	public long getSearchUpdateInterval() {
+		return searchUpdateInterval;
+	}
+
+	public void setSearchUpdateInterval(long searchUpdateInterval) {
+		this.searchUpdateInterval = searchUpdateInterval;
 	}
 
 	@Override
 	protected MailboxMapper<String> createMailboxMapper(MailboxSession session)
 			throws MailboxException {
-		return new MongoEnkiveImapMailboxMapper(session, m, enkiveDBName,
-				imapCollectionName);
+		return new MongoEnkiveImapMailboxMapper(session, searchUpdateInterval);
 	}
 
 	/**
@@ -60,9 +73,9 @@ public class MongoEnkiveMailboxSessionMapperFactory extends
 	@Override
 	protected MessageMapper<String> createMessageMapper(MailboxSession session)
 			throws MailboxException {
-		return new MongoEnkiveImapMessageMapper(session,
-				new MongoEnkiveImapStore(m, enkiveDBName, imapCollectionName),
-				retrieverService, m, enkiveDBName, imapCollectionName);
+		return new MongoEnkiveImapMessageMapper(session, new
+				MongoEnkiveImapStore(workspaceService.getSearchQueryBuilder()),
+				retrieverService);
 	}
 
 }

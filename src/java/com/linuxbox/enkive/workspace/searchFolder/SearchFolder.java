@@ -72,15 +72,15 @@ public abstract class SearchFolder {
 
 	}
 
-	public Map<Integer, String> getMessageIds() {
-		Map<Integer, String> messageIds = new HashMap<Integer, String>();
+	public Map<Long, String> getMessageIds() {
+		Map<Long, String> messageIds = new HashMap<Long, String>();
 		for (SearchFolderSearchResult result : results)
 			messageIds.putAll(result.getMessageIds());
 		return messageIds;
 	}
 
-	public Map<Integer, String> getMessageIds(String sortField, int sortDir) {
-		Map<Integer, String> messageIds = new HashMap<Integer, String>();
+	public Map<Long, String> getMessageIds(String sortField, int sortDir) {
+		Map<Long, String> messageIds = new HashMap<Long, String>();
 		for (SearchFolderSearchResult result : results)
 			messageIds.putAll(result.getMessageIds());
 		return messageIds;

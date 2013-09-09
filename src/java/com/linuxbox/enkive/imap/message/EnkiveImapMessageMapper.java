@@ -26,6 +26,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.SortedMap;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.james.mailbox.MailboxSession;
 import org.apache.james.mailbox.exception.MailboxException;
 import org.apache.james.mailbox.model.MailboxConstants;
@@ -44,7 +46,10 @@ import com.linuxbox.util.PreviousItemRemovingIterator;
 public abstract class EnkiveImapMessageMapper extends
 		AbstractMessageMapper<String> {
 
-	MessageRetrieverService retrieverService;
+	protected final static Log LOGGER = LogFactory
+			.getLog("com.linuxbox.enkive.imap");
+
+	private MessageRetrieverService retrieverService;
 
 	public EnkiveImapMessageMapper(MailboxSession mailboxSession,
 			EnkiveImapStore store, MessageRetrieverService retrieverService) {
@@ -59,6 +64,9 @@ public abstract class EnkiveImapMessageMapper extends
 		final long from = set.getUidFrom();
 		final long to = set.getUidTo();
 		final Type type = set.getType();
+
+		if (LOGGER.isInfoEnabled())
+			LOGGER.info("findInMailbox " + mailbox.getName());
 
 		if (mailbox.getName().equals(MailboxConstants.INBOX)) {
 			results = new ArrayList<Message<String>>();
@@ -86,8 +94,7 @@ public abstract class EnkiveImapMessageMapper extends
 				break;
 			}
 		}
-		return new PreviousItemRemovingIterator<Message<String>>(
-				results.iterator());
+		return new PreviousItemRemovingIterator<Message<String>>(results.iterator());
 
 	}
 
@@ -96,6 +103,10 @@ public abstract class EnkiveImapMessageMapper extends
 			throws MailboxException {
 		int cur = 0;
 		SortedMap<Long, String> uidMap = null;
+
+		if (LOGGER.isInfoEnabled())
+			LOGGER.info("findMessagesInMailboxBetweenUIDs " + mailbox.getName() + " " + from + " "  + to);
+
 		uidMap = getMailboxMessageIds(mailbox, from, to);
 
 		ArrayList<Message<String>> messages = new ArrayList<Message<String>>();
@@ -119,6 +130,9 @@ public abstract class EnkiveImapMessageMapper extends
 	@Override
 	public Map<Long, MessageMetaData> expungeMarkedForDeletionInMailbox(
 			Mailbox<String> mailbox, MessageRange set) throws MailboxException {
+		if (LOGGER.isInfoEnabled())
+			LOGGER.info("expungeMarkedForDeletionInMailbox");
+
 		return new HashMap<Long, MessageMetaData>();
 	}
 
@@ -129,6 +143,9 @@ public abstract class EnkiveImapMessageMapper extends
 	@Override
 	public long countUnseenMessagesInMailbox(Mailbox<String> mailbox)
 			throws MailboxException {
+		if (LOGGER.isInfoEnabled())
+			LOGGER.info("countUnseenMessagesInMailbox");
+
 		return 0;
 	}
 
@@ -137,11 +154,17 @@ public abstract class EnkiveImapMessageMapper extends
 			throws MailboxException {
 		// Unsupported method
 
+		if (LOGGER.isInfoEnabled())
+			LOGGER.info("delete");
+
 	}
 
 	@Override
 	public Long findFirstUnseenMessageUid(Mailbox<String> mailbox)
 			throws MailboxException {
+		if (LOGGER.isInfoEnabled())
+			LOGGER.info("findFirstUnseenMessageUid");
+
 		return null;
 	}
 
@@ -149,23 +172,35 @@ public abstract class EnkiveImapMessageMapper extends
 	public List<Long> findRecentMessageUidsInMailbox(Mailbox<String> mailbox)
 			throws MailboxException {
 		ArrayList<Long> messageIds = new ArrayList<Long>();
+		if (LOGGER.isInfoEnabled())
+			LOGGER.info("findRecentMessageUidsInMailbox");
+
 		return messageIds;
 	}
 
 	@Override
 	public void endRequest() {
 
+		if (LOGGER.isInfoEnabled())
+			LOGGER.info("endRequest");
+
 	}
 
 	@Override
 	protected MessageMetaData save(Mailbox<String> mailbox,
 			Message<String> message) throws MailboxException {
+		if (LOGGER.isInfoEnabled())
+			LOGGER.info("save");
+
 		return null;
 	}
 
 	@Override
 	protected MessageMetaData copy(Mailbox<String> mailbox, long uid,
 			long modSeq, Message<String> original) throws MailboxException {
+		if (LOGGER.isInfoEnabled())
+			LOGGER.info("copy");
+
 		return new SimpleMessageMetaData(original);
 	}
 
@@ -173,6 +208,9 @@ public abstract class EnkiveImapMessageMapper extends
 	public MessageMetaData move(Mailbox<String> mailbox, Message<String> message)
 			throws MailboxException {
 		// Unsupported method
+		if (LOGGER.isInfoEnabled())
+			LOGGER.info("move");
+
 		return null;
 
 	}
@@ -180,15 +218,24 @@ public abstract class EnkiveImapMessageMapper extends
 	@Override
 	protected void begin() throws MailboxException {
 
+		if (LOGGER.isInfoEnabled())
+			LOGGER.info("begin");
+
 	}
 
 	@Override
 	protected void commit() throws MailboxException {
 
+		if (LOGGER.isInfoEnabled())
+			LOGGER.info("commit");
+
 	}
 
 	@Override
 	protected void rollback() throws MailboxException {
+
+		if (LOGGER.isInfoEnabled())
+			LOGGER.info("rollback");
 
 	}
 

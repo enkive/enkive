@@ -125,12 +125,12 @@ public class MongoSearchResultBuilder implements SearchResultBuilder {
 
 		BasicDBObject searchResults = (BasicDBObject) searchResultObject.get(SEARCHRESULTS);
 		@SuppressWarnings("unchecked")
-		// Map comes back as <String, String>, even though we put it in as <Integer, String>
+		// Map comes back as <String, String>, even though we put it in as <Long, String>
 		Map<String, String> dbUUIDs = searchResults.toMap();
-		HashMap<Integer, String> searchResultUUIDs = new HashMap<Integer, String>();
-		Integer maxUID = 0;
+		HashMap<Long, String> searchResultUUIDs = new HashMap<Long, String>();
+		Long maxUID = (long) 0;
 		for (Map.Entry<String, String> entry : dbUUIDs.entrySet()) {
-			Integer UID = Integer.parseInt(entry.getKey());
+			Long UID = Long.parseLong(entry.getKey());
 			if (UID > maxUID) {
 				maxUID = UID;
 			}
