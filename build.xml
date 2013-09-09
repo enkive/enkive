@@ -2,7 +2,6 @@
 <project name="Enkive Email Archiver" default="package" basedir=".">
 	<property file="build.properties" />
 
-	<fail unless="ediscovery.dir">Please set ediscovery.dir property.</fail>
 	<fail unless="enkive-socket-filter.dir">Please set enkive-socket-filter.dir property.</fail>
 	<fail unless="jdk1.6.dir">Please set jdk1.6.dir property.</fail>
 	<fail unless="indri.dir">Please set indri.dir property.</fail>
@@ -79,7 +78,7 @@
 		</jar>
 	</target>
 
-	<target name="package" depends="package-jar, build-ediscovery" description="Creates a zip called ${package.file.tar.gz} ">
+	<target name="package" depends="package-jar" description="Creates a zip called ${package.file.tar.gz} ">
 		<delete file="${package.file.tgz}" />
 		<tar destfile="${package.file.tgz}" compression="gzip">
 			<tarfileset file="${package.file.jar}" prefix="${label}" />
@@ -92,14 +91,6 @@
 			<tarfileset dir="${build.dir}/data" prefix="${label}/data" />
 			<tarfileset dir="${enkive-socket-filter.dir}" includes="Makefile, README.txt, src/" prefix="${label}/support/filters/postfix/enkive-socket-filter/" />
 		</tar>
-	</target>
-
-	<target name="build-ediscovery">
-		<delete file="${webapps.dir}/ediscovery.war" />
-		<subant target="deploy-war" buildpath="${ediscovery.dir}">
-			<property name="ediscovery.war" value="${webapps.dir}/ediscovery.war" />
-			<property name="ediscovery.web.dir" value="${webapps.dir}/ediscovery" />
-		</subant>
 	</target>
 
 </project>
