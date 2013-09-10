@@ -85,7 +85,7 @@ fi
 # VARIABLES BUILT FROM THE ABOVE; likely no need to alter
 
 ENKIVE_LOG_PATH=${ENKIVE_HOME}/data/logs
-ENKIVE_CLASSPATH=${JAVA_HOME}/lib/tools.jar:${ENKIVE_JAR}:${INDRI_JAR_PATH}:${ENKIVE_HOME}/lib/*:${ENKIVE_HOME}/lib/spring/*:${ENKIVE_HOME}/lib/james-imap/*:${ENKIVE_HOME}/config
+ENKIVE_CLASSPATH=${JAVA_HOME}/lib/tools.jar:${ENKIVE_JAR}:${INDRI_JAR_PATH}:${ENKIVE_HOME}/lib/*:${ENKIVE_HOME}/lib/spring/*:${ENKIVE_HOME}/lib/james-imap/*:${ENKIVE_HOME}/lib/commons/*:${ENKIVE_HOME}/config
 
 if [ "${ENKIVE_CONSOLE_LOGGING}" = "full" ] ;then
 	LOG4J_CONFIG=file://${ENKIVE_HOME}/config/log4j.properties
