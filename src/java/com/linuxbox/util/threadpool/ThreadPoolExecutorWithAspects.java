@@ -34,14 +34,23 @@ public class ThreadPoolExecutorWithAspects extends ThreadPoolExecutor {
 
 	public ThreadPoolExecutorWithAspects(int corePoolSize, int maximumPoolSize,
 			long keepAliveTime, TimeUnit unit,
-			BlockingQueue<Runnable> workQueue, ThreadAspects threadAspects) {
-		super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue);
+			BlockingQueue<Runnable> workQueue, ThreadAspects threadAspects,
+			String baseName) {
+		super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, new
+				NamedThreadFactory(baseName));
 		this.threadAspects = threadAspects;
 	}
 
 	public ThreadPoolExecutorWithAspects(int corePoolSize, int maximumPoolSize,
+			long keepAliveTime, TimeUnit unit, BlockingQueue<Runnable> workQueue,
+			String baseName) {
+		this(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, null,
+				baseName);
+	}
+
+	public ThreadPoolExecutorWithAspects(int corePoolSize, int maximumPoolSize,
 			long keepAliveTime, TimeUnit unit, BlockingQueue<Runnable> workQueue) {
-		this(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue,
+		this(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, null,
 				null);
 	}
 
