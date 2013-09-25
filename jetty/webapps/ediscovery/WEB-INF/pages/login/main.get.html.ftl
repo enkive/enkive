@@ -6,7 +6,7 @@
 		</tr>
 		<tr>
 			<td>User Name:</td>
-			<td><input name="username" type="text" /></td>
+			<td><input name="username" type="text" autofocus="autofocus" /></td>
 		</tr>
 		<tr>
 			<td>Password:</td>

@@ -24,10 +24,11 @@ import static com.linuxbox.enkive.search.Constants.DATE_EARLIEST_PARAMETER;
 import static com.linuxbox.enkive.search.Constants.DATE_LATEST_PARAMETER;
 import static com.linuxbox.enkive.search.Constants.MESSAGE_ID_PARAMETER;
 import static com.linuxbox.enkive.search.Constants.RECIPIENT_PARAMETER;
-import static com.linuxbox.enkive.search.Constants.SEARCH_IS_IMAP;
-import static com.linuxbox.enkive.search.Constants.SEARCH_IS_SAVED;
 import static com.linuxbox.enkive.search.Constants.SENDER_PARAMETER;
 import static com.linuxbox.enkive.search.Constants.SUBJECT_PARAMETER;
+import static com.linuxbox.enkive.web.WebConstants.SEARCH_IS_IMAP;
+import static com.linuxbox.enkive.web.WebConstants.SEARCH_IS_SAVED;
+import static com.linuxbox.enkive.web.WebConstants.SEARCH_NAME_TAG;
 import static com.linuxbox.util.StringUtils.isEmpty;
 
 import java.text.DateFormat;
@@ -84,44 +85,54 @@ public abstract class AbstractSearchWebScript extends AbstractJsonServlet {
 		throw firstException;
 	}
 
-	protected JSONObject searchQueryToJson(String sender, String recipient,
+	protected JSONObject searchParametersToJson(String sender, String recipient,
 			String dateEarliest, String dateLatest, String subject,
-			String messageId, String content, boolean isSaved, boolean isIMAP)
+			String messageId, String content)
 					throws JSONException {
-		JSONObject result = new JSONObject();
+		JSONObject params = new JSONObject();
 
 		if (StringUtils.hasData(sender)) {
-			result.put(SENDER_PARAMETER, sender);
+			params.put(SENDER_PARAMETER, sender);
 		}
 		if (StringUtils.hasData(recipient)) {
-			result.put(RECIPIENT_PARAMETER, recipient);
+			params.put(RECIPIENT_PARAMETER, recipient);
 		}
 		if (StringUtils.hasData(dateEarliest)) {
-			result.put(DATE_EARLIEST_PARAMETER, dateEarliest);
+			params.put(DATE_EARLIEST_PARAMETER, dateEarliest);
 		}
 		if (StringUtils.hasData(dateLatest)) {
-			result.put(DATE_LATEST_PARAMETER, dateLatest);
+			params.put(DATE_LATEST_PARAMETER, dateLatest);
 		}
 		if (StringUtils.hasData(subject)) {
-			result.put(SUBJECT_PARAMETER, subject);
+			params.put(SUBJECT_PARAMETER, subject);
 		}
 		if (StringUtils.hasData(messageId)) {
-			result.put(MESSAGE_ID_PARAMETER, messageId);
+			params.put(MESSAGE_ID_PARAMETER, messageId);
 		}
 		if (StringUtils.hasData(content)) {
-			result.put(CONTENT_PARAMETER, content);
-		}
-		if (isSaved) {
-			result.put(SEARCH_IS_SAVED, "true");
-		} else {
-			result.put(SEARCH_IS_SAVED, "false");
-		}
-		if (isIMAP) {
-			result.put(SEARCH_IS_IMAP, "true");
-		} else {
-			result.put(SEARCH_IS_IMAP, "false");
+			params.put(CONTENT_PARAMETER, content);
 		}
 
-		return result;
+		return params;
+	}
+	protected JSONObject searchQueryToJson(String name, boolean isSaved, boolean isIMAP)
+					throws JSONException {
+		JSONObject query = new JSONObject();
+
+		if (StringUtils.hasData(name)) {
+			query.put(SEARCH_NAME_TAG, name);
+		}
+		if (isSaved) {
+			query.put(SEARCH_IS_SAVED, "true");
+		} else {
+			query.put(SEARCH_IS_SAVED, "false");
+		}
+		if (isIMAP) {
+			query.put(SEARCH_IS_IMAP, "true");
+		} else {
+			query.put(SEARCH_IS_IMAP, "false");
+		}
+
+		return query;
 	}
 }

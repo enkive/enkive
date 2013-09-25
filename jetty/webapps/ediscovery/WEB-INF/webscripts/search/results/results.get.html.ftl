@@ -22,13 +22,119 @@
 	</ul>
 	</p>
 	</#if>
-	
+
+	<script type="text/javascript">
+$(function() {
+
+	function save_submit() {
+		save_recent_search('${result.data.query.searchId}', $( "#saveName" ).val());
+	};
+	$( "#save-dialog-form" ).dialog({
+		autoOpen: false,
+		height: 300,
+		width: 350,
+		modal: true,
+		buttons: {
+			"Save": function() {
+				save_submit();
+			},
+			Cancel: function() {
+				$( this ).dialog( "close" );
+			}
+		},
+		close: function() { }
+	});
+	$('#save-dialog-form').keypress(function(e) {
+		var code = (e.keyCode ? e.keyCode : e.which);
+		if (code == 13) { //Enter keycode
+			e.preventDefault();
+			save_submit();
+		}
+	});
+
+	function imap_submit() {
+		imap_search('${result.data.query.searchId}', $( "#imapName" ).val());
+	};
+	$( "#imap-dialog-form" ).dialog({
+		autoOpen: false,
+		height: 300,
+		width: 350,
+		modal: true,
+		buttons: {
+			"Mark as IMAP": function() {
+				imap_submit();
+			},
+			Cancel: function() {
+				$( this ).dialog( "close" );
+			}
+		},
+		close: function() { }
+	});
+	$('#imap-dialog-form').keypress(function(e) {
+		var code = (e.keyCode ? e.keyCode : e.which);
+		if (code == 13) { //Enter keycode
+			e.preventDefault();
+			imap_submit();
+		}
+	});
+
+	$( "#imap-search" ).button().click(function() {
+		$( "#imap-dialog-form" ).dialog( "open" );
+	});
+	$( "#save-search" ).button().click(function() {
+		$( "#save-dialog-form" ).dialog( "open" );
+	});
+	$( "#update-search" ).button().click(function() {
+		update_search("${result.data.query.searchId}")
+	});
+	$( "#unimap-search" ).button().click(function() {
+		unimap_search("${result.data.query.searchId}")
+	});
+	$("button, input:submit, input:button").button();
+});
+	</script>
+	<div id="save-dialog-form" title="Name Saved Search">
+		<form>
+			<fieldset>
+				<label for="saveName">Search Name</label>
+				<input
+					type="text"
+					name="saveName"
+					id="saveName"
+					class="text ui-widget-content ui-corner-all"
+					<#if result.data.query.searchName??>
+					value="${result.data.query.searchName}"
+					<#else>
+					value="name"
+					</#if>
+				/>
+			</fieldset>
+		</form>
+	</div>
+	<div id="imap-dialog-form" title="Name IMAP Search">
+		<form>
+			<fieldset>
+				<label for="imapName">Search Name</label>
+				<input
+					type="text"
+					name="imapName"
+					id="imapName"
+					class="text ui-widget-content ui-corner-all"
+					<#if result.data.query.searchName??>
+					value="${result.data.query.searchName}"
+					<#else>
+					value="name"
+					</#if>
+				/>
+			</fieldset>
+		</form>
+	</div>
 	<p>
 	  <h3>Found ${result.data.itemTotal} messages </h3> 
-	  <#if result.data.query??>
+	  <#if result.data.query.parameter??>
 	  <b>matching the query:</b>
-		  <#list result.data.query?keys as key>
-		    ${key} : ${result.data.query[key]} &nbsp;
+		  <#list result.data.query.parameter?keys as key>
+		    ${key} : ${result.data.query.parameter[key]} &nbsp;
 		  </#list>
 	  </#if>
 	</p>
@@ -124,15 +230,15 @@
 		<#assign paging = result.paging>
 		<#include "*/templates/paging.ftl"> 
 		<div class="search-actions">
-			<input type="button" onClick='save_recent_search("${result.data.searchId}")' value="Save Search">
-			<input type="button" onClick='update_search("${result.data.searchId}")' value="Update Search">
-			<#if result.data.query.isIMAP == "true">
-			<input type="button" onClick='unimap_search("${result.data.searchId}")' value="Remove IMAP folder">
+			<button id="save-search">Save Search</button>
+			<button id="update-search">Update Search</button>
+			<#if result.data.query.searchIsIMAP == "true">
+			<button id="unimap-search">Remove IMAP Folder</button>
 			<#else>
-			<input type="button" onClick='imap_search("${result.data.searchId}")' value="Make IMAP folder">
+			<button id="imap-search">Make IMAP Folder</button>
 			</#if>
 			<form action="${url.context}/search/export/mbox" method="get">
-				<input type="hidden" name="searchid" value="${result.data.searchId}" />
+				<input type="hidden" name="searchid" value="${result.data.query.searchId}" />
 				<input type="submit" value="Export Search" />
 			</form>
 		</div>

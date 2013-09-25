@@ -1,0 +1,6 @@
+<webscript>
+  <shortname>IMAP Search Results View Page - Side Section</shortname>
+  <description>IMAP Search Results View Page - Side Section</description>
+  <url>/search/imap/view/side</url>
+  <format default="html">any</format>
+</webscript>

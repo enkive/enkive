@@ -1,3 +1,7 @@
+<link rel="stylesheet" href="${url.context}/resource/css/jqueryui/jquery.ui.all.css">
+<script src="${url.context}/resource/javascript/jquery.ui.core.js"></script>
+<script src="${url.context}/resource/javascript/jquery.ui.widget.js"></script>
+<script src="${url.context}/resource/javascript/jquery.ui.button.js"></script>
 <script type="text/javascript">
 	function toggleChecked(status) {
 		$(".idcheckbox").each( function() {

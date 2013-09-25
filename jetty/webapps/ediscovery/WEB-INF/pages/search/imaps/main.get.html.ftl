@@ -1,16 +1,13 @@
 <#if status.code == 200>
 	<script type="text/javascript">
 $(function() {
-	$( "#imap-searches" ).button().click(function() {
-		imap_searches()
-	});
-	$( "#delete-searches" ).button().click(function() {
-		delete_saved_searches()
+	$( "#unimap-searches" ).button().click(function() {
+		unimap_searches()
 	});
 });
 	</script>
 	<div class="scrollable">
-		<table id="saved_searches">
+		<table id="imap_searches">
 			<tr>
 				<th><input type="checkbox" onclick="toggleChecked(this.checked)" /></th>
 				<th>Saved</th>
@@ -64,7 +61,7 @@ $(function() {
 				    	<table>
 				    		<tr>
 			    				<td>
-			    					<a class="view_search" href="${url.context}/search/saved/view?searchid=${search.searchId}">VIEW</a>
+			    					<a class="view_search" href="${url.context}/search/imaps/view?searchid=${search.searchId}">VIEW</a>
 			    				</td>
 							</tr>
 						</table>
@@ -79,8 +76,7 @@ $(function() {
 	<#include "*/templates/paging.ftl">
 	<table>
 		<tr>
-			<td><button id="delete-searches">Delete Selected Searches</button></td>
-			<td><button id="imap-searches">Make Selected Searches IMAP Folders</button></td>
+			<td><button id="unimap-searches">Remove Selected IMAP Folders</button></td>
 		</tr>
 	</table>
 </#if>

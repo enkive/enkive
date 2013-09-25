@@ -24,6 +24,7 @@ import static com.linuxbox.enkive.search.Constants.SEARCH_IDS_PARAMETER;
 import static com.linuxbox.enkive.search.Constants.SEARCH_NAME_PARAMETER;
 
 import java.io.IOException;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 
 import javax.servlet.ServletConfig;
@@ -56,7 +57,7 @@ public class IMAPSearchWebScript extends EnkiveServlet {
 
 		ArrayList<String> failedSavedSearches = new ArrayList<String>();
 		String searchIds = WebScriptUtils.cleanGetParameter(req, SEARCH_IDS_PARAMETER);
-		String nameOfSavedSearch = WebScriptUtils.cleanGetParameter(req, SEARCH_NAME_PARAMETER);
+		String nameOfIMAPSearch = WebScriptUtils.cleanGetParameter(req, SEARCH_NAME_PARAMETER);
 		String enable = WebScriptUtils.cleanGetParameter(req, SEARCH_ENABLE_PARAMETER);
 
 		for (String searchId : searchIds.split(",")) {
@@ -67,6 +68,9 @@ public class IMAPSearchWebScript extends EnkiveServlet {
 						query.setIMAP(true);
 					} else {
 						query.setIMAP(false);
+					}
+					if (nameOfIMAPSearch != null) {
+						query.setName(URLDecoder.decode(nameOfIMAPSearch, "UTF-8"));
 					}
 					query.saveSearchQuery();
 
@@ -79,8 +83,8 @@ public class IMAPSearchWebScript extends EnkiveServlet {
 					searchFolder.saveSearchFolder();*/
 
 					if (LOGGER.isDebugEnabled())
-						LOGGER.debug("saved search at id " + searchId
-								+ " with name \"" + nameOfSavedSearch + "\"");
+						LOGGER.debug("IMAP for search at id " + searchId
+								+ " with name \"" + nameOfIMAPSearch + "\" marked " + enable);
 
 				} catch (WorkspaceException e) {
 					failedSavedSearches.add(searchId);

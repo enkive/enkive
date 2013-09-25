@@ -67,7 +67,7 @@ if (!model.firstRun && !model.emptySearch && messagelist.status == 403) {
 
 	if (searchid == null && !model.firstRun && messageJSON != null) {
 		uri = url.context + "/search/recent/view";
-		searchid = messageJSON.data.searchId;
+		searchid = messageJSON.data.query.searchId;
 	}
 
 	model.baseuri = uri + "?searchid=" + searchid;

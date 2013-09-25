@@ -1,4 +1,17 @@
 <#if status.code == 200>
+	<script type="text/javascript">
+$(function() {
+	$( "#imap-searches" ).button().click(function() {
+		imap_searches()
+	});
+	$( "#save-searches" ).button().click(function() {
+		save_recent_searches()
+	});
+	$( "#delete-searches" ).button().click(function() {
+		delete_recent_searches()
+	});
+});
+	</script>
 	<div class="scrollable">
 		<table id="saved_searches">
 			<tr>
@@ -6,10 +19,19 @@
 				<th>Saved</th>
 				<th>IMAP</th>
 				<th>
+					<a class="sortable" href="${baseuri}&sortBy=sortByName&sortDir=-1">
+						<img src="${url.context}/resource/images/sort_arrow_desc.png" alt="Sort DESC" />
+					</a>
+					<b>Name</b>
+					<a class="sortable" href="${baseuri}&sortBy=sortByName&sortDir=1">
+						<img src="${url.context}/resource/images/sort_arrow_asc.png" alt="Sort ASC" />
+					</a>
+				</th>
+				<th>
 					<a class="sortable" href="${baseuri}&sortBy=sortByDate&sortDir=-1">
 						<img src="${url.context}/resource/images/sort_arrow_desc.png" alt="Sort DESC" />
 					</a>
-					<b>Execution Date</b>
+					<b>Search Date</b>
 					<a class="sortable" href="${baseuri}&sortBy=sortByDate&sortDir=1">
 						<img src="${url.context}/resource/images/sort_arrow_asc.png" alt="Sort ASC" />
 					</a>
@@ -47,6 +69,7 @@
 					<#else>
 						<td> &nbsp; </td>
 					</#if>
+					<td>${search.searchName}</td>
 				  	<td>${searchDate}</td>
 				  	<td>
 					    <#list search.criteria as criteria>
@@ -73,10 +96,9 @@
 	<#include "*/templates/paging.ftl">
 	<table>
 		<tr>
-			<td><input type="button" onClick='save_recent_searches()' value="Save Selected Searches" /></td>
-			<td><input type="button" onClick='delete_recent_searches()' value="Delete Selected Searches" /></td>
-			<td><input type="button" onClick='unimap_searches(true)' value="Remove Selected IMAP Folders" /></td>
-			<td><input type="button" onClick='imap_searches(true)' value="Make Selected Searches IMAP Folders" /></td>
+			<td><button id="save-searches">Save Selected Searches</button></td>
+			<td><button id="imap-searches">Make Selected Searches IMAP Folders</button></td>
+			<td><button id="delete-searches">Delete Selected Searches</button></td>
 		</tr>
 	</table>
 </#if>

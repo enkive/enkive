@@ -1,0 +1,6 @@
+<webscript>
+  <shortname>IMAP Search Page - Main Section</shortname>
+  <description>IMAP Search Page - Main Section</description>
+  <url>/search/imaps/main</url>
+  <format default="html">any</format>
+</webscript>

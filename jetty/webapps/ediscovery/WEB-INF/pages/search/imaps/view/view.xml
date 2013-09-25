@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <page>
-   <id>search/recent/view</id>
-   <title>Recent Search Results View</title>
+   <id>search/imaps/view</id>
+   <title>IMAP Search Results View</title>
    <template-instance>basicTemplate</template-instance>
    <authentication>user</authentication>
    <order-id>1</order-id>

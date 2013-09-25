@@ -56,6 +56,10 @@
 		<servlet-class>com.linuxbox.enkive.web.search.SavedSearchListServlet</servlet-class>
 	</servlet>
 	<servlet>
+		<servlet-name>ViewIMAPSearchListServlet</servlet-name>
+		<servlet-class>com.linuxbox.enkive.web.search.IMAPSearchListServlet</servlet-class>
+	</servlet>
+	<servlet>
 		<servlet-name>MboxExportServlet</servlet-name>
 		<servlet-class>com.linuxbox.enkive.web.search.MboxExportServlet</servlet-class>
 	</servlet>
@@ -120,9 +124,13 @@
 		<servlet-name>ViewRecentSearchListServlet</servlet-name>
 		<url-pattern>/search/recentList</url-pattern>
 	</servlet-mapping>
-		<servlet-mapping>
+	<servlet-mapping>
 		<servlet-name>ViewSavedSearchListServlet</servlet-name>
 		<url-pattern>/search/savedList</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>ViewIMAPSearchListServlet</servlet-name>
+		<url-pattern>/search/imapList</url-pattern>
 	</servlet-mapping>
 	<servlet-mapping>
 		<servlet-name>MboxExportServlet</servlet-name>

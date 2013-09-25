@@ -24,10 +24,13 @@ import static com.linuxbox.enkive.search.Constants.DATE_EARLIEST_PARAMETER;
 import static com.linuxbox.enkive.search.Constants.DATE_LATEST_PARAMETER;
 import static com.linuxbox.enkive.search.Constants.MESSAGE_ID_PARAMETER;
 import static com.linuxbox.enkive.search.Constants.RECIPIENT_PARAMETER;
-import static com.linuxbox.enkive.search.Constants.SEARCH_IS_IMAP;
-import static com.linuxbox.enkive.search.Constants.SEARCH_IS_SAVED;
 import static com.linuxbox.enkive.search.Constants.SENDER_PARAMETER;
 import static com.linuxbox.enkive.search.Constants.SUBJECT_PARAMETER;
+import static com.linuxbox.enkive.web.WebConstants.SEARCH_ID_TAG;
+import static com.linuxbox.enkive.web.WebConstants.SEARCH_IS_IMAP;
+import static com.linuxbox.enkive.web.WebConstants.SEARCH_IS_SAVED;
+import static com.linuxbox.enkive.web.WebConstants.SEARCH_NAME_TAG;
+import static com.linuxbox.enkive.web.WebConstants.SEARCH_PARAMETER_TAG;
 
 import java.util.Collection;
 import java.util.Date;
@@ -237,24 +240,31 @@ public abstract class SearchQuery {
 	}
 
 	public JSONObject toJson() throws JSONException {
-		JSONObject result = new JSONObject();
+		JSONObject jsonQuery = new JSONObject();
+		JSONObject jsonParameters = new JSONObject();
 
 		for (String parameter : this.getCriteriaParameters()) {
 			String value = this.getCriterium(parameter);
-			result.put(parameter, value);
-		}
-		if (this.isSaved()) {
-			result.put(SEARCH_IS_SAVED, "true");
-		} else {
-			result.put(SEARCH_IS_SAVED, "false");
-		}
-		if (this.isIMAP()) {
-			result.put(SEARCH_IS_IMAP, "true");
-		} else {
-			result.put(SEARCH_IS_IMAP, "false");
+			jsonParameters.put(parameter, value);
 		}
 
-		return result;
+		jsonQuery.put(SEARCH_PARAMETER_TAG, jsonParameters);
+
+		jsonQuery.put(SEARCH_NAME_TAG, this.getName());
+		jsonQuery.put(SEARCH_ID_TAG, this.getId());
+
+		if (this.isSaved()) {
+			jsonQuery.put(SEARCH_IS_SAVED, "true");
+		} else {
+			jsonQuery.put(SEARCH_IS_SAVED, "false");
+		}
+		if (this.isIMAP()) {
+			jsonQuery.put(SEARCH_IS_IMAP, "true");
+		} else {
+			jsonQuery.put(SEARCH_IS_IMAP, "false");
+		}
+
+		return jsonQuery;
 	}
 
 	public abstract void saveSearchQuery() throws WorkspaceException;

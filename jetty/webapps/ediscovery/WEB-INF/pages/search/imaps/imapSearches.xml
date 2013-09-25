@@ -1,10 +1,10 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <page>
-   <id>search/recent</id>
-   <title>Recent Searches</title>
+   <id>search/imaps</id>
+   <title>IMAP Searches</title>
    <template-instance>basicTemplate</template-instance>
    <authentication>user</authentication>
-   <order-id>0</order-id>
+   <order-id>1</order-id>
    <components>
       <component>
          <region-id>subnav</region-id>
@@ -12,7 +12,7 @@
       </component>
       <component>
          <region-id>main</region-id>
-         <url>/search/recent/main</url>
+         <url>/search/imaps/main</url>
       </component>
    </components>
    <associations>

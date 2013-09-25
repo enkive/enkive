@@ -58,6 +58,4 @@ public class Constants {
 	public static final String SEARCH_IDS_PARAMETER = "searchids";
 	public static final String SEARCH_NAME_PARAMETER = "name";
 	public static final String SEARCH_ENABLE_PARAMETER = "enable";
-	public static final String SEARCH_IS_SAVED = "isSaved";
-	public static final String SEARCH_IS_IMAP = "isIMAP";
 }

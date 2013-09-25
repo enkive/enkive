@@ -24,6 +24,7 @@ import static com.linuxbox.enkive.search.Constants.SEARCH_IDS_PARAMETER;
 import static com.linuxbox.enkive.search.Constants.SEARCH_NAME_PARAMETER;
 
 import java.io.IOException;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 
 import javax.servlet.ServletConfig;
@@ -68,6 +69,9 @@ public class SaveSearchWebScript extends EnkiveServlet {
 					} else {
 						query.setSaved(false);
 					}
+					if (nameOfSavedSearch != null) {
+						query.setName(URLDecoder.decode(nameOfSavedSearch, "UTF-8"));
+					}
 					query.saveSearchQuery();
 
 /*					Workspace workspace = workspaceService
@@ -79,8 +83,8 @@ public class SaveSearchWebScript extends EnkiveServlet {
 					searchFolder.saveSearchFolder();*/
 
 					if (LOGGER.isDebugEnabled())
-						LOGGER.debug("saved search at id " + searchId
-								+ " with name \"" + nameOfSavedSearch + "\"");
+						LOGGER.debug("Saved for search at id " + searchId
+								+ " with name \"" + nameOfSavedSearch + "\" marked " + enable);
 
 				} catch (WorkspaceException e) {
 					failedSavedSearches.add(searchId);

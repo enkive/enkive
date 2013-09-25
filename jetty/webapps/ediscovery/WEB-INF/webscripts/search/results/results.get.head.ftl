@@ -1,5 +1,14 @@
+<link rel="stylesheet" href="${url.context}/resource/css/jqueryui/jquery.ui.all.css">
 <link rel="stylesheet" type="text/css" href="${url.context}/resource/css/jquery.fancybox-1.3.4.css" media="screen" />
 <script src="${url.context}/resource/javascript/jquery.fancybox-1.3.4.js"></script>
+<script src="${url.context}/resource/javascript/jquery.ui.core.js"></script>
+<script src="${url.context}/resource/javascript/jquery.ui.widget.js"></script>
+<script src="${url.context}/resource/javascript/jquery.ui.button.js"></script>
+<script src="${url.context}/resource/javascript/jquery.ui.draggable.js"></script>
+<script src="${url.context}/resource/javascript/jquery.ui.mouse.js"></script>
+<script src="${url.context}/resource/javascript/jquery.ui.position.js"></script>
+<script src="${url.context}/resource/javascript/jquery.ui.resizable.js"></script>
+<script src="${url.context}/resource/javascript/jquery.ui.dialog.js"></script>
 <script type="text/javascript">
 	function toggleChecked(status) {
 		$(".idcheckbox").each( function() {

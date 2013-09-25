@@ -13,8 +13,9 @@ function delete_recent_searches() {
 	});
 }
 
-function save_recent_search(id) {
-	$.get("/ediscovery/search/save?searchids=" + id + "&enable=true", function(data) {
+function save_recent_search(id, name) {
+	$.get("/ediscovery/search/save?searchids=" + id +
+			"&enable=true&name=" + encodeURIComponent(name), function(data) {
 		window.location.replace("/ediscovery/search/saved");
 	});
 }
@@ -79,46 +80,35 @@ function stop_search(id) {
 	});
 }
 
-function imap_search(id) {
-	$.get("/ediscovery/search/imap?searchids=" + id + "&enable=true", function(data) {
-		window.location.replace("/ediscovery/search/recent");
+function imap_search(id, name) {
+	$.get("/ediscovery/search/imap?searchids=" + id + "&enable=true&name=" +
+			encodeURIComponent(name), function(data) {
+		window.location.replace("/ediscovery/search/imaps");
 	});
 }
 
-function imap_searches(recent) {
+function imap_searches() {
 	var ids = "";
-	var target = "";
-	if (recent == true) {
-		target = "/ediscovery/search/recent";
-	} else {
-		target = "/ediscovery/search/saved";
-	}
 	$(".idcheckbox:checkbox:checked").each(function() {
 		ids = ids + "," + $(this).val();
 	});
 	$.get("/ediscovery/search/imap?searchids=" + ids + "&enable=true", function(data) {
-		window.location.replace(target);
+		window.location.replace("/ediscovery/search/imaps");
 	});
 }
 
 function unimap_search(id) {
 	$.get("/ediscovery/search/imap?searchids=" + id + "&enable=false", function(data) {
-		window.location.replace("/ediscovery/search/recent");
+		window.location.replace("/ediscovery/search/imaps");
 	});
 }
 
-function unimap_searches(recent) {
+function unimap_searches() {
 	var ids = "";
-	var target = "";
-	if (recent == true) {
-		target = "/ediscovery/search/recent";
-	} else {
-		target = "/ediscovery/search/saved";
-	}
 	$(".idcheckbox:checkbox:checked").each(function() {
 		ids = ids + "," + $(this).val();
 	});
 	$.get("/ediscovery/search/imap?searchids=" + ids + "&enable=false", function(data) {
-		window.location.replace(target);
+		window.location.replace("/ediscovery/search/imaps");
 	});
 }

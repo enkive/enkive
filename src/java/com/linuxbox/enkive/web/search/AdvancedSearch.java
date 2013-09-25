@@ -31,7 +31,7 @@ import static com.linuxbox.enkive.web.WebConstants.DATA_TAG;
 import static com.linuxbox.enkive.web.WebConstants.QUERY_TAG;
 import static com.linuxbox.enkive.web.WebConstants.RESULTS_TAG;
 import static com.linuxbox.enkive.web.WebConstants.RUNNING_STATUS_VALUE;
-import static com.linuxbox.enkive.web.WebConstants.SEARCH_ID_TAG;
+import static com.linuxbox.enkive.web.WebConstants.SEARCH_PARAMETER_TAG;
 import static com.linuxbox.enkive.web.WebConstants.STATUS_ID_TAG;
 import static com.linuxbox.enkive.web.WebPageInfo.PAGING_LABEL;
 
@@ -165,7 +165,6 @@ public class AdvancedSearch extends AbstractSearchWebScript {
 
 			if (query != null) {
 				jsonData.put( QUERY_TAG, query.toJson());
-				jsonData.put(SEARCH_ID_TAG, query.getId());
 				WebPageInfo pageInfo = new WebPageInfo();
 				if (LOGGER.isInfoEnabled())
 					LOGGER.info("search results are complete");
@@ -190,11 +189,11 @@ public class AdvancedSearch extends AbstractSearchWebScript {
 					LOGGER.info("search results are not ready yet");
 				// note that the content portion of the query will have been cleaned
 				// up by the parsing of the contentCriteriaString
-				jsonData.put(
-						QUERY_TAG,
-						searchQueryToJson(sender, recipient, dateEarliestString,
-								dateLatestString, subject, messageId,
-								contentCriteriaString, false, false));
+				JSONObject jsonQuery = searchQueryToJson(null, false, false);
+				jsonQuery.put(SEARCH_PARAMETER_TAG, searchParametersToJson(sender,
+						recipient, dateEarliestString, dateLatestString, subject, messageId,
+						contentCriteriaString));
+				jsonData.put(QUERY_TAG, jsonQuery);
 				jsonData.put(STATUS_ID_TAG, RUNNING_STATUS_VALUE);
 			}
 			jsonResult.put(DATA_TAG, jsonData);
