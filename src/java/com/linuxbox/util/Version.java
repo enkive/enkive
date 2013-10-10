@@ -7,7 +7,7 @@ public class Version implements Comparable<Version> {
 	public static class VersionException extends RuntimeException {
 		private static final long serialVersionUID = -8848841261513645899L;
 
-		protected VersionException(String message) {
+		public VersionException(String message) {
 			super(message);
 		}
 	}

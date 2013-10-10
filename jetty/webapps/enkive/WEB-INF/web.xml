@@ -95,7 +95,15 @@
 		<servlet-name>GetPermissionsServlet</servlet-name>
 		<servlet-class>com.linuxbox.enkive.web.GetPermissionsServlet</servlet-class>
 	</servlet>
+	<servlet>
+		<servlet-name>VersionServlet</servlet-name>
+		<servlet-class>com.linuxbox.enkive.web.VersionServlet</servlet-class>
+	</servlet>
 
+	<servlet-mapping>
+		<servlet-name>VersionServlet</servlet-name>
+		<url-pattern>/admin/version</url-pattern>
+	</servlet-mapping>
 	<servlet-mapping>
 		<servlet-name>AuditLogServlet</servlet-name>
 		<url-pattern>/audit/recent</url-pattern>

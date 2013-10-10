@@ -172,4 +172,11 @@
 		<property name="enkiveFilters" ref="EnkiveFilters" />
 	</bean>
 
+	<bean id="AdministrationService"
+		class="com.linuxbox.enkive.administration.mongo.MongoAdministrationService">
+		<constructor-arg ref="AdminDbInfo" />
+		<property name="checkForUpdates" value="${enkive.administration.checkForUpdates}" />
+		<property name="updateInterval" value="${enkive.administration.updateInterval}" />
+	</bean>
+
 </beans>

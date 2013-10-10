@@ -1,5 +1,6 @@
 <br />
-This is Enkive version 1.3.1<br />
+This is Enkive version ${versionLocal}<br />
+
 <br />
 For help please consult:<br />
 <ul>

@@ -8,4 +8,3 @@ model.versionLocal = resultJSON.versionLocal;
 model.versionRemote = resultJSON.versionRemote;
 model.versionUpgrade = resultJSON.versionUpgrade;
 
-

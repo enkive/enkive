@@ -41,6 +41,9 @@ public interface WebConstants {
 
 	public static final String DATA_TAG = "data";
 	public static final String ERRORS_TAG = "errors";
+	public static final String VERSION_LOCAL = "versionLocal";
+	public static final String VERSION_REMOTE = "versionRemote";
+	public static final String VERSION_UPGRADE = "versionUpgrade";
 
 	// Search results related constants
 	public static final String RESULTS_TAG = "results";

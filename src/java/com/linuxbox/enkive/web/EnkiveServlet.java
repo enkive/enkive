@@ -33,6 +33,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.context.ApplicationContext;
 
+import com.linuxbox.enkive.administration.AdministrationService;
 import com.linuxbox.enkive.audit.AuditService;
 import com.linuxbox.enkive.authentication.AuthenticationService;
 import com.linuxbox.enkive.docsearch.DocSearchQueryService;
@@ -58,6 +59,11 @@ public class EnkiveServlet extends HttpServlet {
 		super.init(config);
 		appContext = ApplicationContextProvider.getApplicationContext();
 		LOGGER.trace("init -- servlet:" + this + "; appContext:" + appContext);
+	}
+
+	public AdministrationService getAdministrationService() {
+		return appContext.getBean("AdministrationService",
+				AdministrationService.class);
 	}
 
 	public DocSearchQueryService getDocSearchQueryService() {

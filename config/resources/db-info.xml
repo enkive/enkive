@@ -14,6 +14,14 @@
 		<constructor-arg type="int" value="${enkive.mongodb.port}" />
 	</bean>
 
+	<bean id="AdminDbInfo" class="com.linuxbox.util.dbinfo.mongodb.MongoDbInfo">
+		<constructor-arg name="serviceName" value="Administration Service" />
+		<constructor-arg ref="MongoClient" />
+		<constructor-arg name="dbName" value="${enkive.administration.db.name}" />
+		<constructor-arg name="collectionName"
+			value="${enkive.administration.collection.name}" />
+	</bean>
+
 	<bean id="StatsDbInfo" class="com.linuxbox.util.dbinfo.mongodb.MongoDbInfo">
 		<constructor-arg name="serviceName" value="Statistics Service" />
 		<constructor-arg ref="MongoClient" />
