@@ -2,3 +2,12 @@ Before attempting an upgrade of an existing installation of Enkive you must:
 
     1. Shut down Enkive
     2. Back up Enkive's data
+    3. Upgrade Enkive and it's dependencies
+    4. Run the database upgrade script "scripts/enkive-migration-tool.sh" in
+       the new install.
+    5. Start the new Enkive install
+
+More detailed instructions can be found at:
+
+	http://wiki.enkive.org/index.php/Upgrade_Instructions
+
