@@ -90,7 +90,7 @@ RETVAL=0
 
 start() {
         echo -n "Starting Enkive:  "
-        su $ENKIVE_USER -c "$JSVC $JSVC_ARGS"
+        $JSVC -user ${ENKIVE_USER} $JSVC_ARGS
         RETVAL=$?
         sleep 2
         echo
@@ -98,7 +98,7 @@ start() {
 
 stop() {
         echo -n "Stopping Enkive: "
-        su $ENKIVE_USER -c "$JSVC -stop $JSVC_ARGS"
+        $JSVC -user ${ENKIVE_USER} -stop $JSVC_ARGS
         RETVAL=$?
         echo
 }
