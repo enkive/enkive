@@ -20,7 +20,7 @@
 package com.linuxbox.enkive;
 
 import static com.linuxbox.util.Version.Type.PRODUCTION;
-import static com.linuxbox.util.Version.Type.ALPHA;
+import static com.linuxbox.util.Version.Type.RELEASE_CANDIDATE;
 
 import com.linuxbox.util.Version;
 
@@ -33,7 +33,7 @@ public interface ProductInfo {
 	final static Version V1_3P = new Version(1, 3, PRODUCTION, 5);
 	final static Version V1_3_1RC1 = new Version("1.3.1 RC 1", 6);
 	final static Version V1_3_1P = new Version(1, 3, PRODUCTION, 7, "1.3.1");
-	final static Version V1_4A = new Version(1, 4, ALPHA, 8);
+	final static Version V1_4RC = new Version(1, 4, RELEASE_CANDIDATE, 8);
 	/*
 	 * IMPORTANT: be certain to add software versions and associated database
 	 * versions to EnkiveDbVersionManager as well.
@@ -44,5 +44,5 @@ public interface ProductInfo {
 			+ "reserved except those granted under license.";
 	final static String LICENSE = "Licensed under the GNU Affero General Public License "
 			+ "version 3 or later.";
-	final static Version VERSION = V1_4A;
+	final static Version VERSION = V1_4RC;
 }
