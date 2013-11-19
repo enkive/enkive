@@ -33,12 +33,12 @@
 	
 	$('.pagingLink').live('click', function() {
 	    var link = $(this).attr("href");
-	    $('#main').load(link + " #main");
+	    $('#result_list').load(link + " #result_list");
 	    $(this).removeAttr("href");
 	});
 	
 	$('.sortable').live('click', function() {
 	    var link = $(this).attr("href");
-	    $('#main').load(link + " #main");
+	    $('#result_list').load(link + " #result_list");
 	});
 </script>

@@ -1,28 +1,7 @@
 <#if status.code != 200>
 	<#-- Do Nothing -->
-
-<#elseif emptySearch??>
-	<p>
-		<b>You must fill in a search field</b>
-	</p>
-
-<#elseif !firstRun?? && result.data.status == "running">
-	<p>
-		<b>Your search has not yet returned results</b><br />
-		When the search is complete, it will appear in the recent search list.
-	</p>
 <#elseif result?? && !firstRun?? && result.data??>
-	<#if result.errors??>
-	<p>
-	Errors:
-	<ul>
-	  <#list result.errors as error>
-	    <li>${error}</li>
-	  </#list>
-	</ul>
-	</p>
-	</#if>
-
+<div id="save_dialogs">
 	<script type="text/javascript">
 $(function() {
 
@@ -129,6 +108,34 @@ $(function() {
 			</fieldset>
 		</form>
 	</div>
+</div>
+</#if>
+<div id="result_list">
+<#if status.code != 200>
+	<#-- Do Nothing -->
+
+<#elseif emptySearch??>
+	<p>
+		<b>You must fill in a search field</b>
+	</p>
+
+<#elseif !firstRun?? && result.data.status == "running">
+	<p>
+		<b>Your search has not yet returned results</b><br />
+		When the search is complete, it will appear in the recent search list.
+	</p>
+<#elseif result?? && !firstRun?? && result.data??>
+	<#if result.errors??>
+	<p>
+	Errors:
+	<ul>
+	  <#list result.errors as error>
+	    <li>${error}</li>
+	  </#list>
+	</ul>
+	</p>
+	</#if>
+
 	<p>
 	  <h3>Found ${result.data.itemTotal} messages </h3> 
 	  <#if result.data.query.parameter??>
@@ -229,6 +236,7 @@ $(function() {
 		<#assign sorturi = sorturi>
 		<#assign paging = result.paging>
 		<#include "*/templates/paging.ftl"> 
+</div>
 		<div class="search-actions">
 			<button id="save-search">Save Search</button>
 			<button id="update-search">Update Search</button>
