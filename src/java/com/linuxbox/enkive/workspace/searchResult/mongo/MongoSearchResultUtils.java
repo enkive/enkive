@@ -20,9 +20,9 @@ package com.linuxbox.enkive.workspace.searchResult.mongo;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import org.bson.types.ObjectId;
 
@@ -60,32 +60,32 @@ public class MongoSearchResultUtils {
 		this.searchResultColl = searchResultInfo.getCollection();
 	}
 
-	public HashMap<Long, String> sortMessagesByDate(Map<Long, String> messageIds,
+	public Map<Long, String> sortMessagesByDate(Map<Long, String> messageIds,
 			int sortDir) {
 		return sortMessages(messageIds, MesssageAttributeConstants.DATE,
 				sortDir);
 	}
 
-	public HashMap<Long, String> sortMessagesBySender(Map<Long, String> messageIds,
+	public Map<Long, String> sortMessagesBySender(Map<Long, String> messageIds,
 			int sortDir) {
 		return sortMessages(messageIds, MesssageAttributeConstants.FROM,
 				sortDir);
 	}
 
-	public HashMap<Long, String> sortMessagesByReceiver(Map<Long, String> messageIds,
+	public Map<Long, String> sortMessagesByReceiver(Map<Long, String> messageIds,
 			int sortDir) {
 		return sortMessages(messageIds, MesssageAttributeConstants.TO, sortDir);
 	}
 
-	public HashMap<Long, String> sortMessagesBySubject(Map<Long, String> messageIds,
+	public Map<Long, String> sortMessagesBySubject(Map<Long, String> messageIds,
 			int sortDir) {
 		return sortMessages(messageIds, MesssageAttributeConstants.SUBJECT,
 				sortDir);
 	}
 
-	protected HashMap<Long, String> sortMessages(Map<Long, String> messageIds,
+	protected Map<Long, String> sortMessages(Map<Long, String> messageIds,
 			String sortField, int sortDirection) {
-		HashMap<Long, String> sortedIds = new HashMap<Long, String>();
+		TreeMap<Long, String> sortedIds = new TreeMap<Long, String>();
 		// Only want to return the ids
 		BasicDBObject keys = new BasicDBObject();
 		keys.put("_id", 1);
