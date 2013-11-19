@@ -1,0 +1,83 @@
+#!/bin/sh
+# Start/stop the enkive daemon.
+#
+### BEGIN INIT INFO
+# Provides:          enkive
+# Required-Start:    $remote_fs $syslog $time mongodb
+# Required-Stop:     $remote_fs $syslog $time mongodb
+# Should-Start:      autofs
+# Should-Stop:       autofs
+# Default-Start:     2 3 4 5
+# Default-Stop:	     0 1 6
+# Short-Description: Email archiving
+# Description:       Enkive provides scalable email archiving and ediscovery
+### END INIT INFO
+
+DESC="Enkive Email Archiver"
+NAME=enkive
+USER=enkive
+PIDFILE=/var/run/enkive.pid
+ENKIVE_HOME=/opt/enkive
+JAVA_HOME=/opt/java
+INDRI_HOME=/opt/indri
+JSVC=/usr/local/bin/jsvc
+# Uncomment this to increase the maximum heap size.  Default is 1/4 RAM
+#MAXHEAP="2500M"
+
+ENKIVE_LOG_PATH=/var/log/enkive/
+ENKIVE_CLASSPATH=${ENKIVE_HOME}/enkive.jar:${INDRI_HOME}/share/indri/indri.jar:${ENKIVE_HOME}/lib/*:${ENKIVE_HOME}/lib/spring/*:${ENKIVE_HOME}/lib/james-imap/*:${ENKIVE_HOME}/lib/commons/*:${ENKIVE_HOME}/config:${JAVA_HOME}/lib/tools.jar
+JSVC_ARGS="-cwd ${ENKIVE_HOME} -java-home ${JAVA_HOME} -pidfile ${PIDFILE} -outfile ${ENKIVE_LOG_PATH}/enkive.log -errfile ${ENKIVE_LOG_PATH}/enkive.err -cp ${ENKIVE_CLASSPATH} -Dlog4j.configuration=file://${ENKIVE_HOME}/config/log4j.properties -Djava.library.path=${INDRI_HOME}/lib com.linuxbox.enkive.EnkiveDaemon"
+
+if [ -n "${MAXHEAP}" ]; then
+	JSVC_ARGS="-Xmx${MAXHEAP} $JSVC_ARGS"
+fi
+
+# Define LSB log_* functions.
+. /lib/lsb/init-functions
+
+do_start()
+{
+        ${JSVC} -user ${USER} ${JSVC_ARGS}
+}
+
+do_stop()
+{
+        ${JSVC} -user ${USER} -stop ${JSVC_ARGS}
+}
+
+case "$1" in
+  start)
+	log_daemon_msg "Starting $DESC" "$NAME"
+	do_start
+	case "$?" in
+		0) log_end_msg 0 ;;
+		1) log_progress_msg "already started"
+		   log_end_msg 0 ;;
+		*) log_end_msg 1 ;;
+	esac
+
+	;;
+  stop)
+	log_daemon_msg "Stopping $DESC" "$NAME"
+	do_stop
+	case "$?" in
+		0) log_end_msg 0 ;;
+		1) log_progress_msg "already stopped"
+		   log_end_msg 0 ;;
+		*) log_end_msg 1 ;;
+	esac
+
+	;;
+  restart)
+	$0 stop
+	$0 start
+	;;
+  status)
+	status_of_proc -p $PIDFILE $NAME $NAME && exit 0 || exit $?
+	;;
+  *)
+	echo "Usage: $SCRIPTNAME {start|stop|restart|status}" >&2
+	exit 3
+	;;
+esac
+

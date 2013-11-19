@@ -1,0 +1,86 @@
+#!/bin/sh
+# Start/stop the mongodb daemon.
+#
+### BEGIN INIT INFO
+# Provides:          mongodb
+# Required-Start:    $remote_fs $syslog $time
+# Required-Stop:     $remote_fs $syslog $time
+# Should-Start:      autofs
+# Should-Stop:       autofs
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: No-SQL database
+# Description:       MongoDB (from "humongous") is an open-source document
+#		     database, and the leading NoSQL database
+### END INIT INFO
+
+DESC="MongoDB No-SQL Server"
+NAME=mongod
+DAEMON=/opt/mongodb/bin/mongod
+PIDFILE=/var/run/mongod.pid
+DAEMON_ARGS="--quiet --fork --config /etc/mongodb.conf --pidfilepath ${PIDFILE}"
+DAEMON_LOG=/var/log/mongodb/mongod.log
+
+# Exit if the package is not installed
+[ -x "$DAEMON" ] || exit 0
+
+# Read configuration variable file if it is present
+[ -r /etc/default/$NAME ] && . /etc/default/$NAME
+
+# Define LSB log_* functions.
+. /lib/lsb/init-functions
+
+do_start()
+{
+	# Return
+	#   0 if daemon has been started
+	#   1 if daemon was already running
+	#   other if daemon could not be started or a failure occured
+	start-stop-daemon --start --quiet --pidfile $PIDFILE --exec $DAEMON -- $DAEMON_ARGS 2>&1 >> $DAEMON_LOG
+}
+
+do_stop()
+{
+	# Return
+	#   0 if daemon has been stopped
+	#   1 if daemon was already stopped
+	#   other if daemon could not be stopped or a failure occurred
+	start-stop-daemon --stop --quiet --retry=TERM/30/KILL/5 --pidfile $PIDFILE --name $NAME
+}
+
+case "$1" in
+  start)
+	log_daemon_msg "Starting $DESC" "$NAME"
+	do_start
+	case "$?" in
+		0) log_end_msg 0 ;;
+		1) log_progress_msg "already started"
+		   log_end_msg 0 ;;
+		*) log_end_msg 1 ;;
+	esac
+
+	;;
+  stop)
+	log_daemon_msg "Stopping $DESC" "$NAME"
+	do_stop
+	case "$?" in
+		0) log_end_msg 0 ;;
+		1) log_progress_msg "already stopped"
+		   log_end_msg 0 ;;
+		*) log_end_msg 1 ;;
+	esac
+
+	;;
+  restart)
+	$0 stop
+	$0 start
+	;;
+  status)
+	status_of_proc -p $PIDFILE $DAEMON $NAME && exit 0 || exit $?
+	;;
+  *)
+	echo "Usage: $SCRIPTNAME {start|stop|restart|status}" >&2
+	exit 3
+	;;
+esac
+
