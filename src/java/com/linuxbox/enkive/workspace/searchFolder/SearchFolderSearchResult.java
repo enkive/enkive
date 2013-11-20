@@ -18,6 +18,8 @@
  ******************************************************************************/
 package com.linuxbox.enkive.workspace.searchFolder;
 
+import java.util.List;
+
 import com.linuxbox.enkive.workspace.WorkspaceException;
 import com.linuxbox.enkive.workspace.searchResult.SearchResult;
 
@@ -33,10 +35,9 @@ public abstract class SearchFolderSearchResult extends SearchResult {
 	}
 
 	@Override
-	public void sortSearchResultMessages(String sortBy, int sortDir)
-			throws WorkspaceException {
+	public List<String> getPage(String sortBy, int sortDir, int pageNum,
+			int pageSize) throws WorkspaceException {
 		// TODO Auto-generated method stub
-
+		return null;
 	}
-
 }

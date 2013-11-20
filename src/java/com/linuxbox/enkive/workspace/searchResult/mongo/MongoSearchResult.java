@@ -26,7 +26,8 @@ import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.SEARCH
 import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.SEARCHRESULTS;
 import static com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants.UUID;
 
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -90,21 +91,45 @@ public class MongoSearchResult extends SearchResult {
 		searchResultsColl.remove(searchResultObject);
 	}
 
-	public void sortSearchResultMessages(String sortBy, int sortDir)
+	/*
+	 * (non-Javadoc)
+	 * @see com.linuxbox.enkive.workspace.searchResult.SearchResult#getPage(java.lang.String, int, int, int)
+	 */
+	public List<String> getPage(String sortBy, int sortDir, int pageNum, int pageSize)
 			throws WorkspaceException {
-		Map<Long, String> messageIds = getMessageIds();
-		if (sortBy.equals(SORTBYDATE))
-			setMessageIds(searchResultUtils.sortMessagesByDate(messageIds,
-					sortDir));
-		if (sortBy.equals(SORTBYSUBJECT))
-			setMessageIds(searchResultUtils.sortMessagesBySubject(messageIds,
-					sortDir));
-		if (sortBy.equals(SORTBYSENDER))
-			setMessageIds(searchResultUtils.sortMessagesBySender(messageIds,
-					sortDir));
-		if (sortBy.equals(SORTBYRECEIVER))
-			setMessageIds(searchResultUtils.sortMessagesByReceiver(messageIds,
-					sortDir));
+		if (sortBy == null || sortBy.equals("")) {
+			// No sorting, just paginate
+			List<String> page = new ArrayList<String>(pageSize);
+			int offset = 0;
+			for	(String id : getMessageIds().values()) {
+				if (offset < (pageNum - 1) * pageSize) {
+					offset++;
+					continue;
+				}
+				page.add(id);
+				if (page.size() == pageSize) {
+					// Page full
+					return page;
+				}
+			}
+
+			// Ran out
+			return (page);
+		} else if (sortBy.equals(SORTBYDATE)) {
+			return searchResultUtils.sortMessagesByDate(getMessageIds().values(),
+					sortDir, pageNum, pageSize);
+		} else if (sortBy.equals(SORTBYSUBJECT)) {
+			return searchResultUtils.sortMessagesBySubject(getMessageIds().values(),
+					sortDir, pageNum, pageSize);
+		} else if (sortBy.equals(SORTBYSENDER)) {
+			return searchResultUtils.sortMessagesBySender(getMessageIds().values(),
+					sortDir, pageNum, pageSize);
+		} else if (sortBy.equals(SORTBYRECEIVER)) {
+			return searchResultUtils.sortMessagesByReceiver(getMessageIds().values(),
+					sortDir, pageNum, pageSize);
+		}
+
+		throw new WorkspaceException("Unknown sort type " + sortBy);
 	}
 
 	public MongoSearchResultUtils getSearchResultUtils() {

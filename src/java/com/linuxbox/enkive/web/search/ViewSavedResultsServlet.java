@@ -31,7 +31,6 @@ import static com.linuxbox.enkive.web.WebPageInfo.PAGE_SORT_DIR_PARAMETER;
 import static com.linuxbox.enkive.web.WebPageInfo.PAGING_LABEL;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -57,6 +56,7 @@ import com.linuxbox.enkive.web.WebScriptUtils;
 import com.linuxbox.enkive.workspace.WorkspaceException;
 import com.linuxbox.enkive.workspace.WorkspaceService;
 import com.linuxbox.enkive.workspace.searchQuery.SearchQuery;
+import com.linuxbox.enkive.workspace.searchResult.SearchResult;
 
 /**
  * This webscript is run when a user wants to see the results of a prior search,
@@ -106,9 +106,6 @@ public class ViewSavedResultsServlet extends EnkiveServlet {
 
 			SearchQuery query = workspaceService.getSearch(searchId);
 
-			if (sortBy != null && !sortBy.equals(""))
-				query.getResult().sortSearchResultMessages(sortBy, sortDir);
-
 			/* Query */
 			try {
 				dataJSON.put(QUERY_TAG, query.toJson());
@@ -120,14 +117,13 @@ public class ViewSavedResultsServlet extends EnkiveServlet {
 			/* Message Result List */
 
 			try {
+				SearchResult result = query.getResult();
+				List<String> messageIds = result.getPage(sortBy, sortDir,
+						pageInfo.getPagePos(), pageInfo.getPageSize());
 
-				List<String> messageIds = new ArrayList<String>(
-						query.getResult().getMessageIds().values());
-				@SuppressWarnings("unchecked")
 				List<MessageSummary> messageSummaries = archiveService
-						.retrieveSummary((List<String>) pageInfo
-								.getSubList(messageIds));
-				pageInfo.setItemTotal(messageIds.size());
+						.retrieveSummary(messageIds);
+				pageInfo.setItemTotal(result.getCount());
 				dataJSON.put(WebConstants.STATUS_ID_TAG, query.getStatus());
 
 				JSONArray jsonMessageSummaryList = SearchResultsBuilder

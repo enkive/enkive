@@ -21,8 +21,6 @@ package com.linuxbox.enkive.workspace.searchResult.mongo;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 
 import org.bson.types.ObjectId;
 
@@ -60,32 +58,33 @@ public class MongoSearchResultUtils {
 		this.searchResultColl = searchResultInfo.getCollection();
 	}
 
-	public Map<Long, String> sortMessagesByDate(Map<Long, String> messageIds,
-			int sortDir) {
+	public List<String> sortMessagesByDate(Collection<String> messageIds,
+			int sortDir, int pageNum, int pageSize) {
 		return sortMessages(messageIds, MesssageAttributeConstants.DATE,
-				sortDir);
+				sortDir, pageNum, pageSize);
 	}
 
-	public Map<Long, String> sortMessagesBySender(Map<Long, String> messageIds,
-			int sortDir) {
+	public List<String> sortMessagesBySender(Collection<String> messageIds,
+			int sortDir, int pageNum, int pageSize) {
 		return sortMessages(messageIds, MesssageAttributeConstants.FROM,
-				sortDir);
+				sortDir, pageNum, pageSize);
 	}
 
-	public Map<Long, String> sortMessagesByReceiver(Map<Long, String> messageIds,
-			int sortDir) {
-		return sortMessages(messageIds, MesssageAttributeConstants.TO, sortDir);
+	public List<String> sortMessagesByReceiver(Collection<String> messageIds,
+			int sortDir, int pageNum, int pageSize) {
+		return sortMessages(messageIds, MesssageAttributeConstants.TO, sortDir,
+				pageNum, pageSize);
 	}
 
-	public Map<Long, String> sortMessagesBySubject(Map<Long, String> messageIds,
-			int sortDir) {
+	public List<String> sortMessagesBySubject(Collection<String> messageIds,
+			int sortDir, int pageNum, int pageSize) {
 		return sortMessages(messageIds, MesssageAttributeConstants.SUBJECT,
-				sortDir);
+				sortDir, pageNum, pageSize);
 	}
 
-	protected Map<Long, String> sortMessages(Map<Long, String> messageIds,
-			String sortField, int sortDirection) {
-		TreeMap<Long, String> sortedIds = new TreeMap<Long, String>();
+	protected List<String> sortMessages(Collection<String> messageIds,
+			String sortField, int sortDirection, int pageNum, int pageSize) {
+		ArrayList<String> sortedIds = new ArrayList<String>();
 		// Only want to return the ids
 		BasicDBObject keys = new BasicDBObject();
 		keys.put("_id", 1);
@@ -94,7 +93,7 @@ public class MongoSearchResultUtils {
 		BasicDBObject query = new BasicDBObject();
 		// Build object with IDs
 		BasicDBList idList = new BasicDBList();
-		idList.addAll(messageIds.values());
+		idList.addAll(messageIds);
 		BasicDBObject idQuery = new BasicDBObject();
 		idQuery.put("$in", idList);
 		query.put("_id", idQuery);
@@ -103,16 +102,15 @@ public class MongoSearchResultUtils {
 		DBCursor results = messageColl.find(query, keys);
 		BasicDBObject orderBy = new BasicDBObject();
 		orderBy.put(sortField, sortDirection);
-		results = results.sort(orderBy);
-		Long UID = (long) 0;
-		for (DBObject result : results.toArray())
-			sortedIds.put(UID++, (String) result.get("_id"));
+		results = results.sort(orderBy).skip((pageNum - 1) * pageSize).limit(pageSize);
+		for (DBObject result : results)
+			sortedIds.add((String)result.get("_id"));
 		return sortedIds;
 	}
 
 	public List<String> sortSearchResults(Collection<String> searchResultIds,
-			String sortField, int sortDirection) {
-		ArrayList<String> sortedIds = new ArrayList<String>();
+			String sortField, int sortDirection, int pageNum, int pageSize) {
+		ArrayList<String> sortedIds = new ArrayList<String>(pageSize);
 		// Only want to return the ids
 		BasicDBObject keys = new BasicDBObject();
 		keys.put("_id", 1);
@@ -132,9 +130,9 @@ public class MongoSearchResultUtils {
 		DBCursor results = searchResultColl.find(query, keys);
 		BasicDBObject orderBy = new BasicDBObject();
 		orderBy.put(sortField, sortDirection);
-		results = results.sort(orderBy);
+		results = results.sort(orderBy).skip((pageNum - 1) * pageSize).limit(pageSize);
 		for (DBObject result : results.toArray())
-			sortedIds.add(((ObjectId) result.get("_id")).toString());
+			sortedIds.add((String)result.get("_id"));
 
 		return sortedIds;
 	}

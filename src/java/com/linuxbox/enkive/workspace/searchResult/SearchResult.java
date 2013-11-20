@@ -21,6 +21,7 @@ package com.linuxbox.enkive.workspace.searchResult;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.linuxbox.enkive.workspace.WorkspaceException;
@@ -86,6 +87,10 @@ public abstract class SearchResult {
 		}
 	}
 
+	public int getCount() {
+		return this.messageIds.size();
+	}
+
 	public String getSearchQueryId() {
 		return searchQueryId;
 	}
@@ -98,6 +103,15 @@ public abstract class SearchResult {
 
 	public abstract void deleteSearchResult() throws WorkspaceException;
 
-	public abstract void sortSearchResultMessages(String sortBy, int sortDir)
+	/**
+	 * Get a page of results, possibly sorted.
+	 * @param sortBy	Sort order, or null for unsorted
+	 * @param sortDir	Sort direction (1 for forward, -1 for reverse)
+	 * @param pageNum	Page number go get (1-indexed)
+	 * @param pageSize	Size of pages to get
+	 * @return List of results that constitute the page.  May be empty.
+	 * @throws WorkspaceException
+	 */
+	public abstract List<String> getPage(String sortBy, int sortDir, int pageNum, int pageSize)
 			throws WorkspaceException;
 }
