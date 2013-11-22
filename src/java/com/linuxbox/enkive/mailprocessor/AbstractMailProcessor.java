@@ -195,6 +195,9 @@ public abstract class AbstractMailProcessor implements ArchivingProcessor,
 				} catch (SocketClosedException e) {
 					// just pass this up to the next level
 					throw e;
+				} catch (SocketException e) {
+					// just pass this up to the next level
+					throw e;
 				} catch (MessageIncompleteException e) {
 					processorState = ERROR_HANDLING;
 					LOGGER.fatal(
