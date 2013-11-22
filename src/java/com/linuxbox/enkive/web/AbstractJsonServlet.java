@@ -51,6 +51,7 @@ public abstract class AbstractJsonServlet extends EnkiveServlet {
 				queryResult.put(ERRORS_TAG, errors);
 			}
 			errors.put(errorMessage);
+			queryResult.put(WebConstants.STATUS_ID_TAG, WebConstants.ERROR_STATUS_VALUE);
 		} catch (JSONException e) {
 			LOGGER.error("could not add error to JSON query result");
 		}

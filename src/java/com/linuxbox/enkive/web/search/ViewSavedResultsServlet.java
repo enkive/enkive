@@ -49,20 +49,21 @@ import com.linuxbox.enkive.exception.CannotRetrieveException;
 import com.linuxbox.enkive.exception.EnkiveServletException;
 import com.linuxbox.enkive.message.MessageSummary;
 import com.linuxbox.enkive.retriever.MessageRetrieverService;
-import com.linuxbox.enkive.web.EnkiveServlet;
+import com.linuxbox.enkive.web.AbstractJsonServlet;
 import com.linuxbox.enkive.web.WebConstants;
 import com.linuxbox.enkive.web.WebPageInfo;
 import com.linuxbox.enkive.web.WebScriptUtils;
 import com.linuxbox.enkive.workspace.WorkspaceException;
 import com.linuxbox.enkive.workspace.WorkspaceService;
 import com.linuxbox.enkive.workspace.searchQuery.SearchQuery;
+import com.linuxbox.enkive.workspace.searchResult.ResultPageException;
 import com.linuxbox.enkive.workspace.searchResult.SearchResult;
 
 /**
  * This webscript is run when a user wants to see the results of a prior search,
  * either recent or saved
  */
-public class ViewSavedResultsServlet extends EnkiveServlet {
+public class ViewSavedResultsServlet extends AbstractJsonServlet {
 	/**
 	 * 
 	 */
@@ -136,6 +137,9 @@ public class ViewSavedResultsServlet extends EnkiveServlet {
 				LOGGER.error("Could not access result message list", e);
 				// throw new WebScriptException(
 				// "Could not access query result message list", e);
+			} catch (ResultPageException e) {
+				LOGGER.error("Could not get page of results", e);
+				this.addError(dataJSON, e.toString());
 			}
 			if (LOGGER.isDebugEnabled())
 				LOGGER.debug("Returning saved search results for search id "

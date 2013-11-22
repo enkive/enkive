@@ -113,5 +113,6 @@ public abstract class SearchResult {
 	 * @throws WorkspaceException
 	 */
 	public abstract List<String> getPage(String sortBy, int sortDir, int pageNum, int pageSize)
-			throws WorkspaceException;
+			throws ResultPageException;
+
 }

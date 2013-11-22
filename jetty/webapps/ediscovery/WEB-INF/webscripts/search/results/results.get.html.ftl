@@ -124,17 +124,21 @@ $(function() {
 		<b>Your search has not yet returned results</b><br />
 		When the search is complete, it will appear in the recent search list.
 	</p>
-<#elseif result?? && !firstRun?? && result.data??>
-	<#if result.errors??>
+<#elseif result?? && result.data?? && result.data.status == "error">
 	<p>
-	Errors:
-	<ul>
-	  <#list result.errors as error>
-	    <li>${error}</li>
-	  </#list>
-	</ul>
+		<b>Your search has returned an error</b><br />
+		<#if result.data.errors??>
+		<p>
+			Errors:
+			<ul>
+				<#list result.data.errors as error>
+				<li>${error}</li>
+				</#list>
+			</ul>
+		</p>
+		</#if>
 	</p>
-	</#if>
+<#elseif result?? && !firstRun?? && result.data??>
 
 	<p>
 	  <h3>Found ${result.data.itemTotal} messages </h3> 

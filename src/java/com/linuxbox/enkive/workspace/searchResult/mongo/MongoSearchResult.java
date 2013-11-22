@@ -34,6 +34,7 @@ import org.apache.commons.logging.LogFactory;
 import org.bson.types.ObjectId;
 
 import com.linuxbox.enkive.workspace.WorkspaceException;
+import com.linuxbox.enkive.workspace.searchResult.ResultPageException;
 import com.linuxbox.enkive.workspace.searchResult.SearchResult;
 import com.mongodb.BasicDBObject;
 import com.mongodb.BasicDBObjectBuilder;
@@ -96,7 +97,7 @@ public class MongoSearchResult extends SearchResult {
 	 * @see com.linuxbox.enkive.workspace.searchResult.SearchResult#getPage(java.lang.String, int, int, int)
 	 */
 	public List<String> getPage(String sortBy, int sortDir, int pageNum, int pageSize)
-			throws WorkspaceException {
+			throws ResultPageException {
 		if (sortBy == null || sortBy.equals("")) {
 			// No sorting, just paginate
 			List<String> page = new ArrayList<String>(pageSize);
@@ -129,7 +130,7 @@ public class MongoSearchResult extends SearchResult {
 					sortDir, pageNum, pageSize);
 		}
 
-		throw new WorkspaceException("Unknown sort type " + sortBy);
+		throw new ResultPageException("Unknown sort type " + sortBy);
 	}
 
 	public MongoSearchResultUtils getSearchResultUtils() {

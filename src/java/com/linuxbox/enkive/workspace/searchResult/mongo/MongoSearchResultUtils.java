@@ -25,6 +25,7 @@ import java.util.List;
 import org.bson.types.ObjectId;
 
 import com.linuxbox.enkive.archiver.MesssageAttributeConstants;
+import com.linuxbox.enkive.workspace.searchResult.ResultPageException;
 import com.linuxbox.util.dbinfo.mongodb.MongoDbInfo;
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
@@ -33,6 +34,7 @@ import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
+import com.mongodb.MongoException;
 
 /**
  * Utility class to sort SearchResults by characteristics of the messages in the
@@ -59,31 +61,36 @@ public class MongoSearchResultUtils {
 	}
 
 	public List<String> sortMessagesByDate(Collection<String> messageIds,
-			int sortDir, int pageNum, int pageSize) {
+			int sortDir, int pageNum, int pageSize)
+			throws ResultPageException {
 		return sortMessages(messageIds, MesssageAttributeConstants.DATE,
 				sortDir, pageNum, pageSize);
 	}
 
 	public List<String> sortMessagesBySender(Collection<String> messageIds,
-			int sortDir, int pageNum, int pageSize) {
+			int sortDir, int pageNum, int pageSize)
+			throws ResultPageException {
 		return sortMessages(messageIds, MesssageAttributeConstants.FROM,
 				sortDir, pageNum, pageSize);
 	}
 
 	public List<String> sortMessagesByReceiver(Collection<String> messageIds,
-			int sortDir, int pageNum, int pageSize) {
+			int sortDir, int pageNum, int pageSize)
+			throws ResultPageException {
 		return sortMessages(messageIds, MesssageAttributeConstants.TO, sortDir,
 				pageNum, pageSize);
 	}
 
 	public List<String> sortMessagesBySubject(Collection<String> messageIds,
-			int sortDir, int pageNum, int pageSize) {
+			int sortDir, int pageNum, int pageSize)
+			throws ResultPageException {
 		return sortMessages(messageIds, MesssageAttributeConstants.SUBJECT,
 				sortDir, pageNum, pageSize);
 	}
 
 	protected List<String> sortMessages(Collection<String> messageIds,
-			String sortField, int sortDirection, int pageNum, int pageSize) {
+			String sortField, int sortDirection, int pageNum, int pageSize)
+			throws ResultPageException {
 		ArrayList<String> sortedIds = new ArrayList<String>();
 		// Only want to return the ids
 		BasicDBObject keys = new BasicDBObject();
@@ -102,9 +109,14 @@ public class MongoSearchResultUtils {
 		DBCursor results = messageColl.find(query, keys);
 		BasicDBObject orderBy = new BasicDBObject();
 		orderBy.put(sortField, sortDirection);
+		try {
 		results = results.sort(orderBy).skip((pageNum - 1) * pageSize).limit(pageSize);
 		for (DBObject result : results)
 			sortedIds.add((String)result.get("_id"));
+		} catch(MongoException e) {
+			// Mongo failed to get the page.  Create an error message for the user.
+			throw new ResultPageException("MongoDB failed to get the requested page of results", e);
+		}
 		return sortedIds;
 	}
 
