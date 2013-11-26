@@ -25,7 +25,7 @@ ENKIVE_USER=${ENKIVE_USER:-"enkive"}
 
 # path to directory that Indri was installed in -- typically /usr/local or /opt/indri. Expect to find underneath this directory
 # lib/libindri_jni.so and share/indri/indri.jar 
-INDRI_INSTALL_PATH=${INDRI_INSTALL_PATH:-"/usr/local"}
+INDRI_INSTALL_PATH=${INDRI_INSTALL_PATH:-"/opt/indri"}
 
 
 # TESTING OF THE ABOVE
