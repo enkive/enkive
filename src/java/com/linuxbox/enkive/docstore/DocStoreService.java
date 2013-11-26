@@ -100,6 +100,14 @@ public interface DocStoreService {
 	String nextUnindexed(int serverNumber, int serverCount);
 
 	/**
+	 * Determines if the given document has been indexed.
+	 *
+	 * @param identifier
+	 * @throws DocStoreException
+	 */
+	boolean isIndexed(String identifier) throws DocStoreException, DocumentNotFoundException;
+
+	/**
 	 * Marks the given document as having been indexed, so it will not be
 	 * retrieved as un-indexed again.
 	 * 

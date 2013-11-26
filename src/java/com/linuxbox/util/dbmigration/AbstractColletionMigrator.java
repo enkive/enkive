@@ -28,7 +28,7 @@ import com.mongodb.DBCollection;
 /**
  * Abstract base class for migrating a MongoDB collection  It provides 2 main
  * services, before calling the implementation: removing and renaming fields.
- * First, a list o dead fields is removed from every document in the collection.
+ * First, a list of dead fields is removed from every document in the collection.
  * Next, a map of <old-name, new-name> pairs is run, where each old-name is
  * renamed to it's new-name.  Finally, the child class's implementation is
  * called to do complex work.

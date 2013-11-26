@@ -1,5 +1,9 @@
 package com.linuxbox.util.dbmigration;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.Properties;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -12,12 +16,18 @@ public abstract class DbMigration {
 	final int fromVersion;
 	final int toVersion;
 	final DbMigrator migrator;
+	protected final Properties props;
 
 	public DbMigration(DbMigrator migrator, int fromVersion, int toVersion)
 			throws DbMigrationException {
 		this.fromVersion = fromVersion;
 		this.toVersion = toVersion;
 		this.migrator = migrator;
+		try {
+			this.props = loadConfigProperties();
+		} catch (IOException e) {
+			throw new DbMigrationException("Failed to create migration: ", e);
+		}
 		migrator.registerMigration(this);
 	}
 
@@ -27,4 +37,11 @@ public abstract class DbMigration {
 	 * @throws DbMigrationException
 	 */
 	public abstract void migrate(DbInfo dbInfo) throws DbMigrationException;
+
+	static Properties loadConfigProperties() throws IOException {
+		Properties properties = new Properties();
+		properties.load(new FileInputStream("config/default/enkive.properties"));
+		properties.load(new FileInputStream("config/enkive.properties"));
+		return properties;
+	}
 }

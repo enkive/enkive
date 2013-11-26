@@ -33,7 +33,7 @@ import com.linuxbox.enkive.statistics.gathering.GathererException;
 import com.linuxbox.enkive.statistics.gathering.StatsMessageGatherer;
 import com.linuxbox.enkive.statistics.gathering.StatsRuntimeGatherer;
 import com.linuxbox.enkive.statistics.gathering.mongodb.MongoGathererMessageSearchService;
-import com.linuxbox.enkive.statistics.gathering.mongodb.MongoStatsAttachmentsGatherer;
+import com.linuxbox.enkive.statistics.gathering.mongodb.MongoStatsGridAttachmentsGatherer;
 import com.linuxbox.enkive.statistics.gathering.mongodb.MongoStatsCollectionGatherer;
 import com.linuxbox.enkive.statistics.gathering.mongodb.MongoStatsDatabaseGatherer;
 import com.linuxbox.enkive.statistics.services.StatsClient;
@@ -177,7 +177,7 @@ public class TestHelper {
 		keys = new LinkedList<String>();
 		keys.add("avgAtt:avg:Average Attachments:number of attachments:interval");
 		keys.add("maxAtt:max:Maximum Attachments:number of attachments:interval");
-		MongoStatsAttachmentsGatherer attProp = new MongoStatsAttachmentsGatherer(
+		MongoStatsGridAttachmentsGatherer attProp = new MongoStatsGridAttachmentsGatherer(
 				m, TestingConstants.MONGODB_TEST_DATABASE,
 				TestingConstants.MONGODB_TEST_DOCUMENTS_COLLECTION,
 				attPropName, "Attachment Statistics", keys);

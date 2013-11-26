@@ -22,8 +22,8 @@ package com.linuxbox.enkive.tool.mongodb;
 import java.io.File;
 import java.io.FileWriter;
 
-import com.linuxbox.enkive.docstore.mongogrid.ConvenienceMongoGridDocStoreService;
-import com.linuxbox.enkive.docstore.mongogrid.MongoGridDocStoreService;
+import com.linuxbox.enkive.docstore.mongo.ConvenienceFileDocStoreService;
+import com.linuxbox.enkive.docstore.mongo.FileDocStoreService;
 import com.linuxbox.enkive.message.Message;
 import com.linuxbox.enkive.retriever.mongodb.MongoRetrieverService;
 import com.mongodb.MongoClient;
@@ -50,7 +50,12 @@ public class MongoDBMsgRetriever {
 	
 	// FIXME: Since this is defined in the spring configuration, it should be
 	// retrieved from there rather than hard-coded
-	private final static String GRIDFS_COLLECTION_NAME = "fs";
+	private final static String DOC_COLLECTION_NAME = "documents";
+
+	// FIXME: Since this is defined in the spring configuration, it should be
+	// retrieved from there rather than hard-coded
+	private final static String BASE_PATH = "data/docstore";
+	private final static String JAR_NAME = "enkive.jar";
 
 	// private final static String OUTPUT_DIR = "/tmp"; // command line?
 	private final static String OUTPUT_DIR = ".";
@@ -100,16 +105,25 @@ public class MongoDBMsgRetriever {
 
 	public static void main(String[] args) {
 		System.out.println("Starting");
-		
+
 		MongoRetrieverService retriever = null;
-		MongoGridDocStoreService docStoreService = null;
+		FileDocStoreService docStoreService = null;
 
 		try {
 			MongoClient m = new MongoClient();
 			retriever = new MongoRetrieverService(m, DATABASE_NAME, EMAIL_COLLECTION_NAME);
 			
-			docStoreService = new ConvenienceMongoGridDocStoreService(
-					DATABASE_NAME, GRIDFS_COLLECTION_NAME);
+			String basePath = MongoDbDocRetriever.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+			// Path to jar ends with jar name; remove it
+			if (basePath.endsWith("build/")) {
+				// Handle development builds
+				basePath = basePath.substring(0, basePath.length() - (6 + JAR_NAME.length()));
+			} else {
+				basePath = basePath.substring(0, basePath.length() - JAR_NAME.length());
+			}
+			basePath += BASE_PATH;
+			docStoreService = new ConvenienceFileDocStoreService(basePath,
+					DATABASE_NAME, DOC_COLLECTION_NAME);
 			docStoreService.startup();
 			
 			retriever.setDocStoreService(docStoreService);

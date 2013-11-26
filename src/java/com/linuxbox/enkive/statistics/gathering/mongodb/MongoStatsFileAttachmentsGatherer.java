@@ -18,13 +18,12 @@
  ******************************************************************************/
 package com.linuxbox.enkive.statistics.gathering.mongodb;
 
+import static com.linuxbox.enkive.docstore.mongogrid.Constants.FILE_CDATE;
+import static com.linuxbox.enkive.docstore.mongogrid.Constants.FILE_SIZE;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_ATTACH_NUM;
 import static com.linuxbox.enkive.statistics.StatsConstants.STAT_ATTACH_SIZE;
 import static com.linuxbox.enkive.statistics.VarsMaker.createMap;
 import static com.linuxbox.enkive.statistics.consolidation.ConsolidationConstants.CONSOLIDATION_AVG;
-import static com.linuxbox.enkive.statistics.gathering.mongodb.MongoConstants.MONGO_LENGTH;
-import static com.linuxbox.enkive.statistics.gathering.mongodb.MongoConstants.MONGO_UPLOAD_DATE;
-import static com.linuxbox.util.mongodb.MongoDbConstants.GRID_FS_FILES_COLLECTION_SUFFIX;
 
 import java.util.Date;
 import java.util.List;
@@ -35,33 +34,33 @@ import org.apache.commons.logging.LogFactory;
 
 import com.linuxbox.enkive.statistics.gathering.AbstractGatherer;
 import com.linuxbox.enkive.statistics.gathering.GathererException;
-import com.linuxbox.util.dbinfo.mongodb.MongoGridDbInfo;
+import com.linuxbox.util.dbinfo.mongodb.MongoDbInfo;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
 
-public class MongoStatsGridAttachmentsGatherer extends AbstractGatherer {
+public class MongoStatsFileAttachmentsGatherer extends AbstractGatherer {
 	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.statistics.gathering.StatsMongoAttachmentsGatherer");
 
 	protected DBCollection attachmentsColl;
 
-	public MongoStatsGridAttachmentsGatherer(MongoClient m, String dbName,
+	public MongoStatsFileAttachmentsGatherer(MongoClient m, String dbName,
 			String attachmentsColl, String gathererName, String humanName,
 			List<String> keys) throws GathererException {
 		this(gathererName, humanName, keys, m.getDB(dbName).getCollection(
-				attachmentsColl + GRID_FS_FILES_COLLECTION_SUFFIX));
+				attachmentsColl));
 	}
 
-	public MongoStatsGridAttachmentsGatherer(MongoGridDbInfo dbInfo,
+	public MongoStatsFileAttachmentsGatherer(MongoDbInfo dbInfo,
 			String gathererName, String humanName, List<String> keys)
 			throws GathererException {
 		this(gathererName, humanName, keys, dbInfo.getCollection());
 	}
 
-	public MongoStatsGridAttachmentsGatherer(String gathererName, String humanName,
+	public MongoStatsFileAttachmentsGatherer(String gathererName, String humanName,
 			List<String> keys, DBCollection collection)
 			throws GathererException {
 		super(gathererName, humanName, keys);
@@ -86,12 +85,12 @@ public class MongoStatsGridAttachmentsGatherer extends AbstractGatherer {
 		Map<String, Object> innerQuery = createMap();
 		innerQuery.put("$gte", startTimestamp);
 		innerQuery.put("$lt", endTimestamp);
-		query.put(MONGO_UPLOAD_DATE, innerQuery);
+		query.put(FILE_CDATE, innerQuery);
 		long dataByteSz = 0;
 		DBCursor dataCursor = attachmentsColl.find(new BasicDBObject(query));
 
 		for (DBObject obj : dataCursor) {
-			dataByteSz += (Long) (obj.get(MONGO_LENGTH));
+			dataByteSz += ((Integer)obj.get(FILE_SIZE)).longValue();
 		}
 		Map<String, Object> innerNumAttach = createMap();
 		innerNumAttach.put(CONSOLIDATION_AVG, dataCursor.count());

@@ -5,8 +5,9 @@
 	default-init-method="startup" default-destroy-method="shutdown">
 
 	<bean id="DocStoreService"
-		class="com.linuxbox.enkive.docstore.mongogrid.MongoGridDocStoreService">
-		<constructor-arg ref="DocStoreDbInfo" />
+		class="com.linuxbox.enkive.docstore.mongo.FileDocStoreService">
+		<constructor-arg value="${enkive.docstore.basepath}" />
+		<constructor-arg ref="DocStoreFileDbInfo" />
 		<property name="documentLockingService" ref="DocLockService" />
 		<property name="indexerQueueService" ref="IndexerQueueService" />
 		<property name="inMemoryLimit" value="${enkive.docstore.buffersize}" />

@@ -33,6 +33,11 @@
 		<constructor-arg value="1" />
 		<constructor-arg value="2" />
 	</bean>
+	<bean class="com.linuxbox.util.dbmigration.NullDbMigration">
+		<constructor-arg ref="AuditLogMigrator" />
+		<constructor-arg value="2" />
+		<constructor-arg value="3" />
+	</bean>
 
 	<!-- MESSAGE STORE -->
 
@@ -49,13 +54,18 @@
 	<bean class="com.linuxbox.enkive.archiver.migration.MessageStoreMigration1to2">
 		<constructor-arg ref="MessageStoreMigrator" />
 	</bean>
+	<bean class="com.linuxbox.util.dbmigration.NullDbMigration">
+		<constructor-arg ref="MessageStoreMigrator" />
+		<constructor-arg value="2" />
+		<constructor-arg value="3" />
+	</bean>
 
 
 	<!-- DOCUMENT/ATTACHMENT STORE -->
 
 	<bean id="DocStoreMigrator" class="com.linuxbox.util.dbmigration.DbMigrator">
 		<constructor-arg name="migratorName" value="Document Store Migrator" />
-		<constructor-arg ref="DocStoreDbInfo" />
+		<constructor-arg ref="CollectedDocStoreDbInfo" />
 	</bean>
 
 	<bean class="com.linuxbox.util.dbmigration.NullDbMigration">
@@ -67,6 +77,9 @@
 		<constructor-arg ref="DocStoreMigrator" />
 		<constructor-arg value="1" />
 		<constructor-arg value="2" />
+	</bean>
+	<bean class="com.linuxbox.enkive.docstore.migration.DocStoreMigration2to3">
+		<constructor-arg ref="DocStoreMigrator" />
 	</bean>
 
 	<!-- DOCUMENT LOCKING SERVICE -->
@@ -87,6 +100,11 @@
 		<constructor-arg value="1" />
 		<constructor-arg value="2" />
 	</bean>
+	<bean class="com.linuxbox.util.dbmigration.NullDbMigration">
+		<constructor-arg ref="DocLockMigrator" />
+		<constructor-arg value="2" />
+		<constructor-arg value="3" />
+	</bean>
 
 
 	<!-- DOCUMENT/ATTACHMENT INDEXER QUEUE -->
@@ -106,6 +124,11 @@
 		<constructor-arg value="1" />
 		<constructor-arg value="2" />
 	</bean>
+	<bean class="com.linuxbox.util.dbmigration.NullDbMigration">
+		<constructor-arg ref="IndexerQueueMigrator" />
+		<constructor-arg value="2" />
+		<constructor-arg value="3" />
+	</bean>
 
 
 	<!-- IMAP ACCESS -->
@@ -122,6 +145,11 @@
 	</bean>
 	<bean class="com.linuxbox.enkive.imap.migration.ImapMigration1to2">
 		<constructor-arg ref="ImapAccessMigrator" />
+	</bean>
+	<bean class="com.linuxbox.util.dbmigration.NullDbMigration">
+		<constructor-arg ref="ImapAccessMigrator" />
+		<constructor-arg value="2" />
+		<constructor-arg value="3" />
 	</bean>
 
 
@@ -140,6 +168,11 @@
 		<constructor-arg value="1" />
 		<constructor-arg value="2" />
 	</bean>
+	<bean class="com.linuxbox.util.dbmigration.NullDbMigration">
+		<constructor-arg ref="StatsMigrator" />
+		<constructor-arg value="2" />
+		<constructor-arg value="3" />
+	</bean>
 
 
 	<!-- WORKSPACES -->
@@ -156,6 +189,11 @@
 	</bean>
 	<bean class="com.linuxbox.enkive.workspace.migration.WorkspaceMigration1to2">
 		<constructor-arg ref="WorkspacesMigrator" />
+	</bean>
+	<bean class="com.linuxbox.util.dbmigration.NullDbMigration">
+		<constructor-arg ref="WorkspacesMigrator" />
+		<constructor-arg value="2" />
+		<constructor-arg value="3" />
 	</bean>
 
 

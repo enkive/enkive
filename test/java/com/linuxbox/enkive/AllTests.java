@@ -28,6 +28,7 @@ import org.junit.runners.Suite;
 import com.linuxbox.enkive.archiver.mongodb.MongoArchivingServiceTest;
 import com.linuxbox.enkive.audit.mongodb.MongoAuditServiceTest;
 import com.linuxbox.enkive.docstore.AbstractDocStoreServiceTest;
+import com.linuxbox.enkive.docstore.mongo.FileDocStoreServiceTest;
 import com.linuxbox.enkive.docstore.mongogrid.MongoGridDocStoreServiceTest;
 import com.linuxbox.enkive.filter.EnkiveFilterTest;
 import com.linuxbox.enkive.message.retention.MongoMessageRetentionPolicyEnforcementTest;
@@ -47,16 +48,19 @@ import com.linuxbox.util.queueservice.mongodb.MongoQueueServiceTest;
 @Suite.SuiteClasses({ HashingInputStreamTest.class,
 		AbstractDocStoreServiceTest.class, MongoAuditServiceTest.class,
 		MongoLockingServiceTest.class, MongoQueueServiceTest.class,
-		MongoGridDocStoreServiceTest.class, MongoArchivingServiceTest.class,
-		StatsMongoDbTest.class, StatsMongoCollTest.class, StatsMsgTest.class,
-		StatsRuntimeTest.class, StatsMongoAttachTest.class,
-		MongoRetrieverServiceTest.class,
+		MongoGridDocStoreServiceTest.class, FileDocStoreServiceTest.class,
+		MongoArchivingServiceTest.class, StatsMongoDbTest.class,
+		StatsMongoCollTest.class, StatsMsgTest.class, StatsRuntimeTest.class,
+		StatsMongoAttachTest.class, MongoRetrieverServiceTest.class,
+		EnkiveFilterTest.class, JavaLockingServiceTest.class,
+		JavaQueueServiceTest.class,
+		
+		// This must be last.  It drops the test DB.
 		MongoMessageRetentionPolicyEnforcementTest.class, // has problems
 															// (infinite loop
 															// problems)
 		// Unimplemented - IndriQueryComposerTest.class,
-		EnkiveFilterTest.class, JavaLockingServiceTest.class,
-		JavaQueueServiceTest.class })
+		})
 public class AllTests {
 	public static Test suite() {
 		TestSuite suite = new TestSuite(AllTests.class.getName());

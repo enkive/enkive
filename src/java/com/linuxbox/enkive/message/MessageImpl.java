@@ -275,6 +275,12 @@ public class MessageImpl extends AbstractMessage implements Message {
 
 		if (headers.getFrom() != null) {
 			for (Address from : headers.getFrom()) {
+				String addr = from.toString();
+				if (addr.equalsIgnoreCase(">")) {
+					// mime4j has a bug where "foo <bar>" with no @ in the address will return
+					// two addresses: "bar" and ">".  Skip the latter.
+					continue;
+				}
 				appendFrom(from.toString());
 			}
 		}

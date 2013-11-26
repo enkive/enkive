@@ -17,7 +17,9 @@
  * License along with Enkive CE. If not, see
  * <http://www.gnu.org/licenses/>.
  *******************************************************************************/
-package com.linuxbox.enkive.docstore.mongogrid;
+package com.linuxbox.enkive.docstore.mongo;
+
+import static com.linuxbox.enkive.docstore.mongogrid.Constants.INDEX_STATUS_KEY;
 
 import java.net.UnknownHostException;
 
@@ -29,20 +31,20 @@ import com.linuxbox.util.queueservice.QueueService;
 import com.linuxbox.util.queueservice.QueueServiceException;
 import com.linuxbox.util.queueservice.mongodb.JavaQueueService;
 import com.mongodb.DBCollection;
+import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoException;
-import com.mongodb.gridfs.GridFS;
 
 /**
- * Since making a MongoGridFSDocStoreService is somewhat complicated given that
+ * Since making a FileDocStoreService is somewhat complicated given that
  * it depends on other types of services, this is a convenience class that
- * subclasses MongoGridFSDocStoreService and creates those other services.
+ * subclasses FileDocStoreService and creates those other services.
  * 
- * @author ivancich
+ * @author dang
  * 
  */
-public class ConvenienceMongoGridDocStoreService extends
-		MongoGridDocStoreService {
+public class ConvenienceFileDocStoreService extends
+		FileDocStoreService {
 	private final static String DEFAULT_DOC_LOCK_NAME = "documentLockService";
 	private final static String DEFAULT_INDEXER_QUEUE_NAME = "indexerQueueService";
 
@@ -55,20 +57,20 @@ public class ConvenienceMongoGridDocStoreService extends
 	String indexerQueueServiceCollectionName = DEFAULT_INDEXER_QUEUE_NAME;
 	QueueService indexerQueueService;
 
-	public ConvenienceMongoGridDocStoreService(String dbName, String bucketName)
+	public ConvenienceFileDocStoreService(String basePath, String dbName, String collection)
 			throws UnknownHostException, MongoException {
-		this(new MongoClient(), dbName, bucketName);
+		this(basePath, new MongoClient(), dbName, collection);
 		createdMongo = true;
 	}
 
-	public ConvenienceMongoGridDocStoreService(MongoClient mongo, String dbName,
-			String bucketName) {
-		super(mongo, dbName, bucketName);
+	public ConvenienceFileDocStoreService(String basePath, MongoClient mongo, String dbName,
+			String collection) {
+		this(basePath, mongo.getDB(dbName).getCollection(collection));
 		this.mongo = mongo;
 	}
 
-	public ConvenienceMongoGridDocStoreService(GridFS gridFS, DBCollection collection) {
-		super(gridFS, collection);
+	public ConvenienceFileDocStoreService(String basePath, DBCollection coll) {
+		super(basePath, coll);
 	}
 
 	public void startup() throws DocStoreException {
@@ -85,7 +87,7 @@ public class ConvenienceMongoGridDocStoreService extends
 			super.startup();
 		} catch (Exception e) {
 			throw new DocStoreException(
-					"could not start ConvenienceMongoGridDocStoreService", e);
+					"could not start ConvenienceFileDocStoreService", e);
 		}
 	}
 
@@ -113,6 +115,14 @@ public class ConvenienceMongoGridDocStoreService extends
 		if (lastException != null) {
 			throw lastException;
 		}
+	}
+	
+	public int getStatus(String identifier) {
+		DBObject dbo = lookupDocument(identifier);
+		if (dbo == null) {
+			return STATUS_UNKNOWN;
+		}
+		return (Integer)dbo.get(INDEX_STATUS_KEY);
 	}
 
 	public void setDocLockServiceCollectionName(

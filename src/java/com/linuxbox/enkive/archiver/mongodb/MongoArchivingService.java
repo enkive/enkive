@@ -55,10 +55,12 @@ import static com.linuxbox.enkive.archiver.mongodb.MongoMessageStoreConstants.SI
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -101,6 +103,9 @@ public class MongoArchivingService extends AbstractMessageArchivingService
 		implements MongoIndexable {
 	private final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.archiver.mongodb");
+	private final Pattern MESSAGE_ID_REGEX = Pattern.compile("Message-ID:", Pattern.CASE_INSENSITIVE);
+	private final Pattern SENDER_REGEX = Pattern.compile("Sender:", Pattern.CASE_INSENSITIVE);
+	private final Pattern RECIPIENTS_REGEX = Pattern.compile("Recipients:", Pattern.CASE_INSENSITIVE);
 
 	protected DBCollection messageColl;
 
@@ -133,18 +138,38 @@ public class MongoArchivingService extends AbstractMessageArchivingService
 
 		try {
 			ContentHeader contentHeader = message.getContentHeader();
-			if (contentHeader.isMultipart() &&
-					message.getParsedHeader().getField(X_MS_JOURNAL_REPORT) != null) {
-				// Exchange journals messages by wrapping them
-				// in an envelope.  We don't want to archive
-				// the envelope, just the message itself.
-				List<ContentHeader> partHeaders = ((MultiPartHeader) contentHeader).getPartHeaders();
+			if (contentHeader.isMultipart()) {
+				ContentHeader nested = null;
+				boolean envelope = false;
+				List<ContentHeader> partHeaders = ((MultiPartHeader)
+						contentHeader).getPartHeaders();
 				for (ContentHeader partHeader : partHeaders) {
 					if (partHeader.getContentType().trim().toLowerCase().equals(
 							ContentTypeField.TYPE_MESSAGE_RFC822.toLowerCase())) {
-						return(storeNestedMessage(partHeader.getEncodedContentData().getEncodedContent(),
-								partHeader.getContentTransferEncoding().toString()));
+						nested = partHeader;
+					} else if (partHeader.getContentType().trim().toLowerCase().equals(
+							ContentTypeField.TYPE_TEXT_PLAIN.toLowerCase())) {
+						// See if this is a nested exchange message.  They have text/plain part that has headers in it.
+						StringWriter writer = new StringWriter();
+						try {
+							partHeader.pushReconstitutedEmail(writer);
+						} catch (IOException e) {
+							// Nothing to do
+						}
+						if (MESSAGE_ID_REGEX.matcher(writer.getBuffer()).find() &&
+								SENDER_REGEX.matcher(writer.getBuffer()).find() &&
+								RECIPIENTS_REGEX.matcher(writer.getBuffer()).find()) {
+							envelope = true;
+						}
 					}
+				}
+				if (nested != null && (envelope ||
+						message.getParsedHeader().getField(X_MS_JOURNAL_REPORT) != null)) {
+					// Exchange journals messages by wrapping them
+					// in an envelope.  We don't want to archive
+					// the envelope, just the message itself.
+					return(storeNestedMessage(nested.getEncodedContentData().getEncodedContent(),
+							nested.getContentTransferEncoding().toString()));
 				}
 			}
 			BasicDBObject messageObject = new BasicDBObject();
@@ -260,16 +285,17 @@ public class MongoArchivingService extends AbstractMessageArchivingService
 					nested_message_ids.add(subMessageUUID);
 			}
 
-			String fileExtension = "";
+			String fileExtension = null;
 			if (singlePartHeader.getFilename() != null)
 				fileExtension = singlePartHeader.getFilename().substring(
 						singlePartHeader.getFilename().lastIndexOf('.') + 1);
 			// store the attachment
 			ContentDataDocument document = new ContentDataDocument(
 					singlePartHeader.getEncodedContentData(),
-					singlePartHeader.getContentType(), fileExtension,
-					singlePartHeader.getFilename(), singlePartHeader
-							.getContentTransferEncoding().toString());
+					singlePartHeader.getContentType(),
+					singlePartHeader.getFilename(),
+					fileExtension,
+					singlePartHeader.getContentTransferEncoding().toString());
 			StoreRequestResult docResult = docStoreService.store(document);
 
 			final String attachmentIdentifier = docResult.getIdentifier();

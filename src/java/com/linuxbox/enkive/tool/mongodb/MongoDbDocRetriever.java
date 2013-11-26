@@ -33,8 +33,8 @@ import org.apache.tika.mime.MimeTypeException;
 import org.apache.tika.mime.MimeTypes;
 
 import com.linuxbox.enkive.docstore.Document;
-import com.linuxbox.enkive.docstore.mongogrid.ConvenienceMongoGridDocStoreService;
-import com.linuxbox.enkive.docstore.mongogrid.MongoGridDocStoreService;
+import com.linuxbox.enkive.docstore.mongo.ConvenienceFileDocStoreService;
+import com.linuxbox.enkive.docstore.mongo.FileDocStoreService;
 
 /*
  * Program to retrieve arbitrary objects from the data store, keyed by their
@@ -54,7 +54,12 @@ public class MongoDbDocRetriever {
 
 	// FIXME: Since this is defined in the spring configuration, it should be
 	// retrieved from there rather than hard-coded
-	private final static String GRIDFS_COLLECTION_NAME = "fs";
+	private final static String COLLECTION_NAME = "documents";
+
+	// FIXME: Since this is defined in the spring configuration, it should be
+	// retrieved from there rather than hard-coded
+	private final static String BASE_PATH = "data/docstore";
+	private final static String JAR_NAME = "enkive.jar";
 
 	// private final static String OUTPUT_DIR = "/tmp"; // command line?
 	private final static String OUTPUT_DIR = ".";
@@ -160,11 +165,20 @@ public class MongoDbDocRetriever {
 	public static void main(String[] args) {
 		System.out.println("Starting");
 
-		MongoGridDocStoreService docStoreService = null;
+		FileDocStoreService docStoreService = null;
 
 		try {
-			docStoreService = new ConvenienceMongoGridDocStoreService(
-					DATABASE_NAME, GRIDFS_COLLECTION_NAME);
+			String basePath = MongoDbDocRetriever.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+			// Path to jar ends with jar name; remove it
+			if (basePath.endsWith("build/")) {
+				// Handle development builds
+				basePath = basePath.substring(0, basePath.length() - (6 + JAR_NAME.length()));
+			} else {
+				basePath = basePath.substring(0, basePath.length() - JAR_NAME.length());
+			}
+			basePath += BASE_PATH;
+			docStoreService = new ConvenienceFileDocStoreService(basePath,
+					DATABASE_NAME, COLLECTION_NAME);
 			docStoreService.startup();
 
 			String identifier = getIdentifierOpt(args);

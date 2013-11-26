@@ -35,5 +35,6 @@ public interface TestingConstants {
 	public static final String MONGODB_TEST_QUEUE_COLLECTION = "queue-test";
 	public static final String MONGODB_TEST_FSFILES_COLLECTION = "documents-test";
 	public static final String MONGODB_TEST_CHUNKS_COLLECTION = "documents-test.chunks";
+	public static final String MONGODB_TEST_FILEBASE = "/tmp/enkive-test/";
 
 }

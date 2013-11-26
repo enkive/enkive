@@ -92,8 +92,8 @@ public abstract class AbstractDocStoreService implements DocStoreService {
 	 * Stores the document in the back-end if the name is known and the data is
 	 * in a byte array
 	 * 
-	 * @param the
-	 *            Document, so mime type, file extension, and binary encoding
+	 * @param document
+	 *            the Document, so mime type, file extension, and binary encoding
 	 *            can be determined
 	 * @param hash
 	 *            the hash of the data used to determine a unique identifier

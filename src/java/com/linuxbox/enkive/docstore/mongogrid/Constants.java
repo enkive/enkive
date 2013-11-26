@@ -44,4 +44,14 @@ public interface Constants extends MongoDbConstants {
 	String INDEX_STATUS_QUERY = METADATA_KEY + "." + INDEX_STATUS_KEY;
 	String INDEX_TIMESTAMP_QUERY = METADATA_KEY + "." + INDEX_TIMESTAMP_KEY;
 	String INDEX_SHARD_QUERY = METADATA_KEY + "." + INDEX_SHARD_KEY;
+
+	// Constants for FileDocStore
+	String FILE_ID = "_id";
+	String FILE_PATH = "filePath";
+	String FILE_SIZE = "fileSize";
+	String FILE_CDATE = "creationDate";
+	String FILE_NAME = "originalName";
+	String FILE_TYPE = "mimeType";
+	String FILE_ENCODING = "binaryEncoding";
+	String FILE_EXTENSION = "fileExtension";
 }

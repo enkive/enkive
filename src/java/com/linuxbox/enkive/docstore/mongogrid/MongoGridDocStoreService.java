@@ -170,15 +170,7 @@ public class MongoGridDocStoreService extends AbstractDocStoreService implements
 	@Override
 	public Document retrieve(String identifier) throws DocStoreException,
 			DocumentNotFoundException {
-		List<GridFSDBFile> files = gridFS.find(identifier);
-		if (files.size() > 1) {
-			throw new DocStoreException("Multiple copies of file " + identifier
-					+ " in MongoDB GridFS store.");
-		} else if (files.isEmpty()) {
-			throw new DocumentNotFoundException(identifier);
-		} else {
-			return new MongoGridDocument(files.get(0));
-		}
+		return new MongoGridDocument(getFile(identifier));
 	}
 
 	@Override
@@ -287,6 +279,12 @@ public class MongoGridDocStoreService extends AbstractDocStoreService implements
 		} catch (LockServiceException e) {
 			throw new DocStoreException(e);
 		}
+	}
+
+	@Override
+	public boolean isIndexed(String identifier) throws DocStoreException, DocumentNotFoundException {
+		GridFSDBFile file = getFile(identifier);
+		return ((Integer) file.getMetaData().get(INDEX_STATUS_KEY) == STATUS_INDEXED);
 	}
 
 	@Override
@@ -429,7 +427,20 @@ public class MongoGridDocStoreService extends AbstractDocStoreService implements
 		return result != null;
 	}
 
-	void markAsIndexedHelper(String identifier, int status)
+	private GridFSDBFile getFile(String identifier)
+			throws DocStoreException, DocumentNotFoundException {
+		List<GridFSDBFile> files = gridFS.find(identifier);
+		if (files.size() > 1) {
+			throw new DocStoreException("Multiple copies of file " + identifier
+					+ " in MongoDB GridFS store.");
+		} else if (files.isEmpty()) {
+			throw new DocumentNotFoundException(identifier);
+		} else {
+			return files.get(0);
+		}
+	}
+
+	private void markAsIndexedHelper(String identifier, int status)
 			throws DocStoreException {
 		final DBObject identifierQuery = new QueryBuilder().and(FILENAME_KEY)
 				.is(identifier).get();

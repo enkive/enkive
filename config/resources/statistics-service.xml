@@ -56,8 +56,8 @@
 	</bean>
 
 	<bean id="AttachmentStatsGathererBean"
-		class="com.linuxbox.enkive.statistics.gathering.mongodb.MongoStatsAttachmentsGatherer">
-		<constructor-arg ref="DocStoreDbInfo" />
+		class="com.linuxbox.enkive.statistics.gathering.mongodb.MongoStatsFileAttachmentsGatherer">
+		<constructor-arg ref="DocStoreFileDbInfo" />
 		<constructor-arg name="gathererName" value="AttachmentStatsGatherer" />
 		<constructor-arg name="humanName" value="Attachment Statistics" />
 		<constructor-arg name="keys">

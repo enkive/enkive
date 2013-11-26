@@ -51,12 +51,31 @@
 		<constructor-arg value="auditLog" />
 	</bean>
 
-	<bean id="DocStoreDbInfo" class="com.linuxbox.util.dbinfo.mongodb.MongoGridDbInfo">
-		<constructor-arg name="serviceName" value="Document Storage Service" />
+	<bean id="CollectedDocStoreDbInfo" class="com.linuxbox.util.dbinfo.MultiDbInfo">
+		<constructor-arg name="serviceName"
+			value="Collected DocStore Database Info" />
+		<constructor-arg>
+			<list>
+				<ref bean="DocStoreGridDbInfo" />
+				<ref bean="DocStoreFileDbInfo" />
+			</list>
+		</constructor-arg>
+	</bean>
+
+	<bean id="DocStoreGridDbInfo" class="com.linuxbox.util.dbinfo.mongodb.MongoGridDbInfo">
+		<constructor-arg name="serviceName" value="Document Storage GridFS Service" />
 		<constructor-arg ref="MongoClient" />
 		<constructor-arg type="java.lang.String" value="${enkive.docstore.db.name}" />
 		<constructor-arg type="java.lang.String"
 			value="${enkive.docstore.fs.collection.name}" />
+	</bean>
+
+	<bean id="DocStoreFileDbInfo" class="com.linuxbox.util.dbinfo.mongodb.MongoDbInfo">
+		<constructor-arg name="serviceName" value="Document Storage File Service" />
+		<constructor-arg ref="MongoClient" />
+		<constructor-arg type="java.lang.String" value="${enkive.docstore.db.name}" />
+		<constructor-arg type="java.lang.String"
+			value="${enkive.docstore.file.collection.name}" />
 	</bean>
 
 	<bean id="ImapAccessDbInfo" class="com.linuxbox.util.dbinfo.mongodb.MongoDbInfo">
