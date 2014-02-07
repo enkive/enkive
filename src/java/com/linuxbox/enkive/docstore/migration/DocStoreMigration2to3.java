@@ -33,10 +33,10 @@ import com.linuxbox.util.dbmigration.AbstractDocumentMigrator;
 import com.linuxbox.util.dbmigration.DbMigration;
 import com.linuxbox.util.dbmigration.DbMigrationException;
 import com.linuxbox.util.dbmigration.DbMigrator;
+import com.mongodb.Bytes;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
-import com.mongodb.gridfs.GridFS;
 
 /**
  * Migrates the DocStore data from DB version 2 to 3.  This adds a monotonic
@@ -77,6 +77,7 @@ public class DocStoreMigration2to3 extends DbMigration {
 
 			try {
 				Document doc = gridDocStore.retrieve(gridID);
+				LOGGER.info("    migrating " + doc.getFilename());
 				StoreRequestResult result = fileDocStore.store(doc);
 				final String fileID = result.getIdentifier();
 
@@ -106,6 +107,9 @@ public class DocStoreMigration2to3 extends DbMigration {
 		@Override
 		public void migrateCollectionImpl() throws DbMigrationException {
 			DBCursor cursor = collection.find();
+
+			/* Don't let the cursor time out */
+			cursor.addOption(Bytes.QUERYOPTION_NOTIMEOUT);
 
 			while (cursor.hasNext()) {
 				Doc2to3 doc = new Doc2to3(cursor.next(), collection);
