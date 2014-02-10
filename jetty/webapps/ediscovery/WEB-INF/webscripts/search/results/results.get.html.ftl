@@ -1,5 +1,29 @@
 <#if status.code != 200>
 	<#-- Do Nothing -->
+<#elseif emptySearch??>
+	<p>
+		<b>You must fill in a search field</b>
+	</p>
+
+<#elseif !firstRun?? && result.data?? && result.data.status == "running">
+	<p>
+		<b>Your search has not yet returned results</b><br />
+		When the search is complete, it will appear in the recent search list.
+	</p>
+<#elseif result?? && result.data?? && result.data.status == "error">
+	<p>
+		<b>Your search has returned an error</b><br />
+		<#if result.data.errors??>
+		<p>
+			Errors:
+			<ul>
+				<#list result.data.errors as error>
+				<li>${error}</li>
+				</#list>
+			</ul>
+		</p>
+		</#if>
+	</p>
 <#elseif result?? && !firstRun?? && result.data??>
 <div id="save_dialogs">
 	<script type="text/javascript">
@@ -111,34 +135,7 @@ $(function() {
 </div>
 </#if>
 <div id="result_list">
-<#if status.code != 200>
-	<#-- Do Nothing -->
-
-<#elseif emptySearch??>
-	<p>
-		<b>You must fill in a search field</b>
-	</p>
-
-<#elseif !firstRun?? && result.data.status == "running">
-	<p>
-		<b>Your search has not yet returned results</b><br />
-		When the search is complete, it will appear in the recent search list.
-	</p>
-<#elseif result?? && result.data?? && result.data.status == "error">
-	<p>
-		<b>Your search has returned an error</b><br />
-		<#if result.data.errors??>
-		<p>
-			Errors:
-			<ul>
-				<#list result.data.errors as error>
-				<li>${error}</li>
-				</#list>
-			</ul>
-		</p>
-		</#if>
-	</p>
-<#elseif result?? && !firstRun?? && result.data??>
+<#if !emptySearch?? && !firstRun?? && result?? && result.data?? && result.data.status != "running" && result.data.status != "error">
 
 	<p>
 	  <h3>Found ${result.data.itemTotal} messages </h3> 
