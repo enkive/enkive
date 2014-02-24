@@ -35,6 +35,7 @@ public interface ProductInfo {
 	final static Version V1_3_1P = new Version(1, 3, PRODUCTION, 7, "1.3.1");
 	final static Version V1_4RC = new Version(1, 4, RELEASE_CANDIDATE, 8);
 	final static Version V1_4RC2 = new Version("1.4 RC 2", 9);
+	final static Version V1_4P = new Version(1, 4, PRODUCTION, 10);
 	/*
 	 * IMPORTANT: be certain to add software versions and associated database
 	 * versions to EnkiveDbVersionManager as well.
@@ -45,5 +46,5 @@ public interface ProductInfo {
 			+ "reserved except those granted under license.";
 	final static String LICENSE = "Licensed under the GNU Affero General Public License "
 			+ "version 3 or later.";
-	final static Version VERSION = V1_4RC2;
+	final static Version VERSION = V1_4P;
 }
