@@ -256,7 +256,12 @@ public class WorkspaceMigration1to2 extends DbMigration {
 
 			for (String id: searchUUIDs) {
 				MongoQueryDoc1to2 query = new MongoQueryDoc1to2(dbInfo);
-				query.loadByResultId(id);
+				try {
+					query.loadByResultId(id);
+				} catch (NullPointerException e) {
+					// This one has been migrated.
+					return;
+				}
 				query.migrateDocument();
 				queryUUIDs.add(query.getId());
 			}

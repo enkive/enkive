@@ -63,7 +63,7 @@ public abstract class DbMigrationService implements ApplicationContextAware,
 		final DbVersion requiredDbVersion = dbVersionManager
 				.appropriateDbVersionFor(softwareVersion);
 
-		DbStatusRecord storedStatus = getLatestDbStatusRecord();
+		DbStatusRecord storedStatus = getLatestDbStatusRecord(false);
 		if (storedStatus.status != Status.STORED) {
 			throw new UpToDateException(
 					"The database never completed its most recent migration to version ordinal "
@@ -116,7 +116,7 @@ public abstract class DbMigrationService implements ApplicationContextAware,
 					.softwareVersionsAppropriateToDbVersion(thisDbVersion,
 							"UNKNOWN");
 
-			final DbStatusRecord dbStatus = getLatestDbStatusRecord();
+			final DbStatusRecord dbStatus = getLatestDbStatusRecord(true);
 			final String dbStatusVersionString = dbVersionManager
 					.softwareVersionsAppropriateToDbVersion(dbStatus.dbVersion,
 							"UNKNOWN");
@@ -175,7 +175,7 @@ public abstract class DbMigrationService implements ApplicationContextAware,
 			final DbVersion neededDbVersion = dbVersionManager
 					.appropriateDbVersionFor(thisSoftwareVersion);
 
-			final DbStatusRecord dbStatus = getLatestDbStatusRecord();
+			final DbStatusRecord dbStatus = getLatestDbStatusRecord(true);
 
 			try {
 				// record that we're starting migration
@@ -243,7 +243,7 @@ public abstract class DbMigrationService implements ApplicationContextAware,
 		this.dbVersionManager = manager;
 	}
 
-	abstract public DbStatusRecord getLatestDbStatusRecord()
+	abstract public DbStatusRecord getLatestDbStatusRecord(boolean successful)
 			throws DbVersionManagerException;
 
 	abstract public void addDbStatusRecord(DbStatusRecord record);
