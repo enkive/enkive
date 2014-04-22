@@ -89,7 +89,7 @@ public abstract class AbstractColletionMigrator {
 			for (Map.Entry<String, String> entry: renamedFields.entrySet()) {
 				rename.append(entry.getKey(), entry.getValue());
 			}
-			collection.update(new BasicDBObject(), new BasicDBObject("$rename", rename));
+			collection.update(new BasicDBObject(), new BasicDBObject("$rename", rename), true, true);
 		}
 	}
 }
