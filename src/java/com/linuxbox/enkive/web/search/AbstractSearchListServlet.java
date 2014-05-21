@@ -68,6 +68,7 @@ public abstract class AbstractSearchListServlet extends EnkiveServlet {
 		String sortBy = null;
 		int sortDir = -1;
 
+		resp.setCharacterEncoding("UTF-8");
 		if (LOGGER.isDebugEnabled())
 			LOGGER.debug("Retrieving search list");
 		try {

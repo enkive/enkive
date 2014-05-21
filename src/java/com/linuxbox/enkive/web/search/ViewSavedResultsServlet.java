@@ -86,6 +86,7 @@ public class ViewSavedResultsServlet extends AbstractJsonServlet {
 			throws IOException {
 		String sortBy = null;
 		int sortDir = 1;
+		res.setCharacterEncoding("UTF-8");
 		try {
 			String searchId = WebScriptUtils.cleanGetParameter(req, "id");
 			sortBy = WebScriptUtils.cleanGetParameter(req, PAGE_SORT_BY_PARAMETER);
@@ -147,7 +148,7 @@ public class ViewSavedResultsServlet extends AbstractJsonServlet {
 
 			jsonResult.put(DATA_TAG, dataJSON);
 			jsonResult.put(PAGING_LABEL, pageInfo.getPageJSON());
-			res.getWriter().write(jsonResult.toString());
+			jsonResult.write(res.getWriter());
 		} catch (WorkspaceException e) {
 			respondError(HttpServletResponse.SC_UNAUTHORIZED, null, res);
 			throw new EnkiveServletException(

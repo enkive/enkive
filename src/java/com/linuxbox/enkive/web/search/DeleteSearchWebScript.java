@@ -53,6 +53,7 @@ public class DeleteSearchWebScript extends EnkiveServlet {
 		WorkspaceService workspaceService = getWorkspaceService();
 		Workspace workspace;
 
+		res.setCharacterEncoding("UTF-8");
 		try {
 			workspace = workspaceService.getActiveWorkspace(req
 					.getUserPrincipal().getName());

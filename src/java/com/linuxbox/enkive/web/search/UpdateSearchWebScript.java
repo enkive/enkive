@@ -66,6 +66,7 @@ public class UpdateSearchWebScript extends EnkiveServlet {
 		String searchIds = WebScriptUtils.cleanGetParameter(req, SEARCH_IDS_PARAMETER);
 		String nameOfSavedSearch = WebScriptUtils.cleanGetParameter(req, SEARCH_NAME_PARAMETER);
 
+		res.setCharacterEncoding("UTF-8");
 		for (String searchId : searchIds.split(",")) {
 			if (!searchId.isEmpty()) {
 				try {

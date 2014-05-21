@@ -60,6 +60,7 @@ public class IMAPSearchWebScript extends EnkiveServlet {
 		String nameOfIMAPSearch = WebScriptUtils.cleanGetParameter(req, SEARCH_NAME_PARAMETER);
 		String enable = WebScriptUtils.cleanGetParameter(req, SEARCH_ENABLE_PARAMETER);
 
+		res.setCharacterEncoding("UTF-8");
 		for (String searchId : searchIds.split(",")) {
 			if (!searchId.isEmpty()) {
 				try {

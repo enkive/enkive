@@ -89,6 +89,7 @@ public class SearchFolderServlet extends EnkiveServlet {
 	@SuppressWarnings("unused")
 	public void doGet(HttpServletRequest req, HttpServletResponse res)
 			throws IOException {
+		res.setCharacterEncoding("UTF-8");
 		try {
 
 			String searchFolderId = WebScriptUtils.cleanGetParameter(req, "id");

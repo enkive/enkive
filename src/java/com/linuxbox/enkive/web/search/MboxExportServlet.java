@@ -76,6 +76,7 @@ public class MboxExportServlet extends EnkiveServlet {
 		String searchId = WebScriptUtils.cleanGetParameter(req, "searchid");
 		res.setContentType("text/plain");
 
+		res.setCharacterEncoding("UTF-8");
 		try {
 			SearchQuery search = workspaceService.getSearch(searchId);
 			if (search == null) {

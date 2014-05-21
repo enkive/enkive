@@ -99,6 +99,7 @@ public class AdvancedSearch extends AbstractSearchWebScript {
 		JSONObject jsonData = new JSONObject();
 		JSONObject jsonResult = new JSONObject();
 
+		res.setCharacterEncoding("UTF-8");
 		try {
 			// because of the JavaScript SpringSurf bridge we need to look out
 			// for parameters that contain the string "null" rather than the

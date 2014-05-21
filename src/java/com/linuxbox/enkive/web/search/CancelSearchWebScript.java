@@ -42,6 +42,7 @@ public class CancelSearchWebScript extends EnkiveServlet {
 	public void doGet(HttpServletRequest req, HttpServletResponse res)
 			throws IOException {
 
+		res.setCharacterEncoding("UTF-8");
 		String searchId = "";
 		try {
 			searchId = WebScriptUtils.cleanGetParameter(req, "searchid");
