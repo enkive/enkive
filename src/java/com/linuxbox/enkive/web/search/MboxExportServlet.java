@@ -98,7 +98,17 @@ public class MboxExportServlet extends EnkiveServlet {
 				try {
 					Message message = archiveService.retrieve(messageId);
 
-					output.write("From " + message.getMailFrom() + " " + message.getDateStr() + "\r\n");
+					String mailFrom = message.getMailFrom();
+					if (mailFrom.isEmpty()) {
+						mailFrom = message.getFromStr();
+						if (mailFrom.contains(" ")) {
+							mailFrom = mailFrom.substring(0, mailFrom.indexOf(" "));
+						}
+					}
+					if (mailFrom.isEmpty()) {
+						mailFrom = "unknown";
+					}
+					output.write("From " + mailFrom + " " + message.getDateStr() + "\r\n");
 					BufferedReader reader = new BufferedReader(
 							new StringReader(message.getReconstitutedEmail()));
 					while ((tmpLine = reader.readLine()) != null) {
