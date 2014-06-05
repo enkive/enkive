@@ -34,6 +34,9 @@ INDRI_INSTALL_PATH=${INDRI_INSTALL_PATH:-"/usr/local"}
 # Uncomment this to increase the maximum heap size.  Default is 1/4 RAM
 #MAXHEAP="2500M"
 
+# Make sure to set your locale, and use a UTF-8 locale
+export LANG=en_US.UTF-8
+
 # TESTING OF THE ABOVE
 
 errors=0
