@@ -15,7 +15,7 @@
 		$(this).attr("checked",status);
 		})
 	}
-	$('tr.message td').live('click', function(){
+	$('tr.message td').on('click', function(){
 		var currentId = $(this).parent().attr('id');
 		if(currentId && !$(this).hasClass('search_action')) {
 			$(this).fancybox({
@@ -31,13 +31,13 @@
 		}
 	});
 	
-	$('.pagingLink').live('click', function() {
+	$('.pagingLink').on('click', function() {
 	    var link = $(this).attr("href");
 	    $('#result_list').load(link + " #result_list");
 	    $(this).removeAttr("href");
 	});
 	
-	$('.sortable').live('click', function() {
+	$('.sortable').on('click', function() {
 	    var link = $(this).attr("href");
 	    $('#result_list').load(link + " #result_list");
 	});
