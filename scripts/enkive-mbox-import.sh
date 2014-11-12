@@ -15,7 +15,7 @@ fi
 host=localhost
 port=2526
 
-directory=`makeAbsolute $1`
+directory=`makeAbsolute "$1"`
 
 if [ $# -ge 2 ] ;then
     host="$2"
@@ -25,4 +25,4 @@ if [ $# -ge 3 ] ;then
     port="$3"
 fi
 
-runIt $directory $host $port
+runIt "$directory" "$host" "$port"
