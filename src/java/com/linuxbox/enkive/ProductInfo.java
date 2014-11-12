@@ -37,15 +37,16 @@ public interface ProductInfo {
 	final static Version V1_4RC2 = new Version("1.4 RC 2", 9);
 	final static Version V1_4P = new Version(1, 4, PRODUCTION, 10);
 	final static Version V1_4_1RC1 = new Version("1.4.1 RC 1", 11);
+	final static Version V1_4_1P = new Version(1, 4, PRODUCTION, 12, "1.4.1");
 	/*
 	 * IMPORTANT: be certain to add software versions and associated database
 	 * versions to EnkiveDbVersionManager as well.
 	 */
 
 	final static String PRODUCT = "Enkive CE";
-	final static String COPYRIGHT = "Copyright 2013 The Linux Box Corporation; all rights "
+	final static String COPYRIGHT = "Copyright 2014 The Linux Box Corporation; all rights "
 			+ "reserved except those granted under license.";
 	final static String LICENSE = "Licensed under the GNU Affero General Public License "
 			+ "version 3 or later.";
-	final static Version VERSION = V1_4_1RC1;
+	final static Version VERSION = V1_4_1P;
 }
