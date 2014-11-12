@@ -19,6 +19,8 @@
  *******************************************************************************/
 package com.linuxbox.util.queueservice.mongodb;
 
+import static com.linuxbox.enkive.docstore.DocStoreConstants.QUEUE_ENTRY_INDEX_DOCUMENT;
+
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -57,7 +59,7 @@ public class JavaQueueService implements QueueService {
 	public void startup() throws QueueServiceException {
 		String identifier;
 		while ((identifier = docStoreService.nextUnindexed()) != null) {
-			enqueue(identifier);
+			enqueue(identifier, -1, QUEUE_ENTRY_INDEX_DOCUMENT);
 		}
 	}
 
