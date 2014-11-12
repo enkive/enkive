@@ -19,8 +19,10 @@
  *******************************************************************************/
 package com.linuxbox.enkive.administration;
 
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Scanner;
@@ -47,7 +49,7 @@ import com.sun.org.apache.commons.logging.LogFactory;
  *
  */
 public abstract class AbstractAdministrationService implements AdministrationService {
-	protected static final String UPDATE_URL = "http://enkive.org/version.php";
+	protected static final String UPDATE_URL = "https://www.enkive.org/version.php";
 	private static final long MS_TO_DAYS = 1000 * 60 * 60 * 24;
 	protected final static Log LOGGER = LogFactory.getLog("com.linuxbox.enkive.administration");
 
@@ -133,10 +135,14 @@ public abstract class AbstractAdministrationService implements AdministrationSer
 	      }
 
 
-	      versionURL += "?uid=" + uid;
-	      versionURL += "&versionOrdinal=" + versionOrdinal;
-	      versionURL += "&versionString=" + versionString;
-	      versionURL += "&hash=" + hash;
+	      try {
+		      versionURL += "?uid=" + URLEncoder.encode(uid, "UTF-8");
+		      versionURL += "&versionOrdinal=" + URLEncoder.encode(versionOrdinal, "UTF-8");
+		      versionURL += "&versionString=" + URLEncoder.encode(versionString, "UTF-8");
+		      versionURL += "&hash=" + URLEncoder.encode(hash, "UTF-8");
+	      } catch (UnsupportedEncodingException e) {
+		      throw new VersionException("Failed to get current version: " + e);
+	      }
 	      try {
 	         url = new URL(versionURL);
 	         conn = (HttpURLConnection) url.openConnection();
@@ -147,6 +153,9 @@ public abstract class AbstractAdministrationService implements AdministrationSer
 	         scanner.close();
 	      } catch (Exception e) {
 	         throw new VersionException("Failed to get current version: " + e);
+	      }
+	      if (json == null) {
+		      throw new VersionException("Failed to get current version: JSON was null");
 	      }
 	      
 	      int verOrd;
