@@ -19,6 +19,7 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
+import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoException;
@@ -67,7 +68,7 @@ public class MongoDbMigrationService extends DbMigrationService implements
 	}
 
 	@Override
-	public DbStatusRecord getLatestDbStatusRecord()
+	public DbStatusRecord getLatestDbStatusRecord(boolean successful)
 			throws DbVersionManagerException {
 		if (isDbNew()) {
 			// if the db is new, we can assume it will be created according
@@ -82,17 +83,24 @@ public class MongoDbMigrationService extends DbMigrationService implements
 			return record;
 		}
 
-		DBObject result = migrationsCollection.findOne(QUERY_ALL_RECORDS,
-				ALL_KEYS, ORDER_BY_TIMESTAMP_VERSION_STATUS_DESCENDING);
+		DBCursor cursor = migrationsCollection.find().sort(ORDER_BY_TIMESTAMP_VERSION_STATUS_DESCENDING);
 
-		if (null == result) {
-			// if there is no record, create one with ordinal db version 0
-			DbStatusRecord record = new DbStatusRecord(new DbVersion(0),
-					DbStatusRecord.Status.STORED, new Date());
+		try {
+			DbStatusRecord record;
+			while (cursor.hasNext()) {
+				record = dbObjectToDBStatusRecord(cursor.next());
+				if (!successful) {
+					return record;
+				} else if (record.status.code == Status.STORED.code) {
+					return record;
+				}
+			}
+			// if there is no record of the required type, create one with ordinal db version 0
+			record = new DbStatusRecord(new DbVersion(0), DbStatusRecord.Status.STORED, new Date());
 			addDbStatusRecord(record);
 			return record;
-		} else {
-			return dbObjectToDBStatusRecord(result);
+		} finally {
+			cursor.close();
 		}
 	}
 

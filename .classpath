@@ -48,7 +48,7 @@
 			<attribute name="javadoc_location" value="jar:platform:/resource/enkive2/lib/javadoc/jetty-all-server-7.4.2.v20110526-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="lib/servlet-api-2.5.jar"/>
+	<classpathentry kind="lib" path="lib/servlet-api-2.5.jar" sourcepath="lib/src/servlet-api-2.5-sources.jar"/>
 	<classpathentry kind="lib" path="lib/jetty-spring-7.4.2.v20110526.jar"/>
 	<classpathentry kind="lib" path="lib/javax.servlet.jsp_2.1.0.v201004190952.jar"/>
 	<classpathentry kind="lib" path="lib/org.apache.jasper.glassfish_2.1.0.v201007080150.jar"/>
