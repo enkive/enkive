@@ -56,6 +56,7 @@ public abstract class AbstractDocSearchIndexService implements
 		Status status;
 
 		public IndexPullingThread() {
+			setName("Indexer Pulling Thread");
 			status = Status.BEFORE_STARTED;
 
 			// so it's never null
