@@ -49,6 +49,13 @@ public class EnkiveLdapUserDetailsContextMapper extends LdapUserDetailsMapper
 			}
 		}
 
+		if (enkiveDetails.getKnownEmailAddresses().isEmpty()
+				&& !enkiveDetails.isEnkiveAdmin()) {
+			LOGGER.warn("User \""
+					+ userName
+					+ "\" logged in as non-admin and without any known email addresses, so this user will not be able to conduct any searches as it's impossible to constrain the results.");
+		}
+
 		enkiveDetails.writeAuthenticationToLog();
 
 		return enkiveDetails;
