@@ -51,14 +51,17 @@ public class MongoEnkiveImapMessageMapper extends EnkiveImapMessageMapper {
 		else if (mailbox.getName().equals("Trash"))
 			messageCount = 0;
 		else if (mailbox.getName() != null) {
-			EnkiveImapMailbox ebox = (EnkiveImapMailbox)mailbox;
+			EnkiveImapMailbox ebox = (EnkiveImapMailbox) mailbox;
 			SearchResult result = ebox.getResult();
 			if (result != null) {
 				messageCount = result.getMessageIds().size();
 			}
 		}
-		if (LOGGER.isInfoEnabled())
-			LOGGER.info("countMessagesInMailbox " + messageCount);
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("countMessagesInMailbox user: " + mailbox.getUser()
+					+ ", mailbox: " + mailbox.getName() + ", count: "
+					+ messageCount);
+		}
 
 		return messageCount;
 	}
@@ -79,7 +82,7 @@ public class MongoEnkiveImapMessageMapper extends EnkiveImapMessageMapper {
 			return messageIds;
 		}
 
-		SearchResult result = ((EnkiveImapMailbox)mailbox).getResult();
+		SearchResult result = ((EnkiveImapMailbox) mailbox).getResult();
 		if (result == null) {
 			return messageIds;
 		}
@@ -110,7 +113,7 @@ public class MongoEnkiveImapMessageMapper extends EnkiveImapMessageMapper {
 		for (Long key : sortedSubSet) {
 			messageIds.put(key, msgIds.get(key));
 		}
-		
+
 		if (LOGGER.isInfoEnabled())
 			LOGGER.info("getMailboxMessageIds end " + messageIds.size());
 

@@ -21,6 +21,8 @@ package com.linuxbox.enkive.imap.mailbox.mongo;
 import java.util.Collection;
 import java.util.HashSet;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.james.mailbox.MailboxSession;
 import org.apache.james.mailbox.exception.SubscriptionException;
 
@@ -31,6 +33,8 @@ import com.linuxbox.enkive.workspace.WorkspaceException;
 import com.linuxbox.enkive.workspace.searchQuery.SearchQuery;
 
 public class MongoEnkiveSubscriptionManager extends EnkiveSubscriptionManager {
+	protected static final Log LOGGER = LogFactory
+			.getLog("com.linuxbox.enkive.imap.mailbox.mongo");
 
 	/**
 	 * Overridden method that returns all the mailboxes for a user.
@@ -40,7 +44,7 @@ public class MongoEnkiveSubscriptionManager extends EnkiveSubscriptionManager {
 			throws SubscriptionException {
 		Collection<String> subscriptions = new HashSet<String>();
 
-		Workspace workspace = ((EnkiveMailboxSession)session).getWorkspace();
+		Workspace workspace = ((EnkiveMailboxSession) session).getWorkspace();
 		try {
 			for (SearchQuery search : workspace.getSearches()) {
 				if (search.isIMAP()) {
@@ -48,6 +52,8 @@ public class MongoEnkiveSubscriptionManager extends EnkiveSubscriptionManager {
 				}
 			}
 		} catch (WorkspaceException e) {
+			LOGGER.error("Error getting searches from user \""
+					+ session.getUser().getUserName() + "\" workspace.", e);
 			return new HashSet<String>();
 		}
 
