@@ -20,7 +20,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/commons/commons-configuration-1.6.jar"/>
 	<classpathentry kind="lib" path="lib/commons/commons-el-1.0.jar"/>
-	<classpathentry kind="lib" path="lib/commons/commons-httpclient-3.1.jar"/>
 	<classpathentry kind="lib" path="lib/cglib-2.2.2.jar"/>
 	<classpathentry kind="lib" path="lib/james-imap/james-server-container-spring-3.0-beta4.jar" sourcepath="/home/lee/.m2/repository/org/apache/james/james-server-container-spring/3.0-beta4/james-server-container-spring-3.0-beta4-sources.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
@@ -246,5 +245,7 @@
 			<attribute name="javadoc_location" value="jar:platform:/resource/enkive2/lib/javadoc/commons/commons-lang-2.6-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="lib/commons/httpclient-4.3.6.jar"/>
+	<classpathentry kind="lib" path="lib/commons/httpcore-4.3.3.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
