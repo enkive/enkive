@@ -47,7 +47,7 @@ public abstract class EnkiveImapMessageMapper extends
 		AbstractMessageMapper<String> {
 
 	protected final static Log LOGGER = LogFactory
-			.getLog("com.linuxbox.enkive.imap");
+			.getLog("com.linuxbox.enkive.imap.message");
 
 	private MessageRetrieverService retrieverService;
 
@@ -123,8 +123,8 @@ public abstract class EnkiveImapMessageMapper extends
 				}
 			}
 		}
+		
 		return messages;
-
 	}
 
 	@Override
