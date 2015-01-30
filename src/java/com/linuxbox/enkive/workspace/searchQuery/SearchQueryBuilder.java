@@ -36,6 +36,9 @@ public interface SearchQueryBuilder {
 
 	public SearchQuery getSearchQueryByName(String name)
 			throws WorkspaceException;
+	
+	public SearchQuery getSearchQueryByNameAndImap(String name, boolean isImap)
+			throws WorkspaceException;
 
 	public Collection<SearchQuery> getSearchQueries(
 			Collection<String> searchQueryUUIDs)

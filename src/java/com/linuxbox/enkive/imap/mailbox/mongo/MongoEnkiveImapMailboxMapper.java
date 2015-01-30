@@ -130,8 +130,14 @@ public class MongoEnkiveImapMailboxMapper extends EnkiveImapMailboxMapper {
 			result = new SimpleMailbox<String>(trashPath, 1);
 		} else {
 			try {
+				// force search to only return IMAP results since due to quirk
+				// of saving, it's possible to have multiple mailboxes with same
+				// name, some being IMAP others not; multiple mailboxes of same
+				// name should be prevented, but until then, at least insure we
+				// get an IMAP box
 				SearchQuery search = workspace.getSearchQueryBuilder()
-						.getSearchQueryByName(mailboxName.getName());
+						.getSearchQueryByNameAndImap(mailboxName.getName(),
+								true);
 				if (search == null) {
 					throw new MailboxNotFoundException(mailboxName);
 				}

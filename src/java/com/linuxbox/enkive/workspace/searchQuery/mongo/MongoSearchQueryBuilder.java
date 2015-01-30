@@ -52,10 +52,11 @@ import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
 
 /**
- * An implementation of the @ref SearchQueryBuilder factory for MongoDB.
- * Creates or finds MongoSearchQuery objects.
+ * An implementation of the @ref SearchQueryBuilder factory for MongoDB. Creates
+ * or finds MongoSearchQuery objects.
+ * 
  * @author dang
- *
+ * 
  */
 public class MongoSearchQueryBuilder implements SearchQueryBuilder {
 	private final static Log LOGGER = LogFactory
@@ -153,7 +154,9 @@ public class MongoSearchQueryBuilder implements SearchQueryBuilder {
 	/**
 	 * Helper method to get a search query from the DB and convert it into a
 	 * MongoSearchQuery object
-	 * @param queryObject	DB object to extract from
+	 * 
+	 * @param queryObject
+	 *            DB object to extract from
 	 * @return new MongoSearchQuery with info from DB
 	 * @throws WorkspaceException
 	 */
@@ -164,7 +167,8 @@ public class MongoSearchQueryBuilder implements SearchQueryBuilder {
 
 		query.setId(((ObjectId) queryObject.get(UUID)).toString());
 		query.setName((String) queryObject.get(SEARCHNAME));
-		query.setResult(searchResultBuilder.getSearchResult((String) queryObject.get(SEARCHRESULTID)));
+		query.setResult(searchResultBuilder
+				.getSearchResult((String) queryObject.get(SEARCHRESULTID)));
 		query.setCriteria(((BasicDBObject) queryObject.get(SEARCHCRITERIA))
 				.toMap());
 		query.setTimestamp((Date) queryObject.get(EXECUTIONTIMESTAMP));
@@ -172,12 +176,31 @@ public class MongoSearchQueryBuilder implements SearchQueryBuilder {
 		query.setStatus(SearchQuery.Status.valueOf((String) queryObject
 				.get(SEARCHSTATUS)));
 		query.setLastMonotonic((String) queryObject.get(LASTMONOTONICID));
-		query.setUIDValidity((Integer)queryObject.get(IMAPUIDVALIDITY));
+		query.setUIDValidity((Integer) queryObject.get(IMAPUIDVALIDITY));
 		if (queryObject.get(SEARCHISSAVED) != null)
 			query.setSaved((Boolean) queryObject.get(SEARCHISSAVED));
 		if (queryObject.get(SEARCHISIMAP) != null)
 			query.setIMAP((Boolean) queryObject.get(SEARCHISIMAP));
 
+		return query;
+	}
+
+	@Override
+	public SearchQuery getSearchQueryByNameAndImap(String name, boolean isImap)
+			throws WorkspaceException {
+		BasicDBObject searchObject = new BasicDBObject(SEARCHNAME, name);
+		searchObject.append(SEARCHISIMAP, isImap);
+		
+		DBObject queryObject = searchQueryColl.findOne(searchObject);
+		if (queryObject == null) {
+			return null;
+		}
+
+		SearchQuery query = extractQuery(queryObject);
+
+		if (LOGGER.isInfoEnabled())
+			LOGGER.info("Retrieved Search Query " + query.getName() + " - "
+					+ query.getId());
 		return query;
 	}
 }
