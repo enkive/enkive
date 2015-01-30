@@ -25,6 +25,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.SortedMap;
+import java.util.SortedSet;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -39,13 +42,14 @@ import org.apache.james.mailbox.store.mail.AbstractMessageMapper;
 import org.apache.james.mailbox.store.mail.model.Mailbox;
 import org.apache.james.mailbox.store.mail.model.Message;
 
+import com.linuxbox.enkive.imap.Constants;
 import com.linuxbox.enkive.imap.EnkiveImapStore;
+import com.linuxbox.enkive.imap.mailbox.EnkiveImapMailbox;
 import com.linuxbox.enkive.retriever.MessageRetrieverService;
+import com.linuxbox.enkive.workspace.searchResult.SearchResult;
 import com.linuxbox.util.PreviousItemRemovingIterator;
 
-public abstract class EnkiveImapMessageMapper extends
-		AbstractMessageMapper<String> {
-
+public class EnkiveImapMessageMapper extends AbstractMessageMapper<String> {
 	protected final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.imap.message");
 
@@ -74,7 +78,7 @@ public abstract class EnkiveImapMessageMapper extends
 			results = new ArrayList<Message<String>>();
 			if (from <= 1)
 				results.add(new EnkiveImapTemplateMessage(
-						"ImapInboxEmailTemplate.ftl"));
+						Constants.INBOX_MESSAGE_TEMPLATE));
 		} else {
 			switch (type) {
 			default:
@@ -139,10 +143,6 @@ public abstract class EnkiveImapMessageMapper extends
 
 		return new HashMap<Long, MessageMetaData>();
 	}
-
-	@Override
-	public abstract long countMessagesInMailbox(Mailbox<String> mailbox)
-			throws MailboxException;
 
 	@Override
 	public long countUnseenMessagesInMailbox(Mailbox<String> mailbox)
@@ -233,6 +233,92 @@ public abstract class EnkiveImapMessageMapper extends
 			LOGGER.info("rollback");
 	}
 
-	public abstract SortedMap<Long, String> getMailboxMessageIds(
-			Mailbox<String> mailbox, long fromUid, long toUid);
+	@Override
+	public long countMessagesInMailbox(Mailbox<String> mailbox)
+			throws MailboxException {
+		long messageCount = 0;
+		if (mailbox.getName().equals(MailboxConstants.INBOX))
+			messageCount = 1;
+		else if (mailbox.getName().equals(Constants.MAILBOX_TRASH))
+			messageCount = 0;
+		else if (mailbox.getName() != null) {
+			EnkiveImapMailbox ebox = (EnkiveImapMailbox) mailbox;
+			SearchResult result = ebox.getResult();
+			if (result != null) {
+				messageCount = result.getMessageIds().size();
+			}
+		}
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("countMessagesInMailbox user: " + mailbox.getUser()
+					+ ", mailbox: " + mailbox.getName() + ", count: "
+					+ messageCount);
+		}
+
+		return messageCount;
+	}
+
+	public SortedMap<Long, String> getMailboxMessageIds(
+			Mailbox<String> mailbox, long fromUid, long toUid) {
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("getMailboxMessageIds begin " + fromUid + " " + toUid);
+		}
+
+		SortedMap<Long, String> resultIds = new TreeMap<Long, String>();
+
+		// use try/finally to consolidate logging at end of method
+		try {
+			if (mailbox.getName() == null) {
+				// will be empty
+				return resultIds;
+			}
+
+			if (!(mailbox instanceof EnkiveImapMailbox)) {
+				// will be empty
+				return resultIds;
+			}
+
+			SearchResult searchResult = ((EnkiveImapMailbox) mailbox)
+					.getResult();
+			if (searchResult == null) {
+				// will be empty
+				return resultIds;
+			}
+
+			Map<Long, String> searchResultIds = searchResult.getMessageIds();
+			if (LOGGER.isTraceEnabled()) {
+				LOGGER.trace("   searchResultIds " + searchResultIds.size());
+			}
+			if (fromUid > searchResultIds.size()) {
+				// Requested start is beyond the end
+				return resultIds;
+			}
+
+			if (fromUid == toUid && toUid != -1) {
+				// Only one requested
+				resultIds.put(fromUid, searchResultIds.get(fromUid));
+				return resultIds;
+			}
+
+			TreeSet<Long> sortedIds = new TreeSet<Long>(
+					searchResultIds.keySet());
+
+			SortedSet<Long> sortedSubSet;
+			if (toUid == -1) {
+				sortedSubSet = sortedIds.tailSet(fromUid, true);
+			} else {
+				// Given range is inclusive, subSet is exclusive w.r.t. end
+				sortedSubSet = sortedIds.subSet(fromUid, toUid + 1);
+			}
+
+			for (Long key : sortedSubSet) {
+				resultIds.put(key, searchResultIds.get(key));
+			}
+
+			return resultIds;
+		} finally {
+			if (LOGGER.isInfoEnabled()) {
+				LOGGER.info("getMailboxMessageIds end " + resultIds.size());
+			}
+		}
+	}
 }

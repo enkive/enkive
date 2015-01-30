@@ -25,7 +25,7 @@ import org.apache.james.mailbox.store.mail.MessageMapper;
 
 import com.linuxbox.enkive.authentication.AuthenticationService;
 import com.linuxbox.enkive.imap.mailbox.EnkiveMailboxSessionMapperFactory;
-import com.linuxbox.enkive.imap.message.mongo.MongoEnkiveImapMessageMapper;
+import com.linuxbox.enkive.imap.message.EnkiveImapMessageMapper;
 import com.linuxbox.enkive.imap.mongo.MongoEnkiveImapStore;
 import com.linuxbox.enkive.workspace.WorkspaceService;
 
@@ -73,9 +73,7 @@ public class MongoEnkiveMailboxSessionMapperFactory extends
 	@Override
 	protected MessageMapper<String> createMessageMapper(MailboxSession session)
 			throws MailboxException {
-		return new MongoEnkiveImapMessageMapper(session, new
-				MongoEnkiveImapStore(workspaceService.getSearchQueryBuilder()),
-				retrieverService);
+		return new EnkiveImapMessageMapper(session, new MongoEnkiveImapStore(
+				workspaceService.getSearchQueryBuilder()), retrieverService);
 	}
-
 }

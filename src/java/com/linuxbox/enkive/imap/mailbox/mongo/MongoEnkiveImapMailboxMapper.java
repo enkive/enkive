@@ -31,6 +31,7 @@ import org.apache.james.mailbox.model.MailboxPath;
 import org.apache.james.mailbox.store.mail.model.Mailbox;
 import org.apache.james.mailbox.store.mail.model.impl.SimpleMailbox;
 
+import com.linuxbox.enkive.imap.Constants;
 import com.linuxbox.enkive.imap.mailbox.EnkiveImapMailbox;
 import com.linuxbox.enkive.imap.mailbox.EnkiveImapMailboxMapper;
 import com.linuxbox.enkive.imap.mailbox.EnkiveMailboxSession;
@@ -99,8 +100,8 @@ public class MongoEnkiveImapMailboxMapper extends EnkiveImapMailboxMapper {
 				.getPersonalSpace(), session.getUser().getUserName(),
 				MailboxConstants.INBOX), 1));
 		mailboxes.add(new SimpleMailbox<String>(new MailboxPath(session
-				.getPersonalSpace(), session.getUser().getUserName(), "Trash"),
-				1));
+				.getPersonalSpace(), session.getUser().getUserName(),
+				Constants.MAILBOX_TRASH), 1));
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("Result of MongoEnkiveImapMailboxMapper.list for user \""
@@ -124,9 +125,9 @@ public class MongoEnkiveImapMailboxMapper extends EnkiveImapMailboxMapper {
 			MailboxPath inboxPath = new MailboxPath(session.getPersonalSpace(),
 					session.getUser().getUserName(), MailboxConstants.INBOX);
 			result = new SimpleMailbox<String>(inboxPath, 1);
-		} else if (mailboxName.getName().equals("Trash")) {
+		} else if (mailboxName.getName().equals(Constants.MAILBOX_TRASH)) {
 			MailboxPath trashPath = new MailboxPath(session.getPersonalSpace(),
-					session.getUser().getUserName(), "Trash");
+					session.getUser().getUserName(), Constants.MAILBOX_TRASH);
 			result = new SimpleMailbox<String>(trashPath, 1);
 		} else {
 			try {
@@ -189,9 +190,9 @@ public class MongoEnkiveImapMailboxMapper extends EnkiveImapMailboxMapper {
 			MailboxPath inboxPath = new MailboxPath(session.getPersonalSpace(),
 					session.getUser().getUserName(), MailboxConstants.INBOX);
 			mailboxes.add(new SimpleMailbox<String>(inboxPath, 1));
-		} else if (mailboxSearchPath.matches("Trash")) {
+		} else if (mailboxSearchPath.matches(Constants.MAILBOX_TRASH)) {
 			MailboxPath trashPath = new MailboxPath(session.getPersonalSpace(),
-					session.getUser().getUserName(), "Trash");
+					session.getUser().getUserName(), Constants.MAILBOX_TRASH);
 			mailboxes.add(new SimpleMailbox<String>(trashPath, 1));
 		} else {
 			String regex = mailboxSearchPath.replace(".", "+\\.+");
