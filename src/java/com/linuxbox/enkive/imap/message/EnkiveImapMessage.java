@@ -80,7 +80,6 @@ public class EnkiveImapMessage extends AbstractMessage<String> {
 	@Override
 	public void setUid(long uid) {
 		this.uid = uid;
-
 	}
 
 	@Override
@@ -126,7 +125,7 @@ public class EnkiveImapMessage extends AbstractMessage<String> {
 
 	@Override
 	public void setFlags(Flags flags) {
-
+		// do nothing; we hard-code our flags
 	}
 
 	@Override
@@ -202,9 +201,12 @@ public class EnkiveImapMessage extends AbstractMessage<String> {
 		return message;
 	}
 
-	public void setMessage(Message message) {
-		this.message = message;
-	}
+	/*
+	 * does not seem to be needed, especially since messages are retrieved from
+	 * back-end
+	 * *
+	 * public void setMessage(Message message) { this.message = message; }
+	 */
 
 	public boolean messageExists() {
 		return messageExists;
@@ -233,5 +235,4 @@ public class EnkiveImapMessage extends AbstractMessage<String> {
 						+ ". Message may be deleted.");
 			}
 	}
-
 }
