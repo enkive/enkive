@@ -65,8 +65,10 @@ public abstract class EnkiveImapMessageMapper extends
 		final long to = set.getUidTo();
 		final Type type = set.getType();
 
-		if (LOGGER.isInfoEnabled())
-			LOGGER.info("findInMailbox " + mailbox.getName());
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("findInMailbox " + mailbox.getName() + " ; from:"
+					+ from + " ; to:" + to + " ; type=" + type);
+		}
 
 		if (mailbox.getName().equals(MailboxConstants.INBOX)) {
 			results = new ArrayList<Message<String>>();
@@ -74,7 +76,6 @@ public abstract class EnkiveImapMessageMapper extends
 				results.add(new EnkiveImapTemplateMessage(
 						"ImapInboxEmailTemplate.ftl"));
 		} else {
-
 			switch (type) {
 			default:
 			case ALL:
@@ -94,8 +95,9 @@ public abstract class EnkiveImapMessageMapper extends
 				break;
 			}
 		}
-		return new PreviousItemRemovingIterator<Message<String>>(results.iterator());
 
+		return new PreviousItemRemovingIterator<Message<String>>(
+				results.iterator());
 	}
 
 	private List<Message<String>> findMessagesInMailboxBetweenUIDs(
@@ -105,7 +107,8 @@ public abstract class EnkiveImapMessageMapper extends
 		SortedMap<Long, String> uidMap = null;
 
 		if (LOGGER.isInfoEnabled())
-			LOGGER.info("findMessagesInMailboxBetweenUIDs " + mailbox.getName() + " " + from + " "  + to);
+			LOGGER.info("findMessagesInMailboxBetweenUIDs " + mailbox.getName()
+					+ " " + from + " " + to);
 
 		uidMap = getMailboxMessageIds(mailbox, from, to);
 
@@ -123,7 +126,7 @@ public abstract class EnkiveImapMessageMapper extends
 				}
 			}
 		}
-		
+
 		return messages;
 	}
 

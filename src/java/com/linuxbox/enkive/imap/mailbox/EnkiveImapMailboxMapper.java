@@ -51,7 +51,7 @@ public abstract class EnkiveImapMailboxMapper extends NonTransactionalMapper
 	public void delete(Mailbox<String> mailbox) throws MailboxException {
 
 	}
-
+	
 	@Override
 	public abstract Mailbox<String> findMailboxByPath(MailboxPath mailboxName)
 			throws MailboxException, MailboxNotFoundException;
