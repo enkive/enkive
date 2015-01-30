@@ -20,14 +20,26 @@ package com.linuxbox.util;
 
 import java.util.Iterator;
 
+/**
+ * The need for this class is uncertain. By its name, it's apparently supposed
+ * to remove the item prior to the current item that's retrieved, perhaps to
+ * reduce the number of references to items in the collection. As originally
+ * implemented, remove could be called twice on an item, once by this code and
+ * once by the caller of this code. So some logic has been added to prevent
+ * this.
+ * 
+ * Uncertain if this could be replaced with an iterator that removes an object
+ * from underlying collection as soon as it's retrieved here rather than waiting
+ * for the NEXT item to be retrieved.
+ */
 public class PreviousItemRemovingIterator<E> implements Iterator<E> {
-
 	Iterator<E> iterator;
-	boolean firstCall;
+	boolean currentRemoved;
 
 	public PreviousItemRemovingIterator(Iterator<E> iterator) {
 		this.iterator = iterator;
-		firstCall = true;
+		// prevent removal of non-retrieved item
+		currentRemoved = true;
 	}
 
 	@Override
@@ -37,17 +49,19 @@ public class PreviousItemRemovingIterator<E> implements Iterator<E> {
 
 	@Override
 	public E next() {
-		E item = iterator.next();
-		if (!firstCall)
-			remove();
-		else
-			firstCall = false;
-		return item;
+		if (!currentRemoved) {
+			iterator.remove();
+		}
+		currentRemoved = false;
+
+		return iterator.next();
 	}
 
 	@Override
 	public void remove() {
-		iterator.remove();
+		if (!currentRemoved) {
+			currentRemoved = true;
+			iterator.remove();
+		}
 	}
-
 }
