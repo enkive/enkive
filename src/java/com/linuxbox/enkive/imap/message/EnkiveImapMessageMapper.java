@@ -106,9 +106,10 @@ public abstract class EnkiveImapMessageMapper extends
 		int cur = 0;
 		SortedMap<Long, String> uidMap = null;
 
-		if (LOGGER.isInfoEnabled())
-			LOGGER.info("findMessagesInMailboxBetweenUIDs " + mailbox.getName()
-					+ " " + from + " " + to);
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("findMessagesInMailboxBetweenUIDs name:\""
+					+ mailbox.getName() + "\"; from:" + from + "; to:" + to);
+		}
 
 		uidMap = getMailboxMessageIds(mailbox, from, to);
 
@@ -159,7 +160,6 @@ public abstract class EnkiveImapMessageMapper extends
 
 		if (LOGGER.isInfoEnabled())
 			LOGGER.info("delete");
-
 	}
 
 	@Override
@@ -183,10 +183,8 @@ public abstract class EnkiveImapMessageMapper extends
 
 	@Override
 	public void endRequest() {
-
 		if (LOGGER.isInfoEnabled())
 			LOGGER.info("endRequest");
-
 	}
 
 	@Override
@@ -215,34 +213,26 @@ public abstract class EnkiveImapMessageMapper extends
 			LOGGER.info("move");
 
 		return null;
-
 	}
 
 	@Override
 	protected void begin() throws MailboxException {
-
 		if (LOGGER.isInfoEnabled())
 			LOGGER.info("begin");
-
 	}
 
 	@Override
 	protected void commit() throws MailboxException {
-
 		if (LOGGER.isInfoEnabled())
 			LOGGER.info("commit");
-
 	}
 
 	@Override
 	protected void rollback() throws MailboxException {
-
 		if (LOGGER.isInfoEnabled())
 			LOGGER.info("rollback");
-
 	}
 
 	public abstract SortedMap<Long, String> getMailboxMessageIds(
 			Mailbox<String> mailbox, long fromUid, long toUid);
-
 }
