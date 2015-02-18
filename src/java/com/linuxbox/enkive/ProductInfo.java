@@ -44,7 +44,7 @@ public interface ProductInfo {
 	 */
 
 	final static String PRODUCT = "Enkive CE";
-	final static String COPYRIGHT = "Copyright 2014 The Linux Box Corporation; all rights "
+	final static String COPYRIGHT = "Copyright 2015 Enkive, LLC; all rights "
 			+ "reserved except those granted under license.";
 	final static String LICENSE = "Licensed under the GNU Affero General Public License "
 			+ "version 3 or later.";
