@@ -48,6 +48,7 @@
 	<bean id="SearchQueryBuilder" name="MongoSearchQueryBuilder"
 		class="com.linuxbox.enkive.workspace.searchQuery.mongo.MongoSearchQueryBuilder">
 		<constructor-arg ref="WorkspaceQueriesDbInfo" />
+		<constructor-arg ref="WorkspacesDbInfo" />
 		<property name="searchResultBuilder" ref="SearchResultBuilder" />
 	</bean>
 

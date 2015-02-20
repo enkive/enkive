@@ -137,7 +137,7 @@ public class MongoEnkiveImapMailboxMapper extends EnkiveImapMailboxMapper {
 				// name should be prevented, but until then, at least insure we
 				// get an IMAP box
 				SearchQuery search = workspace.getSearchQueryBuilder()
-						.getSearchQueryByNameAndImap(mailboxName.getName(),
+						.getSearchQueryByWorkspaceNameImap(workspace, mailboxName.getName(),
 								true);
 				if (search == null) {
 					throw new MailboxNotFoundException(mailboxName);

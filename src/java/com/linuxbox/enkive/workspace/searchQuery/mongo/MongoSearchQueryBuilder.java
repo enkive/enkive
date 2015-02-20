@@ -192,24 +192,25 @@ public class MongoSearchQueryBuilder implements SearchQueryBuilder {
 		return query;
 	}
 
-//	@Override
-//	public SearchQuery getSearchQueryByNameAndImap(String name, boolean isImap)
-//			throws WorkspaceException {
-//		BasicDBObject searchObject = new BasicDBObject(SEARCHNAME, name);
-//		searchObject.append(SEARCHISIMAP, isImap);
-//
-//		DBObject queryObject = searchQueryColl.findOne(searchObject);
-//		if (queryObject == null) {
-//			return null;
-//		}
-//
-//		SearchQuery query = extractQuery(queryObject);
-//
-//		if (LOGGER.isInfoEnabled())
-//			LOGGER.info("Retrieved Search Query " + query.getName() + " - "
-//					+ query.getId());
-//		return query;
-//	}
+	// @Override
+	// public SearchQuery getSearchQueryByNameAndImap(String name, boolean
+	// isImap)
+	// throws WorkspaceException {
+	// BasicDBObject searchObject = new BasicDBObject(SEARCHNAME, name);
+	// searchObject.append(SEARCHISIMAP, isImap);
+	//
+	// DBObject queryObject = searchQueryColl.findOne(searchObject);
+	// if (queryObject == null) {
+	// return null;
+	// }
+	//
+	// SearchQuery query = extractQuery(queryObject);
+	//
+	// if (LOGGER.isInfoEnabled())
+	// LOGGER.info("Retrieved Search Query " + query.getName() + " - "
+	// + query.getId());
+	// return query;
+	// }
 
 	@Override
 	public SearchQuery getSearchQueryByWorkspaceNameImap(Workspace workspace,
@@ -222,6 +223,10 @@ public class MongoSearchQueryBuilder implements SearchQueryBuilder {
 
 		Object searchQueryList = workspaceColl.findOne(querySearch,
 				queryProjection).get(MongoWorkspaceConstants.SEARCH_QUERIES);
+
+		// TODO: remove
+		LOGGER.info("***** got list of quries as "
+				+ searchQueryList.getClass().getName());
 
 		BasicDBObject searchObject = new BasicDBObject(UUID, new BasicDBObject(
 				"$in", searchQueryList));
