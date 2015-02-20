@@ -35,11 +35,12 @@ public interface SearchQueryBuilder {
 
 	SearchQuery getSearchQuery(String searchQueryId) throws WorkspaceException;
 
-	SearchQuery getSearchQueryByName(String name) throws WorkspaceException;
-
-//	SearchQuery getSearchQueryByNameAndImap(String name, boolean isImap)
-//			throws WorkspaceException;
-
+	/**
+	 * It's vital that the workspace is passed in to limit the search to a given
+	 * workspace. Otherwise, mailboxes (IMAP mail folders) with the same name in
+	 * different workspaces bleed through to each other. So this replaces a
+	 * previous search that looked by name ignoring workspace (and IMAP status).
+	 */
 	SearchQuery getSearchQueryByWorkspaceNameImap(Workspace workspace,
 			String name, boolean isImap) throws WorkspaceException;
 

@@ -23,6 +23,7 @@ import org.apache.james.mailbox.exception.MailboxException;
 import org.apache.james.mailbox.store.mail.model.Mailbox;
 
 import com.linuxbox.enkive.imap.EnkiveImapStore;
+import com.linuxbox.enkive.imap.mailbox.EnkiveMailboxSession;
 import com.linuxbox.enkive.workspace.WorkspaceException;
 import com.linuxbox.enkive.workspace.searchQuery.SearchQuery;
 import com.linuxbox.enkive.workspace.searchQuery.SearchQueryBuilder;
@@ -40,9 +41,16 @@ public class MongoEnkiveImapStore extends EnkiveImapStore {
 			throws MailboxException {
 		SearchQuery query = null;
 		try {
-			query = searchQueryBuilder.getSearchQueryByName(mailbox.getName());
+			EnkiveMailboxSession enkiveSession = (EnkiveMailboxSession) session;
+			query = searchQueryBuilder.getSearchQueryByWorkspaceNameImap(
+					enkiveSession.getWorkspace(), mailbox.getName(), true);
 		} catch (WorkspaceException e) {
-			throw new MailboxException("Could not find query for mailbox " + mailbox.getName(), e);
+			throw new MailboxException("Could not find query for mailbox "
+					+ mailbox.getName(), e);
+		} catch (ClassCastException e) {
+			throw new MailboxException(
+					"Unexpected failed class cast from MailboxSession to EnkiveMailboxSession",
+					e);
 		}
 
 		long uid = 1;
