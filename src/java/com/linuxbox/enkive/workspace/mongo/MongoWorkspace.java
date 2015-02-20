@@ -61,7 +61,7 @@ public class MongoWorkspace extends Workspace {
 		workspaceObject.put(MongoWorkspaceConstants.CREATOR, getCreator());
 		workspaceObject.put(MongoWorkspaceConstants.WORKSPACENAME,
 				getWorkspaceName());
-		workspaceObject.put(MongoWorkspaceConstants.SEARCHES,
+		workspaceObject.put(MongoWorkspaceConstants.SEARCH_QUERIES,
 				getSearchUUIDs());
 		workspaceObject.put(MongoWorkspaceConstants.LASTQUERY,
 				getLastQueryUUID());

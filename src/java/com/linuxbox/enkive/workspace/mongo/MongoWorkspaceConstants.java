@@ -34,14 +34,14 @@ public class MongoWorkspaceConstants {
 	public static String WORKSPACENAME = "WorkspaceName";
 	public static String SEARCHLIST = "SearchList";
 	public static String LASTQUERY = "LastQuery";
-//	public static String SEARCHFOLDERID = "SearchFolderId";
+	public static String SEARCH_QUERIES = "SearchQueries";
+	//	public static String SEARCHFOLDERID = "SearchFolderId";
 
 	// Search Result Constants
 	public static String SEARCHQUERYID = "SearchQueryId";
 	public static String SEARCHRESULTS = "SearchResults";
 
 	// Search Query Constants
-	public static String SEARCHES = "SearchQueries";
 	public static String SEARCHNAME = "SearchName";
 	public static String SEARCHCRITERIA = "SearchCriteria";
 	public static String SEARCHRESULTID = "SearchResultId";

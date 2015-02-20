@@ -20,27 +20,29 @@ package com.linuxbox.enkive.workspace.searchQuery;
 
 import java.util.Collection;
 
+import com.linuxbox.enkive.workspace.Workspace;
 import com.linuxbox.enkive.workspace.WorkspaceException;
 
 /**
  * A factory interface for creating and finding @ref SeachQuery objects.
+ * 
  * @author dang
- *
+ * 
  */
 public interface SearchQueryBuilder {
 
-	public SearchQuery getSearchQuery() throws WorkspaceException;
+	SearchQuery getSearchQuery() throws WorkspaceException;
 
-	public SearchQuery getSearchQuery(String searchQueryId)
-			throws WorkspaceException;
+	SearchQuery getSearchQuery(String searchQueryId) throws WorkspaceException;
 
-	public SearchQuery getSearchQueryByName(String name)
-			throws WorkspaceException;
-	
-	public SearchQuery getSearchQueryByNameAndImap(String name, boolean isImap)
-			throws WorkspaceException;
+	SearchQuery getSearchQueryByName(String name) throws WorkspaceException;
 
-	public Collection<SearchQuery> getSearchQueries(
-			Collection<String> searchQueryUUIDs)
+//	SearchQuery getSearchQueryByNameAndImap(String name, boolean isImap)
+//			throws WorkspaceException;
+
+	SearchQuery getSearchQueryByWorkspaceNameImap(Workspace workspace,
+			String name, boolean isImap) throws WorkspaceException;
+
+	Collection<SearchQuery> getSearchQueries(Collection<String> searchQueryUUIDs)
 			throws WorkspaceException;
 }

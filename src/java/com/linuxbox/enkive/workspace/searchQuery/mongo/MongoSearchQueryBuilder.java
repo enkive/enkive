@@ -38,7 +38,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.bson.types.ObjectId;
 
+import com.linuxbox.enkive.workspace.Workspace;
 import com.linuxbox.enkive.workspace.WorkspaceException;
+import com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants;
 import com.linuxbox.enkive.workspace.searchQuery.SearchQuery;
 import com.linuxbox.enkive.workspace.searchQuery.SearchQueryBuilder;
 import com.linuxbox.enkive.workspace.searchResult.SearchResult;
@@ -62,20 +64,25 @@ public class MongoSearchQueryBuilder implements SearchQueryBuilder {
 	private final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.workspaces");
 
+	private DBCollection workspaceColl;
 	private DBCollection searchQueryColl;
 	private SearchResultBuilder searchResultBuilder;
 
-	public MongoSearchQueryBuilder(MongoClient m, String searchQueryDBName,
-			String searchQueryCollName) {
-		this(m.getDB(searchQueryDBName).getCollection(searchQueryCollName));
+	public MongoSearchQueryBuilder(MongoClient m, String dBName,
+			String searchQueryCollName, String workspaceColl) {
+		this(m.getDB(dBName).getCollection(searchQueryCollName), m
+				.getDB(dBName).getCollection(workspaceColl));
 	}
 
-	public MongoSearchQueryBuilder(MongoDbInfo dbInfo) {
-		this(dbInfo.getCollection());
+	public MongoSearchQueryBuilder(MongoDbInfo searchQueryInfo,
+			MongoDbInfo workspaceInfo) {
+		this(searchQueryInfo.getCollection(), workspaceInfo.getCollection());
 	}
 
-	public MongoSearchQueryBuilder(DBCollection searchQueryColl) {
+	public MongoSearchQueryBuilder(DBCollection searchQueryColl,
+			DBCollection workspaceColl) {
 		this.searchQueryColl = searchQueryColl;
+		this.workspaceColl = workspaceColl;
 	}
 
 	public SearchResultBuilder getSearchResultBuilder() {
@@ -185,12 +192,42 @@ public class MongoSearchQueryBuilder implements SearchQueryBuilder {
 		return query;
 	}
 
+//	@Override
+//	public SearchQuery getSearchQueryByNameAndImap(String name, boolean isImap)
+//			throws WorkspaceException {
+//		BasicDBObject searchObject = new BasicDBObject(SEARCHNAME, name);
+//		searchObject.append(SEARCHISIMAP, isImap);
+//
+//		DBObject queryObject = searchQueryColl.findOne(searchObject);
+//		if (queryObject == null) {
+//			return null;
+//		}
+//
+//		SearchQuery query = extractQuery(queryObject);
+//
+//		if (LOGGER.isInfoEnabled())
+//			LOGGER.info("Retrieved Search Query " + query.getName() + " - "
+//					+ query.getId());
+//		return query;
+//	}
+
 	@Override
-	public SearchQuery getSearchQueryByNameAndImap(String name, boolean isImap)
-			throws WorkspaceException {
-		BasicDBObject searchObject = new BasicDBObject(SEARCHNAME, name);
+	public SearchQuery getSearchQueryByWorkspaceNameImap(Workspace workspace,
+			String name, boolean isImap) throws WorkspaceException {
+		BasicDBObject querySearch = new BasicDBObject(
+				MongoWorkspaceConstants.UUID, workspace.getWorkspaceUUID());
+
+		BasicDBObject queryProjection = new BasicDBObject(
+				MongoWorkspaceConstants.SEARCH_QUERIES, 1);
+
+		Object searchQueryList = workspaceColl.findOne(querySearch,
+				queryProjection).get(MongoWorkspaceConstants.SEARCH_QUERIES);
+
+		BasicDBObject searchObject = new BasicDBObject(UUID, new BasicDBObject(
+				"$in", searchQueryList));
 		searchObject.append(SEARCHISIMAP, isImap);
-		
+		searchObject.append(SEARCHNAME, name);
+
 		DBObject queryObject = searchQueryColl.findOne(searchObject);
 		if (queryObject == null) {
 			return null;
