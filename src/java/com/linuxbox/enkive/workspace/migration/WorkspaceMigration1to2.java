@@ -46,9 +46,9 @@ import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 
 /**
- * Migrates the Workspace data from DB version 1 to 2.  This changes the relative uses
- * of query and results.  This means that the UI and workspaces reference
- * queries, and the query references it's result.  Metadata is moved from result
+ * Migrates the Workspace data from DB version 1 to 2. This changes the relative
+ * uses of query and results. This means that the UI and workspaces reference
+ * queries, and the query references it's result. Metadata is moved from result
  * to query, and references are updated.
  */
 public class WorkspaceMigration1to2 extends DbMigration {
@@ -92,11 +92,14 @@ public class WorkspaceMigration1to2 extends DbMigration {
 		}
 
 		public void load(String id) {
-			DBObject resultObject = collection.findOne(ObjectId.massageToObjectId(id));
+			DBObject resultObject = collection.findOne(ObjectId
+					.massageToObjectId(id));
 
 			this.id = id;
-			timestamp = (Date) resultObject.get(Workspace1to2Constants.EXECUTIONTIMESTAMP);
-			executedBy = (String) resultObject.get(Workspace1to2Constants.EXECUTEDBY);
+			timestamp = (Date) resultObject
+					.get(Workspace1to2Constants.EXECUTIONTIMESTAMP);
+			executedBy = (String) resultObject
+					.get(Workspace1to2Constants.EXECUTEDBY);
 
 			BasicDBList searchResults = (BasicDBList) resultObject
 					.get(Workspace1to2Constants.SEARCHRESULTS);
@@ -106,15 +109,18 @@ public class WorkspaceMigration1to2 extends DbMigration {
 			while (searchResultsIterator.hasNext())
 				messageIDSet.add((String) searchResultsIterator.next());
 
-			status = (String) resultObject.get(Workspace1to2Constants.SEARCHSTATUS);
-			queryId = (String) resultObject.get(Workspace1to2Constants.SEARCHQUERYID);
+			status = (String) resultObject
+					.get(Workspace1to2Constants.SEARCHSTATUS);
+			queryId = (String) resultObject
+					.get(Workspace1to2Constants.SEARCHQUERYID);
 			if (resultObject.get(Workspace1to2Constants.SEARCHISSAVED) != null)
-				isSaved = (Boolean) resultObject.get(Workspace1to2Constants.SEARCHISSAVED);
+				isSaved = (Boolean) resultObject
+						.get(Workspace1to2Constants.SEARCHISSAVED);
 		}
 
 		/**
-		 * Migrate a SearchResult document.  Convert the set of message UUIDs to a map
-		 * of <UID, UUID> pairs, and save the result.
+		 * Migrate a SearchResult document. Convert the set of message UUIDs to
+		 * a map of <UID, UUID> pairs, and save the result.
 		 */
 		public void migrateDocumentImpl() throws DbMigrationException {
 			messageIDMap = new HashMap<Integer, String>();
@@ -131,7 +137,8 @@ public class WorkspaceMigration1to2 extends DbMigration {
 					BasicDBObjectBuilder.start(messageIDMap).get());
 			resultObject.put(Workspace1to2Constants.SEARCHQUERYID, queryId);
 
-			DBObject toUpdate = collection.findOne(ObjectId.massageToObjectId(id));
+			DBObject toUpdate = collection.findOne(ObjectId
+					.massageToObjectId(id));
 			collection.update(toUpdate, resultObject);
 		}
 	}
@@ -167,22 +174,30 @@ public class WorkspaceMigration1to2 extends DbMigration {
 
 		@SuppressWarnings("unchecked")
 		public void load(String id) {
-			DBObject queryObject = collection.findOne(ObjectId.massageToObjectId(id));
+			DBObject queryObject = collection.findOne(ObjectId
+					.massageToObjectId(id));
 
 			this.id = id;
 			name = (String) queryObject.get(Workspace1to2Constants.SEARCHNAME);
-			resultId = (String) queryObject.get(Workspace1to2Constants.SEARCHRESULTID);
-			criteria = ((BasicDBObject) queryObject.get(Workspace1to2Constants.SEARCHCRITERIA)).toMap();
-			timestamp = (Date) queryObject.get(Workspace1to2Constants.EXECUTIONTIMESTAMP);
-			executedBy = (String) queryObject.get(Workspace1to2Constants.EXECUTEDBY);
-			status = (String) queryObject.get(Workspace1to2Constants.SEARCHSTATUS);
+			resultId = (String) queryObject
+					.get(Workspace1to2Constants.SEARCHRESULTID);
+			criteria = ((BasicDBObject) queryObject
+					.get(Workspace1to2Constants.SEARCHCRITERIA)).toMap();
+			timestamp = (Date) queryObject
+					.get(Workspace1to2Constants.EXECUTIONTIMESTAMP);
+			executedBy = (String) queryObject
+					.get(Workspace1to2Constants.EXECUTEDBY);
+			status = (String) queryObject
+					.get(Workspace1to2Constants.SEARCHSTATUS);
 			if (queryObject.get(Workspace1to2Constants.SEARCHISSAVED) != null)
-				isSaved = (Boolean) queryObject.get(Workspace1to2Constants.SEARCHISSAVED);
+				isSaved = (Boolean) queryObject
+						.get(Workspace1to2Constants.SEARCHISSAVED);
 		}
 
 		/**
-		 * Migrate a SearchQuery document.  Copy all the metadata from the associated
-		 * SearchResult, and save the query.  Finally, migrate associated result.
+		 * Migrate a SearchQuery document. Copy all the metadata from the
+		 * associated SearchResult, and save the query. Finally, migrate
+		 * associated result.
 		 */
 		public void migrateDocumentImpl() throws DbMigrationException {
 			// Load values that are being moved
@@ -202,7 +217,8 @@ public class WorkspaceMigration1to2 extends DbMigration {
 			queryObject.put(Workspace1to2Constants.SEARCHNAME, name);
 			queryObject.put(Workspace1to2Constants.SEARCHRESULTID, resultId);
 			queryObject.put(Workspace1to2Constants.SEARCHCRITERIA, criteria);
-			queryObject.put(Workspace1to2Constants.EXECUTIONTIMESTAMP, timestamp);
+			queryObject.put(Workspace1to2Constants.EXECUTIONTIMESTAMP,
+					timestamp);
 			queryObject.put(Workspace1to2Constants.EXECUTEDBY, executedBy);
 			queryObject.put(Workspace1to2Constants.SEARCHSTATUS, status);
 			queryObject.put(Workspace1to2Constants.SEARCHISSAVED, isSaved);
@@ -210,7 +226,8 @@ public class WorkspaceMigration1to2 extends DbMigration {
 			queryObject.put(Workspace1to2Constants.LASTMONOTONICID, null);
 			queryObject.put(Workspace1to2Constants.IMAPUIDVALIDITY, 0);
 
-			DBObject toUpdate = collection.findOne(ObjectId.massageToObjectId(id));
+			DBObject toUpdate = collection.findOne(ObjectId
+					.massageToObjectId(id));
 			collection.update(toUpdate, queryObject);
 		}
 	}
@@ -230,31 +247,42 @@ public class WorkspaceMigration1to2 extends DbMigration {
 			super(WorkspaceMigration1to2.getCollection(dbInfo, COLLECTIONNAME));
 			this.dbInfo = dbInfo;
 
-			workspaceUUID = workspaceObject.get(Workspace1to2Constants.UUID).toString();
-			creationDate = (Date) workspaceObject.get(Workspace1to2Constants.CREATIONDATE);
-			creator = (String) workspaceObject.get(Workspace1to2Constants.CREATOR);
-			workspaceName = (String) workspaceObject.get(Workspace1to2Constants.WORKSPACENAME);
-			lastQueryUUID = (String) workspaceObject.get(Workspace1to2Constants.LASTQUERY);
+			workspaceUUID = workspaceObject.get(Workspace1to2Constants.UUID)
+					.toString();
+			creationDate = (Date) workspaceObject
+					.get(Workspace1to2Constants.CREATIONDATE);
+			creator = (String) workspaceObject
+					.get(Workspace1to2Constants.CREATOR);
+			workspaceName = (String) workspaceObject
+					.get(Workspace1to2Constants.WORKSPACENAME);
+			lastQueryUUID = (String) workspaceObject
+					.get(Workspace1to2Constants.LASTQUERY);
 
-			BasicDBList searches = (BasicDBList) workspaceObject.get(Workspace1to2Constants.SEARCHES);
+			BasicDBList searches = (BasicDBList) workspaceObject
+					.get(Workspace1to2Constants.SEARCHES);
 
 			searchUUIDs = new HashSet<String>();
-			Iterator<Object> searchesIterator = searches.iterator();
-			while (searchesIterator.hasNext())
-				searchUUIDs.add((String) searchesIterator.next());
+
+			if (null != searches) {
+				Iterator<Object> searchesIterator = searches.iterator();
+				while (searchesIterator.hasNext()) {
+					searchUUIDs.add((String) searchesIterator.next());
+				}
+			}
 		}
 
 		/**
-		 * Migrate a Workspace document.  For each result in the workspace, migrate
-		 * the query associated with it, and save the query's ID in a new list.
-		 * Replace the list of results with a list of queries, and save.
+		 * Migrate a Workspace document. For each result in the workspace,
+		 * migrate the query associated with it, and save the query's ID in a
+		 * new list. Replace the list of results with a list of queries, and
+		 * save.
 		 */
 		@Override
 		public void migrateDocumentImpl() throws DbMigrationException {
 			// Need to convert request UUIDs to query UUIDs
 			Collection<String> queryUUIDs = new HashSet<String>();
 
-			for (String id: searchUUIDs) {
+			for (String id : searchUUIDs) {
 				MongoQueryDoc1to2 query = new MongoQueryDoc1to2(dbInfo);
 				try {
 					query.loadByResultId(id);
@@ -272,16 +300,21 @@ public class WorkspaceMigration1to2 extends DbMigration {
 
 		private void save() {
 			BasicDBObject workspaceObject = new BasicDBObject();
-			workspaceObject.put(Workspace1to2Constants.CREATIONDATE, creationDate);
-			workspaceObject.put(Workspace1to2Constants.MODIFIEDDATE,
-					new Date(System.currentTimeMillis()));
+			workspaceObject.put(Workspace1to2Constants.CREATIONDATE,
+					creationDate);
+			workspaceObject.put(Workspace1to2Constants.MODIFIEDDATE, new Date(
+					System.currentTimeMillis()));
 			workspaceObject.put(Workspace1to2Constants.CREATOR, creator);
-			workspaceObject.put(Workspace1to2Constants.WORKSPACENAME, workspaceName);
+			workspaceObject.put(Workspace1to2Constants.WORKSPACENAME,
+					workspaceName);
 			workspaceObject.put(Workspace1to2Constants.SEARCHES, searchUUIDs);
-			workspaceObject.put(Workspace1to2Constants.LASTQUERY, lastQueryUUID);
-			workspaceObject.put(Workspace1to2Constants.LASTQUERY, lastQueryUUID);
+			workspaceObject
+					.put(Workspace1to2Constants.LASTQUERY, lastQueryUUID);
+			workspaceObject
+					.put(Workspace1to2Constants.LASTQUERY, lastQueryUUID);
 
-			DBObject toUpdate = collection.findOne(ObjectId.massageToObjectId(workspaceUUID));
+			DBObject toUpdate = collection.findOne(ObjectId
+					.massageToObjectId(workspaceUUID));
 			collection.update(toUpdate, workspaceObject);
 		}
 	}
@@ -292,8 +325,7 @@ public class WorkspaceMigration1to2 extends DbMigration {
 				Workspace1to2Constants.EXECUTIONTIMESTAMP,
 				Workspace1to2Constants.EXECUTEDBY,
 				Workspace1to2Constants.SEARCHSTATUS,
-				Workspace1to2Constants.SEARCHISSAVED,
-				};
+				Workspace1to2Constants.SEARCHISSAVED, };
 		private static final String COLLECTIONNAME = "Workspace Search Results Collection";
 
 		public MongoResultColl1to2(DbInfo dbInfo) {
@@ -329,21 +361,24 @@ public class WorkspaceMigration1to2 extends DbMigration {
 		}
 
 		/**
-		 * Migrate the Workspace collection.  Just walk the workspaces migrating them.
+		 * Migrate the Workspace collection. Just walk the workspaces migrating
+		 * them.
 		 */
 		@Override
 		public void migrateCollectionImpl() throws DbMigrationException {
 			DBCursor cursor = collection.find();
 
 			while (cursor.hasNext()) {
-				MongoWorkspaceDoc1to2 workspace = new MongoWorkspaceDoc1to2(cursor.next(), dbInfo);
+				MongoWorkspaceDoc1to2 workspace = new MongoWorkspaceDoc1to2(
+						cursor.next(), dbInfo);
 				workspace.migrateDocument();
 			}
 		}
 
 	}
 
-	public WorkspaceMigration1to2(DbMigrator migrator) throws DbMigrationException {
+	public WorkspaceMigration1to2(DbMigrator migrator)
+			throws DbMigrationException {
 		super(migrator, 1, 2);
 	}
 
@@ -358,18 +393,22 @@ public class WorkspaceMigration1to2 extends DbMigration {
 			resultMigrator.migrateCollection();
 			// We also need to drop the (now unused) searchFolders and
 			// searchFoldersSearchResults collections.
-			WorkspaceMigration1to2.getCollection(dbInfo, "Workspace Search Folders Collection").drop();
-			WorkspaceMigration1to2.getCollection(dbInfo, "Workspace Search Folder Results Collection").drop();
+			WorkspaceMigration1to2.getCollection(dbInfo,
+					"Workspace Search Folders Collection").drop();
+			WorkspaceMigration1to2.getCollection(dbInfo,
+					"Workspace Search Folder Results Collection").drop();
 		} catch (Exception e) {
-			throw new DbMigrationException("Failed to migrate Workspace from 1 to 2: ", e);
+			LOGGER.error("Could not migrate workspace from 1 to 2", e);
+			throw new DbMigrationException(
+					"Failed to migrate Workspace from 1 to 2: ", e);
 		}
 	}
 
 	public static DBCollection getCollection(DbInfo dbInfo, String serviceName) {
 		MultiDbInfo multiDbInfo = (MultiDbInfo) dbInfo;
-		MongoDbInfo mongoDbInfo = (MongoDbInfo)multiDbInfo.getByServiceName(serviceName);
+		MongoDbInfo mongoDbInfo = (MongoDbInfo) multiDbInfo
+				.getByServiceName(serviceName);
 		return mongoDbInfo.getCollection();
 	}
-
 
 }
