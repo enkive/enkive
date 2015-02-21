@@ -38,7 +38,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.bson.types.ObjectId;
 
+import com.linuxbox.enkive.workspace.Workspace;
 import com.linuxbox.enkive.workspace.WorkspaceException;
+import com.linuxbox.enkive.workspace.mongo.MongoWorkspaceConstants;
 import com.linuxbox.enkive.workspace.searchQuery.SearchQuery;
 import com.linuxbox.enkive.workspace.searchQuery.SearchQueryBuilder;
 import com.linuxbox.enkive.workspace.searchResult.SearchResult;
@@ -62,20 +64,25 @@ public class MongoSearchQueryBuilder implements SearchQueryBuilder {
 	private final static Log LOGGER = LogFactory
 			.getLog("com.linuxbox.enkive.workspaces");
 
+	private DBCollection workspaceColl;
 	private DBCollection searchQueryColl;
 	private SearchResultBuilder searchResultBuilder;
 
-	public MongoSearchQueryBuilder(MongoClient m, String searchQueryDBName,
-			String searchQueryCollName) {
-		this(m.getDB(searchQueryDBName).getCollection(searchQueryCollName));
+	public MongoSearchQueryBuilder(MongoClient m, String dBName,
+			String searchQueryCollName, String workspaceColl) {
+		this(m.getDB(dBName).getCollection(searchQueryCollName), m
+				.getDB(dBName).getCollection(workspaceColl));
 	}
 
-	public MongoSearchQueryBuilder(MongoDbInfo dbInfo) {
-		this(dbInfo.getCollection());
+	public MongoSearchQueryBuilder(MongoDbInfo searchQueryInfo,
+			MongoDbInfo workspaceInfo) {
+		this(searchQueryInfo.getCollection(), workspaceInfo.getCollection());
 	}
 
-	public MongoSearchQueryBuilder(DBCollection searchQueryColl) {
+	public MongoSearchQueryBuilder(DBCollection searchQueryColl,
+			DBCollection workspaceColl) {
 		this.searchQueryColl = searchQueryColl;
+		this.workspaceColl = workspaceColl;
 	}
 
 	public SearchResultBuilder getSearchResultBuilder() {
@@ -115,23 +122,6 @@ public class MongoSearchQueryBuilder implements SearchQueryBuilder {
 	}
 
 	@Override
-	public SearchQuery getSearchQueryByName(String name)
-			throws WorkspaceException {
-		BasicDBObject nameSearchObject = new BasicDBObject(SEARCHNAME, name);
-		DBObject queryObject = searchQueryColl.findOne(nameSearchObject);
-		if (queryObject == null) {
-			return null;
-		}
-
-		SearchQuery query = extractQuery(queryObject);
-
-		if (LOGGER.isInfoEnabled())
-			LOGGER.info("Retrieved Search Query " + query.getName() + " - "
-					+ query.getId());
-		return query;
-	}
-
-	@Override
 	public Collection<SearchQuery> getSearchQueries(
 			Collection<String> searchQueryUUIDs) throws WorkspaceException {
 
@@ -146,7 +136,6 @@ public class MongoSearchQueryBuilder implements SearchQueryBuilder {
 				dbQuery));
 		while (searchQuery.hasNext()) {
 			queries.add(extractQuery(searchQuery.next()));
-
 		}
 		return queries;
 	}
@@ -185,12 +174,56 @@ public class MongoSearchQueryBuilder implements SearchQueryBuilder {
 		return query;
 	}
 
+	/**
+	 * It's vital that the workspace is passed in to limit the search to a given
+	 * workspace. Otherwise, mailboxes (IMAP mail folders) with the same name in
+	 * different workspaces bleed through to each other. So this replaces a
+	 * previous search that looked by name ignoring workspace (and IMAP status).
+	 */
 	@Override
-	public SearchQuery getSearchQueryByNameAndImap(String name, boolean isImap)
-			throws WorkspaceException {
-		BasicDBObject searchObject = new BasicDBObject(SEARCHNAME, name);
+	public SearchQuery getSearchQueryByWorkspaceNameImap(Workspace workspace,
+			String name, boolean isImap) throws WorkspaceException {
+		// first get a list of search query IDs associated with this workspace
+
+		BasicDBObject querySearch = new BasicDBObject(
+				MongoWorkspaceConstants.UUID,
+				ObjectId.massageToObjectId(workspace.getWorkspaceUUID()));
+
+		BasicDBObject queryProjection = new BasicDBObject(
+				MongoWorkspaceConstants.SEARCH_QUERIES, 1);
+
+		DBObject searchQueryResult = workspaceColl.findOne(querySearch,
+				queryProjection);
+		if (null == searchQueryResult) {
+			return null;
+		}
+
+		Object searchQueryListObj = searchQueryResult
+				.get(MongoWorkspaceConstants.SEARCH_QUERIES);
+		if (null == searchQueryListObj) {
+			return null;
+		} else if (!(searchQueryListObj instanceof BasicDBList)) {
+			LOGGER.error("received list of search queries that was neither NULL nor a BasicDBList");
+			return null;
+		}
+
+		BasicDBList searchQueryList = (BasicDBList) searchQueryListObj;
+
+		// convert the list of search query id strings to a list of ObjectIDs to
+		// use in query
+
+		BasicDBList searchQueryOidList = new BasicDBList();
+		for (Object o : searchQueryList) {
+			searchQueryOidList.add(ObjectId.massageToObjectId(o));
+		}
+
+		// now query searches in the workspace by name and IMAP type
+
+		BasicDBObject searchObject = new BasicDBObject(UUID, new BasicDBObject(
+				"$in", searchQueryOidList));
 		searchObject.append(SEARCHISIMAP, isImap);
-		
+		searchObject.append(SEARCHNAME, name);
+
 		DBObject queryObject = searchQueryColl.findOne(searchObject);
 		if (queryObject == null) {
 			return null;

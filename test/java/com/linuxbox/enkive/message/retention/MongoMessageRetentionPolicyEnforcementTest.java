@@ -95,7 +95,8 @@ public class MongoMessageRetentionPolicyEnforcementTest {
 		searchService.finishSetup();
 		MongoSearchQueryBuilder queryBuilder = new MongoSearchQueryBuilder(m,
 				TestingConstants.MONGODB_TEST_DATABASE,
-				TestingConstants.MONGODB_TEST_QUERY_COLLECTION);
+				TestingConstants.MONGODB_TEST_QUERY_COLLECTION,
+				TestingConstants.MONGODB_TEST_WORKSPACE_COLLECTION);
 		queryBuilder.setSearchResultBuilder(new MongoSearchResultBuilder(m,
 				TestingConstants.MONGODB_TEST_DATABASE,
 				TestingConstants.MONGODB_TEST_WORKSPACE_COLLECTION));

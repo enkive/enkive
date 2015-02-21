@@ -20,27 +20,30 @@ package com.linuxbox.enkive.workspace.searchQuery;
 
 import java.util.Collection;
 
+import com.linuxbox.enkive.workspace.Workspace;
 import com.linuxbox.enkive.workspace.WorkspaceException;
 
 /**
  * A factory interface for creating and finding @ref SeachQuery objects.
+ * 
  * @author dang
- *
+ * 
  */
 public interface SearchQueryBuilder {
 
-	public SearchQuery getSearchQuery() throws WorkspaceException;
+	SearchQuery getSearchQuery() throws WorkspaceException;
 
-	public SearchQuery getSearchQuery(String searchQueryId)
-			throws WorkspaceException;
+	SearchQuery getSearchQuery(String searchQueryId) throws WorkspaceException;
 
-	public SearchQuery getSearchQueryByName(String name)
-			throws WorkspaceException;
-	
-	public SearchQuery getSearchQueryByNameAndImap(String name, boolean isImap)
-			throws WorkspaceException;
+	/**
+	 * It's vital that the workspace is passed in to limit the search to a given
+	 * workspace. Otherwise, mailboxes (IMAP mail folders) with the same name in
+	 * different workspaces bleed through to each other. So this replaces a
+	 * previous search that looked by name ignoring workspace (and IMAP status).
+	 */
+	SearchQuery getSearchQueryByWorkspaceNameImap(Workspace workspace,
+			String name, boolean isImap) throws WorkspaceException;
 
-	public Collection<SearchQuery> getSearchQueries(
-			Collection<String> searchQueryUUIDs)
+	Collection<SearchQuery> getSearchQueries(Collection<String> searchQueryUUIDs)
 			throws WorkspaceException;
 }

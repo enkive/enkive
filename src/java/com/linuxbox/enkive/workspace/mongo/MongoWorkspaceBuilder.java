@@ -102,7 +102,7 @@ public class MongoWorkspaceBuilder implements WorkspaceBuilder {
 //		workspace.setSearchFolderID((String) workspaceObject
 //				.get(MongoWorkspaceConstants.SEARCHFOLDERID));
 		BasicDBList searches = (BasicDBList) workspaceObject
-				.get(MongoWorkspaceConstants.SEARCHES);
+				.get(MongoWorkspaceConstants.SEARCH_QUERIES);
 
 		Collection<String> searchUUIDs = new HashSet<String>();
 		Iterator<Object> searchesIterator = searches.iterator();
