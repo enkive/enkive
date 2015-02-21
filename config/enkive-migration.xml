@@ -80,6 +80,7 @@
 	</bean>
 	<bean class="com.linuxbox.enkive.docstore.migration.DocStoreMigration2to3">
 		<constructor-arg ref="DocStoreMigrator" />
+		<constructor-arg value="${enkive.docstore.basepath}" />
 	</bean>
 
 	<!-- DOCUMENT LOCKING SERVICE -->

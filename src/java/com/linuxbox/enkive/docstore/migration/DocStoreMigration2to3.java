@@ -39,14 +39,12 @@ import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 
 /**
- * Migrates the DocStore data from DB version 2 to 3.  This adds a monotonic
- * ID field to every message.
+ * Migrates the DocStore data from DB version 2 to 3. This adds a monotonic ID
+ * field to every message.
  */
 public class DocStoreMigration2to3 extends DbMigration {
 	public static final String FILESTORE_INFO = "Document Storage File Service";
 	public static final String GRIDSTORE_INFO = "Document Storage GridFS Service";
-
-	public static final String FILE_BASE_PROP = "enkive.docstore.basepath";
 
 	public static final String OBJECT_ID_KEY = "_id";
 	public static final String FILENAME_KEY = "filename";
@@ -58,6 +56,8 @@ public class DocStoreMigration2to3 extends DbMigration {
 	public DBCollection gridCollection;
 	public ConvenienceFileDocStoreService fileDocStore;
 	public ConvenienceMongoGridDocStoreService gridDocStore;
+
+	final String fileBaseProperty;
 
 	public static class Doc2to3Constants {
 		public static String MESSAGE_ID = "_id";
@@ -73,7 +73,7 @@ public class DocStoreMigration2to3 extends DbMigration {
 		}
 
 		public void migrateDocumentImpl() throws DbMigrationException {
-			String gridID = (String)object.get(FILENAME_KEY);
+			String gridID = (String) object.get(FILENAME_KEY);
 
 			try {
 				Document doc = gridDocStore.retrieve(gridID);
@@ -102,7 +102,8 @@ public class DocStoreMigration2to3 extends DbMigration {
 		}
 
 		/**
-		 * Migrate the DocStore collection.  Just walk the messages migrating them.
+		 * Migrate the DocStore collection. Just walk the messages migrating
+		 * them.
 		 */
 		@Override
 		public void migrateCollectionImpl() throws DbMigrationException {
@@ -119,8 +120,10 @@ public class DocStoreMigration2to3 extends DbMigration {
 
 	}
 
-	public DocStoreMigration2to3(DbMigrator migrator) throws DbMigrationException {
+	public DocStoreMigration2to3(DbMigrator migrator, String fileBase)
+			throws DbMigrationException {
 		super(migrator, 2, 3);
+		this.fileBaseProperty = fileBase;
 	}
 
 	@Override
@@ -128,18 +131,23 @@ public class DocStoreMigration2to3 extends DbMigration {
 		LOGGER.info("Running DocStore migration 2 to 3");
 
 		MultiDbInfo multiDbInfo = (MultiDbInfo) dbInfo;
-		MongoDbInfo fileDbInfo = (MongoDbInfo)multiDbInfo.getByServiceName(FILESTORE_INFO);
-		MongoGridDbInfo gridDbInfo = (MongoGridDbInfo)multiDbInfo.getByServiceName(GRIDSTORE_INFO);
+		MongoDbInfo fileDbInfo = (MongoDbInfo) multiDbInfo
+				.getByServiceName(FILESTORE_INFO);
+		MongoGridDbInfo gridDbInfo = (MongoGridDbInfo) multiDbInfo
+				.getByServiceName(GRIDSTORE_INFO);
 		gridCollection = gridDbInfo.getCollection();
-		fileDocStore = new ConvenienceFileDocStoreService(
-				props.getProperty(FILE_BASE_PROP, null), fileDbInfo.getCollection());
-		gridDocStore = new ConvenienceMongoGridDocStoreService(gridDbInfo.getGridFs(), gridCollection);
+		fileDocStore = new ConvenienceFileDocStoreService(fileBaseProperty,
+				fileDbInfo.getCollection());
+		gridDocStore = new ConvenienceMongoGridDocStoreService(
+				gridDbInfo.getGridFs(), gridCollection);
 
 		try {
 			fileDocStore.startup();
 			gridDocStore.startup();
 		} catch (DocStoreException e) {
-			throw new DbMigrationException("Failed to migrate DocStore from 2 to 3: failed to start FileDocStoreService: ", e);
+			throw new DbMigrationException(
+					"Failed to migrate DocStore from 2 to 3: failed to start FileDocStoreService: ",
+					e);
 		}
 
 		try {
@@ -147,7 +155,8 @@ public class DocStoreMigration2to3 extends DbMigration {
 			msMigrator.migrateCollection();
 			gridCollection.drop();
 		} catch (Exception e) {
-			throw new DbMigrationException("Failed to migrate DocStore from 2 to 3: ", e);
+			throw new DbMigrationException(
+					"Failed to migrate DocStore from 2 to 3: ", e);
 		} finally {
 			try {
 				fileDocStore.shutdown();
@@ -161,6 +170,4 @@ public class DocStoreMigration2to3 extends DbMigration {
 			}
 		}
 	}
-
-
 }
