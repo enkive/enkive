@@ -6,7 +6,7 @@
 		$(this).attr("checked",status);
 		})
 	}
-	$(document).on('click', 'tr.message td', function(){
+	$('tr.message td').on('click', function(){
 		var currentId = $(this).parent().attr('id');
 		if(currentId && !$(this).hasClass('search_action')) {
 			$(this).fancybox({
@@ -22,13 +22,13 @@
 		}
 	});
 	
-	$(document).on('click', '.pagingLink', function() {
+	$('.pagingLink').on('click', function() {
 	    var link = $(this).attr("href");
 	    $('#main').load(link + " #main");
 	    $(this).removeAttr("href");
 	});
 	
-	$(document).on('click', '.sortable', function() {
+	$('.sortable').on('click', function() {
 	    var link = $(this).attr("href");
 	    $('#main').load(link + " #main");
 	});

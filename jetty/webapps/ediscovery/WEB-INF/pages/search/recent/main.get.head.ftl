@@ -8,25 +8,25 @@
 		$(this).attr("checked",status);
 		})
 	}
-    $(document).on('click', 'tr.search_result td', function() {
+    $('tr.search_result td').on('click', function() {
         var id = $(this).parent().attr("id");
         if(id && !$(this).hasClass('search_action')) {
             window.location = "${url.context}/search/recent/view?searchid=" + id;
         }
     });	
-    $(document).on('click', 'th input', function() {
+    $('th input').on('click', function() {
         var id = $(this).parent().attr("id");
         if(id && !$(this).hasClass('search_action')) {
             window.location = "${url.context}/search/recent/view?searchid=" + id;
         }
     });	
-	$(document).on('click', '.pagingLink', function() {
+	$('.pagingLink').on('click', function() {
 	    var link = $(this).attr("href");
 	    $('#main').load(link + " #main");
 	    $(this).removeAttr("href");
 	});
 		
-	$(document).on('click', '.sortable', function() {
+	$('.sortable').on('click', function() {
 	    var link = $(this).attr("href");
 	    $('#main').load(link + " #main");
 	});
